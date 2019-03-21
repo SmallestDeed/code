@@ -1,0 +1,163 @@
+package com.sandu.search.storage.product;
+
+import com.sandu.search.common.constant.PlatformConstant;
+import com.sandu.search.entity.elasticsearch.po.metadate.ProductPlatformRelPo;
+import com.sandu.search.entity.elasticsearch.po.product.ProductPlatformData;
+import com.sandu.search.exception.MetaDataException;
+import com.sandu.search.service.metadata.MetaDataService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 产品平台元数据存储(全平台数据过滤)
+ *
+ * @date 20180228
+ * @auth pengxuangang
+ */
+@Slf4j
+@Component
+public class ProductPlatformMetaDataStorage {
+
+    private final static String CLASS_LOG_PREFIX = "产品平台元数据存储(全平台数据过滤):";
+    //产品平台元数据Map<产品ID,产品平台数据>
+    private static Map<Integer, ProductPlatformData> productPlatformRelMap = new HashMap<>();
+    //元数据服务
+    @Autowired
+    private MetaDataService metaDataService;
+
+    /**
+     * 销毁数据,降低内存占用
+     */
+    public void destory() {
+        if (null != productPlatformRelMap) {
+            productPlatformRelMap = null;
+        }
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param isEnforceLoad 是否强制更新
+     */
+    public void updateData(boolean isEnforceLoad) {
+
+        //若无强制更新则更新前判断是否已有数据
+        if (!isEnforceLoad) {
+            if (null != productPlatformRelMap && 0 < productPlatformRelMap.size()) {
+                return;
+            }
+        }
+
+        //产品平台元数据
+        List<ProductPlatformRelPo> productPlatformRelPoList;
+        try {
+            //获取数据
+            log.info(CLASS_LOG_PREFIX + "开始获取产品平台元数据....");
+            productPlatformRelPoList = metaDataService.queryAllPlatformProductMetaData();
+            log.info(CLASS_LOG_PREFIX + "获取产品平台元数据完成,总条数:{}", (null == productPlatformRelPoList ? 0 : productPlatformRelPoList.size()));
+        } catch (MetaDataException e) {
+            log.error(CLASS_LOG_PREFIX + "获取产品平台元数据失败: MetaDataException:{}", e);
+            throw new NullPointerException(CLASS_LOG_PREFIX + "获取产品平台元数据失败,List<ProductPlatformRelPo> is null.MetaDataException:" + e);
+        }
+
+        //临时对象
+        Map<Integer, ProductPlatformData> tempProductPlatformRelMap = new HashMap<>();
+
+        //转换Map
+        if (null != productPlatformRelPoList && 0 != productPlatformRelPoList.size()) {
+            productPlatformRelPoList.forEach(productPlatformRelPo -> {
+                //检查对象/产品ID/平台ID
+
+                if (null != productPlatformRelPo && 0 < productPlatformRelPo.getProductId() && !StringUtils.isEmpty(productPlatformRelPo.getPlatformCode())) {
+
+                    //产品ID
+                    int productId = productPlatformRelPo.getProductId();
+                    //产品平台对象
+                    ProductPlatformData productPlatformData = new ProductPlatformData();
+
+                    //更新数据
+                    if (tempProductPlatformRelMap.containsKey(productId)) {
+                        productPlatformData = tempProductPlatformRelMap.get(productId);
+                    }
+
+                    switch (productPlatformRelPo.getPlatformCode()) {
+                        //2B-移动端
+                        case PlatformConstant.PLATFORM_CODE_TOB_MOBILE:
+                            productPlatformData.setPlatformProductToBMobile(productPlatformRelPo);
+                            break;
+                        //2B-PC
+                        case PlatformConstant.PLATFORM_CODE_TOB_PC:
+                            productPlatformData.setPlatformProductToBPc(productPlatformRelPo);
+                            break;
+                        //品牌2C-网站
+                        case PlatformConstant.PLATFORM_CODE_TOC_SITE:
+                            productPlatformData.setPlatformProductToCSite(productPlatformRelPo);
+                            break;
+                        //2C-移动端
+                        case PlatformConstant.PLATFORM_CODE_TOC_MOBILE:
+                            productPlatformData.setPlatformProductToCMobile(productPlatformRelPo);
+                            break;
+                        //三度-后台管理
+                        case PlatformConstant.PLATFORM_CODE_SANDU_MANAGER:
+                            productPlatformData.setPlatformProductSanduManager(productPlatformRelPo);
+                            break;
+                        //户型绘制工具
+                        case PlatformConstant.PLATFORM_CODE_HOUSE_DRAW:
+                            productPlatformData.setPlatformProductHouseDraw(productPlatformRelPo);
+                            break;
+                        //商家管理后台
+                        case PlatformConstant.PLATFORM_CODE_MERCHANTS_MANAGER:
+                            productPlatformData.setPlatformProductMerchantsManager(productPlatformRelPo);
+                            break;
+                        //测试
+                        case PlatformConstant.PLATFORM_CODE_TEST:
+                            productPlatformData.setPlatformProductTest(productPlatformRelPo);
+                            break;
+                        //U3D转换插件
+                        case PlatformConstant.PLATFORM_CODE_U3D_PLUGIN:
+                            productPlatformData.setPlatformProductU3dPlugin(productPlatformRelPo);
+                            break;
+                        default:
+                            log.warn(CLASS_LOG_PREFIX + "无法识别平台编码,productPlatformRelPo:{}", productPlatformRelPo.toString());
+                    }
+
+                    //装入Map
+                    tempProductPlatformRelMap.put(productId, productPlatformData);
+                }
+            });
+        }
+
+        //装回对象
+        productPlatformRelMap = null;
+        productPlatformRelMap = tempProductPlatformRelMap;
+    }
+
+    /**
+     * 根据产品ID获取产品平台数据
+     *
+     * @param productId 产品ID
+     * @return
+     */
+    public ProductPlatformData queryProductPlatformByProductId(Integer productId) {
+        if (null == productId || 0 == productId) {
+            return null;
+        }
+
+        if (null == productPlatformRelMap || 0 >= productPlatformRelMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        if (productPlatformRelMap.containsKey(productId)) {
+            return productPlatformRelMap.get(productId);
+        }
+
+        return null;
+    }
+}

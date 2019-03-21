@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.design.dao.DesignPlanCheckMapper">
+<!--<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>-->
+	<!-- **插入定义** -->
+	<insert id="insertSelective" parameterType="com.nork.design.model.DesignPlanCheck"  useGeneratedKeys="true" keyProperty="id">
+		insert into design_plan_check
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		<if test="planId!= null">plan_id, </if>
+		<if test="userId!= null">user_id, </if>
+		<if test="sysCode!= null">sys_code, </if>
+		<if test="creator!= null">creator, </if>
+		<if test="gmtCreate!= null">gmt_create, </if>
+		<if test="modifier!= null">modifier, </if>
+		<if test="gmtModified!= null">gmt_modified, </if>
+		<if test="isDeleted!= null">is_deleted, </if>
+		<if test="att1!= null">att1, </if>
+		<if test="att2!= null">att2, </if>
+		<if test="numa1!= null">numa1, </if>
+		<if test="numa2!= null">numa2, </if>
+		<if test="remark!= null">remark, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="planId!= null">  #{planId,jdbcType=INTEGER}, </if>
+		<if test="userId!= null">  #{userId,jdbcType=INTEGER}, </if>
+		<if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="att1!= null">  #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  #{att2,jdbcType=VARCHAR}, </if>
+		<if test="numa1!= null">  #{numa1,jdbcType=INTEGER}, </if>
+		<if test="numa2!= null">  #{numa2,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>	
+		</trim>
+	</insert>
+
+	<!-- **更新定义** -->
+	<update id="updateByPrimaryKeySelective" parameterType="com.nork.design.model.DesignPlanCheck">
+		update design_plan_check
+		<set>
+		<if test="planId!= null"> plan_id = #{planId,jdbcType=INTEGER}, </if>
+		<if test="userId!= null"> user_id =  #{userId,jdbcType=VARCHAR}, </if>
+		<if test="sysCode!= null">  sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  creator = #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  modifier = #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="att1!= null">  att1 = #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  att2 = #{att2,jdbcType=VARCHAR}, </if>
+		<if test="numa1!= null">  numa1 = #{numa1,jdbcType=INTEGER}, </if>
+		<if test="numa2!= null">  numa2 = #{numa2,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  remark = #{remark,jdbcType=VARCHAR}, </if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<!-- **删除定义** -->
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from design_plan_check
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	
+	<!-- **常量定义** -->
+	<sql id="All_Column_List">
+		id,plan_id,user_id,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,att1,att2,numa1,numa2,remark
+	</sql>
+	
+	<!-- **结果定义** -->
+	<resultMap id="AllResultMap" type="com.nork.design.model.DesignPlanCheck">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="plan_id" property="planId" jdbcType="INTEGER" />
+		<result  column="user_id" property="userId" jdbcType="INTEGER" />
+		<result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="att1" property="att1" jdbcType="VARCHAR" />
+		<result  column="att2" property="att2" jdbcType="VARCHAR" />
+		<result  column="numa1" property="numa1" jdbcType="INTEGER" />
+		<result  column="numa2" property="numa2" jdbcType="INTEGER" />
+		<result  column="remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	
+	
+	
+	
+	
+	
+	
+	<!-- **查询定义** -->
+	<!-- 按主键查询 -->
+	<select id="selectByPrimaryKey" resultMap="AllResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="All_Column_List" />
+		from design_plan_check
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+		parameterType="com.nork.design.model.DesignPlanCheck">
+		select
+		<include refid="All_Column_List" />
+		from design_plan_check
+        where 1=1
+		<if test="planId!= null">  and plan_id = #{planId,jdbcType=INTEGER} </if>
+		<if test="userId!= null">  and user_id = #{userId,jdbcType=INTEGER} </if>
+		
+		<if test="sysCode!= null">  and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="creator!= null">  and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="gmtCreate!= null">  and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+		<if test="modifier!= null">  and modifier = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="gmtModified!= null">  and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP} </if>
+		<if test="isDeleted!= null">  and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1!= null">  and att1 = #{att1,jdbcType=VARCHAR} </if>
+		<if test="att2!= null">  and att2 = #{att2,jdbcType=VARCHAR} </if>
+		<if test="numa1!= null">  and numa1 = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2!= null">  and numa2 = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark!= null">  and remark = #{remark,jdbcType=VARCHAR} </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order}
+			<if test="orderNum != null and  orderNum !='' ">
+				${orderNum}
+			</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">
+		   order by ${orders}
+		</if>
+	</select>
+	
+	<!-- 分页汇总 -->
+	<select id="selectCount" resultType="int"
+		parameterType="com.nork.design.model.DesignPlanCheck">
+		SELECT COUNT(*) FROM design_plan_check
+		WHERE 1=1 
+		<if test="planId!= null">  and plan_id = #{planId,jdbcType=INTEGER} </if>
+		<if test="userId!= null">  and user_id = #{userId,jdbcType=INTEGER} </if>
+		<if test="sysCode!= null">  and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="creator!= null">  and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="gmtCreate!= null">  and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+		<if test="modifier!= null">  and modifier = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="gmtModified!= null">  and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP} </if>
+		<if test="isDeleted!= null">  and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1!= null">  and att1 = #{att1,jdbcType=VARCHAR} </if>
+		<if test="att2!= null">  and att2 = #{att2,jdbcType=VARCHAR} </if>
+		<if test="numa1!= null">  and numa1 = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2!= null">  and numa2 = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark!= null">  and remark = #{remark,jdbcType=VARCHAR} </if>
+	</select>
+ 
+    <!-- 其他Map等查询方式 -->
+ 
+ 
+ 
+ 
+	<!-- **通过设计方案id  删除 审核人员** -->
+	<delete id="deletedBydesignPlanId" parameterType="java.lang.Integer">
+		delete from design_plan_check
+		where plan_id = #{id,jdbcType=INTEGER}
+	</delete>
+	
+	
+	
+	
+	 	<!--  方案推荐数据 -->
+ 	<select id="getDesignPlanCheckList" resultMap="planRecommendedResultMap" parameterType="com.nork.design.model.DesignPlanCheck">
+ 	
+				 select 
+		DISTINCT dp.id as plan_id,rrp.pic_path as cover_path,dp.plan_name,dp.is_release,
+		dp.gmt_modified,dp.gmt_create,su.user_name as 'creator' ,sc.space_areas , sc.space_function_id,
+		dp.release_time,dp.living_id,dp.house_id,dp.remark,dp.plan_source,dp.is_default_decorate
+		from   design_plan  as dp  
+		LEFT JOIN  design_plan_brand  as dpb  on(dp.id  = dpb.plan_id  )
+		LEFT JOIN  base_brand   as bb on(dpb.brand_id = bb.id)
+		LEFT JOIN  design_plan_check as dpc on(dp.id = dpc.plan_id)
+		LEFT JOIN  design_templet as dt on(dp.design_template_id = dt.id )
+		LEFT JOIN  space_common as sc on(sc.id = dt.space_common_id)
+		LEFT JOIN  res_render_pic as rrp on(dp.cover_pic_id = rrp.id )
+		LEFT JOIN  sys_user as su on (dp.user_id = su.id)
+		where  1 = 1
+			and dp.is_deleted = 0
+ 			and (dp.is_release = 1 or dp.is_release = 3 )
+ 			and dpc.user_id = #{userId,jdbcType=INTEGER}
+ 		<if test="spaceFunctionId!= null">
+			and	sc.space_function_id = #{spaceFunctionId,jdbcType=INTEGER}
+		</if>
+<!-- 		<if test="planNumber!= null and planNumber !='' "> -->
+<!-- 			and	dp.plan_number = #{planNumber,jdbcType=VARCHAR} -->
+<!-- 		</if> -->
+		<if test="planName!= null">
+<!-- 			and	dp.plan_name = #{planName,jdbcType=VARCHAR} -->
+			and	dp.plan_name like CONCAT(#{planName,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="brandName!= null">
+			and	bb.brand_name = #{brandName,jdbcType=VARCHAR}
+		</if>
+		<if test="planNumber!= null  and planNumber!='' ">
+			and	dp.plan_number like CONCAT(CONCAT('%',#{planNumber,jdbcType=VARCHAR}),'%')
+		</if>
+		order by dp.release_time desc
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+	
+	<!--  方案推荐数据 -->
+ 	<select id="getDesignPlanCheckCount" resultType="int" parameterType="com.nork.design.model.DesignPlanCheck">
+				select  count(DISTINCT dp.id)
+		from   design_plan  as dp  
+		LEFT JOIN  design_plan_brand  as dpb  on(dp.id  = dpb.plan_id  )
+		LEFT JOIN  base_brand   as bb on(dpb.brand_id = bb.id)
+		LEFT JOIN  design_plan_check as dpc on(dp.id = dpc.plan_id)
+		LEFT JOIN  design_templet as dt on(dp.design_template_id = dt.id )
+		LEFT JOIN  space_common as sc on(sc.id = dt.space_common_id)
+		LEFT JOIN  res_render_pic as rrp on(dp.cover_pic_id = rrp.id )
+		LEFT JOIN  sys_user as su on (dp.user_id = su.id)
+		where  1 = 1
+			and dp.is_deleted = 0
+ 			and (dp.is_release = 1 or dp.is_release = 3 )
+ 			and dpc.user_id = #{userId,jdbcType=INTEGER}
+ 		<if test="spaceFunctionId!= null">
+			and	sc.space_function_id = #{spaceFunctionId,jdbcType=INTEGER}
+		</if>
+<!-- 		<if test="planNumber!= null and planNumber !='' "> -->
+<!-- 			and	dp.plan_number = #{planNumber,jdbcType=VARCHAR} -->
+<!-- 		</if> -->
+		<if test="planName!= null">
+<!-- 			and	dp.plan_name = #{planName,jdbcType=VARCHAR} -->
+			and	dp.plan_name like CONCAT(#{planName,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="brandName!= null">
+			and	bb.brand_name = #{brandName,jdbcType=VARCHAR}
+		</if>
+		<if test="planNumber!= null  and planNumber!='' ">
+			and	dp.plan_number like CONCAT(CONCAT('%',#{planNumber,jdbcType=VARCHAR}),'%')
+		</if>	 
+	</select>
+	
+	<resultMap id="planRecommendedResultMap" type="com.nork.design.model.DesignPlanRecommendedResult">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="plan_id" property="planId" jdbcType="INTEGER" />
+		<result  column="plan_name" property="planName" jdbcType="VARCHAR" />
+		<result  column="cover_path" property="coverPath" jdbcType="VARCHAR" />
+		<result  column="is_release" property="isRelease" jdbcType="INTEGER" /> 
+		<result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" /> 
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" /> 
+		<result  column="creator" property="creator" jdbcType="VARCHAR" /> 
+		<result  column="space_areas" property="spaceAreas" jdbcType="VARCHAR" /> 
+		<result  column="style_name" property="styleName" jdbcType="VARCHAR" /> 
+		<result  column="release_time" property="releaseTime" jdbcType="TIMESTAMP" /> 
+		<result  column="space_function_id" property="spaceFunctionId" jdbcType="INTEGER" /> 
+		<result  column="living_id" property="livingId" jdbcType="INTEGER" /> 
+		<result  column="house_id" property="houseId" jdbcType="INTEGER" /> 
+		<result  column="remark" property="remark" jdbcType="VARCHAR" /> 
+		<result  column="plan_source" property="planSource" jdbcType="VARCHAR" /> 
+		<result  column="is_default_decorate" property="isDefaultDecorate" jdbcType="INTEGER" /> 
+		</resultMap>
+</mapper>

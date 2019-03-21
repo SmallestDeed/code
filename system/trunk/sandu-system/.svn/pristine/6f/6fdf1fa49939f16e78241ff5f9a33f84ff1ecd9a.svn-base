@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.act3.dao.LuckyWheelPrizeMapper">
+
+  <select id="selectById" parameterType="java.lang.String" resultType="com.sandu.api.act3.model.LuckyWheelPrize">
+    select 
+    *
+    from wx_act_lucky_wheel_prize
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="selectList" resultType="com.sandu.api.act3.model.LuckyWheelPrize">
+		select
+		*
+		from wx_act_lucky_wheel_prize
+		where is_deleted=0
+		<if test="id != null">
+			and id = #{id,jdbcType=VARCHAR}
+		</if>
+		<if test="actId != null">
+        and act_id = #{actId,jdbcType=VARCHAR}
+      </if>
+      <if test="name != null">
+        and name = #{name,jdbcType=VARCHAR}
+      </if>
+      <if test="img != null">
+        and img = #{img,jdbcType=VARCHAR}
+      </if>
+      <if test="num != null">
+        and num = #{num,jdbcType=INTEGER}
+      </if>
+      <if test="remainNum != null">
+        and remain_num = #{remainNum,jdbcType=INTEGER}
+      </if>
+      <if test="type != null">
+        and type = #{type,jdbcType=INTEGER}
+      </if>
+      <if test="value != null">
+        and value = #{value,jdbcType=DOUBLE}
+      </if>
+      <if test="probability != null">
+       and probability = #{probability}
+      </if>
+      <if test="orderSeq != null">
+        and order_seq = #{orderSeq,jdbcType=INTEGER}
+      </if>
+      <if test="numPerDay != null">
+        and num_per_day = #{numPerDay,jdbcType=INTEGER}
+      </if>
+      <if test="todayRemainNum != null">
+       and today_remain_num = #{todayRemainNum,jdbcType=INTEGER}
+      </if>
+      <if test="appId != null">
+        and app_id = #{appId,jdbcType=VARCHAR}
+      </if>
+      <if test="companyId != null">
+        and company_id = #{companyId,jdbcType=BIGINT}
+      </if>
+      <if test="gmtCreate != null">
+       and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+      </if>
+      order by order_seq
+	</select>
+
+  <insert id="insert" parameterType="com.sandu.api.act3.model.LuckyWheelPrize">
+    insert into wx_act_lucky_wheel_prize
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="actId != null">
+        act_id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="img != null">
+        img,
+      </if>
+      <if test="num != null">
+        num,
+      </if>
+      <if test="remainNum != null">
+        remain_num,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="value != null">
+        value,
+      </if>
+      <if test="probability != null">
+        probability,
+      </if>
+      <if test="orderSeq != null">
+        order_seq,
+      </if>
+      <if test="numPerDay != null">
+        num_per_day,
+      </if>
+      <if test="todayRemainNum != null">
+        today_remain_num,
+      </if>
+      <if test="appId != null">
+        app_id,
+      </if>
+      <if test="companyId != null">
+        company_id,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="actId != null">
+        #{actId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="img != null">
+        #{img,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=INTEGER},
+      </if>
+      <if test="remainNum != null">
+        #{remainNum,jdbcType=INTEGER},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="value != null">
+        #{value,jdbcType=DOUBLE},
+      </if>
+      <if test="probability != null">
+        #{probability},
+      </if>
+      <if test="orderSeq != null">
+        #{orderSeq,jdbcType=INTEGER},
+      </if>
+      <if test="numPerDay != null">
+        #{numPerDay,jdbcType=INTEGER},
+      </if>
+      <if test="todayRemainNum != null">
+        #{todayRemainNum,jdbcType=INTEGER},
+      </if>
+      <if test="appId != null">
+        #{appId,jdbcType=VARCHAR},
+      </if>
+      <if test="companyId != null">
+        #{companyId,jdbcType=BIGINT},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateById" parameterType="com.sandu.api.act3.model.LuckyWheelPrize">
+    update wx_act_lucky_wheel_prize
+    <set>
+      <if test="actId != null">
+        act_id = #{actId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+       <if test="img != null">
+        img = #{img,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        num = #{num,jdbcType=INTEGER},
+      </if>
+      <if test="remainNum != null">
+        remain_num = #{remainNum,jdbcType=INTEGER},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="value != null">
+        value = #{value,jdbcType=DOUBLE},
+      </if>
+      <if test="probability != null">
+        probability = #{probability},
+      </if>
+      <if test="orderSeq != null">
+        order_seq = #{orderSeq,jdbcType=INTEGER},
+      </if>
+      <if test="numPerDay != null">
+        num_per_day = #{numPerDay,jdbcType=INTEGER},
+      </if>
+      <if test="todayRemainNum != null">
+        today_remain_num = #{todayRemainNum,jdbcType=INTEGER},
+      </if>
+      <if test="appId != null">
+        app_id = #{appId,jdbcType=VARCHAR},
+      </if>
+      <if test="companyId != null">
+        company_id = #{companyId,jdbcType=BIGINT},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+  <update id="updateToReducePrizeNum" >
+        update wx_act_lucky_wheel_prize 
+        	set 
+        		remain_num = remain_num-1,
+        		today_remain_num = today_remain_num-1
+        where 
+        	id = #{id}
+        	and remain_num>0 
+        	and today_remain_num>0
+        	and is_deleted=0
+  </update>
+  
+   <update id="updateToReinitTodayPrizeNum" >
+		update wx_act_lucky_wheel_prize
+		set 
+			remain_num = remain_num+today_remain_num,  <!-- 把昨天剩余的加到remain_num里面 -->
+			today_remain_num= if(remain_num>num_per_day,num_per_day,remain_num),  <!-- 重置当天剩余数量 -->
+			remain_num = remain_num-if(remain_num>num_per_day,num_per_day,remain_num) <!-- 重新计算总的剩余数量  -->
+		where 
+		is_deleted=0
+		and type!=0 
+		and act_id in
+		<foreach collection="actIdList" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+  </update>
+  
+  
+ 
+</mapper>

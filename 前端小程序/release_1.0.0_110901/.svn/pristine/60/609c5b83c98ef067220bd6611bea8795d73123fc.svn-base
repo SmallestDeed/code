@@ -1,0 +1,35 @@
+<view class='news'>
+  <view class='news-nav'>
+    <view class='nav-item' 
+      wx:for='{{navList}}' 
+      wx:key='{{index}}' 
+      bindtap='switchover' 
+      data-index='{{index}}'
+      data-item='{{item}}'>
+      {{item.name}}
+      <view wx:if="{{navIconIndex==index+1}}" class='nav-icon'></view>
+    </view>
+  </view>
+  <view class='news-list'>
+    <view class='news-item' 
+        wx:if="{{newsList&&newsList.length>0}}"
+        wx:for='{{newsList}}' 
+        wx:key='{{index}}' 
+        data-item='{{item}}'
+        bindtap='goSupplyDetail'>
+      <image src='{{item.coverPicPath?resourcePath+item.coverPicPath:staticImageUrl+"news_pic_nor.png"}}' 
+        class='item-img'>
+      </image>
+      <view class='item-info'>
+        <view class='item-title'>{{item.title}}</view>
+        <view class='item-data'>浏览 {{item.viewNum?item.viewNum:0}}  |  {{item.gmtModified}}发布</view>
+        <view class='item-name'>
+          <image src='{{item.userHeadPic?resourcePath+item.userHeadPic:staticImageUrl+"header.png"}}' 
+            class='name-img'>
+          </image>{{item.userName}}
+        </view>
+      </view>
+    </view>
+    <empty-page emptyPageObj="{{emptyPageObj}}" wx:if="{{!newsList.length>0}}"></empty-page>
+  </view>
+</view>

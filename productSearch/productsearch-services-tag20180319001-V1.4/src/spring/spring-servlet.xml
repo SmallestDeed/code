@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:cache="http://www.springframework.org/schema/cache"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/mvc
+	http://www.springframework.org/schema/mvc/spring-mvc.xsd	
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/util
+	http://www.springframework.org/schema/util/spring-util.xsd 
+    http://www.springframework.org/schema/cache   
+    http://www.springframework.org/schema/cache/spring-cache.xsd 
+    http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+">
+	<context:component-scan base-package="com.nork.*.controller" />
+ 	<bean class="com.nork.common.adapter.CorsConfigurerAdapter"></bean>
+	<bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor" />
+    <bean id="springContextHolder" class="com.nork.common.util.SpringContextHolder" /> 
+    
+    
+    <bean id="customObjectMapper" class="com.nork.common.util.CustomObjectMapper"></bean> 
+    <bean id="customObjectMapper2" class="com.fasterxml.jackson.databind.ObjectMapper">
+              <!-- 处理responseBody 里面日期类型 -->  
+		     <property name="dateFormat">  
+		         <bean class="java.text.SimpleDateFormat">  
+		             <constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss" />  
+		         </bean>  
+		     </property>  
+		     <!-- 时区指定 -->  
+		     <property name="timeZone" value="GMT+8" />
+    </bean>
+
+	   <bean id="mappingJacksonHttpMessageConverter"
+		       class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<list>
+			    <value>text/html;charset=UTF-8</value>
+				<value>application/json;charset=UTF-8</value>
+			</list>
+		</property>
+		<property name="objectMapper" ref="customObjectMapper2"></property>
+	</bean>
+	   <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+        <property name="messageConverters">
+            <list>
+                 <ref bean="mappingJacksonHttpMessageConverter" />
+            </list>
+        </property>
+    </bean>
+
+	<!-- 定义视图文件解析 -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="order" value="5"/>
+		<property name="prefix" value="/pages/" />
+		<property name="suffix" value=".jsp" />
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView">
+		</property>
+	</bean>
+	
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="UTF-8" />
+		<property name="maxUploadSize" value="104857600" />
+		<!--<property name="maxInMemorySize" value="4096" />-->
+		<property name="maxInMemorySize" value="10485760" />
+		<property name="resolveLazily" value="true" />
+	</bean>
+
+	<bean id="exceptionResolver"
+		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+			    <prop key="org.springframework.web.bind.ServletRequestBindingException">errors/error</prop> 
+			    <prop key="java.lang.IllegalArgumentException">errors/error</prop>
+			    <prop key="org.springframework.validation.BindException">errors/error</prop>
+				<prop key="java.lang.Exception">errors/error</prop>
+				<prop key="java.lang.Throwable">errors/error</prop>
+				<prop key="java.sql.SQLException">errors/error</prop>
+				<prop key="java.io.IOException">errors/error</prop>
+				<prop key="java.lang.RuntimeException">errors/error</prop>
+			</props>
+		</property>
+		<property name="statusCodes">
+			<props>
+				<prop key="errors/error">500</prop>
+				<prop key="errors/404">404</prop>
+			</props>
+		</property>
+		<property name="warnLogCategory" value="WARN"></property>
+		<property name="defaultErrorView" value="errors/error"></property>
+		<property name="defaultStatusCode" value="500"></property>
+	</bean>
+	
+	<bean id="controllerMethodInterceptor" class="com.nork.common.interceptor.ControllerMethodInterceptor"/>
+	
+	<!-- 方法拦截器（拦截Controller包中的所有被RequestMapping注解的方法） MethodInterceptor -->
+	<aop:config proxy-target-class="true">
+		<aop:pointcut id="controllerMethodPointcut" expression="execution(* com.nork.*.controller..*(..)) and
+        	@annotation(org.springframework.web.bind.annotation.RequestMapping)"/>
+		<aop:advisor advice-ref="controllerMethodInterceptor" pointcut-ref="controllerMethodPointcut" />
+	</aop:config>
+
+</beans>

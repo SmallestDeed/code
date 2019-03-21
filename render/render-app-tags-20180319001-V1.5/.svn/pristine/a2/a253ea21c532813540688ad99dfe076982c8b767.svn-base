@@ -1,0 +1,261 @@
+package com.nork.render.controller;
+
+import com.nork.common.constant.util.SystemCommonUtil;
+import com.nork.common.model.LoginUser;
+import com.nork.common.model.ResponseEnvelope;
+import com.nork.common.properties.AppProperties;
+import com.nork.common.util.JsonUtil;
+import com.nork.common.util.Utils;
+import com.nork.render.model.OrderResponse;
+import com.nork.render.service.IAutoRenderFactory;
+import com.nork.render.service.IAutoRenderService;
+import com.nork.render.service.IAutoRenderTaskApi;
+import com.nork.system.model.ResRenderPic;
+import com.sandu.common.LoginContext;
+
+import net.sf.json.JSONObject;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.nio.file.Path;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.validation.constraints.Null;
+
+/**
+ * Description:
+ *
+ * @author 何文
+ * @version 1.0
+ * Company:Sandu
+ * Copyright:Copyright(c)2017
+ * @date 2017/12/12
+ */
+@Controller
+@RequestMapping("/{style}/render/server")
+public class AddRenderTaskController {
+	private final static String CLASS_LOG_PREFIX = "[添加渲染任务服务]:";
+	private final static Logger logger = LogManager.getLogger(AutoRenderTaskController.class);
+
+	@Autowired
+	private HttpServletRequest request;
+    @Autowired
+    private IAutoRenderTaskApi autoRenderTaskApi;
+
+    /**
+     * 添加渲染任务
+     * @param resRenderPic
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/addRenderTask")
+    public ResponseEnvelope addRenderTask(@RequestBody ResRenderPic resRenderPic){
+
+		Map<String, String> headerMap = new HashMap<String, String>();
+		Enumeration headerNames = request.getHeaderNames();
+		while (headerNames.hasMoreElements()) {
+			String key = (String) headerNames.nextElement();
+			String value = request.getHeader(key);
+			headerMap.put(key, value);
+		}
+		logger.error("addRenderTask-headerNames:{}.", JsonUtil.toJson(headerMap));
+
+    	String token = request.getHeader("Authorization");//获取token
+    	String platformCode = request.getHeader("Platform-Code");//获取平台编码
+    	String companyDomainName = request.getHeader("Referer"); // 获取域名
+    	//获取登录用户信息
+    	Map map =LoginContext.getTokenData();
+		if (null == map) {
+			return new ResponseEnvelope<>(false,"请重新登录！");
+		}
+//		if (null == companyDomainName) {
+//			return new ResponseEnvelope<>(false,"获取域名失败！");
+//		}
+		
+		LoginUser loginUser= new LoginUser();
+		String loginName = (String) map.get("uname");
+		long id =(long) map.get("uid");
+		loginUser.setId(new Long(id).intValue());
+		loginUser.setLoginName(loginName);
+//		LoginUser loginUser = SystemCommonUtil.getLoginUserInfoByAuthData(request);
+    	Integer userId = loginUser.getId();
+    	Double totalFee = resRenderPic.getTotalFee();
+    	String renderTaskType = resRenderPic.getRenderTaskType();
+    	String payType = resRenderPic.getPayType();
+    	Integer houseId = resRenderPic.getHouseId();
+    	//区分推荐方案ID 或副本方案ID
+    	Integer planId = null;
+    	//订单号
+    	String orderNo = null;
+    	String orderNoStr = null;
+    	if (resRenderPic.getTaskSource().intValue() == 1) { 
+    		//移动端
+    		if (totalFee > 0) {
+    			logger.error(" 1   ======totalFee"+totalFee);
+    			logger.error("移动端getOrderNoMobile====userId="+userId+"&totalFee="+totalFee+"&payType="+payType+"&renderTaskType="+renderTaskType+"&token"+token+"&platformCode"+platformCode+"&companyDomainName="+companyDomainName);
+    			orderNoStr = getOrderNoMobile(userId, totalFee, payType, renderTaskType,token,platformCode,companyDomainName);
+			}else {
+				logger.error(" 2   ======totalFee"+totalFee);
+				logger.error("移动端getBaoNianOrderNo====renderTaskType="+renderTaskType+"&token"+token+"&platformCode"+platformCode+"&companyDomainName="+companyDomainName);
+				//包年包月
+				orderNoStr = getBaoNianOrderNo(renderTaskType,token,platformCode,companyDomainName);
+				
+			}
+    		if (orderNoStr.equals("false") || orderNoStr.equals("")) {
+				return new ResponseEnvelope<>(false,"获取订单号失败！");
+			}
+    		logger.info(CLASS_LOG_PREFIX+"addRenderTask 移动端===>orderNoStr"+orderNoStr);
+        	JSONObject jsonObject = JSONObject.fromObject(orderNoStr);
+        	String msg = (String) jsonObject.get("message");
+	    	if (jsonObject.get("obj").equals("null")) {
+	    		return new ResponseEnvelope<>(false,msg);
+	    	} else {
+	    		orderNo = (String) jsonObject.get("obj");
+			}
+		}else {
+			//运营网站
+			if (resRenderPic.getOperationSource().intValue() == 0) {
+				planId = resRenderPic.getDesignPlanSceneId();
+			}else {
+				planId = resRenderPic.getPlanRecommendedId();
+			}
+			logger.error("运营网站getOrderNoWeb====userId="+userId+"&renderTaskType="+renderTaskType+"&planId="+planId+"&houseId="+houseId+"&token"+token+"&platformCode"+platformCode+"&companyDomainName="+companyDomainName);
+			orderNoStr = getOrderNoWeb(userId, renderTaskType, planId, houseId,token,platformCode,companyDomainName);
+			if (orderNoStr.equals("false") || orderNoStr.equals("")) {
+				return new ResponseEnvelope<>(false,"获取订单号失败！");
+			}
+			logger.info(CLASS_LOG_PREFIX+"addRenderTask 运营网站===>orderNoStr"+orderNoStr);
+
+			OrderResponse orderResponse = JsonUtil.fromJson(orderNoStr, OrderResponse.class);
+	    	if (null != orderResponse) {
+				logger.error(CLASS_LOG_PREFIX+"addRenderTask 运营网站=========>jsonObject"+orderResponse.toString());
+			}
+	    	String msg = orderResponse.getMessage();
+			Object obj = orderResponse.getObj();
+			if (StringUtils.isEmpty(obj)) {
+	    		return new ResponseEnvelope<>(false,msg);
+	    	} else {
+	    		logger.error("addRenderTask 运营网站=========>obj"+ obj);
+	    		orderNo = (String) obj;
+			}
+		}
+
+    	resRenderPic.setUserId(userId);
+    	resRenderPic.setOrderNo(orderNo);
+    	resRenderPic.setToken(token);
+    	resRenderPic.setPlatformCode(platformCode);
+        ResponseEnvelope responseEnvelope = autoRenderTaskApi.createAutoRenderTask(resRenderPic);
+        return responseEnvelope;
+    }
+
+
+    private static String getBaoNianOrderNo(String productType,String token,String platformCode,String companyDomainName) {
+    	String payPath = Utils.getPropertyName("app","pay.server.url","");
+    	String url=payPath+"/web/pay/payOrder/addRenderOrder?platformCode="+"&productType="+productType+"&companyDomainName="+companyDomainName;
+    	logger.error("url========================="+url);
+    	logger.info(CLASS_LOG_PREFIX+"addRenderTask===>移动端getBaoNianOrderNo==>url"+url);
+    	Map<String,String> params=new HashMap<String,String>();
+		params.put("productType", productType);
+		params.put("companyDomainName", companyDomainName);
+		try {
+			String result = Utils.doPostMethod(url, params,token,platformCode);
+			if (result != null) {
+				return result;
+			}
+		} catch (Exception e) {
+			return "false";
+		}
+		return "false";
+    }
+/*    private static String getOrderNoMobile(Integer userId,Double totalFee,String payType,String productType,String token) {
+
+    	String payPath = Utils.getPropertyName("app","pay.server.url","");
+    	String url=payPath+"v1/web/pay/payOrder/addRenderOrder?platformCode="+code+"&productType="+productType;
+    	logger.info(CLASS_LOG_PREFIX+"addRenderTask===>移动端getOrderNoMobile==>url"+url);
+    	Map<String,String> params=new HashMap<String,String>();
+    	params.put("platformCode", code);
+		params.put("productType", productType);
+		try {
+			String result = Utils.doPostMethod(url, params,token);
+			if (result != null) {
+				return result;
+			}
+		} catch (Exception e) {
+			return "false";
+		}
+		return "false";
+    }
+    */
+    private static String getOrderNoMobile(Integer userId,Double totalFee,String payType,String productType,String token,String platformCode,String companyDomainName) {
+    	String payPath = Utils.getPropertyName("app","pay.server.url","");
+    	String url=payPath+"/web/pay/payOrder/replaceRecord?userId="+userId+"&totalFee="+totalFee+"&payType="+payType+"&productType="+productType+"&companyDomainName="+companyDomainName;
+    	logger.info(CLASS_LOG_PREFIX+"addRenderTask===>移动端getOrderNoMobile==>url"+url);
+    	String uId = userId.toString();
+    	String totalFe = totalFee.toString();
+    	Map<String,String> params=new HashMap<String,String>();
+    	params.put("userId", uId);
+    	params.put("totalFee", totalFe);
+    	params.put("payType", payType);
+    	params.put("productType", productType);
+    	params.put("companyDomainName", companyDomainName);
+    	try {
+    		String result = Utils.doPostMethod(url, params,token,platformCode);
+    		if (result != null) {
+    			return result;
+    		}
+    	} catch (Exception e) {
+    		return "false";
+    	}
+    	return "false";
+    }
+    public static void main(String[] args) {
+    	Integer userId =582;
+    	String renderTaskType = "roam720";
+    	Integer planId =87575;
+    	String  token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzaWduZmxhdCI6Im1vYmlsZV8yYl91c2VyX3Rva2VuOiIsImV4dCI6MTUxODI1MjA0Nzg0NCwidWlkIjo1ODIsIm10eXBlIjpudWxsLCJ1bmFtZSI6IjE4NjgxNTIzMDMyIiwidXR5cGUiOjEsImFwcEtleSI6ImZjY2FmMjNhZDJlYTRmODBiYjMyMTY0OWY2NmNhMzY0IiwibWVkaWFUeXBlIjpudWxsLCJzZXNzaW9uVGltZW91dCI6MjU5MjAwLCJ1a2V5IjoiZmNjYWYyM2FkMmVhNGY4MGJiMzIxNjQ5ZjY2Y2EzNjQiLCJpYXQiOjE1MTc5OTI4NDc4NDR9.6EwV_XygPir58ot_zdcJw1ri8GkvytonfiZ_IbfuGzw";
+    	Integer houseId = 0;
+    	String platformCode = "brand2c";
+    	String companyDomainName = "mobile2C";
+    	
+    	String result = getOrderNoWeb(userId, renderTaskType, planId, houseId,token,platformCode,companyDomainName);
+    	System.out.println("result = = = = = = = ="+result);
+	}
+    private static String getOrderNoWeb(Integer userId,String renderType,Integer planId,Integer houseId,String token,String platformCode,String companyDomainName) {
+    	String payPath = Utils.getPropertyName("app","pay.server.url","");
+    	String url=payPath+"/web/pay/payOrder/addIntegralPayRenderTask?userId="+userId+"&renderType="+renderType+"&planId="+planId+"&houseId="+houseId+"&companyDomainName="+companyDomainName;
+    	logger.info(CLASS_LOG_PREFIX+"addRenderTask===>运营网站getOrderNoWeb==>url:"+url);
+    	String uId = userId.toString();
+		String pId = planId.toString();
+		String hId = null;
+		if (houseId != null) {
+			 hId = houseId.toString();
+		}
+    	Map<String,String> params=new HashMap<String,String>();
+		params.put("userId", uId);
+		params.put("renderType", renderType);
+		params.put("planId", pId);
+		params.put("houseId", hId);
+		params.put("companyDomainName", companyDomainName);
+		try {
+			String result = Utils.doPostMethod(url, params,token,platformCode);
+			if (result != null) {
+				return result;
+			}
+		} catch (Exception e) {
+			return "false";
+		}
+		return "false";
+    }
+    
+}

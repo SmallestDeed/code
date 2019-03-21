@@ -1,0 +1,875 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.proprietorinfo.dao.ProprietorInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.api.proprietorinfo.model.ProprietorInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="type" property="type" jdbcType="TINYINT" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="business_type" property="businessType" jdbcType="TINYINT" />
+    <result column="company_type" property="companyType" jdbcType="TINYINT" />
+    <result column="company_name" property="companyName" jdbcType="VARCHAR" />
+    <result column="province_code" property="provinceCode" jdbcType="VARCHAR" />
+    <result column="city_code" property="cityCode" jdbcType="VARCHAR" />
+    <result column="area_name" property="areaName" jdbcType="VARCHAR" />
+    <result column="house_acreage" property="houseAcreage" jdbcType="VARCHAR" />
+    <result column="source_type" property="sourceType" jdbcType="INTEGER" />
+    <result column="house_type" property="houseType" jdbcType="VARCHAR" />
+    <result column="process" property="process" jdbcType="INTEGER" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_created" property="gmtCreated" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    <result column="is_init" property="isInit" jdbcType="INTEGER" />
+    <result column="designplan_id" property="designplanId" jdbcType="BIGINT" />
+    <result column="designplan_type" property="designplanType" jdbcType="TINYINT" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="bedroom_num" property="bedroomNum" jdbcType="TINYINT" />
+    <result column="living_room_num" property="livingRoomNum" jdbcType="TINYINT" />
+    <result column="toilet_num" property="toiletNum" jdbcType="TINYINT" />
+    <result column="decorate_type" property="decorateType" jdbcType="TINYINT" />
+    <result column="decorate_budget" property="decorateBudget" jdbcType="TINYINT" />
+    <result column="decorate_style" property="decorateStyle" jdbcType="INTEGER" />
+    <result column="decorate_house_type" property="decorateHouseType" jdbcType="TINYINT" />
+    <result column="customer_type" property="customerType" jdbcType="TINYINT" />
+    <result column="revisit_time" property="revisitTime" jdbcType="DATE" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="shop_id" property="shopId" jdbcType="BIGINT" />
+    <result column="services_type" property="servicesType" jdbcType="TINYINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, type, user_name, mobile, business_type, company_type, company_name, shop_id, services_type, province_code,
+    city_code, area_name, house_acreage, source_type, house_type, process, creator, gmt_created, 
+    modifier, gmt_modified, is_deleted, is_init, designplan_id, designplan_type, address, bedroom_num,
+    living_room_num, toilet_num, decorate_type, decorate_budget, decorate_style, decorate_house_type, 
+    customer_type, revisit_time, remark
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from proprietor_info
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByIds" resultMap="BaseResultMap">
+  	  select 
+    <include refid="Base_Column_List" />
+    from proprietor_info
+    where 1=1
+    <if test="ids!=null and ids.size()> 0">
+    	and id in 
+    	<foreach collection="ids" open="(" close=")" separator="," item="id">
+    		#{id}
+    	</foreach>
+    </if>
+  </select>
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from proprietor_info
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByIds">
+    update proprietor_info set is_deleted = 1,gmt_modified = now()
+    where id in
+    <foreach collection="ids" item="id" separator="," open="(" close=")">
+      #{id,jdbcType=INTEGER}
+    </foreach>
+
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.proprietorinfo.model.ProprietorInfo">
+    insert into proprietor_info (id, type, user_name, 
+      mobile, business_type, company_type, 
+      company_name, province_code, city_code, 
+      area_name, house_acreage, source_type, 
+      house_type, process, creator, 
+      gmt_created, modifier, gmt_modified, 
+      is_deleted, is_init, designplan_id, designplan_type,
+      address, bedroom_num, living_room_num, 
+      toilet_num, decorate_type, decorate_budget, 
+      decorate_style, decorate_house_type, customer_type, 
+      revisit_time, remark, shop_id, services_type)
+    values (#{id,jdbcType=INTEGER}, #{type,jdbcType=TINYINT}, #{userName,jdbcType=VARCHAR}, 
+      #{mobile,jdbcType=VARCHAR}, #{businessType,jdbcType=TINYINT}, #{companyType,jdbcType=TINYINT}, 
+      #{companyName,jdbcType=VARCHAR}, #{provinceCode,jdbcType=VARCHAR}, #{cityCode,jdbcType=VARCHAR}, 
+      #{areaName,jdbcType=VARCHAR}, #{houseAcreage,jdbcType=VARCHAR}, #{sourceType,jdbcType=INTEGER}, 
+      #{houseType,jdbcType=VARCHAR}, #{process,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, 
+      #{gmtCreated,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{isDeleted,jdbcType=INTEGER}, #{isInit,jdbcType=INTEGER}, #{designplanId,jdbcType=BIGINT}, #{designplanType,jdbcType=TINYINT},
+      #{address,jdbcType=VARCHAR}, #{bedroomNum,jdbcType=TINYINT}, #{livingRoomNum,jdbcType=TINYINT}, 
+      #{toiletNum,jdbcType=TINYINT}, #{decorateType,jdbcType=TINYINT}, #{decorateBudget,jdbcType=TINYINT}, 
+      #{decorateStyle,jdbcType=INTEGER}, #{decorateHouseType,jdbcType=TINYINT}, #{customerType,jdbcType=TINYINT}, 
+      #{revisitTime,jdbcType=DATE}, #{remark,jdbcType=VARCHAR}, #{shopId,jdbcType=BIGINT}, #{servicesType,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.proprietorinfo.model.ProprietorInfo" >
+    insert into proprietor_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="userName != null" >
+        user_name,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="businessType != null" >
+        business_type,
+      </if>
+      <if test="companyType != null" >
+        company_type,
+      </if>
+      <if test="companyName != null" >
+        company_name,
+      </if>
+      <if test="provinceCode != null" >
+        province_code,
+      </if>
+      <if test="cityCode != null" >
+        city_code,
+      </if>
+      <if test="areaName != null" >
+        area_name,
+      </if>
+      <if test="houseAcreage != null" >
+        house_acreage,
+      </if>
+      <if test="sourceType != null" >
+        source_type,
+      </if>
+      <if test="houseType != null" >
+        house_type,
+      </if>
+      <if test="process != null" >
+        process,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreated != null" >
+        gmt_created,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="isInit != null" >
+        is_init,
+      </if>
+      <if test="designplanId != null" >
+        designplan_id,
+      </if>
+      <if test="designplanType != null" >
+        designplan_type,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="bedroomNum != null" >
+        bedroom_num,
+      </if>
+      <if test="livingRoomNum != null" >
+        living_room_num,
+      </if>
+      <if test="toiletNum != null" >
+        toilet_num,
+      </if>
+      <if test="decorateType != null" >
+        decorate_type,
+      </if>
+      <if test="decorateBudget != null" >
+        decorate_budget,
+      </if>
+      <if test="decorateStyle != null" >
+        decorate_style,
+      </if>
+      <if test="decorateHouseType != null" >
+        decorate_house_type,
+      </if>
+      <if test="customerType != null" >
+        customer_type,
+      </if>
+      <if test="revisitTime != null" >
+        revisit_time,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="shopId != null" >
+        shop_id,
+      </if>
+      <if test="servicesType != null">
+        services_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=TINYINT},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="businessType != null" >
+        #{businessType,jdbcType=TINYINT},
+      </if>
+      <if test="companyType != null" >
+        #{companyType,jdbcType=TINYINT},
+      </if>
+      <if test="companyName != null" >
+        #{companyName,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceCode != null" >
+        #{provinceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="cityCode != null" >
+        #{cityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="areaName != null" >
+        #{areaName,jdbcType=VARCHAR},
+      </if>
+      <if test="houseAcreage != null" >
+        #{houseAcreage,jdbcType=VARCHAR},
+      </if>
+      <if test="sourceType != null" >
+        #{sourceType,jdbcType=INTEGER},
+      </if>
+      <if test="houseType != null" >
+        #{houseType,jdbcType=VARCHAR},
+      </if>
+      <if test="process != null" >
+        #{process,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreated != null" >
+        #{gmtCreated,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="isInit != null" >
+        #{isInit,jdbcType=INTEGER},
+      </if>
+      <if test="designplanId != null" >
+        #{designplanId,jdbcType=BIGINT},
+      </if>
+      <if test="designplanType != null" >
+        #{designplanType,jdbcType=TINYINT},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="bedroomNum != null" >
+        #{bedroomNum,jdbcType=TINYINT},
+      </if>
+      <if test="livingRoomNum != null" >
+        #{livingRoomNum,jdbcType=TINYINT},
+      </if>
+      <if test="toiletNum != null" >
+        #{toiletNum,jdbcType=TINYINT},
+      </if>
+      <if test="decorateType != null" >
+        #{decorateType,jdbcType=TINYINT},
+      </if>
+      <if test="decorateBudget != null" >
+        #{decorateBudget,jdbcType=TINYINT},
+      </if>
+      <if test="decorateStyle != null" >
+        #{decorateStyle,jdbcType=INTEGER},
+      </if>
+      <if test="decorateHouseType != null" >
+        #{decorateHouseType,jdbcType=TINYINT},
+      </if>
+      <if test="customerType != null" >
+        #{customerType,jdbcType=TINYINT},
+      </if>
+      <if test="revisitTime != null" >
+        #{revisitTime,jdbcType=DATE},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="shopId != null" >
+        #{shopId,jdbcType=BIGINT},
+      </if>
+      <if test="servicesType != null">
+        #{servicesType,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.proprietorinfo.model.ProprietorInfo" >
+    update proprietor_info
+    <set >
+      <if test="type != null" >
+        type = #{type,jdbcType=TINYINT},
+      </if>
+      <if test="userName != null" >
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="businessType != null" >
+        business_type = #{businessType,jdbcType=TINYINT},
+      </if>
+      <if test="companyType != null" >
+        company_type = #{companyType,jdbcType=TINYINT},
+      </if>
+      <if test="companyName != null" >
+        company_name = #{companyName,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceCode != null" >
+        province_code = #{provinceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="cityCode != null" >
+        city_code = #{cityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="areaName != null" >
+        area_name = #{areaName,jdbcType=VARCHAR},
+      </if>
+      <if test="houseAcreage != null" >
+        house_acreage = #{houseAcreage,jdbcType=VARCHAR},
+      </if>
+      <if test="sourceType != null" >
+        source_type = #{sourceType,jdbcType=INTEGER},
+      </if>
+      <if test="houseType != null" >
+        house_type = #{houseType,jdbcType=VARCHAR},
+      </if>
+      <if test="process != null" >
+        process = #{process,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreated != null" >
+        gmt_created = #{gmtCreated,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="isInit != null" >
+        is_init = #{isInit,jdbcType=INTEGER},
+      </if>
+      <if test="designplanId != null" >
+        designplan_id = #{designplanId,jdbcType=BIGINT},
+      </if>
+      <if test="designplanType != null" >
+        designplan_type = #{designplanType,jdbcType=TINYINT},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="bedroomNum != null" >
+        bedroom_num = #{bedroomNum,jdbcType=TINYINT},
+      </if>
+      <if test="livingRoomNum != null" >
+        living_room_num = #{livingRoomNum,jdbcType=TINYINT},
+      </if>
+      <if test="toiletNum != null" >
+        toilet_num = #{toiletNum,jdbcType=TINYINT},
+      </if>
+      <if test="decorateType != null" >
+        decorate_type = #{decorateType,jdbcType=TINYINT},
+      </if>
+      <if test="decorateBudget != null" >
+        decorate_budget = #{decorateBudget,jdbcType=TINYINT},
+      </if>
+      <if test="decorateStyle != null" >
+        decorate_style = #{decorateStyle,jdbcType=INTEGER},
+      </if>
+      <if test="decorateHouseType != null" >
+        decorate_house_type = #{decorateHouseType,jdbcType=TINYINT},
+      </if>
+      <if test="customerType != null" >
+        customer_type = #{customerType,jdbcType=TINYINT},
+      </if>
+      <if test="revisitTime != null" >
+        revisit_time = #{revisitTime,jdbcType=DATE},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="shopId != null" >
+        shop_id = #{shopId,jdbcType=BIGINT},
+      </if>
+      <if test="servicesType != null">
+        services_type = #{servicesType,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.proprietorinfo.model.ProprietorInfo" >
+    update proprietor_info
+    set type = #{type,jdbcType=TINYINT},
+      user_name = #{userName,jdbcType=VARCHAR},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      business_type = #{businessType,jdbcType=TINYINT},
+      company_type = #{companyType,jdbcType=TINYINT},
+      company_name = #{companyName,jdbcType=VARCHAR},
+      province_code = #{provinceCode,jdbcType=VARCHAR},
+      city_code = #{cityCode,jdbcType=VARCHAR},
+      area_name = #{areaName,jdbcType=VARCHAR},
+      house_acreage = #{houseAcreage,jdbcType=VARCHAR},
+      source_type = #{sourceType,jdbcType=INTEGER},
+      house_type = #{houseType,jdbcType=VARCHAR},
+      process = #{process,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_created = #{gmtCreated,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      is_init = #{isInit,jdbcType=INTEGER},
+      designplan_id = #{designplanId,jdbcType=BIGINT},
+      designplan_type = #{designplanType,jdbcType=TINYINT},
+      address = #{address,jdbcType=VARCHAR},
+      bedroom_num = #{bedroomNum,jdbcType=TINYINT},
+      living_room_num = #{livingRoomNum,jdbcType=TINYINT},
+      toilet_num = #{toiletNum,jdbcType=TINYINT},
+      decorate_type = #{decorateType,jdbcType=TINYINT},
+      decorate_budget = #{decorateBudget,jdbcType=TINYINT},
+      decorate_style = #{decorateStyle,jdbcType=INTEGER},
+      decorate_house_type = #{decorateHouseType,jdbcType=TINYINT},
+      customer_type = #{customerType,jdbcType=TINYINT},
+      revisit_time = #{revisitTime,jdbcType=DATE},
+      remark = #{remark,jdbcType=VARCHAR},
+      shop_id = #{shopId,jdbcType=BIGINT},
+      services_type = #{servicesType,jdbcType=TINYINT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="getList" resultMap="BaseResultMap" parameterType="com.sandu.api.proprietorinfo.model.ProprietorInfo" >
+    select
+    <include refid="Base_Column_List" />
+    from proprietor_info
+    <where>
+      <if test="proprietorInfoQuery.id != null">
+        and id = #{proprietorInfoQuery.id,jdbcType=INTEGER}
+      </if>
+      <if test="proprietorInfoQuery.type != null">
+        and type = #{proprietorInfoQuery.type,jdbcType=TINYINT}
+      </if>
+      <if test="proprietorInfoQuery.userName != null">
+        and user_name like concat('%',#{proprietorInfoQuery.userName,jdbcType=VARCHAR},'%')
+      </if>
+      <if test="proprietorInfoQuery.mobile != null">
+        and mobile like concat('%',#{proprietorInfoQuery.mobile,jdbcType=VARCHAR},'%')
+      </if>
+      <if test="proprietorInfoQuery.businessType != null">
+        and business_type = #{proprietorInfoQuery.businessType,jdbcType=TINYINT}
+      </if>
+      <if test="proprietorInfoQuery.companyType != null">
+        and company_type = #{proprietorInfoQuery.companyType,jdbcType=TINYINT}
+      </if>
+      <if test="proprietorInfoQuery.companyName != null">
+        and company_name = #{proprietorInfoQuery.companyName,jdbcType=VARCHAR}
+      </if>
+      <if test="proprietorInfoQuery.provinceCode != null">
+        and province_code = #{proprietorInfoQuery.provinceCode,jdbcType=VARCHAR}
+      </if>
+      <if test="proprietorInfoQuery.cityCode != null">
+        and city_code = #{proprietorInfoQuery.cityCode,jdbcType=VARCHAR}
+      </if>
+      <if test="proprietorInfoQuery.areaName != null">
+        and area_name = #{proprietorInfoQuery.areaName,jdbcType=VARCHAR}
+      </if>
+      <if test="proprietorInfoQuery.houseAcreage != null">
+        and house_acreage = #{proprietorInfoQuery.houseAcreage,jdbcType=VARCHAR}
+      </if>
+      <if test="proprietorInfoQuery.sourceType != null">
+        and source_type = #{proprietorInfoQuery.sourceType,jdbcType=INTEGER}
+      </if>
+      <if test="proprietorInfoQuery.houseType != null">
+        and house_type = #{proprietorInfoQuery.houseType,jdbcType=VARCHAR}
+      </if>
+      <if test="proprietorInfoQuery.process != null">
+        and process = #{proprietorInfoQuery.process,jdbcType=INTEGER}
+      </if>
+      <if test="proprietorInfoQuery.creator != null">
+        and creator = #{proprietorInfoQuery.creator,jdbcType=VARCHAR}
+      </if>
+      <if test="proprietorInfoQuery.gmtCreated != null">
+        and gmt_created = #{proprietorInfoQuery.gmtCreated,jdbcType=TIMESTAMP}
+      </if>
+      <if test="proprietorInfoQuery.modifier != null">
+        and modifier = #{proprietorInfoQuery.modifier,jdbcType=VARCHAR}
+      </if>
+      <if test="proprietorInfoQuery.gmtModified != null">
+        and gmt_modified = #{proprietorInfoQuery.gmtModified,jdbcType=TIMESTAMP}
+      </if>
+      <if test="proprietorInfoQuery.isDeleted != null">
+        and is_deleted = #{proprietorInfoQuery.isDeleted,jdbcType=INTEGER}
+      </if>
+      <if test="proprietorInfoQuery.isInit != null">
+        and is_init = #{proprietorInfoQuery.isInit,jdbcType=INTEGER}
+      </if>
+      <if test="proprietorInfoQuery.designplanId != null">
+        and designplan_id = #{proprietorInfoQuery.designplanId,jdbcType=BIGINT}
+      </if>
+      <if test="proprietorInfoQuery.address != null">
+        and address = #{proprietorInfoQuery.address,jdbcType=VARCHAR}
+      </if>
+      <if test="proprietorInfoQuery.bedroomNum != null">
+        and bedroom_num = #{proprietorInfoQuery.bedroomNum,jdbcType=TINYINT}
+      </if>
+      <if test="proprietorInfoQuery.livingRoomNum != null">
+        and living_room_num = #{proprietorInfoQuery.livingRoomNum,jdbcType=TINYINT}
+      </if>
+      <if test="proprietorInfoQuery.toiletNum != null">
+        and toilet_num = #{proprietorInfoQuery.toiletNum,jdbcType=TINYINT}
+      </if>
+      <if test="proprietorInfoQuery.decorateType != null">
+        and decorate_type = #{proprietorInfoQuery.decorateType,jdbcType=TINYINT}
+      </if>
+      <if test="proprietorInfoQuery.decorateBudget != null">
+        and decorate_budget = #{proprietorInfoQuery.decorateBudget,jdbcType=TINYINT}
+      </if>
+      <if test="proprietorInfoQuery.decorateStyle != null">
+        and decorate_style = #{proprietorInfoQuery.decorateStyle,jdbcType=INTEGER}
+      </if>
+      <if test="proprietorInfoQuery.decorateHouseType != null">
+        and decorate_house_type = #{proprietorInfoQuery.decorateHouseType,jdbcType=TINYINT}
+      </if>
+      <if test="proprietorInfoQuery.customerType != null">
+        and customer_type = #{proprietorInfoQuery.customerType,jdbcType=TINYINT}
+      </if>
+      <if test="proprietorInfoQuery.revisitTime != null">
+        and revisit_time = #{proprietorInfoQuery.revisitTime,jdbcType=DATE}
+      </if>
+      <if test="proprietorInfoQuery.remark != null">
+        and remark = #{proprietorInfoQuery.remark,jdbcType=VARCHAR}
+      </if>
+      <if test="proprietorInfoQuery.shopId != null">
+        and shop_id = #{proprietorInfoQuery.shopId,jdbcType=BIGINT}
+      </if>
+      <if test="proprietorInfoQuery.servicesType != null">
+        and services_type = #{proprietorInfoQuery.servicesType,jdbcType=TINYINT}
+      </if>
+      <if test="proprietorInfoQuery.hasDesign != null">
+        <choose>
+          <when test="proprietorInfoQuery.hasDesign">
+            and designplan_id > 0
+          </when>
+          <otherwise>
+            and designplan_id is null
+          </otherwise>
+        </choose>
+      </if>
+    </where>
+    order by id desc
+    <if test="start != null and limit != null">
+      limit #{start,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+    </if>
+  </select>
+  <select id="getListCount" resultType="java.lang.Integer" parameterType="com.sandu.api.proprietorinfo.model.ProprietorInfo" >
+    select
+      count(1)
+    from proprietor_info
+    <where>
+      <if test="id != null">
+        and id = #{id,jdbcType=INTEGER}
+      </if>
+      <if test="type != null" >
+        and type = #{type,jdbcType=TINYINT}
+      </if>
+      <if test="userName != null" >
+        and user_name like concat('%',#{userName,jdbcType=VARCHAR},'%')
+      </if>
+      <if test="mobile != null" >
+        and mobile like concat('%',#{mobile,jdbcType=VARCHAR},'%')
+      </if>
+      <if test="businessType != null" >
+        and business_type = #{businessType,jdbcType=TINYINT}
+      </if>
+      <if test="companyType != null" >
+        and company_type = #{companyType,jdbcType=TINYINT}
+      </if>
+      <if test="companyName != null" >
+        and company_name = #{companyName,jdbcType=VARCHAR}
+      </if>
+      <if test="provinceCode != null" >
+        and province_code = #{provinceCode,jdbcType=VARCHAR}
+      </if>
+      <if test="cityCode != null" >
+        and city_code = #{cityCode,jdbcType=VARCHAR}
+      </if>
+      <if test="areaName != null" >
+        and area_name = #{areaName,jdbcType=VARCHAR}
+      </if>
+      <if test="houseAcreage != null" >
+        and house_acreage = #{houseAcreage,jdbcType=VARCHAR}
+      </if>
+      <if test="sourceType != null" >
+        and source_type = #{sourceType,jdbcType=INTEGER}
+      </if>
+      <if test="houseType != null" >
+        and house_type = #{houseType,jdbcType=VARCHAR}
+      </if>
+      <if test="process != null" >
+        and process = #{process,jdbcType=INTEGER}
+      </if>
+      <if test="creator != null" >
+        and creator = #{creator,jdbcType=VARCHAR}
+      </if>
+      <if test="gmtCreated != null" >
+        and gmt_created = #{gmtCreated,jdbcType=TIMESTAMP}
+      </if>
+      <if test="modifier != null" >
+        and modifier = #{modifier,jdbcType=VARCHAR}
+      </if>
+      <if test="gmtModified != null" >
+        and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+      </if>
+      <if test="isDeleted != null" >
+        and is_deleted = #{isDeleted,jdbcType=INTEGER}
+      </if>
+      <if test="isInit != null" >
+        and is_init = #{isInit,jdbcType=INTEGER}
+      </if>
+      <if test="designplanId != null" >
+        and designplan_id = #{designplanId,jdbcType=BIGINT}
+      </if>
+      <if test="address != null" >
+        and address = #{address,jdbcType=VARCHAR}
+      </if>
+      <if test="bedroomNum != null" >
+        and bedroom_num = #{bedroomNum,jdbcType=TINYINT}
+      </if>
+      <if test="livingRoomNum != null" >
+        and living_room_num = #{livingRoomNum,jdbcType=TINYINT}
+      </if>
+      <if test="toiletNum != null" >
+        and toilet_num = #{toiletNum,jdbcType=TINYINT}
+      </if>
+      <if test="decorateType != null" >
+        and decorate_type = #{decorateType,jdbcType=TINYINT}
+      </if>
+      <if test="decorateBudget != null" >
+        and decorate_budget = #{decorateBudget,jdbcType=TINYINT}
+      </if>
+      <if test="decorateStyle != null" >
+        and decorate_style = #{decorateStyle,jdbcType=INTEGER}
+      </if>
+      <if test="decorateHouseType != null" >
+        and decorate_house_type = #{decorateHouseType,jdbcType=TINYINT}
+      </if>
+      <if test="customerType != null" >
+        and customer_type = #{customerType,jdbcType=TINYINT}
+      </if>
+      <if test="revisitTime != null" >
+        and revisit_time = #{revisitTime,jdbcType=DATE}
+      </if>
+      <if test="remark != null" >
+        and remark = #{remark,jdbcType=VARCHAR}
+      </if>
+      <if test="shopId != null" >
+        and shop_id = #{shopId,jdbcType=BIGINT}
+      </if>
+      <if test="servicesType != null">
+        and services_type = #{servicesType,jdbcType=TINYINT}
+      </if>
+      <if test="hasDesign != null">
+        <choose>
+          <when test="hasDesign">
+            and designplan_id > 0
+          </when>
+          <otherwise>
+            and designplan_id is null
+          </otherwise>
+        </choose>
+      </if>
+    </where>
+  </select>
+  <select id="getBaseAreaListByLevelId" parameterType="java.lang.Integer" resultType="com.sandu.api.area.model.BaseArea">
+    select
+      area_code areaCode,
+      area_name areaName,
+      pid pid
+    from
+      base_area
+    where
+      level_id = #{levelId}
+      and is_deleted = 0
+  </select>
+  <update id="updateProprietorInfo" parameterType="com.sandu.api.proprietorinfo.input.ProprietorInfoUpdate">
+    UPDATE
+        proprietor_info
+    SET
+        user_name = #{userName},
+        mobile = #{mobile},
+        province_code = #{provinceCode},
+        city_code = #{cityCode},
+        area_name = #{houseEstate},
+        address = #{address},
+        bedroom_num = #{bedroomNum},
+        living_room_num = #{livingRoomNum},
+        toilet_num = #{toiletNum},
+        house_acreage = #{houseAcreage},
+        decorate_type = #{decorateTypeValue},
+        decorate_budget = #{decorateBudgetValue},
+        decorate_style = #{goodStyleValue},
+        decorate_house_type = #{decorateHouseTypeKey},
+        customer_type = #{customerTypeValue},
+        remark = #{remark},
+        revisit_time = #{nextTime},
+        modifier = #{modifier},
+        gmt_modified = #{gmtModified}
+    WHERE
+        id = #{id}
+  </update>
+  <select id="getRenderScenePlanPic" parameterType="java.lang.Integer" resultType="java.lang.String">
+    select
+        pic_path
+    from
+        res_render_pic
+    where
+        file_key = 'design.designPlan.render.small.pic'
+        and rendering_type = 4
+        and design_scene_id = #{designplanId}
+        and is_deleted = 0
+    group by
+        design_scene_id
+  </select>
+  <select id="getFullHousePlanPic" parameterType="java.lang.Integer" resultType="java.lang.String">
+      select
+          t2.pic_path
+      from
+          full_house_design_plan t1
+          left join res_render_pic t2 on t2.id = t1.plan_pic_id and t2.is_deleted = 0
+      where
+          t1.id = #{designplanId}
+  </select>
+  <select id="getShopById" parameterType="java.lang.Integer" resultType="com.sandu.api.shop.model.CompanyShop">
+    select
+        id,
+        company_id companyId,
+        company_pid companyPid,
+        user_id userId,
+        shop_code shopCode,
+        shop_name shopName,
+        business_type businessType,
+        category_ids categoryIds,
+        first_category_ids firstCategoryIds,
+        province_code provinceCode,
+        city_code cityCode,
+        area_code areaCode,
+        street_code streetCode,
+        long_area_code longAreaCode,
+        shop_address shopAddress,
+        contact_phone contactPhone,
+        contact_name contactName,
+        logo_pic_id logoPicId,
+        cover_res_ids coverResIds,
+        cover_res_type coverResType,
+        release_platform_values releasePlatformValues,
+        display_status displayStatus,
+        visit_count visitCount,
+        praise_rate praiseRate,
+        shop_introduced shopIntroduced,
+        sys_code sysCode,
+        creator creator,
+        gmt_create gmtCreate,
+        modifier modifier,
+        gmt_modified gmtModified,
+        is_deleted isDeleted,
+        remark remark
+    from
+        company_shop
+    where
+        id = #{id}
+  </select>
+  <select id="findAllByType" parameterType="java.lang.String" resultType="com.sandu.system.model.SysDictionary">
+    SELECT
+        id,
+        sys_code sysCode,
+        creator,
+        gmt_create gmtCreate,
+        modifier,
+        gmt_modified gmtModified,
+        is_deleted isDeleted,
+        type,
+        valuekey,
+        value,
+        name
+    FROM
+        sys_dictionary
+    where
+        type = #{type}
+    order by value
+  </select>
+  <select id="findOneByTypeAndValue" resultType="com.sandu.system.model.SysDictionary">
+    SELECT
+        id,
+        sys_code sysCode,
+        creator,
+        gmt_create gmtCreate,
+        modifier,
+        gmt_modified gmtModified,
+        is_deleted isDeleted,
+        type,
+        valuekey,
+        value,
+        name
+    FROM
+        sys_dictionary
+    where
+        type = #{type}
+        and value = #{value}
+  </select>
+  <select id="queryAreaByCode" parameterType="java.lang.String" resultType="com.sandu.api.area.output.BaseAreaListVO">
+      select
+          area_code areaCode,
+          area_name areaName
+      from
+          base_area
+      where
+          area_code = #{code}
+  </select>
+  <select id="listWithCustomerType" resultType="com.sandu.api.proprietorinfo.model.ProprietorInfo">
+
+    select *
+    from proprietor_info
+    where is_deleted = 0 and customer_type in
+    <foreach collection="types" item="type" open="(" close=")" separator=","></foreach>
+    #{type}
+  </select>
+  <select id="getSysUserById" resultType="com.sandu.api.user.model.SysUser" parameterType="java.lang.Integer">
+    select
+        id,
+        user_name userName,
+        nick_name nickName,
+        mobile,
+        company_id companyId
+    from
+        sys_user
+    where
+        id = #{id}
+  </select>
+</mapper>

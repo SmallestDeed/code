@@ -1,0 +1,27 @@
+package com.sandu.service.base.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.api.base.model.BasePlatform;
+import com.sandu.api.base.service.BasePlatformService;
+import com.sandu.service.base.dao.BasePlatformDao;
+
+import java.util.List;
+
+@Service("basePlatformService")
+public class BasePlatformServiceImpl implements BasePlatformService {
+	
+	@Autowired
+	private BasePlatformDao basePlatformDao;
+
+	@Override
+	public BasePlatform queryByPlatformCode(String platformCode) {
+		return basePlatformDao.selectByPlatformCode(platformCode);
+	}
+
+	@Override
+	public List<BasePlatform> queryList() {
+		return basePlatformDao.queryList();
+	}
+}

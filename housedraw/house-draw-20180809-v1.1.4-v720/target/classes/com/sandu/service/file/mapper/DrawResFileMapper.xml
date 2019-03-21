@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sandu.service.file.dao.DrawResFileMapper">
+
+    <insert id="saveDrawResFile" useGeneratedKeys="true" keyProperty="id">
+        insert into draw_res_file(
+          file_code, file_name, file_original_name, file_type, file_size, file_suffix, file_key,
+          file_level, file_path, sys_code, creator, gmt_create, modifier, business_id
+          <if test="isDeleted != null">,is_deleted</if> 
+        )values(
+          #{fileCode}, #{fileName}, #{fileOriginalName}, #{fileType}, #{fileSize}, #{fileSuffix}, #{fileKey},
+          #{fileLevel}, #{filePath}, #{sysCode}, #{creator}, #{gmtCreate}, #{modifier}, #{businessId}
+          <if test="isDeleted != null">,#{isDeleted}</if> 
+        )
+    </insert>
+
+    <delete id="deleteDrawResFile">
+        DELETE 
+		FROM
+		  draw_res_file 
+		WHERE id = #{restoreFileId}
+<!-- 			AND file_type = #{fileType} -->
+    </delete>
+
+    <update id="updateFileRelation">
+        update draw_res_file set ref_id = #{resModelId}
+        where id = #{fileId}
+    </update>
+
+	<update id="updateByPrimaryKeySelective">
+		UPDATE draw_res_file f
+		<set>
+			<if test="filePath != null"> f.file_path = #{filePath}, </if>
+			<if test="fileName != null"> f.file_name = #{fileName}, </if>
+			<if test="businessId != null"> f.business_id = #{businessId}, </if>
+			<if test="isDeleted != null"> f.is_deleted = #{isDeleted}, </if>
+		</set>
+		WHERE f.id = #{id}
+	</update>
+
+	<insert id="saveResFile" useGeneratedKeys="true" keyProperty="id">
+        insert into res_file(
+          file_code, file_name, file_original_name, file_type, file_size, file_suffix, file_key,
+          file_level, file_path, sys_code, creator, gmt_create, modifier, is_deleted, business_id
+        )values(
+          #{fileCode}, #{fileName}, #{fileOriginalName}, #{fileType}, #{fileSize}, #{fileSuffix}, #{fileKey},
+          #{fileLevel}, #{filePath}, #{sysCode}, #{creator}, #{gmtCreate}, #{modifier}, #{isDeleted}, #{businessId}
+        )
+    </insert>
+
+    <insert id="batchSave" >
+        insert into draw_res_file(
+          file_code, file_name, file_original_name, file_type, file_size, file_suffix,
+          file_level, file_path, sys_code, creator, gmt_create, modifier, is_deleted, business_id
+        )values
+        <foreach collection="files" index="index" item="file"  separator=",">
+            (
+            #{file.fileCode}, #{file.fileName}, #{file.fileOriginalName}, #{file.fileType}, #{file.fileSize}, #{file.fileSuffix},
+            #{file.fileLevel}, #{file.filePath}, #{file.sysCode}, #{file.creator}, #{file.gmtCreate}, #{file.modifier}, #{file.isDeleted}, #{file.businessId}
+            )
+        </foreach>
+
+    </insert>
+
+	<delete id="clearDrawResFileResource">
+		DELETE FROM draw_res_file WHERE id IN
+		<foreach collection="files" item="file" open="(" separator="," close=")">
+		  #{file}
+		</foreach>
+	</delete>
+
+	<resultMap id="BaseResultMap" type="com.sandu.api.house.model.DrawResFile">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<!--<result column="ref_id" jdbcType="VARCHAR" property="refId" />-->
+		<result column="file_code" jdbcType="VARCHAR" property="fileCode" />
+		<result column="file_name" jdbcType="VARCHAR" property="fileName" />
+		<result column="file_original_name" jdbcType="VARCHAR" property="fileOriginalName" />
+		<result column="file_type" jdbcType="VARCHAR" property="fileType" />
+		<result column="file_size" jdbcType="VARCHAR" property="fileSize" />
+		<result column="file_suffix" jdbcType="VARCHAR" property="fileSuffix" />
+		<result column="file_level" jdbcType="VARCHAR" property="fileLevel" />
+		<result column="file_path" jdbcType="VARCHAR" property="filePath" />
+		<result column="file_desc" jdbcType="VARCHAR" property="fileDesc" />
+		<result column="file_ordering" jdbcType="INTEGER" property="fileOrdering" />
+		<result column="sys_code" jdbcType="VARCHAR" property="sysCode" />
+		<result column="creator" jdbcType="VARCHAR" property="creator" />
+		<result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+		<result column="modifier" jdbcType="VARCHAR" property="modifier" />
+		<result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+		<result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+		<result column="file_key" jdbcType="VARCHAR" property="fileKey" />
+		<result column="file_keys" jdbcType="VARCHAR" property="fileKeys" />
+		<result column="business_ids" jdbcType="VARCHAR" property="businessIds" />
+		<result column="att4" jdbcType="VARCHAR" property="att4" />
+		<result column="att5" jdbcType="VARCHAR" property="att5" />
+		<result column="att6" jdbcType="VARCHAR" property="att6" />
+		<result column="date_att1" jdbcType="TIMESTAMP" property="dateAtt1" />
+		<result column="date_att2" jdbcType="TIMESTAMP" property="dateAtt2" />
+		<result column="business_id" jdbcType="INTEGER" property="businessId" />
+		<result column="num_att2" jdbcType="INTEGER" property="numAtt2" />
+		<result column="num_att3" jdbcType="DECIMAL" property="numAtt3" />
+		<result column="num_att4" jdbcType="DECIMAL" property="numAtt4" />
+		<result column="remark" jdbcType="VARCHAR" property="remark" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, ref_id, file_code, file_name, file_original_name, file_type,
+		file_size, file_suffix,
+		file_level, file_path, file_desc, file_ordering, sys_code, creator, gmt_create,
+		modifier,
+		gmt_modified, is_deleted, file_key, file_keys, business_ids, att4, att5, att6,
+		date_att1,
+		date_att2, business_id, num_att2, num_att3, num_att4, remark
+	</sql>
+    
+    <!-- selectByPrimaryKey -->
+	<select id="selectByPrimaryKey" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from draw_res_file 
+		where is_deleted = 0 
+		  and id = #{id,jdbcType=BIGINT}
+	</select>
+
+    <select id="listDrawResFileById" resultType="com.sandu.api.house.model.DrawResFile">
+	  SELECT
+		<include refid="Base_Column_List" />
+	  FROM
+		draw_res_file
+	  WHERE is_deleted = 0
+		AND id IN
+		<foreach collection="list" item="item" open="(" close=")" separator=",">
+		  #{item}
+		</foreach>
+	</select>
+
+	<!--<select id="listDrawResFileByDrawSpaceId" resultType="com.sandu.api.space.bo.DrawSpaceFileBO">-->
+	  <!--SELECT-->
+	    <!--f.id file_id,-->
+	    <!--f.file_path,-->
+	    <!--sc.id draw_space_id-->
+	  <!--FROM-->
+	    <!--draw_space_common sc,-->
+	    <!--draw_design_templet dt,-->
+	    <!--draw_design_templet_product dtp,-->
+	    <!--draw_base_product p,-->
+	    <!--draw_res_file f-->
+	  <!--WHERE sc.id = dt.space_common_id-->
+	    <!--AND dt.id = dtp.design_templet_id-->
+	    <!--AND dtp.product_id = p.id-->
+		<!--<choose>-->
+		  <!--<when test="isModel != null"> AND p.windows_u3dmodel_id = f.id </when>-->
+		  <!--<otherwise> AND p.bake_before_file_id = f.id </otherwise>-->
+		<!--</choose>-->
+	    <!--AND sc.is_deleted = 1-->
+	    <!--AND dt.is_deleted = 1-->
+	    <!--AND dtp.is_deleted = 1-->
+		<!--&lt;!&ndash; AND dtp.create_product_status = 1 &ndash;&gt;-->
+	    <!--&lt;!&ndash; AND p.is_deleted = 1 &ndash;&gt;-->
+	    <!--AND sc.id IN-->
+	    <!--<foreach collection="emptySpaces" item="item" open="(" close=")" separator=",">-->
+		  <!--#{item}-->
+		<!--</foreach>-->
+	<!--</select>-->
+
+	<select id="listDrawResFileByDrawSpaceId" resultType="com.sandu.api.space.bo.DrawSpaceFileBO">
+	  SELECT
+		f.id file_id,
+		f.file_path,
+		sc.id draw_space_id
+	  FROM
+		draw_space_common sc
+		LEFT JOIN draw_bake_task_detail td ON sc.id = td.space_id
+		LEFT JOIN draw_design_templet dt ON sc.id = dt.space_common_id
+		LEFT JOIN draw_design_templet_product dtp ON dt.id = dtp.design_templet_id
+		LEFT JOIN draw_base_product p ON dtp.product_id = p.id
+		LEFT JOIN draw_res_file f ON
+		<choose>
+		  <when test="isModel != null"> p.windows_u3dmodel_id = f.id </when>
+		  <otherwise> p.bake_before_file_id = f.id </otherwise>
+		</choose>
+	  WHERE sc.is_deleted = 1
+		AND dt.is_deleted = 1
+		AND dtp.is_deleted = 1
+		<!-- AND p.is_deleted = 1 -->
+		<!-- AND dtp.create_product_status = 1 -->
+		AND (td.status = 3 OR td.status IS NULL)
+		AND sc.id IN
+		<foreach collection="emptySpaces" item="item" open="(" close=")" separator=",">
+		  #{item}
+		</foreach>
+	</select>
+
+	<select id="listDrawResFileByFileIds" resultType="com.sandu.api.space.bo.DrawSpaceFileBO">
+	  SELECT
+		f.id file_id,
+		f.file_path
+	  FROM
+		draw_res_file f
+	  WHERE id IN
+		<foreach collection="fileIds" item="item" open="(" close=")" separator=",">
+		  #{item}
+		</foreach>
+	</select>
+
+	<!--<select id="listTaskCleanDrawResFile" resultType="com.sandu.api.space.bo.DrawSpaceFileBO">-->
+		<!--SELECT-->
+		  <!--f.id file_id,-->
+		  <!--f.file_path,-->
+		  <!--sc.id draw_space_id-->
+		<!--FROM-->
+		  <!--draw_space_common sc-->
+		  <!--LEFT JOIN draw_bake_task_detail td-->
+			<!--ON sc.id = td.space_id-->
+		  <!--LEFT JOIN draw_design_templet dt-->
+			<!--ON sc.id = dt.space_common_id-->
+		  <!--LEFT JOIN draw_design_templet_product dtp-->
+			<!--ON dt.id = dtp.design_templet_id-->
+		  <!--LEFT JOIN draw_base_product p-->
+			<!--ON dtp.product_id = p.id-->
+		  <!--LEFT JOIN draw_res_file f-->
+			<!--ON p.windows_u3dmodel_id = f.id-->
+		<!--WHERE sc.is_deleted = 1-->
+		  <!--AND dt.is_deleted = 1-->
+		  <!--AND dtp.is_deleted = 1-->
+		  <!--&lt;!&ndash; AND p.is_deleted = 1 &ndash;&gt;-->
+		  <!--AND (td.status = 3 OR td.status IS NULL)-->
+		  <!--AND f.id <![CDATA[ > ]]> 0-->
+		  <!--AND f.id <![CDATA[ <= ]]> 35000000-->
+		<!--ORDER BY sc.id-->
+		<!--LIMIT #{limit}-->
+	<!--</select>-->
+	<select id="listTaskCleanDrawResFile" resultType="com.sandu.api.space.bo.DrawSpaceFileBO">
+		SELECT
+		  f.id file_id,
+		  f.file_path
+		FROM
+		  draw_res_file f
+		WHERE f.id BETWEEN #{minFileId} AND #{maxFileId}
+		  AND f.file_path LIKE '%assetbundle'
+		LIMIT #{limit}
+	</select>
+
+	<insert id="addBatchFile" useGeneratedKeys="true" keyProperty="id">
+	   INSERT INTO draw_res_file(
+          file_code, file_name, file_original_name, file_type, file_size, file_suffix, file_key,
+          file_level, file_path, sys_code, creator, gmt_create, modifier, business_id, is_deleted
+        ) VALUES 
+        <foreach collection="list" item="item" separator=",">
+        	(#{item.fileCode}, #{item.fileName}, #{item.fileOriginalName}, #{item.fileType}, #{item.fileSize}, 
+        	#{item.fileSuffix}, #{item.fileKey},#{item.fileLevel}, #{item.filePath}, #{item.sysCode},
+            #{item.creator}, #{item.gmtCreate}, #{item.modifier}, #{item.businessId} ,#{item.isDeleted})
+        </foreach>
+	</insert>
+</mapper>

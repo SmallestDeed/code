@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.user.dao.UserJurisdictionDao">
+	<select id="selectByUserIdAndPlatformId" resultType="com.sandu.api.user.model.UserJurisdiction">
+		select *
+			from user_jurisdiction
+			where user_id = #{userId}
+			and platform_id = #{platformId}
+			and is_deleted = 0
+	</select>
+	
+	<select id="selectByUserId" resultType="com.sandu.api.user.model.UserJurisdiction">
+		select *
+			from user_jurisdiction
+			where user_id = #{userId}
+			and is_deleted = 0
+	</select>
+	
+	<select id="countByUserIdAndJurisdictionStatus" resultType="int">
+		select count(*)
+			from user_jurisdiction
+			where user_id = #{userId}
+			and jurisdiction_status = #{jurisdictionStatus}
+			and is_deleted = 0
+	</select>
+	<select id="listUserJurisdiction" resultType="com.sandu.api.user.model.UserJurisdiction">
+		select * from user_jurisdiction where user_id = #{userId}
+		<if test="isDeleted != null"> and is_deleted = #{isDeleted} </if>
+	</select>
+
+	<insert id="insert" parameterType="com.sandu.api.user.model.UserJurisdiction">
+		INSERT INTO user_jurisdiction
+		(
+			user_id, platform_id, jurisdiction_status, modifier_user_id,
+			creator, gmt_create,modifier,gmt_modified,is_deleted
+		)
+		values
+		(
+			#{userId}, #{platformId}, #{jurisdictionStatus}, #{modifierUserId},
+			#{creator}, #{gmtCreate},#{modifier},#{gmtModified},0
+		)
+	</insert>
+
+	<update id="delByPrimaryKey">
+		UPDATE
+		   user_jurisdiction
+		   SET
+		   is_deleted = 0
+		   WHERE
+		   id = #{id}
+	</update>
+
+    <update id="updateUserJurisdiction">
+		update user_jurisdiction
+		<set>
+			<if test="isDeleted != null"> is_deleted = #{isDeleted} </if>
+		</set>
+		where id in
+		<foreach collection="list" item="item" open="(" separator="," close=")">
+			#{item.id}
+		</foreach>
+	</update>
+
+    <delete id="delByIds" parameterType="java.lang.Integer">
+	    DELETE
+		   FROM
+		   user_jurisdiction
+		   WHERE
+		   user_id = #{userId}
+	</delete>
+
+	<insert id="batchUserJurisdictions" parameterType="com.sandu.api.user.model.UserJurisdiction">
+		INSERT INTO user_jurisdiction
+		(
+			user_id, platform_id, jurisdiction_status, modifier_user_id,
+			creator, gmt_create,modifier,gmt_modified,is_deleted
+		)
+		values
+		<foreach collection="ujs" item="item" index="index"  separator="," >
+			(#{item.userId},#{item.platformId},#{item.jurisdictionStatus},#{item.modifierUserId},
+			#{item.creator},#{item.gmtCreate},#{item.modifier},#{item.gmtModified},#{item.isDeleted}
+			)
+		</foreach>
+	</insert>
+
+	<select id="queryByUserIdANDplatformIds" resultType="com.sandu.api.user.model.UserJurisdiction">
+		SELECT
+		  *
+		FROM
+		  user_jurisdiction
+		WHERE
+		  is_deleted = 0 AND
+		  user_id = #{userId} AND
+		  platform_id in
+		  <foreach collection="adminPlatforms" item="platformId" open="(" separator="," close=")">
+			  #{platformId}
+		  </foreach>
+	</select>
+
+	<delete id="batchDelUserJurisdiction">
+		DELETE
+		  FROM
+		    user_jurisdiction
+		  WHERE
+		  	user_id = #{userId} AND
+			platform_id in
+		  	<foreach collection="oldPlatformIds" item="platformId" open="(" separator="," close=")">
+				#{platformId}
+			</foreach>
+	</delete>
+ </mapper>

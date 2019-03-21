@@ -1,0 +1,238 @@
+<view class="main_body wen">
+  <!--banner-->
+  <view class="sjs_xq_banner">
+    <view class="sjs_xq_fh" bindtap='toBack'>
+      <view class="xq_fh_pic" >
+        <image src="{{imgURL}}xq_fh_pic.png"></image>
+      </view>
+      <view class="xq_fh_title">详情</view>
+    </view>
+    <swiper autoplay="{{true}}" indicator-dots="{{true}}" >
+       <!-- <block wx:for="{{banners}}">
+        <swiper-item>
+          <image src="{{item}}" class="slide-image" mode="widthFix" style="width:100%" />
+        </swiper-item>
+      </block>    -->
+      <block wx:for="{{designer.lstResPic}}">
+        <swiper-item>
+          <image src="{{resourcePath}}{{item.picPath}}" class="slide-image" mode="widthFix" style="width:100%" />
+        </swiper-item> 
+      </block>
+    </swiper>
+  </view>
+  <!--介绍  -->
+  <view class="sjs_xq_js">
+    <view class="zxfw_sjsdm">
+			<view class="sjsdm_jieshao">
+        <view class="sjsdm_left">
+          <view class="sjsdm_logo"><image src="{{designer.logoUrl}}" mode="widthFix"></image></view>
+          <view class="sjsdm_leixing">设计师</view>
+        </view>
+        <view class="sjsdm_right">
+          <view class="sjsdm_title">
+            <view class="sjsdm_ming">{{designer.shopName}}</view>
+            <view wx:if="{{designer.memberYear>=0}}" class="sjsdm_hydj">会员{{designer.memberYear}}年</view>
+                 <view wx:if="{{designer.authGrade>=0}}" class="sjsdm_hydj">认证{{designer.authGrade}}级</view>
+          </view>
+          <view class="sjsdm_text">作品 <span>{{designer.worksCount}}</span> | 好评 <span>{{designer.praiseRatePercent}}</span> | 浏览 <span>{{designer.visitCount}}</span></view>
+        </view>
+      </view>
+      <view class="sjsdm_scfg">
+					<view class="scfg_title">擅长风格</view>
+					<view class="scfg_text">{{designer.categoryNames}}</view>
+				</view>
+				<view class="sjsdm_szdz">
+					<view class="scfg_title">所在地址</view>
+					<view class="scfg_xq_text">{{designer.shopAddress}}
+            <image src="{{imgURL}}xq_weizhi.png"></image>
+          </view>
+				</view>
+    </view>
+  </view>
+
+  <wxs module="formatNum">
+     
+    var fn = function(num){
+      if(num==undefined||num<0)
+        return;
+      if(num>=10000)
+        return Number(num/10000).toFixed(1)+"w";
+      else
+        return num;
+    }
+    module.exports = fn;
+  </wxs>
+  <!--作品  -->
+  <view class="zxfw_xq_main">
+			<view class="lanrenzhijia">
+				<view class="tab">
+					<view class="tab_item {{currTab==0?'zxfw_xq_on':''}}" data-index="0" bindtap="changeTab">一键方案({{designer.onekeyPlanCount}})</view>
+					<view class="tab_item {{currTab==1?'zxfw_xq_on':''}}" data-index="1" bindtap="changeTab">样板间({{designer.openPlanCount}})</view>
+					<view class="tab_item {{currTab==2?'zxfw_xq_on':''}}" data-index="2" bindtap="changeTab">成功案例{{designer.caseCount}}</view>
+					<view class="tab_item {{currTab==3?'zxfw_xq_on':''}}" data-index="3" bindtap="changeTab">业主评价({{designer.commentCount }})</view>
+				</view>
+				<view class="lanrenzhijia_xian" ></view>
+				<view class="content">
+					<view class="zxfw_xq_neiro" style="display:{{currTab==0?'block':''}}">
+						<view class="xq_pic" wx:for="{{planList}}" wx:for-item="planItem">
+							<view class="xq_pic_img">
+								<view class="xq_pic_qj">
+                  <image mode="widthFix" src="{{planItem.imgPath}}"></image>
+                </view>
+								<view class="xq_icon_left">
+									<view class="xq_icon01">
+                    <image src="{{imgURL}}xq_icon01.png"></image>
+                  </view>
+									<view class="xq_icon02">
+                    <image src="{{imgURL}}xq_icon02.png"></image>
+                  </view>
+								</view>
+								<view class="xq_icon_right">
+									<view class="right_box">
+										装进我家
+										<view class="xq_icon03"><image src="{{imgURL}}xq_icon03.png"></image></view>
+									</view>
+								</view>
+							</view>
+							<view class="xq_scdz">
+								<view class="xq_scdz_title">{{planItem.name}}</view>
+								<view class="xq_scdz_icon">
+									<view class="xq_sc"  bindtap="toggleFav">
+                    <image src="{{imgURL}}xq_icon04.png"></image>{{formatNum(planItem.fav)}}
+									</view>
+									<view class="xq_dz" bindtap="toggleAgree">
+										<image src="{{imgURL}}xq_icon05.png"></image>{{planItem.agree}}
+									</view>
+								</view>
+							</view>
+						</view>
+            <view class="nomore" wx:if="{{hasMore.plan==false}}">暂无更多数据</view> 
+					</view>
+
+
+          <view class="zxfw_xq_neiro" style="display:{{currTab==1?'block':''}}">
+						<view class="xq_pic" wx:for="{{modelList}}" wx:for-item="modelItem">
+							<view class="xq_pic_img">
+								<view class="xq_pic_qj">
+                  <image mode="widthFix" src="{{modelItem.imgPath}}"></image>
+                </view>
+								<view class="xq_icon_left">
+									<view class="xq_icon01">
+                    <image src="{{imgURL}}xq_icon01.png"></image>
+                  </view>
+									<view class="xq_icon02">
+                    <image src="{{imgURL}}xq_icon02.png"></image>
+                  </view>
+								</view>
+								<view class="xq_icon_right">
+									<view class="right_box">
+										装进我家
+										<view class="xq_icon03"><image src="{{imgURL}}xq_icon03.png"></image></view>
+									</view>
+								</view>
+							</view>
+							<view class="xq_scdz">
+								<view class="xq_scdz_title">{{modelItem.name}}</view>
+								<view class="xq_scdz_icon">
+									<view class="xq_sc">
+                    <image src="{{imgURL}}xq_icon04.png"></image>{{formatNum(modelItem.fav)}}
+									</view>
+									<view class="xq_dz">
+										<image src="{{imgURL}}xq_icon05.png"></image>{{modelItem.agree}}
+									</view>
+								</view>
+							</view>
+						</view>
+            <view class="nomore" wx:if="{{hasMore.model==false}}">暂无更多数据</view> 
+					</view> 
+
+          <view class="zxfw_xq_neiro" style="display:{{currTab==2?'block':''}}">
+						<view class="xq_pic" wx:for="{{successList}}" wx:for-item="successItem">
+							<view class="xq_pic_img">
+								<view class="xq_pic_qj">
+                  <image mode="widthFix" src="{{successItem.imgPath}}"></image>
+                </view>
+								<view class="xq_icon_left">
+									<view class="xq_icon01">
+                    <image src="{{imgURL}}xq_icon01.png"></image>
+                  </view>
+									<view class="xq_icon02">
+                    <image src="{{imgURL}}xq_icon02.png"></image>
+                  </view>
+								</view>
+								<view class="xq_icon_right">
+									<view class="right_box">
+										装进我家
+										<view class="xq_icon03"><image src="{{imgURL}}xq_icon03.png"></image></view>
+									</view>
+								</view>
+							</view>
+							<view class="xq_scdz">
+								<view class="xq_scdz_title">{{successItem.name}}</view>
+								<view class="xq_scdz_icon">
+									<view class="xq_sc">
+                    <image src="{{imgURL}}xq_icon04.png"></image>{{formatNum(successItem.fav)}}
+									</view>
+									<view class="xq_dz">
+										<image src="{{imgURL}}xq_icon05.png"></image>{{successItem.agree}}
+									</view>
+								</view>
+							</view>
+						</view>
+            <view class="nomore" wx:if="{{hasMore.success==false}}">暂无更多数据</view> 
+					</view> 
+          
+          <!--创建指定长度的字符串用作循环星级  -->
+          <wxs module="formatScore">
+            var fn = function(num){
+              if(num==undefined)
+                return;
+              var str = ""  
+              for(var i = 0 ; i < parseInt(num);i++){
+                  str+="x";
+              }
+              return str;
+            }
+            module.exports = fn
+          </wxs>
+
+					<view class="zxfw_xq_neiro" style="display:{{currTab==3?'block':''}}">
+						<view class="xq_yzpj" wx:for="{{commentList}}" wx:for-item="commentItem">
+							<view class="yzpj_hao">
+                <view class="pj_label"  wx:for="{{commentItem.commentLabel}}">{{item}}</view>
+							</view>
+							<view class="yzpj_box">
+								<view class="yzpj_logo">
+                  <image mode="widthFix" src="{{commentItem.userAvatar}}">
+                  </image>
+                </view>
+								<view class="yzpj_right">
+									<view class="yzpj_title"><span class="yzpj_text">{{commentItem.userName}}</span> | {{commentItem.address}}</view>
+									<view class="yzpj_xingji">
+										<view class="xingji_icon" wx:for="{{formatScore(commentItem.serviceScore)}}"><image src="{{imgURL}}xingji_icon.png"></image>
+                    </view>
+									</view>
+								</view>
+							</view>
+							<view class="yzpj_neiro">{{commentItem.comment}}</view>
+						</view>
+
+
+            <view wx:if="{{commentList.length==0}}"></view>
+            <view class="nomore" wx:if="{{hasMore.comment==false}}">暂无更多评论</view> 
+					</view> 
+				</view>	   
+			</view>
+		</view>
+
+     <!--立即评价  -->
+    <view class="zxfw_ljgt"  wx:if="{{currTab==3}}" data-href="" bindtap="toHref">
+		  <view class="ljgt_box">立即评价</view>
+	  </view>
+
+    <!--立即沟通  -->
+    <view class="zxfw_ljgt" wx:else>
+		  <view class="ljgt_box">立即沟通</view>
+	  </view>
+
+</view>

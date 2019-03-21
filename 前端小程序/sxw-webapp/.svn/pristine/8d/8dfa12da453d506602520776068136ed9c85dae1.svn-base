@@ -1,0 +1,69 @@
+<view class="main_body wen">
+  <view class="search" bindtap='goSearch'>
+    <image src="{{staticImageUrl}}search.png"></image>
+    <view class="search-text">搜索本店商品</view>
+  </view>
+  <view class="dianpu_banner" data-href="../storeIntroduce/storeIntroduce" >
+    <image  style='height=250rpx' src="{{resourcePath+detail.coverResList[0]}}" mode='aspectFill'></image>
+  </view>
+  <view class="dianpu_pplogo">
+    <view class="dianpu_logo" data-href="../storeIntroduce/storeIntroduce">
+      <image  src="{{resourcePath+detail.logoUrl}}"></image>
+    </view>
+    <view class="dianpu_tetle ellipsis">{{detail.shopName}}</view>
+  </view>
+  <!-- 品牌信息 -->
+  <view class="brand-info">
+    <view class="brand-info-tetle">品牌信息</view>
+    <view class="brand-info-box">
+      <view class="brand-category">品牌类别<text class="ellipsis">{{detail.firstCategoryNames}}</text></view>
+      <view class="brand-serve">
+        <view class="brand-serve-tetle">主营服务</view>
+        <view class="brand-serve-item">{{detail.categoryNames}}</view>
+      </view>
+    </view>
+  </view>
+  <!--店铺介绍-->
+  <view class="ppg_dp_nro">
+    <view class="ppg_dp_tetle">详细介绍</view>
+    <rich-text nodes='{{detail.shopIntroduced}}'></rich-text>
+  </view>
+  <!--商品列表 -->
+  <view class="goods">
+    <view class="goods-nav">
+       <scroll-view scroll-x scroll-with-animation>
+        <view class="nav-item {{goodsNavIndex == index?'nav-item-active':''}}" 
+          wx:for="{{goodsNavList}}" 
+          wx:key="{{index}}"
+          bindtap='selectNav' 
+          data-index="{{index}}">
+          {{item.categoryName}}<view  wx:if="{{goodsNavIndex == index}}" class="item-footer"></view>
+        </view>
+      </scroll-view>
+    </view>
+    <view class="hint" wx:if="{{goodsList.length<1}}">—   暂无数据   —</view>
+    <view class="goods-list" >
+      <view class="goods-item"
+         wx:for="{{goodsList}}" 
+         wx:key="{{index}}" 
+         data-id="{{item.spuId?item.spuId:item.id}}" 
+         bindtap='goGoodsDetails'>
+        <image src="{{item.picPath?resourcePath + item.picPath:staticImageUrl+'goods_pic_no.png'}}"></image>
+        <view wx:if="{{item.spuName}}" class="goods-name ellipsis">{{item.spuName}}</view>
+        <view wx:else class="goods-name ellipsis">{{item.productName}}</view>
+        <view class="goods-price">￥{{item.price}}</view>
+      </view>
+    </view>
+  </view>
+  <!--底部  -->
+  <!-- <view class="to-top" wx:if='{{ifShowToTopLogo}}' bindtap="goTop">
+     <image src='{{staticImageUrl}}to_top.png'></image>
+  </view> -->
+   <view class="ppg_fixed">
+		<view class="fixed_right" bindtap='callService' data-phone='{{detail.contactPhone}}'>联系客服</view>
+	</view>
+</view>
+<!-- 快速导航模块 -->
+  <!-- <import src="../../../component/newNav/newNav.wxml"/>
+  <template is="newNav" data="{{ ...newNav }}"/> -->
+  <jdNav></jdNav>

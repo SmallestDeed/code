@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.gateway.pay.trade.dao.PayTradeRecordLogMapper">
+	<insert id="insertSelective" parameterType="com.sandu.gateway.pay.trade.model.PayTradeRecordLog" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO pay_trade_record_log 
+			(
+				trade_id, 
+				external_request, 
+				external_response, 
+				external_notify_body,
+				internal_notify_request,
+				internal_notify_response,
+				sys_code, 
+				operator, 
+				creator, 
+				gmt_create, 
+				modifier, 
+				gmt_modified, 
+				is_deleted, 
+				remark
+			) 
+		VALUES 
+			(
+				#{tradeId},
+				#{externalRequest},
+				#{externalResponse},
+				#{externalNotifyBody},
+				#{internalNotifyRequest},
+				#{internalNotifyResponse},
+				#{sysCode},
+				#{operator},
+				#{creator},
+				#{gmtCreate},
+				#{modifier},
+				#{gmtModified},
+				#{isDeleted},
+				#{remark}
+			);
+	</insert>
+	
+	<update id="updateExtenalNotifyBodyByTradeId">
+        UPDATE
+        	pay_trade_record_log
+        SET
+        	external_notify_body = #{externalNotifyBody},
+       		modifier = 'system',
+        	gmt_modified = now()
+        WHERE
+        	trade_id = #{tradeId} 
+        	and is_deleted = 0
+    </update>
+    
+    <update id="updateInternalNotifyReqAndRespByByTradeId">
+        UPDATE
+        	pay_trade_record_log
+        SET
+        	internal_notify_request = #{request},
+        	internal_notify_response = #{response},
+       		modifier = 'system',
+        	gmt_modified = now()
+        WHERE
+        	trade_id = #{tradeId} 
+        	and is_deleted = 0
+    </update>
+    
+</mapper>

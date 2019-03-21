@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.pay.order.dao.PayModelConfigMapper">
+    <resultMap id="BaseResultMap" type="com.sandu.pay.order.model.PayModelConfig">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="package_name" property="packageName" jdbcType="VARCHAR"/>
+        <result column="package_details" property="packageDetails" jdbcType="VARCHAR"/>
+        <result column="package_lcon" property="packageLcon" jdbcType="INTEGER"/>
+        <result column="package_price" property="packagePrice" jdbcType="DOUBLE"/>
+        <result column="time_unit" property="timeUnit" jdbcType="INTEGER"/>
+        <result column="time_type" property="timeType" jdbcType="INTEGER"/>
+        <result column="biz_type" property="bizType" jdbcType="VARCHAR"/>
+        <result column="platform_id" property="platformId" jdbcType="INTEGER"/>
+        <result column="range_type" property="rangeType" jdbcType="INTEGER"/>
+        <result column="package_user_type" property="packageUserType" jdbcType="VARCHAR"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="business_type" property="businessType" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, package_name, package_details, package_lcon, package_price, time_unit, time_type, 
+    biz_type, platform_id, range_type, package_user_type, is_deleted, creator, gmt_create, 
+    modifier, gmt_modified, business_type
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from pay_model_config
+        where id = #{id,jdbcType=INTEGER}
+        AND is_deleted = '0'
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from pay_model_config
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insertSelective" parameterType="com.sandu.pay.order.model.PayModelConfig">
+        insert into pay_model_config
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="packageName != null">
+                package_name,
+            </if>
+            <if test="packageDetails != null">
+                package_details,
+            </if>
+            <if test="packageLcon != null">
+                package_lcon,
+            </if>
+            <if test="packagePrice != null">
+                package_price,
+            </if>
+            <if test="timeUnit != null">
+                time_unit,
+            </if>
+            <if test="timeType != null">
+                time_type,
+            </if>
+            <if test="bizType != null">
+                biz_type,
+            </if>
+            <if test="platformId != null">
+                platform_id,
+            </if>
+            <if test="rangeType != null">
+                range_type,
+            </if>
+            <if test="packageUserType != null">
+                package_user_type,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="businessType != null" >
+                business_type,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="packageName != null">
+                #{packageName,jdbcType=VARCHAR},
+            </if>
+            <if test="packageDetails != null">
+                #{packageDetails,jdbcType=VARCHAR},
+            </if>
+            <if test="packageLcon != null">
+                #{packageLcon,jdbcType=INTEGER},
+            </if>
+            <if test="packagePrice != null">
+                #{packagePrice,jdbcType=DOUBLE},
+            </if>
+            <if test="timeUnit != null">
+                #{timeUnit,jdbcType=INTEGER},
+            </if>
+            <if test="timeType != null">
+                #{timeType,jdbcType=INTEGER},
+            </if>
+            <if test="bizType != null">
+                #{bizType,jdbcType=VARCHAR},
+            </if>
+            <if test="platformId != null">
+                #{platformId,jdbcType=INTEGER},
+            </if>
+            <if test="rangeType != null">
+                #{rangeType,jdbcType=INTEGER},
+            </if>
+            <if test="packageUserType != null">
+                #{packageUserType,jdbcType=VARCHAR},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="businessType != null" >
+                #{businessType,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.pay.order.model.PayModelConfig">
+        update pay_model_config
+        <set>
+            <if test="packageName != null">
+                package_name = #{packageName,jdbcType=VARCHAR},
+            </if>
+            <if test="packageDetails != null">
+                package_details = #{packageDetails,jdbcType=VARCHAR},
+            </if>
+            <if test="packageLcon != null">
+                package_lcon = #{packageLcon,jdbcType=INTEGER},
+            </if>
+            <if test="packagePrice != null">
+                package_price = #{packagePrice,jdbcType=DOUBLE},
+            </if>
+            <if test="timeUnit != null">
+                time_unit = #{timeUnit,jdbcType=INTEGER},
+            </if>
+            <if test="timeType != null">
+                time_type = #{timeType,jdbcType=INTEGER},
+            </if>
+            <if test="bizType != null">
+                biz_type = #{bizType,jdbcType=VARCHAR},
+            </if>
+            <if test="platformId != null">
+                platform_id = #{platformId,jdbcType=INTEGER},
+            </if>
+            <if test="rangeType != null">
+                range_type = #{rangeType,jdbcType=INTEGER},
+            </if>
+            <if test="packageUserType != null">
+                package_user_type = #{packageUserType,jdbcType=VARCHAR},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="businessType != null" >
+                business_type = #{businessType,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <select id="getPayModelConfigList" resultMap="BaseResultMap" parameterType="java.util.Map">
+        select
+        <include refid="Base_Column_List"/>
+        from pay_model_config
+        where is_deleted = '0'
+        <if test="platformId != null">
+            AND platform_id = #{platformId,jdbcType=INTEGER}
+        </if>
+        <if test="bizType != null and bizType != ''">
+            AND biz_type = #{bizType,jdbcType=VARCHAR}
+        </if>
+        <if test="rangeType != null">
+            AND range_type = #{rangeType,jdbcType=INTEGER}
+        </if>
+        ORDER BY gmt_create DESC
+    </select>
+    <select id="getRenderPayConfigList" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT
+        t1.id AS payModelConfigId,
+        t1.package_details AS packageDetails,
+        t1.package_lcon AS packageLcon,
+        t1.package_price/100 AS packagePrice,
+        t1.time_type AS timeType,
+        t1.package_name AS packageName,
+        t1.time_unit AS timeUnit
+        FROM pay_model_config AS t1
+        where t1.is_deleted = '0'
+        <if test="platformId != null">
+            AND t1.platform_id = #{platformId,jdbcType=INTEGER}
+        </if>
+        <if test="bizType != null and bizType != ''">
+            AND t1.biz_type = #{bizType,jdbcType=VARCHAR}
+        </if>
+        <if test="rangeType != null">
+            AND t1.range_type = #{rangeType,jdbcType=INTEGER}
+        </if>
+        ORDER BY t1.gmt_create DESC
+    </select>
+
+    <select id="getPayModelConfigByBizType" resultType="com.sandu.pay.order.model.PayModelConfig">
+        SELECT
+            *
+        FROM
+            pay_model_config
+        WHERE
+            biz_type = #{bizType}
+            AND is_deleted = 0
+    </select>
+
+</mapper>

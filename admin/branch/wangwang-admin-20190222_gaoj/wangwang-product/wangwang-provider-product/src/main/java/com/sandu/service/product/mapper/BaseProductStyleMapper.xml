@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.product.dao.BaseProductStyleDao" >
+  <resultMap id="BaseResultMap" type="com.sandu.api.product.model.BaseProductStyle" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="pid" property="pid" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="code" property="code" jdbcType="VARCHAR" />
+    <result column="long_code" property="longCode" jdbcType="VARCHAR" />
+    <result column="value" property="value" jdbcType="INTEGER" />
+    <result column="is_leaf" property="isLeaf" jdbcType="INTEGER" />
+    <result column="level" property="level" jdbcType="INTEGER" />
+    <result column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    <result column="att1" property="att1" jdbcType="VARCHAR" />
+    <result column="att2" property="att2" jdbcType="VARCHAR" />
+    <result column="numa1" property="numa1" jdbcType="INTEGER" />
+    <result column="numa2" property="numa2" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, pid, name, code, long_code, value, is_leaf, level, sys_code, is_deleted, remark
+  </sql>
+  <select id="getById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" />
+    from base_product_style
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteById" parameterType="java.lang.Long" >
+    delete from base_product_style
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="save" parameterType="com.sandu.api.product.model.BaseProductStyle" useGeneratedKeys="true" keyProperty="id">
+    insert into base_product_style
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="pid != null" >
+        pid,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="code != null" >
+        code,
+      </if>
+      <if test="longCode != null" >
+        long_code,
+      </if>
+      <if test="value != null" >
+        value,
+      </if>
+      <if test="isLeaf != null" >
+        is_leaf,
+      </if>
+      <if test="level != null" >
+        level,
+      </if>
+      <if test="sysCode != null" >
+        sys_code,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="att1 != null" >
+        att1,
+      </if>
+      <if test="att2 != null" >
+        att2,
+      </if>
+      <if test="numa1 != null" >
+        numa1,
+      </if>
+      <if test="numa2 != null" >
+        numa2,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="pid != null" >
+        #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null" >
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="longCode != null" >
+        #{longCode,jdbcType=VARCHAR},
+      </if>
+      <if test="value != null" >
+        #{value,jdbcType=INTEGER},
+      </if>
+      <if test="isLeaf != null" >
+        #{isLeaf,jdbcType=INTEGER},
+      </if>
+      <if test="level != null" >
+        #{level,jdbcType=INTEGER},
+      </if>
+      <if test="sysCode != null" >
+        #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="att1 != null" >
+        #{att1,jdbcType=VARCHAR},
+      </if>
+      <if test="att2 != null" >
+        #{att2,jdbcType=VARCHAR},
+      </if>
+      <if test="numa1 != null" >
+        #{numa1,jdbcType=INTEGER},
+      </if>
+      <if test="numa2 != null" >
+        #{numa2,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="update" parameterType="com.sandu.api.product.model.BaseProductStyle" >
+    update base_product_style
+    <set >
+      <if test="pid != null" >
+        pid = #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null" >
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="longCode != null" >
+        long_code = #{longCode,jdbcType=VARCHAR},
+      </if>
+      <if test="value != null" >
+        value = #{value,jdbcType=INTEGER},
+      </if>
+      <if test="isLeaf != null" >
+        is_leaf = #{isLeaf,jdbcType=INTEGER},
+      </if>
+      <if test="level != null" >
+        level = #{level,jdbcType=INTEGER},
+      </if>
+      <if test="sysCode != null" >
+        sys_code = #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="att1 != null" >
+        att1 = #{att1,jdbcType=VARCHAR},
+      </if>
+      <if test="att2 != null" >
+        att2 = #{att2,jdbcType=VARCHAR},
+      </if>
+      <if test="numa1 != null" >
+        numa1 = #{numa1,jdbcType=INTEGER},
+      </if>
+      <if test="numa2 != null" >
+        numa2 = #{numa2,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="getByIds" resultType="com.sandu.api.product.model.BaseProductStyle">
+    select
+    <include refid="Base_Column_List"/>
+    from base_product_style
+    where id in
+    <foreach collection="ids" open="(" close=")" separator="," item="id">
+      #{id}
+    </foreach>
+    
+  </select>
+
+  <select id="getNamesByIds" resultType="java.lang.String">
+    select
+    name
+    from base_product_style
+    where id in
+    <foreach collection="ids" open="(" close=")" separator="," item="id">
+      #{id}
+    </foreach>
+
+  </select>
+
+  <select id="listBaseProductStyleIdAndName" resultType="com.sandu.api.product.model.BaseProductStyle">
+    select id, name
+    from base_product_style where is_leaf = 0 and is_deleted = 0 and long_code like ".root.%" ;
+  </select>
+
+  <select id="listBasePlanStyleIdAndName" resultType="com.sandu.api.product.model.BaseProductStyle">
+    select id, name
+    from base_product_style where is_deleted = 0 and long_code like ".root2%"
+    <if test="numa != null">
+      and numa2 = #{numa}
+    </if>
+    <if test="pid != null">
+      and pid = #{pid}
+    </if>
+  </select>
+
+  <select id="listDesignPlanStyle" resultType="com.sandu.api.product.model.bo.DesignPlanStyleBO">
+    <!-- SELECT
+      ps2.id style_id,
+      ps2.name style_name,
+      d.value space_function_id,
+      d.name space_function_name
+    FROM
+      base_product_style ps1,
+      base_product_style ps2,
+      sys_dictionary d
+    WHERE ps1.id = ps2.pid
+      AND ps2.is_deleted = 0
+      AND ps1.is_deleted = 0
+      AND ps1.long_code LIKE ".root2%"
+      AND ps2.long_code LIKE ".root2%"
+      AND d.type = 'houseType'
+      AND ps1.numa2 = d.value
+    ORDER BY d.value, ps2.id-->
+    SELECT
+      ps2.name style_name,
+      GROUP_CONCAT(ps2.id) group_id
+    FROM
+      base_product_style ps1,
+      base_product_style ps2,
+      sys_dictionary d
+    WHERE ps1.id = ps2.pid
+      AND ps2.is_deleted = 0
+      AND ps1.is_deleted = 0
+      AND ps1.long_code LIKE ".root2%"
+      AND ps2.long_code LIKE ".root2%"
+      AND d.type = 'houseType'
+      AND ps1.numa2 = d.value
+    GROUP BY ps2.name
+    ORDER BY d.value, ps2.id
+  </select>
+</mapper>

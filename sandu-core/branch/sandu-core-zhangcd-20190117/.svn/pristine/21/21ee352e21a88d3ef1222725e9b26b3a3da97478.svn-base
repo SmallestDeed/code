@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.springFestivalActivity.dao.WxUserSigninMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.api.springFestivalActivity.model.WxUserSignin" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="activity_id" property="activityId" jdbcType="BIGINT" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="signin_date" property="signinDate" jdbcType="DATE" />
+    <result column="signin_day" property="signinDay" jdbcType="INTEGER" />
+    <result column="red_packet_num" property="redPacketNum" jdbcType="DECIMAL" />
+    <result column="receive_status" property="receiveStatus" jdbcType="TINYINT" />
+    <result column="receive_time" property="receiveTime" jdbcType="TIMESTAMP" />
+    <result column="is_lottery_flag" property="isLotteryFlag" jdbcType="TINYINT" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, activity_id, user_id, signin_date, signin_day, red_packet_num, receive_status, 
+    receive_time, is_lottery_flag, creator, gmt_create, modifier, gmt_modified, is_deleted
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from wx_user_signin
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from wx_user_signin
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.springFestivalActivity.model.WxUserSignin" >
+    insert into wx_user_signin (id, activity_id, user_id, 
+      signin_date, signin_day, red_packet_num, 
+      receive_status, receive_time, is_lottery_flag, 
+      creator, gmt_create, modifier, 
+      gmt_modified, is_deleted)
+    values (#{id,jdbcType=BIGINT}, #{activityId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, 
+      #{signinDate,jdbcType=DATE}, #{signinDay,jdbcType=INTEGER}, #{redPacketNum,jdbcType=DECIMAL}, 
+      #{receiveStatus,jdbcType=TINYINT}, #{receiveTime,jdbcType=TIMESTAMP}, #{isLotteryFlag,jdbcType=TINYINT}, 
+      #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.springFestivalActivity.model.WxUserSignin" >
+    insert into wx_user_signin
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="activityId != null" >
+        activity_id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="signinDate != null" >
+        signin_date,
+      </if>
+      <if test="signinDay != null" >
+        signin_day,
+      </if>
+      <if test="redPacketNum != null" >
+        red_packet_num,
+      </if>
+      <if test="receiveStatus != null" >
+        receive_status,
+      </if>
+      <if test="receiveTime != null" >
+        receive_time,
+      </if>
+      <if test="isLotteryFlag != null" >
+        is_lottery_flag,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="activityId != null" >
+        #{activityId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="signinDate != null" >
+        #{signinDate,jdbcType=DATE},
+      </if>
+      <if test="signinDay != null" >
+        #{signinDay,jdbcType=INTEGER},
+      </if>
+      <if test="redPacketNum != null" >
+        #{redPacketNum,jdbcType=DECIMAL},
+      </if>
+      <if test="receiveStatus != null" >
+        #{receiveStatus,jdbcType=TINYINT},
+      </if>
+      <if test="receiveTime != null" >
+        #{receiveTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isLotteryFlag != null" >
+        #{isLotteryFlag,jdbcType=TINYINT},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.springFestivalActivity.model.WxUserSignin" >
+    update wx_user_signin
+    <set >
+      <if test="activityId != null" >
+        activity_id = #{activityId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="signinDate != null" >
+        signin_date = #{signinDate,jdbcType=DATE},
+      </if>
+      <if test="signinDay != null" >
+        signin_day = #{signinDay,jdbcType=INTEGER},
+      </if>
+      <if test="redPacketNum != null" >
+        red_packet_num = #{redPacketNum,jdbcType=DECIMAL},
+      </if>
+      <if test="receiveStatus != null" >
+        receive_status = #{receiveStatus,jdbcType=TINYINT},
+      </if>
+      <if test="receiveTime != null" >
+        receive_time = #{receiveTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isLotteryFlag != null" >
+        is_lottery_flag = #{isLotteryFlag,jdbcType=TINYINT},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.springFestivalActivity.model.WxUserSignin" >
+    update wx_user_signin
+    set activity_id = #{activityId,jdbcType=BIGINT},
+      user_id = #{userId,jdbcType=BIGINT},
+      signin_date = #{signinDate,jdbcType=DATE},
+      signin_day = #{signinDay,jdbcType=INTEGER},
+      red_packet_num = #{redPacketNum,jdbcType=DECIMAL},
+      receive_status = #{receiveStatus,jdbcType=TINYINT},
+      receive_time = #{receiveTime,jdbcType=TIMESTAMP},
+      is_lottery_flag = #{isLotteryFlag,jdbcType=TINYINT},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+    <select id="getSignInListByUserId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM wx_user_signin
+        WHERE activity_id = #{activityId,jdbcType=BIGINT}
+        AND user_id = #{userId,jdbcType=BIGINT}
+        AND is_deleted = 0
+    </select>
+</mapper>

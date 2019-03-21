@@ -1,0 +1,139 @@
+package com.sandu.goods.service.impl;
+
+
+import com.sandu.goods.dao.BaseGoodsSKUMapper;
+import com.sandu.goods.input.GoodsSkuQuery;
+import com.sandu.goods.model.BO.GoodsSkuBO;
+import com.sandu.goods.model.BO.ProductAttrBO;
+import com.sandu.goods.model.BaseGoodsSKU;
+import com.sandu.goods.output.GoodsSkuVO;
+import com.sandu.goods.service.BaseGoodsSKUService;
+import com.sandu.system.service.ResPicService;
+import lombok.extern.log4j.Log4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+
+@Service("baseGoodsSKUService")
+@Log4j
+public class BaseGoodsSKUServiceImpl implements BaseGoodsSKUService
+{
+    @Autowired
+    private BaseGoodsSKUMapper baseGoodsSKUMapper;
+    @Autowired
+    private ResPicService resPicService;
+
+    @Override
+    public GoodsSkuVO getSkuInfoByAttrs(GoodsSkuQuery goodsSkuQuery)
+    {
+        GoodsSkuVO goodsSkuVO = new GoodsSkuVO();
+        List<GoodsSkuBO> skus = baseGoodsSKUMapper.getSkusBySpuId(goodsSkuQuery.getSpuId());
+        List<Integer> attrValIds = getIntListFromStr(goodsSkuQuery.getAttrValueIds());
+
+        if (skus != null && skus.size() != 0)
+        {
+            for (GoodsSkuBO sku : skus)
+            {
+                List<Integer> skuAttrIds = getIntListFromStr(sku.getAttributeIds());
+
+                Integer flag = 0;
+                for (Integer valId : attrValIds)
+                {
+                    for (Integer attrId : skuAttrIds)
+                    {
+                        if (valId.equals(attrId))
+                        {
+                            flag += 1;
+                        }
+                    }
+                }
+                if (flag == skuAttrIds.size() && flag == attrValIds.size())
+                {
+                    goodsSkuVO.setSkuId(sku.getId());
+                    goodsSkuVO.setInventory(sku.getInventory());
+                    goodsSkuVO.setPrice(sku.getPrice().toString());
+                    goodsSkuVO.setSalePrice(sku.getSalePrice().toString());
+                    goodsSkuVO.setProductId(sku.getProductId());
+                    goodsSkuVO.setProductName(sku.getProductName());
+                    goodsSkuVO.setListPic(resPicService.get(sku.getListPicId()).getPicPath());
+                    goodsSkuVO.setMainPic(resPicService.get(sku.getMainPicId()).getPicPath());
+                    goodsSkuVO.setSpePic(resPicService.get(sku.getSpePicId()).getPicPath());
+                    return goodsSkuVO;
+                }
+            }
+        }else
+        {
+            List<ProductAttrBO> productAttrList = baseGoodsSKUMapper.getProductAttrBySpuId(goodsSkuQuery.getSpuId());
+            for(ProductAttrBO productAttrBO : productAttrList)
+            {
+                List<Integer> proAttrs = getIntListFromStr(productAttrBO.getAttrValueIds());
+                if (attrValIds.size() == 1 && attrValIds.get(0).equals(0) && proAttrs.size() == 0)
+                {
+                    goodsSkuVO.setPrice("0");
+                    goodsSkuVO.setSalePrice("0");
+                    goodsSkuVO.setInventory(0);
+                    goodsSkuVO.setProductId(productAttrBO.getId());
+                    goodsSkuVO.setProductName(productAttrBO.getProductName());
+                    goodsSkuVO.setListPic(productAttrBO.getPicPath());
+                    goodsSkuVO.setMainPic(productAttrBO.getPicPath());
+                    goodsSkuVO.setSpePic(productAttrBO.getPicPath());
+                    return goodsSkuVO;
+                }else
+                {
+                    Integer flag = 0;
+                    for (Integer valId : attrValIds)
+                    {
+                        for (Integer attrId : proAttrs)
+                        {
+                            if (valId.equals(attrId))
+                            {
+                                flag += 1;
+                            }
+                        }
+                    }
+                    if (flag == proAttrs.size() && flag == attrValIds.size())
+                    {
+                        goodsSkuVO.setSalePrice("0");
+                        goodsSkuVO.setPrice("0");
+                        goodsSkuVO.setInventory(0);
+                        goodsSkuVO.setProductId(productAttrBO.getId());
+                        goodsSkuVO.setProductName(productAttrBO.getProductName());
+                        goodsSkuVO.setListPic(productAttrBO.getPicPath());
+                        goodsSkuVO.setMainPic(productAttrBO.getPicPath());
+                        goodsSkuVO.setSpePic(productAttrBO.getPicPath());
+                        return goodsSkuVO;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<Integer> getProductIdsBySpuId(Integer spuId)
+    {
+        return baseGoodsSKUMapper.getProductIdsBySpuId(spuId);
+    }
+
+    private List<Integer> getIntListFromStr(String strs)
+    {
+        if (strs == null || "".equals(strs)) return new ArrayList<>();
+        List<Integer> intList = new ArrayList<>();
+        if (strs.contains(","))
+        {
+            List<String> strList = Arrays.asList(strs.split(","));
+            for (String str : strList)
+            {
+                intList.add(Integer.parseInt(str));
+            }
+        }else
+        {
+            intList.add(Integer.parseInt(strs));
+        }
+        return intList;
+    }
+}

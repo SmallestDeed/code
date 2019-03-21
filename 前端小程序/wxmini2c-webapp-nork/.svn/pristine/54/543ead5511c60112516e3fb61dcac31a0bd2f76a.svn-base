@@ -1,0 +1,24 @@
+<!--pages/activeKj/activeKj.wxml-->
+<view class='activeItem' wx:for='{{activeList}}'>
+    <image class='leftImg' src='{{resourcePath+item.productImg}}'></image>
+    <view class='info'>
+      <view class='name'>{{item.actName}}</view>
+      <view class='title'>活动倒计时：</view>
+      <view class='time'>
+        <view class='timedetail'>{{countDownList[index].day}}</view>天
+        <view class='timedetail'>{{countDownList[index].hou}}</view>时
+        <view class='timedetail'>{{countDownList[index].min}}</view>分
+        <view class='timedetail'>{{countDownList[index].sec}}</view>秒
+      </view>
+      <view class='price'>
+        <view class='pri'>价值￥{{item.originalPrice>99999?'99999+':item.originalPrice}}</view>
+        <view class='btn' bindtap='toActive' data-id='{{item.id}}'>0元砍价</view>
+      </view>
+    </view>
+</view>
+<block wx:if="{{!activeList.length>0}}">
+<view class="empty_tip ">
+  <image class="image" src="{{staticImageUrl}}me_pic_no_03.png"></image>
+  <view class="txt">活动正在筹备中，敬请期待...</view>
+</view>
+</block>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.banner.dao.ActShareImgAdminMapper">
+
+    <insert id="insert" parameterType="com.sandu.api.banner.model.ActShareImgAdmin">
+        insert into act_share_img_admin
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bannerId != null">
+                banner_id,
+            </if>
+            <if test="bannerName != null">
+                banner_name,
+            </if>
+            <if test="ShareImgResPicId != null">
+                share_img_res_pic_id,
+            </if>
+            <if test="shareText != null">
+                share_text,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bannerId != null">
+                #{bannerId},
+            </if>
+            <if test="bannerName != null">
+                #{bannerName},
+            </if>
+            <if test="ShareImgResPicId != null">
+                #{ShareImgResPicId},
+            </if>
+            <if test="shareText != null">
+                #{shareText},
+            </if>
+            <if test="creator != null">
+                #{creator},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.sandu.api.banner.model.ActShareImgAdmin">
+        UPDATE
+            act_share_img_admin
+        <set>
+            <if test="bannerId != null">
+                banner_id = #{bannerId},
+            </if>
+            <if test="bannerName != null">
+                banner_name = #{bannerName},
+            </if>
+            <if test="ShareImgResPicId != null">
+                share_img_res_pic_id = #{ShareImgResPicId},
+            </if>
+            <if test="shareText != null">
+                share_text = #{shareText},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+        </set>
+        WHERE
+        id=#{id}
+    </update>
+
+    <select id="select" resultType="com.sandu.api.banner.model.ActShareImgAdmin">
+        SELECT
+          a.id,
+          a.banner_id as bannerId,
+          a.banner_name as bannerName,
+          a.share_img_res_pic_id as shareImgResPicId,
+          a.share_text as shareText,
+          a.gmt_create as gmtCreate,
+          a.gmt_modified as gmtModified,
+          pic.pic_path as picPath
+        from
+          act_share_img_admin a LEFT JOIN res_banner_pic pic ON a.share_img_res_pic_id = pic.id and pic.is_deleted = 0
+        where
+          a.is_deleted = 0 order by a.gmt_create desc
+    </select>
+
+    <select id="getActShareImgByBannerId" resultType="com.sandu.api.banner.model.ActShareImgAdmin">
+       SELECT
+          a.id,
+          a.banner_id as bannerId,
+          a.banner_name as bannerName,
+          a.share_img_res_pic_id as shareImgResPicId,
+          a.share_text as shareText,
+          a.gmt_create as gmtCreate,
+          a.gmt_modified as gmtModified,
+          pic.pic_path as picPath
+        from
+          act_share_img_admin a LEFT JOIN res_banner_pic pic ON a.share_img_res_pic_id = pic.id and pic.is_deleted = 0
+        where
+          a.banner_id = #{bannerId} AND
+          a.is_deleted = 0
+    </select>
+</mapper>

@@ -1,0 +1,56 @@
+<view class="list" wx:if="{{contentlist.length>0}}">
+  <view class="list-item" wx:for="{{contentlist}}" wx:key='{{index}}' bindtap='cancelFlag'   data-key='{{listIndex}}'>
+    <view class="item-img">
+      
+      <view class="operate" bindtap='showOperateBox' data-item='{{item}}' data-index="{{index}}">...</view>
+      <view class="operate-box" wx:if="{{listIndex == index}}">
+        <view class='options' catchtap='goPublishNews' data-item='{{item}}'>{{isPublish}}</view>
+        <view class='options' style="border-top: 1rpx solid #e8e8e8" catchtap='delete' data-item='{{item}}'>删除方案</view>
+        <view class='options' style="border-top: 1rpx solid #e8e8e8" catchtap='goRechristen' data-item="{{item}}">
+          重新命名
+        </view>
+      </view>
+      <image class="btn" src="/static/image/me_icon_720.png" 
+        bindtap='toThreeD' 
+        data-type='seven' 
+        data-item='{{item}}' wx:if='{{item.planRenderType==1?(item.isSuccess==2 || item.state==1):(item.vrResourceUuid)}}'></image>
+      <image src="{{item.planPicPath? resourcePath + item.planPicPath : staticImageUrl+'design_def.png'}}"></image>
+
+      <view class='taskType'>{{item.taskType==0?'由装进我家生成':'由产品替换生成'}}</view>
+      <!-- <view class='renderState' wx:if='{{(item.planHouseType!=3&&item.state!=1) || (item.planHouseType==3 && (item.isSuccess==1 || item.isSuccess==0))}}'>正在渲染中...</view> -->
+ <view class='renderState' wx:if='{{item.isSuccess==0 ||item.isSuccess==1}}'>正在渲染中...</view>
+      <view class='renderState' wx:if='{{ item.isSuccess==3}}'>渲染失败</view>
+
+      <view class='background'></view>
+    </view>
+    <view class="bottom-box">
+      <view class="left">
+        <view class="name ellipsis fl">{{item.designName}}</view>
+        <view class="date ellipsis fr">{{item.gmtCreate}}</view>
+      </view>
+      <view class='bottomBtn'> 
+        <view class="price-btn" data-id='{{item.businessId}}' data-iid='{{item.newFullHousePlanId}}' 
+          data-type='{{item.planRenderType}}' bindtap='toLanding'>免费报价</view>
+        <button class="shareBtn" open-type='share' data-item='{{item}}' data-type='seven' wx:if='{{item.planRenderType==1?(item.isSuccess==2 || item.state==2):(item.vrResourceUuid)}}'>分享</button>
+        <!-- <view class="continue-btn"  bindtap='toHouseDeatil' data-item='{{item}}' data-type='seven' >分享</view> -->
+        <view class="continue-btn" wx:if='{{item.planHouseType==3 && item.houseId!=null}}' bindtap='toHouseDeatil' data-item='{{item}}'>继续装修</view>
+      </view>
+    </view>
+  </view>
+</view>
+<view class="rechristen" wx:if="{{isShowRechristen}}" catchtouchmove='true'>
+  <view class="rechristen-box">
+    <view class="title">方案重命名</view>
+    <input placeholder-style='color: #999999;' placeholder='不超过15个字' bindinput='getRename' maxlength='15'></input>
+    <view class="btn-box">
+      <view class="cancel" bindtap='cancel'>取消</view>
+      <view class="confirm" bindtap='rename' data->确定</view>
+    </view>
+  </view>
+</view>
+<empty-page emptyPageObj="{{emptyPageObj}}" wx:if="{{!contentlist.length>0}}"></empty-page>
+
+<!-- 快速导航模块 -->
+  <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav"  data="{{ ...newNav }}"/>
+

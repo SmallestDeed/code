@@ -1,0 +1,165 @@
+package com.sandu.search.common.tools;
+
+import com.sandu.search.storage.company.BrandMetaDataStorage;
+import com.sandu.search.storage.company.CompanyCategoryRelMetaDataStorage;
+import com.sandu.search.storage.company.CompanyMetaDataStorage;
+import com.sandu.search.storage.company.UnionBrandMetaDataStorage;
+import com.sandu.search.storage.design.DesignPlanProductMetaDataStorage;
+import com.sandu.search.storage.design.DesignTemplateMetaDataStorage;
+import com.sandu.search.storage.house.HouseLivingMetaDataStorage;
+import com.sandu.search.storage.product.*;
+import com.sandu.search.storage.resource.ResPicMetaDataStorage;
+import com.sandu.search.storage.system.SystemAreaMetaDataStorage;
+import com.sandu.search.storage.system.SystemDictionaryMetaDataStorage;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+/**
+ * 数据存储组件
+ *
+ * @date 20171229
+ * @auth pengxuangang
+ */
+@Slf4j
+@Component
+public class StorageComponent {
+
+    private final static String CLASS_LOG_PREFIX = "数据存储组件:";
+
+    @Autowired
+    private BrandMetaDataStorage brandMetaDataStorage;
+    @Autowired
+    private ResPicMetaDataStorage resPicMetaDataStorage;
+    @Autowired
+    private CompanyMetaDataStorage companyMetaDataStorage;
+    @Autowired
+    private SystemAreaMetaDataStorage systemAreaMetaDataStorage;
+    @Autowired
+    private UnionBrandMetaDataStorage unionBrandMetaDataStorage;
+    @Autowired
+    private HouseLivingMetaDataStorage houseLivingMetaDataStorage;
+    @Autowired
+    private ProductStyleMetaDataStorage productStyleMetaDataStorage;
+    @Autowired
+    private DesignTemplateMetaDataStorage designTemplateMetaDataStorage;
+    @Autowired
+    private ProductTextureMetaDataStorage productTextureMetaDataStorage;
+    @Autowired
+    private ProductGroupRelMetaDataStorage productGroupRelMetaDataStorage;
+    @Autowired
+    private ProductCategoryMetaDataStorage productCategoryMetaDataStorage;
+    @Autowired
+    private ProductPlatformMetaDataStorage productPlatformMetaDataStorage;
+    @Autowired
+    private ProductAttributeMetaDataStorage productAttributeMetaDataStorage;
+    @Autowired
+    private SystemDictionaryMetaDataStorage systemDictionaryMetaDataStorage;
+    @Autowired
+    private DesignPlanProductMetaDataStorage designPlanProductMetaDataStorage;
+    @Autowired
+    private CompanyCategoryRelMetaDataStorage companyCategoryRelMetaDataStorage;
+    @Autowired
+    private ProductCategoryRelMetaDataStorage productCategoryRelMetaDataStorage;
+
+
+
+    /**
+     * 重新加载所有内存中缓存的数据(用以数据同步时清空数据)
+     */
+    public void reloadAllStorageInMemory(boolean isEnforceLoad) {
+
+        long startTime = System.currentTimeMillis();
+        log.info(CLASS_LOG_PREFIX + "开始重新加载所有内存中缓存的数据.....");
+
+        //品牌元数据
+        log.info(CLASS_LOG_PREFIX + "开始更新品牌元数据...");
+        brandMetaDataStorage.updateData(isEnforceLoad);
+        log.info(CLASS_LOG_PREFIX + "品牌元数据更新完成.");
+
+        //产品分类元数据
+        log.info(CLASS_LOG_PREFIX + "开始更新产品分类元数据...");
+        productCategoryMetaDataStorage.updateData(isEnforceLoad);
+        log.info(CLASS_LOG_PREFIX + "产品分类元数据更新完成.");
+
+        //产品分类关联数据
+        log.info(CLASS_LOG_PREFIX + "开始更新产品分类关联元数据...");
+        productCategoryRelMetaDataStorage.updateData(isEnforceLoad);
+        log.info(CLASS_LOG_PREFIX + "产品分类关联元数据更新完成.");
+
+        //产品组合关联数据
+        log.info(CLASS_LOG_PREFIX + "开始更新产品组合关联数据...");
+        productGroupRelMetaDataStorage.updateData(isEnforceLoad);
+        log.info(CLASS_LOG_PREFIX + "产品组合关联数据更新完成.");
+
+        //产品风格数据
+        log.info(CLASS_LOG_PREFIX + "开始更新产品风格数据...");
+        productStyleMetaDataStorage.updateData(isEnforceLoad);
+        log.info(CLASS_LOG_PREFIX + "产品风格数据更新完成.");
+
+        //产品材质数据
+        log.info(CLASS_LOG_PREFIX + "开始更新产品材质数据...");
+        productTextureMetaDataStorage.updateData(isEnforceLoad);
+        log.info(CLASS_LOG_PREFIX + "产品材质数据更新完成.");
+
+        //图片资源数据
+        log.info(CLASS_LOG_PREFIX + "开始更新图片资源数据...");
+        resPicMetaDataStorage.updateData(isEnforceLoad);
+        log.info(CLASS_LOG_PREFIX + "图片资源数据更新完成.");
+
+        //户型小区数据
+        log.info(CLASS_LOG_PREFIX + "开始更新户型小区数据...");
+        houseLivingMetaDataStorage.updateData(isEnforceLoad);
+        log.info(CLASS_LOG_PREFIX + "户型小区数据更新完成.");
+
+        //系统字典数据
+        log.info(CLASS_LOG_PREFIX + "开始更新系统字典数据...");
+        systemDictionaryMetaDataStorage.updateData(isEnforceLoad);
+        log.info(CLASS_LOG_PREFIX + "系统字典数据更新完成.");
+
+        //区域数据
+        log.info(CLASS_LOG_PREFIX + "开始更新区域数据...");
+        systemAreaMetaDataStorage.updateData(isEnforceLoad);
+        log.info(CLASS_LOG_PREFIX + "区域数据更新完成.");
+
+        //公司分类关联数据
+        log.info(CLASS_LOG_PREFIX + "开始更新公司分类关联数据...");
+        companyCategoryRelMetaDataStorage.updateData(isEnforceLoad);
+        log.info(CLASS_LOG_PREFIX + "公司分类关联数据更新完成.");
+
+        //公司数据
+        log.info(CLASS_LOG_PREFIX + "开始更新公司数据...");
+        companyMetaDataStorage.updateData(isEnforceLoad);
+        log.info(CLASS_LOG_PREFIX + "公司数据更新完成.");
+
+        //设计方案样板房数据
+        log.info(CLASS_LOG_PREFIX + "开始更新设计方案样板房数据...");
+        designTemplateMetaDataStorage.updateData(isEnforceLoad);
+        log.info(CLASS_LOG_PREFIX + "设计方案样板房数据更新完成.");
+
+        //设计方案产品数据
+        log.info(CLASS_LOG_PREFIX + "开始同步设计方案产品数据元数据.....");
+        designPlanProductMetaDataStorage.updateData(isEnforceLoad);
+        log.info(CLASS_LOG_PREFIX + "同步设计方案产品数据元数据完成.");
+
+        //联盟品牌数据
+        log.info(CLASS_LOG_PREFIX + "开始同步联盟品牌数据元数据.....");
+        unionBrandMetaDataStorage.updateData(isEnforceLoad);
+        log.info(CLASS_LOG_PREFIX + "同步设计联盟品牌数据元数据完成.");
+
+        //产品平台数据
+        log.info(CLASS_LOG_PREFIX + "开始同步产品平台数据.");
+        productPlatformMetaDataStorage.updateData(isEnforceLoad);
+        log.info(CLASS_LOG_PREFIX + "同步产品平台数据完成.");
+
+        //产品属性数据
+        log.info(CLASS_LOG_PREFIX + "开始同步产品属性数据.");
+        productAttributeMetaDataStorage.updateData(isEnforceLoad);
+        log.info(CLASS_LOG_PREFIX + "同步产品属性数据完成.");
+
+        log.info(CLASS_LOG_PREFIX + "重新加载所有内存中缓存的数据完成，耗时:{}ms.", (System.currentTimeMillis() - startTime));
+
+        //显式提醒VM回收内存
+        Runtime.getRuntime().gc();
+    }
+}

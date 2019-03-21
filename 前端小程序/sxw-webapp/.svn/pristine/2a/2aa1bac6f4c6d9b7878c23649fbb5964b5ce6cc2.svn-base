@@ -1,0 +1,110 @@
+<view class='my-news'>
+  <!-- 系统消息模块 -->
+  <!-- <view class='my-news-render clearfix' catchtap='routerToSystemNews' data-type="2">
+    <view class='news-render-logo fl'>
+      <image src='{{staticImageUrl}}me_icon_news_notice.png'></image>
+      <view wx:if='{{systemNewObj.isRead == 0}}' class='render-logo-hint'></view>
+    </view>
+    <view class='news-render-message fl clearfix' style="{{userInformation.length<=0?'border:none':''}}">
+    <view class='news-render-message fl clearfix'>
+      <view class='render-message-fl fl'>
+        <view class='message-fl-name'>系统消息</view>
+        <view class='message-fl-hint'>{{systemNewObj.title}}</view>
+      </view>
+      <view class='render-message-fr fr'> {{systemNewObj.gmtCreate}} </view>
+    </view>
+  </view> -->
+  <!-- 渲染消息模块 -->
+  <!-- <view class='my-news-render clearfix' catchtap='routerToRenderNews' data-type="1">
+    <view class='news-render-logo fl'>
+      <image src='{{staticImageUrl}}me_icon_mews_xuanran.png'></image>
+      <view wx:if='{{renderNewsObj.isRead == 0}}' class='render-logo-hint'></view>
+    </view>
+    <view class='news-render-message fl clearfix'>
+      <view class='render-message-fl fl'>
+        <view class='message-fl-name'>渲染消息</view>
+        <view class='message-fl-hint'>{{renderNewsObj.title}}</view>
+      </view>
+      <view class='render-message-fr fr'> {{renderNewsObj.gmtCreate}} </view>
+    </view>
+  </view> -->
+  <!-- 评论消息 -->
+  <!-- 评论消息模块 -->
+  <view class='my-news-render clearfix' catchtap='routerToCommentNews' data-type="3">
+    <view class='news-render-logo fl'>
+      <image src='{{staticImageUrl}}me_icon_mews_comment.png'></image>
+      <view wx:if='{{comment.isRead == 0}}' class='render-logo-hint'></view>
+    </view>
+    <view class='news-render-message fl clearfix'>
+      <view class='render-message-fl fl'>
+        <view class='message-fl-name'>评论消息</view>
+        <view class='message-fl-hint ellipsis' wx:if='{{comment}}'>
+          {{comment.nickName}}{{comment.designPlanRecommendedResult?'帮你改造了方案：':'评论了你：'}}{{comment.reviewsMsg}}
+        </view>
+        <view class='message-fl-hint ellipsis' wx:else>
+          暂无评论消息
+        </view>
+      </view>
+      <view class='render-message-fr fr'>{{comment.gmtCreate}}</view>
+    </view>
+  </view>
+  <!-- 对话消息 -->
+  <view class='my-news-render clearfix' catchtap='routerToUserNews' data-type="3">
+    <view class='news-render-logo fl'>
+      <image src='{{staticImageUrl}}me_icon_mews_comment.png'></image>
+      <view wx:if='{{userInformation[0].unreadMsg == 1}}' class='render-logo-hint'></view>
+    </view>
+    <view class='news-render-message fl clearfix'>
+      <view class='render-message-fl fl'>
+        <view class='message-fl-name'>对话消息</view> 
+        <view class='message-fl-hint ellipsis' wx:if='{{userInformation.length}}'>
+          <text wx:if='{{userInformation[0].msgType==0}}'>{{userInformation[0].lastMsg}}</text>
+          <text wx:if='{{userInformation[0].msgType==1}}'>[图片消息]</text>
+          <text wx:if='{{userInformation[0].msgType==2 ||userInformation[0].msgType== 3}}'>[方案消息]</text>
+          <text wx:if='{{userInformation[0].msgType==4}}'>[户型消息]</text>
+        </view>
+        <view class='message-fl-hint ellipsis' wx:else>
+          暂无对话消息
+        </view>
+      </view>
+      <view class='render-message-fr fr'>{{userInformation[0].sendTime}}</view>
+    </view>
+  </view>
+  <!-- 实时消息模块 -->
+  <!-- <view class='my-news-user' wx:if="{{userInformation.length>0}}">
+        <view class='news-user-list'>
+            <view class='user-list-item clearfix {{item.isMove?"user-list-item-active": ""}}' 
+            bindtouchstart='informationTouchStart' 
+            bindtouchmove='informationTouchMove' 
+            data-item='{{item}}' data-index='{{index}}' 
+            wx:for='{{userInformation}}'
+                wx:key='{{index}}'>
+                <view 
+                data-item='{{item}}' 
+                data-index='{{index}}' 
+                catchtap='routerToChatFrame'
+                class='clearfix user-list-item-box fl'>
+                    <view class='list-item-logo fl'>
+                        <image src='{{staticImageUrl}}home_icon_head_nor.png'></image>
+                        <view class='item-logo-hint' wx:if='{{item.unreadMsg > 0}}'>{{item.unreadMsg >= 100 ? '99+' : item.unreadMsg}}</view>
+                    </view>
+                    <view class='list-item-message fl clearfix'>
+                        <view class='item-message-fl fl'>
+                            <view class='clearfix'>
+                                <view class='message-fl-name ellipsis fl'>{{item.contactName}}</view>
+                                <view class='item-message-image fl'>
+                                    <image src='{{staticImageUrl+"businessType"+ (item.userType == 2? 5: item.userType - 2) +".png"}}'></image>
+                                </view>
+                                <view class='item-message-fr fr'>{{item.sendTime}}</view>
+                            </view>
+                            <view class='message-fl-hint ellipsis'>{{item.lastMsg}}</view>
+                        </view>
+                    </view>
+                </view>
+                <view class='list-item-delete fl' data-item='{{item}}' catchtap='deleteUserContacts'>删除</view>
+            </view>
+        </view>
+    </view> -->
+  <!-- 浏览完毕 -->
+  <!-- <view class='my-news-hint' wx:if='{{userInformation.length >= 8}}'>浏览已完毕 </view> -->
+</view>

@@ -1,0 +1,135 @@
+package com.sandu.supplydemand.service.impl;/**
+ * @ Author     ：weisheng.
+ * @ Date       ：Created in PM 6:02 2018/4/27 0027
+ * @ Description：${description}
+ * @ Modified By：
+ * @Version: $version$
+ */
+
+import com.sandu.common.util.StringUtils;
+import com.sandu.common.util.Utils;
+import com.sandu.supplydemand.dao.BaseSupplyDemandMapper;
+import com.sandu.supplydemand.dao.SupplyDemandCategoryMapper;
+import com.sandu.supplydemand.dao.SupplyDemandPicMapper;
+import com.sandu.supplydemand.input.BaseSupplyDemandAdd;
+import com.sandu.supplydemand.model.BaseSupplyDemand;
+import com.sandu.supplydemand.model.SupplyDemandCategory;
+import com.sandu.supplydemand.output.SupplyDemandCategoryVo;
+import com.sandu.supplydemand.service.SupplyDemandService;
+import com.sandu.user.model.SysUser;
+import com.sandu.user.service.SysUserService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * @Title: 供求信息接口实现类
+ * @Package 供求信息接口实现类
+ * @Description:
+ * @author weisheng
+ * @date 2018/4/27 0027PM 6:02
+ */
+@Slf4j
+@Service("supplyDemandService")
+public class SupplyDemandServiceImpl implements SupplyDemandService {
+    @Autowired
+    private BaseSupplyDemandMapper baseSupplyDemandMapper;
+    @Autowired
+    private SupplyDemandCategoryMapper supplyDemandCategoryMapper;
+    @Autowired
+    private SupplyDemandPicMapper supplyDemandPicMapper;
+    @Autowired
+    private SysUserService sysUserService;
+
+    @Override
+    public List<BaseSupplyDemand> getAllSupplyDemandInfo(BaseSupplyDemandAdd baseSupplyDemandAdd) {
+        List<BaseSupplyDemand> baseSupplyDemandList = baseSupplyDemandMapper.selectList(baseSupplyDemandAdd);
+        if(baseSupplyDemandList==null||baseSupplyDemandList.size()==0){
+            return null;
+        }
+        for(BaseSupplyDemand baseSupplyDemand : baseSupplyDemandList){
+            //获取供求信息分类
+            String supplyDemandCategoryId = baseSupplyDemand.getSupplyDemandCategoryId();
+            List<Integer> categoryIdList = Utils.getIntegerListFromStringList(supplyDemandCategoryId,",");
+            if(categoryIdList!=null&&categoryIdList.size()>0){
+                List<SupplyDemandCategoryVo> supplyDemandCategoryVoList = supplyDemandCategoryMapper.selectCategoryName(categoryIdList);
+                for(SupplyDemandCategoryVo supplyDemandCategoryVo : supplyDemandCategoryVoList){
+                    if(supplyDemandCategoryVo.getLevel()==2){
+                        baseSupplyDemand.setSupplyDemandCategoryName(supplyDemandCategoryVo.getName());
+                        baseSupplyDemand.setSupplyDemandCategoryPicPath(supplyDemandCategoryVo.getPicPath());
+                    }
+                }
+            }
+
+            //获取供求信息图片列表,取第一个为封面图
+            String coverPicIds = baseSupplyDemand.getCoverPicId();
+            List<Integer> coverPicIdList = Utils.getIntegerListFromStringList(coverPicIds,",");
+            if(coverPicIdList!=null && categoryIdList.size()>0){
+                List<String> supplyDemandPicList = supplyDemandPicMapper.selectSupplyDemandPic(coverPicIdList);
+                if(supplyDemandPicList!=null&&supplyDemandPicList.size()>0){
+                    baseSupplyDemand.setSupplyDemandPCoverPicPath(supplyDemandPicList.get(0));
+                    baseSupplyDemand.setSupplyDemandPicPath(supplyDemandPicList);
+                }
+            }
+
+
+            SysUser sysUser = sysUserService.get(baseSupplyDemand.getCreatorId());
+            baseSupplyDemand.setPublisher(sysUser.getNickName());
+
+
+
+        }
+
+        return baseSupplyDemandList;
+    }
+
+    @Override
+    public Integer getAllSupplyDemandCount(BaseSupplyDemandAdd baseSupplyDemandAdd) {
+        return baseSupplyDemandMapper.selectListCount(baseSupplyDemandAdd);
+    }
+
+    @Override
+    @Transactional
+    public Integer updateMySupplyDemandStatus(BaseSupplyDemandAdd baseSupplyDemandAdd) {
+        BaseSupplyDemand baseSupplyDemand = new BaseSupplyDemand();
+        baseSupplyDemand.setPushStatus(baseSupplyDemandAdd.getPushStatus());
+        baseSupplyDemand.setId(baseSupplyDemandAdd.getSupplyDemandId());
+        Date date = new Date();
+        baseSupplyDemand.setGmtModified(date);
+        baseSupplyDemand.setGmtPublish(date);
+        return baseSupplyDemandMapper.updateByPrimaryKeySelective(baseSupplyDemand);
+    }
+
+    @Override
+    public BaseSupplyDemand getSupplyDemandInfo(Integer supplyDemandId) {
+        return baseSupplyDemandMapper.selectByPrimaryKey(supplyDemandId);
+    }
+
+    @Override
+    public Integer updateSupplyDemandInfo(BaseSupplyDemand baseSupplyDemand) {
+        Date date = new Date();
+        baseSupplyDemand.setGmtModified(date);
+        baseSupplyDemand.setGmtPublish(date);
+        baseSupplyDemandMapper.updateByPrimaryKeySelective(baseSupplyDemand);
+        return baseSupplyDemand.getId();
+    }
+
+    @Override
+    public Integer addSupplyDemandInfo(BaseSupplyDemand baseSupplyDemand) {
+        Date date = new Date();
+        baseSupplyDemand.setPushStatus(0);
+        baseSupplyDemand.setGmtCreate(date);
+        baseSupplyDemand.setSysCode(Utils.getCurrentDateTime(Utils.DATETIMESSS) +"_"+ Utils.generateRandomDigitString(6));
+        baseSupplyDemand.setGmtModified(date);
+        baseSupplyDemand.setGmtPublish(date);
+        baseSupplyDemandMapper.insertSelective(baseSupplyDemand);
+        return baseSupplyDemand.getId();
+    }
+
+
+}

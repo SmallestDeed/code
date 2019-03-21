@@ -1,0 +1,74 @@
+//Elasticsearch Config
+PUT /designplan_record/_settings
+{
+  "index" :
+  {
+    "max_result_window" : 100000000
+  }
+
+}
+
+/*ES产品分类数据映射*/
+PUT /designplan_record
+{
+  "settings": {
+    "index.mapping.total_fields.limit": 9999,
+    "number_of_shards": 3,
+    "number_of_replicas": 1,
+    "analysis": {
+      "analyzer": {
+        "ik_analyzer": {
+          "tokenizer": "ik_smart"
+        },
+        "pinyin_analyzer": {
+          "tokenizer": "my_pinyin"
+        },
+        "ngram_analyzer": {
+          "tokenizer": "ngram_tokenizer"
+        }
+      },
+      "tokenizer": {
+        "my_pinyin": {
+          "type": "pinyin",
+          "keep_separate_first_letter": false,
+          "keep_full_pinyin": true,
+          "keep_original": true,
+          "limit_first_letter_length": 16,
+          "lowercase": true,
+          "remove_duplicated_term": true
+        },
+        "ngram_tokenizer": {
+          "type": "ngram",
+          "min_gram": 2,
+          "max_gram": 50,
+          "token_chars": [
+            "letter",
+            "digit"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "designplan": {
+      "properties": {
+        "userId": {
+          "type": "keyword"
+        },
+        "designPlanId": {
+          "type": "keyword"
+        },
+        "actionType": {
+          "type": "keyword"
+        },
+        "platformType": {
+          "type": "keyword"
+        },
+        "actionDate": {
+          "type": "date",
+          "format": "yyyy-MM-dd HH:mm:ss"
+        }
+      }
+    }
+  }
+}

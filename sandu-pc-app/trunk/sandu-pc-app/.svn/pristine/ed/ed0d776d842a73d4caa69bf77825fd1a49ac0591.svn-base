@@ -1,0 +1,131 @@
+package com.sandu.design.cache.service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.common.cache.CacheManager;
+import com.sandu.common.cache.util.KeyGenerator;
+import com.sandu.common.metadata.ModuleType;
+import com.sandu.common.metadata.PageParameter;
+import com.sandu.common.metadata.QueryParameter;
+import com.sandu.common.util.collections.CustomerListUtils;
+import com.sandu.design.cache.service.DesignPlanProductCacheService;
+import com.sandu.design.model.DesignPlanProduct;
+import com.sandu.design.service.DesignPlanProductService;
+import com.sandu.design.service.OptimizePlanService;
+
+@Service("designPlanProductCacheService")
+public class DesignPlanProductCacheServiceImpl implements DesignPlanProductCacheService {
+
+	@Autowired
+	private DesignPlanProductService designPlanProductService;
+	
+	@Autowired
+	private OptimizePlanService optimizePlanService;
+	
+	/**
+	 * 获取设计方案成品库列表
+	 * 
+	 * @param plan
+	 * @return
+	 */
+	@Override
+	public List<DesignPlanProduct> getAllList(DesignPlanProduct designPlanProduct) {
+		List<DesignPlanProduct> lstPlanProduct = new ArrayList<DesignPlanProduct>();
+		PageParameter parameter = this.getPageParameter(designPlanProduct);
+		String key = KeyGenerator.getAllListKeyWithParameter(ModuleType.DesignPlanProduct, parameter);
+		lstPlanProduct = CacheManager.getInstance().getCacher().getList(DesignPlanProduct.class, key);
+		if (CustomerListUtils.isEmpty(lstPlanProduct)) {
+			lstPlanProduct = designPlanProductService.getList(designPlanProduct);
+			if (CustomerListUtils.isNotEmpty(lstPlanProduct)){
+				CacheManager.getInstance().getCacher().setObject(key, lstPlanProduct, 0);
+			}
+		} else {
+			
+		}
+		return lstPlanProduct;
+	}
+	
+	private PageParameter getPageParameter(DesignPlanProduct designPlanProduct) {
+		PageParameter parameter = new PageParameter();
+		/*List<QueryParameter> lstParameter = Lists.newArrayList();*/
+		List<QueryParameter> lstParameter = new ArrayList<QueryParameter>();
+		QueryParameter qp = null;
+		parameter.setPageIndex(designPlanProduct.getStart());
+		parameter.setPageSize(designPlanProduct.getLimit());
+
+		if (designPlanProduct.getUserId() != null && designPlanProduct.getUserId() != -1) {
+			qp = new QueryParameter();
+			qp.setName("userId");
+			qp.setValue(String.valueOf(designPlanProduct.getUserId()));
+			lstParameter.add(qp);
+		}
+		if (designPlanProduct.getIsDeleted() != null) {
+			qp = new QueryParameter();
+			qp.setName("isDeleted");
+			qp.setValue(String.valueOf(designPlanProduct.getIsDeleted()));
+			lstParameter.add(qp);
+		}
+		if (designPlanProduct.getPlanId() != null) {
+			qp = new QueryParameter();
+			qp.setName("planId");
+			qp.setValue(String.valueOf(designPlanProduct.getPlanId()));
+			lstParameter.add(qp);
+		}
+		if (designPlanProduct.getProductGroupId() != null) {
+			qp = new QueryParameter();
+			qp.setName("productGroupId");
+			qp.setValue(String.valueOf(designPlanProduct.getProductGroupId()));
+			lstParameter.add(qp);
+		}
+		if (designPlanProduct.getPlanGroupId() != null) {
+			qp = new QueryParameter();
+			qp.setName("planGroupId");
+			qp.setValue(String.valueOf(designPlanProduct.getPlanGroupId()));
+			lstParameter.add(qp);
+		}
+		if (designPlanProduct.getIsMainProduct() != null) {
+			qp = new QueryParameter();
+			qp.setName("isMainProduct");
+			qp.setValue(String.valueOf(designPlanProduct.getIsMainProduct()));
+			lstParameter.add(qp);
+		}
+		if (designPlanProduct.getInitProductId() != null) {
+			qp = new QueryParameter();
+			qp.setName("initProductId");
+			qp.setValue(String.valueOf(designPlanProduct.getInitProductId()));
+			lstParameter.add(qp);
+		}
+
+		parameter.setLstParameter(lstParameter);
+		return parameter;
+	}
+
+	/***
+	 * 获取设计方案成品库列表
+	 * 
+	 * @param plan
+	 * @return
+	 */
+	@Override
+	public List<DesignPlanProduct> getAllList2(DesignPlanProduct designPlanProduct) {
+		/*List<DesignPlanProduct> lstPlanProduct = Lists.newArrayList();*/
+		List<DesignPlanProduct> lstPlanProduct = new ArrayList<DesignPlanProduct>();
+		PageParameter parameter = getPageParameter(designPlanProduct);
+		String key = KeyGenerator.getAllListKeyWithParameter(ModuleType.DesignPlanProduct, parameter);
+		lstPlanProduct = CacheManager.getInstance().getCacher().getList(DesignPlanProduct.class, key);
+		if (CustomerListUtils.isEmpty(lstPlanProduct)) {
+			lstPlanProduct = optimizePlanService.getList(designPlanProduct);
+			if (CustomerListUtils.isNotEmpty(lstPlanProduct)){
+				CacheManager.getInstance().getCacher().setObject(key, lstPlanProduct, 0);
+			}
+		} else {
+			
+		}
+		return lstPlanProduct;
+	}
+	
+}

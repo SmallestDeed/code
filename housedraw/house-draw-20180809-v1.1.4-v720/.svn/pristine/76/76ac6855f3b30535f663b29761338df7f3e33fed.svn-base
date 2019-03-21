@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sandu.service.living.dao.BaseLivingMapper">
+    
+ <!--  <resultMap id="baseLivingMap" type="com.sandu.api.house.bo.BaseAreaBO">
+        <result column="id" property="id" />
+        <result column="living_type" property="livingType" />
+        <result column="living_code" property="livingCode" />
+        <result column="living_name" property="livingName" />
+        <result column="living_desc" property="livingDesc" />
+        <result column="area_id" property="areaId" />
+        <result column="build_area" property="buildArea" />
+        <result column="cover_area" property="coverArea" />
+        <result column="gross_floor_area" property="grossFloorArea" />
+        <result column="greening_rate" property="greeningRate" />
+        <result column="presale_date" property="presaleDate" />
+        <result column="opening_date" property="openingDate" />
+        <result column="start_date" property="startDate" />
+        <result column="finish_date" property="finishDate" />
+        <result column="sys_code" property="sysCode" />
+        <result column="creator" property="creator" />
+        <result column="gmt_create" property="gmtCreate" />
+        <result column="modifier" property="modifier" />
+        <result column="gmt_modified" property="gmtModified" />
+        <result column="is_deleted" property="isDeleted" />
+        <result column="area_long_code" property="areaLongCode" />
+        <result column="att2" property="att2" />
+        <result column="att3" property="att3" />
+        <result column="att4" property="att4" />
+        <result column="att5" property="att5" />
+        <result column="att6" property="att6" />
+        <result column="date_att1" property="dateAtt1" />
+        <result column="date_att2" property="dateAtt2" />
+        <result column="num_att1" property="numAtt1" />
+        <result column="num_att2" property="numAtt2" />
+        <result column="num_att3" property="numAtt3" />
+        <result column="num_att4" property="numAtt4" />
+        <result column="remark" property="remark" />
+        <result column="area_name" property="areaName" />
+    </resultMap>-->
+
+    <select id="listAreas" resultType="com.sandu.api.house.bo.BaseAreaBO">
+        select
+          id, area_name, pid, level_id, area_code, long_code
+        from base_area
+        where is_deleted = 0
+    </select>
+
+    <select id="listLiving" resultType="com.sandu.api.house.model.BaseLiving">
+	  SELECT
+        bl.id,
+	    bl.living_code,
+		bl.living_name,
+		ba.area_name
+	  FROM
+		base_living bl
+	  LEFT JOIN base_area ba ON bl.area_id = ba.area_code
+	  WHERE
+		bl.is_deleted = 0
+        <if test="areaCode != null and areaCode != ''"> and ba.pid=#{areaCode}</if>
+        <if test="livingName != null and livingName != ''"> and bl.living_name LIKE CONCAT(CONCAT('%',#{livingName}),'%')</if>
+    </select>                                                     
+
+    <select id="get" resultType="com.sandu.api.house.model.BaseLiving">
+        select
+          id, living_name, area_id, living_code, area_long_code
+        from base_living
+        where id = #{livingId} and is_deleted = 0
+    </select>
+    
+    <select id="getDetailAddress" resultType="com.sandu.api.house.bo.BaseAreaBO">
+    	SELECT 
+		  a1.id,
+		  a1.area_code,
+		  a1.area_name 
+		FROM
+		  base_area a1 
+		WHERE a1.is_deleted = 0 
+		  AND a1.area_code = #{code1} 
+		UNION
+		SELECT 
+		  a2.id,
+		  a2.area_code,
+		  a2.area_name 
+		FROM
+		  base_area a2 
+		WHERE a2.is_deleted = 0 
+		  AND a2.area_code = #{code2} 
+		UNION
+		SELECT 
+		  a3.id,
+		  a3.area_code,
+		  a3.area_name 
+		FROM
+		  base_area a3 
+		WHERE a3.is_deleted = 0 
+		  AND a3.area_code = #{code3}   
+    </select>
+
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.sandu.api.house.model.BaseLiving">
+      insert into base_living
+      <trim prefix="(" suffix=")" suffixOverrides=",">
+      id,
+      <if test="livingCode != null">living_code,</if>
+      <if test="livingName != null">living_name,</if>
+      <if test="areaId != null">area_id,</if>
+      <if test="sysCode != null">sys_code,</if>
+      <if test="creator != null">creator,</if>
+      <if test="gmtCreate != null">gmt_create,</if>
+      <if test="isDeleted != null">is_deleted,</if>
+      <if test="areaLongCode != null">area_long_code,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      #{id,jdbcType=BIGINT},
+      <if test="livingCode != null">#{livingCode,jdbcType=VARCHAR},</if>
+      <if test="livingName != null">#{livingName,jdbcType=VARCHAR},</if>
+      <if test="areaId != null">#{areaId,jdbcType=VARCHAR},</if>
+      <if test="sysCode != null">#{sysCode,jdbcType=VARCHAR},</if>
+      <if test="creator != null">#{creator,jdbcType=VARCHAR},</if>
+      <if test="gmtCreate != null">#{gmtCreate,jdbcType=TIMESTAMP},</if>
+      <if test="isDeleted != null">#{isDeleted,jdbcType=INTEGER},</if>
+      <if test="areaLongCode != null">#{areaLongCode,jdbcType=VARCHAR},</if>
+    </trim>
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.house.model.BaseLiving">
+    update base_living
+    <set>
+      <if test="livingType != null">living_type = #{livingType,jdbcType=VARCHAR},</if>
+      <if test="livingCode != null">living_code = #{livingCode,jdbcType=VARCHAR},</if>
+      <if test="livingName != null">living_name = #{livingName,jdbcType=VARCHAR},</if>
+      <if test="areaId != null"> area_id = #{areaId,jdbcType=VARCHAR},</if>
+      <if test="sysCode != null">sys_code = #{sysCode,jdbcType=VARCHAR},</if>
+      <if test="modifier != null">modifier = #{modifier,jdbcType=VARCHAR},</if>
+      <if test="gmtModified != null"> gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},</if>
+      <if test="isDeleted != null">is_deleted = #{isDeleted,jdbcType=INTEGER},</if>
+      <if test="areaLongCode != null">area_long_code = #{areaLongCode,jdbcType=VARCHAR},</if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="getLivingCode" resultType="com.sandu.api.house.bo.LivingCodeBO">
+	SELECT
+	  MAX(SUBSTRING(living_code, 8) + 0) AS max_count,
+	  (SELECT
+	    a.zip_code
+	  FROM
+	    base_area a
+	  WHERE a.area_code = #{areaId}) AS zip_code
+	FROM
+	  base_living l
+	WHERE l.living_code LIKE CONCAT('%',
+	   (SELECT
+	      a.zip_code
+	    FROM
+	      base_area a
+	    WHERE a.area_code = #{areaId}), '%')
+  </select>
+
+  <select id="getLivingForSave" resultType="com.sandu.api.house.model.BaseLiving">
+	  SELECT
+	  	l.id,
+	    l.living_code,
+		l.living_name
+	  FROM
+		base_living l
+	  WHERE
+		l.is_deleted = 0
+        <if test="areaCode != null and areaCode != ''"> and l.area_id = #{areaCode} </if>
+        <if test="livingName != null and livingName != ''"> and l.living_name LIKE CONCAT('%', #{livingName}, '%') </if>
+    </select>
+
+    <select id="getLivingByName" resultType="com.sandu.api.house.model.BaseLiving">
+       SELECT
+          l.id,
+          l.living_name,
+          l.area_id,
+          l.living_code,
+          l.area_long_code
+        FROM
+          base_living l
+        WHERE l.is_deleted = 0
+          AND l.area_id = #{areaId}
+          AND l.living_name = #{livingName}
+        LIMIT 1
+    </select>
+
+    <select id="listAreaByLivingId" resultType="com.sandu.api.area.bo.BaseAreaLivingBO">
+        SELECT
+          a1.area_code pro_code,
+          a1.area_name pro_name,
+          a2.area_code city_code,
+          a2.area_name city_name,
+          a3.area_code dist_code,
+          a3.area_name dist_name
+        FROM
+          base_living l
+          LEFT JOIN base_area a3
+            ON l.area_id = a3.area_code
+          LEFT JOIN base_area a2
+            ON a3.pid = a2.area_code
+          LEFT JOIN base_area a1
+            ON a2.pid = a1.area_code
+        WHERE l.area_id = #{areaId}
+        LIMIT 1;
+    </select>
+</mapper>

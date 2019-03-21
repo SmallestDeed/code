@@ -1,0 +1,57 @@
+package com.sandu.user.model;
+
+import lombok.Data;
+
+import java.io.Serializable;
+
+@Data
+public class UserVo implements Serializable {
+
+    /**
+     * 用户信息模型
+     */
+    private static final long serialVersionUID = 1L;
+    /**
+     * 用户名
+     **/
+    private String userName;
+    //密码
+    private String userPassword;
+    /**
+     * 昵称
+     **/
+    private String nickName;
+    /**
+     * 移动
+     **/
+    private String mobile;
+    /**
+     * 用户类型
+     **/
+    private Integer userType;
+    /**
+     * 性别
+     **/
+    private Integer sex;
+    /**
+     * 职业
+     **/
+    private String job;
+    /**
+     * 头像id
+     **/
+    private Integer picId;
+    /**
+     * 是否删除
+     **/
+    private Integer isDeleted;
+    /*头像路径*/
+    private String picPath;
+    /*邮箱*/
+    private String email;
+
+    private Integer userId;
+
+
+    private String areaLongCode;
+}

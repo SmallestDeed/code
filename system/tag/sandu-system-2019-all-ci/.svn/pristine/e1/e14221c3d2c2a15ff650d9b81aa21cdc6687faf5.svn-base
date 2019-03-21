@@ -1,0 +1,164 @@
+package com.sandu.web.banner;
+
+import com.github.pagehelper.PageInfo;
+import com.sandu.api.banner.input.MiniProIndexDialogAdd;
+import com.sandu.api.banner.input.MiniProIndexDialogUpdate;
+import com.sandu.api.banner.model.MiniProIndexDialog;
+import com.sandu.api.banner.service.MiniProIndexDialogService;
+import com.sandu.api.common.exception.SystemException;
+import com.sandu.common.LoginContext;
+import com.sandu.commons.LoginUser;
+import com.sandu.commons.ResponseEnvelope;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Objects;
+
+@RestController
+@RequestMapping(value = "/v1/sxw/dialog")
+@Slf4j
+public class SXWDialogAdminController {
+
+    @Autowired
+    private MiniProIndexDialogService miniProIndexDialogService;
+
+    private static final String DIALOG_CODE = "sxw";
+
+    /**
+     * 新增弹窗
+     * @param miniProIndexDialogAdd
+     * @return
+     */
+    @RequestMapping("/add")
+    public Object indexDialogAdd(MiniProIndexDialogAdd miniProIndexDialogAdd){
+
+        Assert.hasLength(miniProIndexDialogAdd.getDialogName(),"弹窗名称不能为空");
+        Assert.notNull(miniProIndexDialogAdd.getDialogImageResPicId(),"图片id不能为空");
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        try {
+            int row = miniProIndexDialogService.addSXWIndexDialog(miniProIndexDialogAdd,loginUser);
+            if (row > 0){
+                return new ResponseEnvelope<>(true,"新增首页弹窗成功");
+            }
+        }catch (IllegalArgumentException ill){
+            return new ResponseEnvelope<>(false,ill.getMessage());
+        }catch (Exception e){
+            log.error("系统异常",e);
+            return new ResponseEnvelope<>(false,"新增首页弹窗异常");
+        }
+        return new ResponseEnvelope<>(false,"新增首页弹窗失败");
+    }
+
+    /**
+     * 获取弹窗列表
+     * @param dialogCode
+     * @param page
+     * @param limit
+     * @return
+     */
+    @RequestMapping(value = "/list")
+    public Object dialogList(String dialogCode,Integer page,Integer limit){
+
+        if (Objects.isNull(page)){
+            page = 1;
+        }
+
+        if (Objects.isNull(limit)){
+            limit = 10;
+        }
+        try{
+            PageInfo<MiniProIndexDialog> pageInfo = miniProIndexDialogService.getDialogList(DIALOG_CODE,page,limit);
+            return new ResponseEnvelope<>(true,pageInfo.getTotal(),pageInfo.getList());
+        }catch (Exception e){
+            log.error("获取弹窗异常",e);
+            return new ResponseEnvelope<>(false,"获取弹窗列表异常");
+        }
+    }
+
+    /**
+     * 获取已启用弹窗信息
+     * @param dialogCode
+     * @return
+     */
+    @RequestMapping(value = "/getEnableDialog")
+    public Object getEnableDialog(String dialogCode){
+        try{
+            MiniProIndexDialog miniProIndexDialog = miniProIndexDialogService.getEnableDialog(DIALOG_CODE);
+            return new ResponseEnvelope<>(true,miniProIndexDialog);
+        }catch (Exception e){
+            log.error("系统异常",e);
+            return new ResponseEnvelope<>(false,"获取已启用弹窗异常");
+        }
+    }
+
+    @RequestMapping(value = "/update")
+    public Object updateDialog(MiniProIndexDialogUpdate update){
+
+        if (Objects.isNull(update.getId())){
+            return new ResponseEnvelope<>(false,"弹窗id不能为空");
+        }
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        try{
+            int row = miniProIndexDialogService.updateDialog(update,loginUser);
+            if (row > 0){
+                return new ResponseEnvelope<>(true,"更新成功");
+            }
+        }catch (IllegalArgumentException ill){
+            return new ResponseEnvelope<>(false, ill.getMessage());
+        }catch (Exception e){
+            log.error("系统异常",e);
+            return new ResponseEnvelope<>(false,"更新异常");
+        }
+        return new ResponseEnvelope<>(false,"更新失败");
+    }
+
+    @RequestMapping(value = "/changeIsEnable")
+    public Object changeIsEnable(Integer dialogId){
+
+        Assert.notNull(dialogId, "dialogId不能为空");
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+
+        try {
+            int row = miniProIndexDialogService.changeBannerIsEnable(dialogId,loginUser);
+            if (row > 0) {
+                return new ResponseEnvelope<>(true, "启用首页弹窗成功");
+            }
+        }catch (SystemException sys){
+            return new ResponseEnvelope<>(false, sys.getMessage());
+        }catch (IllegalArgumentException ill) {
+            return new ResponseEnvelope<>(false, ill.getMessage());
+        } catch (Exception e) {
+            log.error("系统异常", e);
+            return new ResponseEnvelope<>(false, "启用首页弹窗异常");
+        }
+        return new ResponseEnvelope<>(false, "启用首页弹窗失败");
+    }
+
+
+    @RequestMapping(value = "/del")
+    public Object deleted(Integer dialogId){
+
+        Assert.notNull(dialogId, "dialogId不能为空");
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+
+        try {
+            int row = miniProIndexDialogService.deletedDialog(dialogId,loginUser);
+            if (row > 0) {
+                return new ResponseEnvelope<>(true, "删除首页弹窗成功");
+            }
+        }catch (IllegalArgumentException ill) {
+            return new ResponseEnvelope<>(false, ill.getMessage());
+        } catch (Exception e) {
+            log.error("系统异常", e);
+            return new ResponseEnvelope<>(false, "删除首页弹窗异常");
+        }
+        return new ResponseEnvelope<>(false, "删除首页弹窗失败");
+    }
+}

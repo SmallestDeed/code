@@ -1,0 +1,372 @@
+package com.sandu.web.user;/**
+ * @ Author     ：weisheng.
+ * @ Date       ：Created in PM 3:32 2018/5/4 0004
+ * @ Description：${description}
+ * @ Modified By：
+ * @Version: $version$
+ */
+
+import com.google.gson.Gson;
+import com.nork.common.model.LoginUser;
+import com.sandu.common.LoginContext;
+import com.sandu.common.model.PageModel;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.common.util.BadWordUtil;
+import com.sandu.common.util.EmojiUtil;
+import com.sandu.common.util.StringUtils;
+import com.sandu.supplydemand.input.BaseSupplyDemandAdd;
+import com.sandu.user.model.UserReviews;
+import com.sandu.user.model.input.UserDemandReviewsAdd;
+import com.sandu.user.model.input.UserReviewsAdd;
+import com.sandu.user.model.view.UserReviewsVo;
+import com.sandu.user.service.UserReplyService;
+import com.sandu.user.service.UserReviewsService;
+import com.sandu.validate.AnnotationValidator;
+import com.sandu.validate.vo.ValidateResult;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
+/**
+ * @author weisheng
+ * @Title: 用户评论
+ * @Package
+ * @Description:
+ * @date 2018/5/4 0004PM 3:32
+ */
+@Slf4j
+@RestController
+@RequestMapping("/v1/union/userreviews")
+public class UserReviewsController {
+
+    private final static String CLASS_LOG_PREFIX = "[用户评论基础服务]";
+
+    private static Gson gson = new Gson();
+
+    @Autowired
+    private UserReviewsService userReviewsService;
+
+    @Autowired
+    private UserReplyService userReplyService;
+
+    /**
+     * @Title: 供求信息用户评论列表
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/getuserreviews", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEnvelope getUserReviews(@RequestParam(name = "supplyDemandId", required = false) Integer supplyDemandId,
+                                           @RequestParam(name = "curPage", required = false) int curPage,
+                                           @RequestParam(name = "pageSize", required = false) int pageSize,
+                                           @RequestParam(name = "order", required = false) String order,
+                                           @RequestParam(name = "isRead", required = false) Integer isRead,
+                                           HttpServletRequest request) {
+
+        /*检查用户是否登录*/
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            log.warn(CLASS_LOG_PREFIX + "用户登录失败:" + gson.toJson(loginUser));
+            return new ResponseEnvelope(false, "请先登录");
+        }
+        log.info(CLASS_LOG_PREFIX + "用户登录校验通过:" + gson.toJson(loginUser));
+
+
+        //处理分页参数
+        if (pageSize == 0) {
+            pageSize = PageModel.DEFAULT_PAGE_PAGESIZE;
+        }
+        int start = (curPage == 0) ? 0 : (curPage - 1) * pageSize;
+        int limit = pageSize == 0 ? 10 : pageSize;
+
+        //如果supplyDemandId有值则查询供求信息下面的评论列表,反之查询该用户所有的评论列表
+        int count;
+        try {
+            count = userReviewsService.getAllUserReviewsCount(supplyDemandId, loginUser.getId(),isRead);
+            if (count == 0) {
+                log.warn(CLASS_LOG_PREFIX + "未获取信息评论列表数量" + "supplyDemandId:" + supplyDemandId + "-------" + "userId:" + loginUser.getId());
+                return new ResponseEnvelope(false, "未获取信息评论列表数量");
+            }
+
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "获取信息评论列表数量数据异常", e);
+            return new ResponseEnvelope(false, "获取信息评论列表数量数据异常");
+        }
+
+        List<UserReviewsVo> userReviewsVOList;
+
+        try {
+            userReviewsVOList = userReviewsService.getAllUserReviews(supplyDemandId, loginUser.getId(), start, limit, order,isRead);
+            if (null == userReviewsVOList || userReviewsVOList.size() == 0) {
+                log.warn(CLASS_LOG_PREFIX + "未获取信息评论列表详情" + "supplyDemandId:" + supplyDemandId + "-------" + "userId:" + loginUser.getId());
+                return new ResponseEnvelope(false, "未获取信息评论列表详情");
+            }
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "获取信息评论列表详情数据异常", e);
+            return new ResponseEnvelope(false, "获取信息评论列表详情数据异常");
+
+        }
+
+
+        return new ResponseEnvelope(true, "", userReviewsVOList,count);
+    }
+
+
+    /**
+     * @Title: 新增供求信息用户评论
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/adduserreviews", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEnvelope addSupplyDemandUserReviews(@RequestBody UserDemandReviewsAdd userDemandReviewsAdd, HttpServletRequest request) {
+        /*检查用户是否登录*/
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            log.warn(CLASS_LOG_PREFIX + "用户登录失败:" + gson.toJson(loginUser));
+            return new ResponseEnvelope(false, "请先登录");
+        }
+        log.info(CLASS_LOG_PREFIX + "用户登录校验通过:" + gson.toJson(loginUser));
+
+
+        //校验传入信息
+        ValidateResult result = AnnotationValidator.validate(userDemandReviewsAdd);
+        if (!result.isValid()) {
+            log.warn(CLASS_LOG_PREFIX + "参数校验未通过:" + gson.toJson(result));
+            return new ResponseEnvelope(false, result.getFieldName() + "------------" + result.getMessage());
+        }
+        log.info(CLASS_LOG_PREFIX + "传参信息校验通过:" + gson.toJson(userDemandReviewsAdd));
+
+
+        String reviewsMsg = userDemandReviewsAdd.getReviewsMsg();
+        //如果传入方案ID,方案类型也必传.
+        if (null != userDemandReviewsAdd.getPlanId() && userDemandReviewsAdd.getPlanId() > 0) {
+            if (userDemandReviewsAdd.getPlanType() == null || userDemandReviewsAdd.getPlanType() == 0) {
+                log.warn(CLASS_LOG_PREFIX + "方案ID和方案类型必须同时传入" + gson.toJson(userDemandReviewsAdd));
+                return new ResponseEnvelope(false, "缺失参数");
+            }
+        }
+
+        //校验评论消息是否含有敏感词汇
+        if (StringUtils.isNotBlank(reviewsMsg)) {
+            boolean containtBadWord = BadWordUtil.isContaintBadWord(reviewsMsg, 2);
+            if (containtBadWord) {
+                userDemandReviewsAdd.setReviewsMsg(BadWordUtil.replaceBadWord(reviewsMsg, 2, "*"));
+            }
+        }
+        //处理表情
+        if(StringUtils.isNotBlank(reviewsMsg)){
+            String newReviewsMsg = EmojiUtil.emojiConverterToAlias(reviewsMsg);
+            log.info("将表情解码"+newReviewsMsg);
+            userDemandReviewsAdd.setReviewsMsg(newReviewsMsg);
+        }
+
+        //保存数据到数据库
+        int userReviewsId;
+        try {
+            userReviewsId = userReviewsService.addUserReviews(userDemandReviewsAdd, loginUser);
+            if (0 == userReviewsId) {
+                log.error(CLASS_LOG_PREFIX + "保存信息评论失败" + gson.toJson(userDemandReviewsAdd) + "----" + loginUser.getId());
+                return new ResponseEnvelope(false, "保存信息评论失败");
+            }
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "保存信息评论数据异常" + e);
+            return new ResponseEnvelope(false, "保存信息评论数据异常");
+        }
+        return new ResponseEnvelope(true, "victory", userReviewsId);
+    }
+
+
+    /**
+     * @Title: 将未读信息置为已读
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/isread", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEnvelope isRead(@RequestParam(required = false) Integer reviewsId, HttpServletRequest request) {
+        //校验参数
+        if (null == reviewsId || reviewsId == 0) {
+            log.warn("缺失参数:reviewsId");
+            return new ResponseEnvelope(false, "缺失参数:reviewsId");
+        }
+        log.warn("参数校验通过:" + reviewsId);
+        /*检查用户是否登录*/
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            log.warn(CLASS_LOG_PREFIX + "用户登录失败:" + gson.toJson(loginUser));
+            return new ResponseEnvelope(false, "请先登录");
+        }
+        log.info(CLASS_LOG_PREFIX + "用户登录校验通过:" + gson.toJson(loginUser));
+
+        //将未读消息置为已读
+        int id = 0;
+        try {
+            id = userReviewsService.updateReviewsIsRead(reviewsId);
+            if (id == 0) {
+                log.error("读取信息失败" + reviewsId);
+                return new ResponseEnvelope(false, "读取信息失败");
+            }
+
+        } catch (Exception e) {
+            log.error("读取信息数据异常" + e);
+            return new ResponseEnvelope(false, "读取信息数据异常");
+
+        }
+
+        return new ResponseEnvelope(true, "读取信息成功", id);
+    }
+
+
+
+
+    /**
+     * @Title: 删除自己评论的内容
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/11/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/delreviewmsg", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEnvelope delReviewMsg(@RequestParam(required = false) Integer reviewsId,
+                                         @RequestParam(required = false) Integer businessId,
+                                         HttpServletRequest request) {
+        //校验参数
+        if (null == reviewsId || reviewsId == 0) {
+            log.warn("缺失参数:reviewsId");
+            return new ResponseEnvelope(false, "缺失参数:reviewsId");
+        }
+        if (null == businessId || businessId == 0) {
+            log.warn("缺失参数:businessId");
+            return new ResponseEnvelope(false, "缺失参数:businessId");
+        }
+        log.warn("参数校验通过:" + reviewsId);
+        /*检查用户是否登录*/
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            log.warn(CLASS_LOG_PREFIX + "用户登录失败:" + gson.toJson(loginUser));
+            return new ResponseEnvelope(false, "请先登录");
+        }
+        log.info(CLASS_LOG_PREFIX + "用户登录校验通过:" + gson.toJson(loginUser));
+
+        //删除自己评论的内容
+        int id = 0;
+        try {
+            id = userReviewsService.delReviewMsg(reviewsId,loginUser,businessId);
+            if (id == 0) {
+                log.error("删除评论失败" + reviewsId);
+                return new ResponseEnvelope(false, "删除评论失败");
+            }
+
+        } catch (Exception e) {
+            log.error("删除评论数据异常" + e);
+            return new ResponseEnvelope(false, "删除评论数据异常");
+
+        }
+
+        return new ResponseEnvelope(true, "删除评论成功", id);
+    }
+
+
+
+
+
+    /**
+     * @Title: 置顶帖子评论
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/11/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/topreviews", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEnvelope topReviews(@RequestParam(required = false) Integer reviewsId,
+                                       @RequestParam(required = false) Integer businessId,
+                                       @RequestParam(required = false) Integer isTop,
+                                         HttpServletRequest request) {
+        //校验参数
+        if (null == reviewsId || reviewsId == 0) {
+            log.warn("缺失参数:reviewsId");
+            return new ResponseEnvelope(false, "缺失参数:reviewsId");
+        }
+        log.info("reviewsId参数校验通过:" + reviewsId);
+        if (null == businessId || businessId == 0) {
+            log.warn("缺失参数:businessId");
+            return new ResponseEnvelope(false, "缺失参数:businessId");
+        }
+        log.info("businessId参数校验通过:" + businessId);
+        if (null == isTop ) {
+            log.warn("缺失参数:isTop");
+            return new ResponseEnvelope(false, "缺失参数:isTop");
+        }
+        log.info("isTop:" + isTop);
+        /*检查用户是否登录*/
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            log.warn(CLASS_LOG_PREFIX + "用户登录失败:" + gson.toJson(loginUser));
+            return new ResponseEnvelope(false, "请先登录");
+        }
+        log.info(CLASS_LOG_PREFIX + "用户登录校验通过:" + gson.toJson(loginUser));
+
+        int id = 0;
+        try {
+            id = userReviewsService.updateReviewsIsTop(reviewsId,businessId,isTop);
+            if(id == 0){
+                log.error("置顶评论失败" + reviewsId);
+                return new ResponseEnvelope(false, "置顶评论失败");
+            }
+        }catch (Exception e){
+            log.error("置顶评论数据异常" + e);
+            return new ResponseEnvelope(false, "置顶评论数据异常");
+        }
+
+        if(isTop<=0){
+            return new ResponseEnvelope(true, "取消置顶评论成功", id);
+        }
+        return new ResponseEnvelope(true, "置顶评论成功", id);
+    }
+
+    @RequestMapping("/checkHaveTopReviews")
+    public ResponseEnvelope checkHaveTopReviews(@RequestParam Integer businessId) {
+        if (null == businessId || 0 == businessId) {
+            return new ResponseEnvelope(false, "businessId为空");
+        }
+        log.info(CLASS_LOG_PREFIX + "检查是否有置顶评论，businessId={}", businessId);
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (null == loginUser) {
+            return new ResponseEnvelope(false, "请登录");
+        }
+
+        Integer reviewId;
+        try {
+            reviewId = userReviewsService.getTopReviewIdByBusinessId(businessId);
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "获取是否有置顶评论异常，exception:{}", e);
+            return new ResponseEnvelope(false, "获取是否有置顶评论异常，exception:"+e.getMessage());
+        }
+
+        if (null == reviewId || 0 == reviewId) {
+            return new ResponseEnvelope(true, "无置顶评论", reviewId);
+        } else {
+            return new ResponseEnvelope(true, "有置顶评论", reviewId);
+        }
+
+    }
+
+}

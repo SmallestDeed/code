@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.base.dao.BaseCompanyDao">
+	<sql id="companyListColumns">
+		a.id,a.company_code,a.company_name,a.company_address,a.business_type,
+		a.product_visibility_range,a.member_year,a.visit_count,
+        a.praise_rate,a.auth_grade,a.deposit,a.category_ids,b.pic_path as logo_url
+	</sql>
+	
+  <select id="findFontPageList"  resultType="com.sandu.base.model.vo.BaseCompanyVo"
+      parameterType="com.sandu.base.model.query.BaseCompanyQuery">
+		SELECT
+		<include refid="companyListColumns" />
+		FROM  base_company a LEFT JOIN res_pic b 
+           on a.company_logo=b.id 
+		WHERE a.is_deleted = #{DEL_FLAG_NORMAL} 
+	   <if test="businessType != null and  businessType != '' ">
+			AND a.business_type = #{businessType}
+		</if>
+		<if test="companyName != null and  companyName != '' ">
+		    AND company_name like CONCAT(CONCAT('%',#{companyName}),'%')
+	    </if>
+		 <if test="orderBySql != null and  orderBySql !=''  ">order by #{orderBySql}</if>
+        <if test="orderBySql == null and  orderBySql == null ">order by a.id desc</if>
+        limit #{start},#{pageSize} 
+	</select>
+	
+	<select id="findFontCount"  resultType="long"
+      parameterType="com.sandu.base.model.query.BaseCompanyQuery">
+		SELECT count(a.id)
+		FROM  base_company a 
+		WHERE a.is_deleted = #{DEL_FLAG_NORMAL} 
+	    <if test="businessType != null and  businessType != '' ">
+			AND a.business_type = #{businessType}
+		</if>
+		<if test="companyName != null and  companyName != '' ">
+		    AND company_name like CONCAT(CONCAT('%',#{companyName}),'%')
+	    </if>
+	</select>
+	
+	 <select id="getdetail"  resultType="com.sandu.base.model.vo.BaseCompanyVo"
+      parameterType="long">
+		SELECT
+		<include refid="companyListColumns" />
+		FROM  base_company a LEFT JOIN res_pic b 
+           on a.company_logo=b.id  
+		WHERE  a.id=#{id}
+	</select>
+</mapper>

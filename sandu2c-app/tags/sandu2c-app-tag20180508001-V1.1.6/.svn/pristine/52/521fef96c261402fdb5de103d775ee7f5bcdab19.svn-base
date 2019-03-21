@@ -1,0 +1,55 @@
+package com.sandu.web.base;/**
+ * @ Author     ：weisheng.
+ * @ Date       ：Created in PM 5:44 2018/5/3 0003
+ * @ Description：${description}
+ * @ Modified By：
+ * @Version: $version$
+ */
+
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.supplydemand.model.SupplyDemandCategory;
+import com.sandu.supplydemand.output.SupplyDemandCategoryVo;
+import com.sandu.supplydemand.service.SupplyDemandCategoryService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
+/**
+ * @author weisheng
+ * @Title: 基础筛选数据
+ * @Package 基础筛选数据
+ * @Description: 基础筛选数据
+ * @date 2018/5/3 0003PM 5:44
+ */
+@Slf4j
+@RestController
+@RequestMapping("/v1/union/basedata")
+public class BaseSearchDataController {
+
+    private final static String CLASS_LOG_PREFIX = "[基础筛选数据服务]";
+
+    @Autowired
+    private SupplyDemandCategoryService supplyDemandCategoryService;
+
+    /**
+     * @Title: 供求信息分类列表
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/getallsupplydemandcategory", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEnvelope getAllSupplyDemandCategory( HttpServletRequest request) {
+
+        List<SupplyDemandCategoryVo> supplyDemandCategoryList = supplyDemandCategoryService.getAllSupplyDemandCategory();
+        if(supplyDemandCategoryList==null||supplyDemandCategoryList.size()==0){
+            return new ResponseEnvelope(false,"没有供求信息分类");
+        }
+
+        return new ResponseEnvelope(true,"",supplyDemandCategoryList);
+    }
+}

@@ -1,0 +1,333 @@
+package com.sandu.service.base.impl;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.sandu.api.base.common.constant.InteractiveZoneConstant;
+import com.sandu.api.base.common.exception.BizException;
+import com.sandu.api.base.input.InteracitveZoneTopicAdd;
+import com.sandu.api.base.input.InteractiveZoneTopicAdd;
+import com.sandu.api.base.input.InteractiveZoneTopicQuery;
+import com.sandu.api.base.input.TransportWriteInput;
+import com.sandu.api.base.model.CompanyShopArticle;
+import com.sandu.api.base.model.InteractiveZoneTopic;
+import com.sandu.api.base.model.ProjectCase;
+import com.sandu.api.base.model.SysDictionary;
+import com.sandu.api.base.output.InteractiveZoneTopicVO;
+import com.sandu.api.base.service.InteractiveZoneTopicService;
+import com.sandu.api.base.service.SysDictionaryService;
+import com.sandu.api.user.model.SysUser;
+import com.sandu.api.user.model.bo.UserInfoBO;
+import com.sandu.node.constant.NodeInfoConstant;
+import com.sandu.service.base.dao.InteractiveZoneReplyMapper;
+import com.sandu.service.base.dao.InteractiveZoneTopicMapper;
+import com.sandu.system.service.NodeInfoBizService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * @ClassName: InteractiveZoneTopicServiceImpl
+ * @Auther: gaoj
+ * @Date: 2019/3/13 10:00
+ * @Description:
+ * @Version 1.0
+ */
+@Service("interactiveZoneTopicService")
+@Slf4j
+public class InteractiveZoneTopicServiceImpl implements InteractiveZoneTopicService {
+
+    private final String CLASS_LOG_PREFIX = "【互动区主题业务层】";
+
+    @Autowired
+    private InteractiveZoneTopicMapper interactiveZoneTopicMapper;
+    @Autowired
+    private SysDictionaryService sysDictionaryService;
+    @Autowired
+    private NodeInfoBizService nodeInfoBizService;
+    @Autowired
+    private InteractiveZoneReplyMapper interactiveZoneReplyMapper;
+    @Autowired
+    private com.sandu.api.user.service.SysUserService  sysUserService;
+
+    @Value("${app.server.url}")
+    private String RESOURCE_URL;
+
+    @Override
+    public PageInfo<InteractiveZoneTopic> list(InteractiveZoneTopicQuery interactiveZoneTopicQuery) {
+        this.packageParam(interactiveZoneTopicQuery);
+        interactiveZoneTopicQuery.setIsDeleted(0);
+        PageHelper.startPage(interactiveZoneTopicQuery.getStart(),interactiveZoneTopicQuery.getLimit());
+        PageInfo<InteractiveZoneTopic> result = new PageInfo<>(interactiveZoneTopicMapper.getList(interactiveZoneTopicQuery));
+        for (InteractiveZoneTopic it : result.getList()) {
+        	//回复数
+            int count = interactiveZoneReplyMapper.countByTopicId(it.getId());
+            it.setReviewsCount(count);
+
+            //浏览数
+            Map<String, Object> nodeData = nodeInfoBizService.getNodeData(it.getId().intValue(), NodeInfoConstant.SYSTEM_DICTIONARY_DETAIL_TYPE_VIEW, -1);
+            if(nodeData != null){
+                int tmp = Integer.valueOf(Objects.toString(nodeData.get("setViewNum"),"0"))+
+                            Integer.valueOf(Objects.toString(nodeData.get("setVirtualViewNum"),"0"));
+                it.setViewCount(tmp);
+            }
+
+            //处理作者信息
+            if(it.getBlockType().equals(4)){
+                if(it.getArticleSource().equals(0)){
+                    it.setAuthorPic(null);
+                }else{
+                    UserInfoBO userInfoByNickName = sysUserService.getUserInfoByNickName(it.getAuthor());
+                    it.setAuthorPic(userInfoByNickName.getHeadPic());
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private void packageParam(InteractiveZoneTopicQuery interactiveZoneTopicQuery) {
+        String blockTypeValueKey = interactiveZoneTopicQuery.getBlockTypeValueKey();
+        Integer value = this.getBlockTypeValue(blockTypeValueKey);
+        interactiveZoneTopicQuery.setBlockTypeValue(value);
+    }
+
+    @Override
+    public Integer getBlockTypeValue(String blockTypeValueKey) {
+        SysDictionary sysDictionary = new SysDictionary();
+        sysDictionary.setType(InteractiveZoneConstant.TOPIC_TYPE);
+        sysDictionary.setValuekey(blockTypeValueKey);
+        sysDictionary = sysDictionaryService.getNameByType(sysDictionary);
+        if (null == sysDictionary) {
+            throw new BizException("参数有误");
+        }
+        return sysDictionary.getValue();
+    }
+
+
+    @Override
+    public int add(InteracitveZoneTopicAdd add) {
+        InteractiveZoneTopic topic = new InteractiveZoneTopic();
+        BeanUtils.copyProperties(add, topic);
+        return interactiveZoneTopicMapper.insert(topic);
+    }
+
+
+    @Override
+    public PageInfo<InteractiveZoneTopicVO> queryBiz(InteractiveZoneTopicQuery query) {
+
+        PageHelper.startPage(query.getStart(), query.getPageSize());
+        PageInfo<InteractiveZoneTopicVO> page = interactiveZoneTopicMapper.queryBiz(query);
+
+        return page;
+    }
+
+
+    @Override
+    public Integer totalCount(InteractiveZoneTopicQuery interactiveZoneTopicQuery) {
+        this.packageParam(interactiveZoneTopicQuery);
+        return interactiveZoneTopicMapper.totalCount(interactiveZoneTopicQuery);
+    }
+
+    @Override
+    public Integer add(InteractiveZoneTopicAdd interactiveZoneTopicAdd, SysUser sysUser) {
+        InteractiveZoneTopic interactiveZoneTopic = new InteractiveZoneTopic();
+        BeanUtils.copyProperties(interactiveZoneTopicAdd, interactiveZoneTopic);
+        String blockTypeValueKey = interactiveZoneTopicAdd.getBlockTypeValueKey();
+        Integer blockTypeValue = this.getBlockTypeValue(blockTypeValueKey);
+        interactiveZoneTopic.setBlockType(blockTypeValue);
+        this.addCommonParam(interactiveZoneTopic, sysUser);
+
+        int insertResult = interactiveZoneTopicMapper.insertSelective(interactiveZoneTopic);
+
+        if (insertResult > 0){
+            //造假数
+            //需要造假数据 =>{}浏览数
+            this.makeFalseData(7,insertResult,interactiveZoneTopicAdd.getVirtualViewNum(),InteractiveZoneConstant.INTERACTIVE_ZONE_NODE_TYPE_VALUE);
+            //需要造假数据 =>{}收藏数
+            this.makeFalseData(5,insertResult,interactiveZoneTopicAdd.getVirtualViewNum(),InteractiveZoneConstant.INTERACTIVE_ZONE_NODE_TYPE_VALUE);
+        }
+        return insertResult;
+    }
+
+    /**
+     * 插入假数据
+     * @param detailType node_info_detail 表中类型
+     * @param insertResult 主题id
+     * @param num 数量
+     * @param type  主题类型:7.互动区,8.互动区回复
+     */
+    private void makeFalseData(Integer detailType, int insertResult, Integer num,Integer type) {
+        if (num > 0){
+//            List<SysDictionary> lists = sysDictionaryService.findListByType(NODE_TYPE);
+            //需要插入虚拟的浏览数量
+            nodeInfoBizService.updateNodeInfoDetailValue(insertResult,type,detailType,num);
+        }
+
+//        if (virtualFavoriteNum > 0){
+////            List<SysDictionary> lists = sysDictionaryService.findListByType(NODE_TYPE);
+//            //需要插入虚拟的浏览数量
+//            nodeInfoBizService.updateNodeInfoDetailValue(insertResult,type,detailType,virtualViewNum);
+//        }
+    }
+
+    @Override
+    public Integer update(InteractiveZoneTopicAdd interactiveZoneTopicAdd, SysUser sysUser) {
+        InteractiveZoneTopic interactiveZoneTopic = new InteractiveZoneTopic();
+        BeanUtils.copyProperties(interactiveZoneTopicAdd, interactiveZoneTopic);
+        interactiveZoneTopic.setModifier(sysUser.getId() + "");
+        interactiveZoneTopic.setGmtModified(new Date());
+        Integer result = interactiveZoneTopicMapper.updateByPrimaryKeySelective(interactiveZoneTopic);
+        if (result == 1) {
+            Integer virtualFavoriteNum = interactiveZoneTopicAdd.getVirtualFavoriteNum();
+            if (null != virtualFavoriteNum) {
+                //需要造假数据 =>{}收藏数
+                this.makeFalseData(5,interactiveZoneTopicAdd.getId(),
+                        virtualFavoriteNum,InteractiveZoneConstant.INTERACTIVE_ZONE_NODE_TYPE_VALUE);
+            }
+            Integer virtualViewNum = interactiveZoneTopicAdd.getVirtualViewNum();
+            if (null != virtualViewNum) {
+                //需要造假数据 =>{}浏览数
+                this.makeFalseData(7,interactiveZoneTopicAdd.getId(),
+                        virtualViewNum,InteractiveZoneConstant.INTERACTIVE_ZONE_NODE_TYPE_VALUE);
+            }
+        }
+        return result;
+    }
+
+    private void addCommonParam(InteractiveZoneTopic interactiveZoneTopic, SysUser sysUser) {
+        Long userId = sysUser.getId();
+        interactiveZoneTopic.setCreator(userId + "");
+        interactiveZoneTopic.setModifier(userId + "");
+        interactiveZoneTopic.setCreateUserId(userId.intValue());
+        interactiveZoneTopic.setPublishUserId(userId.intValue());
+        Date date = new Date();
+        interactiveZoneTopic.setGmtCreate(date);
+        interactiveZoneTopic.setGmtModified(date);
+        interactiveZoneTopic.setPublishTime(date);
+        interactiveZoneTopic.setIsDeleted(0);
+    }
+
+    @Override
+    public boolean transportShopWriteHandle(List<TransportWriteInput> inputs, SysUser loginUser) {
+        //group by for type
+        Map<Integer, Set<Integer>> groupTypeMap = inputs.stream().collect(Collectors.groupingBy(TransportWriteInput::getType, Collectors.mapping(TransportWriteInput::getId, Collectors.toSet())));
+
+        Set<Integer> articleIdList = new HashSet<>();
+        Set<Integer> projectCaseIds = new HashSet<>();
+        //get after group by ids
+        groupTypeMap.forEach((key,val)->{
+            if (Objects.equals(1,key)){
+                //articleId List
+                articleIdList.addAll(val);
+            }else{
+                projectCaseIds.addAll(val);
+            }
+        });
+
+        //select article info AND projectCase info
+        List<CompanyShopArticle> articleList = interactiveZoneReplyMapper.findCompanyShopArticleListByArticleIds(articleIdList);
+        List<ProjectCase> projectCaseList = interactiveZoneReplyMapper.findProjectCaseListByArticleIds(projectCaseIds);
+
+        //build interactive_zone_topic Object
+        if (!CollectionUtils.isEmpty(articleList)){
+           articleList.stream().forEach(article -> {
+                InteractiveZoneTopic add = new InteractiveZoneTopic();
+                add.setTitle(article.getTitle());
+                add.setJsonContent(article.getContent());
+                add.setBlockType(3);
+                add.setShareType(0);
+                add.setArticleSource(1);
+                add.setArticleId(Integer.parseInt(article.getId() + ""));
+                add.setAuthor(article.getCreator());
+                add.setCoverPicId(article.getCoverPicId().toString());
+                add.setIsDeleted(0);
+                add.setStatus(0);
+                addCommonParam(add, loginUser);
+                interactiveZoneTopicMapper.insertSelective(add);
+            });
+
+        }
+
+        if(!CollectionUtils.isEmpty(projectCaseList)){
+            projectCaseList.stream().forEach(projectCase -> {
+                InteractiveZoneTopic add = new InteractiveZoneTopic();
+                add.setTitle(projectCase.getCaseTitle());
+                add.setJsonContent(projectCase.getContent());
+                add.setBlockType(3);
+                add.setShareType(1);
+                add.setArticleSource(1);
+                add.setProjectCaseId(Integer.parseInt(projectCase.getId() + ""));
+                add.setAuthor(projectCase.getCreator());
+                add.setCoverPicId(projectCase.getCoverPicId().toString());
+                add.setIsDeleted(0);
+                add.setHouseId(projectCase.getHouseTypePicId() == null ? 0 : projectCase.getHouseTypePicId().intValue());
+                add.setPlanId(Objects.isNull(projectCase.getPlanId()) ? 0 : projectCase.getPlanId().intValue());
+                add.setPlanCoverId(Objects.isNull(projectCase.getPlanCoverId()) ? 0 : projectCase.getPlanCoverId().intValue());
+                add.setBedroomNum(projectCase.getBedroomNum());
+                add.setHouseArea(projectCase.getHouseArea());
+                add.setHouseCoverId(Objects.isNull(projectCase.getHouseTypePicId()) ? 0 : projectCase.getHouseTypePicId().intValue());
+                add.setHouseCost(projectCase.getHouseCost());
+                add.setStatus(0);
+                try {
+                    add.setJsonContent(Objects.equals(1, projectCase.getIsOld()) ? getFileText(RESOURCE_URL + interactiveZoneTopicMapper.FindOneResFileById(projectCase.getFileId()).getFilePath()) : projectCase.getJsonContent());
+                } catch (MalformedURLException e) {
+                    log.error("error to get file text");
+                }
+                addCommonParam(add, loginUser);
+                interactiveZoneTopicMapper.insertSelective(add);
+            });
+        }
+        return false;
+    }
+
+    public String getFileText(String url) throws MalformedURLException {
+        URL root = new URL(url);
+        try {
+            return saveBinary(root);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public static String saveBinary(URL u) throws IOException {
+        URLConnection uc = u.openConnection();
+        int contentLength = uc.getContentLength();
+
+        try (InputStream raw = uc.getInputStream()) {
+            InputStream in = new BufferedInputStream(raw);
+            byte[] data = new byte[contentLength];
+            int offset = 0;
+            while (offset < contentLength) {
+                int bytesRead = in.read(data, offset, data.length - offset);
+                if (bytesRead == -1) {
+                    break;
+                }
+                offset += bytesRead;
+            }
+
+            if (offset != contentLength) {
+                throw new IOException("Only read " + offset
+                        + " bytes; Expected " + contentLength + " bytes");
+            }
+            String filename = "存储位置";
+            try (FileOutputStream fout = new FileOutputStream(filename)) {
+                fout.write(data);
+                fout.flush();
+            }
+            return new String(data);
+        }
+    }
+}

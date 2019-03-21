@@ -1,0 +1,958 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.brand.dao.BrandDao">
+    <!--<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>-->
+    <!-- **插入定义** -->
+    <insert id="saveBrand" parameterType="com.sandu.api.brand.model.Brand" useGeneratedKeys="true" keyProperty="id">
+        insert into base_brand
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="sysCode != null">
+                sys_code,
+            </if>
+            <if test="brandName != null">
+                brand_name,
+            </if>
+            <if test="companyId != null">
+                company_id,
+            </if>
+            <if test="brandLogo != null">
+                brand_logo,
+            </if>
+            <if test="brandDesc != null">
+                brand_desc,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="brandCode != null">
+                brand_code,
+            </if>
+            <if test="att1 != null">
+                att1,
+            </if>
+            <if test="att2 != null">
+                att2,
+            </if>
+            <if test="att3 != null">
+                att3,
+            </if>
+            <if test="att4 != null">
+                att4,
+            </if>
+            <if test="att5 != null">
+                att5,
+            </if>
+            <if test="att6 != null">
+                att6,
+            </if>
+            <if test="dateAtt1 != null">
+                date_att1,
+            </if>
+            <if test="dateAtt2 != null">
+                date_att2,
+            </if>
+            <if test="numAtt1 != null">
+                num_att1,
+            </if>
+            <if test="numAtt2 != null">
+                num_att2,
+            </if>
+            <if test="numAtt3 != null">
+                num_att3,
+            </if>
+            <if test="numAtt4 != null">
+                num_att4,
+            </if>
+            <if test="brandStyleId != null">
+                brand_style_id,
+            </if>
+            <if test="brandReferred != null">
+                brand_referred,
+            </if>
+            <if test="statusShowWu != null">
+                status_show_wu,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="sysCode != null">
+                #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="brandName != null">
+                #{brandName,jdbcType=VARCHAR},
+            </if>
+            <if test="companyId != null">
+                #{companyId,jdbcType=INTEGER},
+            </if>
+            <if test="brandLogo != null">
+                #{brandLogo,jdbcType=VARCHAR},
+            </if>
+            <if test="brandDesc != null">
+                #{brandDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="brandCode != null">
+                #{brandCode,jdbcType=VARCHAR},
+            </if>
+            <if test="att1 != null">
+                #{att1,jdbcType=VARCHAR},
+            </if>
+            <if test="att2 != null">
+                #{att2,jdbcType=VARCHAR},
+            </if>
+            <if test="att3 != null">
+                #{att3,jdbcType=VARCHAR},
+            </if>
+            <if test="att4 != null">
+                #{att4,jdbcType=VARCHAR},
+            </if>
+            <if test="att5 != null">
+                #{att5,jdbcType=VARCHAR},
+            </if>
+            <if test="att6 != null">
+                #{att6,jdbcType=VARCHAR},
+            </if>
+            <if test="dateAtt1 != null">
+                #{dateAtt1,jdbcType=TIMESTAMP},
+            </if>
+            <if test="dateAtt2 != null">
+                #{dateAtt2,jdbcType=TIMESTAMP},
+            </if>
+            <if test="numAtt1 != null">
+                #{numAtt1,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt2 != null">
+                #{numAtt2,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt3 != null">
+                #{numAtt3,jdbcType=DECIMAL},
+            </if>
+            <if test="numAtt4 != null">
+                #{numAtt4,jdbcType=DECIMAL},
+            </if>
+            <if test="brandStyleId != null">
+                #{brandStyleId,jdbcType=INTEGER},
+            </if>
+            <if test="brandReferred != null">
+                #{brandReferred,jdbcType=VARCHAR},
+            </if>
+            <if test="statusShowWu != null">
+                #{statusShowWu,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- **更新定义** -->
+    <update id="updateBrand" parameterType="com.sandu.api.brand.model.Brand">
+        update base_brand
+        <set>
+            <if test="sysCode != null">
+                sys_code = #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="brandName != null">
+                brand_name = #{brandName,jdbcType=VARCHAR},
+            </if>
+            <if test="companyId != null">
+                company_id = #{companyId,jdbcType=INTEGER},
+            </if>
+            <if test="brandLogo != null">
+                brand_logo = #{brandLogo,jdbcType=VARCHAR},
+            </if>
+            <if test="brandDesc != null">
+                brand_desc = #{brandDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="brandCode != null">
+                brand_code = #{brandCode,jdbcType=VARCHAR},
+            </if>
+            <if test="att1 != null">
+                att1 = #{att1,jdbcType=VARCHAR},
+            </if>
+            <if test="att2 != null">
+                att2 = #{att2,jdbcType=VARCHAR},
+            </if>
+            <if test="att3 != null">
+                att3 = #{att3,jdbcType=VARCHAR},
+            </if>
+            <if test="att4 != null">
+                att4 = #{att4,jdbcType=VARCHAR},
+            </if>
+            <if test="att5 != null">
+                att5 = #{att5,jdbcType=VARCHAR},
+            </if>
+            <if test="att6 != null">
+                att6 = #{att6,jdbcType=VARCHAR},
+            </if>
+            <if test="dateAtt1 != null">
+                date_att1 = #{dateAtt1,jdbcType=TIMESTAMP},
+            </if>
+            <if test="dateAtt2 != null">
+                date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},
+            </if>
+            <if test="numAtt1 != null">
+                num_att1 = #{numAtt1,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt2 != null">
+                num_att2 = #{numAtt2,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt3 != null">
+                num_att3 = #{numAtt3,jdbcType=DECIMAL},
+            </if>
+            <if test="numAtt4 != null">
+                num_att4 = #{numAtt4,jdbcType=DECIMAL},
+            </if>
+            <if test="brandStyleId != null">
+                brand_style_id = #{brandStyleId,jdbcType=INTEGER},
+            </if>
+            <if test="brandReferred != null">
+                brand_referred = #{brandReferred,jdbcType=VARCHAR},
+            </if>
+            <if test="statusShowWu != null">
+                status_show_wu = #{statusShowWu,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <!-- **删除定义** -->
+    <delete id="deleteBrandById">
+		 delete from base_brand
+		where id = #{id}
+	</delete>
+    <delete id="deleteBrandCompanyId">
+		update  base_brand set is_deleted = 1
+		where company_id = #{companyId};
+	</delete>
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+		id,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,brand_code,brand_name,brand_referred,company_id,brand_style_id,brand_logo,brand_desc,att1,att2,att3,att4,att5,att6,date_att1,date_att2,num_att1,num_att2,num_att3,num_att4,remark,status_show_wu
+	</sql>
+
+    <sql id="where_list">
+        <if test="brandReferred !=  null and brandReferred !=  ''   ">
+            and brand_referred = #{brandReferred,jdbcType=VARCHAR}
+        </if>
+
+        <if test="sch_brandReferred_ !=  null and sch_brandReferred_ !=  ''   ">
+            and brand_referred like CONCAT(CONCAT('%',#{sch_brandReferred_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sysCode !=  null and sysCode !=  ''   ">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+            and sys_code like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+            and sys_code like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+        </if>
+        <if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+            and sys_code like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+            and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="creator !=  null and creator !=  ''   ">and creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+            and creator like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+            and creator like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+        </if>
+        <if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+            and creator like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="creatorStart !=  null and creatorEnd!= null  ">
+            and creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtCreate !=  null  ">
+            and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+            and gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+        </if>
+        <if test="modifier !=  null and modifier !=  ''   ">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+            and modifier like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+            and modifier like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+        </if>
+        <if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+            and modifier like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="modifierStart !=  null and modifierEnd!= null  ">
+            and modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtModified !=  null  ">
+            and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+        </if>
+        <if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+            and gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+        </if>
+        <if test="isDeleted !=  null  ">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="brandCode !=  null and brandCode !=  ''   ">and brand_code = #{brandCode,jdbcType=VARCHAR}</if>
+        <if test="sch_BrandCode_ !=  null and sch_BrandCode_ !=  ''   ">
+            and brand_code like CONCAT(CONCAT('%',#{sch_BrandCode_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_BrandCode !=  null and sch_BrandCode !=  ''   ">
+            and brand_code like CONCAT('%',#{sch_BrandCode,jdbcType=VARCHAR})
+        </if>
+        <if test="schBrandCode_ !=  null and schBrandCode_ !=  ''   ">
+            and brand_code like CONCAT(#{schBrandCode_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="brandCodeStart !=  null and brandCodeEnd!= null  ">
+            and brand_code between #{brandCodeStart,jdbcType=VARCHAR} and #{brandCodeEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="brandName !=  null and brandName !=  ''   ">and brand_name = #{brandName,jdbcType=VARCHAR}</if>
+        <if test="sch_BrandName_ !=  null and sch_BrandName_ !=  ''   ">
+            and brand_name like CONCAT(CONCAT('%',#{sch_BrandName_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_BrandName !=  null and sch_BrandName !=  ''   ">
+            and brand_name like CONCAT('%',#{sch_BrandName,jdbcType=VARCHAR})
+        </if>
+        <if test="schBrandName_ !=  null and schBrandName_ !=  ''   ">
+            and brand_name like CONCAT(#{schBrandName_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="brandNameStart !=  null and brandNameEnd!= null  ">
+            and brand_name between #{brandNameStart,jdbcType=VARCHAR} and #{brandNameEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="companyId !=  null  ">and company_id = #{companyId,jdbcType=INTEGER}</if>
+        <if test="brandStyleId!= null">and brand_style_id = #{brandStyleId,jdbcType=INTEGER}</if>
+        <if test="brandLogo !=  null and brandLogo !=  ''   ">and brand_logo = #{brandLogo,jdbcType=VARCHAR}</if>
+        <if test="sch_BrandLogo_ !=  null and sch_BrandLogo_ !=  ''   ">
+            and brand_logo like CONCAT(CONCAT('%',#{sch_BrandLogo_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_BrandLogo !=  null and sch_BrandLogo !=  ''   ">
+            and brand_logo like CONCAT('%',#{sch_BrandLogo,jdbcType=VARCHAR})
+        </if>
+        <if test="schBrandLogo_ !=  null and schBrandLogo_ !=  ''   ">
+            and brand_logo like CONCAT(#{schBrandLogo_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="brandLogoStart !=  null and brandLogoEnd!= null  ">
+            and brand_logo between #{brandLogoStart,jdbcType=VARCHAR} and #{brandLogoEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="brandDesc !=  null and brandDesc !=  ''   ">and brand_desc = #{brandDesc,jdbcType=VARCHAR}</if>
+        <if test="sch_BrandDesc_ !=  null and sch_BrandDesc_ !=  ''   ">
+            and brand_desc like CONCAT(CONCAT('%',#{sch_BrandDesc_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_BrandDesc !=  null and sch_BrandDesc !=  ''   ">
+            and brand_desc like CONCAT('%',#{sch_BrandDesc,jdbcType=VARCHAR})
+        </if>
+        <if test="schBrandDesc_ !=  null and schBrandDesc_ !=  ''   ">
+            and brand_desc like CONCAT(#{schBrandDesc_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="brandDescStart !=  null and brandDescEnd!= null  ">
+            and brand_desc between #{brandDescStart,jdbcType=VARCHAR} and #{brandDescEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="att1 !=  null and att1 !=  ''   ">and att1 = #{att1,jdbcType=VARCHAR}</if>
+        <if test="sch_Att1_ !=  null and sch_Att1_ !=  ''   ">
+            and att1 like CONCAT(CONCAT('%',#{sch_Att1_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att1 !=  null and sch_Att1 !=  ''   ">
+            and att1 like CONCAT('%',#{sch_Att1,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt1_ !=  null and schAtt1_ !=  ''   ">
+            and att1 like CONCAT(#{schAtt1_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att1Start !=  null and att1End!= null  ">
+            and att1 between #{att1Start,jdbcType=VARCHAR} and #{att1End,jdbcType=VARCHAR}
+        </if>
+        <if test="att2 !=  null and att2 !=  ''   ">and att2 = #{att2,jdbcType=VARCHAR}</if>
+        <if test="sch_Att2_ !=  null and sch_Att2_ !=  ''   ">
+            and att2 like CONCAT(CONCAT('%',#{sch_Att2_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att2 !=  null and sch_Att2 !=  ''   ">
+            and att2 like CONCAT('%',#{sch_Att2,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt2_ !=  null and schAtt2_ !=  ''   ">
+            and att2 like CONCAT(#{schAtt2_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att2Start !=  null and att2End!= null  ">
+            and att2 between #{att2Start,jdbcType=VARCHAR} and #{att2End,jdbcType=VARCHAR}
+        </if>
+        <if test="att3 !=  null and att3 !=  ''   ">and att3 = #{att3,jdbcType=VARCHAR}</if>
+        <if test="sch_Att3_ !=  null and sch_Att3_ !=  ''   ">
+            and att3 like CONCAT(CONCAT('%',#{sch_Att3_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att3 !=  null and sch_Att3 !=  ''   ">
+            and att3 like CONCAT('%',#{sch_Att3,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt3_ !=  null and schAtt3_ !=  ''   ">
+            and att3 like CONCAT(#{schAtt3_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att3Start !=  null and att3End!= null  ">
+            and att3 between #{att3Start,jdbcType=VARCHAR} and #{att3End,jdbcType=VARCHAR}
+        </if>
+        <if test="att4 !=  null and att4 !=  ''   ">and att4 = #{att4,jdbcType=VARCHAR}</if>
+        <if test="sch_Att4_ !=  null and sch_Att4_ !=  ''   ">
+            and att4 like CONCAT(CONCAT('%',#{sch_Att4_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att4 !=  null and sch_Att4 !=  ''   ">
+            and att4 like CONCAT('%',#{sch_Att4,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt4_ !=  null and schAtt4_ !=  ''   ">
+            and att4 like CONCAT(#{schAtt4_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att4Start !=  null and att4End!= null  ">
+            and att4 between #{att4Start,jdbcType=VARCHAR} and #{att4End,jdbcType=VARCHAR}
+        </if>
+        <if test="att5 !=  null and att5 !=  ''   ">and att5 = #{att5,jdbcType=VARCHAR}</if>
+        <if test="sch_Att5_ !=  null and sch_Att5_ !=  ''   ">
+            and att5 like CONCAT(CONCAT('%',#{sch_Att5_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att5 !=  null and sch_Att5 !=  ''   ">
+            and att5 like CONCAT('%',#{sch_Att5,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt5_ !=  null and schAtt5_ !=  ''   ">
+            and att5 like CONCAT(#{schAtt5_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att5Start !=  null and att5End!= null  ">
+            and att5 between #{att5Start,jdbcType=VARCHAR} and #{att5End,jdbcType=VARCHAR}
+        </if>
+        <if test="att6 !=  null and att6 !=  ''   ">and att6 = #{att6,jdbcType=VARCHAR}</if>
+        <if test="sch_Att6_ !=  null and sch_Att6_ !=  ''   ">
+            and att6 like CONCAT(CONCAT('%',#{sch_Att6_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att6 !=  null and sch_Att6 !=  ''   ">
+            and att6 like CONCAT('%',#{sch_Att6,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt6_ !=  null and schAtt6_ !=  ''   ">
+            and att6 like CONCAT(#{schAtt6_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att6Start !=  null and att6End!= null  ">
+            and att6 between #{att6Start,jdbcType=VARCHAR} and #{att6End,jdbcType=VARCHAR}
+        </if>
+        <if test="dateAtt1 !=  null  ">
+            and date_att1 = #{dateAtt1,jdbcType=TIMESTAMP}
+        </if>
+        <if test="dateAtt1Start !=  null and dateAtt1End!= null  ">
+            and date_att1 between #{dateAtt1Start,jdbcType=TIMESTAMP} and #{dateAtt1End,jdbcType=TIMESTAMP}
+        </if>
+        <if test="dateAtt2 !=  null  ">
+            and date_att2 = #{dateAtt2,jdbcType=TIMESTAMP}
+        </if>
+        <if test="dateAtt2Start !=  null and dateAtt2End!= null  ">
+            and date_att2 between #{dateAtt2Start,jdbcType=TIMESTAMP} and #{dateAtt2End,jdbcType=TIMESTAMP}
+        </if>
+        <if test="numAtt1 !=  null  ">and num_att1 = #{numAtt1,jdbcType=INTEGER}</if>
+        <if test="numAtt2 !=  null  ">and num_att2 = #{numAtt2,jdbcType=INTEGER}</if>
+        <if test="numAtt3 !=  null  ">and num_att3 = #{numAtt3,jdbcType=DOUBLE}</if>
+        <if test="numAtt4 !=  null  ">and num_att4 = #{numAtt4,jdbcType=DOUBLE}</if>
+        <if test="remark !=  null and remark !=  ''   ">and remark = #{remark,jdbcType=VARCHAR}</if>
+        <if test="sch_Remark_ !=  null and sch_Remark_ !=  ''   ">
+            and remark like CONCAT(CONCAT('%',#{sch_Remark_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Remark !=  null and sch_Remark !=  ''   ">
+            and remark like CONCAT('%',#{sch_Remark,jdbcType=VARCHAR})
+        </if>
+        <if test="schRemark_ !=  null and schRemark_ !=  ''   ">
+            and remark like CONCAT(#{schRemark_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="remarkStart !=  null and remarkEnd!= null  ">
+            and remark between #{remarkStart,jdbcType=VARCHAR} and #{remarkEnd,jdbcType=VARCHAR}
+        </if>
+
+
+    </sql>
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.sandu.api.brand.model.Brand">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="sys_code" property="sysCode" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="brand_code" property="brandCode" jdbcType="VARCHAR"/>
+        <result column="brand_name" property="brandName" jdbcType="VARCHAR"/>
+        <result column="brand_referred" property="brandReferred" jdbcType="VARCHAR"/>
+        <result column="company_id" property="companyId" jdbcType="INTEGER"/>
+        <result column="brand_style_id" property="brandStyleId" jdbcType="INTEGER"/>
+        <result column="brand_logo" property="brandLogo" jdbcType="VARCHAR"/>
+        <result column="brand_desc" property="brandDesc" jdbcType="VARCHAR"/>
+        <result column="att1" property="att1" jdbcType="VARCHAR"/>
+        <result column="att2" property="att2" jdbcType="VARCHAR"/>
+        <result column="att3" property="att3" jdbcType="VARCHAR"/>
+        <result column="att4" property="att4" jdbcType="VARCHAR"/>
+        <result column="att5" property="att5" jdbcType="VARCHAR"/>
+        <result column="att6" property="att6" jdbcType="VARCHAR"/>
+        <result column="date_att1" property="dateAtt1" jdbcType="TIMESTAMP"/>
+        <result column="date_att2" property="dateAtt2" jdbcType="TIMESTAMP"/>
+        <result column="num_att1" property="numAtt1" jdbcType="INTEGER"/>
+        <result column="num_att2" property="numAtt2" jdbcType="INTEGER"/>
+        <result column="num_att3" property="numAtt3" jdbcType="DOUBLE"/>
+        <result column="num_att4" property="numAtt4" jdbcType="DOUBLE"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="brand_referred" property="brandReferred" jdbcType="VARCHAR"/>
+        <result column="status_show_wu" property="statusShowWu" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!-- **查询定义** -->
+    <!-- 按主键查询 -->
+    <select id="getBrandById" resultMap="AllResultMap">
+        select
+        <include refid="All_Column_List"/>
+        from base_brand
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <!-- 根据品牌编码查询 -->
+    <select id="getBrandByBrandCode" resultMap="AllResultMap">
+        select
+        <include refid="All_Column_List"/>
+        from base_brand
+        where brand_code = #{brandCode} and is_deleted = 0
+    </select>
+    <!-- 批量查询时使用字段 -->
+    <sql id="Filter_List_Field">
+		id , brand_code, brand_referred,  brand_logo, brand_style_id,  brand_name,  company_id,  brand_desc
+	</sql>
+    <!-- 无条件查询 -->
+    <select id="findAllBrand" resultMap="AllResultMap">
+        select
+        <include refid="Filter_List_Field"/>
+        from base_brand
+        where is_deleted = 0
+    </select>
+
+    <!-- 过滤查询-->
+    <select id="queryBrandByBrandInfo" resultMap="AllResultMap">
+        select
+        <include refid="Filter_List_Field"/>
+        from base_brand
+        where 1 = 1
+        <if test="companyId !=  null and companyId !=  ''   ">
+            AND company_id = #{companyId}
+        </if>
+        <if test="brandCode !=  null and brandCode !=  ''   ">
+            AND brand_code LIKE CONCAT(CONCAT('%',#{brandCode,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="brandName !=  null and brandName !=  ''   ">
+            OR brand_name LIKE CONCAT(CONCAT('%',#{brandName,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="brandRefered !=  null and brandRefered !=  ''   ">
+            AND brand_refered LIKE CONCAT(CONCAT('%',#{brandRefered,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderWay != null and  orderWay !='' ">
+                ${orderWay}
+            </if>
+        </if>
+        <if test="orders != null and  orders !=''  ">order by #{orders}</if>
+        <if test="order == null and  orders == null ">order by id desc</if>
+    </select>
+
+    <!-- 根据品牌风格查询 -->
+    <select id="queryBrandByBrandStyleId" resultMap="AllResultMap">
+		select
+		id, brand_logo
+		FROM
+		base_brand
+		where  brand_style_id = #{brandStyleId}
+	</select>
+    <!-- 查询所有产品名称和ID -->
+    <select id="findAllBrandNameAndId" resultMap="AllResultMap">
+		SELECT
+		id,brand_name
+		from  base_brand;
+	</select>
+
+    <!-- 查询最大code -->
+    <select id="queryMaxBrandCodeByCompanyId" resultType="java.lang.String">
+		select MAX(Right(brand_code, 3)) from  base_brand  where 1=1
+			and  company_id=	#{companyId,jdbcType=INTEGER}
+	</select>
+    <!-- 其他Map等查询方式 -->
+    <select id="getBrandNameByIds" resultMap="AllResultMap">
+        select
+        id,brand_name
+        FROM
+        base_brand
+        where 1= 1
+        <if test="brandIds!=null and brandIds.size > 0">
+            and id in
+            <foreach collection="brandIds" open="(" close=")" item="id" separator=",">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+
+    <select id="getBrandByCompanyId" resultMap="AllResultMap">
+		select * from base_brand
+		where company_id =#{companyId} and is_deleted = 0
+	</select>
+    <!--获取同行的brandid-->
+    <select id="listPeerBrandIds" resultType="java.lang.Integer">
+		SELECT DISTINCT bb.id
+		FROM base_company bc
+			left join base_brand bb on bb.company_id= bc.id
+		WHERE bc.is_deleted = 0 and  bc.id  IN
+									 (SELECT DISTINCT ccr.company_id
+									  FROM company_category_rel ccr
+									  WHERE ccr.category_id IN (
+										  SELECT DISTINCT ccr.category_id
+										  FROM company_category_rel ccr
+										  WHERE company_id = #{companyId}))
+	</select>
+    <!-- end-->
+
+
+    <select id="queryByOption" resultMap="AllResultMap">
+        select
+        <include refid="All_Column_List"/>
+        FROM base_brand
+        <where>
+            <include refid="where_list"/>
+        </where>
+        order by id desc
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="AllResultMap">
+        select
+        <include refid="All_Column_List"/>
+        from base_brand
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from base_brand
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insertSelective" parameterType="com.sandu.api.brand.model.Brand">
+        insert into base_brand
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="sysCode != null">
+                sys_code,
+            </if>
+            <if test="brandName != null">
+                brand_name,
+            </if>
+            <if test="companyId != null">
+                company_id,
+            </if>
+            <if test="brandLogo != null">
+                brand_logo,
+            </if>
+            <if test="brandDesc != null">
+                brand_desc,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="brandCode != null">
+                brand_code,
+            </if>
+            <if test="att1 != null">
+                att1,
+            </if>
+            <if test="att2 != null">
+                att2,
+            </if>
+            <if test="att3 != null">
+                att3,
+            </if>
+            <if test="att4 != null">
+                att4,
+            </if>
+            <if test="att5 != null">
+                att5,
+            </if>
+            <if test="att6 != null">
+                att6,
+            </if>
+            <if test="dateAtt1 != null">
+                date_att1,
+            </if>
+            <if test="dateAtt2 != null">
+                date_att2,
+            </if>
+            <if test="numAtt1 != null">
+                num_att1,
+            </if>
+            <if test="numAtt2 != null">
+                num_att2,
+            </if>
+            <if test="numAtt3 != null">
+                num_att3,
+            </if>
+            <if test="numAtt4 != null">
+                num_att4,
+            </if>
+            <if test="brandStyleId != null">
+                brand_style_id,
+            </if>
+            <if test="brandReferred != null">
+                brand_referred,
+            </if>
+            <if test="statusShowWu != null">
+                status_show_wu,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="sysCode != null">
+                #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="brandName != null">
+                #{brandName,jdbcType=VARCHAR},
+            </if>
+            <if test="companyId != null">
+                #{companyId,jdbcType=INTEGER},
+            </if>
+            <if test="brandLogo != null">
+                #{brandLogo,jdbcType=VARCHAR},
+            </if>
+            <if test="brandDesc != null">
+                #{brandDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="brandCode != null">
+                #{brandCode,jdbcType=VARCHAR},
+            </if>
+            <if test="att1 != null">
+                #{att1,jdbcType=VARCHAR},
+            </if>
+            <if test="att2 != null">
+                #{att2,jdbcType=VARCHAR},
+            </if>
+            <if test="att3 != null">
+                #{att3,jdbcType=VARCHAR},
+            </if>
+            <if test="att4 != null">
+                #{att4,jdbcType=VARCHAR},
+            </if>
+            <if test="att5 != null">
+                #{att5,jdbcType=VARCHAR},
+            </if>
+            <if test="att6 != null">
+                #{att6,jdbcType=VARCHAR},
+            </if>
+            <if test="dateAtt1 != null">
+                #{dateAtt1,jdbcType=TIMESTAMP},
+            </if>
+            <if test="dateAtt2 != null">
+                #{dateAtt2,jdbcType=TIMESTAMP},
+            </if>
+            <if test="numAtt1 != null">
+                #{numAtt1,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt2 != null">
+                #{numAtt2,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt3 != null">
+                #{numAtt3,jdbcType=DECIMAL},
+            </if>
+            <if test="numAtt4 != null">
+                #{numAtt4,jdbcType=DECIMAL},
+            </if>
+            <if test="brandStyleId != null">
+                #{brandStyleId,jdbcType=INTEGER},
+            </if>
+            <if test="brandReferred != null">
+                #{brandReferred,jdbcType=VARCHAR},
+            </if>
+            <if test="statusShowWu != null">
+                #{statusShowWu,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.brand.model.Brand">
+        update base_brand
+        <set>
+            <if test="sysCode != null">
+                sys_code = #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="brandName != null">
+                brand_name = #{brandName,jdbcType=VARCHAR},
+            </if>
+            <if test="companyId != null">
+                company_id = #{companyId,jdbcType=INTEGER},
+            </if>
+            <if test="brandLogo != null">
+                brand_logo = #{brandLogo,jdbcType=VARCHAR},
+            </if>
+            <if test="brandDesc != null">
+                brand_desc = #{brandDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="brandCode != null">
+                brand_code = #{brandCode,jdbcType=VARCHAR},
+            </if>
+            <if test="att1 != null">
+                att1 = #{att1,jdbcType=VARCHAR},
+            </if>
+            <if test="att2 != null">
+                att2 = #{att2,jdbcType=VARCHAR},
+            </if>
+            <if test="att3 != null">
+                att3 = #{att3,jdbcType=VARCHAR},
+            </if>
+            <if test="att4 != null">
+                att4 = #{att4,jdbcType=VARCHAR},
+            </if>
+            <if test="att5 != null">
+                att5 = #{att5,jdbcType=VARCHAR},
+            </if>
+            <if test="att6 != null">
+                att6 = #{att6,jdbcType=VARCHAR},
+            </if>
+            <if test="dateAtt1 != null">
+                date_att1 = #{dateAtt1,jdbcType=TIMESTAMP},
+            </if>
+            <if test="dateAtt2 != null">
+                date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},
+            </if>
+            <if test="numAtt1 != null">
+                num_att1 = #{numAtt1,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt2 != null">
+                num_att2 = #{numAtt2,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt3 != null">
+                num_att3 = #{numAtt3,jdbcType=DECIMAL},
+            </if>
+            <if test="numAtt4 != null">
+                num_att4 = #{numAtt4,jdbcType=DECIMAL},
+            </if>
+            <if test="brandStyleId != null">
+                brand_style_id = #{brandStyleId,jdbcType=INTEGER},
+            </if>
+            <if test="brandReferred != null">
+                brand_referred = #{brandReferred,jdbcType=VARCHAR},
+            </if>
+            <if test="statusShowWu != null">
+                status_show_wu = #{statusShowWu,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+
+    <!-- 查询最大code -->
+    <select id="createBrandCode" resultType="java.lang.String" parameterType="com.sandu.api.brand.model.Brand">
+        select MAX(Right(brand_code, 3)) from  base_brand  where 1=1
+        <if test="companyId !=  null ">
+            and  company_id=	#{companyId,jdbcType=INTEGER}
+        </if>
+        <if test="brandStyleId !=  null ">
+            and brand_style_id = 	#{brandStyleId,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="getBrandNamesByIds" resultType="java.lang.String">
+        select GROUP_CONCAT(DISTINCT brand_name)
+        from base_brand
+        where id in
+        <foreach collection="brandIds" item="it" separator="," open="(" close=")">
+            #{it}
+        </foreach>
+    </select>
+</mapper>

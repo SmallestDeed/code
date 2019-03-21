@@ -1,0 +1,42 @@
+package com.sandu.goods.dao;
+
+import com.sandu.goods.model.BO.GoodsSkuBO;
+import com.sandu.goods.model.BO.ProductAttrBO;
+import com.sandu.goods.model.BO.ProductAttrBoV2;
+import com.sandu.goods.model.BO.SkuPriceAndAttrBO;
+import com.sandu.goods.model.BaseGoodsSKU;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface BaseGoodsSKUMapper {
+    int deleteByPrimaryKey(Integer id);
+
+    int insert(BaseGoodsSKU record);
+
+    int insertSelective(BaseGoodsSKU record);
+
+    BaseGoodsSKU selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(BaseGoodsSKU record);
+
+    int updateByPrimaryKey(BaseGoodsSKU record);
+
+    List<GoodsSkuBO> getSkusBySpuId(Integer spuId);
+
+    List<Integer> getProductIdsBySpuId(Integer spuId);
+
+    List<ProductAttrBO> getProductAttrBySpuId(Integer spuId);
+
+    List<SkuPriceAndAttrBO> getSkuPriceAndAttr(Integer id);
+
+    List<BaseGoodsSKU> getListByProductIdList(List<Integer> productIdList);
+
+    List<ProductAttrBoV2> getAllProductAttribute(Integer spuId);
+
+    List<GoodsSkuBO> mapGoodsSKU(List<Long> listSku);
+
+    Integer changeInventory(@Param("id") Integer id, @Param("num") Integer num);
+}

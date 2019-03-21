@@ -1,0 +1,44 @@
+package com.nork.task.dao;
+
+import com.nork.system.model.ResRenderPic;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+/**
+ * @Author Gao Jun
+ * @Description
+ * @Date:Created Administrator in 上午 11:40 2018/6/27 0027
+ * @Modified By:
+ */
+@Repository
+public interface RefreshPicMapper {
+
+    /**
+     * 获取缩略图路径和pid
+     * @return
+     */
+    List<ResRenderPic> getOriginalSmallPic(@Param("start") Integer start, @Param("limit") Integer limit);
+
+    /**
+     * 根据pid获取id和路径
+     */
+    List<ResRenderPic> getOriginalLargePic(List list);
+
+    ResRenderPic selectByPicId(Integer picId);
+
+    ResRenderPic selectByPid(Integer pid);
+
+    int updatePicPath(ResRenderPic smallRenderPic);
+
+    int updatePicPathList(List<ResRenderPic> list);
+
+    /**
+     * 获取残留缩略图
+     * @return
+     */
+    List<ResRenderPic> getResidualSmallPic();
+
+    List<ResRenderPic> getResidualLargePic(List<ResRenderPic> list);
+}

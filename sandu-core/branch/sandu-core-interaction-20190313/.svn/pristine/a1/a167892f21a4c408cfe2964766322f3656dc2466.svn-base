@@ -1,0 +1,57 @@
+package com.sandu.web.interactivezone;
+
+import com.github.pagehelper.PageInfo;
+import com.sandu.api.base.common.ResponseEnvelope;
+import com.sandu.api.base.input.InteractiveZoneReplyAdd;
+import com.sandu.api.base.input.InteractiveZoneReplyQuery;
+import com.sandu.api.base.model.InteractiveZoneReply;
+import com.sandu.api.base.service.InteractiveZoneReplyService;
+import com.sandu.api.user.model.SysUser;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * @ClassName: InteractiveZoneReplyController
+ * @Auther: gaoj
+ * @Date: 2019/3/13 17:33
+ * @Description:
+ * @Version 1.0
+ */
+@RestController
+@Slf4j
+@RequestMapping("/v1/core/interactiveZoneReply")
+public class InteractiveZoneReplyController {
+
+    private final String CLASS_LOG_PREFIX = "【互动区主题控制层】";
+
+    @Autowired
+    private InteractiveZoneReplyService interactiveZoneReplyService;
+
+    @PostMapping("/add")
+    public ResponseEnvelope add(@RequestBody InteractiveZoneReplyAdd interactiveZoneReplyAdd, SysUser sysUser) {
+        if (null == interactiveZoneReplyAdd) {
+            return new ResponseEnvelope(false, "参数缺失");
+        }
+
+        Integer count = interactiveZoneReplyService.add(interactiveZoneReplyAdd, sysUser);
+        return new ResponseEnvelope(count > 0, count > 0 ? "添加成功" : "添加失败");
+    }
+
+    @PostMapping("/update")
+    public ResponseEnvelope update(@RequestBody InteractiveZoneReplyAdd interactiveZoneReplyAdd, SysUser sysUser) {
+        if (null == interactiveZoneReplyAdd) {
+            return new ResponseEnvelope(false, "参数缺失");
+        }
+
+        Integer count = interactiveZoneReplyService.update(interactiveZoneReplyAdd, sysUser);
+        return new ResponseEnvelope(count == 1, count == 1 ? "修改成功" : "修改失败");
+    }
+
+
+    @GetMapping("/list")
+    public void list(@RequestBody InteractiveZoneReplyQuery query) {
+        PageInfo<InteractiveZoneReply> list = interactiveZoneReplyService.query(query);
+
+    }
+}

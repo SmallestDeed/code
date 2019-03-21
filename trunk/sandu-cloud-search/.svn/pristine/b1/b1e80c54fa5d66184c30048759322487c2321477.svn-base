@@ -1,0 +1,32 @@
+package com.sandu.search.service.amqp.impl;
+
+import com.sandu.search.config.AmqpConfig;
+import com.sandu.search.service.amqp.RabbitProducerService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.support.CorrelationData;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.UUID;
+
+/**
+ * Rabbit发送消息
+ *
+ * @date 20180104
+ * @auth pengxuangang
+ */
+@Slf4j
+@Service("rabbitProducerService")
+public class RabbitProducerServiceImpl implements RabbitProducerService {
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    @Override
+    public void sendMsg(String content) {
+        CorrelationData correlationId = new CorrelationData(UUID.randomUUID().toString());
+        rabbitTemplate.convertAndSend(AmqpConfig.EXCHANGE, AmqpConfig.ROUTINGKEY, content, correlationId);
+    }
+
+}

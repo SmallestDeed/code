@@ -1,0 +1,41 @@
+<view class='my-news'>
+  <view class='news-box-first' bindtap='goNews' data-type='系统消息'>
+    <view class='head-box'>
+      <view class='hint' wx:if='{{systemMessages.isRead == 0}}'></view>
+      <image class='head' src='/static/images/me_icon_news_notice.png'></image>
+    </view>
+    <view class='message-box'>
+      <view class='title ellipsis'>系统消息</view>
+      <view class='message ellipsis'>{{systemMessages.content}}</view>
+      <view class='date'>{{systemMessages.gmtModified}}</view>
+    </view>
+  </view>
+  <view class='news-box' bindtap='goNews' data-type='渲染消息'>
+    <view class='head-box'>
+      <view class='hint' wx:if='{{renderMessages.isRead == 0}}'></view>
+      <image class='head' src='/static/images/me_icon_mews_xuanran.png'></image>
+    </view>
+    <view class='message-box'>
+      <view class='title ellipsis'>渲染消息</view>
+      <view class='message ellipsis'>{{renderMessages.title}}</view>
+      <view class='date'>{{renderMessages.gmtModified}}</view>
+    </view>
+  </view>
+  <view class='news-box' 
+      wx:for='{{chatMessagesList}}' 
+      wx:key='{{index}}'
+      data-item='{{item}}' 
+      bindtap='goChat'>
+    <view class='head-box'>
+      <view class='hints'wx:if='{{item.unreadMsg > 0}}'>
+        {{item.unreadMsg >= 100 ? '99+' : item.unreadMsg}}
+      </view>
+      <image class='head' src='{{"/static/images/home_icon_head_nor.png"}}'></image>
+    </view>
+    <view class='message-box'>
+      <view class='title-active ellipsis'>{{item.contactName}}</view>
+      <view class='message ellipsis'>{{item.lastMsg}}</view>
+      <view class='date'>{{item.sendTime}}</view>
+    </view>
+  </view>
+</view>

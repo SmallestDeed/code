@@ -1,0 +1,422 @@
+package com.sandu.web.onekey.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONArray;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.sandu.common.LoginContext;
+import com.sandu.common.model.LoginUser;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.common.util.collections.Lists;
+import com.sandu.common.util.constant.Constants;
+import com.sandu.design.model.DesignPlan;
+import com.sandu.design.model.DesignPlanRecommended;
+import com.sandu.design.model.DesignPlanRecommendedProduct;
+import com.sandu.design.model.DesignTemplet;
+import com.sandu.design.model.DesignTempletProduct;
+import com.sandu.design.model.PosNameInfo;
+import com.sandu.design.model.UnityDesignPlan;
+import com.sandu.design.model.constant.DesignPlanConstants;
+import com.sandu.design.service.DesignPlanRecommendedProductService;
+import com.sandu.design.service.DesignPlanRecommendedService;
+import com.sandu.design.service.DesignPlanService;
+import com.sandu.design.service.DesignTempletProductService;
+import com.sandu.design.service.DesignTempletService;
+import com.sandu.design.service.OptimizePlanService;
+import com.sandu.onekey.model.ProductListByTypeInfo;
+import com.sandu.onekey.model.contant.IntelligenceDecorationConstant;
+import com.sandu.onekey.model.dto.BedroomProductMatchDTO;
+import com.sandu.onekey.model.dto.BedroomProductMatchDTO.GroupMatchInfoDTO;
+import com.sandu.onekey.model.dto.BedroomProductMatchDTO.ProductMatchInfoDTO;
+import com.sandu.onekey.model.dto.BedroomProductMatchDTO.StructureMatchInfoDTO;
+import com.sandu.onekey.model.vo.DimMatchInfoVO;
+import com.sandu.onekey.service.IntelligenceDecorationService;
+import com.sandu.onekey.service.exception.IntelligenceDecorationException;
+import com.sandu.system.model.ResDesign;
+import com.sandu.system.model.ResFile;
+import com.sandu.system.service.ResDesignService;
+import com.sandu.system.service.ResFileService;
+
+/**
+ * 一件装修controller copy from 通用版本
+ * 
+ * @author huangsongbo
+ * 2017.11.28
+ */
+@Controller
+@RequestMapping("/{style}/web/design/intelligenceDecoration")
+public class IntelligenceDecorationController {
+
+	private static Logger logger = LogManager.getLogger(IntelligenceDecorationController.class);
+	
+	@Autowired
+	private IntelligenceDecorationService intelligenceDecorationService;
+	
+	@Autowired
+	private DesignTempletService designTempletService;
+	
+	@Autowired
+	private DesignPlanRecommendedService designPlanRecommendedService;
+	
+	@Autowired
+	private OptimizePlanService optimizePlanService;
+	
+	@Autowired
+	private DesignTempletProductService designTempletProductService;
+	
+	@Autowired
+	private DesignPlanRecommendedProductService designPlanRecommendedProductService;
+	
+	@Autowired
+	private DesignPlanService designPlanService;
+	
+	@Autowired
+	private ResFileService resFileService;
+	
+	@Autowired
+	private ResDesignService resDesignService;
+	
+	private String logPrefixClass = "function:IntelligenceDecorationController.";
+	
+	/**
+	 * 卧室一建装修产品匹配
+	 * 单品:单品/天花/背景墙
+	 * 结构
+	 * 组合
+	 * 
+	 * @author huangsongbo
+	 * @param designTempletId 样板房id
+	 * @param planRecommendedId 推荐方案id
+	 * @param msgId
+	 * @param matchType 0:全屋替换 ;1:硬装替换
+	 * @param opType 是否是自动渲染
+	 * @param spaceCode 空间编码(用于识别房间类型,来决定启用哪种房间类型的一件装修逻辑)
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@RequestMapping("/bedroomProductMatch")
+	@ResponseBody
+	public Object bedroomProductMatch(
+			Integer designTempletId,
+			Integer planRecommendedId,
+			String msgId,
+			Integer matchType,
+			Integer opType,
+			String spaceCode,
+			HttpServletRequest request,
+			// add by huangsongbo 2018.1.9, 前端要这个参数,决定是从空间入口装修(选择空间类型+面积)的方案还是从户型入口(选择小区->户型)装修的方案
+			String planSource
+			// 用于debug(最后要删除) ->start
+			,String posNameDebug
+			// 用于debug(最后要删除) ->end
+			) {
+		
+		// *参数验证 ->start
+		if(designTempletId == null) {
+			return new ResponseEnvelope<>(false, "参数designTempletId不能为空", msgId);
+		}
+		if(planRecommendedId == null) {
+			return new ResponseEnvelope<>(false, "参数planRecommendedId不能为空", msgId);
+		}
+		DesignTemplet designTemplet = designTempletService.getForOneKey(designTempletId);
+		if(designTemplet == null) {
+			return new ResponseEnvelope<>(false, "样板房数据不存在!(id = " + designTempletId + ")", msgId);
+		}
+		DesignPlanRecommended designPlanRecommended = designPlanRecommendedService.get(planRecommendedId);
+		if(designPlanRecommended == null) {
+			return new ResponseEnvelope<>(false, "推荐方案数据不存在!(id = " + planRecommendedId + ")", msgId);
+		}
+		if(matchType == null) {
+			matchType = 0;
+		}
+		if (opType == null) {
+			opType = DesignPlanConstants.USER_RENDER;
+		}
+		/*LoginUser loginUser = SystemCommonUtil.getLoginUserFromRequest(request);*/
+		LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+		if(loginUser == null){
+			return new ResponseEnvelope<UnityDesignPlan>(false, "未检测到登录信息,请登录", msgId);
+		}
+		// *参数验证 ->end
+		
+		// 返回结果
+		BedroomProductMatchDTO bedroomProductMatchDTO = new BedroomProductMatchDTO();
+		
+		// *整理单品/结构/组合成bean ->start
+		// 整理样板房产品表
+		List<DesignTempletProduct> designTempletProductList = designTempletProductService.getListByTempletId(designTempletId);
+		if(Lists.isEmpty(designTempletProductList)) {
+			return new ResponseEnvelope<>(false, "检测到样板房的产品列表为空,designCode:" + designTemplet.getDesignCode(), msgId);
+		}
+		// 组装样板房中单品/结构/组合数据
+		ProductListByTypeInfo productListByTypeInfo = intelligenceDecorationService.getProductListByTypeInfo(designTempletProductList, matchType, planRecommendedId);
+		
+		// 整理推荐方案产品表
+		List<DesignPlanRecommendedProduct> designPlanRecommendedProductList = designPlanRecommendedProductService.getListByRecommendedId(planRecommendedId);
+		if(Lists.isEmpty(designPlanRecommendedProductList)) {
+			return new ResponseEnvelope<>(false, "检测到一建装修方案的产品列表为空", msgId);
+		}
+		// 组装推荐方案中单品/结构/组合数据
+		ProductListByTypeInfo productListByTypeInfoRecommended;
+		try {
+			productListByTypeInfoRecommended = intelligenceDecorationService.getProductListByTypeInfo(designPlanRecommendedProductList);
+		} catch (IntelligenceDecorationException e) {
+			return new ResponseEnvelope<BedroomProductMatchDTO>(false, e.getMessage());
+		}
+		// *整理单品/结构/组合成bean ->end
+		
+		// *新建设计方案(作为一件装修后生成的设计方案) ->start
+		/*String mediaType = SystemCommonUtil.getMediaType(request);*/
+		String mediaType = null!=loginUser?loginUser.getMediaType():null;
+		
+		DesignPlan designPlan = new DesignPlan();
+		designPlan.setPlanSource(planSource);
+		designPlan = designPlanService.createDesignPlanForOneKey(designPlan, null,designTemplet, mediaType, loginUser, 1, opType);
+		/*designPlan.setId(0);*/
+		
+		// 设置新设计方案拼花配置文件 ->start
+		long resFileId = resDesignService.copySpellingFlowerFile(designPlanRecommended.getSpellingFlowerFileId(), designPlan.getId(), designPlan.getPlanCode());
+		designPlan.setSpellingFlowerFileId(Integer.valueOf(resFileId + ""));
+		designPlan.setSpellingFlowerProduct(designPlanRecommended.getSpellingFlowerProduct());
+		designPlanService.update(designPlan);
+		// 设置新设计方案拼花配置文件 ->end
+		
+		// *新建设计方案(作为一件装修后生成的设计方案) ->end
+		
+		// 匹配结构
+		Map<String, Object> structureListMatchResultMap = null;
+		try {
+			structureListMatchResultMap = intelligenceDecorationService.structureListMatch(
+					productListByTypeInfo,
+					productListByTypeInfoRecommended.getStructureInfo(),
+					designPlan.getId(),
+					loginUser.getLoginName(),
+					opType,
+					productListByTypeInfoRecommended.getProductListMap(),
+					spaceCode,
+					designTemplet
+					);
+		} catch (IntelligenceDecorationException e) {
+			return new ResponseEnvelope<BedroomProductMatchDTO>(false, e.getMessage());
+		}
+		
+		List<StructureMatchInfoDTO> structureMatchInfo = null;
+		if(structureListMatchResultMap != null) {
+//			structureMatchInfo = (List<StructureMatchInfoDTO>) structureListMatchResultMap.get(Constants.STRUCTURELISTMATCHRESULTMAPENUM_STRUCTUREMATCHINFO);
+			productListByTypeInfo = (ProductListByTypeInfo) structureListMatchResultMap.get(Constants.STRUCTURELISTMATCHRESULTMAPENUM_PRODUCTLISTBYTYPEINFO);
+		}
+
+		// 匹配组合
+		Map<String, Object> groupMatchResultMap = intelligenceDecorationService.groupListMatch(
+				productListByTypeInfo,
+				productListByTypeInfoRecommended.getGroupInfo(),
+				designPlan.getId(),
+				loginUser.getLoginName(),
+				opType);
+		
+		List<GroupMatchInfoDTO> groupMatchInfo = null;
+		if(groupMatchResultMap != null) {
+			groupMatchInfo = (List<GroupMatchInfoDTO>) groupMatchResultMap.get(IntelligenceDecorationConstant.GROUPMATCHRESULTMAP_GROUPMATCHINFO);
+			productListByTypeInfo = (ProductListByTypeInfo) groupMatchResultMap.get(IntelligenceDecorationConstant.GROUPMATCHRESULTMAP_PRODUCTLISTBYTYPEINFO);
+		}
+		
+		// 匹配单品(单品/背景墙/天花)
+		Map<String, Object> productListMatchResultMap = null;
+		try {
+			productListMatchResultMap = intelligenceDecorationService.productListMatch(
+						productListByTypeInfo.getProductList(),
+						productListByTypeInfoRecommended.getProductListMap(),
+						// 户型绘制需求,导致地面/天花逻辑完全变化 update by huangsongbo 2018.3.16 ->start
+						productListByTypeInfoRecommended.getStructureInfo(),
+						// 户型绘制需求,导致地面/天花逻辑完全变化 update by huangsongbo 2018.3.16 ->end
+						designPlan.getId(),
+						loginUser.getLoginName(),
+						matchType,
+						opType,
+						designTemplet,
+						planRecommendedId);
+		} catch (IntelligenceDecorationException e) {
+			return new ResponseEnvelope<BedroomProductMatchDTO>(false, e.getMessage());
+		}
+		
+		List<ProductMatchInfoDTO> productMatchInfo = null;
+		List<DimMatchInfoVO> dimMatchInfo = null;
+		if(productListMatchResultMap != null) {
+			productMatchInfo = (List<ProductMatchInfoDTO>) productListMatchResultMap.get(IntelligenceDecorationConstant.PRODUCTLISTMATCHRESULTMAP_PRODUCTMATCHINFO);
+			dimMatchInfo = (List<DimMatchInfoVO>) productListMatchResultMap.get(IntelligenceDecorationConstant.PRODUCTLISTMATCHRESULTMAP_DIMMATCHINFOVO);
+		}
+
+		// *样板房/推荐方案配置文件 ->start
+		Integer designTempletConfigFileId = designTemplet.getConfigFileId();
+		String designTempletConfigFileUrl = null;
+		if(designTempletConfigFileId != null) {
+			ResFile resFile = resFileService.get(designTempletConfigFileId);
+			if(resFile != null) {
+				designTempletConfigFileUrl = resFile.getFilePath();
+			}
+		}
+		Integer designPlanRecommendedConfigFileId = designPlanRecommended.getConfigFileId();
+		String designPlanRecommendedConfigFileUrl = null;
+		if(designPlanRecommendedConfigFileId != null) {
+			ResDesign resDesign = resDesignService.get(designPlanRecommendedConfigFileId);
+			if(resDesign != null) {
+				designPlanRecommendedConfigFileUrl = resDesign.getFilePath();
+			}
+		}
+		// *样板房/推荐方案配置文件 ->start
+		
+		// *组装返回结果 ->start
+		bedroomProductMatchDTO.setDesignTempletConfigUrl(designTempletConfigFileUrl);
+		bedroomProductMatchDTO.setGroupMatchInfo(groupMatchInfo);
+		bedroomProductMatchDTO.setProductMatchInfo(productMatchInfo);
+		bedroomProductMatchDTO.setRecommendedPlanConfigUrl(designPlanRecommendedConfigFileUrl);
+		bedroomProductMatchDTO.setStructureMatchInfo(structureMatchInfo);
+		bedroomProductMatchDTO.setDimMatchInfo(dimMatchInfo);
+		Integer dataType = 1;
+		if(designTemplet.getOrigin() != null && 1 == designTemplet.getOrigin().intValue()) {
+			dataType = 2;
+		}else {
+			
+		}
+		bedroomProductMatchDTO.setDataType(dataType);
+		// *组装返回结果 ->end
+		
+		return new ResponseEnvelope<BedroomProductMatchDTO>(true, bedroomProductMatchDTO, msgId);
+	}
+	
+	/**
+	 * 根据配置文件,生成设计方案,并返回设计方案信息(进入房间)
+	 * 
+	 * @author huangsongbo
+	 * @param designTempletId
+	 * @param recommendedPlanId
+	 * @param configEncrypt
+	 * @param msgId
+	 * @param posNameInfoJson json格式,posName对应designPlanProductId的格式
+	 * @return
+	 * @throws Exception 
+	 */
+	@RequestMapping("/createPlanByConfig")
+	@ResponseBody
+	public Object createPlanByConfig(
+			Integer designTempletId,
+			Integer recommendedPlanId,
+			String configEncrypt,
+			String msgId,
+			String posNameInfoJson,
+			Integer opType,
+			HttpServletRequest request,
+			HttpServletResponse response
+			) throws Exception {
+		String logPrefixFunction = logPrefixClass + "createPlanByConfig -> ";
+		
+		// *参数验证/参数处理 ->start
+		if(StringUtils.isEmpty(msgId)){
+			return new ResponseEnvelope<>(false, "参数msgId不能为空", msgId);
+		}
+		if(StringUtils.isEmpty(posNameInfoJson)) {
+			return new ResponseEnvelope<>(false, "参数posNameInfo不能为空", msgId);
+		}
+		List<PosNameInfo> posNameInfoList = new ArrayList<PosNameInfo>();
+		try {
+			JSONArray jsonArray = JSONArray.fromObject(posNameInfoJson);
+			for (int index = 0; index < jsonArray.size(); index++) {
+				/*PosNameInfo posNameInfo = (PosNameInfo) JSONObject.toBean(jsonArray.getJSONObject(index), PosNameInfo.class);*/
+				PosNameInfo posNameInfo = new PosNameInfo();
+				posNameInfo.setPosName(jsonArray.getJSONObject(index).getString("posName"));
+				posNameInfo.setDeignPlanProductId(jsonArray.getJSONObject(index).getInt("deignPlanProductId"));
+				posNameInfoList.add(posNameInfo);
+			}
+		}catch (Exception e) {
+			return new ResponseEnvelope<>(false, "参数posNameInfo格式不正确", msgId);
+		}
+		if (opType == null) {
+			opType = DesignPlanConstants.USER_RENDER;
+		}
+		/*LoginUser loginUser = SystemCommonUtil.getLoginUserFromRequest(request);*/
+		LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+		logger.error("------createPlanByConfig -> loginUser:" + loginUser);
+		
+		DesignTemplet designTemplet = designTempletService.getForOneKey(designTempletId);
+		if(designTemplet == null) {
+			logger.error(logPrefixFunction + "designTemplet = null;designTempletId = " + designTempletId);
+			return new ResponseEnvelope<>(false, "样板房未找到,一件装修失败", msgId);
+		}
+		
+		// *参数验证/参数处理 ->end
+		
+		// *附加信息 ->start
+		/*String mediaType = SystemCommonUtil.getMediaType(request);*/
+		String mediaType = null!=loginUser?loginUser.getMediaType():null;
+		logger.error("------createPlanByConfig -> mediaType:" + mediaType);
+		// *附加信息 ->end
+		
+		Integer planId = designPlanService.createPlanByConfig(designTempletId, recommendedPlanId, configEncrypt, mediaType, loginUser, posNameInfoList, opType);
+		
+		if(planId == null || planId < 1) {
+			return new ResponseEnvelope<>(false, "设计方案创建失败", msgId);
+		}
+		
+		UnityDesignPlan unityDesignPlan = new UnityDesignPlan();
+		
+		if(DesignPlanConstants.AUTO_RENDER != opType) {
+			// *取得设计方案信息,进入房间 ->start
+			@SuppressWarnings("unchecked")
+			ResponseEnvelope<UnityDesignPlan> responseEnvelopeInfo = (ResponseEnvelope<UnityDesignPlan>) 
+				designPlanService.getDesignPlanInfoForOneKey(planId, null, null, null, null, null, loginUser, mediaType, Constants.NO_CACHE);
+			if(responseEnvelopeInfo.isSuccess()) {
+				unityDesignPlan = (UnityDesignPlan)responseEnvelopeInfo.getObj();
+			}else {
+				return new ResponseEnvelope<>(false, "进入设计方案失败", msgId);
+			}
+			unityDesignPlan = designPlanService.wrapperData(planId, unityDesignPlan);
+			unityDesignPlan.setDesignTempletId(designTempletId);
+			// *取得设计方案信息,进入房间 ->end
+		}else {
+			// 自动渲染
+			//获取设计方案信息
+			
+			@SuppressWarnings("unchecked")
+			ResponseEnvelope<UnityDesignPlan> responseEnvelopeInfo = (ResponseEnvelope) optimizePlanService
+					.getDesignPlanInfoForOneKey(planId, null, null, null, null, false, loginUser, mediaType);
+			if (responseEnvelopeInfo.isSuccess()) {
+				unityDesignPlan = (UnityDesignPlan) responseEnvelopeInfo.getObj();
+			} else {
+				logger.error(responseEnvelopeInfo.getMessage());
+				return new ResponseEnvelope<>(false, "进入设计方案失败！", msgId);
+			}
+			unityDesignPlan = optimizePlanService.wrapperData(planId, unityDesignPlan);
+			unityDesignPlan.setDesignTempletId(designTempletId);
+		}
+		
+		Integer dataType = 1;
+		if(designTemplet.getOrigin() != null && 1 == designTemplet.getOrigin().intValue()) {
+			dataType = 2;
+		}else {
+			
+		}
+		unityDesignPlan.setDataType(dataType);
+		return new ResponseEnvelope<UnityDesignPlan>(unityDesignPlan, msgId, true);
+		
+	}
+
+	@RequestMapping("/test001")
+	@ResponseBody
+	public Object test001() {
+		return designTempletService.getFromCache(56703);
+	}
+	
+}

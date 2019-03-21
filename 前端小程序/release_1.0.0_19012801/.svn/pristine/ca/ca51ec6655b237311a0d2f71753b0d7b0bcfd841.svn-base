@@ -1,0 +1,57 @@
+
+<!--pages/confirm-order/confirm-order.wxml-->
+<view class='confirm-order'>
+  <view class='order-address'>
+    <view class='add-address' wx:if='{{!defaultAddress.consignee}}' bindtap='toAddAddress'>
+      <view class='add-icon fl'><image src='{{staticImageUrl}}list_icon_add.png'></image></view>
+      <view class='add-text fl'>添加收货地址</view>
+    </view>
+    <view class='choose-address' bindtap='toAddressList' wx:if='{{defaultAddress.consignee}}'>
+      <view class='address-icon'><image src='{{staticImageUrl}}list_icon_adress.png'></image></view>
+      <view class='user-mes'>{{defaultAddress.consignee}} {{defaultAddress.mobile}}</view>
+      <view class='address-mes'>
+      {{defaultAddress.provinceName === defaultAddress.cityName? defaultAddress.provinceName + defaultAddress.districtName + defaultAddress.address: defaultAddress.provinceName + defaultAddress.cityName + defaultAddress.districtName + defaultAddress.address}}
+      </view>  
+      <view class='address-arrow'><image src='{{staticImageUrl}}list_icon_more.png'></image></view>    
+    </view>    
+  </view>
+  <view class='order-details clearfix'>
+    <view class='details-image fl'>
+       <image src='{{productDetailsObj.productPicPath?(resourcePath + productDetailsObj.productPicPath):"{{staticImageUrl}}goods_pic_no.png"}}'></image> 
+       <!-- <image src='{{resourcePath + productDetailsObj.smallPiclist[0]}}'></image>  -->
+    </view>
+    <view class='details-text fl'>
+      <view class='text-name'>{{productDetailsObj.productName}}</view>
+       <view class='text-model'>{{productDetailsObj.attribute}}</view>  
+       <!-- <view class='text-model'>{{productDetailsObj.productColorName || '默认'}};{{productDetailsObj.productStyleName || '默认'}}</view>  -->
+      <view class='text-price clearfix'>
+        <view class='fl'>￥{{productDetailsObj.price}}</view>
+        <view class='fr count'>* {{productDetailsObj.purchaseNumber}}</view>        
+      </view>      
+    </view>
+  </view>
+  <view class='order-price'>
+    <view class='goods-price clearfix'>
+      <view class='text fl'>商品金额</view>
+      <view class='price fr'>￥{{goodsPrice}}</view>      
+    </view>
+    <view class='logistics-price clearfix'>
+      <view class='text fl'>物流运费</view>
+      <view class='price fr'>￥{{productDetailsObj.transportMoney*productDetailsObj.purchaseNumber}}</view>  
+    </view>    
+  </view>  
+  <view class='order-remarks clearfix'>
+    <view class='text fl'>备注信息 </view>
+    <view class='message fl'><input maxlength='20' bindinput='inputRemask' placeholder-class='input-box' placeholder='选填：20字以内'></input></view>    
+  </view>
+  <view class='order-footer clearfix'>
+    <view class='footer-price fl'>
+      合计： <text>￥{{totalPrice}}</text>
+    </view>
+    <view class='footer-payment fl' bindtap='immediatePayment'> 立即支付</view>    
+  </view>  
+</view>
+<!-- 快速导航模块 -->
+  <!-- <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav" data="{{ ...newNav }}"/> -->
+  <jdNav></jdNav>

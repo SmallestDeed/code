@@ -1,0 +1,39 @@
+<view class='myself'>
+  <view class='header'>
+    <view class='left'>
+      <image class='head' src='{{wxInfo.avatarUrl || wxInfo.headPic || "/static/images/header.png"}}'></image>
+      <view class='message-box' wx:if='{{wxInfo}}'>
+        <view class='name ellipsis'>{{wxInfo.name?wxInfo.name:wxInfo.nickName}}</view>
+        <view class='money'>
+          度币 {{userInfo.balanceIntegral}}
+        </view>
+      </view>
+      <button open-type="getUserInfo" wx:if='{{!wxInfo}}' class='login-btn' lang="zh_CN" bindgetuserinfo="onGotUserInfo">
+        立即登录
+      </button>
+    </view>
+    <image src='/static/images/me_icon_more.png' data-url='/pages/myAccount/myAccount' bindtap='skip' class='right-icon' wx:if='{{wxInfo}}'></image>
+  </view>
+  <view class='content' data-url='/pages/myNews/myNews' bindtap='skip'>
+    <view class='my-content'>我的消息</view>
+    <view class='hint' wx:if='{{isSystemMessages == 0 || idNewRenderMessages == 0 || isUserChatIsRead == 0 || systemNewIsRead == 0}}'>
+    </view>
+    <image class='content-icon' src='/static/images/me_icon_more.png'></image>
+  </view>
+  <view class='content' data-url='/pages/seekHouse/seekHouse' data-type='seekHouse' bindtap='skip'>
+    <view class='my-content'>搜索户型</view>
+    <image class='content-icon' src='/static/images/me_icon_more.png'></image>
+  </view>
+  <view class='content' data-url='/pages/myHouse/myHouse' bindtap='skip'>
+    <view class='my-content'>我的户型</view>
+    <image class='content-icon' src='/static/images/me_icon_more.png'></image>
+  </view>
+  <view class='content' data-url='/pages/my-tasks/my-tasks' bindtap='skip'>
+    <view class='my-content'>我的方案</view>
+    <image class='content-icon' src='/static/images/me_icon_more.png'></image>
+  </view>
+  <view class='content' data-url='/pages/myCollect/myCollect' bindtap='skip'>
+    <view class='my-content'>我的收藏</view>
+    <image class='content-icon' src='/static/images/me_icon_more.png'></image>
+  </view>
+</view>

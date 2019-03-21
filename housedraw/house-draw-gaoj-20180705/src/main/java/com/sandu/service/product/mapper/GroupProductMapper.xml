@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.product.dao.GroupProductMapper">
+	<select id="countGroupProduct" resultType="long">
+		SELECT 
+		  COUNT(*)
+		FROM
+		  group_product gp 
+		WHERE gp.design_templet_id != 0 
+		  AND (
+		    gp.structure_id = 0 
+		    OR gp.structure_id IS NULL
+		  ) 
+		  AND gp.is_deleted = 0 
+		  AND gp.is_standard = 2
+		  AND gp.state IN
+		  <foreach collection="putawayState" item="item" open="(" separator="," close=")">
+		  	#{item}
+		  </foreach>
+	      <if test="groupType != null and groupType != ''">
+	      	AND gp.composite_type = #{groupType}
+	      </if>
+	</select>
+	
+	<select id="listGroupProduct" resultType="com.sandu.api.product.bo.GroupProductBO">
+		SELECT 
+		  gp.id group_id,
+		  gp.group_code,
+		  gp.group_name,
+		  gp.location config_id,
+		  gp.pic_id group_pic_id,
+		  gp.composite_type group_type 
+		FROM
+		  group_product gp 
+		WHERE gp.design_templet_id != 0 
+		  AND (
+		    gp.structure_id = 0 
+		    OR gp.structure_id IS NULL
+		  ) 
+		  AND gp.is_deleted = 0 
+		  AND gp.is_standard = 2
+		  AND gp.state IN
+		  <foreach collection="putawayState" item="item" open="(" separator="," close=")">
+		  	#{item}
+		  </foreach>
+	      <if test="groupType != null and groupType != ''">
+	      	AND gp.composite_type = #{groupType}
+	      </if>
+		ORDER BY gp.gmt_create DESC 
+		<if test="pageSize != -1">
+			LIMIT #{pageNum}, #{pageSize}
+		</if>
+	</select>
+	
+	<select id="listBaseProduct" resultType="com.sandu.api.product.bo.BaseProductBO">
+		SELECT 
+		  p.id,
+		  gpd.group_id,
+		  gpd.is_main AS is_main_product,
+		  p.product_code,
+		  p.product_name,
+		  p.product_length,
+		  p.product_width,
+		  p.product_height,
+		  p.product_type_value,
+		  p.product_small_type_value,
+		  p.windows_u3dmodel_id AS model_id,
+		  p.pic_id
+		FROM
+		  group_product_details gpd,
+		  base_product p 
+		WHERE gpd.product_id = p.id 
+		  AND gpd.is_deleted = 0 
+		  AND p.is_deleted = 0 
+		  <if test="list != null and list.size > 0">
+		 	AND gpd.group_id IN
+		    <foreach collection="list" item="item" open="(" separator="," close=")">
+		  	   #{item.groupId}
+		   	</foreach>
+		  </if>
+	</select>
+</mapper>

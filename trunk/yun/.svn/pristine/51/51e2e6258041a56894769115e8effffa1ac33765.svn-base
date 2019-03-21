@@ -1,0 +1,281 @@
+package com.sandu.pay.order.service.impl;
+
+import com.google.gson.Gson;
+import com.sandu.pay.base.model.BasePlatform;
+import com.sandu.pay.base.service.BasePlatformService;
+import com.sandu.pay.order.dao.PayAccountMapper;
+import com.sandu.pay.order.metadata.*;
+import com.sandu.pay.order.model.PayAccount;
+import com.sandu.pay.order.model.PayOrder;
+import com.sandu.pay.order.model.PayProductConstans;
+import com.sandu.pay.order.model.ResultMessage;
+import com.sandu.pay.order.service.PayAccountService;
+import com.sandu.pay.order.service.PayOrderService;
+import com.sandu.system.model.SysDictionary;
+import com.sandu.system.model.SysDictionaryConstant;
+import com.sandu.system.service.SysDictionaryService;
+import com.sandu.user.model.CompanyFranchiserGroup;
+import com.sandu.user.model.SysUser;
+import com.sandu.user.service.CompanyFranchiserGroupService;
+import com.sandu.user.service.SysUserService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 支付账户
+ *
+ * @Author yzw
+ * @Date 2018/1/4 20:40
+ */
+@Service("payAccountService")
+public class PayAccountServiceImpl implements PayAccountService {
+
+    private static Logger logger = LogManager.getLogger(PayAccountServiceImpl.class);
+    private final static Gson gson = new Gson();
+
+    @Resource
+    private PayAccountMapper payAccountMapper;
+    @Autowired
+    private SysUserService sysUserService;
+    @Autowired
+    private PayOrderService payOrderService;
+    @Resource
+    private BasePlatformService basePlatformService;
+    @Resource
+    private CompanyFranchiserGroupService companyFranchiserGroupService;
+
+    /**
+     * 新增
+     *
+     * @param record
+     * @return
+     */
+    @Override
+    public PayAccount add(PayAccount record) {
+        if (this.payAccountMapper.insertSelective(record) == 1)
+            return record;
+        return null;
+    }
+
+    /**
+     * 删除
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public boolean delete(Integer id) {
+        return this.payAccountMapper.deleteByPrimaryKey(id) == 1;
+    }
+
+    /**
+     * 更新
+     *
+     * @param record
+     * @return
+     */
+    @Override
+    public PayAccount update(PayAccount record) {
+        if (this.payAccountMapper.updateByPrimaryKeySelective(record) == 1)
+            return record;
+        return null;
+    }
+
+    /**
+     * 获取
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public PayAccount get(Integer id) {
+        return this.payAccountMapper.selectByPrimaryKey(id);
+    }
+
+    /**
+     * 获取支付账户信息(暂时区分2b和2c)
+     *
+     * @param userId     用户id
+     * @param platformId 平台id
+     * @return
+     */
+    @Override
+    public PayAccount getPayAccountInfo(Integer userId, Integer platformId) {
+        BasePlatform basePlatform = basePlatformService.get(platformId);
+        if (null == basePlatform) {
+            return null;
+        }
+        PayAccount record = new PayAccount();
+        record.setUserId(userId);
+        record.setPlatformId(platformId);
+        record.setPlatformBussinessType(basePlatform.getPlatformBussinessType());
+        PayAccount payAccount = this.payAccountMapper.getPayAccountInfo(record);
+        return payAccount;
+    }
+
+    /**
+     * 更新用户的消费金额和剩余金额
+     *
+     * @param payAccount
+     * @param payOrder
+     * @param isShare    true表示有积分共享的权限，false表示没有
+     * @return
+     */
+    public PayAccount updateUserAmount(PayAccount payAccount, PayOrder payOrder, boolean isShare) {
+        logger.info("++++++++++paystate:" + payOrder.getPayState() + ";biztype:" + payOrder.getBizType() + ";paytype:" + payOrder.getPayType() + ";TotalFee:" + payOrder.getTotalFee());
+        if (payOrder.getPayState() != null && payOrder.getBizType() != null) {
+            if (payOrder.getFinanceType().equalsIgnoreCase(FinanceType.OUT)) {
+                //普通消费积分start
+                if (payOrder.getPayState().equalsIgnoreCase(PayState.SUCCESS)
+                        && payOrder.getBizType().equalsIgnoreCase(BizType.BUY)
+                        && payOrder.getPayType().equalsIgnoreCase(PayType.PREDEPOSIT)) {
+                    if (isShare) {
+                        companyFranchiserGroupService.updateReduceIntegral(payOrder.getUserId(), payOrder.getTotalFee()); // 减少公共积分，添加消费积分
+                    } else {
+                        payAccount.setBalanceAmount(payAccount.getBalanceAmount() - payOrder.getTotalFee());
+                        payAccount.setConsumAmount(payAccount.getConsumAmount() + payOrder.getTotalFee());
+                    }
+                }
+                //普通消费积分end
+                // ==积分共享消费start
+                if (payOrder.getPayState().equalsIgnoreCase(PayState.SUCCESS)
+                        && payOrder.getBizType().equalsIgnoreCase(BizType.BUY)
+                        && payOrder.getPayType().equalsIgnoreCase(PayType.INTEGRAL_SHARE_PAY)) {
+                    companyFranchiserGroupService.updateReduceIntegral(payOrder.getUserId(), payOrder.getTotalFee()); // 减少公共积分，添加消费积分
+                }
+                // ==积分共享消费end
+                if (payOrder.getPayState().equalsIgnoreCase(PayState.SUCCESS)
+                        && (payOrder.getPayType().equalsIgnoreCase(PayType.ALIPAY)
+                        || payOrder.getPayType().equalsIgnoreCase(PayType.WXPAY))) {
+                    if (isShare) {
+                        companyFranchiserGroupService.updateConsumeIntegral(payOrder.getUserId(), payOrder.getTotalFee()); //添加消费积分，公共积分不作处理
+                    } else {
+                        payAccount.setConsumAmount(payAccount.getConsumAmount() + payOrder.getTotalFee());
+                    }
+                }
+            }
+                //充值start
+                if (payOrder.getFinanceType().equalsIgnoreCase(FinanceType.IN)) {
+                    if (payOrder.getPayState().equalsIgnoreCase(PayState.SUCCESS)
+                            && payOrder.getBizType().equalsIgnoreCase(BizType.RECHARGE)) {
+                        logger.info("用户积分充值：订单号：orderNo:{}" + payOrder.getOrderNo() + "订单金额：totalFee:{}" + payOrder.getTotalFee() + "赠送金额：adjustFee:{}" + payOrder.getAdjustFee() + "是否具备经销商权限？：" + isShare);
+                        if (isShare) {
+                            companyFranchiserGroupService.updateRechargeIntegral(payOrder.getUserId(), payOrder.getTotalFee()
+                                    + (null == payOrder.getAdjustFee() ? 0 : payOrder.getAdjustFee().intValue())); // 添加公共积分，消费积分不作处理
+                        } else {
+                            payAccount.setBalanceAmount(payAccount.getBalanceAmount() + Double.parseDouble(payOrder.getTotalFee().toString()) + payOrder.getAdjustFee().intValue());
+                        }
+                    }
+
+                //充值end
+                //退款更新start
+                if (payOrder.getPayState().equalsIgnoreCase(PayState.SUCCESS)
+                        && payOrder.getBizType().equalsIgnoreCase(BizType.REFUND)) {
+                    if (isShare) {
+                        companyFranchiserGroupService.updateAddIntegral(payOrder.getUserId(), payOrder.getTotalFee()); // 添加公共积分，减少消费积分
+                    } else {
+                        payAccount.setBalanceAmount(payAccount.getBalanceAmount() + payOrder.getTotalFee());
+                        payAccount.setConsumAmount(payAccount.getConsumAmount() - payOrder.getTotalFee());
+                    }
+                }
+                //退款更新start
+            }
+        }
+        return payAccount;
+    }
+
+    /**
+     * 下单完成时候更新支付账户信息（不更新订单信息）
+     *
+     * @param orderNo 订单号
+     * @return
+     */
+    @Override
+    public ResultMessage updateAmountForOrder(String orderNo) {
+        ResultMessage message = new ResultMessage();
+        if (null == orderNo) {
+            logger.info("订单号为空:orderNo:{}" + orderNo);
+            message.setMessage("订单号为空:orderNo:{}" + orderNo);
+            return message;
+        }
+        PayOrder payOrder = payOrderService.getOrderByOrderNo(orderNo);
+        if (null == payOrder) {
+            logger.info("订单信息为空：payOrder:{}" + payOrder);
+            message.setMessage("订单信息为空：payOrder:{}" + payOrder);
+            return message;
+        }
+        SysUser sysUser = sysUserService.get(payOrder.getUserId());
+        if (null == sysUser) {
+            logger.info("用户信息为空：sysUser:{}" + sysUser);
+            message.setMessage("用户信息为空：sysUser:{}" + sysUser);
+            return message;
+        }
+        BasePlatform basePlatform = basePlatformService.get(payOrder.getPlatformId());
+        if (null == basePlatform) {
+            logger.info("平台信息为空：basePlatform:{}" + basePlatform);
+            message.setMessage("平台信息为空：basePlatform:{}" + basePlatform);
+            return message;
+        }
+        // 这里直接判断用户是否具备积分共享权限
+        CompanyFranchiserGroup companyFranchiserGroup = companyFranchiserGroupService.getCompanyFranchiserGroupByUserId(payOrder.getUserId());
+        boolean isShare = false; // 不具备积分共享
+        if (null != companyFranchiserGroup) {
+            isShare = true; // 具备积分共享权限
+        }
+        PayAccount payAccount = getPayAccountInfo(payOrder.getUserId(), payOrder.getPlatformId());
+        if (null == payAccount) {
+            payAccount = new PayAccount();
+            payAccount.setGmtCreate(new Date());
+            payAccount.setCreator(sysUser.getMobile());
+            payAccount.setModifier(sysUser.getMobile());
+            payAccount.setGmtModified(new Date());
+            payAccount.setIsDeleted(0);
+            payAccount.setUserId(payOrder.getUserId());
+//            payAccount.setPlatformId(payOrder.getPlatformId());
+            payAccount.setConsumAmount(0d);
+            payAccount.setBalanceAmount(Double.valueOf(payOrder.getTotalFee()));
+            payAccount.setPlatformBussinessType(basePlatform.getPlatformBussinessType());
+            payAccount = updateUserAmount(payAccount, payOrder, isShare);
+            if (!isShare) {
+                int i = this.payAccountMapper.insertSelective(payAccount);
+                if (i != 1) {
+                    logger.info("用户id：userId:{}" + payOrder.getUserId() + ",平台id：platformId：{}" + payOrder.getPlatformId() + "的账户余额信息更新失败");
+                    message.setMessage("用户id：userId:{}" + payOrder.getUserId() + ",平台id：platformId：{}" + payOrder.getPlatformId() + "的账户余额信息更新失败");
+                    return message;
+                }
+                logger.info("用户id:userId:{}" + payOrder.getUserId() + "的剩余金额为：balanceAmount：{}" + Double.valueOf(payOrder.getTotalFee())
+                        + ",消费金额为：consumAmount：{}" + 0);
+            }
+
+        } else {
+            payAccount = updateUserAmount(payAccount, payOrder, isShare);
+            payAccount.setModifier(sysUser.getMobile());
+            payAccount.setGmtModified(new Date());
+            if (!isShare) {
+                logger.info("payAccount:{}" + gson.toJson(payAccount));
+                int i = this.payAccountMapper.updateByPrimaryKeySelective(payAccount);
+                if (i != 1) {
+                    logger.info("用户id：userId:{}" + payOrder.getUserId() + ",平台id：platformId：{}" + payOrder.getPlatformId() + "的账户余额信息更新失败");
+                    message.setMessage("用户id：userId:{}" + payOrder.getUserId() + ",平台id：platformId：{}" + payOrder.getPlatformId() + "的账户余额信息更新失败");
+                    return message;
+                }
+                logger.info("用户id:userId:{}" + payOrder.getUserId() + "的剩余金额为：balanceAmount：{}" + payAccount.getBalanceAmount()
+                        + ",消费金额为：consumAmount：{}" + payAccount.getConsumAmount());
+            }
+
+        }
+        logger.info("用户id：userId:{}" + payOrder.getUserId() + ",平台id：platformId：{}" + payOrder.getPlatformId() + "的账户余额信息更新成功");
+        message.setMessage("用户id：userId:{}" + payOrder.getUserId() + ",平台id：platformId：{}" + payOrder.getPlatformId() + "的账户余额信息更新成功");
+        message.setSuccess(true);
+        return message;
+    }
+}

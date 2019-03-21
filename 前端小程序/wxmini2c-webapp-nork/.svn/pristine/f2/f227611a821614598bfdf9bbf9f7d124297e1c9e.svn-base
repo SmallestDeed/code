@@ -1,0 +1,136 @@
+let fetch = getApp().fetch
+let $App = getApp()
+Page({
+    /**
+     * 页面的初始数据
+     */
+    data: {
+        resourcePath: getApp().resourcePath,
+        curPage: 1,
+        pageSize: 10,
+        spaceFunctionId: "",
+        houseId: "",
+        isSort: 0,
+        contentlist: [],
+        uncontentlist: [],
+        message: "加载中",
+        userAlreadyBoughtHouseCount: "",
+        userValidHouseCount: "",
+        resourcePath: getApp().resourcePath,
+        imgList:[],
+    },
+    showImg:function(e){
+        let img = e.currentTarget.dataset.img,
+            that = this;
+        wx.previewImage({
+            current: img, 
+            urls: that.data.imgList
+        })
+    },
+    /**
+     * 生命周期函数--监听页面加载
+     */
+    onLoad: function() {
+        new $App.quickNavigation() // 注册组件
+    },
+    /**
+     * 生命周期函数--监听页面初次渲染完成
+     */
+    onReady: function() {},
+    /**
+     * 生命周期函数--监听页面显示
+     */
+    onShow: function() {
+        this.getSearchResluts('加载数据')
+    },
+    /**
+     * 生命周期函数--监听页面隐藏
+     */
+    onHide: function() {},
+    /**
+     * 生命周期函数--监听页面卸载
+     */
+    onUnload: function() {},
+    /**
+     * 页面相关事件处理函数--监听用户下拉动作
+     */
+    onPullDownRefresh: function() {},
+    /**
+     * 页面上拉触底事件的处理函数
+     */
+    onReachBottom: function() {},
+    /**
+     * 用户点击右上角分享
+     */
+    onShareAppMessage: function(res) {
+        if (res.from === 'menu') {
+            return $App.shareAppMessageFn(true);
+        }
+    },
+    getSearchResluts: function(message) {
+        var that = this
+        var url = "/userresources/finduseraccounts"
+        var data = {
+            pageSize: that.data.pageSize,
+            curPage: that.data.curPage
+        }
+        console.log(data);
+        fetch(url, 'get', data)
+            .then((res) => {
+                let arr = [];
+                console.log(res.obj.userValidHouseCount);
+                let arr1 = new Array(res.obj.userValidHouseCount),
+                     contentlistTem = that.data.contentlist,
+                    contentlist = res.obj.houselist;
+                for (let i = 0; i < contentlist.length; i++){
+                    arr[i] = that.data.resourcePath + contentlist[i].thumbnailPath
+                }
+                if (that.data.curPage == 1) {
+                    contentlistTem = []
+                }
+                this.setData({
+                    userValidHouseCount: res.obj.userValidHouseCount,
+                    userAlreadyBoughtHouseCount: res.obj.userUsedHouseCount,
+                    uncontentlist: arr1,
+                    imgList: arr,
+                })
+                if (contentlist.length < that.data.pageSize) {
+                    that.setData({
+                        contentlist: contentlistTem.concat(contentlist),
+                        hasMoreData: false
+                    })
+                } else {
+                    that.setData({
+                        contentlist: contentlistTem.concat(contentlist),
+                        hasMoreData: true,
+                        curPage: that.data.curPage + 1
+                    })
+                }
+
+            })
+            .catch((res) => {
+                that.setData({
+                    message: res.message
+                })
+            })
+    },
+    routerToFitment(e) { // 去装修
+        wx.removeStorageSync('caseItem')
+        let item = e.currentTarget.dataset.item
+        wx.navigateTo({
+            url: '../house-details/house-details?type=houseType&item=' + JSON.stringify(item)
+        })
+    },
+    routerTopurchaseHouse(e) { // 购买户型
+        let type = e.currentTarget.dataset.type
+        if (type == 'use') {
+            wx.switchTab({
+                url: '/pages/house-type/house-type',
+            })
+        } else {
+            wx.navigateTo({
+                url: '/pages/purchase-house/purchase-house'
+            })
+        }
+    }
+})

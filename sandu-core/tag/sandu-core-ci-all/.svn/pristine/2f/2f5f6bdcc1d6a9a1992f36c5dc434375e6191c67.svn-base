@@ -1,0 +1,25 @@
+package com.sandu.api.base.model;
+
+import lombok.Data;
+
+import java.io.Serializable;
+
+/**
+ * Copyright (c) http://www.sanduspace.cn. All rights reserved.
+ *
+ * @author :  Steve
+ * @date : 2018/12/20
+ * @since : sandu_yun_1.0
+ */
+@Data
+public class CompanyMiniProgramConfig implements Serializable{
+
+    private static final long serialVersionUID = -8840566122764932805L;
+    private Long id;
+
+    private String appId;
+
+    private Long companyId;
+
+    private String appSecret;
+}

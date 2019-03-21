@@ -1,0 +1,62 @@
+package com.sandu.search.controller;
+
+import com.sandu.search.common.constant.IndexInfoQueryConfig;
+import com.sandu.search.common.tools.JsonUtil;
+import com.sandu.search.entity.elasticsearch.index.CategoryProductIndexMappingData;
+import com.sandu.search.entity.elasticsearch.response.SearchObjectResponse;
+import com.sandu.search.exception.ProductNameSearchException;
+import com.sandu.search.service.product.ProductNameSearchService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+/**
+ * 产品信息
+ *
+ * @date 20171218
+ * @auth pengxuangang
+ */
+@Slf4j
+@RestController
+@EnableAutoConfiguration
+@RequestMapping("/product/info")
+public class ProductController {
+
+    private final static String CLASS_LOG_PREFIX = "产品信息:";
+
+    @Autowired
+    private ProductNameSearchService productNameSearchService;
+
+    /**
+     * 根据产品名搜索产品列表
+     *
+     * @param productName 产品名
+     * @return
+     */
+    @RequestMapping("/{productName}")
+    List<CategoryProductIndexMappingData> productByProductName(@PathVariable String productName) {
+
+        SearchObjectResponse searchObjectResponse;
+        log.info(CLASS_LOG_PREFIX + "根据产品名搜索产品列表:ProductName:{}.", productName);
+        try {
+            searchObjectResponse = productNameSearchService.queryProductListByProductName(productName, IndexInfoQueryConfig.DEFAULT_SEARCH_DATA_SIZE);
+        } catch (ProductNameSearchException e) {
+            log.error(CLASS_LOG_PREFIX + "根据产品名搜索产品列表失败! ProductNameSearchException:{}.", e);
+            return null;
+        }
+        log.info(CLASS_LOG_PREFIX + "根据产品名搜索产品列表完成!List<CategoryProductIndexMappingData>:{}.", JsonUtil.toJson(searchObjectResponse));
+
+        if (null == searchObjectResponse) {
+            log.warn(CLASS_LOG_PREFIX + "根据产品名搜索产品列表完成!SearchObjectResponse is null,productName:{}.", productName);
+            return null;
+        }
+
+        return (List<CategoryProductIndexMappingData>) searchObjectResponse.getHitResult();
+    }
+
+}

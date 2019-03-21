@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.design.dao.DesignRenderRoamMapper">
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.sandu.design.model.DesignRenderRoam">
+        <id column="id" property="id" jdbcType="INTEGER"></id>
+        <result column="screen_shot_id" property="screenShotId" jdbcType="INTEGER"/>
+        <result column="uuid" property="uuid" jdbcType="INTEGER"/>
+        <result column="roam_config" property="roamConfig" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!-- 通过封面图获取720多点信息 -->
+    <select id="selectByScreenShotId" resultMap="AllResultMap"
+            parameterType="java.lang.Integer">
+        select id,screen_shot_id,uuid,roam_config from design_render_roam where screen_shot_id = #{screenShotId,jdbcType=INTEGER}
+    </select>
+
+    <!-- 通过渲染资源ID获取样板房ID -->
+    <select id="getDesignTemplateIdByResRenderPicId" resultType="java.lang.Integer"
+            parameterType="java.lang.Integer">
+        select dprs.design_template_id from design_plan_render_scene dprs
+        inner join res_render_pic rrp on rrp.design_scene_id = dprs.id
+        where rrp.id = #{resRenderPicId,jdbcType=INTEGER};
+    </select>
+
+    <!-- 通过渲染资源ID获取渲染的相机位置 -->
+    <select id="getRenderCoordinatePosition" resultType="java.lang.String"
+            parameterType="java.lang.Integer">
+        select camera_location from res_render_pic where id = #{resRenderPicId,jdbcType=INTEGER};
+    </select>
+
+    <!-- 通过两个样板房ID，找到穿透位置信息 -->
+    <select id="getCoordinatePosition" resultType="java.lang.String">
+        select jump_position from design_templet_jump_position_rel
+        where origin_id = #{originId,jdbcType=INTEGER} and target_id = #{targetId,jdbcType=INTEGER};
+    </select>
+</mapper>

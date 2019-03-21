@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.house.dao.BaseHouseMapper">
+  <select id="queryBaseHouse" resultType="com.sandu.api.house.bo.DrawBaseHouseBO">
+  	SELECT 
+	  dh.id,
+	  dh.house_code,
+	  dh.house_name,
+	  dh.gmt_modified,
+	  l.living_name,
+	  dh.area_long_code,
+	  pic.pic_path,
+	  dh.is_review
+	FROM
+	  draw_base_house dh,
+	  draw_res_house_pic pic,
+	  base_living l 
+	WHERE dh.pic_res1_id = pic.id 
+	  AND dh.living_id = l.id 
+	  AND dh.is_deleted = 0 
+	  AND dh.user_id = #{userId} 
+	  AND dh.is_review IN
+	  <foreach collection="checkArgs" item="arg" open="(" separator="," close=")" >
+	  	#{arg}
+	  </foreach>
+	  AND dh.id IN 
+	  (SELECT 
+	    h.rel_draw_id 
+	  FROM
+	    base_house h 
+	  WHERE h.is_deleted = 0
+	    AND h.is_public = 1 
+	    AND h.rel_draw_id != 0 
+	  ORDER BY h.gmt_modified DESC)
+	  <if test="keyword != null and keyword !=''">
+	    AND l.living_name like CONCAT('%', #{keyword}, '%')
+<!-- 	  	AND (l.living_name like CONCAT('%', #{keyword}, '%') OR dh.house_name like concat('%', #{keyword},'%')) -->
+	  </if> 
+	LIMIT #{pageNum}, #{pageSize}
+  </select>
+  
+  <select id="countBaseHouse" resultType="long">
+  	SELECT 
+	  COUNT(*)
+	FROM
+	  draw_base_house dh,
+	  draw_res_house_pic pic,
+	  base_living l 
+	WHERE dh.pic_res1_id = pic.id 
+	  AND dh.living_id = l.id 
+	  AND dh.is_deleted = 0 
+	  AND dh.user_id = #{userId} 
+	  AND dh.is_review IN
+	  <foreach collection="checkArgs" item="arg" open="(" separator="," close=")" >
+	  	#{arg}
+	  </foreach>
+	  AND dh.id IN 
+	  (SELECT 
+	    h.rel_draw_id 
+	  FROM
+	    base_house h 
+	  WHERE h.is_deleted = 0
+	    AND h.is_public = 1 
+	    AND h.rel_draw_id != 0 
+	  ORDER BY h.gmt_modified DESC)
+	  <if test="keyword != null and keyword !=''">
+	    AND l.living_name like CONCAT('%', #{keyword}, '%')
+<!-- 	  	AND (l.living_name like CONCAT('%', #{keyword}, '%') OR dh.house_name like concat('%', #{keyword},'%')) -->
+	  </if> 
+  </select>
+  
+  <update id="updateHouseDealStatus">
+  	UPDATE 
+	  base_house 
+	SET
+	  deal_status = #{dealStatus} 
+	WHERE id = 
+	  (SELECT 
+	    dh.base_house_id 
+	  FROM
+	    draw_base_house dh 
+	  WHERE is_deleted = 0
+	  	and dh.id = #{id})
+  </update>
+  
+  <update id="updateHouseDealStatusForLock">
+  	UPDATE 
+	  base_house 
+	SET
+	  deal_status = #{dealStatus} 
+	  <if test="userId != null"> , user_id = #{userId} </if>
+	WHERE id = #{id}
+  </update>
+  
+  <select id="selectByPrimaryKey" resultType="com.sandu.api.house.model.BaseHouse">
+  	select * from base_house h where h.id = #{id} and h.is_deleted = 0
+  </select>
+
+  <update id="updateHouseResouce">
+	UPDATE
+	  base_house h
+	  <set>
+		  <if test="picRes1Id != null"> h.pic_res1_id = #{picRes1Id}, </if>
+		  <if test="snapPicId != null"> h.snap_pic_id = #{snapPicId}, </if>
+		  <if test="restoreFileId != null"> h.restore_file_id = #{restoreFileId}, </if>
+	  </set>
+	WHERE h.id = #{id}
+  </update>
+  
+  <update id="restFailTask">
+  	UPDATE 
+	  base_house 
+	SET
+	  deal_status = #{status} 
+	WHERE deal_status = 4
+	  AND id IN
+	  <foreach collection="args" item="item" open="(" separator="," close=")">
+	  	#{item}
+	  </foreach>
+  </update>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.house.model.BaseHouse">
+	update base_house
+	<set>
+		<if test="userId != null">
+			user_id = #{userId},
+		</if>
+	</set>
+	where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <update id="fix2_3Task">
+	  UPDATE
+	    base_house h
+	  SET
+	    h.deal_status = 4
+	  WHERE h.id IN
+	    (SELECT
+	      dh.base_house_id
+	    FROM
+	      draw_base_house dh
+	    WHERE dh.id IN
+	    <foreach collection="failTasks" item="item" open="(" separator="," close=")">
+	      #{item.houseId}
+	    </foreach>)
+  </update>
+
+  <update id="resetDrawHouse">
+	  UPDATE base_house h SET h.deal_status = #{dealStatus} WHERE h.id IN (
+	  	SELECT h.base_house_id FROM draw_base_house h WHERE h.id IN
+	  	<foreach collection="houseIds" item="item" open="(" separator="," close=")">
+		  #{item}
+	  	</foreach>
+	  )
+  </update>
+
+  <select id="countPutwayDesignTemplet" resultType="int">
+	SELECT
+	  COUNT(*)
+	FROM
+	  house_space_new sn,
+	  design_templet dt
+	WHERE sn.space_id = dt.space_common_id
+	  AND sn.is_deleted = 0
+	  AND dt.is_deleted = 0
+	  AND dt.origin = 1
+	  AND dt.putaway_state = 3
+	  AND sn.house_id = #{houseId}
+  </select>
+
+  <select id="getPutawayState" resultType="int">
+	SELECT
+	  dt.putaway_state
+	FROM
+	  house_space_new sn,
+	  design_templet dt
+	WHERE sn.space_id = dt.space_common_id
+	  AND sn.is_deleted = 0
+	  AND dt.is_deleted = 0
+	  AND dt.origin = 1
+	  AND sn.house_id = #{houseId}
+	  LIMIT 1
+  </select>
+</mapper>

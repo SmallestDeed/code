@@ -1,0 +1,78 @@
+package com.sandu.product.cache.service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.common.cache.CacheManager;
+import com.sandu.common.cache.util.KeyGenerator;
+import com.sandu.common.metadata.ModuleType;
+import com.sandu.common.metadata.PageParameter;
+import com.sandu.common.metadata.QueryParameter;
+import com.sandu.common.util.collections.CustomerListUtils;
+import com.sandu.product.cache.service.GroupProductDetailsCacheService;
+import com.sandu.product.model.GroupProductDetails;
+import com.sandu.product.service.GroupProductDetailsService;
+
+@Service("groupProductDetailsCacheService")
+public class GroupProductDetailsCacheServiceImpl implements GroupProductDetailsCacheService {
+
+	@Autowired
+	private GroupProductDetailsService groupProductDetailsService;
+	
+	/**
+     * 获取所有数据
+     * @param map
+     * @return groupId
+     */
+	@Override
+    public List<GroupProductDetails> getList(GroupProductDetails groupProduct){
+    	PageParameter parameter= this.getPageParameter(groupProduct);
+    	List<GroupProductDetails> list = new ArrayList<GroupProductDetails>(); 
+    	String key = KeyGenerator.getPageQueryKeyParameter(ModuleType.GroupProductDetails,parameter);
+    	if( CacheManager.getInstance().getCacher() != null ){
+    		list = CacheManager.getInstance().getCacher().getList(GroupProductDetails.class, key);
+    		if(CustomerListUtils.isEmpty(list)){
+    			list = groupProductDetailsService.getList(groupProduct);
+        		if( !CustomerListUtils.isEmpty(list) ){
+    				CacheManager.getInstance().getCacher().setObject(key, list, 0);
+    			}
+    		}
+    	}
+    	return list;
+    }
+
+	private PageParameter getPageParameter(GroupProductDetails groupProductDetails) {
+		PageParameter parameter = new PageParameter();
+		/*List<QueryParameter> lstParameter = Lists.newArrayList();*/
+		List<QueryParameter> lstParameter = new ArrayList<QueryParameter>();
+		QueryParameter qp = null;
+		parameter.setPageIndex(groupProductDetails.getStart());
+		parameter.setPageSize(groupProductDetails.getLimit());
+
+		if (groupProductDetails.getGroupId() != null && groupProductDetails.getGroupId() != -1) {
+			qp = new QueryParameter();
+			qp.setName("groupId");
+			qp.setValue(String.valueOf(groupProductDetails.getGroupId()));
+			lstParameter.add(qp);
+		}
+		if (groupProductDetails.getIsMain() != null && groupProductDetails.getIsMain() != -1) {
+			qp = new QueryParameter();
+			qp.setName("isMain");
+			qp.setValue(String.valueOf(groupProductDetails.getIsMain()));
+			lstParameter.add(qp);
+		}
+		if (groupProductDetails.getProductId() != null && groupProductDetails.getProductId() != -1){
+			qp = new QueryParameter();
+			qp.setName("productId");
+			qp.setValue(""+groupProductDetails.getProductId());
+			lstParameter.add(qp);
+		}
+		
+		parameter.setLstParameter(lstParameter);
+		return parameter;
+	}
+	
+}

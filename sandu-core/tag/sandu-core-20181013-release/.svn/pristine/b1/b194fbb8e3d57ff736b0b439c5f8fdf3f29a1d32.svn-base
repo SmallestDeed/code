@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.base.dao.BasePlatformMapper">
+
+	<sql id="All_Column_List">
+		bp.id,bp.platform_name,bp.platform_type,bp.media_type,
+		bp.platform_code,bp.platform_bussiness_type
+	</sql>
+
+
+	<select id="selectPlatformInfoByPlatformCode" resultType="com.sandu.api.base.model.BasePlatform" parameterType="java.lang.String">
+		select
+			<include refid="All_Column_List" />
+		from base_platform bp
+		where 	
+		bp.platform_code = #{platformCode}
+		and bp.is_deleted = 0
+		limit 1
+	</select>
+     <!-- end-->
+</mapper>

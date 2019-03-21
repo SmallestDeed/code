@@ -1,0 +1,131 @@
+package com.sandu.supplydemand.input;
+
+
+import com.sandu.common.model.PageModel;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.List;
+
+
+/**
+ * @author Administrator
+ */
+@Data
+public class BaseSupplyDemandAdd implements Serializable{
+
+    private static final long serialVersionUID = -2211050104712188740L;
+    //分页对象-页面大小
+    public final static int DEFAULT_PAGE_PAGESIZE = 10;
+    private String province;
+
+    private String city;
+
+    private String district;
+
+    private String street;
+
+    private List<String> streets;
+
+    private String title;
+
+    private Integer type;
+
+    private String supplyDemandCategoryId;
+
+    private Integer creatorTypeValue;
+
+    private String isSortByGmtModified;
+
+    private String isSortByViewNum;
+
+    private String mark;
+
+    private Integer creatorId;
+
+    private Integer supplyDemandId;
+
+    private Integer pushStatus;
+
+    private String description;
+
+    private List<String> coverPicPath;
+
+    private String descriptionPicPath;
+
+    private Integer businessId;
+
+    private String publisherType;
+
+
+    private List<Integer> creatorTypes;
+
+
+    private Integer decorationCompany;
+
+    private Integer designer;
+
+    private Integer materialShop;
+
+    private Integer proprietor;
+
+    private Integer builder;
+
+    private List<String> supplyDemandCategoryIdList;
+
+    private Integer mediation;
+    /**
+     * 是否是我的收藏帖子进来的
+     */
+    private Integer fromFavorite;
+    /**
+     * 供求信息ids
+     */
+    private List<Integer> supplyDemandIds;
+    /**
+     * 每页显示多少条记录
+     */
+    private int pageSize;
+
+    /**
+     * 开始记录数
+     */
+    private int start;
+    /**
+     * 显示数据条数
+     */
+    private int limit;
+
+    /**
+     * 当前页码
+     */
+    private int curPage;
+
+    /**供求信息内容（可文字图片按格式存版）**/
+    private String content;
+
+    public void setStart(int start) {
+        this.start = start;
+    }
+
+    public int getStart() {
+        //初始化数据查询分页起始数
+        if (0 != this.curPage) {
+            //设置起始数
+            this.start = (this.curPage - 1) * this.pageSize;
+        }
+        return this.start;
+    }
+
+
+    public int getLimit() {
+        if(0!=this.pageSize){
+            return this.pageSize;
+        }
+        return DEFAULT_PAGE_PAGESIZE;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+}

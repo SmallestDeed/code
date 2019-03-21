@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.base.dao.InteractiveZoneReplyMapper">
+  <resultMap id="BaseResultMap" type="com.sandu.api.base.model.InteractiveZoneReply">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="topic_id" jdbcType="BIGINT" property="topicId" />
+    <result column="block_type" jdbcType="INTEGER" property="blockType" />
+    <result column="is_best_answer" jdbcType="INTEGER" property="isBestAnswer" />
+    <result column="is_top" jdbcType="INTEGER" property="isTop" />
+    <result column="plan_id" jdbcType="INTEGER" property="planId" />
+    <result column="plan_type" jdbcType="INTEGER" property="planType" />
+    <result column="house_id" jdbcType="INTEGER" property="houseId" />
+    <result column="data_source" jdbcType="INTEGER" property="dataSource" />
+    <result column="reply_user_id" jdbcType="INTEGER" property="replyUserId" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.sandu.api.base.model.InteractiveZoneReply">
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+    <result column="json_content" jdbcType="LONGVARCHAR" property="jsonContent" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, topic_id, block_type, is_best_answer, is_top,plan_id,plan_type,house_id,data_source,reply_user_id,creator, gmt_create, modifier,
+    gmt_modified, is_deleted
+  </sql>
+  <sql id="Blob_Column_List">
+    content, jsonContent
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from interactive_zone_reply
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+    <select id="countByTopicId" resultType="java.lang.Integer">
+      select count(1) from interactive_zone_reply where topic_id = #{id} and is_deleted = 0;
+    </select>
+    <select id="queryBiz" resultMap="BaseResultMap">
+      select * from interactive_zone_reply where topic_id = ? and is_deleted = 0
+      <if test="startTime != null">
+        and gmt_create &gt;=  #{startTime}
+      </if>
+      <if test="endTime != null">
+        and gmt_create &lt;= #{endTime}
+      </if>
+      <if test="content != null and content != ''">
+        and content like #{content}
+      </if>
+
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from interactive_zone_reply
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.base.model.InteractiveZoneReply">
+    insert into interactive_zone_reply (id, topic_id, block_type,
+      is_best_answer, is_top, creator,
+      plan_id,plan_type,house_id,data_source,reply_user_id,
+      gmt_create, modifier, gmt_modified,
+      is_deleted, content, json_content)
+    values (#{id,jdbcType=BIGINT}, #{topicId,jdbcType=BIGINT}, #{blockType,jdbcType=INTEGER},
+      #{isBestAnswer,jdbcType=INTEGER}, #{isTop,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
+      #{planId,jdbcType=INTEGER},#{planType,jdbcType=INTEGER},#{houseId,jdbcType=INTEGER},#{dataSource,jdbcType=INTEGER},#{replyUserId,jdbcType=INTEGER},
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP},
+      #{isDeleted,jdbcType=INTEGER}, #{content,jdbcType=LONGVARCHAR}, #{jsonContent,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.base.model.InteractiveZoneReply"
+    useGeneratedKeys="true" keyProperty="id">
+    insert into interactive_zone_reply
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="topicId != null">
+        topic_id,
+      </if>
+      <if test="blockType != null">
+        block_type,
+      </if>
+      <if test="isBestAnswer != null">
+        is_best_answer,
+      </if>
+      <if test="isTop != null">
+        is_top,
+      </if>
+      
+      <if test="planId != null">
+        plan_Id,
+      </if>
+      <if test="planType != null">
+        plan_Type,
+      </if>
+      <if test="houseId != null">
+        house_Id,
+      </if>
+      <if test="dataSource != null">
+        data_Source,
+      </if>
+      <if test="replyUserId != null">
+        reply_User_Id,
+      </if>
+      
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="jsonContent != null">
+        json_content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="topicId != null">
+        #{topicId,jdbcType=BIGINT},
+      </if>
+      <if test="blockType != null">
+        #{blockType,jdbcType=INTEGER},
+      </if>
+      <if test="isBestAnswer != null">
+        #{isBestAnswer,jdbcType=INTEGER},
+      </if>
+      <if test="isTop != null">
+        #{isTop,jdbcType=INTEGER},
+      </if>
+      
+      <if test="planId != null">
+      	 #{planId,jdbcType=INTEGER},
+      </if>
+      <if test="planType != null">
+       #{planType,jdbcType=INTEGER},
+      </if>
+      <if test="houseId != null">
+       #{houseId,jdbcType=INTEGER},
+      </if>
+      <if test="dataSource != null">
+       #{dataSource,jdbcType=INTEGER},
+      </if>
+      <if test="replyUserId != null">
+       #{replyUserId,jdbcType=INTEGER},
+      </if>
+      
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="jsonContent != null">
+        #{jsonContent,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.base.model.InteractiveZoneReply">
+    update interactive_zone_reply
+    <set>
+      <if test="topicId != null">
+        topic_id = #{topicId,jdbcType=BIGINT},
+      </if>
+      <if test="blockType != null">
+        block_type = #{blockType,jdbcType=INTEGER},
+      </if>
+      <if test="isBestAnswer != null">
+        is_best_answer = #{isBestAnswer,jdbcType=INTEGER},
+      </if>
+      <if test="isTop != null">
+        is_top = #{isTop,jdbcType=INTEGER},
+      </if>
+      <if test="planId != null">
+      	 plan_id = #{planId,jdbcType=INTEGER},
+      </if>
+      <if test="planType != null">
+       plan_Type = #{planType,jdbcType=INTEGER},
+      </if>
+      <if test="houseId != null">
+       house_Id = #{houseId,jdbcType=INTEGER},
+      </if>
+      <if test="dataSource != null">
+       data_Source = #{dataSource,jdbcType=INTEGER},
+      </if>
+      <if test="replyUserId != null">
+       reply_User_Id = #{replyUserId,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="jsonContent != null">
+        jsonContent = #{jsonContent,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.sandu.api.base.model.InteractiveZoneReply">
+    update interactive_zone_reply
+    set topic_id = #{topicId,jdbcType=BIGINT},
+      block_type = #{blockType,jdbcType=INTEGER},
+      is_best_answer = #{isBestAnswer,jdbcType=INTEGER},
+      is_top = #{isTop,jdbcType=INTEGER},
+      plan_id = #{planId,jdbcType=INTEGER},
+       plan_Type = #{planType,jdbcType=INTEGER},
+       house_Id = #{houseId,jdbcType=INTEGER},
+       data_Source = #{dataSource,jdbcType=INTEGER},
+       reply_User_Id = #{replyUserId,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      content = #{content,jdbcType=LONGVARCHAR},
+      json_content = #{jsonContent,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.base.model.InteractiveZoneReply">
+    update interactive_zone_reply
+    set topic_id = #{topicId,jdbcType=BIGINT},
+      block_type = #{blockType,jdbcType=INTEGER},
+      is_best_answer = #{isBestAnswer,jdbcType=INTEGER},
+      is_top = #{isTop,jdbcType=INTEGER},
+       plan_id = #{planId,jdbcType=INTEGER},
+       plan_Type = #{planType,jdbcType=INTEGER},
+       house_Id = #{houseId,jdbcType=INTEGER},
+       data_Source = #{dataSource,jdbcType=INTEGER},
+       reply_User_Id = #{replyUserId,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="findCompanyShopArticleListByArticleIds" resultType="com.sandu.api.base.model.CompanyShopArticle">
+      SELECT
+        *
+      FROM
+        company_shop_article
+      WHERE
+        is_deleted = 0 AND
+        id in
+      <foreach collection="articleIdList" item="id" open="(" separator=","  close=")">
+        #{id}
+      </foreach>
+  </select>
+
+  <select id="findProjectCaseListByArticleIds" resultType="com.sandu.api.base.model.ProjectCase">
+    SELECT
+      *
+    FROM
+      project_case
+    WHERE
+      is_deleted = 0 AND
+      id in
+      <foreach collection="projectCaseIds" item="id" open="(" separator=","  close=")">
+        #{id}
+      </foreach>
+  </select>
+</mapper>

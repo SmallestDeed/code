@@ -1,0 +1,47 @@
+package com.sandu.product.dao;
+
+import com.sandu.product.model.GroupProductDetails;
+import com.sandu.product.model.search.GroupProductDetailsSearch;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+
+/**   
+ * @Title: GroupProductDetailsMapper.java 
+ * @Package com.sandu.product.dao
+ * @Description:产品模块-产品组合关联表Mapper
+ * @createAuthor pandajun 
+ * @CreateDate 2016-06-22 20:37:16
+ * @version V1.0   
+ */
+@Repository
+@Transactional
+public interface GroupProductDetailsMapper {
+    int insertSelective(GroupProductDetails record);
+
+    int updateByPrimaryKeySelective(GroupProductDetails record);
+  
+    int deleteByPrimaryKey(Integer id);
+        
+    GroupProductDetails selectByPrimaryKey(Integer id);
+    
+    int selectCount(GroupProductDetailsSearch groupProductDetailsSearch);
+    
+	List<GroupProductDetails> selectPaginatedList(
+			GroupProductDetailsSearch groupProductDetailsSearch);
+			
+    List<GroupProductDetails> selectList(GroupProductDetails groupProductDetails);
+
+	List<GroupProductDetails> findDetailsByGroupId(Integer groupId);
+
+	List<GroupProductDetails> byGroupIdProductCodeList(Integer groupId);
+	/**
+	 * 通过组合id 获取 组合产品，并且获取相关资源
+	 * @param id
+	 * @return
+	 */
+	List<GroupProductDetails> getDataAndResourcesByGroupId(Integer id);
+
+}

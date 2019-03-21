@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.base.dao.BaseCompanyDao">
+
+	<select id="selectByCode" resultType="com.sandu.api.base.model.BaseCompany">
+		select *
+			from base_company
+			where company_code = #{companyCode}
+			and is_virtual=0
+			and is_deleted = 0
+			limit 1
+	</select>
+	
+	<select id="selectById" resultType="com.sandu.api.base.model.BaseCompany">
+		select *
+			from base_company
+			where id = #{id}
+			and is_deleted = 0
+	</select>
+	
+	<select id="selectByAppId" resultType="com.sandu.api.base.model.BaseCompany">
+		select *
+			from base_company
+			where app_id = #{appId}
+			and is_deleted = 0
+	</select>
+	
+	
+	<select id="selectFranchiserCompanys" resultType="com.sandu.api.user.model.bo.CompanyInfoBO">
+		select id, company_name as name,company_logo logo,gmt_create as gmtCreate
+			from base_company where id in( 
+				select ifnull(c.pid,u.company_id)
+					from sys_user u 
+					left join (select * from base_company where is_deleted=0) c
+					on u.business_administration_id = c.id
+					join user_jurisdiction j
+					on u.id = j.user_id 
+					where u.mobile=#{mobile} and u.password=#{password} and u.user_type=3 and platform_type=2 
+					
+					<if test="isForLogin == 1 ">
+						and u.last_login_company_id is null
+					</if>
+					
+					and j.jurisdiction_status=1
+					and j.platform_id=#{platformId}
+					and u.is_deleted=0
+			)
+	</select>
+
+	<!-- 查询最大code -->
+	<select id="createCompanyCode" resultType="java.lang.String">
+		SELECT
+		    company_code
+		FROM
+		    base_company
+		WHERE
+			is_deleted = 0
+		<if test="businessTypeList != null">
+			AND business_type IN
+			<foreach item="item" collection="businessTypeList" separator="," open="(" close=")" index="">
+				#{item}
+			</foreach>
+		</if>
+		<if test="businessTypeNotList != null">
+			AND business_type NOT IN
+			<foreach item="item" collection="businessTypeNotList" separator="," open="(" close=")" index="">
+				#{item}
+			</foreach>
+		</if>
+		AND
+			company_code LIKE #{commanyCodePrefix}
+		AND LENGTH(company_code) > 6
+		ORDER BY
+			company_code
+		DESC
+		LIMIT 1
+	</select>
+
+	<insert id="insertSelective" parameterType="com.sandu.api.base.model.BaseCompany"  useGeneratedKeys="true" keyProperty="id">
+		insert into base_company
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="sysCode!= null">sys_code, </if>
+			<if test="smallType!= null">small_type, </if>
+			<if test="industry!= null">industry, </if>
+			<if test="creator!= null">creator, </if>
+			<if test="gmtCreate!= null">gmt_create, </if>
+			<if test="modifier!= null">modifier, </if>
+			<if test="gmtModified!= null">gmt_modified, </if>
+			<if test="isDeleted!= null">is_deleted, </if>
+			<if test="companyCode!= null">company_code, </if>
+			<if test="companyName!= null">company_name, </if>
+			<if test="companyIdentify!= null">company_identify, </if>
+			<if test="companyUrl!= null">company_url, </if>
+			<if test="companyDesc!= null">company_desc, </if>
+			<if test="companyAddress!= null">company_address, </if>
+			<if test="att1!= null">att1, </if>
+			<if test="att2!= null">att2, </if>
+			<if test="att3!= null">att3, </if>
+			<if test="att4!= null">att4, </if>
+			<if test="att5!= null">att5, </if>
+			<if test="att6!= null">att6, </if>
+			<if test="dateAtt1!= null">date_att1, </if>
+			<if test="dateAtt2!= null">date_att2, </if>
+			<if test="companyLogo!= null">company_logo, </if>
+			<if test="numAtt2!= null">num_att2, </if>
+			<if test="numAtt3!= null">num_att3, </if>
+			<if test="numAtt4!= null">num_att4, </if>
+			<if test="remark!= null">remark, </if>
+			<if test="businessType!= null">business_type, </if>
+			<if test="companyCustomerQQ!= null">company_customer_qq, </if>
+			<if test="companyDomainName!= null">company_domain_name, </if>
+			<if test="categoryIds!= null">category_ids, </if>
+			<if test="businessScope != null" >
+				business_scope,
+			</if>
+			<if test="productVisibilityRange != null" >
+				product_visibility_range,
+			</if>
+			<if test="pcCount != null" >
+				pc_count,
+			</if>
+			<if test="mobileCount != null" >
+				mobile_count,
+			</if>
+			<if test="internalUserCount != null" >
+				internal_user_count,
+			</if>
+			<if test="contractEffectiveTime != null" >
+				contract_effective_time,
+			</if>
+			<if test="contractFailureTime != null" >
+				contract_failure_time,
+			</if>
+			<if test="adminUserId != null" >
+				admin_user_id,
+			</if>
+			<if test="pid != null" >
+				pid,
+			</if>
+			<if test="brandId != null" >
+				brand_id,
+			</if>
+			<if test="phone != null" >
+				phone,
+			</if>
+			<if test="email != null" >
+				email,
+			</if>
+			<if test="contractNumber != null" >
+				contract_number,
+			</if>
+			<if test="isVirtual != null" >
+				is_virtual,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+			<if test="smallType!= null">  #{smallType,jdbcType=VARCHAR}, </if>
+			<if test="industry!= null">  #{industry,jdbcType=INTEGER}, </if>
+			<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+			<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+			<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+			<if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+			<if test="companyCode!= null">  #{companyCode,jdbcType=VARCHAR}, </if>
+			<if test="companyName!= null">  #{companyName,jdbcType=VARCHAR}, </if>
+			<if test="companyIdentify!= null">  #{companyIdentify,jdbcType=VARCHAR}, </if>
+			<if test="companyUrl!= null">  #{companyUrl,jdbcType=VARCHAR}, </if>
+			<if test="companyDesc!= null">  #{companyDesc,jdbcType=VARCHAR}, </if>
+			<if test="companyAddress!= null">  #{companyAddress,jdbcType=VARCHAR}, </if>
+			<if test="att1!= null">  #{att1,jdbcType=VARCHAR}, </if>
+			<if test="att2!= null">  #{att2,jdbcType=VARCHAR}, </if>
+			<if test="att3!= null">  #{att3,jdbcType=VARCHAR}, </if>
+			<if test="att4!= null">  #{att4,jdbcType=VARCHAR}, </if>
+			<if test="att5!= null">  #{att5,jdbcType=VARCHAR}, </if>
+			<if test="att6!= null">  #{att6,jdbcType=VARCHAR}, </if>
+			<if test="dateAtt1!= null">  #{dateAtt1,jdbcType=TIMESTAMP}, </if>
+			<if test="dateAtt2!= null">  #{dateAtt2,jdbcType=TIMESTAMP}, </if>
+			<if test="companyLogo!= null">  #{companyLogo,jdbcType=INTEGER}, </if>
+			<if test="numAtt2!= null">  #{numAtt2,jdbcType=INTEGER}, </if>
+			<if test="numAtt3!= null">  #{numAtt3,jdbcType=DOUBLE}, </if>
+			<if test="numAtt4!= null">  #{numAtt4,jdbcType=DOUBLE}, </if>
+			<if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>
+			<if test="businessType!= null"> #{businessType,jdbcType=VARCHAR}, </if>
+			<if test="companyCustomerQQ!= null"> #{companyCustomerQQ,jdbcType=VARCHAR}, </if>
+			<if test="companyDomainName!= null"> #{companyDomainName,jdbcType=VARCHAR}, </if>
+			<if test="categoryIds!= null"> #{categoryIds,jdbcType=VARCHAR}, </if>
+			<if test="businessScope != null" >
+				#{businessScope,jdbcType=VARCHAR},
+			</if>
+			<if test="productVisibilityRange != null" >
+				#{productVisibilityRange,jdbcType=VARCHAR},
+			</if>
+			<if test="pcCount != null" >
+				#{pcCount,jdbcType=INTEGER},
+			</if>
+			<if test="mobileCount != null" >
+				#{mobileCount,jdbcType=INTEGER},
+			</if>
+			<if test="internalUserCount != null" >
+				#{internalUserCount,jdbcType=INTEGER},
+			</if>
+			<if test="contractEffectiveTime != null" >
+				#{contractEffectiveTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="contractFailureTime != null" >
+				#{contractFailureTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="adminUserId != null" >
+				#{adminUserId,jdbcType=INTEGER},
+			</if>
+			<if test="pid != null" >
+				#{pid,jdbcType=INTEGER},
+			</if>
+			<if test="brandId != null" >
+				#{brandId,jdbcType=VARCHAR},
+			</if>
+			<if test="phone != null" >
+				#{phone,jdbcType=VARCHAR},
+			</if>
+			<if test="email != null" >
+				#{email,jdbcType=VARCHAR},
+			</if>
+			<if test="contractNumber != null" >
+				#{contractNumber,jdbcType=VARCHAR},
+			</if>
+			<if test="isVirtual != null" >
+				#{isVirtual},
+			</if>
+		</trim>
+	</insert>
+
+	<update id="delByPrimaryKey">
+		UPDATE
+		   base_company
+		   SET
+		   is_deleted = 1
+		   WHERE
+		   id = #{id}
+	</update>
+
+	<update id="updatePid">
+		UPDATE
+		   base_company
+		   SET
+		   pid = #{companyId}
+		   WHERE
+		   id = #{id}
+		   and is_deleted = 0
+	</update>
+
+	<select id="selectFCompanys" resultType="com.sandu.api.user.model.bo.CompanyInfoBO">
+		SELECT
+			id,
+			company_name AS NAME,
+			company_logo logo,
+			gmt_create AS gmtCreate
+		FROM
+			base_company
+		WHERE
+			id IN (
+				SELECT
+					u.company_id
+				FROM
+					sys_user u,
+					user_jurisdiction j
+				WHERE
+					 u.id = j.user_id and u.mobile =#{mobile} and u.password=#{password} and u.user_type in(3,14) and platform_type=2
+				AND j.jurisdiction_status = 1
+				AND j.platform_id = #{platformId}
+				AND u.is_deleted = 0
+			)
+	</select>
+
+	<select id="queryCompany" resultType="com.sandu.api.user.model.bo.CompanyInfoBO">
+		SELECT
+		   id,
+		   company_name as name
+		FROM
+		   base_company
+		WHERE
+		   is_deleted = 0
+		<if test="companyName != null and companyName != ''">
+			AND company_name like concat(concat('%',#{companyName}),'%')
+		</if>
+		order by gmt_create desc
+	</select>
+
+	<select id="getFranchiserCompany" resultType="com.sandu.api.user.model.bo.CompanyInfoBO">
+		SELECT
+		   id,
+		   company_name as name
+		   from
+		   base_company
+		   where
+		   is_deleted = 0 AND
+		   pid = #{companyId}
+	</select>
+
+</mapper>

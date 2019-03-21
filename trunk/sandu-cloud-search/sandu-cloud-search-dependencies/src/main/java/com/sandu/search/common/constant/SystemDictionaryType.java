@@ -1,0 +1,16 @@
+package com.sandu.search.common.constant;
+
+/**
+ * 系统字典值类型常量定义
+ *
+ * @date 20180104
+ * @auth pengxuangang
+ */
+public class SystemDictionaryType {
+
+    //产品大小类类型
+    public final static String SYSTEM_DICTIONARY_TYPE_PRODUCTTYPE = "productType";
+    //房间类型
+    public final static String SYSTEM_DICTIONARY_TYPE_HOUSETYPE = "houseType";
+
+}

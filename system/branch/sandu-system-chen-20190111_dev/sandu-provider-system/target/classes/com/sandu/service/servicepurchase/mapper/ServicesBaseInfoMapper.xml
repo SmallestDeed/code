@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.servicepurchase.dao.ServicesBaseInfoMapper">
+    <resultMap id="BaseResultMap" type="com.sandu.api.servicepurchase.model.ServicesBaseInfo">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="services_code" jdbcType="VARCHAR" property="servicesCode"/>
+        <result column="services_name" jdbcType="VARCHAR" property="servicesName"/>
+        <result column="user_scope" jdbcType="VARCHAR" property="userScope"/>
+        <result column="sale_channel" jdbcType="VARCHAR" property="saleChannel"/>
+        <result column="service_desc" jdbcType="VARCHAR" property="serviceDesc"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="services_status" jdbcType="VARCHAR" property="servicesStatus"/>
+        <result column="services_type" jdbcType="INTEGER" property="servicesType"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, services_code, services_name, user_scope,service_desc,sale_channel,
+    remark, services_status,services_type, creator, gmt_create, modifier, gmt_modified, is_deleted
+  </sql>
+
+    <sql id="where_list">
+        <if test="id != null">
+            AND id = #{id,jdbcType=BIGINT}
+        </if>
+        <if test="servicesCode != null">
+            AND services_code = #{servicesCode,jdbcType=VARCHAR}
+        </if>
+        <if test="servicesName != null">
+            AND services_name = #{servicesName,jdbcType=VARCHAR}
+        </if>
+        <if test="userScope != null">
+            AND user_scope = #{userScope,jdbcType=VARCHAR}
+        </if>
+        <if test="saleChannel != null">
+            AND sale_channel like concat(concat('%',#{saleChannel,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="serviceDesc != null">
+            AND service_desc = #{serviceDesc,jdbcType=VARCHAR}
+        </if>
+        <if test="servicesType != null">
+            AND services_type = #{servicesType,jdbcType=INTEGER}
+        </if>
+        <if test="remark != null">
+            AND remark = #{remark,jdbcType=VARCHAR}
+        </if>
+        <if test="servicesStatus != null">
+            AND services_status = #{servicesStatus,jdbcType=VARCHAR}
+        </if>
+        <if test="isDeleted != null">
+            AND is_deleted = #{isDeleted,jdbcType=INTEGER}
+        </if>
+        <if test="noId != null">
+        AND id <![CDATA[ <> ]]> #{noId,jdbcType=BIGINT}
+        </if>
+        <if test="userScopeSet != null and userScopeSet.size >0">
+            and user_scope in
+            <foreach collection="userScopeSet" item="userScope" index="index" open="(" separator="," close=")">
+                 #{userScope,jdbcType=VARCHAR}
+            </foreach>
+        </if>
+
+
+
+    </sql>
+
+    <select id="queryByOption" resultMap="BaseResultMap"
+            parameterType="com.sandu.api.servicepurchase.input.query.ServicesBaseInfoQuery">
+        select
+        <include refid="Base_Column_List"/>
+        from services_base_info
+        <where>
+            <include refid="where_list"/>
+        </where>
+        order BY id desc
+        <if test="start != null and limit != null">
+            limit ${(start-1)*limit},${start*limit}
+        </if>
+    </select>
+
+    <select id="countQueryByOption" resultType="java.lang.Integer"
+            parameterType="com.sandu.api.servicepurchase.input.query.ServicesBaseInfoQuery">
+        select
+        count(id)
+        from services_base_info
+        <where>
+            <include refid="where_list"/>
+        </where>
+        order BY id desc
+    </select>
+
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from services_base_info
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from services_base_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insertSelective" parameterType="com.sandu.api.servicepurchase.model.ServicesBaseInfo" keyProperty="id"
+            useGeneratedKeys="true">
+
+        insert into services_base_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="servicesCode != null">
+                services_code,
+            </if>
+            <if test="servicesName != null">
+                services_name,
+            </if>
+            <if test="userScope != null">
+                user_scope,
+            </if>
+            <if test="saleChannel != null">
+                sale_channel,
+            </if>
+            <if test="serviceDesc != null">
+                service_desc,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="servicesStatus != null">
+                services_status,
+            </if>
+            <if test="servicesType != null">
+                services_type,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="servicesCode != null">
+                #{servicesCode,jdbcType=VARCHAR},
+            </if>
+            <if test="servicesName != null">
+                #{servicesName,jdbcType=VARCHAR},
+            </if>
+            <if test="userScope != null">
+                #{userScope,jdbcType=VARCHAR},
+            </if>
+            <if test="saleChannel != null">
+                #{saleChannel,jdbcType=VARCHAR},
+            </if>
+            <if test="effectiveStrategy != null">
+                #{effectiveStrategy,jdbcType=VARCHAR},
+            </if>
+            <if test="serviceDesc != null">
+                #{serviceDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="servicesStatus != null">
+                #{servicesStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="servicesType != null">
+                #{servicesType,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.servicepurchase.model.ServicesBaseInfo">
+        update services_base_info
+        <set>
+            <if test="servicesCode != null">
+                services_code = #{servicesCode,jdbcType=VARCHAR},
+            </if>
+            <if test="servicesName != null">
+                services_name = #{servicesName,jdbcType=VARCHAR},
+            </if>
+            <if test="userScope != null">
+                user_scope = #{userScope,jdbcType=VARCHAR},
+            </if>
+            <if test="saleChannel != null">
+                sale_channel = #{saleChannel,jdbcType=VARCHAR},
+            </if>
+            <if test="serviceDesc != null">
+                service_desc = #{serviceDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="servicesStatus != null">
+                services_status = #{servicesStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="servicesType != null">
+                services_type = #{servicesType,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="getServicesListByUserScopeAndSaleChannel" resultType="com.sandu.api.servicepurchase.model.bo.ServicesListBO">
+        select sbi.id as services_id ,sbi.services_name,sbi.services_code,sbi.user_scope,sbi.service_desc
+        from services_base_info sbi
+        where sbi.is_deleted = 0
+        and services_status = 1
+        and sale_channel like CONCAT('%',#{saleChannel},'%')
+        and
+        <foreach collection="userTypes" separator="or" open=" (" close=")" item="userType">
+            CONCAT(',',sbi.user_scope,',') like concat('%',#{userType},'%')
+        </foreach>
+        order by sbi.id desc
+    </select>
+    <select id="getPurchasedServicesLogsByCompanyId"
+            resultType="com.sandu.api.servicepurchase.model.bo.ServicesPurchaseLogListBO">
+      select sbi.services_name,sbi.services_code,sbi.id as servicesId,
+       sp.duration,sp.give_duration,sp.price_unit,
+       spr.purchase_amount,spr.purchase_momey,spr.purchase_source,spr.purchase_status,spr.pay_type,spr.creator,spr.purchase_time,spr.order_no
+       from services_base_info sbi, services_purchase_record spr ,services_price sp
+      where sbi.id = sp.services_id and sp.id = spr.services_price_id
+      and spr.company_id = #{companyId}
+      and spr.purchase_status = 1
+      order by spr.id desc
+    </select>
+
+    <select id="getServicesByType" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from services_base_info
+        where services_type = #{servicesType}
+        and CONCAT(',',sale_channel,',') like concat('%',#{saleChannel},'%')
+        and services_status = 1
+    </select>
+    <select id="getByIds" resultType="com.sandu.api.servicepurchase.model.ServicesBaseInfo">
+        select * from services_base_info where is_deleted = 0 and id in
+        <foreach collection="collect" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectServicesListByUserScopeAndTye" resultType="com.sandu.api.servicepurchase.model.ServicesBaseInfo">
+        SELECT
+           *
+        FROM
+           services_base_info
+        WHERE
+            services_type = #{servicesType} and
+            sale_channel =  #{saleChannel} and
+            user_scope = #{userScope} and
+            is_deleted = 0 and
+            services_status = 1
+    </select>
+</mapper>
+

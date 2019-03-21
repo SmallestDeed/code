@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.fullhouse.dao.FullHouseDesignPlanMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.fullhouse.model.FullHouseDesignPlan" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="uuid" property="uuid" jdbcType="VARCHAR" />
+    <result column="plan_code" property="planCode" jdbcType="VARCHAR" />
+    <result column="plan_name" property="planName" jdbcType="VARCHAR" />
+    <result column="plan_style_id" property="planStyleId" jdbcType="INTEGER" />
+    <result column="plan_style_name" property="planStyleName" jdbcType="VARCHAR" />
+    <result column="plan_pic_id" property="planPicId" jdbcType="INTEGER" />
+    <result column="plan_describe" property="planDescribe" jdbcType="VARCHAR" />
+    <result column="company_id" property="companyId" jdbcType="INTEGER" />
+    <result column="brand_ids" property="brandIds" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="source_type" property="sourceType" jdbcType="INTEGER" />
+    <result column="source_plan_id" property="sourcePlanId" jdbcType="INTEGER" />
+    <result column="open_state" property="openState" jdbcType="INTEGER" />
+    <result column="vr_resource_uuid" property="vrResourceUuid" jdbcType="VARCHAR" />
+    <result column="version" property="version" jdbcType="INTEGER" />
+    <result column="open_time" property="openTime" jdbcType="TIMESTAMP" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, uuid, plan_code, plan_name, plan_style_id, plan_style_name, plan_pic_id, plan_describe, 
+    company_id, brand_ids, user_id, source_type, source_plan_id, open_state, vr_resource_uuid, 
+    version, open_time, creator, gmt_create, modifier, gmt_modified, is_deleted, remark
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from full_house_design_plan
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from full_house_design_plan
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.fullhouse.model.FullHouseDesignPlan" >
+    insert into full_house_design_plan (id, uuid, plan_code, 
+      plan_name, plan_style_id, plan_style_name, 
+      plan_pic_id, plan_describe, company_id, 
+      brand_ids, user_id, source_type, 
+      source_plan_id, open_state, vr_resource_uuid, 
+      version, open_time, creator, 
+      gmt_create, modifier, gmt_modified, 
+      is_deleted, remark)
+    values (#{id,jdbcType=INTEGER}, #{uuid,jdbcType=VARCHAR}, #{planCode,jdbcType=VARCHAR}, 
+      #{planName,jdbcType=VARCHAR}, #{planStyleId,jdbcType=INTEGER}, #{planStyleName,jdbcType=VARCHAR}, 
+      #{planPicId,jdbcType=INTEGER}, #{planDescribe,jdbcType=VARCHAR}, #{companyId,jdbcType=INTEGER}, 
+      #{brandIds,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER}, #{sourceType,jdbcType=INTEGER}, 
+      #{sourcePlanId,jdbcType=INTEGER}, #{openState,jdbcType=INTEGER}, #{vrResourceUuid,jdbcType=VARCHAR}, 
+      #{version,jdbcType=INTEGER}, #{openTime,jdbcType=TIMESTAMP}, #{creator,jdbcType=VARCHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{isDeleted,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.fullhouse.model.FullHouseDesignPlan" >
+    insert into full_house_design_plan
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="uuid != null" >
+        uuid,
+      </if>
+      <if test="planCode != null" >
+        plan_code,
+      </if>
+      <if test="planName != null" >
+        plan_name,
+      </if>
+      <if test="planStyleId != null" >
+        plan_style_id,
+      </if>
+      <if test="planStyleName != null" >
+        plan_style_name,
+      </if>
+      <if test="planPicId != null" >
+        plan_pic_id,
+      </if>
+      <if test="planDescribe != null" >
+        plan_describe,
+      </if>
+      <if test="companyId != null" >
+        company_id,
+      </if>
+      <if test="brandIds != null" >
+        brand_ids,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="sourceType != null" >
+        source_type,
+      </if>
+      <if test="sourcePlanId != null" >
+        source_plan_id,
+      </if>
+      <if test="openState != null" >
+        open_state,
+      </if>
+      <if test="vrResourceUuid != null" >
+        vr_resource_uuid,
+      </if>
+      <if test="version != null" >
+        version,
+      </if>
+      <if test="openTime != null" >
+        open_time,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="uuid != null" >
+        #{uuid,jdbcType=VARCHAR},
+      </if>
+      <if test="planCode != null" >
+        #{planCode,jdbcType=VARCHAR},
+      </if>
+      <if test="planName != null" >
+        #{planName,jdbcType=VARCHAR},
+      </if>
+      <if test="planStyleId != null" >
+        #{planStyleId,jdbcType=INTEGER},
+      </if>
+      <if test="planStyleName != null" >
+        #{planStyleName,jdbcType=VARCHAR},
+      </if>
+      <if test="planPicId != null" >
+        #{planPicId,jdbcType=INTEGER},
+      </if>
+      <if test="planDescribe != null" >
+        #{planDescribe,jdbcType=VARCHAR},
+      </if>
+      <if test="companyId != null" >
+        #{companyId,jdbcType=INTEGER},
+      </if>
+      <if test="brandIds != null" >
+        #{brandIds,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="sourceType != null" >
+        #{sourceType,jdbcType=INTEGER},
+      </if>
+      <if test="sourcePlanId != null" >
+        #{sourcePlanId,jdbcType=INTEGER},
+      </if>
+      <if test="openState != null" >
+        #{openState,jdbcType=INTEGER},
+      </if>
+      <if test="vrResourceUuid != null" >
+        #{vrResourceUuid,jdbcType=VARCHAR},
+      </if>
+      <if test="version != null" >
+        #{version,jdbcType=INTEGER},
+      </if>
+      <if test="openTime != null" >
+        #{openTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.fullhouse.model.FullHouseDesignPlan" >
+    update full_house_design_plan
+    <set >
+      <if test="uuid != null" >
+        uuid = #{uuid,jdbcType=VARCHAR},
+      </if>
+      <if test="planCode != null" >
+        plan_code = #{planCode,jdbcType=VARCHAR},
+      </if>
+      <if test="planName != null" >
+        plan_name = #{planName,jdbcType=VARCHAR},
+      </if>
+      <if test="planStyleId != null" >
+        plan_style_id = #{planStyleId,jdbcType=INTEGER},
+      </if>
+      <if test="planStyleName != null" >
+        plan_style_name = #{planStyleName,jdbcType=VARCHAR},
+      </if>
+      <if test="planPicId != null" >
+        plan_pic_id = #{planPicId,jdbcType=INTEGER},
+      </if>
+      <if test="planDescribe != null" >
+        plan_describe = #{planDescribe,jdbcType=VARCHAR},
+      </if>
+      <if test="companyId != null" >
+        company_id = #{companyId,jdbcType=INTEGER},
+      </if>
+      <if test="brandIds != null" >
+        brand_ids = #{brandIds,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="sourceType != null" >
+        source_type = #{sourceType,jdbcType=INTEGER},
+      </if>
+      <if test="sourcePlanId != null" >
+        source_plan_id = #{sourcePlanId,jdbcType=INTEGER},
+      </if>
+      <if test="openState != null" >
+        open_state = #{openState,jdbcType=INTEGER},
+      </if>
+      <if test="vrResourceUuid != null" >
+        vr_resource_uuid = #{vrResourceUuid,jdbcType=VARCHAR},
+      </if>
+      <if test="version != null" >
+        version = #{version,jdbcType=INTEGER},
+      </if>
+      <if test="openTime != null" >
+        open_time = #{openTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.fullhouse.model.FullHouseDesignPlan" >
+    update full_house_design_plan
+    set uuid = #{uuid,jdbcType=VARCHAR},
+      plan_code = #{planCode,jdbcType=VARCHAR},
+      plan_name = #{planName,jdbcType=VARCHAR},
+      plan_style_id = #{planStyleId,jdbcType=INTEGER},
+      plan_style_name = #{planStyleName,jdbcType=VARCHAR},
+      plan_pic_id = #{planPicId,jdbcType=INTEGER},
+      plan_describe = #{planDescribe,jdbcType=VARCHAR},
+      company_id = #{companyId,jdbcType=INTEGER},
+      brand_ids = #{brandIds,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=INTEGER},
+      source_type = #{sourceType,jdbcType=INTEGER},
+      source_plan_id = #{sourcePlanId,jdbcType=INTEGER},
+      open_state = #{openState,jdbcType=INTEGER},
+      vr_resource_uuid = #{vrResourceUuid,jdbcType=VARCHAR},
+      version = #{version,jdbcType=INTEGER},
+      open_time = #{openTime,jdbcType=TIMESTAMP},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="getFullHousePlanCount" resultType="java.lang.Integer" parameterType="com.sandu.fullhouse.input.FullHouseDesignPlanListQuery">
+    select
+      count(DISTINCT fh.id)
+    from
+        full_house_design_plan fh
+        left join design_plan_2c_platform dpp on dpp.plan_id = fh.id and dpp.design_plan_type = 3
+        left join plan_decorate_price pdp on pdp.full_house_id = fh.id and pdp.is_deleted = 0
+        left join sys_dictionary sd2 on sd2.value = pdp.decorate_price_type and sd2.type = 'decorateType'
+    where
+        fh.is_deleted = 0
+        <if test="designPlanStyleId != null">
+          and fh.plan_style_id = #{designPlanStyleId}
+        </if>
+        <if test="sourceType != null">
+          and fh.source_type = #{sourceType}
+        </if>
+        and fh.source_type != 2
+        <if test="openState != null">
+          and fh.open_state = #{openState}
+        </if>
+        <if test="platformId != null">
+          and dpp.platform_id = #{platformId}
+          and dpp.putaway_state = 1
+          and dpp.allot_state = 1
+        </if>
+        <if test="companyId != null">
+          and fh.company_id = #{companyId}
+        </if>
+        <if test="brandIds != null and brandIds.size > 0">
+          and
+          <foreach collection="brandIds" index="index" separator=" or " item="item" close=")" open="(">
+            FIND_IN_SET(#{item},fh.brand_ids)
+          </foreach>
+        </if>
+        <if test="decoratePriceType != null">
+          and pdp.decorate_price_type = #{decoratePriceType,jdbcType=INTEGER}
+          <if test="decoratePriceRange != null">
+            and pdp.decorate_price_range = #{decoratePriceRange,jdbcType=INTEGER}
+          </if>
+        </if>
+  </select>
+  <resultMap id="getFullHousePlanListResultMap" type="com.sandu.designplan.model.DesignPlanRecommendedResult">
+    <id column="planRecommendedId" property="planRecommendedId" jdbcType="INTEGER"></id>
+    <result column="planName" property="planName" jdbcType="VARCHAR"></result>
+    <result column="styleName" property="styleName" jdbcType="VARCHAR"></result>
+    <result column="gmtCreate" property="gmtCreate" jdbcType="TIMESTAMP"></result>
+    <result column="coverPath" property="coverPath" jdbcType="VARCHAR"></result>
+    <result column="spaceFunctionId" property="spaceFunctionId" jdbcType="INTEGER"></result>
+    <result column="planHouseType" property="planHouseType" jdbcType="INTEGER"></result>
+    <result column="shopId" property="shopId" jdbcType="INTEGER"></result>
+    <result column="designerHeadPic" property="designerHeadPic" jdbcType="VARCHAR"></result>
+    <result column="designerName" property="designerName" jdbcType="VARCHAR"></result>
+    <result column="fullHousePlanUUID" property="fullHousePlanUUID" jdbcType="VARCHAR"></result>
+    <result column="descFileId" property="descFileId" jdbcType="INTEGER"></result>
+    <result column="view_num" property="viewNum" jdbcType="INTEGER"></result>
+    <collection property="planDecoratePriceList" ofType="com.sandu.designplan.vo.PlanDecoratePriceBO">
+      <result column="decorateTypeName" property="decorateTypeName" jdbcType="VARCHAR"></result>
+      <result column="decoratePrice" property="decoratePrice" jdbcType="INTEGER"></result>
+    </collection>
+  </resultMap>
+  <select id="getFullHousePlanList" resultMap="getFullHousePlanListResultMap"
+          parameterType="com.sandu.fullhouse.input.FullHouseDesignPlanListQuery">
+    select
+        fh.id as planRecommendedId,
+        fh.plan_name as planName,
+        fh.plan_style_name as styleName,
+        fh.gmt_create as gmtCreate,
+        fh.vr_resource_uuid as fullHousePlanUUID,
+        rrp.pic_path as coverPath,
+        sd.value as spaceFunctionId,
+        2 as planHouseType,
+        <if test="planId != null" >
+          cs.id as shopId,
+        </if>
+        <if test="planId != null" >
+          fh.desc_file_id as descFileId,
+        </if>
+        rp.pic_path designerHeadPic,
+        su.user_name designerName,
+        sd2.name decorateTypeName,
+        pdp.decorate_price decoratePrice,
+        fh.view_num
+    from
+        full_house_design_plan fh
+        left join design_plan_2c_platform dpp on dpp.plan_id = fh.id and dpp.design_plan_type = 3
+        left join res_render_pic rrp on rrp.id = fh.plan_pic_id
+        left join sys_dictionary sd on sd.type = 'houseType' and sd.valuekey = 'fullroom'
+        left join plan_decorate_price pdp on pdp.full_house_id = fh.id and pdp.is_deleted = 0
+        left join sys_dictionary sd2 on sd2.value = pdp.decorate_price_type and sd2.type = 'decorateType'
+        left join sys_user su on su.id = fh.user_id and su.is_deleted = 0
+        left join res_pic rp on rp.id = su.pic_id and rp.is_deleted = 0
+        <if test="planId != null">
+          LEFT JOIN company_shop cs on cs.user_id = su.id
+        </if>
+    where
+        fh.is_deleted = 0
+        <if test="planId != null">
+          and fh.id = #{planId}
+        </if>
+        <if test="designPlanStyleId != null">
+          and fh.plan_style_id = #{designPlanStyleId}
+        </if>
+        <if test="sourceType != null">
+          and fh.source_type = #{sourceType}
+        </if>
+        and fh.source_type != 2
+        <if test="openState != null">
+          and fh.open_state = #{openState}
+        </if>
+        <if test="platformId != null">
+          and dpp.platform_id = #{platformId}
+          and dpp.putaway_state = 1
+          and dpp.allot_state = 1
+        </if>
+        <if test="companyId != null">
+          and fh.company_id = #{companyId}
+        </if>
+        <if test="brandIds != null and brandIds.size > 0">
+          and
+          <foreach collection="brandIds" index="index" separator="or" item="item" open="(" close=")">
+            FIND_IN_SET(#{item},fh.brand_ids)
+          </foreach>
+        </if>
+        <if test="decoratePriceType != null">
+          and pdp.decorate_price_type = #{decoratePriceType,jdbcType=INTEGER}
+          <if test="decoratePriceRange != null">
+            and pdp.decorate_price_range = #{decoratePriceRange,jdbcType=INTEGER}
+          </if>
+        </if>
+    order by fh.open_time desc
+    <if test="start != null and limit != null">
+      limit #{start},#{limit}
+    </if>
+  </select>
+  <select id="getPlanDecoratePrice" parameterType="java.lang.Integer" resultType="com.sandu.designplan.vo.PlanDecoratePriceBO">
+    SELECT
+    sd.name as decorateTypeName,
+    p.decorate_price as decoratePrice
+		FROM plan_decorate_price p,sys_dictionary sd
+		WHERE sd.type = 'decorateType'
+		AND p.decorate_price_type = sd.value
+		AND p.is_deleted = 0
+		AND p.full_house_id = #{designPlanRecommendId,jdbcType=INTEGER}
+  </select>
+
+  <select id="getPlanDecoratePriceByFullHouseId" parameterType="integer"
+          resultType="com.sandu.designplan.vo.PlanDecoratePriceBO">
+    SELECT sd.name as decorateTypeName,p.decorate_price as decoratePrice
+    FROM plan_decorate_price p,sys_dictionary sd
+    WHERE sd.type = 'decorateType'
+    AND p.decorate_price_type = sd.value
+    AND p.is_deleted = 0
+    AND p.full_house_id = #{fullHouseId,jdbcType=INTEGER}
+  </select>
+
+  <update id="updateViewNumberPlusOne" parameterType="java.lang.Integer">
+    UPDATE
+        full_house_design_plan
+    SET
+        view_num = view_num + 1
+    WHERE
+        id = #{id}
+  </update>
+</mapper>

@@ -1,0 +1,80 @@
+package com.sandu.interceptor;
+
+import com.google.gson.Gson;
+import com.sandu.api.banner.common.LoginUser;
+import com.sandu.api.base.common.ResponseEnvelope;
+import com.sandu.api.springFestivalActivity.service.WxUserSigninService;
+import com.sandu.api.user.model.SysUser;
+import com.sandu.api.user.service.SysUserService;
+import com.sandu.common.LoginContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+@Component
+public class LoginUserInterceptor implements HandlerInterceptor {
+    private final static Logger logger = LoggerFactory.getLogger(LoginUserInterceptor.class);
+    private static final String CLASS_LOG_PREFIX = "[登录拦截]";
+
+    @Autowired
+    private WxUserSigninService wxUserSigninService;
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if (null == wxUserSigninService) {
+            BeanFactory factory = WebApplicationContextUtils.getRequiredWebApplicationContext(request.getServletContext());
+            wxUserSigninService = (WxUserSigninService) factory.getBean("wxUserSigninService");
+        }
+        if (!(handler instanceof HandlerMethod)) {
+            return true;
+        }
+        NeedNotLogin needNotLogin = ((HandlerMethod) handler).getMethodAnnotation(NeedNotLogin.class);
+        if (needNotLogin != null) {
+            return true;
+        }
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        SysUser user = (loginUser == null ? null : wxUserSigninService.getUserById(loginUser.getId()));
+        if (null == user || user.getIsDeleted() == 1) {
+            logger.info(CLASS_LOG_PREFIX + "获取用户信息为空，user={}", user);
+            resposeMessageToCustomer(response, "请登陆");
+            return false;
+        }
+        logger.info(CLASS_LOG_PREFIX + "当前登录用户，userId:{}", user.getId());
+        request.setAttribute("sysUser", user);
+        return true;
+    }
+
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+    }
+
+    public void resposeMessageToCustomer(HttpServletResponse response, String message) {
+        try {
+            response.setContentType("application/json;charset=utf-8");
+            ResponseEnvelope<Object> responseEnvelope = new ResponseEnvelope<>(false, message);
+            Gson gson = new Gson();
+            String jsonString = gson.toJson(responseEnvelope);
+            response.getWriter().write(jsonString);
+        } catch (IOException e) {
+            logger.error("返回数据异常：" + message);
+        }
+    }
+
+
+}

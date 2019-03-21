@@ -1,0 +1,53 @@
+package com.sandu.web.springFestivalActivity;
+
+import com.sandu.api.base.common.LoginUser;
+import com.sandu.api.base.common.ResponseEnvelope;
+import com.sandu.api.user.model.SysUser;
+import com.sandu.api.springFestivalActivity.output.GiveMeFiveVo;
+import com.sandu.api.springFestivalActivity.service.biz.FilmTicketActivityService;
+import com.sandu.common.LoginContext;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@Slf4j
+@RequestMapping("/v1/core/filmTicketActivity")
+public class FilmTicketActivityController {
+    private static final String CLASS_LOG_PREFIX = "[春节活动-电影票]";
+    @Autowired
+    private FilmTicketActivityService filmTicketActivityService;
+
+    @GetMapping("/redPoint")
+    public ResponseEnvelope getRedPointFlag(Long activityId, SysUser sysUser) {
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, "用户未登录");
+        }
+        return new ResponseEnvelope(true, filmTicketActivityService.getRedPointFlag(loginUser.getId().longValue(), activityId));
+    }
+
+    @PutMapping("/giveMeFive")
+    public ResponseEnvelope giveMeFive(Long inviteUserId, Long activityId, Integer isLoginBefore) {
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, "用户未登录");
+        }
+        GiveMeFiveVo res = filmTicketActivityService.giveMeFive(loginUser.getId().longValue(), inviteUserId, activityId, isLoginBefore);
+        if (res == null) {
+            return new ResponseEnvelope(false, "助力失败");
+        }
+        return new ResponseEnvelope(res.getSuccess(), res.getMessage());
+    }
+
+    /*@GetMapping("/getInviteRecord")
+    public ResponseEnvelope getInviteRecord(Long activityId, Integer pageNo, Integer pageSize) {
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, "用户未登录");
+        }
+    }*/
+}

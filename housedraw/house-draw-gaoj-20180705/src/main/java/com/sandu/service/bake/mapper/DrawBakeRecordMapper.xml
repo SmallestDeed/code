@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.bake.dao.DrawBakeRecordMapper">
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id">
+	  insert into draw_bake_record
+	  <trim prefix="(" suffix=")" suffixOverrides=",">
+		  <if test="taskId != null">task_id, </if>
+		  <if test="ipAddress != null">ip_address, </if>
+		  <if test="gmtCreate != null">gmt_create, </if>
+		  <if test="isDeleted != null">is_deleted, </if>
+		  <if test="remark != null">remark, </if>
+	  </trim>
+	  <trim prefix="values (" suffix=")" suffixOverrides=",">
+		  <if test="taskId != null">#{taskId}, </if>
+		  <if test="ipAddress != null">#{ipAddress}, </if>
+		  <if test="gmtCreate != null">#{gmtCreate}, </if>
+		  <if test="isDeleted != null">#{isDeleted}, </if>
+		  <if test="remark != null">#{remark}, </if>
+	  </trim>
+  </insert>
+</mapper>

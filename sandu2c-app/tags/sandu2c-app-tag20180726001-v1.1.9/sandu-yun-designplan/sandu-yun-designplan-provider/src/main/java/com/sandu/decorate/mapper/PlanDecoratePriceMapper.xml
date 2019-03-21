@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.decorate.dao.PlanDecoratePriceMapper">
+    <resultMap id="BaseResultMap" type="com.sandu.decorate.model.PlanDecoratePrice">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="plan_recommend_id" jdbcType="INTEGER" property="planRecommendId"/>
+        <result column="render_scene_id" jdbcType="INTEGER" property="renderSceneId"/>
+        <result column="decorate_price_type" jdbcType="INTEGER" property="decoratePriceType"/>
+        <result column="decorate_price_range" jdbcType="INTEGER" property="decoratePriceRange"/>
+        <result column="decorate_price" jdbcType="INTEGER" property="decoratePrice"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,plan_recommend_id,render_scene_id,decorate_price_type,decorate_price_range,decorate_price,creator,gmt_create,modifier,gmt_modified,is_deleted,remark
+    </sql>
+
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true" parameterType="com.sandu.decorate.model.PlanDecoratePrice">
+        insert into plan_decorate_price
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="planRecommendId != null">
+                plan_recommend_id,
+            </if>
+            <if test="renderSceneId != null">
+                render_scene_id,
+            </if>
+            <if test="decoratePriceType != null">
+                decorate_price_type,
+            </if>
+            <if test="decoratePriceRange != null">
+                decorate_price_range,
+            </if>
+            <if test="decoratePrice != null">
+                decorate_price,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="planRecommendId != null">
+                #{planRecommendId,jdbcType=INTEGER},
+            </if>
+            <if test="renderSceneId != null">
+                #{renderSceneId,jdbcType=INTEGER},
+            </if>
+            <if test="decoratePriceType != null">
+                #{decoratePriceType,jdbcType=INTEGER},
+            </if>
+            <if test="decoratePriceRange != null">
+                #{decoratePriceRange,jdbcType=INTEGER},
+            </if>
+            <if test="decoratePrice != null">
+                #{decoratePrice,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKey" parameterType="com.sandu.decorate.model.PlanDecoratePrice">
+        update plan_decorate_price
+        <set>
+            <if test="id != null">
+                id = #{id,jdbcType=INTEGER},
+            </if>
+            <if test="planRecommendId != null">
+                plan_recommend_id = #{planRecommendId,jdbcType=INTEGER},
+            </if>
+            <if test="renderSceneId != null">
+                render_scene_id = #{renderSceneId,jdbcType=INTEGER},
+            </if>
+            <if test="decoratePriceType != null">
+                decorate_price_type = #{decoratePriceType,jdbcType=INTEGER},
+            </if>
+            <if test="decoratePriceRange != null">
+                decorate_price_range = #{decoratePriceRange,jdbcType=INTEGER},
+            </if>
+            <if test="decoratePrice != null">
+                decorate_price = #{decoratePrice,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        update plan_decorate_price set is_deleted = 1
+        where id IN
+        <foreach separator="," open="(" close=")" collection="PlanDecoratePriceIds" item="PlanDecoratePriceId">
+            #{PlanDecoratePriceId}
+        </foreach>
+    </update>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from plan_decorate_price
+        where id = #{PlanDecoratePriceId,jdbcType=INTEGER}
+    </select>
+
+    <select id="findAll" resultMap="BaseResultMap" parameterType="com.sandu.decorate.input.PlanDecoratePriceQuery">
+        select
+        <include refid="Base_Column_List"/>
+        from plan_decorate_price
+        where is_deleted=0
+        and render_scene_id = #{renderSceneId,jdbcType=INTEGER}
+    </select>
+
+    <insert id="insertBatch" parameterType="list">
+        insert into plan_decorate_price
+        (
+            render_scene_id,
+            decorate_price_type,
+            decorate_price_range,
+            decorate_price,
+            creator,
+            gmt_create,
+            modifier,
+            gmt_modified,
+            is_deleted,
+            remark
+        )
+        VALUES
+        <foreach collection="list" item="item" separator="," index="index">
+            (
+                #{item.renderSceneId,jdbcType=INTEGER},
+                #{item.decoratePriceType,jdbcType=INTEGER},
+                #{item.decoratePriceRange,jdbcType=INTEGER},
+                #{item.decoratePrice,jdbcType=INTEGER},
+                #{item.creator,jdbcType=VARCHAR},
+                #{item.gmtCreate,jdbcType=TIMESTAMP},
+                #{item.modifier,jdbcType=VARCHAR},
+                #{item.gmtModified,jdbcType=TIMESTAMP},
+                #{item.isDeleted,jdbcType=INTEGER},
+                #{item.remark,jdbcType=INTEGER}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateBatch" parameterType="list">
+        update plan_decorate_price
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="decorate_price_range = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when id = #{item.id} then #{item.decoratePriceRange}
+                </foreach>
+            </trim>
+            <trim prefix="decorate_price = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when id = #{item.id} then #{item.decoratePrice}
+                </foreach>
+            </trim>
+            <trim prefix="modifier = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when id = #{item.id} then #{item.modifier}
+                </foreach>
+            </trim>
+            <trim prefix="gmt_modified = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when id = #{item.id} then #{item.gmtModified}
+                </foreach>
+            </trim>
+            <trim prefix="is_deleted = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when id = #{item.id} then #{item.isDeleted}
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" item="item" separator="," index="index" open="(" close=")">
+            #{item.id,jdbcType=INTEGER}
+        </foreach>
+    </update>
+
+    <delete id="deleteByRenderSceneId" parameterType="integer">
+        DELETE FROM plan_decorate_price WHERE render_scene_id = #{renderSceneId,jdbcType=INTEGER}
+    </delete>
+</mapper>

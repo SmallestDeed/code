@@ -1,0 +1,30 @@
+package com.sandu.search.common.tools;
+
+import javax.servlet.http.HttpServletRequest;
+
+/**
+ * 品牌网站品牌名处理类
+ *
+ * @date 20171220
+ * @auth pengxuangang
+ */
+public class DomainUtil {
+
+    /**
+     * 根据品牌网站HOST获取品牌网站名
+     *
+     * @param request 请求
+     * @return
+     */
+    public static String getDomainNameByHost(HttpServletRequest request) throws NullPointerException {
+        String referer = request.getHeader("referer");
+        if (referer != null) {
+            try {
+                return referer.substring(referer.indexOf("//") + 2, referer.indexOf("."));
+            } catch (Exception ex) {
+                throw new NullPointerException("Can't read referer the param in the head. please check request is complate.");
+            }
+        }
+        return null;
+    }
+}

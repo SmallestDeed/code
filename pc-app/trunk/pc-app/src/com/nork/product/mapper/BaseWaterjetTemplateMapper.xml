@@ -1,0 +1,806 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.product.dao.BaseWaterjetTemplateMapper">
+	<resultMap id="AllResultMap" type="com.nork.product.model.BaseWaterjetTemplate">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="template_code" property="templateCode" jdbcType="VARCHAR" />
+		<result column="template_name" property="templateName" jdbcType="VARCHAR" />
+		<result column="brand_id" property="brandId" jdbcType="INTEGER" />
+		<result column="template_length" property="templateLength" jdbcType="INTEGER" />
+		<result column="template_width" property="templateWidth" jdbcType="INTEGER" />
+		<result column="template_file_id" property="templateFileId" jdbcType="INTEGER" />
+		<result column="template_pic_id" property="templatePicId" jdbcType="INTEGER" />
+		<result column="template_shape_value" property="templateShapeValue" jdbcType="INTEGER" />
+		<result column="cad_source_file_id" property="cadSourceFileId" jdbcType="INTEGER" />
+		<result column="template_describe" property="templateDescribe" jdbcType="VARCHAR" />
+		<result column="template_status" property="templateStatus" jdbcType="INTEGER" />
+		<result column="user_id" property="userId" jdbcType="INTEGER" />
+		<result column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result column="creator" property="creator" jdbcType="VARCHAR" />
+		<result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result column="att1" property="att1" jdbcType="VARCHAR" />
+		<result column="att2" property="att2" jdbcType="VARCHAR" />
+		<result column="numa1" property="numa1" jdbcType="INTEGER" />
+		<result column="numa2" property="numa2" jdbcType="INTEGER" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="template_file_url" property="templateFileUrl" jdbcType="VARCHAR" />
+		<result column="cadSourceFilePath" property="cadSourceFilePath" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="All_Column_List" >
+		id, template_code, template_name, brand_id, template_length, template_width, template_file_id,
+		template_pic_id, template_shape_value, cad_source_file_id, template_describe, template_status,
+		user_id, sys_code, creator, gmt_create, modifier, gmt_modified, is_deleted, att1,
+		att2, numa1, numa2, remark
+	</sql>
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+		delete from base_waterjet_template
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+
+	<!-- 按主键查询 -->
+	<select id="selectByPrimaryKey" resultMap="AllResultMap"
+			parameterType="java.lang.Integer">
+		select
+		<include refid="All_Column_List" />
+		from base_waterjet_template
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+
+	<insert id="insertSelective" parameterType="com.nork.product.model.BaseWaterjetTemplate" useGeneratedKeys="true" keyProperty="id">
+		insert into base_waterjet_template
+		<trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="id != null" >
+				id,
+			</if>
+			<if test="templateCode != null" >
+				template_code,
+			</if>
+			<if test="templateName != null" >
+				template_name,
+			</if>
+			<if test="brandId != null" >
+				brand_id,
+			</if>
+			<if test="templateLength != null" >
+				template_length,
+			</if>
+			<if test="templateWidth != null" >
+				template_width,
+			</if>
+			<if test="templateFileId != null" >
+				template_file_id,
+			</if>
+			<if test="templatePicId != null" >
+				template_pic_id,
+			</if>
+			<if test="templateShapeValue != null" >
+				template_shape_value,
+			</if>
+			<if test="cadSourceFileId != null" >
+				cad_source_file_id,
+			</if>
+			<if test="templateDescribe != null" >
+				template_describe,
+			</if>
+			<if test="templateStatus != null" >
+				template_status,
+			</if>
+			<if test="userId != null" >
+				user_id,
+			</if>
+			<if test="sysCode != null" >
+				sys_code,
+			</if>
+			<if test="creator != null" >
+				creator,
+			</if>
+			<if test="gmtCreate != null" >
+				gmt_create,
+			</if>
+			<if test="modifier != null" >
+				modifier,
+			</if>
+			<if test="gmtModified != null" >
+				gmt_modified,
+			</if>
+			<if test="isDeleted != null" >
+				is_deleted,
+			</if>
+			<if test="att1 != null" >
+				att1,
+			</if>
+			<if test="att2 != null" >
+				att2,
+			</if>
+			<if test="numa1 != null" >
+				numa1,
+			</if>
+			<if test="numa2 != null" >
+				numa2,
+			</if>
+			<if test="remark != null" >
+				remark,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides="," >
+			<if test="id != null" >
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="templateCode != null" >
+				#{templateCode,jdbcType=VARCHAR},
+			</if>
+			<if test="templateName != null" >
+				#{templateName,jdbcType=VARCHAR},
+			</if>
+			<if test="brandId != null" >
+				#{brandId,jdbcType=INTEGER},
+			</if>
+			<if test="templateLength != null" >
+				#{templateLength,jdbcType=INTEGER},
+			</if>
+			<if test="templateWidth != null" >
+				#{templateWidth,jdbcType=INTEGER},
+			</if>
+			<if test="templateFileId != null" >
+				#{templateFileId,jdbcType=INTEGER},
+			</if>
+			<if test="templatePicId != null" >
+				#{templatePicId,jdbcType=INTEGER},
+			</if>
+			<if test="templateShapeValue != null" >
+				#{templateShapeValue,jdbcType=INTEGER},
+			</if>
+			<if test="cadSourceFileId != null" >
+				#{cadSourceFileId,jdbcType=INTEGER},
+			</if>
+			<if test="templateDescribe != null" >
+				#{templateDescribe,jdbcType=VARCHAR},
+			</if>
+			<if test="templateStatus != null" >
+				#{templateStatus,jdbcType=INTEGER},
+			</if>
+			<if test="userId != null" >
+				#{userId,jdbcType=INTEGER},
+			</if>
+			<if test="sysCode != null" >
+				#{sysCode,jdbcType=VARCHAR},
+			</if>
+			<if test="creator != null" >
+				#{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtCreate != null" >
+				#{gmtCreate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifier != null" >
+				#{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null" >
+				#{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDeleted != null" >
+				#{isDeleted,jdbcType=INTEGER},
+			</if>
+			<if test="att1 != null" >
+				#{att1,jdbcType=VARCHAR},
+			</if>
+			<if test="att2 != null" >
+				#{att2,jdbcType=VARCHAR},
+			</if>
+			<if test="numa1 != null" >
+				#{numa1,jdbcType=INTEGER},
+			</if>
+			<if test="numa2 != null" >
+				#{numa2,jdbcType=INTEGER},
+			</if>
+			<if test="remark != null" >
+				#{remark,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+
+	<update id="updateByPrimaryKeySelective" parameterType="com.nork.product.model.BaseWaterjetTemplate">
+		update base_waterjet_template
+		<set >
+			<if test="templateCode != null" >
+				template_code = #{templateCode,jdbcType=VARCHAR},
+			</if>
+			<if test="templateName != null" >
+				template_name = #{templateName,jdbcType=VARCHAR},
+			</if>
+			<if test="brandId != null" >
+				brand_id = #{brandId,jdbcType=INTEGER},
+			</if>
+			<if test="templateLength != null" >
+				template_length = #{templateLength,jdbcType=INTEGER},
+			</if>
+			<if test="templateWidth != null" >
+				template_width = #{templateWidth,jdbcType=INTEGER},
+			</if>
+			<if test="templateFileId != null" >
+				template_file_id = #{templateFileId,jdbcType=INTEGER},
+			</if>
+			<if test="templatePicId != null" >
+				template_pic_id = #{templatePicId,jdbcType=INTEGER},
+			</if>
+			<if test="templateShapeValue != null" >
+				template_shape_value = #{templateShapeValue,jdbcType=INTEGER},
+			</if>
+			<if test="cadSourceFileId != null" >
+				cad_source_file_id = #{cadSourceFileId,jdbcType=INTEGER},
+			</if>
+			<if test="templateDescribe != null" >
+				template_describe = #{templateDescribe,jdbcType=VARCHAR},
+			</if>
+			<if test="templateStatus != null" >
+				template_status = #{templateStatus,jdbcType=INTEGER},
+			</if>
+			<if test="userId != null" >
+				user_id = #{userId,jdbcType=INTEGER},
+			</if>
+			<if test="sysCode != null" >
+				sys_code = #{sysCode,jdbcType=VARCHAR},
+			</if>
+			<if test="creator != null" >
+				creator = #{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtCreate != null" >
+				gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifier != null" >
+				modifier = #{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null" >
+				gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDeleted != null" >
+				is_deleted = #{isDeleted,jdbcType=INTEGER},
+			</if>
+			<if test="att1 != null" >
+				att1 = #{att1,jdbcType=VARCHAR},
+			</if>
+			<if test="att2 != null" >
+				att2 = #{att2,jdbcType=VARCHAR},
+			</if>
+			<if test="numa1 != null" >
+				numa1 = #{numa1,jdbcType=INTEGER},
+			</if>
+			<if test="numa2 != null" >
+				numa2 = #{numa2,jdbcType=INTEGER},
+			</if>
+			<if test="remark != null" >
+				remark = #{remark,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<!-- 查询所有，可排序 -->
+	<select id="selectList" resultMap="AllResultMap"
+		parameterType="com.nork.product.model.BaseWaterjetTemplate">
+		select
+		<include refid="All_Column_List" />
+		from base_waterjet_template
+		where 1=1
+		<if test="templateLength!= null"> and template_length = #{templateLength,jdbcType=INTEGER} </if>
+		<if test="templateWidth!= null"> and template_width = #{templateWidth,jdbcType=INTEGER} </if>
+		<if test="templateName!= null"> and template_name = #{templateName,jdbcType=VARCHAR} </if>
+		<if test="templateFileId!= null"> and template_file_id = #{templateFileId,jdbcType=INTEGER} </if>
+		<if test="templatePicId!= null"> and template_pic_id = #{templatePicId,jdbcType=INTEGER} </if>
+		<if test="sysCode!= null"> and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="creator!= null"> and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="gmtCreate!= null"> and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+		<if test="modifier!= null"> and modifier = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="gmtModified!= null"> and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP} </if>
+		<if test="isDeleted!= null"> and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1!= null"> and att1 = #{att1,jdbcType=VARCHAR} </if>
+		<if test="att2!= null"> and att2 = #{att2,jdbcType=VARCHAR} </if>
+		<if test="numa1!= null"> and numa1 = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2!= null"> and numa2 = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark!= null"> and remark = #{remark,jdbcType=VARCHAR} </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order}
+			<if test="orderNum != null and  orderNum !='' ">
+				${orderNum}
+			</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">
+			order by ${orders}
+		</if>
+	</select>
+
+	<!-- 分页汇总 -->
+	<select id="selectCount" resultType="int"
+		parameterType="com.nork.product.model.search.BaseWaterjetTemplateSearch">
+		select count(*)
+		from base_waterjet_template
+		where 1=1
+		<if test="templateLength !=  null  "> and template_length = #{templateLength,jdbcType=INTEGER} </if>
+		<if test="templateWidth !=  null  "> and template_width = #{templateWidth,jdbcType=INTEGER} </if>
+		<if test="templateName !=  null and templateName !=  ''   "> and template_name = #{templateName,jdbcType=VARCHAR} </if>
+		<if test="sch_TemplateName_ !=  null and sch_TemplateName_ !=  ''   ">
+			and template_name like
+			CONCAT(CONCAT('%',#{sch_TemplateName_,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="sch_TemplateName !=  null and sch_TemplateName !=  ''   ">
+			and template_name like
+			CONCAT('%',#{sch_TemplateName,jdbcType=VARCHAR})
+		</if>
+		<if test="schTemplateName_ !=  null and schTemplateName_ !=  ''   ">
+			and template_name like
+			CONCAT(#{schTemplateName_,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="templateNameStart !=  null and templateNameEnd!= null  ">
+			and template_name between
+			#{templateNameStart,jdbcType=VARCHAR} and
+			#{templateNameEnd,jdbcType=VARCHAR}
+		</if>
+		<if test="templateFileId !=  null  "> and template_file_id = #{templateFileId,jdbcType=INTEGER} </if>
+		<if test="templatePicId !=  null  "> and template_pic_id = #{templatePicId,jdbcType=INTEGER} </if>
+		<if test="sysCode !=  null and sysCode !=  ''   "> and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+			and sys_code like
+			CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+			and sys_code like
+			CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+		</if>
+		<if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+			and sys_code like
+			CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+			and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and
+			#{sysCodeEnd,jdbcType=VARCHAR}
+		</if>
+		<if test="creator !=  null and creator !=  ''   "> and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+			and creator like
+			CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+			and creator like
+			CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+		</if>
+		<if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+			and creator like
+			CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="creatorStart !=  null and creatorEnd!= null  ">
+			and creator between #{creatorStart,jdbcType=VARCHAR} and
+			#{creatorEnd,jdbcType=VARCHAR}
+		</if>
+		<if test="gmtCreate !=  null  ">
+			and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+		</if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and gmt_create between
+			#{gmtCreateStart,jdbcType=TIMESTAMP} and
+			#{gmtCreateEnd,jdbcType=TIMESTAMP}
+		</if>
+		<if test="modifier !=  null and modifier !=  ''   "> and modifier = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and modifier like
+			CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and modifier like
+			CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		</if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and modifier like
+			CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and modifier between #{modifierStart,jdbcType=VARCHAR} and
+			#{modifierEnd,jdbcType=VARCHAR}
+		</if>
+		<if test="gmtModified !=  null  ">
+			and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+		</if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and gmt_modified between
+			#{gmtModifiedStart,jdbcType=TIMESTAMP} and
+			#{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		</if>
+		<if test="isDeleted !=  null  "> and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1 !=  null and att1 !=  ''   "> and att1 = #{att1,jdbcType=VARCHAR} </if>
+		<if test="sch_Att1_ !=  null and sch_Att1_ !=  ''   ">
+			and att1 like
+			CONCAT(CONCAT('%',#{sch_Att1_,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="sch_Att1 !=  null and sch_Att1 !=  ''   ">
+			and att1 like CONCAT('%',#{sch_Att1,jdbcType=VARCHAR})
+		</if>
+		<if test="schAtt1_ !=  null and schAtt1_ !=  ''   ">
+			and att1 like CONCAT(#{schAtt1_,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="att1Start !=  null and att1End!= null  ">
+			and att1 between #{att1Start,jdbcType=VARCHAR} and
+			#{att1End,jdbcType=VARCHAR}
+		</if>
+		<if test="att2 !=  null and att2 !=  ''   "> and att2 = #{att2,jdbcType=VARCHAR} </if>
+		<if test="sch_Att2_ !=  null and sch_Att2_ !=  ''   ">
+			and att2 like
+			CONCAT(CONCAT('%',#{sch_Att2_,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="sch_Att2 !=  null and sch_Att2 !=  ''   ">
+			and att2 like CONCAT('%',#{sch_Att2,jdbcType=VARCHAR})
+		</if>
+		<if test="schAtt2_ !=  null and schAtt2_ !=  ''   ">
+			and att2 like CONCAT(#{schAtt2_,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="att2Start !=  null and att2End!= null  ">
+			and att2 between #{att2Start,jdbcType=VARCHAR} and
+			#{att2End,jdbcType=VARCHAR}
+		</if>
+		<if test="numa1 !=  null  "> and numa1 = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2 !=  null  "> and numa2 = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark !=  null and remark !=  ''   "> and remark = #{remark,jdbcType=VARCHAR} </if>
+		<if test="sch_Remark_ !=  null and sch_Remark_ !=  ''   ">
+			and remark like
+			CONCAT(CONCAT('%',#{sch_Remark_,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="sch_Remark !=  null and sch_Remark !=  ''   ">
+			and remark like CONCAT('%',#{sch_Remark,jdbcType=VARCHAR})
+		</if>
+		<if test="schRemark_ !=  null and schRemark_ !=  ''   ">
+			and remark like CONCAT(#{schRemark_,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="remarkStart !=  null and remarkEnd!= null  ">
+			and remark between #{remarkStart,jdbcType=VARCHAR} and
+			#{remarkEnd,jdbcType=VARCHAR}
+		</if>
+	</select>
+
+	<!-- 分页查询 ,可在BaseWaterjetTemplateSearch中自定义查询条件 -->
+	<select id="selectPaginatedList" resultMap="AllResultMap"
+		parameterType="com.nork.product.model.search.BaseWaterjetTemplateSearch">
+		select
+		<include refid="All_Column_List" />
+		from base_waterjet_template
+		where 1=1
+		<if test="templateLength !=  null  "> and template_length = #{templateLength,jdbcType=INTEGER} </if>
+		<if test="templateWidth !=  null  "> and template_width = #{templateWidth,jdbcType=INTEGER} </if>
+		<if test="templateName !=  null and templateName !=  ''   "> and template_name = #{templateName,jdbcType=VARCHAR} </if>
+		<if test="sch_TemplateName_ !=  null and sch_TemplateName_ !=  ''   ">
+			and template_name like
+			CONCAT(CONCAT('%',#{sch_TemplateName_,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="sch_TemplateName !=  null and sch_TemplateName !=  ''   ">
+			and template_name like
+			CONCAT('%',#{sch_TemplateName,jdbcType=VARCHAR})
+		</if>
+		<if test="schTemplateName_ !=  null and schTemplateName_ !=  ''   ">
+			and template_name like
+			CONCAT(#{schTemplateName_,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="templateNameStart !=  null and templateNameEnd!= null  ">
+			and template_name between
+			#{templateNameStart,jdbcType=VARCHAR} and
+			#{templateNameEnd,jdbcType=VARCHAR}
+		</if>
+		<if test="templateFileId !=  null  "> and template_file_id = #{templateFileId,jdbcType=INTEGER} </if>
+		<if test="templatePicId !=  null  "> and template_pic_id = #{templatePicId,jdbcType=INTEGER} </if>
+		<if test="sysCode !=  null and sysCode !=  ''   "> and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+			and sys_code like
+			CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+			and sys_code like
+			CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+		</if>
+		<if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+			and sys_code like
+			CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+			and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and
+			#{sysCodeEnd,jdbcType=VARCHAR}
+		</if>
+		<if test="creator !=  null and creator !=  ''   "> and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+			and creator like
+			CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+			and creator like
+			CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+		</if>
+		<if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+			and creator like
+			CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="creatorStart !=  null and creatorEnd!= null  ">
+			and creator between #{creatorStart,jdbcType=VARCHAR} and
+			#{creatorEnd,jdbcType=VARCHAR}
+		</if>
+		<if test="gmtCreate !=  null  ">
+			and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+		</if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and gmt_create between
+			#{gmtCreateStart,jdbcType=TIMESTAMP} and
+			#{gmtCreateEnd,jdbcType=TIMESTAMP}
+		</if>
+		<if test="modifier !=  null and modifier !=  ''   "> and modifier = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and modifier like
+			CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and modifier like
+			CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		</if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and modifier like
+			CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and modifier between #{modifierStart,jdbcType=VARCHAR} and
+			#{modifierEnd,jdbcType=VARCHAR}
+		</if>
+		<if test="gmtModified !=  null  ">
+			and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+		</if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and gmt_modified between
+			#{gmtModifiedStart,jdbcType=TIMESTAMP} and
+			#{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		</if>
+		<if test="isDeleted !=  null  "> and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1 !=  null and att1 !=  ''   "> and att1 = #{att1,jdbcType=VARCHAR} </if>
+		<if test="sch_Att1_ !=  null and sch_Att1_ !=  ''   ">
+			and att1 like
+			CONCAT(CONCAT('%',#{sch_Att1_,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="sch_Att1 !=  null and sch_Att1 !=  ''   ">
+			and att1 like CONCAT('%',#{sch_Att1,jdbcType=VARCHAR})
+		</if>
+		<if test="schAtt1_ !=  null and schAtt1_ !=  ''   ">
+			and att1 like CONCAT(#{schAtt1_,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="att1Start !=  null and att1End!= null  ">
+			and att1 between #{att1Start,jdbcType=VARCHAR} and
+			#{att1End,jdbcType=VARCHAR}
+		</if>
+		<if test="att2 !=  null and att2 !=  ''   "> and att2 = #{att2,jdbcType=VARCHAR} </if>
+		<if test="sch_Att2_ !=  null and sch_Att2_ !=  ''   ">
+			and att2 like
+			CONCAT(CONCAT('%',#{sch_Att2_,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="sch_Att2 !=  null and sch_Att2 !=  ''   ">
+			and att2 like CONCAT('%',#{sch_Att2,jdbcType=VARCHAR})
+		</if>
+		<if test="schAtt2_ !=  null and schAtt2_ !=  ''   ">
+			and att2 like CONCAT(#{schAtt2_,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="att2Start !=  null and att2End!= null  ">
+			and att2 between #{att2Start,jdbcType=VARCHAR} and
+			#{att2End,jdbcType=VARCHAR}
+		</if>
+		<if test="numa1 !=  null  "> and numa1 = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2 !=  null  "> and numa2 = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark !=  null and remark !=  ''   "> and remark = #{remark,jdbcType=VARCHAR} </if>
+		<if test="sch_Remark_ !=  null and sch_Remark_ !=  ''   ">
+			and remark like
+			CONCAT(CONCAT('%',#{sch_Remark_,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="sch_Remark !=  null and sch_Remark !=  ''   ">
+			and remark like CONCAT('%',#{sch_Remark,jdbcType=VARCHAR})
+		</if>
+		<if test="schRemark_ !=  null and schRemark_ !=  ''   ">
+			and remark like CONCAT(#{schRemark_,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="remarkStart !=  null and remarkEnd!= null  ">
+			and remark between #{remarkStart,jdbcType=VARCHAR} and
+			#{remarkEnd,jdbcType=VARCHAR}
+		</if>
+		<if test="order != null and  order !=''  ">
+			order by ${order}
+			<if test="orderNum != null and  orderNum !='' ">${orderNum}</if>
+		</if>
+		<if test="orders != null and  orders !=''  "> order by #{orders}</if>
+		<if test="order == null and  orders == null "> order by id desc</if>
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+
+	<!-- findAllBySearch -->
+	<select id="findAllBySearch" resultType="com.nork.product.model.BaseWaterjetTemplate" parameterType="com.nork.product.model.search.BaseWaterjetTemplateSearch">
+		SELECT
+			bwt.id AS id,
+			bwt.template_name AS templateName,
+			bwt.template_length AS templateLength,
+			bwt.template_width AS templateWidth,
+			bwt.cad_source_file_id AS cadSourceFileId,
+			rp.pic_path AS templatePicUrl,
+			rp.small_pic_info AS templateSmallPicInfo,
+			rm.model_path AS templateFileUrl
+		FROM
+			base_waterjet_template bwt
+			LEFT JOIN res_pic rp ON rp.id = bwt.template_pic_id
+			LEFT JOIN res_model rm ON rm.id = bwt.template_file_id
+		WHERE
+			bwt.is_deleted = 0
+			<if test="sch_TemplateName_ != null"> and bwt.template_name LIKE CONCAT('%',#{sch_TemplateName_,jdbcType=VARCHAR},'%')</if>
+			<if test="templateShapeValue != null"> and bwt.template_shape_value = #{templateShapeValue,jdbcType=INTEGER}</if>
+			<if test="searchType != null and searchType == 1">
+				and (bwt.user_id is null OR bwt.user_id = '')
+				and bwt.template_status = 1
+				<if test="brandIdList != null">
+					and bwt.brand_id in
+					<foreach collection="brandIdList" item="item" open="(" separator="," close=")">
+						${item}
+					</foreach>
+				</if>
+			</if>
+			<if test="searchType != null and searchType == 2">
+				and bwt.user_id = #{userId}
+			</if>
+		order by id desc
+		<if test="start !=-1 and limit !=-1">limit #{start},#{limit}</if>
+	</select>
+
+	<!-- getCountBySearch -->
+	<select id="getCountBySearch" resultType="int" parameterType="com.nork.product.model.search.BaseWaterjetTemplateSearch">
+		select 
+		count(bwt.id)
+		from base_waterjet_template bwt
+		where 1 = 1
+		<if test="isDeleted != null">
+		and bwt.is_deleted = 0
+	</if>
+		<if test="sch_TemplateName_ != null"> and bwt.template_name LIKE CONCAT('%',#{sch_TemplateName_,jdbcType=VARCHAR},'%')</if>
+		<if test="templateShapeValue != null"> and bwt.template_shape_value = #{templateShapeValue,jdbcType=INTEGER}</if>
+		<if test="searchType != null and searchType == 1">
+			and (bwt.user_id is null OR bwt.user_id = '')
+			and bwt.template_status = 1
+			<if test="brandIdList != null">
+				and bwt.brand_id in
+				  <foreach collection="brandIdList" item="item" open="(" separator="," close=")">
+						${item}
+				  </foreach>
+			</if>
+		</if>
+		<if test="searchType != null and searchType == 2">
+			and bwt.user_id = #{userId}
+		</if>
+	</select>
+
+	<select id="getMoreInfoById" resultMap="AllResultMap">
+		SELECT
+			bwt.id,
+			bwt.template_length,
+			bwt.template_width,
+			bwt.template_name,
+			bwt.template_file_id,
+			bwt.template_pic_id,
+			bwt.is_deleted,
+			rm.model_path AS template_file_url,
+			rf.file_path AS cadSourceFilePath
+		FROM
+			base_waterjet_template bwt
+			LEFT JOIN res_model rm ON rm.id = bwt.template_file_id
+			LEFT JOIN res_file rf ON rf.id = bwt.cad_source_file_id
+		WHERE
+			bwt.id = #{id,jdbcType=INTEGER}
+	</select>
+
+	<select id="selectBrandNameList" resultType="com.nork.product.model.vo.BrandNameVO">
+		<choose>
+			<when test="userType == 3">
+				<![CDATA[
+                SELECT
+                    bb.id,
+                    bb.brand_name AS brandName
+                FROM
+                    base_brand bb
+                    INNER JOIN
+                        (
+                            SELECT
+                                substring_index( substring_index( bc.brand_id, ',', ht.help_topic_id + 1 ), ',', - 1 ) AS id
+                            FROM
+                                base_company bc
+                                JOIN mysql.help_topic ht ON ht.help_topic_id < ( LENGTH( bc.brand_id ) - LENGTH( REPLACE ( bc.brand_id, ',', '' ) ) + 1 )
+                                JOIN sys_user su on bc.id = su.business_administration_id
+                            WHERE su.id = #{userId}
+                        ) bh ON bb.id = bh.id
+                WHERE
+                    bb.is_deleted = 0
+                ]]>
+				UNION
+				SELECT
+					bb.id,
+					bb.brand_name AS brandName
+				FROM
+					base_brand bb
+					LEFT JOIN base_company bc ON bb.company_id = bc.id
+				WHERE
+					bc.company_name = '三度云享家'
+					AND bc.is_deleted = 0
+					AND bb.brand_name = '无品牌'
+					AND bb.is_deleted = 0
+			</when>
+			<otherwise>
+				SELECT
+					bb.id,
+					bb.brand_name AS brandName
+				FROM
+					base_brand bb
+					LEFT JOIN base_company bc ON bb.company_id = bc.id AND bc.is_deleted = 0
+					LEFT JOIN sys_user su ON su.business_administration_id = bc.id
+				WHERE
+					bb.is_deleted = 0
+					AND su.id = #{userId}
+				UNION
+				SELECT
+					bb.id,
+					bb.brand_name AS brandName
+				FROM
+					base_brand bb
+					LEFT JOIN base_company bc ON bb.company_id = bc.id
+				WHERE
+					bc.company_name = '三度云享家'
+					AND bc.is_deleted = 0
+					AND bb.brand_name = '无品牌'
+					AND bb.is_deleted = 0
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="selectBrandNameListByUser" resultType="com.nork.product.model.vo.BrandNameVO">
+		<choose>
+			<when test="userType == 3">
+				<![CDATA[
+                SELECT
+                    bb.id,
+                    bb.brand_name AS brandName
+                FROM
+                    base_brand bb
+                    INNER JOIN
+                        (
+                            SELECT
+                                substring_index( substring_index( bc.brand_id, ',', ht.help_topic_id + 1 ), ',', - 1 ) AS id
+                            FROM
+                                base_company bc
+                                JOIN mysql.help_topic ht ON ht.help_topic_id < ( LENGTH( bc.brand_id ) - LENGTH( REPLACE ( bc.brand_id, ',', '' ) ) + 1 )
+                                JOIN sys_user su on bc.id = su.business_administration_id
+                            WHERE su.id = #{userId}
+                        ) bh ON bb.id = bh.id
+                WHERE
+                    bb.is_deleted = 0
+                ]]>
+			</when>
+			<otherwise>
+				SELECT
+					bb.id,
+					bb.brand_name AS brandName
+				FROM
+					base_brand bb
+					LEFT JOIN base_company bc ON bb.company_id = bc.id AND bc.is_deleted = 0
+					LEFT JOIN sys_user su ON su.business_administration_id = bc.id
+				WHERE
+					bb.is_deleted = 0
+					AND su.id = #{userId};
+			</otherwise>
+		</choose>
+	</select>
+
+
+	<select id="selectSysDictionaryList" resultType="com.nork.system.model.vo.SysDictionaryVo">
+		SELECT
+			`value`,
+			`name`
+		FROM
+			sys_dictionary
+		WHERE
+			type = 'templateShape'
+			AND is_deleted = 0;
+	</select>
+
+</mapper>

@@ -1,0 +1,74 @@
+package com.sandu.service.designplan.dao;
+
+import com.sandu.api.designplan.model.DesignPlanRecommended;
+import com.sandu.api.designplan.output.DesignPlanRecommendedVo;
+import com.sandu.api.fullhouse.input.DesignPlanQuery;
+import com.sandu.api.fullhouse.output.DesignPlanVO;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface DesignPlanRecommendedDao {
+
+    /**
+     * 推荐方案总数
+     * @param designPlanRecommended
+     * @return
+     */
+    Integer getPlanRecommendedCount(DesignPlanRecommended designPlanRecommended);
+
+
+    /**
+     * 推荐方案列表
+     * @param designPlanRecommended
+     * @return
+     */
+    List<DesignPlanRecommendedVo> getPlanRecommendedList(DesignPlanRecommended designPlanRecommended);
+
+    /**
+     * created by zhangchengda
+     * 2018/8/16 14:26
+     * 查询当前登录用户的已审核通过的方案组合的主方案，按方案创建时间降序排列
+     * @param query 查询参数
+     * @return 返回方案组合中主方案的集合
+     */
+    List<DesignPlanVO> selectGroupPrimaryDesignPlan(DesignPlanQuery query);
+
+    /**
+     * created by zhangchengda
+     * 2018/8/16 15:30
+     * 查询当前登录用户的已审核通过的方案，按方案创建时间降序排列
+     * @param query 查询参数
+     * @return 返回方案的集合
+     */
+    List<DesignPlanVO> selectDesignPlan(DesignPlanQuery query);
+
+    /**
+     * created by zhangchengda
+     * 2018/8/16 16:06
+     * 查询当前登录用户的已审核通过的方案组合的主方案总数
+     * @param query 查询参数
+     * @return 返回方案组合中主方案的总数
+     */
+    Integer selectDesignPlanCount(DesignPlanQuery query);
+
+    /**
+     * created by zhangchengda
+     * 2018/8/16 16:07
+     * 查询当前登录用户的已审核通过的方案总数
+     * @param query 查询参数
+     * @return 返回方案的总数
+     */
+    Integer selectGroupPrimaryDesignPlanCount(DesignPlanQuery query);
+
+    /**
+     * created by zhangchengda
+     * 2018/8/17 14:57
+     * 通过主键查询推荐方案
+     * @param id 主键
+     * @return 返回推荐方案
+     */
+    DesignPlanRecommended selectByPrimaryKey(@Param("id") Integer id);
+}

@@ -1,0 +1,185 @@
+
+<!-- <view class='infoView'>1/8</view> -->
+<import src="../../utils/wxParse/wxParse.wxml"/>  
+<view class='goods-details' style='height:{{goodDetailsheight}};overflow:{{goodDetailsOverflow}}'>
+<!-- 头部 -->
+  <!-- <view class='goods-details-header'>
+    <view class='content-text' bindtap='switchGoodsAndCase' data-index='{{0}}'>
+      <text bindtap='switchGoodsAndCase' data-index='{{0}}' class='{{textActive === 0?"text-active" : ""}}'>商品</text>
+    </view>
+    <view class='case-text' bindtap='switchGoodsAndCase' data-index='{{1}}'>
+      <text bindtap='switchGoodsAndCase' data-index='{{1}}' class='{{textActive === 1?"text-active" : ""}}'>案例</text>
+    </view>    
+  </view> -->
+  <!-- 商品模块 -->
+  
+  <view class='goods-details-content' wx:if='{{textActive === 0}}'>
+  <!-- 轮播图区域 -->
+    <view class='index-container'>
+      <swiper indicator-dots="true"	autoplay="{{autoplay}}"  interval="{{interval}}" duration="{{duration}}" indicator-active-color="#ff6419" indicator-color="#fff" indicator-dots="true">
+        <block wx:for="{{prodetailsObj.smallPiclist}}" wx:key='index'>
+          <swiper-item>
+            <image src="{{item?item:''}}" data-url="{{item?item:''}}" bindtap='showImg' class="slide-image" binderror="bannerError" data-img="prodetailsObj.smallPiclist[{{index}}]"/>
+          </swiper-item>
+        </block>
+      </swiper>
+      <view class="dots">
+        <block wx:for="{{prodetailsObj.smallPiclist}}" wx:key="unique">
+          <view class="dot{{index == swiperCurrent ? 'active' : ''}}"></view>
+        </block>
+      </view>
+    </view>
+    <!-- 主要文字 -->
+    <view class='main-text'>
+      <view class='main-text-name'>{{prodetailsObj.productName}}</view>
+      <view class='main-text-funtion clearfix'>
+        <block wx:if="{{prodetailsObj.price!='0'}}">
+        <view class='funtion-price fl'>￥{{prodetailsObj.price}}
+        </view>
+        <view class='goodsPrice fl'>优惠价</view>
+        </block>
+        <block wx:if="{{prodetailsObj.price=='0'}}">
+        <view class='funtion-price fl'>
+          暂无定价
+        </view>
+        </block>
+        <view class='fr funtion clearfix'>
+          <view class='funtion-collect identical fl' data-id='{{prodetailsObj.id}}' bindtap='goodCollect'>
+            <image src='{{prodetailsObj.isFavorite === 0 ? iconObj.collect.start : iconObj.collect.active}}'></image>
+          </view> 
+          <view class='fl ico-Text collect-text'>收藏</view>                
+          <view bindtap='leaveAMessage' class='funtion-leavemes identical fl'>
+            <image src='/static/image/goods_icon_message@2x.png'></image>
+          </view>
+          <view class='fl ico-Text'>留言</view>
+        </view> 
+      </view>
+      <view class='costPrice' wx:if="{{prodetailsObj.salePrice!='0'&&prodetailsObj.price!='0'}}">原价： <text>￥{{prodetailsObj.salePrice}}</text></view>      
+    </view>
+     <!-- <view class='toWeb' bindtap='toOfficalWeb'>
+      <view class='text fl'>
+        <image class='toWebImage' src='image/wei_icon_store.png'></image>
+        <view class='txt'>查看门店</view>
+      </view>
+      <view class='arrow fr'><image src='/static/image/home_icon_more.png' class='toWebicon'></image></view>
+    </view>   -->
+    <view class='chose-specifications clearfix' bindtap='choseSpecifications'>
+      <view class='text fl'>选择规格数量</view>
+      <view class='arrow fr'><image src='/static/image/home_icon_more.png'></image></view>
+    </view> 
+    <!--商品匹配的方案-->
+    <view class='goodsPlan' wx:if='{{planNum>0}}'>
+        <view class='chose-specifications-plan clearfix'>
+          <view class='text fl'>推荐方案</view>
+          <block wx:if='{{planNum>1}}'>
+            <view class='arrow fr' bindtap='toRecommendPlan'>
+              <image src='/static/image/home_icon_more.png' class='image'></image>
+            </view>
+            <view class='more fr' bindtap='toRecommendPlan'>查看更多</view>
+          </block>
+        </view> 
+        <view class='goods-details-case'>
+          <case-list recommendCaseList='{{recommendPlanList}}' isGoods='isGoods' border='{{true}}'></case-list>
+       <import src="../../component/emptyTemplate/emptyTemplate.wxml"/>
+       <template is="emptyTemplate" data="{{ ...emptyTemplate }}"/> 
+     </view>
+    </view>
+
+    <!-- 商品信息 -->
+    
+    <view class='goods-message'>
+      <view class='g-m-title'>
+        商品描述
+      </view>
+      <!-- <view class='g-m-table'>{{prodetailsObj.productDesc||'无'}}</view> -->
+      <view class='g-m-table'><template is="wxParse" data="{{wxParseData:article.nodes}}"/></view>
+      
+    </view>
+  </view>
+  <!-- 规格选择列表 -->
+  <view class='specifications-table' wx:if='{{specificationListShow}}'>
+    <view class='table-main'> 
+    <view class='close-icon' bindtap='closeSpecificationsTable'><image src='/static/image/goods_icon_close@2x.png'></image></view>
+     <view class='main-datails clearfix'>
+       <view class='m-d-image fl'>
+         <image src='{{basegoodsSku.productPicPath?resourcePath + basegoodsSku.productPicPath : "image/goods_pic_no.png"}}'></image>
+       </view>
+       <view class='m-d-text fl'>
+          <view class='name'>{{basegoodsSku.productName}}</view>
+          <block wx:if='{{basegoodsSku.price != "0"}}'>
+             <view class='price'>￥{{basegoodsSku.price}}  <text class='goodsPrice'>优惠价</text></view>
+          </block> 
+           <block wx:if='{{basegoodsSku.price == "0"}}'>
+             <view class='funtion-price'> 暂无定价</view>
+          </block>  
+          <view class='costPrice' wx:if="{{basegoodsSku.salePrice!='0'&&basegoodsSku.price!='0'}}">原价： <text>￥{{prodetailsObj.salePrice}}</text></view>
+          <view class='chooseing'>已选择： {{chooseText}}</view>           
+       </view>       
+     </view>
+     <view class='color-style'>
+      <view class='c-s-style' wx:for='{{goodsType}}' wx:key='index'>
+        <view class='c-s-c-title'>{{item.attrName}}</view>
+        <view class='c-s-c-style clearfix'>
+          <view bindtap='chooseGoodsType' data-item='{{item}}' data-items='{{items}}' data-index='{{index}}' data-number='{{index1}}' class="c-style-box ellipsis fl {{items.isSelected==1 ? 'style-box-active':''}}" wx:for='{{item.attrValue}}' wx:for-item="items" wx:for-index="index1">{{items.attrValueName || '默认'}}</view>
+        </view>          
+      </view>      
+     </view> 
+      <view class='purchase-number'>
+        <view class='p-n-title'>购买数量</view>
+        <block wx:if="{{basegoodsSku.inventory>0}}">
+        <view class='p-n-accumulator clearfix'>
+          <view class='accumulator-box fl'>
+            <view class='' data-index='{{0}}' bindtap='changePurchaseNumber'>-</view>
+            <view class='number'>{{purchaseNumber}}</view>
+            <view class='' data-index='{{1}}' bindtap='changePurchaseNumber'>+</view>          
+          </view>
+          <view class='accumulator-text fl'></view>        
+        </view>
+         </block>
+        <block wx:else>
+           <view>暂无库存</view>
+        </block>  
+      </view>
+    </view>    
+  </view>
+  <!-- 底部 -->
+  <view class='goods-details-footer' wx:if='{{textActive === 0}}'>
+    <view class='footer-purchase clearfix' wx:if='{{confirmOrFooter}}'>
+      <view class='purchase-icon fl'>
+        <image src='/static/image/list_icon_kefu.png'></image>
+        <image src='/static/image/list_icon_shoppingcar.png' bindtap='toPurchasecar'></image>
+        <view class='count' wx:if='{{carCount>0}}'>{{carCount}}</view>
+      </view>
+      <block wx:if="{{prodetailsObj.price!='0'&&basegoodsSku.inventory!=0}}">
+      <view class='purchase-join-car fl' bindtap='joinPurchaseCar'>加入购物车</view>
+      </block>
+      <block wx:if="{{prodetailsObj.price=='0'||basegoodsSku.inventory==0}}">
+      <view class='purchase-join-carban fl'>加入购物车</view>
+      </block>
+      <block wx:if="{{prodetailsObj.price!='0'&&basegoodsSku.inventory!=0}}">
+      <view class='purchase-btn fl' bindtap='purchaseImmediately'>立即购买</view>
+      </block>
+      <block wx:if="{{prodetailsObj.price=='0'||basegoodsSku.inventory==0}}">
+      <view class='purchase-btnban fl' >立即购买</view>
+      </block>      
+    </view>
+     <block wx:if="{{basegoodsSku.price!='0'&&basegoodsSku.inventory!=0}}">
+        <view class='footer-car' bindtap='purchaseConfirm' wx:if='{{!confirmOrFooter}}'>确定</view>
+      </block>      
+      <block wx:if="{{basegoodsSku.price==0||basegoodsSku.inventory==0}}">
+         <view class='confirm-btn' wx:if='{{!confirmOrFooter}}'>确定</view>
+      </block> 
+  </view>
+  <!-- 方案模块 -->
+  <view class='goods-details-case' wx:if='{{textActive === 1}}'>
+    <case-list recommendCaseList='{{recommendPlanList}}' border='{{true}}'></case-list>
+    <import src="../../component/emptyTemplate/emptyTemplate.wxml"/>
+    <template is="emptyTemplate" data="{{ ...emptyTemplate }}"/> 
+  </view>
+  <!-- 渲染选择框 -->
+  <import src="../../component/render-type/render-type.wxml"/>
+  <template is="renderType" data="{{ ...renderType }}"/>
+</view>
+<!-- 快速导航模块 -->
+  <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav" data="{{ ...newNav }}"/>

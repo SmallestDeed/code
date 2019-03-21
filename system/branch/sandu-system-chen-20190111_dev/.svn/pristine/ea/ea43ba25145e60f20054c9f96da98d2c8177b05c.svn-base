@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.act.dao.WxActBargainAwardMapper">
+     
+
+    <sql id="Base_Column_List">
+        id,act_id,registration_id,open_id,nickname,receiver,mobile,address,gmt_create,app_id
+    </sql>
+
+    <insert id="insertWxActBargainAward" parameterType="com.sandu.api.act.model.WxActBargainAward">
+        insert into wx_act_bargain_award
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="actId != null">
+                act_id,
+            </if>
+            <if test="registrationId != null">
+                registration_id,
+            </if>
+            <if test="openId != null">
+                open_id,
+            </if>
+            <if test="nickname != null">
+                nickname,
+            </if>
+            <if test="receiver != null">
+                receiver,
+            </if>
+            <if test="mobile != null">
+                mobile,
+            </if>
+            <if test="address != null">
+                address,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="appId != null">
+                app_id,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="actId != null">
+                #{actId,jdbcType=VARCHAR},
+            </if>
+            <if test="registrationId != null">
+                #{registrationId,jdbcType=VARCHAR},
+            </if>
+            <if test="openId != null">
+                #{openId,jdbcType=VARCHAR},
+            </if>
+            <if test="nickname != null">
+                #{nickname,jdbcType=VARCHAR},
+            </if>
+            <if test="receiver != null">
+                #{receiver,jdbcType=VARCHAR},
+            </if>
+            <if test="mobile != null">
+                #{mobile,jdbcType=VARCHAR},
+            </if>
+            <if test="address != null">
+                #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="appId != null">
+                #{appId,jdbcType=VARCHAR},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=TINYINT},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateWxActBargainAwardById" parameterType="com.sandu.api.act.model.WxActBargainAward">
+        update wx_act_bargain_award
+        <set>
+            <if test="id != null">
+                id = #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="actId != null">
+                act_id = #{actId,jdbcType=VARCHAR},
+            </if>
+            <if test="registrationId != null">
+                registration_id = #{registrationId,jdbcType=VARCHAR},
+            </if>
+            <if test="openId != null">
+                open_id = #{openId,jdbcType=VARCHAR},
+            </if>
+            <if test="nickname != null">
+                nickname = #{nickname,jdbcType=VARCHAR},
+            </if>
+            <if test="receiver != null">
+                receiver = #{receiver,jdbcType=VARCHAR},
+            </if>
+            <if test="mobile != null">
+                mobile = #{mobile,jdbcType=VARCHAR},
+            </if>
+            <if test="address != null">
+                address = #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="appId != null">
+                app_id = #{appId,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="deleteWxActBargainAwardById" >
+        update wx_act_bargain_award set is_deleted = 1
+        where id = #{awardId}
+    </update>
+
+    <select id="selectWxActBargainAwardById" resultType="com.sandu.api.act.model.WxActBargainAward">
+        select
+        <include refid="Base_Column_List"/>
+        from wx_act_bargain_award
+        where id = #{awardId}
+    </select>
+   
+</mapper>

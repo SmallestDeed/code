@@ -1,0 +1,2022 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.solution.dao.DesignPlanRecommendedMapper">
+    <sql id="Base_Column_List">
+        id, recommended_type, plan_id, plan_code, plan_name, user_id, design_source_type,
+        design_id, design_style_id, pic_id, model_3d_id, model_u3d_id, model_id, config_file_id,
+        space_common_id, plan_desc, sys_code, creator, gmt_create, modifier, gmt_modified,
+        is_deleted, remark, design_template_id, ipad_model_u3d_id, ios_model_u3d_id, android_model_u3d_id,
+        macBookpc_model_u3d_id, pc_model_u3d_id, web_model_u3d_id, media_type, evening_file_id,
+        dawn_file_id, night_file_id, share_total, is_open, draft_state, baiMo_state, stuff_finish_state,
+        decorate_finish_state, is_change, is_decorated, plan_source, residential_units_name,
+        house_id, living_id, cover_pic_Id, design_recommended_style_id, is_release, release_time,
+        effects_config, is_recommended, plan_number, is_default_decorate, render_720_multipoint_pic_id,
+        render_720_panorama_pic_id, render_720_video_id, apply_space_areas, bak_cover_pic_id,
+        spelling_flower_file_id, spelling_flower_product, space_layout_type, designPlan_render_pic_ids, contains_secrecy_flag, 
+        company_id, group_primary_id,waterjet_info,shelf_status,charge_type,plan_price,use_count
+    </sql>
+
+    <select id="selectByPrimaryKey" resultType="com.sandu.api.solution.model.DesignPlanRecommended"
+            parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from design_plan_recommended
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <!-- 获取主子方案 -->
+    <select id="selectMainSubPlanList" resultType="java.lang.Integer">
+		SELECT 
+		  id
+		FROM
+		  design_plan_recommended 
+		WHERE 1=1
+		<if test="planIds!=null and planIds.size > 0">
+            and group_primary_id in
+            <foreach collection="planIds" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+       	</if> 
+		UNION
+		SELECT 
+		  id 
+		FROM
+		  design_plan_recommended 
+		WHERE 1=1
+		<if test="planIds!=null and planIds.size > 0">
+            and id in
+            <foreach collection="planIds" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+       	</if> 
+    </select>
+
+    <insert id="insertSelective" keyProperty="id" useGeneratedKeys="true" keyColumn="id"
+            parameterType="com.sandu.api.solution.model.DesignPlanRecommended">
+        insert into design_plan_recommended
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+
+            <if test="recommendedType != null">
+                recommended_type,
+            </if>
+            <if test="planId != null">
+                plan_id,
+            </if>
+            <if test="planCode != null">
+                plan_code,
+            </if>
+            <if test="planName != null">
+                plan_name,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="designSourceType != null">
+                design_source_type,
+            </if>
+            <if test="designId != null">
+                design_id,
+            </if>
+            <if test="designStyleId != null">
+                design_style_id,
+            </if>
+            <if test="picId != null">
+                pic_id,
+            </if>
+            <if test="model3dId != null">
+                model_3d_id,
+            </if>
+            <if test="modelU3dId != null">
+                model_u3d_id,
+            </if>
+            <if test="modelId != null">
+                model_id,
+            </if>
+            <if test="configFileId != null">
+                config_file_id,
+            </if>
+            <if test="spaceCommonId != null">
+                space_common_id,
+            </if>
+            <if test="planDesc != null">
+                plan_desc,
+            </if>
+            <if test="sysCode != null">
+                sys_code,
+            </if>
+            <if test="groupPrimaryId != null">
+                group_primary_id,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="designTemplateId != null">
+                design_template_id,
+            </if>
+            <if test="ipadModelU3dId != null">
+                ipad_model_u3d_id,
+            </if>
+            <if test="iosModelU3dId != null">
+                ios_model_u3d_id,
+            </if>
+            <if test="androidModelU3dId != null">
+                android_model_u3d_id,
+            </if>
+            <if test="macbookpcModelU3dId != null">
+                macBookpc_model_u3d_id,
+            </if>
+            <if test="pcModelU3dId != null">
+                pc_model_u3d_id,
+            </if>
+            <if test="webModelU3dId != null">
+                web_model_u3d_id,
+            </if>
+            <if test="mediaType != null">
+                media_type,
+            </if>
+            <if test="eveningFileId != null">
+                evening_file_id,
+            </if>
+            <if test="dawnFileId != null">
+                dawn_file_id,
+            </if>
+            <if test="nightFileId != null">
+                night_file_id,
+            </if>
+            <if test="shareTotal != null">
+                share_total,
+            </if>
+            <if test="isOpen != null">
+                is_open,
+            </if>
+            <if test="draftState != null">
+                draft_state,
+            </if>
+            <if test="baimoState != null">
+                baiMo_state,
+            </if>
+            <if test="stuffFinishState != null">
+                stuff_finish_state,
+            </if>
+            <if test="decorateFinishState != null">
+                decorate_finish_state,
+            </if>
+            <if test="isChange != null">
+                is_change,
+            </if>
+            <if test="isDecorated != null">
+                is_decorated,
+            </if>
+            <if test="planSource != null">
+                plan_source,
+            </if>
+            <if test="residentialUnitsName != null">
+                residential_units_name,
+            </if>
+            <if test="houseId != null">
+                house_id,
+            </if>
+            <if test="livingId != null">
+                living_id,
+            </if>
+            <if test="coverPicId != null">
+                cover_pic_Id,
+            </if>
+            <if test="designRecommendedStyleId != null">
+                design_recommended_style_id,
+            </if>
+            <if test="isRelease != null">
+                is_release,
+            </if>
+            <if test="releaseTime != null">
+                release_time,
+            </if>
+            <if test="effectsConfig != null">
+                effects_config,
+            </if>
+            <if test="isRecommended != null">
+                is_recommended,
+            </if>
+            <if test="planNumber != null">
+                plan_number,
+            </if>
+            <if test="isDefaultDecorate != null">
+                is_default_decorate,
+            </if>
+            <if test="render720MultipointPicId != null">
+                render_720_multipoint_pic_id,
+            </if>
+            <if test="render720PanoramaPicId != null">
+                render_720_panorama_pic_id,
+            </if>
+            <if test="render720VideoId != null">
+                render_720_video_id,
+            </if>
+            <if test="applySpaceAreas != null">
+                apply_space_areas,
+            </if>
+            <if test="bakCoverPicId != null">
+                bak_cover_pic_id,
+            </if>
+            <if test="spellingFlowerFileId != null">
+                spelling_flower_file_id,
+            </if>
+            <if test="spellingFlowerProduct != null">
+                spelling_flower_product,
+            </if>
+            <if test="spaceLayoutType != null">
+                space_layout_type,
+            </if>
+            <if test="designplanRenderPicIds != null">
+                designPlan_render_pic_ids,
+            </if>
+            <if test="companyId != null">
+                company_id,
+            </if>
+            <if test="waterjetInfo != null">
+                waterjet_info,
+            </if>
+            <if test="chargeType != null">
+                charge_type,
+            </if>
+            <if test="planPrice != null">
+                plan_price,
+            </if>
+            <if test="useCount != null">
+                use_count,
+            </if>
+            <if test="isChanged != null">
+                is_changed,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="recommendedType != null">
+                #{recommendedType,jdbcType=INTEGER},
+            </if>
+            <if test="planId != null">
+                #{planId,jdbcType=INTEGER},
+            </if>
+            <if test="planCode != null">
+                #{planCode,jdbcType=VARCHAR},
+            </if>
+            <if test="planName != null">
+                #{planName,jdbcType=VARCHAR},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="designSourceType != null">
+                #{designSourceType,jdbcType=INTEGER},
+            </if>
+            <if test="designId != null">
+                #{designId,jdbcType=INTEGER},
+            </if>
+            <if test="designStyleId != null">
+                #{designStyleId,jdbcType=INTEGER},
+            </if>
+            <if test="picId != null">
+                #{picId,jdbcType=INTEGER},
+            </if>
+            <if test="model3dId != null">
+                #{model3dId,jdbcType=INTEGER},
+            </if>
+            <if test="modelU3dId != null">
+                #{modelU3dId,jdbcType=INTEGER},
+            </if>
+            <if test="modelId != null">
+                #{modelId,jdbcType=INTEGER},
+            </if>
+            <if test="configFileId != null">
+                #{configFileId,jdbcType=INTEGER},
+            </if>
+            <if test="spaceCommonId != null">
+                #{spaceCommonId,jdbcType=INTEGER},
+            </if>
+            <if test="planDesc != null">
+                #{planDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="sysCode != null">
+                #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="groupPrimaryId != null">
+                #{groupPrimaryId,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="designTemplateId != null">
+                #{designTemplateId,jdbcType=VARCHAR},
+            </if>
+            <if test="ipadModelU3dId != null">
+                #{ipadModelU3dId,jdbcType=INTEGER},
+            </if>
+            <if test="iosModelU3dId != null">
+                #{iosModelU3dId,jdbcType=INTEGER},
+            </if>
+            <if test="androidModelU3dId != null">
+                #{androidModelU3dId,jdbcType=INTEGER},
+            </if>
+            <if test="macbookpcModelU3dId != null">
+                #{macbookpcModelU3dId,jdbcType=INTEGER},
+            </if>
+            <if test="pcModelU3dId != null">
+                #{pcModelU3dId,jdbcType=INTEGER},
+            </if>
+            <if test="webModelU3dId != null">
+                #{webModelU3dId,jdbcType=INTEGER},
+            </if>
+            <if test="mediaType != null">
+                #{mediaType,jdbcType=INTEGER},
+            </if>
+            <if test="eveningFileId != null">
+                #{eveningFileId,jdbcType=INTEGER},
+            </if>
+            <if test="dawnFileId != null">
+                #{dawnFileId,jdbcType=INTEGER},
+            </if>
+            <if test="nightFileId != null">
+                #{nightFileId,jdbcType=INTEGER},
+            </if>
+            <if test="shareTotal != null">
+                #{shareTotal,jdbcType=INTEGER},
+            </if>
+            <if test="isOpen != null">
+                #{isOpen,jdbcType=INTEGER},
+            </if>
+            <if test="draftState != null">
+                #{draftState,jdbcType=INTEGER},
+            </if>
+            <if test="baimoState != null">
+                #{baimoState,jdbcType=INTEGER},
+            </if>
+            <if test="stuffFinishState != null">
+                #{stuffFinishState,jdbcType=INTEGER},
+            </if>
+            <if test="decorateFinishState != null">
+                #{decorateFinishState,jdbcType=INTEGER},
+            </if>
+            <if test="isChange != null">
+                #{isChange,jdbcType=INTEGER},
+            </if>
+            <if test="isDecorated != null">
+                #{isDecorated,jdbcType=INTEGER},
+            </if>
+            <if test="planSource != null">
+                #{planSource,jdbcType=VARCHAR},
+            </if>
+            <if test="residentialUnitsName != null">
+                #{residentialUnitsName,jdbcType=VARCHAR},
+            </if>
+            <if test="houseId != null">
+                #{houseId,jdbcType=INTEGER},
+            </if>
+            <if test="livingId != null">
+                #{livingId,jdbcType=INTEGER},
+            </if>
+            <if test="coverPicId != null">
+                #{coverPicId,jdbcType=INTEGER},
+            </if>
+            <if test="designRecommendedStyleId != null">
+                #{designRecommendedStyleId,jdbcType=INTEGER},
+            </if>
+            <if test="isRelease != null">
+                #{isRelease,jdbcType=INTEGER},
+            </if>
+            <if test="releaseTime != null">
+                #{releaseTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="effectsConfig != null">
+                #{effectsConfig,jdbcType=VARCHAR},
+            </if>
+            <if test="isRecommended != null">
+                #{isRecommended,jdbcType=INTEGER},
+            </if>
+            <if test="planNumber != null">
+                #{planNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="isDefaultDecorate != null">
+                #{isDefaultDecorate,jdbcType=INTEGER},
+            </if>
+            <if test="render720MultipointPicId != null">
+                #{render720MultipointPicId,jdbcType=INTEGER},
+            </if>
+            <if test="render720PanoramaPicId != null">
+                #{render720PanoramaPicId,jdbcType=INTEGER},
+            </if>
+            <if test="render720VideoId != null">
+                #{render720VideoId,jdbcType=INTEGER},
+            </if>
+            <if test="applySpaceAreas != null">
+                #{applySpaceAreas,jdbcType=VARCHAR},
+            </if>
+            <if test="bakCoverPicId != null">
+                #{bakCoverPicId,jdbcType=INTEGER},
+            </if>
+            <if test="spellingFlowerFileId != null">
+                #{spellingFlowerFileId,jdbcType=INTEGER},
+            </if>
+            <if test="spellingFlowerProduct != null">
+                #{spellingFlowerProduct,jdbcType=VARCHAR},
+            </if>
+            <if test="spaceLayoutType != null">
+                #{spaceLayoutType,jdbcType=VARCHAR},
+            </if>
+            <if test="designplanRenderPicIds != null">
+                #{designplanRenderPicIds,jdbcType=LONGVARBINARY},
+            </if>
+            <if test="companyId != null">
+                #{companyId},
+            </if>
+            <if test="waterjetInfo != null">
+                #{waterjetInfo,jdbcType=VARCHAR},
+            </if>
+            <if test="chargeType != null">
+                #{chargeType},
+            </if>
+            <if test="planPrice != null">
+                #{planPrice},
+            </if>
+            <if test="useCount != null">
+                #{useCount},
+            </if>
+            <if test="isChanged != null">
+                #{isChanged},
+            </if>
+        </trim>
+    </insert>
+    
+    <update id="updateDesignPlanById">
+    	update design_plan_recommended set shelf_status = #{shelfStatus} 
+    	where 1= 1
+    	<choose>
+	    	<when test="planIds!= null and planIds.size > 0">
+		    	 and  id in
+			    <foreach collection="planIds" item="planId" separator="," open="(" close=")">
+			      #{planId}
+			    </foreach>
+	    	</when>
+	    	<otherwise>
+	    		and 1=2
+	    	</otherwise>
+    	</choose> 
+    </update>
+    
+    <update id="batchUpdatePlanSecrecy">
+    	update design_plan_recommended set secrecy_flag = #{secrecyFlag},secrecy_time = now() 
+    	where 1= 1
+    	<choose>
+	    	<when test="planIds!= null and planIds.size > 0">
+		    	 and  id in
+			    <foreach collection="planIds" item="planId" separator="," open="(" close=")">
+			      #{planId}
+			    </foreach>
+	    	</when>
+	    	<otherwise>
+	    		and 1=2
+	    	</otherwise>
+    	</choose> 
+    </update>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.solution.model.DesignPlanRecommended">
+        update design_plan_recommended
+        <set>
+            <if test="recommendedType != null">
+                recommended_type = #{recommendedType,jdbcType=INTEGER},
+            </if>
+            <if test="planId != null">
+                plan_id = #{planId,jdbcType=INTEGER},
+            </if>
+            <if test="planCode != null">
+                plan_code = #{planCode,jdbcType=VARCHAR},
+            </if>
+            <if test="planName != null">
+                plan_name = #{planName,jdbcType=VARCHAR},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="designSourceType != null">
+                design_source_type = #{designSourceType,jdbcType=INTEGER},
+            </if>
+            <if test="designId != null">
+                design_id = #{designId,jdbcType=INTEGER},
+            </if>
+            <if test="designStyleId != null">
+                design_style_id = #{designStyleId,jdbcType=INTEGER},
+            </if>
+            <if test="picId != null">
+                pic_id = #{picId,jdbcType=INTEGER},
+            </if>
+            <if test="model3dId != null">
+                model_3d_id = #{model3dId,jdbcType=INTEGER},
+            </if>
+            <if test="modelU3dId != null">
+                model_u3d_id = #{modelU3dId,jdbcType=INTEGER},
+            </if>
+            <if test="modelId != null">
+                model_id = #{modelId,jdbcType=INTEGER},
+            </if>
+            <if test="configFileId != null">
+                config_file_id = #{configFileId,jdbcType=INTEGER},
+            </if>
+            <if test="spaceCommonId != null">
+                space_common_id = #{spaceCommonId,jdbcType=INTEGER},
+            </if>
+            plan_desc = #{planDesc,jdbcType=VARCHAR},
+            <if test="sysCode != null">
+                sys_code = #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="groupPrimaryId != null">
+                group_primary_id = #{groupPrimaryId,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="designTemplateId != null">
+                design_template_id = #{designTemplateId,jdbcType=VARCHAR},
+            </if>
+            <if test="ipadModelU3dId != null">
+                ipad_model_u3d_id = #{ipadModelU3dId,jdbcType=INTEGER},
+            </if>
+            <if test="iosModelU3dId != null">
+                ios_model_u3d_id = #{iosModelU3dId,jdbcType=INTEGER},
+            </if>
+            <if test="androidModelU3dId != null">
+                android_model_u3d_id = #{androidModelU3dId,jdbcType=INTEGER},
+            </if>
+            <if test="macbookpcModelU3dId != null">
+                macBookpc_model_u3d_id = #{macbookpcModelU3dId,jdbcType=INTEGER},
+            </if>
+            <if test="pcModelU3dId != null">
+                pc_model_u3d_id = #{pcModelU3dId,jdbcType=INTEGER},
+            </if>
+            <if test="webModelU3dId != null">
+                web_model_u3d_id = #{webModelU3dId,jdbcType=INTEGER},
+            </if>
+            <if test="mediaType != null">
+                media_type = #{mediaType,jdbcType=INTEGER},
+            </if>
+            <if test="eveningFileId != null">
+                evening_file_id = #{eveningFileId,jdbcType=INTEGER},
+            </if>
+            <if test="dawnFileId != null">
+                dawn_file_id = #{dawnFileId,jdbcType=INTEGER},
+            </if>
+            <if test="nightFileId != null">
+                night_file_id = #{nightFileId,jdbcType=INTEGER},
+            </if>
+            <if test="shareTotal != null">
+                share_total = #{shareTotal,jdbcType=INTEGER},
+            </if>
+            <if test="isOpen != null">
+                is_open = #{isOpen,jdbcType=INTEGER},
+            </if>
+            <if test="draftState != null">
+                draft_state = #{draftState,jdbcType=INTEGER},
+            </if>
+            <if test="baimoState != null">
+                baiMo_state = #{baimoState,jdbcType=INTEGER},
+            </if>
+            <if test="stuffFinishState != null">
+                stuff_finish_state = #{stuffFinishState,jdbcType=INTEGER},
+            </if>
+            <if test="decorateFinishState != null">
+                decorate_finish_state = #{decorateFinishState,jdbcType=INTEGER},
+            </if>
+            <if test="isChange != null">
+                is_change = #{isChange,jdbcType=INTEGER},
+            </if>
+            <if test="isDecorated != null">
+                is_decorated = #{isDecorated,jdbcType=INTEGER},
+            </if>
+            <if test="planSource != null">
+                plan_source = #{planSource,jdbcType=VARCHAR},
+            </if>
+            <if test="residentialUnitsName != null">
+                residential_units_name = #{residentialUnitsName,jdbcType=VARCHAR},
+            </if>
+            <if test="houseId != null">
+                house_id = #{houseId,jdbcType=INTEGER},
+            </if>
+            <if test="livingId != null">
+                living_id = #{livingId,jdbcType=INTEGER},
+            </if>
+            <if test="coverPicId != null">
+                cover_pic_Id = #{coverPicId,jdbcType=INTEGER},
+            </if>
+            <if test="designRecommendedStyleId != null">
+                design_recommended_style_id = #{designRecommendedStyleId,jdbcType=INTEGER},
+            </if>
+            <if test="isRelease != null">
+                is_release = #{isRelease,jdbcType=INTEGER},
+            </if>
+            <if test="releaseTime != null">
+                release_time = #{releaseTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="effectsConfig != null">
+                effects_config = #{effectsConfig,jdbcType=VARCHAR},
+            </if>
+            <if test="isRecommended != null">
+                is_recommended = #{isRecommended,jdbcType=INTEGER},
+            </if>
+            <if test="planNumber != null">
+                plan_number = #{planNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="isDefaultDecorate != null">
+                is_default_decorate = #{isDefaultDecorate,jdbcType=INTEGER},
+            </if>
+            <if test="render720MultipointPicId != null">
+                render_720_multipoint_pic_id = #{render720MultipointPicId,jdbcType=INTEGER},
+            </if>
+            <if test="render720PanoramaPicId != null">
+                render_720_panorama_pic_id = #{render720PanoramaPicId,jdbcType=INTEGER},
+            </if>
+            <if test="render720VideoId != null">
+                render_720_video_id = #{render720VideoId,jdbcType=INTEGER},
+            </if>
+            <if test="applySpaceAreas != null">
+                apply_space_areas = #{applySpaceAreas,jdbcType=VARCHAR},
+            </if>
+            <if test="bakCoverPicId != null">
+                bak_cover_pic_id = #{bakCoverPicId,jdbcType=INTEGER},
+            </if>
+            <if test="spellingFlowerFileId != null">
+                spelling_flower_file_id = #{spellingFlowerFileId,jdbcType=INTEGER},
+            </if>
+            <if test="spellingFlowerProduct != null">
+                spelling_flower_product = #{spellingFlowerProduct,jdbcType=VARCHAR},
+            </if>
+            <if test="spaceLayoutType != null">
+                space_layout_type = #{spaceLayoutType,jdbcType=VARCHAR},
+            </if>
+            <if test="designplanRenderPicIds != null">
+                designPlan_render_pic_ids = #{designplanRenderPicIds,jdbcType=LONGVARBINARY},
+            </if>
+            <if test="containsSecrecyFlag != null">
+                contains_secrecy_flag = #{containsSecrecyFlag},
+            </if>
+            <if test="shelfStatus != null">
+                shelf_status = #{shelfStatus},
+            </if>
+            <if test="descFileId != null">
+                desc_file_id = #{descFileId},
+            </if>
+            <if test="useCount != null">
+                use_count = #{useCount},
+            </if>
+            <if test="chargeType != null">
+                charge_type = #{chargeType},
+            </if>
+            <if test="planPrice != null">
+                plan_price = #{planPrice},
+            </if>
+            <if test="salePriceChargeType != null">
+                sale_price_charge_type = #{salePriceChargeType},
+            </if>
+            <if test="salePrice != null">
+                sale_price = #{salePrice},
+            </if>
+            <if test="isChanged != null">
+                is_changed = #{isChanged},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="deleteLogicByPrimaryKey" parameterType="java.lang.Long">
+        UPDATE design_plan_recommended
+        SET is_deleted = 1
+        WHERE id = #{id}
+    </update>
+
+    <select id="getBaseInfo" parameterType="java.lang.Long" resultType="com.sandu.api.solution.model.bo.DesignPlanBO">
+        SELECT
+        dpr.id AS planId,
+        dpr.plan_name AS planName,
+        dpr.plan_code AS planCode,
+        dpr.gmt_create AS completeDate,
+        dpr.design_recommended_style_id AS designStyleId,
+        dpr.cover_pic_id AS picId,
+        dpr.creator AS designer,
+        dpr.user_id AS designerId,
+        dpr.remark AS remark,
+        dpr.plan_desc AS planDesc,
+        dpr.contains_secrecy_flag AS containsSecrecyFlag,
+        dpr.plan_source AS origin,
+        dpr.shelf_status as shelfStatus,
+        dpr.recommended_type as recommendedType,
+        dpr.space_common_id as spaceCommonId,
+        case
+        when dpr.group_primary_id=dpr.id then 0
+        when dpr.group_primary_id=0 then 2
+        else 1  end as isPrimary
+        FROM design_plan_recommended dpr
+        WHERE dpr.id = #{id}
+   
+      <!--   <if test="companyId !=null and companyId !=0">
+            and  dpr.company_id = #{companyId}
+        </if> -->
+        GROUP BY dpr.id
+    </select>
+
+	<sql id="selectDesignPlanRecommendedCompanyId">
+	      SELECT
+	        dpr.id as planId,
+	        dpr.plan_name as planName,
+	        dpr.plan_code as planCode,
+	        dpr.gmt_create as completeDate,
+	        dpr.design_recommended_style_id as designStyleId,
+	        dpr.cover_pic_id as picId,
+	        dpr.creator as designer,
+	        dpr.user_id as designerId,
+	        dpr.contains_secrecy_flag AS containsSecrecyFlag,
+	        dpr.recommended_type as isOpen,
+	        dpr.space_common_id as spaceTypeId,
+	        CONCAT_WS(',',
+		      GROUP_CONCAT(DISTINCT dp2cp.platform_id),
+		      GROUP_CONCAT(
+		        DISTINCT
+		        CASE
+		          WHEN dp2bp.platform_id IN (1)
+		          THEN dp2bp.platform_id
+		          ELSE ''
+		        END
+		      )
+		    ) AS platformIds,
+	        group_concat(distinct dpb.brand_id) AS brandId,
+	        dpr.shelf_status,
+	        dpr.plan_source as origin,
+	        case dpr.group_primary_id when 0 then '单个方案' else '组合方案' end as solutionType,
+	        dpr.is_check,
+	        dpr.secrecy_flag
+	        FROM design_plan_recommended dpr
+	        left join design_plan_brand dpb on dpb.plan_id =dpr.id
+	        LEFT JOIN design_plan_2b_platform dp2bp ON dp2bp.plan_id = dpr.id AND dp2bp.is_deleted=0 AND dp2bp.allot_state =1 AND dp2bp.putaway_state =1
+	        LEFT JOIN design_plan_2c_platform dp2cp ON dp2cp.plan_id = dpr.id AND dp2cp.is_deleted=0 AND dp2cp.allot_state =1 AND dp2cp.putaway_state =1
+	        where dpr.is_deleted = 0 and dpr.is_release = 1 and dpr.recommended_type = #{recommendedType}
+	        and  dpr.company_id = #{companyId}
+	        <if test="deliverStatus eq 'Y'.toString()">
+	              and exists (
+	              	select 1 from design_plan_copy_log d where d.source_id = dpr.id  and d.source_company_id = #{companyId} and d.kind =2
+	              )
+	        </if>
+	        <if test="deliverStatus eq 'N'.toString()">
+	             and not exists (
+	              	select 1 from design_plan_copy_log d where d.source_id = dpr.id  and d.source_company_id = #{companyId} and d.kind =2
+	              )
+	        </if>
+	        <if test="spaceCommonName !=null and spaceCommonName != ''">
+	        	and exists (
+	        		select 1 from  space_common sc where sc.id = dpr.space_common_id
+	        		and sc.space_name like concat('%',#{spaceCommonName},'%')
+	        	)
+	        </if>
+	        <if test="containsSecrecyFlag !=null and containsSecrecyFlag != ''">
+	            and dpr.contains_secrecy_flag = #{containsSecrecyFlag}
+	        </if>
+	        <if test="origin != '' and origin !=null and origin !='diy' and origin != 'huxing'">
+	            and dpr.plan_source = #{origin}
+	        </if>
+	        <if test="origin eq 'diy'">
+	            and (dpr.plan_source != 'deliver' and dpr.plan_source != 'share' or dpr.plan_source = '' or dpr.plan_source
+	            is null )
+	        </if>
+	        <if test="planName !=null and planName != ''">
+	            and dpr.plan_name like concat('%', #{planName},'%')
+	        </if>
+	        and (group_primary_id = dpr.id OR group_primary_id = 0)
+	        group by dpr.id
+	</sql>
+	
+	<sql id="selectDesignPlanBrandCompanyId">
+	     SELECT
+	        dpr.id as planId,
+	        dpr.plan_name as planName,
+	        dpr.plan_code as planCode,
+	        dpr.gmt_create as completeDate,
+	        dpr.design_recommended_style_id as designStyleId,
+	        dpr.cover_pic_id as picId,
+	        dpr.creator as designer,
+	        dpr.user_id as designerId,
+	        dpr.contains_secrecy_flag AS containsSecrecyFlag,
+	        dpr.recommended_type as isOpen,
+	        dpr.space_common_id as spaceTypeId,
+	        CONCAT_WS(',',
+		      GROUP_CONCAT(DISTINCT dp2cp.platform_id),
+		      GROUP_CONCAT(
+		        DISTINCT
+		        CASE
+		          WHEN dp2bp.platform_id IN (1)
+		          THEN dp2bp.platform_id
+		          ELSE ''
+		        END
+		      )
+		    ) AS platformIds,
+	        group_concat(distinct dpb.brand_id) AS brandId,
+	        dpr.shelf_status,
+	        dpr.plan_source as origin,
+	        case dpr.group_primary_id when 0 then '单个方案' else '组合方案' end as solutionType,
+	        dpr.is_check,
+	        dpr.secrecy_flag
+	        FROM design_plan_recommended dpr
+	        left join design_plan_brand dpb on dpb.plan_id =dpr.id
+	        LEFT JOIN design_plan_2b_platform dp2bp ON dp2bp.plan_id = dpr.id AND dp2bp.is_deleted=0 AND dp2bp.allot_state =1 AND dp2bp.putaway_state =1
+	        LEFT JOIN design_plan_2c_platform dp2cp ON dp2cp.plan_id = dpr.id AND dp2cp.is_deleted=0 AND dp2cp.allot_state =1 AND dp2cp.putaway_state =1
+	        where dpr.is_deleted = 0 and dpr.is_release = 1 and dpr.recommended_type = #{recommendedType}
+	        and  dpb.company_id = #{companyId}
+	        <if test="deliverStatus eq 'Y'.toString()">
+	              and exists (
+	              	select 1 from design_plan_copy_log d where d.source_id = dpr.id  and d.source_company_id = #{companyId} and d.kind =2 
+	              )
+	        </if>
+	        <if test="deliverStatus eq 'N'.toString()">
+	             and not exists (
+	              	select 1 from design_plan_copy_log d where d.source_id = dpr.id  and d.source_company_id = #{companyId} and d.kind =2 
+	              )
+	        </if>
+	        <if test="spaceCommonName !=null and spaceCommonName != ''">
+	        	and exists (
+	        		select 1 from  space_common sc where sc.id = dpr.space_common_id
+	        		and sc.space_name like concat('%',#{spaceCommonName},'%')
+	        	)
+	        </if>
+	        <if test="containsSecrecyFlag !=null and containsSecrecyFlag != ''">
+	            and dpr.contains_secrecy_flag = #{containsSecrecyFlag}
+	        </if>
+	        <if test="origin != '' and origin !=null and origin !='diy' and origin != 'huxing'">
+	            and dpr.plan_source = #{origin}
+	        </if>
+	        <if test="origin eq 'diy'">
+	            and (dpr.plan_source != 'deliver' and dpr.plan_source != 'share' or dpr.plan_source = '' or dpr.plan_source
+	            is null )
+	        </if>
+	        <if test="planName !=null and planName != ''">
+	            and dpr.plan_name like concat('%', #{planName},'%')
+	        </if>
+	        and (group_primary_id = dpr.id OR group_primary_id = 0)
+	        group by dpr.id
+	</sql>
+	
+	<!-- 查询方案库中智能方案和普通方案列表 -->
+	 <select id="selectListSelective" resultType="com.sandu.api.solution.model.bo.DesignPlanBO"
+            parameterType="com.sandu.api.solution.input.DesignPlanRecommendedQuery">
+          select * from (
+           SELECT
+	        dpr.id as planId,
+	        dpr.plan_name as planName,
+	        dpr.plan_code as planCode,
+	        dpr.gmt_create as completeDate,
+	        dpr.design_recommended_style_id as designStyleId,
+	        dpr.cover_pic_id as picId,
+	        dpr.creator as designer,
+	        dpr.user_id as designerId,
+	        dpr.contains_secrecy_flag AS containsSecrecyFlag,
+	        dpr.recommended_type as isOpen,
+	        dpr.space_common_id as spaceTypeId,
+            IFNULL( d.deliverTimes, 0 ) AS deliverTimes,
+	        CONCAT_WS(',',
+		      GROUP_CONCAT(DISTINCT dp2cp.platform_id),
+		      GROUP_CONCAT(
+		        DISTINCT
+		        CASE
+		          WHEN dp2bp.platform_id IN (1)
+		          THEN dp2bp.platform_id
+		          ELSE ''
+		        END
+		      )
+		    ) AS platformIds,
+	        group_concat(distinct dpb.brand_id) AS brandId,
+	        dpr.shelf_status,
+	        dpr.plan_source as origin,
+	        case dpr.group_primary_id when 0 then '单个方案' else '组合方案' end as solutionType,
+	        dpr.is_check,
+	        dpr.secrecy_flag,
+            dpr.plan_price as planPrice,
+            dpr.charge_type as chargeType,
+            dpr.sale_price_charge_type as salePriceChargeType,
+            dpr.sale_price as salePrice,
+            dpr.is_changed as isChanged
+	        FROM design_plan_recommended dpr
+	        left join design_plan_brand dpb on dpb.plan_id =dpr.id
+	        LEFT JOIN design_plan_2b_platform dp2bp ON dp2bp.plan_id = dpr.id AND dp2bp.is_deleted=0 AND dp2bp.allot_state =1 AND dp2bp.putaway_state =1
+	        LEFT JOIN design_plan_2c_platform dp2cp ON dp2cp.plan_id = dpr.id AND dp2cp.is_deleted=0 AND dp2cp.allot_state =1 AND dp2cp.putaway_state =1
+            LEFT JOIN (SELECT COUNT( 1 ) AS deliverTimes,source_id FROM design_plan_copy_log d WHERE d.source_company_id = #{companyId}
+            AND d.kind = 2 GROUP BY source_id) d ON d.source_id = dpr.id
+            where dpr.is_deleted = 0 and dpr.is_release = 1 and dpr.recommended_type = #{recommendedType}
+	        and  (dpr.company_id = #{companyId} or dpb.company_id = #{companyId})
+	        <if test="spaceCommonName !=null and spaceCommonName != ''">
+	        	and exists (
+	        		select 1 from  space_common sc where sc.id = dpr.space_common_id
+	        		and sc.space_name like concat('%',#{spaceCommonName},'%')
+	        	)
+	        </if>
+	        <if test="containsSecrecyFlag !=null and containsSecrecyFlag != ''">
+	            and dpr.contains_secrecy_flag = #{containsSecrecyFlag}
+	        </if>
+	        <if test="origin != '' and origin !=null and origin !='diy' and origin != 'huxing'">
+	            and dpr.plan_source = #{origin}
+	        </if>
+            <if test="openState != null">
+                 and dpr.secrecy_flag = #{openState}
+            </if>
+            <if test="salePriceChargeType != null">
+                 and dpr.sale_price_charge_type = #{salePriceChargeType}
+            </if>
+            <if test="chargeType != null">
+                 and dpr.charge_type = #{chargeType}
+            </if>
+	        <if test="origin eq 'diy'">
+	            and (dpr.plan_source != 'deliver' and dpr.plan_source != 'share' or dpr.plan_source = '' or dpr.plan_source
+	            is null )
+	        </if>
+	        <if test="planName !=null and planName != ''">
+	            and dpr.plan_name like concat('%', #{planName},'%')
+	        </if>
+	        and (group_primary_id = dpr.id OR group_primary_id = 0)
+	        group by dpr.id
+           ) plat where 1=1
+             <if test="brandId != null and brandId != ''">
+                 and plat.brandId like concat ('%', #{brandId},'%')
+             </if>
+             <if test="deliverStatus eq 'Y'.toString()">
+                 and plat.deliverTimes > 0
+             </if>
+             <if test="deliverStatus eq 'N'.toString()">
+                 and plat.deliverTimes = 0
+             </if>
+			<if test="platformId != '' and platformId != null">
+				<choose>
+		        	<when test="platformId eq '0'.toString()">
+		       	    	AND (plat.platformIds IS NULL OR LENGTH(plat.platformIds) =0)
+		       	    	AND (plat.shelf_status IS NULL OR LENGTH(plat.shelf_status) =0)
+		        	</when>
+		        	<otherwise>
+			        	AND ( INSTR(CONCAT(',',plat.platformIds,','),CONCAT(',',#{platformId,jdbcType=VARCHAR},',')) > 0
+		                OR   INSTR(CONCAT(',',plat.shelf_status,','),CONCAT(',',#{platformId,jdbcType=VARCHAR},',')) > 0 )
+		        	</otherwise>
+		        </choose>
+			</if>
+			ORDER BY plat.planId desc
+    </select> 
+    
+    
+    <!--   <select id="selectListSelective" resultType="com.sandu.api.solution.model.bo.DesignPlanBO"
+            parameterType="com.sandu.api.solution.input.DesignPlanRecommendedQuery">
+          select * from (
+            <include refid="selectDesignPlanRecommendedCompanyId"/>
+            union
+          	<include refid="selectDesignPlanBrandCompanyId"/>
+           ) plat where 1=1
+			<if test="platformId != '' and platformId != null">
+				<choose>
+		        	<when test="platformId eq '0'.toString()">
+		       	    	AND (plat.platformIds IS NULL OR LENGTH(plat.platformIds) =0)
+		       	    	AND (plat.shelf_status IS NULL OR LENGTH(plat.shelf_status) =0)
+		        	</when>
+		        	<otherwise>
+			        	AND ( INSTR(CONCAT(',',plat.platformIds,','),CONCAT(',',#{platformId,jdbcType=VARCHAR},',')) > 0
+		                OR   INSTR(CONCAT(',',plat.shelf_status,','),CONCAT(',',#{platformId,jdbcType=VARCHAR},',')) > 0 )
+		        	</otherwise>
+		        </choose>
+			</if>
+			ORDER BY plat.planId desc
+    </select> 
+    -->
+    
+    <!--  <select id="selectListSelective" resultType="com.sandu.api.solution.model.bo.DesignPlanBO"
+            parameterType="com.sandu.api.solution.input.DesignPlanRecommendedQuery">
+            SELECT 
+			  dpr.id AS planId,
+			  dpr.plan_name AS planName,
+			  dpr.plan_code AS planCode,
+			  dpr.gmt_create AS completeDate,
+			  dpr.design_recommended_style_id AS designStyleId,
+			  dpr.cover_pic_id AS picId,
+			  dpr.creator AS designer,
+			  dpr.user_id AS designerId,
+			  dpr.contains_secrecy_flag AS containsSecrecyFlag,
+			  dpr.recommended_type AS isOpen,
+			  dpr.space_common_id AS spaceTypeId,
+			  GROUP_CONCAT(DISTINCT dpb.brand_id) AS brandId,
+			  dpr.shelf_status,
+			  dpr.plan_source AS origin,
+			  CASE
+			    dpr.group_primary_id 
+			    WHEN 0 
+			    THEN '单个方案' 
+			    ELSE '组合方案' 
+			  END AS solutionType,
+			  dpr.is_check,
+			  dpr.secrecy_flag 
+			FROM
+			  design_plan_recommended dpr 
+			  LEFT JOIN design_plan_brand dpb 
+			    ON dpb.plan_id = dpr.id 
+			WHERE dpr.is_deleted = 0 
+			  AND dpr.is_release = 1 
+			  AND dpr.recommended_type = #{recommendedType} 
+			  AND (
+			    dpr.company_id = #{companyId} 
+			    OR dpb.company_id = #{companyId}
+			  ) 
+			  AND (
+			    group_primary_id = dpr.id 
+			    OR group_primary_id = 0
+			  ) 
+			  <if test="platformId != '' and platformId != null">
+				<choose>
+		        	<when test="platformId eq '0'.toString()">
+		       	    	 AND (
+						    EXISTS 
+						    (SELECT 
+						      1 
+						    FROM
+						      design_plan_2b_platform b 
+						    WHERE b.plan_id = dpr.id 
+						      AND b.is_deleted = 0 
+						      AND b.allot_state = 1 
+						      AND b.putaway_state = 0 
+						    UNION
+						    ALL 
+						    SELECT 
+						      1 
+						    FROM
+						      design_plan_2c_platform c 
+						    WHERE c.plan_id = dpr.id 
+						      AND c.is_deleted = 0 
+						      AND c.allot_state = 1 
+						      AND c.putaway_state = 0) 
+						    AND (
+						      dpr.shelf_status IS NULL 
+						      OR LENGTH(dpr.shelf_status) = 0
+						    )
+						  ) 
+		        	</when>
+		        	<otherwise>
+		        		AND (
+						    EXISTS 
+						    (SELECT 
+						      1 
+						    FROM
+						      design_plan_2b_platform b 
+						    WHERE b.plan_id = dpr.id 
+						      AND b.is_deleted = 0 
+						      AND b.allot_state = 1 
+						      AND b.putaway_state = 1 
+						      AND b.platform_id = #{platformId} 
+						    UNION
+						    ALL 
+						    SELECT 
+						      1 
+						    FROM
+						      design_plan_2c_platform c 
+						    WHERE c.plan_id = dpr.id 
+						      AND c.is_deleted = 0 
+						      AND c.allot_state = 1 
+						      AND c.putaway_state = 1 
+						      AND c.platform_id = #{platformId} )
+						  OR INSTR(CONCAT(',',dpr.shelf_status,','),CONCAT(',',#{platformId,jdbcType=VARCHAR},',')) > 0
+						) 
+		        	</otherwise>
+		        </choose>
+			</if>
+			  <if test="deliverStatus eq 'Y'.toString()">
+	              and exists (
+	              	select 1 from design_plan_copy_log d where d.source_id = dpr.id  and d.source_company_id = #{companyId} and d.kind =2 
+	              )
+	        </if>
+	        <if test="deliverStatus eq 'N'.toString()">
+	             and not exists (
+	              	select 1 from design_plan_copy_log d where d.source_id = dpr.id  and d.source_company_id = #{companyId} and d.kind =2 
+	              )
+	        </if>
+	        <if test="spaceCommonName !=null and spaceCommonName != ''">
+	        	and exists (
+	        		select 1 from  space_common sc where sc.id = dpr.space_common_id
+	        		and sc.space_name like concat('%',#{spaceCommonName},'%')
+	        	)
+	        </if>
+	        <if test="containsSecrecyFlag !=null and containsSecrecyFlag != ''">
+	            and dpr.contains_secrecy_flag = #{containsSecrecyFlag}
+	        </if>
+	        <if test="origin != '' and origin !=null and origin !='diy' and origin != 'huxing'">
+	            and dpr.plan_source = #{origin}
+	        </if>
+	        <if test="origin eq 'diy'">
+	            and (dpr.plan_source != 'deliver' and dpr.plan_source != 'share' or dpr.plan_source = '' or dpr.plan_source
+	            is null )
+	        </if>
+	        <if test="planName !=null and planName != ''">
+	            and dpr.plan_name like concat('%', #{planName},'%')
+	        </if>
+	        and (group_primary_id = dpr.id OR group_primary_id = 0)
+	        group by dpr.id
+	        order by dpr.id desc
+    </select>-->
+    
+    <!-- 获取方案已上架列表 -->
+    <select id="getShelfPlatForms" resultType="java.util.Map">
+    	SELECT 
+	    dpr.id AS planId,
+	    CONCAT_WS(
+	      ',',
+	      GROUP_CONCAT(DISTINCT dp2cp.platform_id),
+	      GROUP_CONCAT(
+	        DISTINCT 
+	        CASE
+	          WHEN dp2bp.platform_id IN (1) 
+	          THEN dp2bp.platform_id 
+	          ELSE '' 
+	        END
+	      )
+	    ) AS platformIds
+	   FROM 
+	    design_plan_recommended dpr 
+	    LEFT JOIN design_plan_2b_platform dp2bp 
+	      ON dp2bp.plan_id = dpr.id 
+	      AND dp2bp.is_deleted = 0 
+	      AND dp2bp.allot_state = 1 
+	      AND dp2bp.putaway_state = 1 
+	    LEFT JOIN design_plan_2c_platform dp2cp 
+	      ON dp2cp.plan_id = dpr.id 
+	      AND dp2cp.is_deleted = 0 
+	      AND dp2cp.allot_state = 1 
+	      AND dp2cp.putaway_state = 1
+	      where 1=1 
+	      <if test="planIds!=null and planIds.size > 0">
+            and dpr.id in
+            <foreach collection="planIds" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if> 
+	  GROUP BY dpr.id 
+	</select>
+    
+    
+    <select id="listChannelOneKeyDesignPlan" resultType="com.sandu.api.solution.model.bo.DesignPlanBO"
+            parameterType="com.sandu.api.solution.input.DesignPlanRecommendedQuery">
+        select * from (
+        SELECT
+        dpr.id AS planId,
+        dpr.plan_name AS planName,
+        dpr.plan_code AS planCode,
+        dp2bp.gmt_modified AS completeDate,
+        dpr.design_recommended_style_id AS designStyleId,
+        dpr.cover_pic_id AS picId,
+        dpr.creator AS designer,
+        dpr.user_id AS designerId,
+        dpr.contains_secrecy_flag AS containsSecrecyFlag,
+        dpr.recommended_type AS isOpen,
+        dpr.plan_source as origin,
+        dpr.shelf_status AS shelfStatus,
+        dpr.space_common_id as spaceCommonId,
+        sc.space_function_id as spaceTypeId,
+        GROUP_CONCAT(dp2bp.putaway_state) AS putawayStatusId,
+        GROUP_CONCAT(dp2bp.platform_id) AS platformIds,
+        if(csdp.id is null or csdp.is_deleted=1,'未发布','已发布') AS isPublish,
+        CONVERT(IF(ISNULL(csdp.id),0,csdp.id),SIGNED) AS companyShopDesignPlanId,
+        CONVERT(IF(ISNULL(csdp.is_deleted),1,csdp.is_deleted),SIGNED) AS companyShopDesignPlanisDeleted,
+        case dpr.group_primary_id when 0 then '单个方案' else '组合方案' end as solutionType
+        FROM design_plan_recommended dpr
+        left join design_plan_brand dpb on dpb.plan_id =dpr.id
+        left join space_common sc on sc.id = dpr.space_common_id
+        left join company_shop_design_plan csdp on csdp.plan_id = dpr.id
+        LEFT JOIN design_plan_2b_platform dp2bp ON dp2bp.plan_id = dpr.id AND dp2bp.is_deleted=0 AND dp2bp.allot_state
+        =1
+        WHERE dpr.is_deleted = 0 and dpr.is_release = 1 and dpr.recommended_type = #{recommendedType}
+        and dpr.company_id = #{companyId}
+        <if test="containsSecrecyFlag !=null and containsSecrecyFlag != ''">
+            and dpr.contains_secrecy_flag = #{containsSecrecyFlag}
+        </if>
+        <if test="origin != '' and origin !=null and origin !='diy' and origin != 'huxing'">
+            and dpr.plan_source = #{origin}
+        </if>
+        <if test="origin eq 'diy'">
+            and (dpr.plan_source != 'deliver' and dpr.plan_source != 'share' or dpr.plan_source = '' or dpr.plan_source
+            is null )
+        </if>
+        <if test="planName !=null and planName != ''">
+            and dpr.plan_name like concat('%', #{planName},'%')
+        </if>
+        <if test="origin != '' and origin !=null">
+            and dpr.plan_source = #{origin}
+        </if>
+        <if test="shelfStatus !=null and shelfStatus!='' and shelfStatus != 'NONE'  and shelfStatus != 'ALL'">
+            and dpr.shelf_status like concat('%',#{shelfStatus},'%')
+        </if>
+        <if test="shelfStatus == 'NONE'">
+            and (dpr.shelf_status is null or dpr.shelf_status = '')
+        </if>
+        <if test="shelfStatus == 'ALL'">
+            and (dpr.shelf_status = 'ONEKEY,OPEN' or dpr.shelf_status = 'OPEN,ONEKEY')
+        </if>
+        <if test="spaceCommonName !=null and spaceCommonName != ''">
+            and sc.space_name like concat('%',#{spaceCommonName},'%')
+        </if>
+        <if test="spaceTypeId != null and spaceTypeId > 0 ">
+            and sc.space_function_id = #{spaceTypeId}
+        </if>
+        <if test="isPublish == 0">
+            and (csdp.id is null or csdp.is_deleted=1)
+        </if>
+        <if test="isPublish == 1">
+            and csdp.id is not null and csdp.is_deleted=0
+        </if>
+        <if test="brandId != null">
+            and dpb.brand_id = #{brandId}
+        </if>
+        and (group_primary_id = dpr.id OR group_primary_id = 0)
+        group by dpr.id
+        order by dpr.id desc
+        ) t WHERE t.putawayStatusId IS NOT NULL
+        <if test="platformId !=null and platformId!=''">
+            and t.platformIds like concat('%',#{platformId},'%')
+        </if>
+    </select>
+
+    <select id="listOnlineOneKeyDesignPlan" resultType="com.sandu.api.solution.model.bo.DesignPlanBO"
+            parameterType="com.sandu.api.solution.input.DesignPlanRecommendedQuery">
+        select * from
+        (
+        SELECT
+        dpr.id AS planId,
+        dpr.plan_name AS planName,
+        dpr.plan_code AS planCode,
+        dp2cp.gmt_modified AS completeDate,
+        dpr.design_recommended_style_id AS designStyleId,
+        dpr.cover_pic_id AS picId,
+        dpr.creator AS designer,
+        dpr.user_id AS designerId,
+        dpr.recommended_type AS isOpen,
+        dpr.contains_secrecy_flag AS containsSecrecyFlag,
+        dpr.space_common_id as spaceCommonId,
+        sc.space_function_id as spaceTypeId,
+        GROUP_CONCAT(dp2cp.putaway_state) AS putawayStatusId,
+        GROUP_CONCAT(dp2cp.platform_id) AS platformIds,
+        dpr.plan_source as origin,
+        case dpr.group_primary_id when 0 then '单个方案' else '组合方案' end as solutionType
+        FROM design_plan_recommended dpr
+        left join space_common sc on sc.id = dpr.space_common_id
+        LEFT JOIN design_plan_2c_platform dp2cp ON dp2cp.`plan_id` = dpr.`id` AND dp2cp.is_deleted=0 AND
+        dp2cp.allot_state = 1
+        WHERE dpr.is_deleted = 0 and dpr.is_release = 1 and dpr.recommended_type = #{recommendedType}
+        and dpr.company_id = #{companyId}
+        <if test="shelfStatus!=null and shelfStatus !='' and shelfStatus != 'NONE'">
+            and dp2cp.platform_id = #{shelfStatus} and dp2cp.putaway_state = 1
+        </if>
+        <if test="containsSecrecyFlag !=null and containsSecrecyFlag != ''">
+            and dpr.contains_secrecy_flag = #{containsSecrecyFlag}
+        </if>
+        <if test="planName !=null and planName != ''">
+            and dpr.plan_name like concat('%', #{planName},'%')
+        </if>
+        <if test="origin != '' and origin !=null and origin !='diy' and origin != 'huxing'">
+            and dpr.plan_source = #{origin}
+        </if>
+        <if test="origin eq 'diy'">
+            and (dpr.plan_source != 'deliver' and dpr.plan_source != 'share' or dpr.plan_source = '' or dpr.plan_source
+            is null )
+        </if>
+        <if test="spaceCommonName !=null and spaceCommonName != ''">
+            and sc.space_name like concat('%',#{spaceCommonName},'%')
+        </if>
+        <if test="spaceTypeId != null and spaceTypeId > 0 ">
+            and sc.space_function_id = #{spaceTypeId}
+        </if>
+        and (group_primary_id = dpr.id OR group_primary_id = 0)
+        group by dpr.id
+        order by dpr.id desc
+        ) t WHERE t.putawayStatusId IS NOT NULL
+        <if test="shelfStatus!=null and shelfStatus !='' and shelfStatus == 'NONE'">
+            AND INSTR(t.putawayStatusId,1) = 0
+        </if>
+    </select>
+
+    <select id="listAllDiagram" resultType="com.sandu.api.solution.model.bo.DesignPlanEffectDiagramBO">
+        SELECT
+            rrp.id                  AS picId,
+            rrp.pic_path            AS picPath,
+            rrp.plan_recommended_id AS planId,
+            rrp.rendering_type      AS renderingType,
+            rrp.is_deleted          AS isDeleted
+        FROM res_render_pic rrp
+        WHERE rrp.plan_recommended_id = #{planId}
+              AND
+              file_key IN ('design.designPlanRecommended.render.pic', 'design.designPlanRecommended.render.video.cover')
+              AND rrp.rendering_type = #{renderingType}
+    </select>
+
+    <select id="listDesignPlanProducts" parameterType="com.sandu.api.solution.input.DesignPlanProductQuery"
+            resultType="com.sandu.api.solution.model.bo.DesignPlanProductBO">
+        SELECT
+        dprp.plan_recommended_id AS planId,
+        count(dprp.product_id) AS usedCount,
+        IFNULL(dprp.display_status, 1) AS displayStatus,
+        dprp.product_id
+        FROM design_plan_recommended_product dprp
+        WHERE dprp.plan_recommended_id = #{planId}
+        <if test="displayStatus != null and displayStatus == 0">
+            and dprp.display_status = #{displayStatus}
+        </if>
+        <if test="displayStatus != null and displayStatus == 1">
+            and (dprp.display_status = #{displayStatus} or dprp.display_status is null)
+        </if>
+        GROUP BY dprp.product_id
+    </select>
+
+    <!--and dpr.company_id != #{companyId}-->
+    <select id="listShareDesignPlan" parameterType="com.sandu.api.solution.input.ShareDesignPlanQuery"
+            resultType="com.sandu.api.solution.model.bo.DesignPlanBO">
+        select * from (
+        SELECT
+        dpr.id AS planId,
+        dpr.plan_name AS planName,
+        dpr.plan_code AS planCode,
+        dpr.secrecy_time AS completeDate,
+        dpr.design_recommended_style_id AS designStyleId,
+        dpr.cover_pic_id AS picId,
+        dpr.creator AS designer,
+        dpr.user_id AS designerId,
+        dpr.recommended_type AS isOpen,
+        dpr.contains_secrecy_flag AS containsSecrecyFlag,
+        dpr.space_common_id as spaceCommonId,
+        dpr.company_id as companyId,
+        dpr.charge_type as chargeType,
+        dpr.use_count as useCount,
+        dpr.plan_price as planPrice,
+        dpr.sale_price_charge_type as salePriceChargeType,
+        dpr.sale_price as salePrice,
+        group_concat(distinct dpb.brand_id) AS brandId,
+        if((select count(*) from design_plan_copy_log where source_id = dpr.id)> 0 , 'Y', 'N') as copied,
+        dpr.plan_source AS origin,
+        case dpr.group_primary_id when 0 then '单个方案' else '组合方案' end as solutionType
+        FROM design_plan_recommended dpr
+        left join design_plan_brand dpb on dpb.plan_id =dpr.id
+        left join space_common sc on sc.id = dpr.space_common_id
+        WHERE dpr.is_deleted = 0 AND dpr.is_release = 1 AND dpr.secrecy_flag = 1 and dpr.recommended_type = #{designPlanType}
+        and (dpr.plan_source != 'deliver' and dpr.plan_source !='share' or
+        dpr.plan_source is null or dpr.plan_source = '')
+        AND NOT EXISTS (SELECT 1 FROM design_plan_copy_log t0 WHERE t0.source_id = dpr.id AND t0.target_company_id = #{companyId} and dpr.is_deleted = 0)
+        <if test="peerCompanyIds !=null and peerCompanyIds.size()>0">
+            and dpr.company_id not in
+            <foreach collection="peerCompanyIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="spaceTypeId != null and spaceTypeId > 0 ">
+            and sc.space_function_id = #{spaceTypeId}
+        </if>
+        <if test="planName !=null and planName !=''">
+            AND (
+            dpr.plan_code LIKE CONCAT(CONCAT('%',#{planName}),'%')
+            OR dpr.plan_name LIKE CONCAT(CONCAT('%',#{planName}),'%')
+            OR EXISTS (
+            SELECT 1 FROM sys_user a WHERE a.id = dpr.user_id AND a.user_name  LIKE CONCAT(CONCAT('%',#{planName}),'%')
+            )
+            )
+        </if>
+        <if test="shareCompanyId !=null and shareCompanyId!=''">
+            and dpr.company_id = #{shareCompanyId}
+        </if>
+        <if test="chargeType != null">
+            and dpr.charge_type = #{chargeType}
+        </if>
+        <if test="salePriceChargeType != null">
+            and dpr.sale_price_charge_type = #{salePriceChargeType}
+        </if>
+        <if test="planSearch != null and planSearch != ''">
+            and (
+            dpr.plan_code like concat(concat('%',#{planSearch}),'%')
+            or dpr.creator like concat(concat('%',#{planSearch}),'%')
+            or dpr.plan_name like concat(concat('%',#{planSearch}),'%')
+            )
+        </if>
+        and (group_primary_id = dpr.id OR group_primary_id = 0)
+        and  dpr.company_id != #{companyId}
+        group by dpr.id )
+        plat where 1=1
+        <if test="brandId != null and brandId != ''">
+            AND CONCAT(',', plat.brandId, ',') LIKE CONCAT('%,', #{brandId}, ',%')
+        </if>
+        ORDER BY plat.planId desc
+    </select>
+
+    <update id="putOnOnlineShelf">
+        UPDATE design_plan_2c_platform
+        SET putaway_state = 1, gmt_modified = CURRENT_TIMESTAMP
+        WHERE plan_id = #{planId} AND platform_id = #{platformId} AND (design_plan_type = 2 OR design_plan_type = 1)
+    </update>
+
+    <update id="offOnOnlineShelf">
+        UPDATE design_plan_2c_platform
+        SET putaway_state = 0, gmt_modified = CURRENT_TIMESTAMP
+        WHERE plan_id = #{planId} AND platform_id = #{platformId} AND (design_plan_type = 2 OR design_plan_type = 1)
+    </update>
+
+    <update id="putOnChannelShelf">
+        UPDATE design_plan_2b_platform
+        SET putaway_state = 1, gmt_modified = CURRENT_TIMESTAMP
+        WHERE plan_id = #{planId} AND platform_id = #{platformId} AND (design_plan_type = 2 OR design_plan_type = 1) 
+    </update>
+
+    <update id="offOnChannelShelf">
+        UPDATE design_plan_2b_platform
+        SET putaway_state = 0, gmt_modified = CURRENT_TIMESTAMP
+        WHERE plan_id = #{planId} AND platform_id = #{platformId} AND (design_plan_type = 2 OR design_plan_type = 1)
+    </update>
+
+    <select id="listNotShelfDesignPlan" resultType="com.sandu.api.solution.model.bo.DesignPlanBO">
+		SELECT 
+		  dpr.id                              AS planId,
+          dpr.plan_name                       AS planName,
+          dpr.plan_code                       AS planCode,
+          dpr.gmt_create                      AS completeDate,
+          dpr.design_style_id                 AS designStyleId,
+          dpr.cover_pic_id                    AS picId,
+          dpr.creator                         AS designer,
+          dpr.user_id                         AS designerId,
+          dpr.contains_secrecy_flag           AS containsSecrecyFlag,
+          dpr.plan_source                     AS origin
+		FROM
+		  design_plan_recommended dpr 
+		  LEFT JOIN design_plan_2b_platform dp2bp 
+		    ON dp2bp.plan_id = dpr.id 
+		  LEFT JOIN design_plan_2c_platform dp2cp 
+		    ON dp2cp.plan_id = dpr.id 
+		WHERE dp2bp.plan_id IS NULL 
+		  AND dp2cp.plan_id IS NULL 
+		  AND dpr.is_deleted = 0 
+		  AND dpr.is_release = 1 
+		  AND dpr.recommended_type = #{planType}
+		ORDER BY dpr.id DESC 
+		LIMIT 1000 
+    </select>
+    
+    <!-- 获取方案交付次数 -->
+    <select id="getDeliverTimesByPlanId" resultType="java.util.Map">
+    	SELECT 
+		  source_id planId,
+		  IFNULL(COUNT(1), 0) AS deliverTimes 
+		FROM
+		  design_plan_copy_log 
+		WHERE source_company_id = #{companyId}
+		  AND kind = 2 
+		  AND source_id IN 
+		  <foreach collection="planIds" item="it" separator="," open="(" close=")">
+            #{it}
+        </foreach>
+		GROUP BY source_id 
+    </select>
+    
+    <select id="listSecrecyFlagByPlanIds" resultType="com.sandu.api.solution.model.bo.SecrecyFlagBO">
+        SELECT
+        dprp.plan_recommended_id as planId,
+        if(count(*)> 0 , 0, 1) as secrecyFlag
+        FROM design_plan_recommended_product dprp LEFT JOIN base_product bp ON dprp.product_id = bp.id
+        WHERE bp.secrecy_flag = 0 AND dprp.plan_recommended_id
+        IN
+        <foreach collection="planIds" item="it" separator="," open="(" close=")">
+            #{it}
+        </foreach>
+        GROUP BY dprp.plan_recommended_id
+    </select>
+    <select id="getNotUseSharePlanCompanyQueue" resultType="com.sandu.api.company.model.Company">
+        SELECT 
+		  * 
+		FROM
+		  base_company a 
+		  LEFT JOIN design_plan_copy_log b 
+		    ON a.id = b.target_company_id 
+		WHERE b.target_company_id IS NULL 
+		  AND a.is_deleted = 0 
+		  AND a.business_type IN (4, 5, 6, 7, 8) 
+		ORDER BY a.id DESC 
+        LIMIT 1;
+    </select>
+
+    <update id="setDesignPlanCompanyId">
+        UPDATE design_plan_brand AS DPB
+        SET DPB.company_id = IFNULL((SELECT company_id
+                                     FROM base_brand
+                                     WHERE id = DPB.brand_id), 0)
+        WHERE DPB.company_id = 0
+    </update>
+
+    <!--判断是不是有效的分享 > 0 有效, = 0 无效-->
+    <select id="getIsValidSharePlan" resultType="java.lang.Integer">
+        SELECT 
+		  SUM(total) AS A
+		FROM
+		  (SELECT 
+		    COUNT(*) AS total 
+		  FROM
+		    design_plan_2b_platform dp2bp 
+		    INNER JOIN design_plan_recommended dpr 
+		      ON dpr.id = dp2bp.plan_id 
+		  WHERE dp2bp.plan_id = #{planId} 
+		    AND dp2bp.putaway_state = 1 
+		    AND dp2bp.allot_state = 1 
+		    AND dpr.shelf_status != 'ONEKEY' 
+		    AND dpr.shelf_status != '' 
+		  UNION ALL 
+		  SELECT 
+		    COUNT(*) AS total 
+		  FROM
+		    design_plan_2c_platform dp2cp 
+		    INNER JOIN design_plan_recommended dpr 
+		      ON dpr.id = dp2cp.plan_id 
+		  WHERE dp2cp.plan_id = #{planId} 
+		    AND dp2cp.putaway_state = 1 
+		    AND dp2cp.allot_state = 1 
+		    AND dpr.shelf_status != 'ONEKEY' 
+		    AND dpr.shelf_status != '') AS T ;
+    </select>
+
+    <select id="getDesignById" resultType="com.sandu.api.solution.model.DesignPlanRecommended">
+        SELECT * from design_plan_recommended
+        where id = #{id}
+    </select>
+
+    <!--获取全部需要使用的方案-->
+    <select id="listAllCopy2CompanyPlan" resultType="com.sandu.api.solution.model.DesignPlanRecommended">
+        SELECT *
+        FROM design_plan_recommended
+        WHERE plan_code IN (
+            'F05_0006_001_787179',
+            'D02_0011_001_399348',
+            'F01_0304_001_321245',
+            'F03_0173_001_676841',
+            'F01_0309_001_154792',
+            'F03_0280_001_878429',
+            'F05_0006_001_225136',
+            'F05_0021_001_901642',
+            'E03_0269_001_574127',
+            'C04_0250_001_863444',
+            'C09_0227_001_825409',
+            'C04_0243_001_486132',
+            'E02_0559_001_566281',
+            'E02_0559_001_344553',
+            'C05_0362_001_369407',
+            'F01_0304_001_797580',
+            'F03_0215_001_425315',
+            'C06_0345_001_251364',
+            'C09_0519_001_183546',
+            'E02_0534_001_610455',
+            'D04_0367_001_584408',
+            'D04_0345_001_517987',
+            'F03_0173_001_427560',
+            'E02_0534_001_836564',
+            'F05_0006_001_612467',
+            'F01_0309_001_910651',
+            'C03_0400_001_451692',
+            'C07_0315_001_647448',
+            'C11_0304_001_907526',
+            'C04_0216_001_683836',
+            'D02_0004_001_551407',
+            'C09_0218_001_574408',
+            'C06_0236_001_844488',
+            'D02_0011_001_874686',
+            'D02_0004_001_232727',
+            'C04_0242_001_871388',
+            'D04_0346_001_294927',
+            'D04_0345_001_582331',
+            'C06_0244_001_336146',
+            'C04_0227_001_653465',
+            'C09_0218_001_538554',
+            'C09_0232_001_374629',
+            'F01_0306_001_448662',
+            'F03_0173_001_504929',
+            'F05_0017_001_192583',
+            'C07_0318_001_131486',
+            'C07_7256_001_525144',
+            'C09_0227_001_354791',
+            'D04_0363_001_103545',
+            'D02_0020_001_169588',
+            'D02_0011_001_733383',
+            'D04_0349_001_734419',
+            'C03_0335_001_100598',
+            'C06_6428_001_107364',
+            'C09_0218_001_402528',
+            'C03_0335_001_124403',
+            'C09_0218_001_152304',
+            'D04_0378_001_445843',
+            'D02_0020_001_840517',
+            'C09_0218_001_538466',
+            'C06_6428_001_583705',
+            'C04_0218_001_289215',
+            'C06_0279_001_487392',
+            'C09_0218_001_763459',
+            'C06_6428_001_478826',
+            'C03_0383_001_236455',
+            'C09_0218_001_908142',
+            'C06_0279_001_430944',
+            'C04_0218_001_148842',
+            'C06_0345_001_217861',
+            'C04_0245_001_526762',
+            'C03_0437_001_787518',
+            'C03_0305_001_812643',
+            'C03_0385_001_305315',
+            'C09_0218_001_267166',
+            'D04_0378_001_165269',
+            'C03_0400_001_735589',
+            'C06_0345_001_128690',
+            'D02_0005_001_518647',
+            'C06_0345_001_415715',
+            'F02_0638_001_371008',
+            'F02_0638_001_228421'
+        ) AND (plan_source = 'diy' OR plan_source = '' OR plan_source IS NULL OR plan_source = 'huxing') AND
+              is_deleted = 0
+    </select>
+    <select id="getPrimaryPlan" resultType="com.sandu.api.solution.model.DesignPlanRecommended">
+        select * from design_plan_recommended where group_primary_id = id and id = #{planId}
+    </select>
+    <select id="queryPrimaryPlan" resultType="com.sandu.api.solution.model.DesignPlanRecommended">
+        select * from design_plan_recommended where group_primary_id = #{planId} and id != #{planId}
+    </select>
+
+    <!-- 修复交付主方案未打组bug -->
+    <update id="updateDeleverPlanByPrimary">
+        update design_plan_copy_log dpcl, design_plan_recommended dpr, design_plan_recommended dpr2
+        set dpr2.group_primary_id = dpr2.id
+        where dpcl.source_id = dpr.id
+        and dpr.id = dpr.group_primary_id
+        and dpcl.target_id = dpr2.id
+        and dpr2.group_primary_id = 0
+        and dpcl.kind = 2
+    </update>
+
+    <!-- 修复交付子方案未打组bug -->
+    <update id="fixedDeliverPlanBySide">
+        update design_plan_recommended
+        set group_primary_id = #{groupPrimaryId}
+        where id = #{id}
+    </update>
+
+    <!-- 查询交付主从方案信息 -->
+    <select id="selectDeliverPlanByPrimary" resultType="com.sandu.api.solution.model.DesignPlanRecommended">
+        select dpr2.id as group_primary_id,dpr4.id as id
+        from design_plan_copy_log dpcl, design_plan_recommended dpr, design_plan_recommended dpr2,
+        design_plan_recommended dpr3, design_plan_copy_log dpcl2,  design_plan_recommended dpr4
+        where dpcl.source_id = dpr.id
+        and dpr.id = dpr.group_primary_id
+        and dpcl.target_id = dpr2.id
+        and dpcl.kind = 2
+        and dpcl.target_company_id = dpcl2.target_company_id
+        and dpr3.group_primary_id = dpr.id and dpr3.id != dpr3.group_primary_id
+        and dpcl2.source_id = dpr3.id
+        and dpr4.id = dpcl2.target_id
+        and dpcl2.kind =2
+        and dpr4.group_primary_id = 0
+    </select>
+    <select id="listSiglesDiagram" resultType="com.sandu.api.solution.model.bo.DesignPlanEffectDiagramBO">
+        	SELECT
+            rrp.id                  AS picId,
+            rrp.pic_path            AS picPath,
+            rrp.plan_recommended_id AS planId,
+            rrp.rendering_type      AS renderingType,
+            rrp.is_deleted          AS isDeleted,
+						file_key
+        FROM res_render_pic rrp
+        WHERE rrp.plan_recommended_id =#{planId}
+              AND
+              file_key IN ('design.designPlanRecommended.render.small.pic')
+							 AND rrp.rendering_type = #{renderingType}
+    </select>
+
+
+
+    <!-- 发布智能方案或普通方案到店铺 -->
+    <insert id="insertCompanyShopDesignPlan" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        insert into company_shop_design_plan
+        (
+        shop_id, plan_id,
+        plan_recommended_type,creator, gmt_create,
+        modifier, gmt_modified, is_deleted
+        )
+        values
+        <foreach collection="companyShopDesignPlanList" item="item" index="index" separator=",">
+            ( #{item.shopId,jdbcType=INTEGER}, #{item.planId,jdbcType=INTEGER},
+            #{item.planRecommendedType,jdbcType=INTEGER}, #{item.creator,jdbcType=VARCHAR},
+            #{item.gmtCreate,jdbcType=TIMESTAMP},
+            #{item.modifier,jdbcType=VARCHAR}, #{item.gmtModified,jdbcType=TIMESTAMP},
+            #{item.isDeleted,jdbcType=INTEGER}
+            )
+        </foreach>
+    </insert>
+
+
+
+    <update id="updateCompanyShopDesignPlan" parameterType="java.util.List">
+        update
+            company_shop_design_plan
+        set
+            is_deleted = #{isDeleted},
+            gmt_modified = #{date},
+            modifier = #{userName}
+        where
+            id in
+            <foreach collection="companyShopDesignPlanList" item="item" index="index" open="(" separator="," close=")">
+                #{item.id,jdbcType=BIGINT}
+            </foreach>
+            and plan_recommended_type != 3
+    </update>
+    <update id="offShelf2cFullHouse">
+        UPDATE design_plan_2c_platform
+        SET putaway_state = 0, gmt_modified = CURRENT_TIMESTAMP
+        WHERE plan_id = #{planId} AND platform_id = #{platId} AND design_plan_type = 3
+    </update>
+    <update id="offShelf2bFullHouse">
+        UPDATE design_plan_2b_platform
+        SET putaway_state = 0, gmt_modified = CURRENT_TIMESTAMP
+        WHERE plan_id = #{planId} AND platform_id = #{platId} AND design_plan_type = 3
+    </update>
+    <update id="putOn2cFullHouse">
+        UPDATE design_plan_2c_platform
+        SET putaway_state = 1, gmt_modified = CURRENT_TIMESTAMP
+        WHERE plan_id = #{planId} AND platform_id = #{platId} AND design_plan_type = 3
+    </update>
+    <update id="putOn2bFullHouse">
+        UPDATE design_plan_2b_platform
+        SET putaway_state = 1, gmt_modified = CURRENT_TIMESTAMP
+        WHERE plan_id = #{planId} AND platform_id = #{platId} AND design_plan_type = 3
+    </update>
+
+
+    <select id="planStoreList" resultType="com.sandu.api.solution.model.bo.DesignPlanBO"
+            parameterType="com.sandu.api.solution.input.DesignPlanRecommendedQuery">
+        select * from (
+        SELECT
+            dpr.id AS planId,
+            dpr.plan_name AS planName,
+            dpr.plan_code AS planCode,
+            dp2bp.gmt_modified AS completeDate,
+            dpr.design_recommended_style_id AS designStyleId,
+            dpr.cover_pic_id AS picId,
+            dpr.creator AS designer,
+            dpr.user_id AS designerId,
+            dpr.contains_secrecy_flag AS containsSecrecyFlag,
+            dpr.recommended_type AS isOpen,
+            dpr.plan_source AS origin,
+            dpr.shelf_status AS shelfStatus,
+            dpr.space_common_id AS spaceCommonId,
+            sc.space_function_id AS spaceTypeId,
+            dpr.charge_type AS chargeType,
+            dpr.plan_price AS planPrice,
+            GROUP_CONCAT( dp2bp.putaway_state ) AS putaway2bStatusId,
+            GROUP_CONCAT( dp2cp.putaway_state ) AS putaway2cStatusId,
+            GROUP_CONCAT( dp2bp.platform_id ) AS platformIds,
+            IF( csdp.id IS NULL OR csdp.is_deleted = 1, '未发布', '已发布' ) AS isPublish,
+            IF( csdp.id IS NULL, 0, csdp.id ) AS companyShopDesignPlanId,
+            IF( csdp.id IS NULL, 1, csdp.is_deleted )AS companyShopDesignPlanisDeleted,
+            IF( csdp.shop_id is null, 0, csdp.shop_id ) AS shopId,
+            CASE dpr.group_primary_id WHEN 0 THEN	'单个方案' ELSE '组合方案' END AS solutionType
+        FROM
+            design_plan_recommended dpr
+            LEFT JOIN design_plan_brand dpb ON dpb.plan_id = dpr.id
+            LEFT JOIN space_common sc ON sc.id = dpr.space_common_id
+            LEFT JOIN company_shop_design_plan csdp ON csdp.plan_id = dpr.id and csdp.shop_id = #{shopId} and csdp.is_deleted = 0
+            LEFT JOIN design_plan_2b_platform dp2bp ON dp2bp.plan_id = dpr.id AND dp2bp.is_deleted = 0 AND dp2bp.allot_state = 1 AND dp2bp.putaway_state = 1
+            LEFT JOIN design_plan_2c_platform dp2cp ON dp2cp.plan_id = dpr.id AND dp2cp.is_deleted = 0 AND dp2cp.allot_state = 1 AND dp2cp.putaway_state = 1
+        WHERE
+            dpr.is_deleted = 0 and dpr.is_release = 1 and dpr.recommended_type = #{recommendedType}
+            and (dpb.company_id = #{companyId} or dpr.company_id = #{companyId})
+            <if test="containsSecrecyFlag !=null and containsSecrecyFlag != ''">
+                and dpr.contains_secrecy_flag = #{containsSecrecyFlag}
+            </if>
+            <if test="origin != '' and origin !=null and origin !='diy' and origin != 'huxing'">
+                and dpr.plan_source = #{origin}
+            </if>
+            <if test="origin eq 'diy'">
+                and (dpr.plan_source != 'deliver' and dpr.plan_source != 'share' or dpr.plan_source = '' or dpr.plan_source
+                is null )
+            </if>
+            <if test="planName !=null and planName != ''">
+                and dpr.plan_name like concat('%', #{planName},'%')
+            </if>
+            <if test="origin != '' and origin !=null">
+                and dpr.plan_source = #{origin}
+            </if>
+            <if test="shelfStatus !=null and shelfStatus!='' and shelfStatus != 'NONE'  and shelfStatus != 'ALL'">
+                and dpr.shelf_status like concat('%',#{shelfStatus},'%')
+            </if>
+            <if test="shelfStatus == 'NONE'">
+                and (dpr.shelf_status is null or dpr.shelf_status = '')
+            </if>
+            <if test="shelfStatus == 'ALL'">
+                and (dpr.shelf_status = 'ONEKEY,OPEN' or dpr.shelf_status = 'OPEN,ONEKEY')
+            </if>
+            <if test="spaceCommonName !=null and spaceCommonName != ''">
+                and sc.space_name like concat('%',#{spaceCommonName},'%')
+            </if>
+            <if test="spaceTypeId != null and spaceTypeId > 0 ">
+                and sc.space_function_id = #{spaceTypeId}
+            </if>
+            <if test="isPublish == 0">
+                and (csdp.id is null or csdp.is_deleted=1)
+            </if>
+            <if test="isPublish == 1">
+                and csdp.id is not null and csdp.is_deleted=0 and  csdp.shop_id = #{shopId}
+            </if>
+            <if test="brandId != null">
+                and dpb.brand_id = #{brandId}
+            </if>
+            and (group_primary_id = dpr.id OR group_primary_id = 0)
+        group by dpr.id
+        order by dpr.id desc
+        ) t WHERE
+        (t.putaway2bStatusId IS NOT NULL
+        or
+        t.putaway2cStatusId is not null)
+        <if test="platformId !=null and platformId!=''">
+            and t.platformIds like concat('%',#{platformId},'%')
+        </if>
+    </select>
+
+    <select id="selectAllStorePlan" parameterType="com.sandu.api.solution.input.DesignPlanRecommendedQuery" resultType="com.sandu.api.solution.model.CompanyShopDesignPlan">
+    SELECT
+	*
+    FROM
+        company_shop_design_plan
+
+        where is_deleted = 0 and plan_recommended_type != 3
+    </select>
+
+    <select id="getRenderPic" resultType="java.lang.String">
+        SELECT
+          pic_path
+        FROM
+          res_render_pic
+          WHERE
+          plan_recommended_id = #{planId} and
+          pic_type = '照片级原图'
+          limit 1
+    </select>
+
+    <select id="getVr720Single" resultType="java.lang.String">
+        select
+           sys_code
+        from
+            res_render_pic
+        where
+            plan_recommended_id = #{planId}  AND
+            pic_type = '3DMax渲染原图' and
+            file_key = 'design.designPlanRecommended.render.pic' AND
+            is_deleted = 0
+            limit 1
+    </select>
+
+    <select id="getVr720Roam" resultType="java.lang.Integer">
+        select
+          id
+        from
+          res_render_pic
+        where
+          plan_recommended_id = #{planId} AND
+          rendering_type = 8  AND
+          pic_type = '渲染截图' and
+          file_key = 'design.designPlanRecommended.render.pic' and
+          is_deleted = 0
+          limit 1
+    </select>
+
+    <select id="getUUID" resultType="java.lang.String">
+        SELECT
+           uuid
+        FROM
+          design_render_roam
+        where
+          screen_shot_id = #{renderPicId} and
+          is_deleted = 0
+    </select>
+
+    <select id="getVideoPicPath" resultType="java.lang.Integer">
+        select
+          id
+        from
+          res_render_pic
+        where
+          plan_recommended_id = #{planID} AND
+          pic_type = '720渲染视频封面' AND
+          is_deleted = 0
+          limit 1
+    </select>
+
+    <select id="getPath" resultType="java.lang.String">
+        SELECT
+            video_path
+         FROM
+            res_render_video
+         where
+            sys_task_pic_id = #{planId}
+            limit 1
+    </select>
+
+    <select id="getPersonalShopIdList" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select
+            t2.id
+        from
+            company_shop t1
+            left join company_shop t2 on t2.company_id = t1.company_id and t2.is_deleted = 0
+        where
+            t1.id = #{shopId}
+            and t1.is_deleted = 0
+    </select>
+
+    <select id="getMainShopId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        SELECT
+            t2.id
+        FROM
+            company_shop t1
+            LEFT JOIN company_shop t2 on t2.company_id = t1.company_id and t2.is_deleted = 0 and t2.shop_type = 1
+        WHERE
+            t1.id = #{shopId}
+    </select>
+
+    <update id="updateMainCompanyShopDesignPlan">
+        UPDATE
+            company_shop_design_plan t1
+            INNER JOIN company_shop t2 on t2.id = t1.shop_id and t2.id = #{mainShopId}
+        SET
+            t1.is_deleted = #{isDeleted},
+            t1.gmt_modified = #{date},
+            t1.modifier = #{userName}
+        WHERE
+            t1.plan_id in
+            <foreach collection="companyShopDesignPlanList" item="item" index="index" open="(" separator="," close=")">
+                #{item.planId}
+            </foreach>
+            and t1.plan_recommended_type != 3
+    </update>
+
+    <update id="updateCompanyShopDesignPlanSelective" parameterType="com.sandu.api.solution.model.CompanyShopDesignPlan">
+        UPDATE
+            company_shop_design_plan
+        <set>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier},
+            </if>
+        </set>
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="shopId != null">
+                and shop_id = #{shopId}
+            </if>
+            <if test="planId != null">
+                and plan_id = #{planId}
+            </if>
+        </where>
+    </update>
+</mapper>

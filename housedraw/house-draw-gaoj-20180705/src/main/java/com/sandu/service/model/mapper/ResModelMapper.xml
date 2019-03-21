@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sandu.service.model.dao.ResModelMapper">
+
+    <insert id="saveResModel" useGeneratedKeys="true" keyProperty="id">
+        insert into res_model(
+            sys_code, creator, gmt_create, modifier, gmt_modified,  is_deleted,
+            is_decompress, length, height, width, min_height, model_code, 
+            model_name, model_file_name, model_type, model_size, model_suffix, model_level, 
+            model_path, model_desc,  model_ordering, file_key, file_keys, business_ids, 
+            att4 ,att5, att6, date_att1, date_att2, business_id, 
+            num_att2, num_att3, num_att4, remark, is_model_share 
+        )
+        values (
+          #{sysCode}, #{creator}, #{gmtCreate}, #{modifier}, #{gmtModified}, #{isDeleted},
+          #{isDecompress}, #{length}, #{height}, #{width}, #{minHeight}, #{modelCode},
+          #{modelName}, #{modelFileName}, #{modelType}, #{modelSize}, #{modelSuffix}, #{modelLevel},
+          #{modelPath}, #{modelDesc}, #{modelOrdering}, #{fileKey}, #{fileKeys}, #{businessIds},
+          #{att4}, #{att5}, #{att6}, #{dateAtt1}, #{dateAtt2}, #{businessId},
+          #{numAtt2}, #{numAtt3}, #{numAtt4}, #{remark}, #{isModelShare}
+        )
+    </insert>
+    
+    <select id="getResModel" resultType="com.sandu.api.res.model.ResModel">
+		SELECT 
+		  m.id,
+		  m.model_name,
+		  m.model_path 
+		FROM
+		  res_model m 
+		WHERE m.id = #{id} 
+		  AND m.is_deleted = 0 
+    </select>
+    
+    <select id="listResModelById" resultType="com.sandu.api.res.model.ResModel">
+		SELECT 
+		  m.id,
+		  m.model_name,
+		  m.model_path 
+		FROM
+		  res_model m 
+		WHERE m.is_deleted = 0 
+		  AND m.id IN 
+		  <foreach collection="args" item="arg" open="(" separator="," close=")">
+		  	#{arg}
+		  </foreach>
+    </select>
+    
+	<insert id="insertSelective" parameterType="com.sandu.api.res.model.ResModel" useGeneratedKeys="true" keyProperty="id">
+		insert into res_model
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="modelCode != null">
+				model_code,
+			</if>
+			<if test="modelName != null">
+				model_name,
+			</if>
+			<if test="modelFileName != null">
+				model_file_name,
+			</if>
+			<if test="modelType != null">
+				model_type,
+			</if>
+			<if test="modelSize != null">
+				model_size,
+			</if>
+			<if test="modelSuffix != null">
+				model_suffix,
+			</if>
+			<if test="modelLevel != null">
+				model_level,
+			</if>
+			<if test="modelPath != null">
+				model_path,
+			</if>
+			<if test="modelDesc != null">
+				model_desc,
+			</if>
+			<if test="sysCode != null">
+				sys_code,
+			</if>
+			<if test="creator != null">
+				creator,
+			</if>
+			<if test="gmtCreate != null">
+				gmt_create,
+			</if>
+			<if test="modifier != null">
+				modifier,
+			</if>
+			<if test="gmtModified != null">
+				gmt_modified,
+			</if>
+			<if test="isDeleted != null">
+				is_deleted,
+			</if>
+			<if test="modelOrdering != null">
+				model_ordering,
+			</if>
+			<if test="fileKey != null">
+				file_key,
+			</if>
+			<if test="fileKeys != null">
+				file_keys,
+			</if>
+			<if test="businessIds != null">
+				business_ids,
+			</if>
+			<if test="att4 != null">
+				att4,
+			</if>
+			<if test="att5 != null">
+				att5,
+			</if>
+			<if test="att6 != null">
+				att6,
+			</if>
+			<if test="dateAtt1 != null">
+				date_att1,
+			</if>
+			<if test="dateAtt2 != null">
+				date_att2,
+			</if>
+			<if test="businessId != null">
+				business_id,
+			</if>
+			<if test="numAtt2 != null">
+				num_att2,
+			</if>
+			<if test="numAtt3 != null">
+				num_att3,
+			</if>
+			<if test="numAtt4 != null">
+				num_att4,
+			</if>
+			<if test="remark != null">
+				remark,
+			</if>
+			<if test="length != null">
+				LENGTH,
+			</if>
+			<if test="height != null">
+				height,
+			</if>
+			<if test="width != null">
+				width,
+			</if>
+			<if test="minHeight != null">
+				min_height,
+			</if>
+			<if test="isModelShare != null">
+				is_model_share,
+			</if>
+			<if test="isDecompress != null">
+				is_decompress,
+			</if>
+			<if test="categoryIds != null">
+				category_ids,
+			</if>
+			<if test="thumbPicPath != null">
+				thumb_pic_path,
+			</if>
+			<if test="categoryNames != null">
+				category_names,
+			</if>
+			<if test="transStatus != null">
+				trans_status,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="modelCode != null">
+				#{modelCode,jdbcType=VARCHAR},
+			</if>
+			<if test="modelName != null">
+				#{modelName,jdbcType=VARCHAR},
+			</if>
+			<if test="modelFileName != null">
+				#{modelFileName,jdbcType=VARCHAR},
+			</if>
+			<if test="modelType != null">
+				#{modelType,jdbcType=VARCHAR},
+			</if>
+			<if test="modelSize != null">
+				#{modelSize,jdbcType=VARCHAR},
+			</if>
+			<if test="modelSuffix != null">
+				#{modelSuffix,jdbcType=VARCHAR},
+			</if>
+			<if test="modelLevel != null">
+				#{modelLevel,jdbcType=VARCHAR},
+			</if>
+			<if test="modelPath != null">
+				#{modelPath,jdbcType=VARCHAR},
+			</if>
+			<if test="modelDesc != null">
+				#{modelDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="sysCode != null">
+				#{sysCode,jdbcType=VARCHAR},
+			</if>
+			<if test="creator != null">
+				#{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtCreate != null">
+				#{gmtCreate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifier != null">
+				#{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null">
+				#{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDeleted != null">
+				#{isDeleted,jdbcType=INTEGER},
+			</if>
+			<if test="modelOrdering != null">
+				#{modelOrdering,jdbcType=INTEGER},
+			</if>
+			<if test="fileKey != null">
+				#{fileKey,jdbcType=VARCHAR},
+			</if>
+			<if test="fileKeys != null">
+				#{fileKeys,jdbcType=VARCHAR},
+			</if>
+			<if test="businessIds != null">
+				#{businessIds,jdbcType=VARCHAR},
+			</if>
+			<if test="att4 != null">
+				#{att4,jdbcType=VARCHAR},
+			</if>
+			<if test="att5 != null">
+				#{att5,jdbcType=VARCHAR},
+			</if>
+			<if test="att6 != null">
+				#{att6,jdbcType=VARCHAR},
+			</if>
+			<if test="dateAtt1 != null">
+				#{dateAtt1,jdbcType=TIMESTAMP},
+			</if>
+			<if test="dateAtt2 != null">
+				#{dateAtt2,jdbcType=TIMESTAMP},
+			</if>
+			<if test="businessId != null">
+				#{businessId,jdbcType=INTEGER},
+			</if>
+			<if test="numAtt2 != null">
+				#{numAtt2,jdbcType=INTEGER},
+			</if>
+			<if test="numAtt3 != null">
+				#{numAtt3,jdbcType=DECIMAL},
+			</if>
+			<if test="numAtt4 != null">
+				#{numAtt4,jdbcType=DECIMAL},
+			</if>
+			<if test="remark != null">
+				#{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="length != null">
+				#{length,jdbcType=INTEGER},
+			</if>
+			<if test="height != null">
+				#{height,jdbcType=INTEGER},
+			</if>
+			<if test="width != null">
+				#{width,jdbcType=INTEGER},
+			</if>
+			<if test="minHeight != null">
+				#{minHeight,jdbcType=INTEGER},
+			</if>
+			<if test="isModelShare != null">
+				#{isModelShare,jdbcType=INTEGER},
+			</if>
+			<if test="isDecompress != null">
+				#{isDecompress,jdbcType=INTEGER},
+			</if>
+			<if test="categoryIds != null">
+				#{categoryIds,jdbcType=VARCHAR},
+			</if>
+			<if test="thumbPicPath != null">
+				#{thumbPicPath,jdbcType=VARCHAR},
+			</if>
+			<if test="categoryNames != null">
+				#{categoryNames,jdbcType=VARCHAR},
+			</if>
+			<if test="transStatus != null">
+				#{transStatus,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+
+	<insert id="addBatchModelFile" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO res_model
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			model_code, model_name, model_file_name,
+			model_type, model_size, model_suffix,
+			model_level, model_path, sys_code,
+			creator, gmt_create, modifier, file_key,
+			gmt_modified, is_deleted, model_ordering,
+		</trim>
+		values
+		<foreach collection="list" item="item" separator=",">
+			<trim prefix="(" suffix=")" suffixOverrides=",">
+				#{item.modelCode}, #{item.modelName}, #{item.modelFileName},
+				#{item.modelType}, #{item.modelSize}, #{item.modelSuffix},
+				#{item.modelLevel}, #{item.modelPath}, #{item.sysCode},
+				#{item.creator}, #{item.gmtCreate}, #{item.modifier}, #{item.fileKey},
+				#{item.gmtModified}, #{item.isDeleted}, #{item.modelOrdering},
+			</trim>
+		</foreach>
+	</insert>
+
+    <!-- updateBusinessId -->
+	<update id="updateBusinessId">
+		update res_model set business_id = #{businessId, jdbcType=INTEGER}
+		where id in
+		<foreach collection="resModelIdList" open="(" close=")" item="resModelIdListItem" separator=",">
+			#{resModelIdListItem, jdbcType=INTEGER}
+		</foreach>
+	</update>
+
+	<update id="updateBatchBusinessId">
+		UPDATE res_model m
+		<set>
+			business_id =
+			<trim prefix="(CASE m.id " suffix=" END)">
+				<foreach collection="list" item="item">
+					WHEN #{item.windowsU3dmodelId} THEN #{item.baseProductId}
+				</foreach>
+			</trim>
+		</set>
+		WHERE m.id IN
+		<foreach collection="list" open="(" close=")" item="item" separator=",">
+			#{item.windowsU3dmodelId, jdbcType=INTEGER}
+		</foreach>
+	</update>
+
+	<select id="selectByPrimaryKey" resultType="com.sandu.api.res.model.ResModel">
+		SELECT 
+		  * 
+		FROM
+		  res_model 
+		WHERE id = #{id} 
+    </select>
+</mapper>

@@ -1,0 +1,1624 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.user.dao.SysUserDao">
+
+	<select id="selectList" resultType="com.sandu.api.user.model.bo.UserInfoBO">
+		SELECT
+			id,
+			user_name userName,
+			nick_name nickName,
+			mobile,
+			password,
+			email,
+			user_type userType,
+			sex,
+			job,
+			area_id areaId,
+			pic_id picId,
+			media_type mediaType,
+			sys_code sysCode,
+			creator,
+			gmt_create gmtCreate,
+			modifier,
+			gmt_modified gmtModified,
+			is_deleted isDeleted,
+			app_key appKey,
+			token,
+			att3,
+			att4,
+			att5,
+			att6,
+			date_att1 dateAtt1,
+			date_att2 dateAtt2,
+			group_id groupId,
+			num_att2 numAtt2,
+			num_att3 numAtt3,
+			num_att4 numAtt4,
+			remark,
+			real_name realName,
+			qq,
+			company_tel companyTel,
+			company_address companyAddress,
+			speciality_value specialityValue,
+			intro,
+			email_verify_state emailVerifyState,
+			mobile_verify_state mobileVerifyState,
+			idcard_verify_state idcardVerifyState,
+			LEVEL level,
+			application_date applicationDate,
+			verify_user verifyUser,
+			verify_date verifyDate,
+			area_long_code areaLongCode,
+			reason_rejected reasonRejected,
+			brand_ids brandIds,
+			user_imei userImei,
+			consum_amount consumAmount,
+			balance_amount balanceAmount,
+			address,
+			network_card_restrict networkCardRestrict,
+			exists_mobile existsMobile,
+			mobile_opened_date mobileOpenedDate,
+			mobile_closed_date mobileClosedDate,
+			usable_house_number usableHouseNumber,
+			visitors_render_times visitorsVenderTimes,
+			business_administration_id businessAdministrationId,
+			company_id companyId,
+			franchiser_account_type franchiserAccountType,
+			franchiser_group_id franchiserGroupId,
+			password_update_flag passwordUpdateFlag,
+			verify_flag verifyFlag,
+			consum_integral consumIntegral,
+			balance_integral balanceIntegral,
+			post_type postType,
+			last_login_company_id lastLoginCompanyId,
+			is_login_before isLoginBefore,
+			platform_type platformType,
+			open_id openId,
+			app_id appId,
+			mini_program_company_id miniProgramCompanyId,
+			first_login_time  firstLoginTime,
+			use_type useType,
+			valid_time validTime,
+			failure_time failureTime,
+			services_flag servicesFlag,
+			head_pic headPic,
+			uuid
+		FROM sys_user
+		WHERE 1=1
+		<if test="userName!= null">  and user_name = #{userName,jdbcType=VARCHAR} </if>
+		<if test="nickName!= null">  and nick_name = #{nickName,jdbcType=VARCHAR} </if>
+		<if test="password!= null">  and password = #{password,jdbcType=VARCHAR} </if>
+		<if test="email!= null">  and email = #{email,jdbcType=VARCHAR} </if>
+		<if test="mobile!= null">  and mobile = #{mobile,jdbcType=VARCHAR} </if>
+		<if test="openId!= null and openId!=''">  and open_id = #{openId,jdbcType=VARCHAR} </if>
+		<if test="appId!= null and appId!=''">  and app_id = #{appId,jdbcType=VARCHAR} </if>
+		<if test="platformType!= null">  and platform_type = #{platformType,jdbcType=VARCHAR} </if>
+		<if test="franchiserGroupId!= null">  and franchiser_group_id = #{franchiserGroupId,jdbcType=INTEGER} </if>
+		<if test="franchiserAccountType!= null">  and franchiser_account_type = #{franchiserAccountType,jdbcType=INTEGER} </if>
+		<if test="companyId!= null"> and company_id = #{companyId}</if>
+		<if test="isDeleted!= null">  and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+	</select>
+
+
+
+	<select id="select2bUserCompanyInfo" resultType="com.sandu.api.user.model.bo.UserCompanyInfoBO">
+		select u.id userId,
+			   u.user_type userType,
+			   c.pid companyPid
+		from sys_user u
+		join base_company c
+		on u.business_administration_id = c.id
+		where u.mobile=#{mobile}
+		and platform_type = 2
+		and u.is_deleted=0
+		and c.is_deleted=0
+	</select>
+
+	<update id="update2bUserPasswordByMobile">
+		update sys_user
+		<set>
+			 password = #{password,jdbcType=VARCHAR},
+			 password_update_flag = 0,
+			 gmt_modified = now()
+		</set>
+		where mobile = #{mobile} and platform_type = 2
+	</update>
+
+	<update id="update2bUserPasswordAndMobileByUserId">
+		update sys_user
+		<set>
+			 password = #{password,jdbcType=VARCHAR},
+			 password_update_flag = 0,
+			 mobile = #{mobile},
+			 gmt_modified = now()
+		</set>
+		where id = #{userId} and platform_type = 2
+	</update>
+
+
+
+	<insert id="addMiniProgramUser">
+		INSERT INTO sys_user (creator, gmt_create, modifier, gmt_modified, is_deleted, group_id, is_login_before, platform_type,open_id,mini_program_company_id,user_type,usable_house_number,nick_name,app_id,uuid)
+		VALUES ('miniProgram', now(), 'miniProgram', now(), 0, 0, 1, 3,#{openId},#{miniProgramCompanyId},8,#{usableHouseNumber},'匿名用户',#{appId},#{uuid}) ;
+	</insert>
+
+
+	<select id="selectCompanyFranchiserInfo" resultType="com.sandu.api.user.model.bo.UserInfoBO">
+		select u.* from sys_user u
+		    join base_company c
+		    on u.business_administration_id = c.id
+		    where u.mobile=#{mobile} and u.password=#{password} and u.user_type=3 and u.platform_type=2
+		    and c.pid = #{companyId}
+		    and u.is_deleted=0
+		    limit 1
+	</select>
+	<select id="selectCompanyFranchiserUsers" resultType="com.sandu.api.user.model.bo.UserInfoBO">
+		select * 
+		from sys_user u
+		where 
+			u.mobile=#{mobile} 
+			and u.password=#{password} 
+			and u.user_type in(3,14) 
+			and u.platform_type=2
+			and u.is_deleted=0
+	</select>
+
+
+	<update id="updatePasswordUpdateFlagByUserId">
+		update sys_user
+		set password_update_flag = 0
+		where id = #{userId}
+	</update>
+
+	<update id="updatePasswordUpdateFlagByMobile">
+		update sys_user
+		set password_update_flag = 0
+		where mobile = #{mobile}
+	</update>
+
+	<update id="updateIsLoginBeforeByUserId">
+		update sys_user
+		set is_login_before = 1
+		where id = #{userId}
+	</update>
+
+	<!-- <select id="selectUserByOpenId" resultType="com.sandu.api.user.model.bo.UserInfoBO">
+		select u.*
+			from sys_user u
+			join mall_user_company uc
+			on u.id = uc.user_id
+			where uc.open_id=#{openId}
+			and u.is_deleted=0
+			and uc.is_deleted=0
+			limit 1
+	</select>
+
+	<update id="updateOpenIdByUserId">
+		update mall_user_company
+		set open_id = #{openId}
+		where user_id = #{userId}
+	</update>
+
+	<insert id="addUserCompany">
+		INSERT INTO  mall_user_company (user_id, company_id, open_id, creator, gmt_create, modifier, gmt_modified, is_deleted)
+		VALUES ( #{userId}, #{companyId}, #{openId}, 'system', now(), 'system', now(), 0);
+	</insert> -->
+
+
+	<update id="updateLastLoginCompanyIdByMobile">
+		update sys_user
+		set last_login_company_id = #{lastLoginCompanyId}
+		where mobile = #{mobile} and platform_type=2
+	</update>
+
+	<!-- 按主键查询 -->
+	<select id="selectByPrimaryKey" resultType="com.sandu.api.user.model.bo.UserInfoBO"
+			parameterType="java.lang.Integer">
+		select 
+			id,
+			user_name userName,
+			nick_name nickName,
+			mobile,
+			password,
+			email,
+			user_type userType,
+			sex,
+			job,
+			area_id areaId,
+			pic_id picId,
+			media_type mediaType,
+			sys_code sysCode,
+			creator,
+			gmt_create gmtCreate,
+			modifier,
+			gmt_modified gmtModified,
+			is_deleted isDeleted,
+			app_key appKey,
+			token,
+			att3,
+			att4,
+			att5,
+			att6,
+			date_att1 dateAtt1,
+			date_att2 dateAtt2,
+			group_id groupId,
+			num_att2 numAtt2,
+			num_att3 numAtt3,
+			num_att4 numAtt4,
+			remark,
+			real_name realName,
+			qq,
+			company_tel companyTel,
+			company_address companyAddress,
+			speciality_value specialityValue,
+			intro,
+			email_verify_state emailVerifyState,
+			mobile_verify_state mobileVerifyState,
+			idcard_verify_state idcardVerifyState,
+			LEVEL level,
+			application_date applicationDate,
+			verify_user verifyUser,
+			verify_date verifyDate,
+			area_long_code areaLongCode,
+			reason_rejected reasonRejected,
+			brand_ids brandIds,
+			user_imei userImei,
+			consum_amount consumAmount,
+			balance_amount balanceAmount,
+			address,
+			network_card_restrict networkCardRestrict,
+			exists_mobile existsMobile,
+			mobile_opened_date mobileOpenedDate,
+			mobile_closed_date mobileClosedDate,
+			usable_house_number usableHouseNumber,
+			visitors_render_times visitorsVenderTimes,
+			business_administration_id businessAdministrationId,
+			company_id companyId,
+			franchiser_account_type franchiserAccountType,
+			franchiser_group_id franchiserGroupId,
+			password_update_flag passwordUpdateFlag,
+			verify_flag verifyFlag,
+			consum_integral consumIntegral,
+			balance_integral balanceIntegral,
+			post_type postType,
+			last_login_company_id lastLoginCompanyId,
+			is_login_before isLoginBefore,
+			platform_type platformType,
+			open_id openId,
+			app_id appId,
+			mini_program_company_id miniProgramCompanyId,
+			first_login_time  firstLoginTime,
+			use_type  useType,
+			valid_time validTime,
+			failure_time failureTime,
+		    show_sandu_plan  showSanduPlan,
+			province_code provinceCode,
+			city_code cityCode,
+			area_code areaCode,
+			street_code streetCode,
+			services_flag servicesFlag,
+			used_invitation_code usedInvitationCode,
+		    source_company sourceCompany,
+			head_pic headPic
+			FROM sys_user
+		where id = #{id,jdbcType=INTEGER}
+		<!-- select id from sys_user where id=64 FOR UPDATE; -->
+	</select>
+	<!-- **更新定义** -->
+	<update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.user.model.SysUser">
+		update sys_user
+		<set>
+		<if test="sysCode!= null">  sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="brandIds!= null">  brand_ids = #{brandIds,jdbcType=VARCHAR}, </if>
+		<if test="userImei!= null">  user_imei = #{userImei,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  creator = #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  modifier = #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="userName!= null">  user_name = #{userName,jdbcType=VARCHAR}, </if>
+		<if test="nickName!= null">  nick_name = #{nickName,jdbcType=VARCHAR}, </if>
+		<if test="password!= null">  password = #{password,jdbcType=VARCHAR}, </if>
+		<if test="email!= null">  email = #{email,jdbcType=VARCHAR}, </if>
+		<if test="mobile!= null">  mobile = #{mobile,jdbcType=VARCHAR}, </if>
+		<if test="userType!= null">  user_type = #{userType,jdbcType=INTEGER}, </if>
+		<if test="sex!= null">  sex = #{sex,jdbcType=INTEGER}, </if>
+		<if test="job!= null">  job = #{job,jdbcType=VARCHAR}, </if>
+		<if test="areaLongCode!= null">  area_long_code = #{areaLongCode,jdbcType=VARCHAR}, </if>
+		<if test="areaId!= null">  area_id = #{areaId,jdbcType=INTEGER}, </if>
+		<if test="picId!= null">  pic_id = #{picId,jdbcType=INTEGER}, </if>
+		<if test="mediaType!= null">  media_type = #{mediaType,jdbcType=INTEGER}, </if>
+		<if test="companyId!= null">  company_id = #{companyId}, </if>
+		<if test="realName!= null"> real_name = #{realName,jdbcType=VARCHAR}, </if>
+		<if test="qq!= null"> qq = #{qq,jdbcType=VARCHAR}, </if>
+		<if test="companyTel!= null"> company_tel = #{companyTel,jdbcType=VARCHAR}, </if>
+		<if test="companyAddress!= null"> company_address = #{companyAddress,jdbcType=VARCHAR}, </if>
+		<if test="specialityValue!= null"> speciality_value = #{specialityValue,jdbcType=VARCHAR}, </if>
+		<if test="intro!= null"> intro = #{intro,jdbcType=VARCHAR}, </if>
+		<if test="emailVerifyState!= null"> email_verify_state = #{emailVerifyState,jdbcType=INTEGER}, </if>
+		<if test="mobileVerifyState!= null"> mobile_verify_state = #{mobileVerifyState,jdbcType=INTEGER}, </if>
+		<if test="idcardVerifyState!= null">  idcard_verify_state = #{idcardVerifyState,jdbcType=INTEGER}, </if>
+		<if test="level!= null"> level = #{level,jdbcType=INTEGER}, </if>
+		<if test="applicationDate!= null"> application_date = #{applicationDate,jdbcType=TIMESTAMP}, </if>
+		<if test="verifyUser!= null"> verify_user = #{verifyUser,jdbcType=INTEGER}, </if>
+		<if test="verifyDate!= null"> verify_date = #{verifyDate,jdbcType=TIMESTAMP}, </if>
+		<if test="reasonRejected!= null"> reason_rejected = #{reasonRejected,jdbcType=VARCHAR}, </if>
+
+		<if test="businessAdministrationId!= null"> business_administration_id = #{businessAdministrationId,jdbcType=VARCHAR}, </if>
+		<if test="appKey!= null">  app_key = #{appKey,jdbcType=VARCHAR}, </if>
+		<if test="token!= null">  token = #{token,jdbcType=VARCHAR}, </if>
+		<if test="att3!= null">  att3 = #{att3,jdbcType=VARCHAR}, </if>
+		<if test="att4!= null">  att4 = #{att4,jdbcType=VARCHAR}, </if>
+		<if test="att5!= null">  att5 = #{att5,jdbcType=VARCHAR}, </if>
+		<if test="att6!= null">  att6 = #{att6,jdbcType=VARCHAR}, </if>
+		<if test="dateAtt1!= null">  date_att1 = #{dateAtt1,jdbcType=TIMESTAMP}, </if>
+		<if test="dateAtt2!= null">  date_att2 = #{dateAtt2,jdbcType=TIMESTAMP}, </if>
+		<if test="groupId!= null">  group_id = #{groupId,jdbcType=INTEGER}, </if>
+		<if test="numAtt2!= null">  num_att2 = #{numAtt2,jdbcType=INTEGER}, </if>
+		<if test="numAtt3!= null">  num_att3 = #{numAtt3,jdbcType=DOUBLE}, </if>
+		<if test="numAtt4!= null">  num_att4 = #{numAtt4,jdbcType=DOUBLE}, </if>
+		<if test="remark!= null">  remark = #{remark,jdbcType=VARCHAR}, </if>
+		<if test="address != null">  address = #{address,jdbcType=VARCHAR}, </if>
+		<if test="balanceAmount != null">  balance_amount = #{balanceAmount}, </if>
+		<if test="consumAmount != null">  consum_amount = #{consumAmount} ,</if>
+		<if test="existsMobile != null"> exists_mobile = #{existsMobile,jdbcType =INTEGER },</if>
+		<if test="provinceCode != null"> province_code = #{provinceCode},</if>
+		<if test="cityCode != null"> city_code = #{cityCode},</if>
+		<if test="areaCode != null"> area_code = #{areaCode},</if>
+		<if test="streetCode != null"> street_code = #{streetCode},</if>
+		<if test="existsMobile == 1 and mobileOpenedDate == null and mobileClosedDate == null"> mobile_opened_date = CURDATE(),mobile_closed_date = DATE_ADD(CURDATE(),INTERVAL 1 YEAR),</if>
+		<if test="existsMobile == 0 and mobileOpenedDate != null and mobileClosedDate != null"> mobile_opened_date = NULL,mobile_closed_date = NULL,</if>
+		<if test="usedInvitationCode != null"> used_invitation_code = #{usedInvitationCode},</if>
+		<if test="sourceCompany != null"> source_company = #{sourceCompany},</if>
+		<if test="headPic != null"> head_pic = #{headPic},</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<!-- 查询登录名是否绑定了手机号码 -->
+	<select id="selectMobileByMobile" parameterType="java.lang.String" resultType="int">
+		select count(1) from sys_user where 1=1 and is_deleted=0 and mobile=#{mobile} and platform_type = 2
+	</select>
+
+	<select id="selectMobileInfoByMobile" parameterType="java.lang.String" resultType="com.sandu.api.user.model.SysUser">
+		select mobile from sys_user where 1=1 and is_deleted=0 and mobile=#{mobile} and platform_type = 2
+	</select>
+
+	<!-- **根据手机号码修改密码** -->
+    <!--and  ((user_type!=3) or (user_type=3 and business_administration_id is not null))-->
+	<update id="updateByPhone" parameterType="com.sandu.api.user.model.SysUser">
+		update sys_user
+		<set>
+			<if test="password!= null">  password = #{password,jdbcType=VARCHAR}, </if>
+			 gmt_modified = now(),
+			password_update_flag = 0,
+			last_login_company_id = #{lastLoginCompanyId}
+		</set>
+		where mobile = #{mobile} and platform_type = 2
+	</update>
+
+	<!-- 根据手机号去修改密码 -->
+	<update id="updateMobileByUserId" parameterType="com.sandu.api.user.model.SysUser">
+		update sys_user
+		<set>
+		<if test="mobile != null">  mobile = #{mobile,jdbcType=VARCHAR}, </if>
+		 gmt_modified = now(),
+		 password_update_flag = 0
+		</set>
+		where id = #{id} and platform_type = 2
+	</update>
+
+	<!-- 根据手机号查询用户信息 -->
+	<select id="selectMobileByUserInfo" parameterType="java.lang.String" resultType="int">
+		select count(1) from sys_user where 1=1 and is_deleted=0 and mobile=#{mobile} and user_type != 3 and platform_type = 2
+	</select>
+	<!-- 根据手机号码去查经销商，一个公司下面不允经销商许重复 -->
+	<select id="selectCompanySumByMobile" parameterType="java.lang.String" resultType='com.sandu.api.user.model.bo.CompanyInfoBO'>
+		select id from base_company cc where cc.is_deleted=0 and cc.id in (select c.pid from sys_user s,base_company c where 1=1
+ 			and s.is_deleted=0 and c.is_deleted=0 and s.user_type=3 and c.business_type=2 and s.business_administration_id=c.id and s.mobile=#{mobile})
+	</select>
+
+	<!-- 根据手机号码去查经销商，同一个公司下面不同的经销商下面的用户必须要唯一 -->
+	<select id="selectCompanyUserSumByMobile" parameterType="java.lang.String" resultType='com.sandu.api.user.model.bo.CompanyInfoBO'>
+		select pid as id,s.mobile  from sys_user s,base_company c where 1=1
+		 and s.is_deleted=0 and c.is_deleted=0 and s.user_type=3 and c.business_type=2
+		and s.business_administration_id=c.id
+		and s.mobile=#{mobile} and platform_type = 2
+	</select>
+
+	<!-- 同一企业下的企业与经销商用户不能重复-->
+	<select id="selectCompanyMobileByMobile" parameterType="java.lang.String" resultType='com.sandu.api.user.model.bo.CompanyInfoBO'>
+		select c.pid as id,s.mobile from sys_user s,base_company c where s.is_deleted=0 and c.is_deleted=0 and s.business_administration_id=c.id and s.mobile=#{mobile};
+	</select>
+
+	<!-- 同一企业的企业绑定的手机号不能与经销商相同 -->
+	<select id="selectCompanyMobileCountByMobile" parameterType="java.lang.String" resultType='int'>
+	select count(1) from sys_user s,base_company c where s.user_type=3 and mobile=#{mobile} and s.is_deleted=0 and c.is_deleted=0 and c.business_type=2 and c.pid=(
+	SELECT s.business_administration_id from sys_user s where s.mobile=#{mobile} and s.user_type=2 and s.is_deleted=0 LIMIT 1)
+	</select>
+
+
+	<!-- 根据用户id去查询手机号码 -->
+	<select id="selectMobileById" resultType="com.sandu.api.user.model.SysUser" parameterType="java.lang.Long">
+		SELECT mobile from sys_user where id=#{id} and is_deleted=0 and platform_type = 2 and ((user_type!=3) or (user_type=3 and business_administration_id is not null))
+	</select>
+	<!-- 2.获取企业用户类型的公司id -->
+	<select id="selectCompanyIdAndMobileById" resultType="com.sandu.api.user.model.bo.CompanyInfoBO" parameterType="java.lang.Long">
+		select c.id,s.mobile from sys_user s,base_company c where 1=1
+		 and s.is_deleted=0 and c.is_deleted=0 and s.user_type=2 and c.business_type=1
+		and s.business_administration_id=c.id and s.id=#{id}
+	</select>
+
+
+	<!-- 1.根据用户id去查询用户类型 -->
+	<select id="selectUserTypeById" resultType="com.sandu.api.user.model.SysUser" parameterType="java.lang.Long">
+		SELECT user_type as userType from sys_user where id=#{userId} and is_deleted=0 and platform_type = 2 and ((user_type!=3) or (user_type=3 and business_administration_id is not null))
+	</select>
+	<!-- 2.查询非经销商用户类型的手机号码 -->
+	<select id="selectCountById" resultType="int" parameterType="com.sandu.api.user.model.bo.CompanyInfoBO">
+		select count(1) from sys_user s where s.is_deleted=0 and s.mobile=#{mobile} and id != #{userId} and platform_type = 2
+	</select>
+	<!-- 3.查询经销商用户的公司id -->
+	<select id="selectCompanyIdByMobielAndId" resultType="com.sandu.api.user.model.bo.CompanyInfoBO" parameterType="com.sandu.api.user.model.bo.CompanyInfoBO">
+		select pid as id,s.mobile,s.id  from sys_user s,base_company c where 1=1
+		 and s.is_deleted=0 and c.is_deleted=0 and s.user_type=3 and c.business_type=2
+		and s.business_administration_id=c.id
+		 and s.id=#{userId} and platform_type = 2 and business_administration_id is not null
+		<!-- and s.mobile=#{mobile}  -->
+	</select>
+	<!-- 4.根据公司id和手机号查询是否重复 -->
+	<select id="selectCountByIdAndMobile" resultType="com.sandu.api.user.model.bo.CompanyInfoBO" parameterType="com.sandu.api.user.model.bo.CompanyInfoBO">
+		SELECT s.id as userId,c.pid as id  from sys_user s,base_company c where s.is_deleted=0 and c.is_deleted=0 and s.user_type=3 and c.business_type=2 and s.business_administration_id=c.id
+		and c.pid=#{id} and s.mobile = #{mobile} and s.id != #{userId} and s.platform_type = 2 and business_administration_id is not null
+	</select>
+	<!-- 5.查询非本企业的经销商用户是否被绑定 -->
+	<select id="selectCountsByIdAndMobile" resultType="int" parameterType="com.sandu.api.user.model.bo.CompanyInfoBO">
+	SELECT count(1) from sys_user s,base_company c where s.is_deleted=0 and c.is_deleted=0 and s.user_type=3 and c.business_type=2 and s.business_administration_id=c.id
+	 and s.mobile = #{mobile} and c.pid!=#{userId} and platform_type = 2 and business_administration_id is not null
+	</select>
+	<!-- 如果在后台注册的账号 手机为空，，那么根据要绑定的手机号去查询当前企业有没有相同的手机号 -->
+	<select id="selectCountsByUserIdAndMobile" resultType="int" parameterType="com.sandu.api.user.model.bo.CompanyInfoBO">
+		select count(1) from sys_user s,base_company c where s.is_deleted=0 and c.is_deleted=0 and s.user_type=3 and c.business_type=2 and s.business_administration_id=c.id
+and c.pid=#{id} and s.mobile = #{mobile} and platform_type = 2 and business_administration_id is not null
+	</select>
+	<!-- 只有经销商的用户手机号或者 -->
+	<select id="selectUserTypeByMobile" resultType="com.sandu.api.user.model.SysUser" parameterType="java.lang.String">
+		SELECT user_type as userType,id from sys_user where mobile = #{mobile} and is_deleted=0 and platform_type = 2 and ((user_type!=3) or (user_type=3 and business_administration_id is not null))
+	</select>
+	<!-- 查询当前手机号码有没有被其他经销商绑定 -->
+	<select id="selectCountMobileByMobile" resultType="int" parameterType="java.lang.String">
+		SELECT count(1) from sys_user where is_deleted=0 and user_type=3 and mobile=#{mobile} and platform_type = 2 and business_administration_id is not null
+	</select>
+
+	<!-- 根据手机号查询用户信息 -->
+	<select id="selectMobileAndUserTypeByUserInfo" parameterType="java.lang.String" resultType="int">
+		select count(1) from sys_user where 1=1 and is_deleted=0 and mobile=#{mobile} and user_type = 3 and platform_type = 2 and business_administration_id is not null
+	</select>
+	<!-- 通过手机号查询 last_login_company_id不为null -->
+	<select id="selectCompanyIdByMobile" parameterType="java.lang.String" resultType="java.lang.Long">
+		SELECT last_login_company_id from sys_user where mobile=#{mobile} and platform_type = 2 and is_deleted=0 and last_login_company_id is not null LIMIT 1
+	</select>
+
+	<!-- 商家后台忘记密码动作 -->
+	<update id="updatePwdByMobile" parameterType="com.sandu.api.user.model.SysUser">
+		update sys_user
+		<set>
+			<if test="password!= null">  password = #{password,jdbcType=VARCHAR}, </if>
+			<if test="modifier!= null">  modifier = #{modifier,jdbcType=VARCHAR}, </if>
+			<if test="passwordUpdateFlag!= null">  password_update_flag = #{passwordUpdateFlag,jdbcType=INTEGER}, </if>
+			gmt_modified = now()
+		</set>
+		where mobile = #{mobile}
+	</update>
+
+
+
+	<!-- 根据id去修改手机号 -->
+	<update id="updateMobileById">
+		update sys_user
+		<set>
+		 gmt_modified = now(),
+		 mobile=#{mobile}
+		</set>
+		where id = #{id} and platform_type = 2
+	</update>
+
+	<!-- **根据手机号码修改手机号** -->
+	<update id="updateMobileByMobile">
+		update sys_user
+		<set>
+			 mobile = #{newMobile},
+			 gmt_modified = now()
+		</set>
+		where mobile = #{mobile} and platform_type = 2
+		and  ((user_type!=3) or (user_type=3 and business_administration_id is not null))
+	</update>
+	<!-- 根据手机号码去修改密码 -->
+	<update id="updatePwdByMobiles">
+		update sys_user
+		<set>
+			 password = #{password},
+			 gmt_modified = now(),
+			 password_update_flag = 0,
+			last_login_company_id = #{lastLoginCompanyId}
+		</set>
+		where mobile = #{mobile} and platform_type = 2
+		and  ((user_type!=3) or (user_type=3 and business_administration_id is not null))
+	</update>
+	<update id="updatePwdById">
+		update sys_user
+		<set>
+			 password = #{password},
+			 gmt_modified = now(),
+			 password_update_flag = 0,
+			last_login_company_id = #{lastLoginCompanyId}
+		</set>
+		where id = #{id} and platform_type = 2
+		and  ((user_type!=3) or (user_type=3 and business_administration_id is not null))
+	</update>
+	<!-- 根据用户id查询是否为多企业经销商账号 -->
+	<select id="selectMultipleFranchiserAccount" parameterType="java.lang.Long">
+	SELECT count(1) from sys_user s,base_company c where s.is_deleted=0 and c.is_deleted=0 and s.user_type=3 and c.business_type=2 and business_administration_id is not null
+	 and platform_type=2 and s.business_administration_id=c.id and mobile=(SELECT mobile from sys_user u where u.is_deleted=0 and u.id=#{id} and u.mobile is not null and platform_type=2 and business_administration_id is not null and u.user_type=3)
+	</select>
+
+	<!-- 根据用户id去查询经销商的手机号码 -->
+	<select id="selectDealerMobileById" resultType="java.lang.String" parameterType="java.lang.Long">
+		SELECT
+			mobile
+		FROM
+			sys_user u
+		WHERE
+		 	u.id = #{id}
+	</select>
+	<!-- 根据手机号码去查询是否有多个企业 -->
+	<select id="selectEnterpriseCountByMobile" resultType="int" parameterType="java.lang.String">
+		SELECT
+			count(*)
+		FROM
+			sys_user
+		WHERE
+			is_deleted = 0
+		AND user_type in(3,14)
+		AND platform_type = 2
+		AND mobile = #{mobile}
+	</select>
+	<!-- 根据绑定的手机号去查询用户密码 -->
+	<select id="selectPwdByMobile" resultType="java.lang.String" parameterType="java.lang.String">
+		select password from sys_user where mobile=#{mobile} and is_deleted=0 and platform_type=2 and user_type=3 and business_administration_id is not null LIMIT 1
+	</select>
+	<!-- 根据用户id去查询用户密码 -->
+	<select id="selectPwdById" resultType="java.lang.String" parameterType="java.lang.Long">
+		select password from sys_user where id=#{id} and is_deleted=0 and platform_type=2 and user_type=3 and business_administration_id is not null LIMIT 1
+	</select>
+	<!-- 根据绑定的手机号码去查询该手机号是否存在 -->
+	<select id="selectExistMobileByBindingMobile" resultType="int" parameterType="java.lang.String">
+		SELECT count(1) from sys_user where mobile=#{mobile} and is_deleted=0 and  ((user_type!=3) or (user_type=3 and business_administration_id is not null))
+	</select>
+	<update id="updateMinProUserInfo">
+		UPDATE
+		    sys_user
+		SET
+			gmt_modified = now()
+			<if test="nickName != null and nickName != ''">
+				,nick_name = #{nickName}
+			</if>
+		    <if test="headPic != null and headPic != ''">
+				,head_pic = #{headPic}
+			</if>
+		WHERE
+		  open_id = #{openId}
+	</update>
+
+
+	<update id="updateFailureTimeByPrimaryKey">
+		UPDATE
+		   sys_user
+		SET
+		   failure_time = #{failureTime},
+           first_login_time = #{firstLoginTime}
+		WHERE
+		   id = #{id}
+	</update>
+
+	<update id="updateFirstLoginTimeByPrimaryKey">
+		UPDATE
+		sys_user
+		SET
+		first_login_time = #{firstLoginTime}
+		WHERE
+		id = #{id}
+	</update>
+
+
+	<!-- 新电话是否已被其他经销商用户使用 -->
+	<select id="selectCountDealerByNewMobile" resultType="int">
+		select count(*) from sys_user where mobile=#{newMobile} and id != #{id} and is_deleted=0 and platform_type=2 and user_type=3 and business_administration_id is not null;
+	</select>
+	<select id="getFranchiserByMobile" resultType="com.sandu.api.user.model.SysUser" parameterType="java.lang.String">
+		select last_login_company_id,password,password_update_flag from sys_user where mobile=#{newMobile} and is_deleted=0 and user_type=3 and business_administration_id is not null limit 1
+	</select>
+	<update id="updateByUserId">
+		update sys_user set mobile=#{mobile},password=#{password},last_login_company_id=#{lastLoginCompanyId},password_update_flag=#{passwordUpdateFlag} where id=#{id}
+	</update>
+	<update id="updateFranchiserMobile">
+		update sys_user set mobile=#{newMobile} where mobile=#{oldMobile} and is_deleted=0 and platform_type=2 and user_type=3 and business_administration_id is not null;
+	</update>
+	<update id="updateFranchiserByNewMobile">
+		update sys_user 
+			set mobile=#{newMobile},
+			password=#{password},
+			last_login_company_id=#{lastLoginCompanyId},
+			password_update_flag=#{passwordUpdateFlag} 
+		where 
+			mobile=#{oldMobile} 
+			and platform_type=2 
+			and user_type in(3,14);
+	</update>
+	<select id="selectCompanyIdByNewMobile" resultType="java.lang.String">
+		SELECT
+			GROUP_CONCAT(pid) as id
+		FROM
+			sys_user u,base_company c
+		WHERE
+			u.mobile = #{mobile}
+			 and u.is_deleted=0 and u.platform_type = 2
+		and c.is_deleted=0 and c.id=u.business_administration_id
+		and c.business_type=2
+		and u.id != #{id}
+		and ((u.user_type!=3) or (u.user_type=3 and business_administration_id is not null))
+	</select>
+	<select id="selectCompanyCountByCompanyId" resultType="int">
+			SELECT count(*) from sys_user u,base_company c where u.mobile=#{newMobile} and u.is_deleted=0 and u.user_type=3  and u.platform_type = 2
+	and u.business_administration_id=c.id and c.is_deleted=0 and c.business_type=2 and  FIND_IN_SET(c.pid,#{companyIds})
+	</select>
+	<select id="selectMobileByUserId" resultType="java.lang.String">
+		SELECT mobile from sys_user where id=#{id} and is_deleted = 0 and platform_type=2 and user_type = 3 AND business_administration_id IS NOT NULL
+	</select>
+
+	<insert id="save" parameterType="com.sandu.api.user.model.SysUser" useGeneratedKeys="true"
+			keyProperty="id" keyColumn="id" >
+		INSERT INTO sys_user
+		(
+			creator, gmt_create, modifier, gmt_modified, is_deleted,user_name,nick_name,mobile,user_type,
+			platform_type,password,group_id,password_update_flag,use_type,source_company,used_invitation_code,uuid,province_code,city_code
+			)
+		VALUES
+		(
+			#{creator},#{gmtCreate}, #{modifier}, now(), 0,#{userName},#{nickName},#{mobile},#{userType},
+			2,#{password},0,0,#{useType},#{sourceCompany},#{usedInvitationCode},#{uuid},#{provinceCode},#{cityCode}
+			)
+	</insert>
+
+	<select id="count2BMobileIsExist" resultType="int">
+		SELECT
+		   count(*)
+		FROM
+		   sys_user
+		WHERE
+		   mobile = #{mobile} AND
+		   platform_type = 2 AND
+		   is_deleted = 0
+	</select>
+
+    <update id="updateUserMobile2C">
+        UPDATE
+           sys_user
+        SET
+           mobile = #{mobile}
+        WHERE
+           id = #{userId}
+           and is_deleted = 0;
+    </update>
+
+	<update id="updatePassword" parameterType="com.sandu.api.user.model.SysUser">
+		 UPDATE
+		   sys_user
+		 SET
+		   password = #{password},
+		   gmt_modified = NOW(),
+		   modifier = #{modifier}
+         WHERE
+           is_deleted = 0
+           AND mobile = #{mobile}
+           AND platform_type = 2;
+	</update>
+
+
+
+
+	<!--新增用户(商家后台购买套餐)author whl-->
+	<insert id="insertUser" parameterType="com.sandu.api.user.model.SysUser"  useGeneratedKeys="true" keyProperty="id">
+		insert into sys_user
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="companyId!= null">company_id, </if>
+			<if test="businessAdministrationId!= null">business_administration_id, </if>
+			<if test="userType!= null">user_type, </if>
+			<if test="userName != null">user_name,</if>
+			<if test="nickName != null">nick_name,</if>
+			<if test="password != null">password,</if>
+			<if test="creator!= null">creator, </if>
+			<if test="gmtCreate!= null">gmt_create, </if>
+			<if test="isDeleted!= null">is_deleted, </if>
+			<if test="sysCode!= null">sys_code, </if>
+			<if test="groupId!= null">group_id, </if>
+			<if test="mobile!= null">mobile, </if>
+			<if test="useType!= null">use_type, </if>
+			<if test="platformType!= null">platform_type, </if>
+			<if test="servicesFlag!= null">services_flag, </if>
+			<if test="userSource != null">user_source,</if>
+			<if test="passwordUpdateFlag != null">password_update_flag,</if>
+			<if test="uuid !=null ">uuid</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="companyId!= null">  #{companyId}, </if>
+			<if test="businessAdministrationId!= null">  #{businessAdministrationId}, </if>
+			<if test="userType!= null">  #{userType,jdbcType=INTEGER}, </if>
+			<if test="userName != null">#{userName,jdbcType=VARCHAR},</if>
+			<if test="nickName != null">#{nickName,jdbcType=VARCHAR},</if>
+			<if test="password != null">#{password,jdbcType=VARCHAR},</if>
+			<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+			<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+			<if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+			<if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+			<if test="groupId!= null">  #{groupId,jdbcType=INTEGER}, </if>
+			<if test="mobile!= null">  #{mobile,jdbcType=VARCHAR}, </if>
+			<if test="useType!= null">  #{useType,jdbcType=INTEGER}, </if>
+			<if test="platformType!= null">  #{platformType,jdbcType=INTEGER}, </if>
+			<if test="servicesFlag!= null"> #{servicesFlag,jdbcType=INTEGER}, </if>
+			<if test="userSource!= null"> #{userSource,jdbcType=INTEGER}, </if>
+			<if test="passwordUpdateFlag != null">#{passwordUpdateFlag},</if>
+			<if test="uuid !=null ">#{uuid,jdbcType=VARCHAR}</if>
+		</trim>
+	</insert>
+
+	<!--删除账号 author whl-->
+
+	<update id="deleteUser" parameterType="java.lang.Long">
+		UPDATE sys_user SET is_deleted = 1 WHERE id = #{userId}
+	</update>
+
+
+	<!--修改账号信息 author whl-->
+	<update id="updateUser" parameterType="com.sandu.api.user.model.SysUser">
+		UPDATE
+		sys_user
+		<set>
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+			<if test="userName != null">
+				user_name = #{userName,jdbcType=VARCHAR},
+			</if>
+			<if test="mobile != null">
+				mobile= #{mobile,jdbcType=VARCHAR},
+			</if>
+			<if test="email != null">
+				email= #{email,jdbcType=VARCHAR},
+			</if>
+			<if test="picId != null">
+				pic_id= #{picId,jdbcType=INTEGER},
+			</if>
+			<if test="userType != null">
+				user_type = #{userType,jdbcType=INTEGER},
+			</if>
+			<if test="companyId != null">
+				business_administration_id = #{companyId},
+			</if>
+			<if test="modifier != null">
+				modifier = #{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null">
+				gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="firstLoginTime != null">
+				first_login_time = #{firstLoginTime,jdbcType=TIMESTAMP},
+			</if>
+
+			<if test="address != null">
+				address = #{address,jdbcType=VARCHAR},
+			</if>
+			province_code = #{provinceCode,jdbcType=VARCHAR},
+
+			city_code = #{cityCode,jdbcType=VARCHAR},
+
+			area_code = #{areaCode,jdbcType=VARCHAR},
+
+			street_code = #{streetCode,jdbcType=VARCHAR},
+		</set>
+		where id = #{id}
+	</update>
+
+	<!--通过昵称，获取用户 author whl-->
+	<select id="getUserByNickName" resultType="com.sandu.api.user.model.SysUser" >
+		SELECT
+		  *
+		FROM sys_user
+		WHERE is_deleted =0 and
+		nick_name IN
+		<foreach collection="nickNames" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+
+	</select>
+
+	<!--通过Id，获取用户 author whl-->
+	<select id="getUserById" resultType="com.sandu.api.user.model.SysUser" parameterType="java.lang.Long">
+		SELECT
+		 *
+		FROM sys_user
+		WHERE is_deleted =0 and id = #{userId}
+	</select>
+	
+	<select id="selectUserByNickNameAndCompanyId" resultType="com.sandu.api.user.model.bo.UserInfoBO">
+		SELECT
+			id,
+			user_name userName,
+			nick_name nickName,
+			mobile,
+			password,
+			email,
+			user_type userType,
+			sex,
+			job,
+			area_id areaId,
+			pic_id picId,
+			media_type mediaType,
+			sys_code sysCode,
+			creator,
+			gmt_create gmtCreate,
+			modifier,
+			gmt_modified gmtModified,
+			is_deleted isDeleted,
+			app_key appKey,
+			token,
+			att3,
+			att4,
+			att5,
+			att6,
+			date_att1 dateAtt1,
+			date_att2 dateAtt2,
+			group_id groupId,
+			num_att2 numAtt2,
+			num_att3 numAtt3,
+			num_att4 numAtt4,
+			remark,
+			real_name realName,
+			qq,
+			company_tel companyTel,
+			company_address companyAddress,
+			speciality_value specialityValue,
+			intro,
+			email_verify_state emailVerifyState,
+			mobile_verify_state mobileVerifyState,
+			idcard_verify_state idcardVerifyState,
+			LEVEL level,
+			application_date applicationDate,
+			verify_user verifyUser,
+			verify_date verifyDate,
+			area_long_code areaLongCode,
+			reason_rejected reasonRejected,
+			brand_ids brandIds,
+			user_imei userImei,
+			consum_amount consumAmount,
+			balance_amount balanceAmount,
+			address,
+			network_card_restrict networkCardRestrict,
+			exists_mobile existsMobile,
+			mobile_opened_date mobileOpenedDate,
+			mobile_closed_date mobileClosedDate,
+			usable_house_number usableHouseNumber,
+			visitors_render_times visitorsVenderTimes,
+			business_administration_id businessAdministrationId,
+			company_id companyId,
+			franchiser_account_type franchiserAccountType,
+			franchiser_group_id franchiserGroupId,
+			password_update_flag passwordUpdateFlag,
+			verify_flag verifyFlag,
+			consum_integral consumIntegral,
+			balance_integral balanceIntegral,
+			post_type postType,
+			last_login_company_id lastLoginCompanyId,
+			is_login_before isLoginBefore,
+			platform_type platformType,
+			open_id openId,
+			app_id appId,
+			mini_program_company_id miniProgramCompanyId,
+			first_login_time  firstLoginTime,
+			use_type useType,
+			valid_time validTime,
+			failure_time failureTime,
+			services_flag servicesFlag,
+			uuid
+		FROM sys_user
+		WHERE 
+		nick_name=#{nickName}
+		and company_id = #{companyId}
+		and is_deleted =0
+	</select>
+	
+	
+
+   <resultMap id="InternalUserMap" type="com.sandu.api.user.output.InternalUserListVO">
+	   <result property="userId" jdbcType="INTEGER" column="id" />
+	   <result property="account" jdbcType="VARCHAR" column="nick_name" />
+	   <result property="mobile" jdbcType="VARCHAR" column="mobile" />
+	   <result property="nickName" jdbcType="VARCHAR" column="user_name" />
+	   <result property="gmtCreate" jdbcType="TIMESTAMP" column="gmt_create" />
+	   <result property="servicesFlag" jdbcType="INTEGER" column="services_flag" />
+	   <result property="isLoginBefore" jdbcType="INTEGER" column="is_login_before" />
+	   <collection property="serviceList" column="account" ofType="com.sandu.api.user.output.UserServiceVO">
+		   <result property="serviceName" jdbcType="VARCHAR" column="services_name" />
+		   <result property="serviceEndTime" jdbcType="TIMESTAMP" column="effective_end" />
+		   <result property="servicesType" jdbcType="VARCHAR" column="services_type" />
+	   </collection>
+   </resultMap>
+
+	<!--查询内部账号列表 author whl-->
+	<select id="selectInternalUserList" parameterType="com.sandu.api.user.input.InternalUserQueryExtends" resultMap="InternalUserMap">
+        SELECT
+          s.id,s.nick_name,s.mobile, s.user_name,s.gmt_create,sbi.services_name,sal.effective_end,s.services_flag,sbi.services_type,s.is_login_before
+        FROM
+          sys_user s
+        LEFT JOIN
+          (select id, MAX(effective_end) effective_end ,account ,services_id,is_deleted from services_account_rel where is_deleted = 0  GROUP BY account,services_id) sal
+        ON s.nick_name=sal.account
+        LEFT JOIN
+          services_base_info sbi
+        ON   sal.services_id = sbi.id
+        WHERE  s.company_id = #{companyId}
+		<if test="userType !=null ">
+			AND s.user_type != #{userType,jdbcType=INTEGER}
+		</if>
+		<if test="account != null and account!=''">
+			AND  s.nick_name LIKE  CONCAT(CONCAT('%',#{account,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="mobile != null and mobile!=''">
+			AND  s.mobile LIKE  CONCAT(CONCAT('%',#{mobile,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="userName !=null and userName!= ''">
+			AND s.user_name LIKE  CONCAT(CONCAT('%',#{userName,jdbcType=VARCHAR}),'%')
+		</if>
+			AND s.is_deleted = 0
+		    ORDER BY s.gmt_create DESC
+		<if test=" limit!=null and page !=null">
+			LIMIT #{limit}, #{page}
+		</if>
+	</select>
+
+	<!--查询内部账号数量 author whl -->
+	<select id="selectInternalUserCount" parameterType="com.sandu.api.user.input.InternalUserQueryExtends" resultType="java.lang.Integer">
+
+        SELECT
+		  COUNT(DISTINCT s.id)
+        FROM
+          sys_user s
+        LEFT JOIN
+          (select id, MAX(effective_end) effective_end ,account ,services_id,is_deleted from services_account_rel WHERE is_deleted = 0 GROUP BY account,services_id) sal
+        ON s.nick_name=sal.account
+        LEFT JOIN
+          services_base_info sbi
+        ON   sal.services_id = sbi.id
+        WHERE  s.company_id = #{companyId}
+        <if test="userType !=null ">
+            AND s.user_type != #{userType,jdbcType=INTEGER}
+        </if>
+        <if test="account != null and account!=''">
+            AND  s.nick_name LIKE  CONCAT(CONCAT('%',#{account,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="mobile != null and mobile!=''">
+            AND  s.mobile LIKE  CONCAT(CONCAT('%',#{mobile,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="userName !=null and userName!= ''">
+            AND s.user_name LIKE  CONCAT(CONCAT('%',#{userName,jdbcType=VARCHAR}),'%')
+        </if>
+		    AND s.is_deleted = 0
+	</select>
+
+
+
+	<resultMap id="DealersUserMap" type="com.sandu.api.user.output.DealersUserListVO">
+		<result property="userId" jdbcType="INTEGER" column="id" />
+		<result property="account" jdbcType="VARCHAR" column="nick_name" />
+		<result property="companyName" jdbcType="VARCHAR" column="company_name" />
+		<result property="mobile" jdbcType="VARCHAR" column="mobile" />
+		<result property="nickName" jdbcType="VARCHAR" column="user_name" />
+		<result property="gmtCreate" jdbcType="TIMESTAMP" column="gmt_create" />
+		<result property="servicesFlag" jdbcType="INTEGER" column="services_flag" />
+		<result property="isLoginBefore" jdbcType="INTEGER" column="is_login_before" />
+		<collection property="serviceList"  column="account" ofType="com.sandu.api.user.output.UserServiceVO">
+			<result property="serviceName" jdbcType="VARCHAR" column="services_name" />
+			<result property="serviceEndTime" jdbcType="TIMESTAMP" column="effective_end" />
+			<result property="servicesType" jdbcType="VARCHAR" column="services_type" />
+		</collection>
+	</resultMap>
+
+
+	<!--查询经销商账号列表 author whl-->
+	<select id="selectDealersUserList" parameterType="com.sandu.api.user.input.DealersUserQueryPO" resultMap="DealersUserMap">
+        SELECT
+        DISTINCT s.id,s.nick_name, bc.company_name,s.mobile,s.user_name,s.gmt_create,sbi.services_name,sal.effective_end,s.services_flag,sbi.services_type,s.is_login_before
+        FROM
+        sys_user s
+        LEFT  JOIN
+        (select id, MAX(effective_end) effective_end ,account ,services_id,is_deleted from services_account_rel WHERE is_deleted=0 GROUP BY account,services_id) sal
+        ON
+        sal.account=s.nick_name
+        LEFT  JOIN
+        services_base_info sbi
+        ON
+        sal.services_id = sbi.id
+        LEFT JOIN
+        base_company bc
+        ON
+        bc.id=s.business_administration_id
+        WHERE
+        s.user_type=3
+		<if test="companyId != null and companyId!=''">
+			AND  s.company_id = #{companyId,jdbcType=INTEGER}
+		</if>
+		<if test="account != null and account!=''">
+			AND  s.nick_name LIKE  CONCAT(CONCAT('%',#{account,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="mobile != null and mobile!=''">
+			AND  s.mobile LIKE  CONCAT(CONCAT('%',#{mobile,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="userName !=null and userName!='' ">
+			AND s.user_name LIKE  CONCAT(CONCAT('%',#{userName,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="dealersCompanyId !=null and dealersCompanyId != '' " >
+			AND s.business_administration_id = #{dealersCompanyId}
+		</if>
+		    AND s.is_deleted = 0
+			ORDER BY s.gmt_create DESC
+		<if test=" limit!=null and page !=null">
+			LIMIT #{limit}, #{page}
+		</if>
+		<!--UNION
+
+		SELECT
+		DISTINCT s.id, s.nick_name,CASE WHEN bc.company_name != NULL THEN NULL else NULL END as company_name,s.mobile,s.user_name,sbi.services_name,sal.effective_end,s.services_flag,sbi.services_type
+		FROM
+		sys_user s
+		LEFT  JOIN
+		(select id, MAX(effective_end) effective_end ,account ,services_id ,is_deleted from services_account_rel WHERE is_deleted=0 GROUP BY account,services_id) sal
+		ON
+		sal.account=s.nick_name
+		LEFT  JOIN
+		services_base_info sbi
+		ON
+		sal.services_id = sbi.id
+		INNER JOIN
+		(select b.id as id ,b.company_name,b.pid,b.business_type from base_company b ,sys_user su where b.id =su.company_id
+
+		 and su.company_id = #{companyId,jdbcType=INTEGER}
+
+		 and su.user_type =3 and su.business_administration_id is null) bc
+		ON
+		s.company_id=bc.id
+		WHERE
+		s.user_type=3  and s.business_administration_id is null
+		<if test="account != null and account!=''">
+			AND  s.nick_name LIKE  CONCAT(CONCAT('%',#{account,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="mobile != null and mobile!=''">
+			AND  s.mobile LIKE  CONCAT(CONCAT('%',#{mobile,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="userName !=null and userName!='' ">
+			AND s.user_name LIKE  CONCAT(CONCAT('%',#{userName,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="dealersCompanyId !=null and dealersCompanyId != '' " >
+			AND s.business_administration_id = #{dealersCompanyId}
+		</if>
+		AND s.is_deleted = 0
+		<if test=" limit!=null and page !=null">
+			LIMIT #{limit}, #{page}
+		</if>-->
+	</select>
+
+
+	<!--查询经销商账号数量 author whl-->
+	<select id="getDealersUserCount" parameterType="com.sandu.api.user.input.DealersUserQueryPO" resultType="java.lang.Integer">
+        SELECT (
+		SELECT COUNT(DISTINCT s.id)
+		FROM
+		sys_user s
+		LEFT  JOIN
+		(select id, MAX(effective_end) effective_end ,account ,services_id,is_deleted from services_account_rel WHERE is_deleted =0 GROUP BY account,services_id) sal
+		ON
+		sal.account=s.nick_name
+		LEFT  JOIN
+		services_base_info sbi
+		ON
+		sal.services_id = sbi.id
+		LEFT JOIN
+		base_company bc
+		ON
+		bc.id=s.business_administration_id
+		WHERE
+		s.user_type=3 <!--and  bc.business_type=2-->
+		<if test="companyId != null and companyId!=''">
+			AND s.company_id = #{companyId,jdbcType=INTEGER}
+		</if>
+		<if test="account != null and account!=''">
+			AND  s.nick_name LIKE  CONCAT(CONCAT('%',#{account,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="mobile != null and mobile!=''">
+			AND  s.mobile LIKE  CONCAT(CONCAT('%',#{mobile,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="userName !=null and userName != '' ">
+			AND s.user_name LIKE  CONCAT(CONCAT('%',#{userName,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="dealersCompanyId !=null and dealersCompanyId !='' " >
+			AND s.business_administration_id = #{dealersCompanyId}
+		</if>
+		AND s.is_deleted = 0
+        )
+
+		<!-- +(
+		SELECT
+		COUNT(DISTINCT s.id)
+		FROM
+		sys_user s
+		LEFT  JOIN
+		(select id, MAX(effective_end) effective_end ,account ,services_id,is_deleted from services_account_rel WHERE is_deleted =0 GROUP 	BY account,services_id) sal
+		ON
+		sal.account=s.nick_name
+		LEFT  JOIN
+		services_base_info sbi
+		ON
+		sal.services_id = sbi.id
+		INNER JOIN
+		(select b.id as id ,b.company_name,b.pid,b.business_type from base_company b ,sys_user su where b.id =su.company_id and su.company_id = #{companyId,jdbcType=INTEGER} and
+		su.user_type =3 and su.business_administration_id is null AND su.is_deleted=0) bc
+		ON
+		s.company_id=bc.id
+		WHERE
+		s.user_type=3  and s.business_administration_id is null
+
+		<if test="account != null and account!=''">
+			AND  s.nick_name LIKE  CONCAT(CONCAT('%',#{account,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="mobile != null and mobile!=''">
+			AND  s.mobile LIKE  CONCAT(CONCAT('%',#{mobile,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="userName !=null and userName != '' ">
+			AND s.user_name LIKE  CONCAT(CONCAT('%',#{userName,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="dealersCompanyId !=null and dealersCompanyId !='' " >
+			AND s.business_administration_id = #{dealersCompanyId}
+		</if>
+		AND s.is_deleted = 0
+		)-->
+	</select>
+
+	<!--查询当前企业所有用户类型 author whl-->
+	<select id="getAllUserType" parameterType="java.lang.Long">
+		select GROUP_CONCAT(distinct  user_type) from sys_user  where company_id = #{companyId} GROUP BY user_type
+	</select>
+
+	<!--通过账号获取用户企业Id author whl-->
+	<select id="getUserCompanyIdByAccount" resultType="java.lang.Long" parameterType="java.lang.String">
+		SELECT company_id
+		FROM sys_user
+		WHERE nick_name = #{account,jdbcType=VARCHAR}
+		and is_deleted=0 limit 1
+	</select>
+
+	<!--通过账号Id获取用户企业Id author xiaoxc-->
+	<select id="getCompanyInfoByUserId" resultType="com.sandu.api.user.output.UserCompanyInfoVO" parameterType="java.lang.Long">
+		SELECT company_id,business_administration_id as franchiser_id
+		FROM sys_user
+		WHERE id = #{userId}
+	</select>
+
+	<!--修改用户头像 author whl-->
+	<update id="dealUserHeadPic" parameterType="com.sandu.api.user.input.DealUserHeadPic">
+		update sys_user
+		SET
+		   pic_id = #{picId},
+		   gmt_modified = NOW(),
+		   modifier = #{modifier}
+        WHERE
+           id = #{userId};
+	</update>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<select id="selectUserList" resultType="com.sandu.api.user.model.SysUser">
+		SELECT 
+			*
+		FROM sys_user 
+		WHERE 1=1
+		<if test="openId!= null">  and open_id = #{openId} </if>
+		<if test="mobile!= null">  and mobile = #{mobile} </if>
+		<if test="platformType!= null">  and platform_type = #{platformType} </if>
+		<if test="userTypeList!= null and userTypeList.size() > 0"> 
+			and user_type in 
+			<foreach collection="userTypeList" item="item" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="isDeleted!= null">  and is_deleted = #{isDeleted} </if>
+	</select>
+	
+	<update id="updateUserInfoById">
+		update sys_user 
+		set
+		 mobile=#{mobile},
+		 password=#{password},
+		 last_login_company_id=#{lastLoginCompanyId},
+		 password_update_flag=#{passwordUpdateFlag},
+		 gmt_modified = now()
+	   where id=#{id}
+	</update>
+	
+	<update id="update2BUserInfoByMobile">
+		update sys_user 
+		set
+		 mobile=#{mobile},
+		 password=#{password},
+		 last_login_company_id=#{lastLoginCompanyId},
+		 password_update_flag=0,
+		 gmt_modified = now()
+	   where mobile=#{oldMobile} and is_deleted=0 and platform_type=2
+	</update>
+	
+	<update id="update2BUserInfoById">
+		update sys_user
+		set
+			mobile=#{mobile},
+			password=#{password},
+			last_login_company_id=#{lastLoginCompanyId},
+			password_update_flag=0,
+			gmt_modified = now()
+		where id = #{id}
+	</update>
+ 
+	<update id="updateUserMobileById">
+		update sys_user
+		set
+			mobile=#{mobile},
+			last_login_company_id=null,
+			gmt_modified = now()
+		where id = #{id}
+	</update>
+	
+	<update id="updateFranchiserMobileByOldMobile">
+		update sys_user 
+			set 
+				mobile=#{newMobile},
+				gmt_modified = now()
+		where mobile=#{oldMobile} 
+			and platform_type=2
+			and user_type in(3,14)
+	</update>
+	
+	<update id="updateBusinessAdministrationIdByUserId">
+		update sys_user 
+			set 
+				business_administration_id=#{businessAdministrationId},
+				gmt_modified = now()
+		where 
+			id = #{userId}
+	</update>
+	
+
+	<select id="selectFranchiserCompanyIdsByMobile" resultType="java.lang.Long">
+		 SELECT u.company_id
+			from sys_user u
+		where u.mobile=#{mobile}
+			and u.platform_type=2
+			and u.user_type in(3,14)
+			and u.is_deleted = 0
+	</select>
+
+	<select id="checkPhone" resultType="java.lang.Integer">
+		SELECT
+			COUNT(1)
+		FROM
+			sys_user
+		WHERE
+			mobile = #{mobile}
+			AND platform_type = 2
+			AND is_deleted = 0
+	</select>
+
+	<select id="selectUserByUserTypeMobile" resultType="java.lang.Integer">
+		SELECT
+			COUNT(1)
+		FROM
+			sys_user
+		WHERE
+			mobile = #{mobile}
+		<if test="userTypeList != null and userTypeList.size > 0">
+			AND user_type IN
+			<foreach item="item" collection="userTypeList" separator="," open="(" close=")" index="">
+				#{item}
+			</foreach>
+		</if>
+		<if test="userTypenNotList != null and userTypenNotList.size > 0">
+			AND user_type NOT IN
+			<foreach item="item" collection="userTypenNotList" separator="," open="(" close=")" index="">
+				#{item}
+			</foreach>
+		</if>
+		AND is_deleted = 0
+		AND platform_type = 2
+	</select>
+
+	<select id="checkFranchiserPhoneOne" resultType="java.lang.Integer">
+		SELECT
+			COUNT(1)
+		FROM
+			sys_user
+		WHERE mobile = #{mobile}
+		  AND platform_type = 2
+		  AND company_id = #{companyId}
+		  AND is_deleted = 0
+	</select>
+
+	<select id="checkFranchiserPhoneTwo" resultType="java.lang.Integer">
+		SELECT
+			COUNT(1)
+		FROM
+			sys_user
+		WHERE mobile = #{mobile}
+		  AND user_type NOT IN(3,9)
+		  AND platform_type = 2
+		  AND is_deleted = 0
+	</select>
+
+	<update id="updateSysUserByMobile">
+		UPDATE
+			sys_user
+		SET
+			password = #{password}
+		WHERE mobile = #{mobile}
+		  AND user_type = 3
+		  AND platform_type = 2
+		  AND is_deleted = 0
+	</update>
+
+	<update id="notBindUserToFranchiser">
+		UPDATE
+			sys_user
+		SET
+			business_administration_id = NULL,
+			modifier = #{loginName},
+			gmt_modified = NOW()
+		WHERE business_administration_id = #{franchiserId}
+		  AND user_type = 3
+		  AND platform_type = 2
+		  AND is_deleted = 0
+	</update>
+
+	<update id="updateBusinessAdministrationId">
+		update
+		   sys_user
+		SET
+		   business_administration_id = #{companyId},
+		   company_id = #{companyId}
+		WHERE
+		   id =#{userId} AND
+		   is_deleted = 0
+	</update>
+
+    <select id="selectUser"  parameterType="java.lang.String" resultType="com.sandu.api.user.model.SysUser">
+        SELECT * FROM sys_user
+        WHERE mobile = #{mobile} and platform_type = 2 AND  is_deleted = 0
+    </select>
+
+
+
+	<!--add by wanghl start-->
+	<!-- 查找用户表用户名企业用户名最大编码 -->
+	<select id="getMaxCompanyInUserNameCode" resultType="java.lang.String">
+		SELECT
+		nick_name
+		FROM sys_user
+		WHERE company_id = #{companyId}
+		AND nick_name LIKE #{companyCodePrefixS}
+		AND is_deleted = 0
+		ORDER BY nick_name DESC
+		LIMIT 1
+	</select>
+
+	<!-- 查找用户表经销商用户名最大编码 -->
+	<select id="getMaxFranchiserAccountCode" resultType="java.lang.String">
+		SELECT
+		nick_name
+		FROM sys_user
+		WHERE user_type = 3
+		AND company_id = #{companyId}
+		AND nick_name LIKE #{companyCodePrefixS}
+		AND is_deleted = 0
+		ORDER BY nick_name DESC
+		LIMIT 1
+	</select>
+	<!--add by wanghl end-->
+
+	<select id="getUserInfoByNickName" resultType="com.sandu.api.user.model.bo.UserInfoBO">
+		SELECT
+		    *
+		FROM
+		    sys_user
+		WHERE
+		    nick_name = #{account}
+		    and is_deleted = 0
+		    and platform_type = 2
+	</select>
+
+	<select id="selectUserById" resultType="com.sandu.api.user.model.SysUser">
+		SELECT * FROM sys_user where id = #{id} and is_deleted=0
+	</select>
+
+	<update id="updateServiceFlag">
+		UPDATE
+		   sys_user
+		   SET
+		    services_flag = #{serviceFlag}
+		WHERE
+		   id = #{id} and
+		   is_deleted = 0
+	</update>
+
+    <update id="updateCustomerBaseInfo">
+        UPDATE
+           customer_base_info
+        SET
+           mobile = #{mobile}
+         WHERE
+           user_id = #{userId}
+    </update>
+
+	<!--套餐升级-修改用户失效时间-->
+	<update id="updateUserFailureTime">
+		update
+		sys_user
+		SET
+		failure_time = #{failureTime},
+		modifier = #{nickName},
+		gmt_modified= now()
+		WHERE
+		id =#{userId} AND
+		is_deleted = 0
+	</update>
+
+    <delete id="delByPrimaryKey">
+		DELETE
+		   FROM
+		   sys_user
+		   WHERE
+		   id = #{id}
+	</delete>
+
+	<select id="getUserWillExpire" resultType="com.sandu.api.user.output.UserWillExpireVO">
+		SELECT id as id ,mobile as mobile,failure_time as failureTime
+		FROM sys_user
+		WHERE is_deleted = 0
+		AND   platform_type = #{platformType}
+		AND   failure_time BETWEEN #{nowTime} AND #{timeAfterDays}
+		AND   mobile is not null
+		AND   mobile !=""
+		AND   services_flag = 0
+	</select>
+
+	<insert id="insertSysUserMessage" parameterType="com.sandu.api.user.model.SysUserMessage">
+		INSERT INTO
+		  sys_user_message
+		  (
+		  	title, content, message_type, user_id, is_read, status, creator, gmt_create, modifier, gmt_modified, is_deleted, platform_id
+		  )VALUES
+		  (
+            #{title},#{content},2,#{userId},0,1,'system',#{gmtCreate},'system',#{gmtModified},0,#{platformId}
+		  )
+	</insert>
+
+<!--	<select id="getSysUserMessage" resultType="int">
+		SELECT
+			count(*)
+		FROM
+		    sys_user_message
+		WHERE
+		    is_deleted = 0 AND
+		    title = '赠送渲染' AND
+		    user_id = #{userId}
+	</select>-->
+
+	<!--通过用户邀请码,查询用户信息-->
+	<select id="getUserByInvitationCode" resultType="com.sandu.api.user.model.SysUser">
+		SELECT id,my_invitation_code
+		FROM sys_user
+		WHERE is_deleted = 0
+		AND my_invitation_code = #{invitationCode}
+	</select>
+
+	<select id="checkUserSecondRender" resultType="int">
+		SELECT
+		   count(*)
+		FROM
+		   auto_render_task
+		WHERE
+		   operation_user_id = #{userId}
+	</select>
+
+	<select id="getUserNickNameANDMobile" resultType="map">
+		select id,
+		CASE
+		WHEN nick_name IS NOT NULL AND TRIM(nick_name) !='' AND mobile IS NOT NULL AND mobile != '' THEN
+		CONCAT(nick_name,'+',mobile)
+		WHEN (nick_name IS NULL OR nick_name ='') AND mobile IS NOT NULL AND mobile != '' THEN mobile
+		WHEN (mobile IS NULL OR mobile ='') AND nick_name IS NOT NULL AND nick_name != '' THEN nick_name
+		ELSE user_name
+		END
+		AS displayingUserName
+		FROM sys_user
+		where is_deleted = 0
+		<if test="mobile != null and mobile != ''">
+			and (mobile like CONCAT('%',#{mobile,jdbcType=VARCHAR},'%')
+		</if>
+	</select>
+
+	<select id="getUsersByCompanyId" resultType="com.sandu.api.user.model.SysUser">
+		SELECT
+		   *
+		FROM
+		   sys_user
+		WHERE
+		   company_id = #{companyId} AND
+		   is_deleted = 0
+	</select>
+
+    <select id="select2bUserByMobile" parameterType="com.sandu.api.user.model.SysUser" resultType="com.sandu.api.user.model.SysUser">
+        SELECT
+           *
+        FROM
+          sys_user
+        WHERE
+          is_deleted = 0 AND
+          platform_type = #{platformType} AND
+          mobile = #{mobile}
+    </select>
+
+	<select id="getUserPackInfo" resultType="map">
+		SELECT
+		  services_id as servicesId,
+		  effective_end as effectiveEnd
+		FROM
+		  services_account_rel
+		  WHERE
+		  user_id = #{userId} AND
+		  is_deleted = 0
+	</select>
+
+	<select id="getPackType" resultType="string">
+		SELECT
+		  services_type
+		FROM
+		  services_base_info
+		WHERE
+		   id = #{servicesId} AND
+		   is_deleted = 0
+	</select>
+
+
+	<update id="updateServiceUserFirstLogin" >
+		UPDATE sys_user SET
+		is_login_before = 1,
+		first_login_time = #{firstLoginTime},
+		failure_time = #{failureTime}
+		WHERE id = #{userId}
+	</update>
+
+</mapper>

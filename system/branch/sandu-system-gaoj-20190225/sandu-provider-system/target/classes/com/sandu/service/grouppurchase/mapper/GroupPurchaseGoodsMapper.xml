@@ -1,0 +1,558 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.grouppurchase.dao.GroupPurchaseGoodsMapper">
+    <resultMap id="BaseResultMap" type="com.sandu.api.grouppurchase.model.GroupPurchaseGoods">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="purchase_activity_id" property="purchaseActivityId" jdbcType="BIGINT"/>
+        <result column="spu_id" property="spuId" jdbcType="BIGINT"/>
+        <result column="sku_id" property="skuId" jdbcType="BIGINT"/>
+        <result column="activity_price" property="activityPrice" jdbcType="DECIMAL"/>
+        <result column="qty" property="qty" jdbcType="DECIMAL"/>
+        <result column="use_qty" property="useQty" jdbcType="DECIMAL"/>
+        <result column="out_qty" property="outQty" jdbcType="DECIMAL"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="MODIFIER" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="sell_qty" property="sellQty" jdbcType="INTEGER"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, purchase_activity_id, spu_id, sku_id, activity_price, qty, use_qty, out_qty, 
+    creator, gmt_create, MODIFIER, gmt_modified, is_deleted,sell_qty
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from group_purchase_goods
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="getGoodsDetail" resultType="com.sandu.api.grouppurchase.bo.GroupPurchaseGoodsDetailBO">
+        SELECT
+          spu.id,
+          spu.pic_ids,
+          spu.pic_id,
+          spu.spu_name,
+          spu.product_desc,
+          <!-- 测试朱贤辉要求改的 2019/01/02 -->
+          <!-- p.product_desc,-->
+          MIN(sku.price) price,
+          MIN(
+            CASE
+              WHEN sku.price IS NULL
+              THEN 0.0000
+              ELSE sku.price
+            END
+          ) sale_price,
+          MIN(gpg.activity_price) activity_price,
+          sale.delivery_presell,
+          sale.delivery_day,
+          sale.delivery_date,
+          sale.purhase_limitation,
+          sale.fix_transport_expense
+        FROM
+          base_goods_spu spu
+          LEFT JOIN base_goods_sku sku
+            ON spu.id = sku.spu_id
+          LEFT JOIN group_purchase_goods gpg
+            ON gpg.sku_id = sku.id
+          LEFT JOIN platform2c_product_rel pr
+            ON pr.product_id = sku.product_id
+            AND pr.platform_id = 14
+            AND pr.putaway_state = 1
+          LEFT JOIN spu_sale_info sale
+            ON sale.spu_id = spu.id
+          LEFT JOIN base_product p
+            ON p.goods_spu_id = spu.id
+        WHERE spu.id = #{spuId}
+        and gpg.purchase_activity_id = #{purchaseActivityId}
+        GROUP BY spu.id
+    </select>
+
+    <select id="getGoodsActivity" resultType="com.sandu.api.grouppurchase.bo.GroupGoodsActivityBO">
+        SELECT
+          gpa.id activity_id,
+          gpa.activity_name,
+          gpa.spu_id,
+          gpa.activity_start_time,
+          gpa.activity_end_time,
+          gpa.group_valid_day,
+          gpa.group_valid_hour,
+          gpa.group_valid_minute,
+          gpa.total_number,
+          gpa.purchase_limit_amount,
+          gpa.gather_flag,
+          gpa.virtual_flag,
+          gpa.coupon_flag,
+          gpa.activity_status,
+          gpa.is_deleted
+        FROM
+          group_purchase_activity gpa
+        WHERE gpa.activity_status != 0
+          AND gpa.id = #{purchaseActivityId}
+    </select>
+
+    <select id="getSpuAttrList" resultType="com.sandu.api.grouppurchase.bo.SpuAttributeBO">
+        SELECT DISTINCT
+          pa.attribute_id attr_id,
+          pa.attribute_name attr_name,
+          pa.attribute_value_id attr_value_id,
+          pa.attribute_value_name attr_value_name
+        FROM
+          base_goods_spu spu,
+          base_goods_sku sku,
+          group_purchase_goods gpg,
+          product_attribute pa,
+          platform2c_product_rel pr
+        WHERE spu.id = sku.spu_id
+          AND sku.id = gpg.sku_id
+          AND sku.product_id = pa.product_id
+          AND pr.product_id = sku.product_id
+          AND pr.putaway_state = 1
+          AND pr.platform_id = 14
+          AND pa.is_deleted = 0
+          AND spu.id = #{id}
+          AND gpg.purchase_activity_id = #{activityId}
+    </select>
+
+    <select id="getSkuPriceAndAttr" resultType="com.sandu.api.grouppurchase.bo.SkuPriceAndAttrBO">
+        SELECT
+          sku.product_id id,
+          spu.product_name,
+          sku.id sku_id,
+          sku.price,
+          sku.price sale_price,
+          gpg.activity_price,
+          sp.pic_path spe_pic_path,
+          dp.pic_path default_pic_path,
+          <!--gpg.use_qty inventory,-->
+          sku.inventory,
+          sale.fix_transport_expense,
+          GROUP_CONCAT(pa.attribute_value_id) attr_value_ids
+        FROM
+          base_goods_spu spu
+          LEFT JOIN base_goods_sku sku
+            ON spu.id = sku.spu_id
+          LEFT JOIN group_purchase_goods gpg
+            ON gpg.sku_id = sku.id
+          LEFT JOIN spu_sale_info sale
+            ON sale.spu_id = spu.id
+          LEFT JOIN platform2c_product_rel pr
+            ON pr.product_id = sku.product_id
+          LEFT JOIN product_attribute pa
+            ON pa.product_id = sku.product_id
+          LEFT JOIN res_pic sp
+            ON sp.id = sku.specification_pic_id
+          LEFT JOIN res_pic dp
+            ON dp.id = pr.pic_id
+        WHERE pr.putaway_state = 1
+          AND pr.platform_id = 14
+          AND spu.id = #{id}
+          AND gpg.purchase_activity_id = #{activityId}
+        GROUP BY sku.product_id
+    </select>
+
+    <select id="getSkusBySpuId" resultType="com.sandu.api.grouppurchase.bo.GoodsSkuBO">
+        SELECT
+          t2.id skuId,
+          t2.spu_id,
+          t3.id product_id,
+          <!-- gpg.use_qty inventory,-->
+          t2.inventory,
+          t2.price,
+          t2.specification_pic_id spe_pic_id,
+          t4.pic_id,
+          <!-- t4.sale_price,-->
+          t2.price sale_price,
+          gpg.activity_price,
+          t3.product_name,
+          t6.fix_transport_expense,
+          GROUP_CONCAT(t5.attribute_name) attribute_names,
+          GROUP_CONCAT(t5.attribute_value_id) attribute_value_ids,
+          GROUP_CONCAT(t5.attribute_value_name) attribute_value_names,
+          t3.product_spec,
+          t3.product_model_number,
+          t7.brand_name
+        FROM
+          base_goods_spu t1
+          LEFT JOIN base_product t3
+            ON t3.goods_spu_id = t1.id
+          LEFT JOIN base_goods_sku t2
+            ON t2.product_id = t3.id
+          LEFT JOIN group_purchase_goods gpg
+            ON gpg.sku_id = t2.id
+          LEFT JOIN platform2c_product_rel t4
+            ON t4.product_id = t3.id
+            AND t4.platform_id = 14
+            AND t4.putaway_state = 1
+          LEFT JOIN product_attribute t5
+            ON t5.product_id = t3.id
+          LEFT JOIN spu_sale_info t6
+            ON t6.spu_id = t1.id
+          LEFT JOIN base_brand t7
+            ON t7.id = t3.brand_id
+        WHERE t1.id = #{spuId,jdbcType=INTEGER}
+          AND gpg.purchase_activity_id = #{activityId}
+          AND t1.is_deleted = 0
+        GROUP BY t3.id
+    </select>
+
+    <select id="countGather" resultType="java.lang.Long">
+        SELECT
+          count(*)
+        FROM
+          group_purchase_activity gpa,
+          group_purchase_open gpo,
+          sys_user u
+        WHERE gpa.id = gpo.purchase_activity_id
+          AND gpo.user_id = u.id
+          <include refid="listGatherWhereSql"/>
+    </select>
+
+    <select id="listGather" resultType="com.sandu.api.grouppurchase.bo.GroupPurchaseGatherBO">
+        SELECT
+          u.id user_id,
+          IF((u.nick_name IS NULL OR u.nick_name = ''), u.mobile, u.nick_name) nick_name,
+          u.mobile telephone,
+          u.head_pic userPhoto,
+          gpa.id activity_id,
+          gpo.id purchase_open_id,
+          gpo.open_date,
+          gpo.expire_date,
+          gpo.spu_id,
+          gpo.total_number,
+          gpo.join_number,
+          gpo.unjoin_number,
+          gpa.group_valid_day,
+          gpa.group_valid_hour,
+          gpa.group_valid_minute
+        FROM
+          group_purchase_activity gpa,
+          group_purchase_open gpo,
+          sys_user u
+        WHERE gpa.id = gpo.purchase_activity_id
+          AND gpo.user_id = u.id
+          <include refid="listGatherWhereSql"/>
+        ORDER BY gpo.join_number DESC,
+          gpo.gmt_create
+    </select>
+    <select id="getActivitySkuBySpuId" resultType="com.sandu.api.grouppurchase.bo.GoodsSkuBO">
+        SELECT
+            bgs.product_id AS productId,
+            bgs.spu_id AS spuId,
+            bgs.id AS skuId,
+            bgs.inventory AS inventory,
+            bgs.price AS price,
+            GROUP_CONCAT( pa.attribute_name ) attribute_names,
+            GROUP_CONCAT( pa.attribute_value_name ) attributeValueNames
+        FROM
+            base_goods_sku bgs
+            LEFT JOIN product_attribute pa ON pa.product_id = bgs.product_id
+            left join platform2c_product_rel t5 on t5.product_id = bgs.product_id
+        WHERE
+            bgs.spu_id = #{spuId}
+            AND t5.putaway_state = 1
+            and t5.platform_id = 14
+            group by bgs.product_id
+    </select>
+    <select id="listByOption" resultType="com.sandu.api.grouppurchase.model.GroupPurchaseGoods">
+        select * from group_purchase_goods
+        where 1= 1
+        <if test="id != null">
+            and
+            id = #{id}
+        </if>
+        <if test="purchaseActivityId != null">
+            and
+            purchase_activity_id = #{purchaseActivityId}
+        </if>
+        <if test="spuId != null">
+            and
+            spu_id = #{spuId}
+        </if>
+        <if test="skuId != null">
+            and
+            sku_id = #{skuId}
+        </if>
+        <if test="activityPrice != null">
+            and
+            activity_price = #{activityPrice}
+        </if>
+        <if test="qty != null">
+            and
+            qty = #{qty}
+        </if>
+        <if test="useQty != null">
+            and
+            use_qty = #{useQty}
+        </if>
+        <if test="outQty != null">
+            and
+            out_qty = #{outQty}
+        </if>
+        <if test="creator != null">
+            and
+            creator = #{creator}
+        </if>
+        <if test="gmtCreate != null">
+            and
+            gmt_create = #{gmtCreate}
+        </if>
+        <if test="modifier != null">
+            and
+            MODIFIER = #{MODIFIER}
+        </if>
+        <if test="gmtModified != null">
+            and
+            gmt_modified =#{gmtModified}
+        </if>
+        <if test="isDeleted != null">
+            and
+            is_deleted = #{isDeleted}
+        </if>
+        <if test="sellQty != null">
+            and
+            sell_qty = #{sellQty}
+        </if>
+    </select>
+
+    <select id="getGoodsInfoToOrder" resultType="com.sandu.api.grouppurchase.bo.GoodsInfoToOrderBO">
+        SELECT
+            t1.id,
+            t1.product_id,
+            t5.product_name,
+            t6.fix_transport_expense,
+            t1.price,
+            group_concat( t4.attribute_value_name ) attribute,
+            t3.pic_path,
+            t1.inventory,
+            gpg.activity_price,
+            gpg.qty,
+            gpg.use_qty,
+            gpg.out_qty
+        FROM
+            base_goods_sku t1
+            left join group_purchase_goods gpg on t1.id = gpg.sku_id
+            left join spu_sale_info t6 on t6.spu_id = t1.spu_id
+            left join res_pic t3 on t3.id = t1.specification_pic_id
+            left join product_attribute t4 on t4.product_id = t1.product_id
+            left join base_product t5 on t5.id = t1.product_id
+        WHERE
+            t1.product_id = #{productId}
+        GROUP BY
+            t1.product_id
+    </select>
+    <select id="getSkusBySpuIdAndActivityId" resultType="com.sandu.api.grouppurchase.model.GroupPurchaseGoods">
+        SELECT * from group_purchase_goods
+        where purchase_activity_id = #{purchaseActivityId}
+        and spu_id = #{spuId}
+    </select>
+    <select id="getSkuInfoBySpuId" resultType="com.sandu.api.grouppurchase.bo.PurchaseGoodSkuBO">
+        select goods.spu_id,goods.sku_id,goods.activity_price as activePrice,
+        sku.gmt_create,sku.specification_pic_id as pic,
+        spu.product_name,
+        sku.price as basePrice
+         from group_purchase_goods goods
+              ,base_goods_spu spu
+              , base_goods_sku sku
+         where
+           goods.spu_id = spu.id
+         and goods.sku_id = sku.id
+         and     goods.spu_id = #{spuId}
+         and goods.purchase_activity_id = #{activeId}
+    </select>
+
+    <select id="isGroupOverflow" resultType="java.lang.Integer">
+        SELECT
+          COUNT(*)
+        FROM
+          group_purchase_open
+        WHERE id = #{groupId}
+          AND join_number <![CDATA[ >= ]]> total_number
+    </select>
+
+    <sql id="listGatherWhereSql">
+        AND gpa.is_deleted = 0
+        AND gpa.activity_status != 0
+        AND gpa.gather_flag = 1
+        AND gpo.is_deleted = 0
+        AND gpo.open_status = 0
+        AND NOW() &lt; gpo.expire_date
+        AND gpa.id = #{activityId}
+    </sql>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from group_purchase_goods
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <delete id="removeByActivityId">
+        delete from group_purchase_goods
+        where purchase_activity_id =#{purchaseActivityId}
+    </delete>
+    <insert id="insert" parameterType="com.sandu.api.grouppurchase.model.GroupPurchaseGoods">
+        insert into group_purchase_goods (id, purchase_activity_id, spu_id,
+          sku_id, activity_price, qty,
+          use_qty, out_qty, creator,
+          gmt_create, MODIFIER, gmt_modified,
+          is_deleted)
+        values (#{id,jdbcType=BIGINT}, #{purchaseActivityId,jdbcType=BIGINT}, #{spuId,jdbcType=BIGINT},
+          #{skuId,jdbcType=BIGINT}, #{activityPrice,jdbcType=DECIMAL}, #{qty,jdbcType=DECIMAL},
+          #{useQty,jdbcType=DECIMAL}, #{outQty,jdbcType=DECIMAL}, #{creator,jdbcType=VARCHAR},
+          #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP},
+          #{isDeleted,jdbcType=INTEGER})
+    </insert>
+    <insert id="insertSelective" parameterType="com.sandu.api.grouppurchase.model.GroupPurchaseGoods">
+        insert into group_purchase_goods
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="purchaseActivityId != null">
+                purchase_activity_id,
+            </if>
+            <if test="spuId != null">
+                spu_id,
+            </if>
+            <if test="skuId != null">
+                sku_id,
+            </if>
+            <if test="activityPrice != null">
+                activity_price,
+            </if>
+            <if test="qty != null">
+                qty,
+            </if>
+            <if test="useQty != null">
+                use_qty,
+            </if>
+            <if test="outQty != null">
+                out_qty,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                MODIFIER,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="sellQty != null">
+                sell_qty,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="purchaseActivityId != null">
+                #{purchaseActivityId,jdbcType=BIGINT},
+            </if>
+            <if test="spuId != null">
+                #{spuId,jdbcType=BIGINT},
+            </if>
+            <if test="skuId != null">
+                #{skuId,jdbcType=BIGINT},
+            </if>
+            <if test="activityPrice != null">
+                #{activityPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="qty != null">
+                #{qty,jdbcType=DECIMAL},
+            </if>
+            <if test="useQty != null">
+                #{useQty,jdbcType=DECIMAL},
+            </if>
+            <if test="outQty != null">
+                #{outQty,jdbcType=DECIMAL},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="sellQty != null">
+                #{sellQty},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.grouppurchase.model.GroupPurchaseGoods">
+        update group_purchase_goods
+        <set>
+            <if test="purchaseActivityId != null">
+                purchase_activity_id = #{purchaseActivityId,jdbcType=BIGINT},
+            </if>
+            <if test="spuId != null">
+                spu_id = #{spuId,jdbcType=BIGINT},
+            </if>
+            <if test="skuId != null">
+                sku_id = #{skuId,jdbcType=BIGINT},
+            </if>
+            <if test="activityPrice != null">
+                activity_price = #{activityPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="qty != null">
+                qty = #{qty,jdbcType=DECIMAL},
+            </if>
+            <if test="useQty != null">
+                use_qty = #{useQty,jdbcType=DECIMAL},
+            </if>
+            <if test="outQty != null">
+                out_qty = #{outQty,jdbcType=DECIMAL},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                MODIFIER = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="sellQty != null">
+                sell_qty = #{sellQty},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.sandu.api.grouppurchase.model.GroupPurchaseGoods">
+    update group_purchase_goods
+    set purchase_activity_id = #{purchaseActivityId,jdbcType=BIGINT},
+      spu_id = #{spuId,jdbcType=BIGINT},
+      sku_id = #{skuId,jdbcType=BIGINT},
+      activity_price = #{activityPrice,jdbcType=DECIMAL},
+      qty = #{qty,jdbcType=DECIMAL},
+      use_qty = #{useQty,jdbcType=DECIMAL},
+      out_qty = #{outQty,jdbcType=DECIMAL},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      MODIFIER = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      sell_qty = #{sellQty},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

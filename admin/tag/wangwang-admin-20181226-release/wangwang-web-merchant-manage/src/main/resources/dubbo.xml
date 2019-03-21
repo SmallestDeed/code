@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+					http://www.springframework.org/schema/beans/spring-beans.xsd
+                    http://code.alibabatech.com/schema/dubbo
+                    http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+    <import resource="classpath:spring-sso-config.xml" />
+    <!-- 提供方应用信息，用于计算依赖关系 -->
+    <dubbo:application name="${spring.application.name}" />
+
+    <!-- 使用zookeeper注册中心暴露服务地址 -->
+    <dubbo:registry protocol="zookeeper" address="${dubbo.registry.address}" >
+        <dubbo:parameter key="qos.port" value="22205" />
+    </dubbo:registry>
+
+    <!-- 服务验证 -->
+    <dubbo:consumer check="false" timeout="5000" retries="0" />
+    
+<!--     <dubbo:consumer check="false" timeout="5000" filter="catConsumerFilter" />
+ -->    <!--CAT 过滤器-->
+
+    <!--服务引用-->
+    <dubbo:reference id="productService" interface="com.sandu.api.product.service.ProductService"
+                     check="false" version="20.18.0" retries="0"/>
+    <dubbo:reference id="productBizService" interface="com.sandu.api.product.service.biz.ProductBizService"
+                     check="false" timeout="30000" version="20.18.0"/>
+    <dubbo:reference id="companyService" interface="com.sandu.api.company.service.CompanyService"
+                     check="false" version="20.18.0"/>
+
+    <dubbo:reference id="categoryService" interface="com.sandu.api.category.service.CategoryService"
+                     check="false" version="20.18.0"/>
+    <dubbo:reference id="categoryBizService" interface="com.sandu.api.category.service.biz.CategoryBizService"
+                     check="false" version="20.18.0"/>
+    <dubbo:reference id="brandService" interface="com.sandu.api.brand.service.BrandService"
+                     check="false" version="20.18.0"/>
+    <dubbo:reference id="baseProductStyleService" interface="com.sandu.api.product.service.BaseProductStyleService"
+                     check="false" version="20.18.0"/>
+    <dubbo:reference id="productStyleService" interface="com.sandu.api.product.service.ProductStyleService"
+                     check="false" version="20.18.0"/>
+    <dubbo:reference id="resTextureService" interface="com.sandu.api.restexture.service.ResTextureService"
+                     check="false" version="20.18.0"/>
+    <dubbo:reference id="seriesService" interface="com.sandu.api.product.service.BaseSeriesService"
+                     check="false" version="20.18.0"/>
+    <dubbo:reference id="dictionaryService" interface="com.sandu.api.dictionary.service.DictionaryService"
+                     check="false" version="20.18.0"/>
+    <dubbo:reference id="productCategoryRelService" interface="com.sandu.api.product.service.ProductCategoryRelService"
+                     check="false" version="20.18.0"/>
+    <dubbo:reference id="productControl" interface="com.sandu.api.product.service.ProductControlService"
+                     check="false" timeout="30000" version="20.18.0"/>
+
+    <dubbo:reference id="resModelService" interface="com.sandu.api.resmodel.service.ResModelService" check="false"
+                     version="20.18.0"/>
+
+    <dubbo:reference id="modelAreaRelService" interface="com.sandu.api.resmodel.service.ModelAreaRelService" check="false"
+                     version="20.18.0"/>                     
+                     
+    <dubbo:reference id="resModelBizService" interface="com.sandu.api.resmodel.service.ResModelBizService" check="false"
+                     version="20.18.0" timeout="8000"/>
+    <dubbo:reference id="companyBizService" interface="com.sandu.api.company.service.biz.CompanyBizService"
+                     check="false"
+                     version="20.18.0"/>
+    <dubbo:reference id="userService" interface="com.sandu.api.user.service.UserService" check="false"
+                     version="20.18.0"/>
+    <dubbo:reference id="platformService" interface="com.sandu.api.platform.service.PlatformService" check="false"
+                     version="20.18.0"/>
+
+    <dubbo:reference id="productPropService" interface="com.sandu.api.product.service.ProductPropService" check="false"
+                     version="20.18.0"/>
+
+    <dubbo:reference id="authorizedConfigService" interface="com.sandu.api.user.service.AuthorizedConfigService"
+                     check="false"
+                     version="20.18.0"/>
+
+
+    <dubbo:reference id="designPlanRecommendedService"
+                     timeout="30000"
+                     interface="com.sandu.api.solution.service.DesignPlanRecommendedService" check="false"
+                     version="20.18.0"/>
+
+    <dubbo:reference id="designPlanService"
+                     timeout="30000"
+                     interface="com.sandu.api.solution.service.DesignPlanService" check="false"
+                     version="20.18.0"/>
+    <dubbo:reference id="resTextureBizService" interface="com.sandu.api.restexture.service.biz.ResTextureBizService"
+                     check="false"
+                     version="20.18.0"/>
+
+    <dubbo:reference timeout="30000" retries="0" id="designPlanBizService" interface="com.sandu.api.solution.service.biz.DesignPlanBizService"
+                     check="false"
+                     version="20.18.0"/>
+    <dubbo:reference id="resPicService" interface="com.sandu.api.storage.service.ResPicService"
+                     check="false"
+                     version="20.18.0"/>
+    <dubbo:reference id="groupProductBizService" interface="com.sandu.api.groupproducct.service.biz.GroupProductBizService"
+                     check="false"
+                     version="20.18.0"/>
+
+    <dubbo:reference id="resFileService" interface="com.sandu.api.groupproducct.service.ResFileService" check="false" version="20.18.0"/>
+    <dubbo:reference id="queueService" interface="com.sandu.api.queue.service.QueueService" check="false" version="20.18.0"/>
+
+    <dubbo:reference id="solutionCopyService" interface="com.sandu.api.solution.service.biz.SolutionCopyService" check="false" version="20.18.0" />
+
+    <dubbo:reference id="baseGoodsSKUService" interface="com.sandu.api.goods.service.BaseGoodsSKUService" check="false" version="20.18.0" timeout="30000"/>
+
+    <dubbo:reference id="baseGoodsSPUService" interface="com.sandu.api.goods.service.BaseGoodsSPUService" check="false" version="20.18.0" timeout="30000"/>
+    <dubbo:reference id="picService" interface="com.sandu.api.goods.service.PicService" check="false" version="20.18.0"/>
+    <dubbo:reference id="fullHouseDesignService" interface="com.sandu.api.solution.service.FullHouseDesignPlanService" check="false" version="20.18.0"/>
+    <dubbo:reference id="planDecoratePriceService" interface="com.sandu.api.solution.service.PlanDecoratePriceService" check="false" version="20.18.0"/>
+    <!-- 特卖商品和预售商品服务 -->
+    <dubbo:reference id="baseGoodsBizService" interface="com.sandu.api.goods.service.biz.BaseGoodsBizService" check="false" version="20.18.0"/>
+
+    <!-- 客户管理服务消费 -->
+
+    <dubbo:reference id="customerBaseInfoService" interface="com.sandu.api.customer.service.CustomerBaseInfoService" check="false" version="20.18.0"/>
+
+    <dubbo:reference id="customerAlotZoneService" interface="com.sandu.api.customer.service.CustomerAlotZoneService" check="false" version="20.18.0"/>
+
+    <dubbo:reference id="customerAlotLogService" interface="com.sandu.api.customer.service.CustomerAlotLogService" check="false" version="20.18.0"/>
+
+    <dubbo:reference id="customerFollowLogService" interface="com.sandu.api.customer.service.CustomerFollowLogService" check="false" version="20.18.0"/>
+
+    <dubbo:reference id="customerOperateLogService" interface="com.sandu.api.customer.service.CustomerOperateLogService" check="false" version="20.18.0"/>
+
+    <dubbo:reference id="customerCommonService" interface="com.sandu.api.customer.service.CustomerCommonService" check="false" version="20.18.0"/>
+
+
+    <dubbo:reference id="baseAreaService" interface="com.sandu.api.area.service.BaseAreaService" check="false" version="1.0.2"/>
+    <dubbo:reference id="baseCompanyService" interface="com.sandu.api.company.service.BaseCompanyService" check="false" version="1.0.2"/>
+    <dubbo:reference id="sysRoleService" interface="com.sandu.api.user.service.SysRoleService"  check="false"  version="20.18.0" />
+    <dubbo:reference id="sysRoleGroupService" interface="com.sandu.api.user.service.SysRoleGroupService"  check="false"  version="20.18.0" />
+	<dubbo:reference id="baseSupplydemandBizService" interface="com.sandu.api.basesupplydemand.service.biz.BaseSupplydemandBizService"  check="false"  version="20.18.0" />
+    <dubbo:reference id="supplyDemandCategoryService" interface="com.sandu.api.basesupplydemand.service.SupplyDemandCategoryService"  check="false"  version="20.18.0" />
+    <dubbo:reference id="CompanyshopbizService" interface="com.sandu.api.companyshop.service.biz.CompanyshopBizService"  check="false"  version="20.18.0" />
+    <dubbo:reference id="dynamicService" interface="com.sandu.api.dynamic.service.DynamicService"  check="false"  version="20.18.0" />
+    <dubbo:reference id="orderManageService" interface="com.sandu.api.order.service.OrderManageService"  check="false"  version="20.18.0" />
+	<!-- 装修订单  -->
+	<dubbo:reference id="decorateOrderBizService"  interface="com.sandu.api.decorateorder.service.biz.DecorateOrderBizService" timeout="30000"
+                   version="20.18.0"/>
+    <!-- 业主信息 -->               
+    <dubbo:reference id="proprietorInfoBizService"  interface="com.sandu.api.proprietorinfo.service.biz.ProprietorInfoBizService" timeout="30000" 
+    			   version="20.18.0"/>
+    <!-- 装修客户 -->
+    <dubbo:reference id="decorateCustomerBizService"
+                     interface="com.sandu.api.decoratecustomer.service.biz.DecorateCustomerBizService" timeout="30000"
+                     version="20.18.0"/>
+
+    <dubbo:reference id="sysUserMessageService" interface="com.sandu.api.sysusermessage.service.SysUserMessageService"
+                     timeout="30000"
+                     version="20.18.0"/>
+
+    <!--水刀模板-->
+    <dubbo:reference id="basewaterjetBizService" interface="com.sandu.api.basewaterjet.service.biz.BasewaterjetBizService"
+                     timeout="30000"
+                     version="1.0.0"/>
+
+    <!--店铺认证-->
+    <dubbo:reference id="shopidentificationBizService" interface="com.sandu.api.companyshop.service.biz.ShopidentificationBizService"
+                     check="false"
+                     version="20.18.0"/>
+    <!--线下门店-->
+    <dubbo:reference id="companyshopofflineBizService" interface="com.sandu.api.companyshop.service.biz.CompanyshopofflineBizService" timeout="30000"
+                     version="20.18.0"/>
+
+    <dubbo:reference id="companyShopService" interface="com.sandu.api.shop.service.CompanyShopService" timeout="30000"
+                     version="1.0.2"/>
+
+    <dubbo:reference interface="com.sandu.api.user.service.SysUserService" id="sysUserService" version="20.18.0"/>
+	
+	<dubbo:reference id="miniProgramDashboardService" interface="com.sandu.api.solution.service.MiniProgramDashboardService" check="false" version="20.18.0" />
+</beans>
+

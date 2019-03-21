@@ -1,0 +1,87 @@
+package com.sandu.decorate.service;
+
+import com.sandu.decorate.input.PlanDecoratePriceQuery;
+import com.sandu.decorate.model.PlanDecoratePrice;
+
+import java.util.List;
+import java.util.Set;
+
+/**
+ * CopyRight (c) 2018 Sandu Technology Inc.
+ * <p>
+ *
+ * @author sandu <dev@sanduspace.cn>
+ * @datetime 2018-Aug-08 15:37
+ */
+public interface PlanDecoratePriceService {
+
+    /**
+     * 插入
+     *
+     * @param planDecoratePrice
+     * @return
+     */
+    int insert(PlanDecoratePrice planDecoratePrice);
+
+    /**
+     * 更新
+     *
+     * @param planDecoratePrice
+     * @return
+     */
+    int update(PlanDecoratePrice planDecoratePrice);
+
+    /**
+     * 删除
+     *
+     * @param planDecoratePriceIds
+     * @return
+     */
+    int delete(Set<Integer> planDecoratePriceIds);
+
+    /**
+     * 通过ID获取详情
+     *
+     * @param planDecoratePriceId
+     * @return
+     */
+    PlanDecoratePrice getById(int planDecoratePriceId);
+
+    /**
+     * 查询列表
+     *
+     * @return
+     */
+    List<PlanDecoratePrice> findAll(PlanDecoratePriceQuery query);
+
+    /**
+     * 批量插入（插入效果图方案的所有报价信息）
+     *
+     * @param insertList
+     * @return
+     */
+    int insertBatch(List<PlanDecoratePrice> insertList);
+
+    /**
+     * 批量插入
+     *
+     * @param updateList
+     * @return
+     */
+    int updateBatch(List<PlanDecoratePrice> updateList);
+
+    /**
+     * 根据效果图方案id删除
+     *
+     * @param renderSceneId
+     * @return
+     */
+    int deleteByRenderSceneId(Integer renderSceneId);
+
+    /**
+     * 根据全屋方案id删除之前的数据
+     * @param planId
+     * @return
+     */
+    int deleteByFullHouseId(Integer planId);
+}

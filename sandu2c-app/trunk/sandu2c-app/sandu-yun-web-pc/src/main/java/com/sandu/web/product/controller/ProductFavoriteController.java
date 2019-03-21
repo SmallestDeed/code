@@ -1,0 +1,181 @@
+package com.sandu.web.product.controller;
+
+import com.google.gson.Gson;
+import com.nork.common.model.LoginUser;
+import com.sandu.common.LoginContext;
+import com.sandu.common.model.PageModel;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.common.objectconvert.user.UserObject;
+import com.sandu.common.util.LoginUserCommonConstant;
+import com.sandu.product.model.CollectionQueryModel;
+import com.sandu.product.model.UserProductCollect;
+import com.sandu.product.service.UserProductCollectService;
+
+
+import com.sandu.user.model.UserSO;
+import com.sandu.user.service.UserSessionService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import org.springframework.web.bind.annotation.ModelAttribute;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+/**
+ * 产品收藏
+ */
+@Controller
+@RequestMapping("/v1/product/productfavorite")
+public class ProductFavoriteController {
+    private final static Gson gson = new Gson();
+    private final static String CLASS_LOG_PREFIX = "[产品收藏服务]:";
+    private final static Logger logger = LoggerFactory.getLogger(ProductFavoriteController.class);
+
+    @Autowired
+    private UserProductCollectService userProductCollectService;
+
+    @Autowired
+    private UserSessionService userSessionService;
+
+
+    /**
+     * 产品收藏列表-----接口
+     *
+     * @param request
+     * @return
+     */
+   
+    @RequestMapping("/collectionlist")
+    @ResponseBody
+    public ResponseEnvelope collectionList(@ModelAttribute PageModel pageModel, Integer isSort,String productCategoryCode
+            , HttpServletRequest request) {
+
+    	LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        logger.info(CLASS_LOG_PREFIX + "获取登录用户信息:getUserFromCache:{}.", null == loginUser ? null : loginUser.toString());
+        if(loginUser==null){
+            return new ResponseEnvelope(false, "请登录!");
+        }
+        CollectionQueryModel model = new CollectionQueryModel();
+        model.setIsSort(null == isSort ? 0 : isSort);
+        model.setStart(pageModel.getStart());
+        model.setPageSize(0 == pageModel.getPageSize() ? 20 : pageModel.getPageSize());
+        model.setLoginUser(loginUser);
+        model.setProductCategoryCode(null==productCategoryCode?null:productCategoryCode);
+        ResponseEnvelope res = userProductCollectService.collectionList(model);
+        logger.info(CLASS_LOG_PREFIX + "响应给客户端的数据:{}", gson.toJson(res));
+        return res;
+    }
+
+    /**
+     * 产品收藏添加-----接口
+     *
+     * @param request
+     * @return
+     */
+
+    @RequestMapping(value = "/collecproduct")
+    @ResponseBody
+    public ResponseEnvelope collecProduct(@ModelAttribute("userProductCollect") UserProductCollect userProductCollect
+            , HttpServletRequest request, HttpServletResponse response) throws Exception {
+    	LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        logger.info(CLASS_LOG_PREFIX + "获取登录用户信息:getUserFromCache:{}.", null == loginUser ? null : loginUser.toString());
+        if(loginUser==null){
+            return new ResponseEnvelope(false, "请登录!");
+        }
+        //LoginUser loginUser = UserObject.parseUserSoToLoginUser(userSo);
+        userProductCollect.setUserId(loginUser.getId());
+        if (userProductCollect.getProductId() == null) {
+            return new ResponseEnvelope(false, "参数productId不能为空");
+        }
+        ResponseEnvelope res = userProductCollectService.collecProduct(userProductCollect, loginUser);
+        logger.info(CLASS_LOG_PREFIX + "响应给客户端的数据:{}", gson.toJson(res));
+        return res;
+    }
+
+    /**
+     * 产品收藏删除-----接口
+     *
+     * @param style
+     * @param request
+     * @return
+     */
+
+    @RequestMapping(value = "/deluserproduct")
+    @ResponseBody
+    public Object delUserProduct(@ModelAttribute("userProductCollect") UserProductCollect userProductCollect
+            , HttpServletRequest request) {
+    	LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        logger.info(CLASS_LOG_PREFIX + "获取登录用户信息:getUserFromCache:{}.", null == loginUser ? null : loginUser.toString());
+        if(loginUser==null){
+            return new ResponseEnvelope(false, "请登录!");
+        }
+        userProductCollect.setUserId(loginUser.getId());
+        if (userProductCollect.getProductId() == null) {
+            return new ResponseEnvelope(false, "参数productId不能为空！");
+        }
+        List<UserProductCollect> list = userProductCollectService.getList(userProductCollect);
+        logger.info(CLASS_LOG_PREFIX + "用户收藏该产品的记录:{}", gson.toJson(list));
+        if (list != null && list.size() > 0) {
+            int flag = userProductCollectService.delete(list.get(0).getId());
+            if (flag == 1) {
+                return new ResponseEnvelope(true, "删除成功");
+            } else {
+                return new ResponseEnvelope(false, "数据删除失败!");
+            }
+        } else {
+            return new ResponseEnvelope(false, "该记录不存在或已被删除!");
+        }
+    }
+    
+    /**
+     * 根据产品列表查询产品是否收藏
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/searchproductfavorite", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEnvelope searchproductcategory(@RequestParam String productIds, HttpServletRequest request,
+			HttpServletResponse response) {
+		if (null == productIds || productIds.isEmpty()) {
+			return new ResponseEnvelope<>(false, "缺少产品ID参数");
+		}
+     	UserSO userSo = null;
+		LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+		if(loginUser!=null) {
+			userSo = new UserSO();
+			userSo.setUserId(loginUser.getId());
+		}
+		List<Integer> productIdList = new ArrayList<>();
+		if (productIds.contains(",")) {
+			String[] arr = productIds.split(",");
+			for (String str : arr) {
+				productIdList.add(new Integer(str));
+			}			
+		} else {
+			productIdList.add(new Integer(productIds));
+		}
+		
+		HashMap<Integer,Integer> productFavotiteMap = userProductCollectService.getProductFavoriteMap(productIdList,userSo);
+		return new ResponseEnvelope<>(true, "", productFavotiteMap);
+    }
+    
+    
+    
+    
+}

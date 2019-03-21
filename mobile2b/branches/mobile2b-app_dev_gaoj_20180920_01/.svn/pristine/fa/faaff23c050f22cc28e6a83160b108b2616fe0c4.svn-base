@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.mobile.dao.SysDictionaryProductTypeMapper">
+
+    <select id="getProductTotalType" resultType="com.nork.design.model.ProductsCostType">
+        SELECT
+        sd.valuekey costTypeCode, sd.value costTypeValue, sd.name costTypeName
+        FROM sys_dictionary sd WHERE sd.type = 'totalType'
+    </select>
+
+    <select id="getProductCost" resultType="com.nork.design.model.ProductsCost">
+        SELECT
+        tal.att1 productTypeValue,tal.valuekey costTypeCode,tal.value costTypeValue,tal.name costTypeName
+        FROM sys_dictionary tal WHERE tal.type = 'total'
+    </select>
+
+
+
+
+
+    <select id="getProductCost111" resultType="com.nork.design.model.ProductsCost">
+        SELECT s3.value costTypeValue,s3.valuekey costTypeCode,s3.name costTypeName FROM
+        (SELECT bs.type,bs.valuekey,bs.value,bs.name FROM sys_dictionary bs WHERE bs.type = 'productType') s1
+        LEFT JOIN sys_dictionary s2 ON s2.type = s1.valuekey
+        LEFT JOIN (SELECT tal.type,tal.valuekey,tal.value,tal.name,tal.ordering FROM sys_dictionary tal WHERE tal.type = 'total') s3 ON s3.valuekey = s2.att2
+		WHERE 1=1
+		AND s2.att3 != 'baimo'
+		AND s3.value IS NOT NULL
+		GROUP BY s2.att2
+		ORDER BY s3.ordering,s2.ordering
+    </select>
+
+    <select id="getProductTotalType111" resultType="com.nork.design.model.ProductsCostType">
+        SELECT GROUP_CONCAT(C.costTypeCode) costCodes,s2.value costTypeValue,s2.valuekey costTypeCode,s2.name costTypeName
+        FROM
+
+        (SELECT s3.value costTypeValue,s3.valuekey costTypeCode,s3.name costTypeName FROM
+        (SELECT bs.type,bs.valuekey,bs.value,bs.name,bs.ordering FROM sys_dictionary bs WHERE bs.type = 'productType') s1
+        LEFT JOIN sys_dictionary s2 ON s2.type = s1.valuekey
+        LEFT JOIN (SELECT tal.type,tal.valuekey,tal.value,tal.name,tal.ordering FROM sys_dictionary tal WHERE tal.type = 'total') s3 ON s3.valuekey = s2.att2
+        WHERE 1=1
+        AND s2.att3 != 'baimo'
+        GROUP BY s2.att2
+        ORDER BY s3.ordering,s2.ordering) C
+
+        LEFT JOIN
+        (SELECT  bs.type, bs.valuekey, bs.value, bs.name, bs.ordering, bs.att1 FROM  sys_dictionary bs WHERE bs.type = 'total' ) s1
+        ON C.costTypeCode = s1.valuekey
+        LEFT JOIN (SELECT  sd.type, sd.valuekey, sd.value, sd.name, sd.ordering FROM sys_dictionary sd WHERE sd.type = 'totalType' ) s2
+        ON s1.att1 = s2.valuekey
+        WHERE 1 = 1
+        AND s1.att1 IS NOT NULL
+        GROUP BY s1.att1
+    </select>
+</mapper>

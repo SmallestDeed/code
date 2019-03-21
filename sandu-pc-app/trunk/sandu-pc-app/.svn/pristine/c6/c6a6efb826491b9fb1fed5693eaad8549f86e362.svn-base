@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.house.dao.BaseHouseMapper">
+
+    <!-- 通过封面图获取720多点信息 TEMP -->
+    <select id="getIdsByName" resultType="java.lang.Integer"
+            parameterType="java.lang.String">
+        select id from base_living where living_name like CONCAT(CONCAT('%',#{livingName,jdbcType=VARCHAR}),'%') and is_deleted = 0
+    </select>
+
+    <resultMap id="getMyUsedResultMap" type="com.sandu.house.model.output.BaseHouseVo">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="living_id" property="livingId" jdbcType="INTEGER"/>
+        <result column="house_common_code" property="houseCommonCode" jdbcType="VARCHAR"/>
+        <result column="total_area" property="totalArea" jdbcType="VARCHAR"/>
+        <result column="house_pic_id" property="housePicId" jdbcType="INTEGER"/>
+        <result column="pic_path" property="picPath" jdbcType="VARCHAR"/>
+        <result column="old_house_pic_id" property="oldHousePicId" jdbcType="INTEGER"/>
+        <result column="area_long_code" property="areaLongCode" jdbcType="VARCHAR"/>
+        <result column="lastUseTime" property="lastUseTime" jdbcType="VARCHAR"/>
+        <result column="livingName" property="livingName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 获取渲染过的户型数量 -->
+    <select id="getMyUsedCount" resultType="java.lang.Integer"
+            parameterType="com.sandu.house.model.input.BaseHouseSearch">
+        select count(DISTINCT bh.id) from base_house bh
+        left join base_living bl on bl.id = bh.living_id and bl.is_deleted = 0
+        left join base_area ba on ba.area_code = bl.area_id and ba.is_deleted =0
+        left join house_space_new sh on sh.house_id = bh.id and sh.is_deleted =0
+        left join space_common sc on sc.id = sh.standard_space_id and sc.is_deleted = 0
+        left join design_templet dt on dt.space_common_id = sc.id  and dt.is_deleted = 0
+        left join design_plan_render_scene dprs on dprs.design_template_id = dt.id and dprs.is_deleted = 0
+        where 1=1
+        <!-- 只显示从“小区户型”创建的效果图方案 -->
+        <!-- and dprs.plan_source LIKE '%huxing%'-->
+        <!-- 只显示户型绘制新生成的户型-->
+        AND sc.origin = 1
+        <if test="userId != null">
+          and dprs.user_id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="areaCode != null and areaCode != ''">
+          and ba.long_code like CONCAT(CONCAT('%.',#{areaCode,jdbcType=VARCHAR}),'.%')
+        </if>
+        <if test="livingId != null">
+            and bh.living_id = #{livingId,jdbcType=INTEGER}
+        </if>
+        <if test="livingIds != null and livingIds.size > 0 and livingId == null">
+          and bh.living_id in
+          <foreach collection="livingIds" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+        </if>
+        and bh.is_deleted = 0
+    </select>
+
+    <!-- 获取渲染过的户型 -->
+    <select id="getMyUsed" resultMap="getMyUsedResultMap"
+            parameterType="com.sandu.house.model.input.BaseHouseSearch">
+        select DISTINCT bh.id,bh.living_id,bh.house_common_code,bh.total_area,bh.pic_res1_id as 'old_house_pic_id',bh.snap_pic_id as 'house_pic_id',rhp.pic_path
+        ,bh.area_long_code,DATE(MAX(dprs.`gmt_create`)) lastUseTime,bl.living_name livingName
+        from base_house bh
+        left join base_living bl on bl.id = bh.living_id and bl.is_deleted = 0
+        left join base_area ba on ba.area_code = bl.area_id and ba.is_deleted = 0
+        left join house_space_new sh on sh.house_id = bh.id and sh.is_deleted = 0
+        left join space_common sc on sc.id = sh.standard_space_id and sc.is_deleted = 0
+        left join design_templet dt on dt.space_common_id = sc.id and dt.is_deleted = 0
+        left join design_plan_render_scene dprs on dprs.design_template_id = dt.id and dprs.is_deleted = 0
+        left join res_house_pic rhp on rhp.id = bh.snap_pic_id and rhp.is_deleted = 0
+        where 1=1
+        <!-- 只显示从“小区户型”创建的效果图方案 -->
+        <!--  and dprs.plan_source LIKE '%huxing%'-->
+        <!-- 只显示户型绘制新生成的户型-->
+        AND sc.origin = 1
+        <if test="userId != null">
+          and dprs.user_id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="areaCode != null and areaCode != ''">
+          and ba.long_code like CONCAT(CONCAT('%.',#{areaCode,jdbcType=VARCHAR}),'.%')
+        </if>
+        <if test="livingId != null">
+            and bh.living_id = #{livingId,jdbcType=INTEGER}
+        </if>
+        <if test="livingIds != null and livingIds.size > 0 and livingId == null">
+          and bh.living_id in
+          <foreach collection="livingIds" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+        </if>
+        and bh.is_deleted = 0
+        <!--order by dprs.gmt_modified desc-->
+        GROUP  BY bh.id
+        ORDER BY lastUseTime DESC
+        <if test="start != null and limit != null">
+          LIMIT #{start}, #{limit}
+        </if>
+    </select>
+
+    <select id ="getHouseSpaceNumInfo"  resultMap="HouseSpaceNumResultMap">
+        SELECT sh.house_id as house_id,sc.space_function_id as space_function_id,COUNT(1) as space_num FROM house_space_new sh
+         LEFT JOIN space_common sc ON sc.id = sh.standard_space_id
+         WHERE  1=1
+         AND sh.house_id IN
+          <foreach collection="houseIds" separator="," open="(" close=")" item="id">
+              #{id}
+          </foreach>
+          AND sh.`is_deleted` =0 AND sc.is_deleted =0
+         GROUP BY sh.house_id,sc.space_function_id
+    </select>
+
+    <resultMap id="HouseSpaceNumResultMap" type="com.sandu.home.model.po.BaseHouseSpaceNumPO">
+        <result column="house_id" property="houseId" jdbcType="INTEGER"/>
+        <result column="space_function_id" property="spaceFunctionId" jdbcType="INTEGER"/>
+        <result column="space_num" property="spaceNum" jdbcType="INTEGER"/>
+    </resultMap>
+</mapper>

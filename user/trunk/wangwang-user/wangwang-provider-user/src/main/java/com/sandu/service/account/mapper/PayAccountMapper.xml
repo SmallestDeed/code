@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.account.dao.PayAccountDao">
+
+    <insert id="addPayAccount" parameterType="com.sandu.api.account.model.PayAccount" useGeneratedKeys="true" keyProperty="id">
+        insert into pay_account
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="consumeAmount!= null">consum_amount, </if>
+            <if test="balanceAmount!= null">balance_amount, </if>
+            <if test="userId!= null">user_id, </if>
+            <if test="platformId != null">platform_id,</if>
+            <if test="isDeleted!= null">is_deleted, </if>
+            <if test="creator!= null">creator, </if>
+            <if test="gmtCreate!= null">gmt_create, </if>
+            <if test="modifier!= null">modifier, </if>
+            <if test="gmtModified!= null">gmt_modified, </if>
+            <if test="platformBusinessType!= null">platform_bussiness_type, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="consumeAmount!= null">  #{consumeAmount}, </if>
+            <if test="balanceAmount!= null">  #{balanceAmount}, </if>
+            <if test="userId!= null">  #{userId,jdbcType=INTEGER}, </if>
+            <if test="platformId != null">#{platformId},</if>
+            <if test="isDeleted != null">#{isDeleted},</if>
+            <if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+            <if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+            <if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+            <if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+            <if test="platformBusinessType!= null">  #{platformBusinessType,jdbcType=VARCHAR}, </if>
+        </trim>
+    </insert>
+
+    <select id="selectByUserId" parameterType="com.sandu.api.account.model.PayAccount" resultType="com.sandu.api.account.model.PayAccount">
+        SELECT
+            *
+        FROM
+            pay_account
+        WHERE
+            user_id = #{userId}
+            AND is_deleted = 0
+            AND platform_bussiness_type = '2b';
+    </select>
+
+    <update id="update" parameterType="com.sandu.api.account.model.PayAccount">
+        UPDATE
+           pay_account
+        SET
+           balance_amount = #{balanceAmount},
+           gmt_modified = NOW()
+         WHERE
+           id = #{id}
+    </update>
+
+    <select id="getInfoByUserIdAndPlatformBussinessType" resultType="com.sandu.api.account.model.PayAccount">
+        SELECT
+           *
+        FROM
+           pay_account
+        WHERE
+            user_id = #{userId} AND
+            platform_bussiness_type = #{paltformBussinssType} AND
+            is_deleted = 0
+            limit 1
+    </select>
+
+    <select id="getUserRechargeRecord" resultType="com.sandu.api.account.model.MgrRechargeLog">
+         SELECT
+            *
+         FROM
+            mgr_recharge_log
+         WHERE
+            user_id = #{userId}
+            AND is_deleted = 0
+            limit #{start},#{limit}
+    </select>
+
+    <select id="countUserRechargeRecord" resultType="int">
+        SELECT
+            count(*)
+         FROM
+            mgr_recharge_log
+         WHERE
+            user_id = #{userId}
+            AND is_deleted = 0
+    </select>
+
+    <update id="updateUserBalanceAmount">
+        UPDATE
+          pay_account
+          SET
+          balance_amount = balance_amount + #{dubi}
+          WHERE
+          user_id = #{userId} AND
+          is_deleted = 0
+    </update>
+</mapper>

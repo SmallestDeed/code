@@ -1,0 +1,250 @@
+//app.js
+import fetch from './utils/fetch.js'
+import utils from './utils/utils.js'
+import API from '/api/api.js'
+const moment = require('./lib/moment/moment.min.js')
+import {
+    resourcePath,
+    staticImageUrl,
+    sevenUrl,
+    appid,
+    basePath,
+    shareTitle,
+    wholeHouseUrl
+} from './utils/config.js'
+import {
+    quickNavigation
+} from './component/quick-navigation/quick-navigation'
+import {
+    newNav
+} from './component/newNav/newNav'
+import {
+    bindingPhone
+} from './component/binding-phone/binding-phone'
+App({
+    quickNavigation,
+    newNav,
+    API: API,
+    wholeHouseUrl,
+    bindingPhone,
+    data: {
+        fetch: fetch,
+        hidden: false,
+        webUrl: '',
+        cityData: [], // 城市数组
+        carCount: 0, // 购物车数量
+        isBindingMobile: false
+    },
+    baseUrl: basePath.baseUrl,
+    fetch: fetch,
+    wxUrl: 'https://servicewechat.com/' + appid + '/devtools/page-frame.html',
+    myForEach: utils.myForEach,
+    myFindIndex: utils.myFindIndex,
+    myFind: utils.myFind,
+    resourcePath: resourcePath,
+    staticImageUrl: staticImageUrl,
+    sevenUrl: sevenUrl,
+    mySplitUrl: utils.mySplitUrl,
+    myCompoundUrl: utils.myCompoundUrl,
+    moment: moment(),
+    shareAppMessageObj: {
+        title: shareTitle,
+        path: `/pages/index/index`,
+        success(res) {},
+        fail(err) {}
+    },
+    shareAppMessageFn(bool, params) {
+        // return {
+        //   title: shareTitle,
+        //   path: `/pages/index/index`,
+        //   success(res) {
+        //   },
+        //   fail(err) {
+        //   }
+        // }
+        let isBool = bool || false;
+        let pages = getCurrentPages(),
+            isIndex = false,
+            opt = params ? params : '',
+            url = '/' + pages[pages.length - 1].route + opt,
+            str = [
+                'pages/index/index',
+                'pages/house-case/house-case',
+                'pages/house-goods/house-goods',
+                'pages/house-type/house-type',
+                'pages/personal-center/personal-center'
+            ];
+        for (let i = 0; i < str.length; i++) {
+            if (pages[pages.length - 1].route == str[i] || !isBool) {
+                isIndex = true;
+                break;
+            }
+        }
+        url = !bool ? str[0] : url;
+        console.log(encodeURI(url), 'wqwq')
+        let path = isIndex ? url : (str[0] + '?navToUrl=' + encodeURIComponent(url));
+        console.log(path);
+        return {
+            title: shareTitle,
+            path: path,
+            success(res) {},
+            fail(err) {}
+        }
+    },
+
+
+    onLaunch: function() {
+        let that = this
+        
+        var logs = wx.getStorageSync('logs') || []
+        logs.unshift(Date.now())
+        wx.setStorageSync('logs', logs)
+        // 登录
+        wx.login({
+            success: res => {
+                let url = `/user/getOpenid`
+                fetch(url, 'formData', {
+                        code: res.code,
+                        appid: appid
+                    }, 'login')
+                    .then(res => {
+                        if (res.success) {
+                            // 存储openId
+                            wx.setStorageSync('openId', res.obj)
+                            // 获取用户信息
+                            wx.getSetting({
+                                success(res) {
+
+                                    if (!res.authSetting['scope.userInfo']) {
+                                        wx.authorize({
+                                            scope: 'scope.userInfo',
+                                            success() {
+                                                // 已经授权，可以直接调用 getUserInfo 获取头像昵称，不会弹框
+                                                wx.getUserInfo({
+                                                    success: res => {
+                                                        // 可以将 res 发送给后台解码出 unionId
+                                                        that.globalData.userInfo = res.userInfo
+                                                        // 由于 getUserInfo 是网络请求，可能会在 Page.onLoad 之后才返回
+                                                        // 所以此处加入 callback 以防止这种情况
+                                                        if (that.userInfoReadyCallback) {
+                                                            that.userInfoReadyCallback(res)
+                                                        }
+                                                        // 上传用户昵称
+                                                        let url = '/user/saveMinProNickName'
+                                                        fetch(url, 'formData', {
+                                                                openId: wx.getStorageSync('openId'),
+                                                                nickName: res.userInfo.nickName
+                                                            }, 'login')
+                                                            .then((res) => {})
+                                                    }
+                                                })
+                                            }
+                                        })
+                                    } else {
+                                        // 已经授权，可以直接调用 getUserInfo 获取头像昵称，不会弹框
+                                        wx.getUserInfo({
+                                            success: res => {
+                                                // 可以将 res 发送给后台解码出 unionId
+                                                that.globalData.userInfo = res.userInfo
+                                                // 由于 getUserInfo 是网络请求，可能会在 Page.onLoad 之后才返回
+                                                // 所以此处加入 callback 以防止这种情况
+                                                if (that.userInfoReadyCallback) {
+                                                    that.userInfoReadyCallback(res)
+                                                }
+                                                // 上传用户昵称
+                                                let url = '/user/saveMinProNickName'
+                                                fetch(url, 'formData', {
+                                                        openId: wx.getStorageSync('openId'),
+                                                        nickName: res.userInfo.nickName
+                                                    }, 'login')
+                                                    .then((res) => {})
+                                            }
+                                        })
+                                    }
+                                },
+                                fail(err) {}
+                            })
+                            // 登录
+                            let url = `/user/login`
+                            return fetch(url, 'formData', {
+                                openid: res.obj,
+                                appid: appid
+                            }, 'login')
+                        }
+                    })
+                    .then(res => {
+                        if (res.success) {
+                            wx.setStorageSync('token', res.obj.token)
+                            wx.setStorageSync('userId', res.obj.id)
+                            wx.setStorageSync('companyId', res.obj.miniProgramCompanyId)
+                        }
+                    })
+            },
+            fail: (err) => {
+                wx.showToast({
+                    title: '网络错误',
+                    icon: 'none'
+                })
+            }
+        })
+        // 获取省市区
+        let url = `/base/basearea/getAllArea`
+        fetch(url, 'get')
+            .then((res) => {
+                wx.setStorageSync('cityData', res.status ? res.obj : [])
+            })
+            .catch(() => {
+                wx.setStorageSync('cityData', [])
+            })
+        fetch(`/v2/user/center/isUserMobileBinded`, 'get', {}, 'user')
+            .then((res) => {
+                wx.setStorage({
+                    key: 'bindingPhone',
+                    data: res.success ? res.obj : false,
+                })
+                console.log(res);
+            })
+        
+    },
+    cityDataFilter(cityData) { // 城市数据处理
+        this.myForEach(cityData, (valOne) => {
+            this.myForEach(valOne.baseAreaVos, (valTwo) => {
+                valTwo.baseAreaVos.unshift({
+                    areaCode: '',
+                    areaName: '全市',
+                    baseAreaVos: null,
+                    id: null,
+                    levelId: 0,
+                    pid: valTwo.areaCode
+                })
+            })
+        })
+        return cityData
+    },
+    myNavigateBack(url, options) {
+        let pages = getCurrentPages(),
+            optionUrl = '?'
+        let flag = this.myFindIndex(pages, (page) => {
+            return page.route === url
+        })
+        if (typeof options === 'object') {
+            for (let key in options) {
+                optionUrl += key + '=' + options[key] + '&'
+            }
+            optionUrl.slice(0, optionUrl.length - 1)
+        } else {
+            optionUrl = ''
+        }
+        if (flag !== -1) {
+            return getCurrentPages()[flag]
+        } else {
+            wx.navigateTo({
+                url: '/' + url + optionUrl,
+            })
+            return false
+        }
+    },
+    globalData: {
+        userInfo: null
+    }
+})

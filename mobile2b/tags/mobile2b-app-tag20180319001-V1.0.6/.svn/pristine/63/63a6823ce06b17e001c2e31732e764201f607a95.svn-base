@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.task.dao.RefreshPicMapper">
+
+	<!--<select id="getOriginalSmallPic" resultType="com.nork.system.model.ResRenderPic">-->
+		<!--select id,pid,pic_path as picPath from res_render_pic where-->
+		<!--file_key = 'design.designPlanRecommended.render.small.pic' and pid is not NULL AND is_deleted = 0-->
+		<!--LIMIT #{start,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}-->
+	<!--</select>-->
+	<!---->
+	<!--<select id="getOriginalLargePic" resultType="com.nork.system.model.ResRenderPic">-->
+		<!--select id,pic_path as picPath from res_render_pic where is_deleted = 0 AND id IN-->
+		<!--<foreach collection="list" item="item" open="(" close=")" separator=",">-->
+			<!--#{item.pid}-->
+		<!--</foreach>-->
+	<!--</select>-->
+
+	<!--<select id="selectByPicId" resultType="com.nork.system.model.ResRenderPic">-->
+		<!--select id,pic_path as picPath from res_render_pic where id = #{picId}-->
+	<!--</select>-->
+
+	<!--<select id="selectByPid" resultType="com.nork.system.model.ResRenderPic">-->
+		<!--select id,pic_path as picPath from res_render_pic where pid = #{pid}-->
+	<!--</select>-->
+
+	<!--<update id="updatePicPath" parameterType="com.nork.system.model.ResRenderPic">-->
+		<!--UPDATE res_render_pic set pic_path = #{picPath} where id = #{id}-->
+	<!--</update>-->
+
+
+	<select id="getOriginalSmallPic" resultType="com.nork.system.model.ResRenderPic">
+		select id,pid,pic_path as picPath from res_render_pic where
+		file_key = 'design.designPlanRecommended.render.small.pic' and pid is not NULL AND is_deleted = 0
+		LIMIT #{start,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+	<select id="getOriginalLargePic" resultType="com.nork.system.model.ResRenderPic">
+		select id,pic_path as picPath from res_render_pic where is_deleted = 0 AND id IN
+		<foreach collection="list" item="item" open="(" close=")" separator=",">
+			#{item.pid}
+		</foreach>
+	</select>
+
+	<update id="updatePicPath" parameterType="com.nork.system.model.ResRenderPic">
+		UPDATE res_render_pic set pic_path = #{picPath},modifier=#{modifier} where id = #{id}
+	</update>
+
+</mapper>

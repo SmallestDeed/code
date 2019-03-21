@@ -1,0 +1,217 @@
+<view class='Onekey-finish'>
+  <!-- 户型 -->
+  <view class='house'>
+    <view class='house-type-box'>
+      <!-- <scroll-view class="house-type" scroll-x > -->
+        <view class='{{caseSpaceActive == item.houseType?"blueb":""}}' 
+          wx:for='{{space}}' 
+          wx:key='{{index}}' 
+          data-spacename='{{item.houseName}}'
+          data-index='{{index}}' 
+          data-spacetype='{{item.houseType}}'
+          bindtap="spaceChange">
+          {{item.houseName}}
+        </view>
+      <!-- </scroll-view> -->
+    </view>
+    <scroll-view class="house-img" scroll-x >
+        <image  mode='aspectFill' 
+          src="{{item.viewPlanSmallPath?resourcePath+item.viewPlanSmallPath:resourcePath+item.spaceviewPlanPathPic}}"
+          wx:for="{{spaceList}}" 
+          wx:key='{{index}}' 
+          data-item='{{item}}' 
+          bindtap='getrecommedCaseList'></image>
+    </scroll-view>
+  </view>
+  <!-- 方案 -->
+  <view class='plan'>
+    <view class='plan-type-box'>
+      <scroll-view class="scroll" scroll-x >
+        <view wx:for='{{houseTypelist}}' wx:key='{{index}}'>
+          <block wx:if='{{item.houseType==spaceInedxType}}'>
+            <view class='type-item {{caseStyleActive == -1?"blueb":""}}'        
+                  bindtap='styleChange'>
+              不限
+              <text wx:if='{{caseStyleActive == -1}}'></text>
+            </view>
+            <view class='type-item {{caseStyleActive == index?"blueb":""}}' 
+                wx:for='{{item.designPlanStyleVoList}}' 
+                wx:key='{{index}}' 
+                data-index='{{index}}'
+                data-name="{{item.styleName}}"
+                data-styleid='{{item.styleCode}}'
+                bindtap='styleChange'>
+              {{item.styleName}}
+              <text wx:if='{{caseStyleActive == index}}'></text>
+            </view>
+          </block>
+        </view>
+      </scroll-view>
+      <image src='/static/images/nav_icon_screen_02.png' 
+        bindtap='showFliter' 
+        class='plan-type-icon'></image>
+    </view>
+    <!-- 方案列表 -->
+    <view class='plan-list'>
+      <!-- 当前方案 -->
+      <view class='plan-box' wx:if='{{houseCaseIsShow!="houseCaseFalse"&&information.length>0&&houseCaseIsShow!="houseType"&&houseCaseIsShow!="houseSpace"&&(caseSpaceActive==caseItem.spaceFunctionId||caseSpaceActive==caseItem.spaceType)&&(!designRecommendedStyleName||caseItem.spaceStyleName==designRecommendedStyleName)}}'>
+        <view class='now-plan-title'>
+          <text></text>
+          当前方案 
+          <view wx:if='{{caseIsSuitable==="true"}}'>该方案不适合您选择的空间</view>
+        </view>
+        <view class='now-plan-item'>
+          <design-item design='{{caseItem}}' 
+            type='Onekey' 
+            caseItem="{{true}}" 
+            nowCase='{{true}}' 
+            bindputInMyhouse='putInMyhouse'></design-item>
+        </view>
+      </view>
+      <empty wx:elif='{{!information}}' marginTop='0'></empty>
+      <!-- 推荐方案 -->
+      <view class='plan-box'>
+        <view class='now-plan-title' wx:if='{{houseCaseIsShow!="houseCaseFalse"&&information.length>0&&houseCaseIsShow!="houseType"&&houseCaseIsShow!="houseSpace"&&(caseSpaceActive==caseItem.spaceFunctionId||caseSpaceActive==caseItem.spaceType)&&(!designRecommendedStyleName||caseItem.spaceStyleName==designRecommendedStyleName)}}'>
+          <text></text>推荐方案
+        </view>
+        <view class='now-plan-item' wx:for='{{information}}' wx:key='{{index}}'>
+          <design-item design='{{item}}' 
+            type='Onekey' 
+            index='{{index}}' 
+            nowCase='{{true}}' 
+            bindputInMyhouse='putInMyhouse'></design-item>
+        </view>
+      </view>
+    </view>
+  </view>
+  <!-- 筛选 -->
+  <view class='filtrate' wx:if='{{fliterFlag}}' catchtouchmove='hmove'>
+    <view class='filtrate-box'>
+      <view class='plan-type-box' style='margin-bottom: 0'>
+        <scroll-view class="scroll" scroll-x >
+          <view wx:for='{{houseTypelist}}' wx:key='{{index}}'>
+          <block wx:if='{{item.houseType==spaceInedxType}}'>
+            <view class='type-item {{caseStyleActive == -1?"blue":""}}' bindtap='styleChange'>
+              不限
+              <text wx:if='{{caseStyleActive == -1}}'></text>
+            </view>
+            <view class='type-item {{caseStyleActive == index?"blue":""}}' 
+                wx:for='{{item.designPlanStyleVoList}}' 
+                wx:key='{{index}}' 
+                data-index='{{index}}'
+                data-name="{{item.styleName}}"
+                data-styleid='{{item.styleCode}}'
+                bindtap='styleChange'>
+              {{item.styleName}}
+              <text wx:if='{{caseStyleActive == index}}'></text>
+            </view>
+          </block>
+        </view>
+        </scroll-view>
+        <image src='/static/images/nav_icon_screen_02.png' 
+          bindtap='showFliter' 
+          class='plan-type-icon'></image>
+      </view>
+      <view class='filtrate-title'>装修方式</view>
+      <view class='filtrate-list'>
+        <text class='{{fitmentWayActive == index?"bgColor":""}}'
+          wx:for='{{fitmentWayList}}' 
+          wx:for-index='index' 
+          wx:key='{{index}}' 
+          data-value='{{item.value}}' 
+          data-index='{{index}}' 
+          data-type='parent'
+          bindtap='switchFitmentWay'>{{item.name}}</text>
+      </view>
+      <view class='filtrate-title'>装修价格 <text>元/平方</text></view>
+      <view class='filtrate-list'>
+        <text class='{{fitmentWayChildActive == index?"bgColor": ""}}'
+          wx:for='{{fitmentWayList[fitmentWayActive].sonList}}'
+          wx:for-index='index' 
+          wx:key='{{index}}' 
+          data-type='child' 
+          data-value='{{item.value}}' 
+          data-index='{{index}}'
+          bindtap='switchFitmentWay'>{{item.name}}</text>
+      </view>
+    </view>
+    <view class='filtrate-btn'>
+      <text bindtap='resetFun'>重置</text>
+      <text class='confirm' bindtap='submitFun'>确定</text>
+    </view>
+  </view>
+  <!-- 渲染完成弹框 -->
+  <view class='shade' wx:if="{{packDialogRenderShow}}" catchtouchmove='hmove'>
+    <view class='box'>
+      <image class='rendering-icon' src='/static/images/order_pic_drawing.gif'></image>
+      <view class='rendering-title'>正在装修渲染中...</view>
+      <view class='rendering-text'>为了保证渲染效果，预计需要3分钟后完成</view>
+      <view class='btn-box'>
+        <text style='border-right: 1rpx solid #e8e8e8;' catchtap='goBack'>返回</text>
+        <text class='blue' catchtap='goTask'>查看任务</text>
+      </view>
+    </view>
+  </view>
+  <!-- 户型用完提示弹框 -->
+  <view class='shade' wx:if="{{packDialogBuyShow}}" catchtouchmove='hmove'>
+    <view class='box'>
+        <view class='house-title'>提示</view>
+        <view class='house-text'>户型数量已用完，购买更多？</view>
+        <view class='btn-box'>
+          <text style='border-right: 1rpx solid #e8e8e8;' catchtap='leaveOut'>暂不考虑</text>
+          <text class='blue' catchtap='goBuy'>去购买</text>
+        </view>
+    </view>
+  </view>
+  <!-- 版权费支付弹框 -->
+  <view class='shade' 
+      wx:if="{{copyrightPayShow || copyrightPayShowSuc || copyrightPayShowFail}}" 
+      catchtouchmove='hmove'>
+    <!-- 支付 -->
+    <view class='box' wx:if='{{copyrightPayShow}}'>
+      <image class='shut-icon' src='/static/images/goods_icon_close@2x.png'></image>
+      <view class='price'>¥{{copyrightFree}}</view>
+      <view class='rendering-text'> 此方案为付费方案 </view>
+      <view class='rendering-text'> 需要支付版权费才可使用哦~ </view>
+      <view class='pay-btn' catchtap='copyrightPay'>立即支付</view>
+    </view>
+    <!-- 支付成功 -->
+    <view class='box' wx:if='{{copyrightPayShowSuc}}'>
+      <image class='shut-icon' src='/static/images/goods_icon_close@2x.png'></image>
+      <image class='pay-icon' src='/static/images/pay_icon_success.png'></image>
+      <view class='rendering-text'> 支付成功，赶紧去装修吧~ </view>
+      <view class='pay-btn'>装进我家</view>
+    </view>
+    <!-- 支付失败 -->
+    <view class='box' wx:if='{{copyrightPayShowFail}}'>
+      <image class='shut-icon' src='/static/images/goods_icon_close@2x.png'></image>
+      <image class='pay-icon' src='/static/images/pay_icon_fail.png'></image>
+      <view class='rendering-text'> 支付失败，请重新支付！ </view>
+      <view class='pay-btn'>重新支付</view>
+    </view>
+  </view>
+  <!-- 付费方案支付弹框 -->
+  <view class='shade' wx:if='{{showShade}}' catchtouchmove='hmove'>
+    <!-- 立即支付 -->
+    <view class='box' wx:if='{{showShade1}}'>
+      <image class='shut-icon' 
+        src='/static/images/goods_icon_close@2x.png' 
+        bindtap='closeFunc'></image>
+      <view class='price'>{{caseItems.planPrice}}度币</view>
+      <view class='rendering-text'> 此方案为付费方案 </view>
+      <view class='rendering-text'> 需要支付版权费才可使用哦~ </view>
+      <view class='balance'>账户余额：{{score}}度币</view>
+      <view class='pay-btn' bindtap='paymentFun'>立即支付</view>
+    </view> 
+    <!-- 余额不足 -->
+    <view class='box' wx:if='{{showShade2}}'>
+      <view class='house-title'>提示</view>
+        <view class='house-text'>账户余额不足，去充值？</view>
+        <view class='btn-box'>
+          <text style='border-right: 1rpx solid #e8e8e8;' bindtap='closeFunc'>暂不考虑</text>
+          <text class='blue' bindtap='toFunc'>去充值</text>
+        </view>
+    </view> 
+  </view>
+
+</view>

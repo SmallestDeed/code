@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+					http://www.springframework.org/schema/beans/spring-beans.xsd
+                    http://code.alibabatech.com/schema/dubbo
+                    http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <!-- 声明需要暴露的服务接口 -->
+
+    <!-- 订单服务 -->
+    <dubbo:service interface="com.sandu.pay.order.service.PayOrderService"
+                   ref="payOrderService" protocol="dubbo" timeout="10000" version="1.0.1"/>
+    <!-- 充值记录 -->
+    <dubbo:service interface="com.sandu.pay.order.service.MgrRechargeLogService"
+                   ref="mgrRechargeLogService" protocol="dubbo" timeout="10000" version="1.0.1"/>
+    <!--登录的redis-->
+    <dubbo:service interface="com.sandu.cache.service.PayRedisLoginService"
+                   ref="redisLoginService" protocol="dubbo" timeout="10000" version="1.0.1"/>
+    <!--业务的redis-->
+    <dubbo:service interface="com.sandu.cache.service.PayRedisService"
+                   ref="redisService" protocol="dubbo" timeout="10000" version="1.0.1"/>
+    <!--数据字典-->
+    <dubbo:service interface="com.sandu.system.service.SysDictionaryService"
+                   ref="sysDictionaryService" protocol="dubbo" timeout="10000" version="2.0.1"/>
+    <!--用户-->
+    <dubbo:service interface="com.sandu.user.service.SysUserService"
+                   ref="sysUserService" protocol="dubbo" timeout="10000" version="2.0.1"/>
+    <!--用户回话服务-->
+    <dubbo:service interface="com.sandu.user.service.UserFinanceService"
+                   ref="userFinanceService" protocol="dubbo" timeout="10000" version="2.0.1"/>
+
+    <!--付款方式表-->
+    <dubbo:service interface="com.sandu.pay.order.service.PayModelConfigService"
+                   ref="payModelConfigService" protocol="dubbo" timeout="10000" version="1.0.1"/>
+
+    <!--付款方式业务关联表-->
+    <dubbo:service interface="com.sandu.pay.order.service.PayModelGroupRefService"
+                   ref="payModelGroupRefService" protocol="dubbo" timeout="10000" version="1.0.1"/>
+
+    <!--平台表-->
+    <dubbo:service interface="com.sandu.pay.base.service.BasePlatformService"
+                   ref="basePlatformService" protocol="dubbo" timeout="10000" version="1.0.1"/>
+
+    <!--支付账户表-->
+    <dubbo:service interface="com.sandu.pay.order.service.PayAccountService"
+                   ref="payAccountService" protocol="dubbo" timeout="10000" version="1.0.1"/>
+
+    <!--企业经销商账号组表-->
+    <dubbo:service interface="com.sandu.user.service.CompanyFranchiserGroupService"
+                   ref="companyFranchiserGroupService" protocol="dubbo" timeout="10000" version="1.0.1"/>
+
+    <!--Mini program pay-->
+    <dubbo:service interface="com.sandu.pay.minipro.service.WXMiniProPayService"
+                   ref="wxMiniProPayService" protocol="dubbo" timeout="10000" version="1.0.1"/>
+		   
+    <!--用户权限详情表-->
+    <dubbo:service interface="com.sandu.user.service.UserJurisdictionService"
+                   ref="userJurisdictionService" protocol="dubbo" timeout="10000" version="1.0.1"/>
+
+    <!--公司表-->
+    <dubbo:service interface="com.sandu.pay.base.service.BaseCompanyService"
+                   ref="baseCompanyService" protocol="dubbo" timeout="10000" version="2.0.1"/>
+
+    <!--小程序支付-->
+    <dubbo:service interface="com.sandu.pay2.service.Pay2Service"
+                   ref="miniProgramPayService" protocol="dubbo" timeout="3000"  version="1.0.1" group="miniPay"/>
+</beans>
+ 

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.search.dao.GroupProductIndexDao">
+
+    <!-- 查询产品分类关联信息-->
+    <select id="queryGroupProductList" resultType="com.sandu.search.entity.elasticsearch.po.GroupProductPO">
+        select
+            gp.id                   AS id,
+            group_code              AS groupCode,
+            group_name              AS groupName,
+            type                    AS houseType,
+            state                   AS state,
+            gp.gmt_create           AS createDate,
+            gp.gmt_modified         AS modifyDate,
+            <!-- design_templet_id       AS designTempletId, -->
+            <!-- location                AS groupLocation, -->
+            group_price             AS groupPrice,
+            group_flag              AS groupFlag,
+            <!-- group_width             AS groupWidth, -->
+            <!-- group_length            AS groupLength,-->
+            <!-- group_high              AS groupHight, -->
+            space_function_value    AS groupSpaceType,
+            space_area_value        AS groupSpaceArea,
+            brand_id                AS brandId,
+            company_id              AS companyId,
+            style_value             AS groupStyle,
+            product_type            AS productModelNumber,
+            product_style_id_info   AS groupStyleIds,
+            group_type              AS groupType,
+            composite_type          AS compositeType,
+            gp.is_deleted           AS isDeleted,
+            rf.file_path            AS filePath,
+            rp.pic_path             AS picPath
+        FROM
+            group_product gp
+        left join res_file rf on rf.id=gp.location
+        left join res_pic rp on gp.pic_id=rp.id
+        where gp.pic_id &lt;&gt; 0 and rp.pic_path is not null
+        LIMIT
+            #{start},#{limit}
+</select>
+
+</mapper>

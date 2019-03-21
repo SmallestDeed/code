@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.act.dao.WxActBargainInviteRecordMapper">
+     
+    <sql id="Base_Column_List">
+        id,registration_id,open_id,nickname,head_pic,cut_price,remain_price,app_id,gmt_create,is_deleted
+    </sql>
+    
+    <select id="selectList" resultType="com.sandu.api.act.model.WxActBargainInviteRecord">
+		SELECT
+		  <include refid="Base_Column_List"/>
+		FROM wx_act_bargain_invite_record
+		WHERE 1=1
+		<if test="registrationId != null">  and registration_id = #{registrationId} </if>
+		<if test="openId!= null">  and open_id = #{openId} </if>
+		<if test="isDeleted!= null">  and is_deleted = #{isDeleted} </if>
+		order by gmt_create
+	</select>
+	
+
+    <insert id="insertWxActBargainInviteRecord" parameterType="com.sandu.api.act.model.WxActBargainInviteRecord">
+        insert into wx_act_bargain_invite_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="registrationId != null">
+                registration_id,
+            </if>
+            <if test="openId != null">
+                open_id,
+            </if>
+            <if test="nickname != null">
+                nickname,
+            </if>
+            <if test="headPic != null">
+                head_pic,
+            </if>
+            <if test="cutPrice != null">
+                cut_price,
+            </if>
+            <if test="remainPrice != null">
+                remain_price,
+            </if>
+            <if test="appId != null">
+                app_id,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="registrationId != null">
+                #{registrationId,jdbcType=VARCHAR},
+            </if>
+            <if test="openId != null">
+                #{openId,jdbcType=VARCHAR},
+            </if>
+            <if test="nickname != null">
+                #{nickname,jdbcType=VARCHAR},
+            </if>
+            <if test="headPic != null">
+                #{headPic,jdbcType=VARCHAR},
+            </if>
+            <if test="cutPrice != null">
+                #{cutPrice,jdbcType=VARCHAR},
+            </if>
+            <if test="remainPrice != null">
+                #{remainPrice,jdbcType=VARCHAR},
+            </if>
+            <if test="appId != null">
+                #{appId,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=TINYINT},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateWxActBargainInviteRecordById" parameterType="com.sandu.api.act.model.WxActBargainInviteRecord">
+        update wx_act_bargain_invite_record
+        <set>
+            <if test="id != null">
+                id = #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="registrationId != null">
+                registration_id = #{registrationId,jdbcType=VARCHAR},
+            </if>
+            <if test="openId != null">
+                open_id = #{openId,jdbcType=VARCHAR},
+            </if>
+            <if test="nickname != null">
+                nickname = #{nickname,jdbcType=VARCHAR},
+            </if>
+            <if test="headPic != null">
+                head_pic = #{headPic,jdbcType=VARCHAR},
+            </if>
+            <if test="cutPrice != null">
+                cut_price = #{cutPrice,jdbcType=VARCHAR},
+            </if>
+            <if test="remainPrice != null">
+                remain_price = #{remainPrice,jdbcType=VARCHAR},
+            </if>
+            <if test="appId != null">
+                app_id = #{appId,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=TINYINT},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="deleteWxActBargainInviteRecordById">
+        update wx_act_bargain_invite_record set is_deleted = 1
+        where id = #{inviteRecordId}
+    </update>
+
+    <select id="selectWxActBargainInviteRecordById" resultType="com.sandu.api.act.model.WxActBargainInviteRecord">
+        select
+        <include refid="Base_Column_List"/>
+        from wx_act_bargain_invite_record
+        where id = #{inviteRecordId}
+    </select>
+
+</mapper>

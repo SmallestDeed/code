@@ -1,0 +1,50 @@
+package com.sandu.web.interactiveZone;
+
+import com.sandu.api.base.common.ResponseEnvelope;
+import com.sandu.api.base.model.InteractiveZoneMsg;
+import com.sandu.api.base.output.InteractiveZoneMsgVo;
+import com.sandu.api.base.service.InteractiveZoneMsgService;
+import com.sandu.api.user.model.SysUser;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RequestMapping("/v1/core/message/interaction")
+@RestController
+@Slf4j
+public class InteractiveMessageController {
+    private final String CLASS_LOG_PREFIX = "【互动信息接口】";
+    @Autowired
+    private InteractiveZoneMsgService interactiveZoneMsgService;
+
+    @GetMapping("/{curPage}/{pageSize}")
+    public ResponseEnvelope getMessageList(@PathVariable("curPage") String curPage, @PathVariable("pageSize") String pageSize, SysUser user) {
+        if (!StringUtils.isNumeric(curPage) || !StringUtils.isNumeric(pageSize)) {
+            return new ResponseEnvelope(false, "参数错误");
+        }
+        InteractiveZoneMsg msgQueryParam = new InteractiveZoneMsg();
+        msgQueryParam.setPublishUserId(user.getId() + "");
+        msgQueryParam.setIsDeleted(0);
+        Integer total = interactiveZoneMsgService.getListCount(msgQueryParam);
+        if (total > 0) {
+            List<InteractiveZoneMsg> msgList = interactiveZoneMsgService.getList(msgQueryParam, Integer.parseInt(curPage), Integer.parseInt(pageSize));
+            if (msgList != null && msgList.size() > 0) {
+                List<InteractiveZoneMsgVo> voList = interactiveZoneMsgService.transToVo(msgList);
+                return new ResponseEnvelope(true, total, voList);
+            }
+        }
+        return new ResponseEnvelope(true, 0, null);
+    }
+
+    @PostMapping("/read")
+    public ResponseEnvelope readMessage(@RequestBody List<Long> messageIdList) {
+        if (messageIdList == null) {
+            return new ResponseEnvelope(false, "参数错误");
+        }
+        int n = interactiveZoneMsgService.readMessages(messageIdList);
+        return new ResponseEnvelope(true, n);
+    }
+}

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.dynamic.dao.DynamicMapper">
+    <update id="updateSullpyModified">
+        update base_supply_demand
+        set gmt_modified = gmt_create
+        where gmt_modified = null
+    </update>
+    <update id="updateShopModified">
+        update company_shop
+        set gmt_modified = gmt_create
+        where gmt_modified = null
+    </update>
+
+    <select id="queryShopList" resultType="com.sandu.api.dynamic.model.Dynamic">
+    select
+     cs.id as id,
+     cs.shop_name as dynamicName,
+     "店铺" as dynamicType,
+     cs.logo_pic_id as picId,
+     cs.gmt_modified as gmtModified,
+     cs.recommended_time as recommendedTime,
+	 rp.pic_path as picPath,
+     cs.gmt_create as gmtCreate
+     from company_shop cs
+	 left join res_pic rp on rp.id = cs.logo_pic_id
+     where cs.is_deleted = 0
+     order by cs.gmt_modified desc
+     limit 10
+  </select>
+  <select id="querySupplyList" resultType="com.sandu.api.dynamic.model.Dynamic">
+    select
+     bsd.id as id,
+     bsd.title as dynamicName,
+     "供需"  as dynamicType,
+     bsd.cover_pic_id as picId,
+     bsd.gmt_modified as gmtModified,
+     bsd.recommended_time as recommendedTime,
+	 rrp.pic_path as picPath,
+	 bsd.gmt_create as gmtCreate
+     from base_supply_demand bsd
+	 left join res_render_pic rrp on rrp.id = bsd.cover_pic_id
+     where bsd.is_deleted = 0
+     order by bsd.gmt_modified desc
+     limit 10
+  </select>
+</mapper>

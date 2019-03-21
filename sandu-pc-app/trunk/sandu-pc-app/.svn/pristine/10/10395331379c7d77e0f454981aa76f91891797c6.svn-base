@@ -1,0 +1,44 @@
+package com.sandu.design.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.design.cache.service.DesignTempletCacheService;
+import com.sandu.design.dao.DesignTempletMapper;
+import com.sandu.design.model.DesignTemplet;
+import com.sandu.design.service.DesignTempletService;
+
+@Service("designTempletService")
+public class DesignTempletServiceImpl implements DesignTempletService {
+
+	@Autowired
+	private DesignTempletMapper designTempletMapper;
+	
+	@Autowired
+	private DesignTempletCacheService designTempletCacheService;
+	
+	/**
+	 * 获取数据详情
+	 * 
+	 * @param id
+	 * @return DesignTemplet
+	 */
+	@Override
+	public DesignTemplet get(Integer id) {
+		return designTempletMapper.selectByPrimaryKey(id);
+	}
+
+	@Override
+	public DesignTemplet getFromCache(Integer designTempletId) {
+		return designTempletCacheService.get(designTempletId);
+	}
+
+	@Override
+	public DesignTemplet getForOneKey(Integer id) {
+		if(id == null) {
+			return null;
+		}
+		return designTempletMapper.getForOneKey(id);
+	}
+
+}

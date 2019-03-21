@@ -1,0 +1,416 @@
+package com.nork.product.model;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import com.nork.common.model.Mapper;
+
+/**
+ * 水刀模版表po
+ * 
+ * @author huangsongbo
+ * @date 2018.6.4
+ */
+public class BaseWaterjetTemplate extends Mapper implements Serializable {
+
+	private static final long serialVersionUID = 1758265251020502281L;
+
+	/**
+	 * 水刀模版id
+	 */
+	private Integer id;
+
+	/**
+	 * 水刀模版默认长度(cm)
+	 */
+	private Integer templateLength;
+	
+	/**
+	 * 水刀模版默认宽度(cm)
+	 */
+	private Integer templateWidth;
+	
+	/**
+	 * 水刀模版名称
+	 */
+	private String templateName;
+	
+	/**
+	 * 水刀模版模型文件
+	 */
+	private Integer templateFileId;
+	
+	/**
+	 * 水刀模版展示图片
+	 */
+	private Integer templatePicId;
+	
+	/**
+	 * 系统编码
+	 */
+	private String sysCode;
+	
+	/**
+	 * 创建者
+	 */
+	private String creator;
+	
+	/**
+	 * 创建时间
+	 */
+	private Date gmtCreate;
+	
+	/**
+	 * 修改人
+	 */
+	private String modifier;
+	
+	/**
+	 * 修改时间
+	 */
+	private Date gmtModified;
+	
+	/**
+	 * 是否删除
+	 */
+	private Integer isDeleted;
+	
+	/**
+	 * 字符备用1
+	 */
+	private String att1;
+	
+	/**
+	 * 字符备用2
+	 */
+	private String att2;
+	
+	/**
+	 * 整数备用1
+	 */
+	private Integer numa1;
+	
+	/**
+	 * 整数备用2
+	 */
+	private Integer numa2;
+	
+	/**
+	 * 备注
+	 */
+	private String remark;
+
+	// other ->start
+	
+	/**
+	 * 展示图片url
+	 */
+	private String templatePicUrl;
+	
+	/**
+	 * 水刀模版模型文件url
+	 */
+	private String templateFileUrl;
+	
+	/**
+	 * 水刀模板展示图片缩略图信息
+	 */
+	private String templateSmallPicInfo;
+	
+	/**
+	 * 展示图片ipad端缩略图id
+	 */
+	private Integer templateIpadSmallPicId;
+	
+	// other ->end
+
+	public String getTemplatePicUrl() {
+		return templatePicUrl;
+	}
+
+	public Integer getTemplateIpadSmallPicId() {
+		return templateIpadSmallPicId;
+	}
+
+	public void setTemplateIpadSmallPicId(Integer templateIpadSmallPicId) {
+		this.templateIpadSmallPicId = templateIpadSmallPicId;
+	}
+
+	public String getTemplateSmallPicInfo() {
+		return templateSmallPicInfo;
+	}
+
+	public void setTemplateSmallPicInfo(String templateSmallPicInfo) {
+		this.templateSmallPicInfo = templateSmallPicInfo;
+	}
+
+	public String getTemplateFileUrl() {
+		return templateFileUrl;
+	}
+
+	public void setTemplateFileUrl(String templateFileUrl) {
+		this.templateFileUrl = templateFileUrl;
+	}
+
+	public void setTemplatePicUrl(String templatePicUrl) {
+		this.templatePicUrl = templatePicUrl;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	
+	public Integer getTemplateLength() {
+		return templateLength;
+	}
+
+	public void setTemplateLength(Integer templateLength) {
+		this.templateLength = templateLength;
+	}
+
+	public Integer getTemplateWidth() {
+		return templateWidth;
+	}
+
+	public void setTemplateWidth(Integer templateWidth) {
+		this.templateWidth = templateWidth;
+	}
+
+	public String getTemplateName() {
+		return templateName;
+	}
+
+	public void setTemplateName(String templateName) {
+		this.templateName = templateName;
+	}
+
+	public Integer getTemplateFileId() {
+		return templateFileId;
+	}
+
+	public void setTemplateFileId(Integer templateFileId) {
+		this.templateFileId = templateFileId;
+	}
+
+	public Integer getTemplatePicId() {
+		return templatePicId;
+	}
+
+	public void setTemplatePicId(Integer templatePicId) {
+		this.templatePicId = templatePicId;
+	}
+
+	public String getSysCode() {
+		return sysCode;
+	}
+
+	public void setSysCode(String sysCode) {
+		this.sysCode = sysCode;
+	}
+
+	public String getCreator() {
+		return creator;
+	}
+
+	public void setCreator(String creator) {
+		this.creator = creator;
+	}
+
+	public Date getGmtCreate() {
+		return gmtCreate;
+	}
+
+	public void setGmtCreate(Date gmtCreate) {
+		this.gmtCreate = gmtCreate;
+	}
+
+	public String getModifier() {
+		return modifier;
+	}
+
+	public void setModifier(String modifier) {
+		this.modifier = modifier;
+	}
+
+	public Date getGmtModified() {
+		return gmtModified;
+	}
+
+	public void setGmtModified(Date gmtModified) {
+		this.gmtModified = gmtModified;
+	}
+
+	public Integer getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Integer isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
+	public String getAtt1() {
+		return att1;
+	}
+
+	public void setAtt1(String att1) {
+		this.att1 = att1;
+	}
+
+	public String getAtt2() {
+		return att2;
+	}
+
+	public void setAtt2(String att2) {
+		this.att2 = att2;
+	}
+
+	public Integer getNuma1() {
+		return numa1;
+	}
+
+	public void setNuma1(Integer numa1) {
+		this.numa1 = numa1;
+	}
+
+	public Integer getNuma2() {
+		return numa2;
+	}
+
+	public void setNuma2(Integer numa2) {
+		this.numa2 = numa2;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((att1 == null) ? 0 : att1.hashCode());
+		result = prime * result + ((att2 == null) ? 0 : att2.hashCode());
+		result = prime * result + ((creator == null) ? 0 : creator.hashCode());
+		result = prime * result + ((gmtCreate == null) ? 0 : gmtCreate.hashCode());
+		result = prime * result + ((gmtModified == null) ? 0 : gmtModified.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((isDeleted == null) ? 0 : isDeleted.hashCode());
+		result = prime * result + ((modifier == null) ? 0 : modifier.hashCode());
+		result = prime * result + ((numa1 == null) ? 0 : numa1.hashCode());
+		result = prime * result + ((numa2 == null) ? 0 : numa2.hashCode());
+		result = prime * result + ((remark == null) ? 0 : remark.hashCode());
+		result = prime * result + ((sysCode == null) ? 0 : sysCode.hashCode());
+		result = prime * result + ((templateFileId == null) ? 0 : templateFileId.hashCode());
+		result = prime * result + ((templateLength == null) ? 0 : templateLength.hashCode());
+		result = prime * result + ((templateName == null) ? 0 : templateName.hashCode());
+		result = prime * result + ((templatePicId == null) ? 0 : templatePicId.hashCode());
+		result = prime * result + ((templateWidth == null) ? 0 : templateWidth.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BaseWaterjetTemplate other = (BaseWaterjetTemplate) obj;
+		if (att1 == null) {
+			if (other.att1 != null)
+				return false;
+		} else if (!att1.equals(other.att1))
+			return false;
+		if (att2 == null) {
+			if (other.att2 != null)
+				return false;
+		} else if (!att2.equals(other.att2))
+			return false;
+		if (creator == null) {
+			if (other.creator != null)
+				return false;
+		} else if (!creator.equals(other.creator))
+			return false;
+		if (gmtCreate == null) {
+			if (other.gmtCreate != null)
+				return false;
+		} else if (!gmtCreate.equals(other.gmtCreate))
+			return false;
+		if (gmtModified == null) {
+			if (other.gmtModified != null)
+				return false;
+		} else if (!gmtModified.equals(other.gmtModified))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (isDeleted == null) {
+			if (other.isDeleted != null)
+				return false;
+		} else if (!isDeleted.equals(other.isDeleted))
+			return false;
+		if (modifier == null) {
+			if (other.modifier != null)
+				return false;
+		} else if (!modifier.equals(other.modifier))
+			return false;
+		if (numa1 == null) {
+			if (other.numa1 != null)
+				return false;
+		} else if (!numa1.equals(other.numa1))
+			return false;
+		if (numa2 == null) {
+			if (other.numa2 != null)
+				return false;
+		} else if (!numa2.equals(other.numa2))
+			return false;
+		if (remark == null) {
+			if (other.remark != null)
+				return false;
+		} else if (!remark.equals(other.remark))
+			return false;
+		if (sysCode == null) {
+			if (other.sysCode != null)
+				return false;
+		} else if (!sysCode.equals(other.sysCode))
+			return false;
+		if (templateFileId == null) {
+			if (other.templateFileId != null)
+				return false;
+		} else if (!templateFileId.equals(other.templateFileId))
+			return false;
+		if (templateLength == null) {
+			if (other.templateLength != null)
+				return false;
+		} else if (!templateLength.equals(other.templateLength))
+			return false;
+		if (templateName == null) {
+			if (other.templateName != null)
+				return false;
+		} else if (!templateName.equals(other.templateName))
+			return false;
+		if (templatePicId == null) {
+			if (other.templatePicId != null)
+				return false;
+		} else if (!templatePicId.equals(other.templatePicId))
+			return false;
+		if (templateWidth == null) {
+			if (other.templateWidth != null)
+				return false;
+		} else if (!templateWidth.equals(other.templateWidth))
+			return false;
+		return true;
+	}
+	
+}

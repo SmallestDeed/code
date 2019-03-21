@@ -1,0 +1,764 @@
+package com.sandu.service.act3.impl;
+
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.*;
+
+import javax.annotation.Resource;
+
+import com.sandu.common.pay.IdGenerator;
+import com.sandu.pay.mgrRecharge.model.MgrRechargeLog;
+import com.sandu.pay.order.model.PayAccount;
+import com.sandu.pay.order.model.PayOrder;
+import com.sandu.common.util.Utils;
+import com.sandu.gateway.pay.common.gson.GsonUtil;
+
+import com.sandu.pay.order.metadata.*;
+import com.sandu.pay.order.model.PayProductConstans;
+import com.sandu.pay.order.service.MgrRechargeLogService;
+import com.sandu.pay.order.service.PayAccountService;
+import com.sandu.pay.order.service.PayOrderService;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.api.act2.model.RedPacket;
+import com.sandu.api.act3.model.LuckyWheel;
+import com.sandu.api.act3.model.LuckyWheelAwardMsg;
+import com.sandu.api.act3.model.LuckyWheelLotteryRecord;
+import com.sandu.api.act3.model.LuckyWheelLotteryRecordActAggregated;
+import com.sandu.api.act3.model.LuckyWheelLotteryRecordActDayAggregated;
+import com.sandu.api.act3.model.LuckyWheelPrize;
+import com.sandu.api.act3.model.LuckyWheelRegistration;
+import com.sandu.api.act3.output.LuckyWheelLotteryVO;
+import com.sandu.api.act3.service.LuckyWheelAwardMsgService;
+import com.sandu.api.act3.service.LuckyWheelLotteryRecordActAggregatedService;
+import com.sandu.api.act3.service.LuckyWheelLotteryRecordActDayAggregatedService;
+import com.sandu.api.act3.service.LuckyWheelLotteryRecordService;
+import com.sandu.api.act3.service.LuckyWheelPrizeService;
+import com.sandu.api.act3.service.LuckyWheelRegistrationService;
+import com.sandu.api.act3.service.LuckyWheelService;
+import com.sandu.api.common.exception.SystemException;
+import com.sandu.api.user.model.SysUser;
+import com.sandu.gateway.pay.forward.service.PayService;
+import com.sandu.gateway.pay.input.PayParam;
+import com.sandu.gateway.pay.input.TransfersParam;
+import com.sandu.service.act3.dao.LuckyWheelRegistrationMapper;
+import com.sandu.util.UUIDUtil;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service("luckyWheelRegistrationService")
+public class LuckyWheelRegistrationServiceImpl implements LuckyWheelRegistrationService{
+	
+	
+	@Autowired
+    private LuckyWheelService luckyWheelService;
+    
+	@Autowired
+    private LuckyWheelRegistrationMapper luckyWheelRegistrationMapper;
+
+	@Autowired
+    private LuckyWheelPrizeService luckyWheelPrizeService;
+	
+	@Autowired
+    private LuckyWheelLotteryRecordActDayAggregatedService lotteryRecordActDayAggregatedService;
+
+	@Autowired
+    private LuckyWheelLotteryRecordActAggregatedService lotteryRecordActAggregatedService;
+	
+	@Autowired
+    private LuckyWheelLotteryRecordService lotteryRecordService;
+	
+	@Autowired
+    private LuckyWheelAwardMsgService luckyWheelAwardMsgService;
+	
+	@Resource(name="miniProPay")
+	private PayService payService;
+
+	@Resource(name = "miniPayOrderService")
+	private PayOrderService payOrderService;
+
+	@Autowired
+	private MgrRechargeLogService mgrRechargeLogService;
+
+	@Autowired
+	private PayAccountService payAccountService;
+
+	
+	@Override
+	public void create(LuckyWheelRegistration entity) {
+		luckyWheelRegistrationMapper.insert(entity);
+	}
+
+	@Override
+	public int modifyById(LuckyWheelRegistration entity) {
+		return luckyWheelRegistrationMapper.updateById(entity);
+	}
+
+	@Override
+	public LuckyWheelRegistration get(String id) {
+		return luckyWheelRegistrationMapper.selectById(id);
+	}
+
+	@Override
+	public LuckyWheelRegistration get(String actId,String openId) {
+		LuckyWheelRegistration entity = new LuckyWheelRegistration();
+		entity.setActId(actId);
+		entity.setOpenId(openId);
+		List<LuckyWheelRegistration> list = this.list(entity);
+		if(list!=null && list.size()>0) {
+			return list.get(0);
+		}
+		return null;
+	}
+	
+	@Override
+	public List<LuckyWheelRegistration> list(LuckyWheelRegistration entity) {
+		return luckyWheelRegistrationMapper.selectList(entity);
+	}
+
+	
+	@Override
+	public void increaseLotteryCount(String actId, SysUser user) {
+		
+		LuckyWheel actEntity = luckyWheelService.get(actId,user.getAppId());
+		
+		this.checkActStatus(actEntity);
+		
+		//配置每天抽奖规则
+		if(actEntity.getConfigItem()==LuckyWheel.CONFIG_ITEM_PER_DAY) {
+			if(isLotteryToday(actEntity.getId(),user.getOpenId())) {
+				//增加1次抽奖机会
+				this.increaseTodayLotteryCount(actId, user.getOpenId());
+			}else {
+				LuckyWheelLotteryRecordActDayAggregated entity = buildLotteryRecordActDayAggregated(actEntity,user,0,actEntity.getLotteryNumPerDayDefalut()+1);
+				lotteryRecordActDayAggregatedService.create(entity);
+			}
+		}//配置活动抽奖规则
+		else if(actEntity.getConfigItem()==LuckyWheel.CONFIG_ITEM_PER_ACT) {
+			if(isLotteryBefore(actEntity.getId(),user.getOpenId())) {
+				//增加1次抽奖机会
+				this.increaseLotteryCount(actId, user.getOpenId());
+			}else {
+				LuckyWheelLotteryRecordActAggregated entity = buildLotteryRecordActAggregated(actEntity,user,0,actEntity.getLotteryNumDefalut()+1);
+				lotteryRecordActAggregatedService.create(entity);
+			}
+		}
+		else {
+			throw new SystemException("活动配置不正确.");
+		}
+		
+	}
+	
+	private void increaseLotteryCount(String actId,String openId) {
+		int updCount = lotteryRecordActAggregatedService.increaseLotteryCount(actId,openId);
+		if(updCount<=0) {
+			throw new SystemException("增加中奖机会异常:抽奖次数超过最大限制次数!");
+		}
+	}
+	
+	private boolean isLotteryBefore(String actId, String openId) {
+		return lotteryRecordActAggregatedService.isExist(actId,openId);
+	}
+
+
+	private void increaseTodayLotteryCount(String actId, String openId) {
+		int updCount = lotteryRecordActDayAggregatedService.increaseLotteryCount(actId, openId, new Date());
+		if (updCount <= 0) {
+			throw new SystemException("增加中奖机会异常:抽奖次数超过每天最大限制次数!");
+		}
+	}
+
+	
+	@Override
+	public LuckyWheelLotteryVO lottery(String actId, SysUser user) {
+		LuckyWheel actEntity = luckyWheelService.get(actId);
+		//验证
+		check(actEntity,user);
+		
+		//抽奖,返回抽中选项
+		LuckyWheelPrize awardPrize = this.lottery(actId);
+		/**手动抽中红包 测试完删除**/
+		//LuckyWheelPrize awardPrize = luckyWheelPrizeService.get("4");
+
+//保险起见,正常是不会抽出iphone的
+/*if(awardPrize.getName().contains("phone")){
+	throw new SystemException("未知异常");
+	log.error("抽中iphone?????????????");
+}*/
+
+		LuckyWheelRegistration regEntity = this.get(actId,user.getOpenId());
+		boolean isFirstLottery = false;
+		boolean isAward = awardPrize.getType()!=0; //是否重奖
+		//中奖,则扣减奖品数量
+		if(isAward) {
+			int updCount = luckyWheelPrizeService.reducePrizeNum(awardPrize.getId());
+			//某一个奖项的产品数量为1,此时如果同时n个人抽中此奖品,则只有一个人中奖,其他人返回谢谢参与
+			if(updCount<=0) {
+				awardPrize = getUnPrizeItem();
+			}
+		}
+		//重置是否中奖
+		isAward = awardPrize.getType()!=0;
+				
+		//用户首次参加
+		if(regEntity==null) {
+			//创建用户活动任务
+			regEntity = buildRegEntity(actEntity.getId(),1,isAward,user);
+			this.create(regEntity);
+			isFirstLottery = true;
+		}else {
+			//更新任务的相关计数字段
+			this.increaseLotteryRefCount(regEntity.getId(),isAward);
+		}
+		
+		//记录相关抽奖信息:活动抽奖计数,当天抽奖计数
+		this.lotteryInfoRecord(actEntity,isFirstLottery,isAward,user);
+				
+		
+		//增加抽奖记录及发放奖品(系统可以发放的奖品:度币,红包)
+		LuckyWheelRegistration newRegEntity = this.get(actId,user.getOpenId());
+		LuckyWheelLotteryRecord  lotteryRecord = buildLotteryRecordAndDoAward(actEntity,newRegEntity,awardPrize,user);
+		lotteryRecordService.create(lotteryRecord);
+				
+		//如果抽中度币,则新增中奖信息,抽中其他奖品,等后台发货时增加中奖信息
+		if(lotteryRecord.getAwardsStatus() == LuckyWheelLotteryRecord.AWARDS_STATUS_AWARDED) {
+			LuckyWheelAwardMsg luckyWheelAwardMsg = luckyWheelAwardMsgService.buildLuckyWheelAwardMsg(actEntity.getId(),
+					newRegEntity.getId(),awardPrize.getName(),user);
+			luckyWheelAwardMsgService.create(luckyWheelAwardMsg);
+		}
+		//构建返回信息
+		LuckyWheelLotteryVO retVo = new LuckyWheelLotteryVO(isAward,awardPrize.getId(),awardPrize.getName(),lotteryRecord.getId(),true,awardPrize.getType()==LuckyWheelPrize.TYPE_PRODUCT);
+		if(StringUtils.isBlank(user.getMobile())){
+			retVo.setHasBindMobile(false);
+		}
+		
+		return retVo;
+	}
+	
+	/**
+	 * 获取未中奖选项
+	 * @return
+	 */
+	private LuckyWheelPrize getUnPrizeItem() {
+		LuckyWheelPrize entity = new LuckyWheelPrize();
+		entity.setType(LuckyWheelPrize.TYPE_NONE_AWARD);
+		List<LuckyWheelPrize> list = luckyWheelPrizeService.list(entity);
+		if(list==null || list.size()==0) {
+			throw new SystemException("未设置未中奖选项.");
+		}
+		return list.get(0);
+	}
+	
+
+	private LuckyWheelLotteryRecord buildLotteryRecordAndDoAward(LuckyWheel actEntity, LuckyWheelRegistration newRegEntity,
+			LuckyWheelPrize awardPrize, SysUser user) {
+		Date now = new Date();
+		LuckyWheelLotteryRecord entity = new LuckyWheelLotteryRecord();
+		entity.setId(UUIDUtil.getUUID());
+		entity.setActId(actEntity.getId());
+		entity.setRegId(newRegEntity.getId());
+		entity.setOpenId(user.getOpenId());
+		entity.setNickname(user.getNickName());
+		entity.setHeadPic(user.getHeadPic());
+		entity.setLotteryTime(now);
+		entity.setLotterySeq(newRegEntity.getLotteryTotalCount());
+		entity.setPrizeId(awardPrize.getId());
+		entity.setPrizeName(awardPrize.getName());
+		entity.setShipmentStatus(LuckyWheelLotteryRecord.SHIPMENT_STATUS_UNSHIP);
+		//未中奖
+		if(awardPrize.getType()==0) {
+			entity.setAwardsStatus(LuckyWheelLotteryRecord.AWARDS_STATUS_NONE_AWARD);
+		}else {
+			if(StringUtils.isNotBlank(user.getMobile())) {
+				//度币充值直接领奖
+				if(awardPrize.getType()==LuckyWheelPrize.TYPE_DUBI) {
+					entity.setShipmentStatus(LuckyWheelLotteryRecord.SHIPMENT_STATUS_SHIP);
+					entity.setAwardsStatus(LuckyWheelLotteryRecord.AWARDS_STATUS_AWARDED);
+					this.doDubiAward(user,awardPrize.getValue()*10);
+				}//红包
+				else if(awardPrize.getType()==LuckyWheelPrize.TYPE_CASH) {
+					entity.setShipmentStatus(LuckyWheelLotteryRecord.SHIPMENT_STATUS_SHIP);
+					entity.setAwardsStatus(LuckyWheelLotteryRecord.AWARDS_STATUS_AWARDED);
+					int payOrderId = this.buildPayOrder(user, (new Double(awardPrize.getValue()*100)).intValue());//奖品中现金单位是"元"
+					this.doCashAward(user,payOrderId,awardPrize.getValue()*100);
+				}
+				//实物,需要邮寄 //装修基金
+				else if(awardPrize.getType()==LuckyWheelPrize.TYPE_PRODUCT) {
+					entity.setAwardsStatus(LuckyWheelLotteryRecord.AWARDS_STATUS_UNAWRD);
+				}
+				//装修资料  add by whl
+				else if(awardPrize.getType()==LuckyWheelPrize.TYPE_EDATA) {
+					entity.setAwardsStatus(LuckyWheelLotteryRecord.AWARDS_STATUS_UNAWRD);
+				}
+			}else {
+//				entity.setAwardsStatus(LuckyWheelLotteryRecord.AWARDS_STATUS_UNAWRD);
+				throw new SystemException("请绑定手机号再抽奖");
+			}
+			
+			
+		}
+		
+		/*entity.setReceiveTime(receiveTime);
+		entity.setReceiver(receiver);
+		entity.setMobile(mobile);
+		entity.setProvinceCode(provinceCode);
+		entity.setCityCode(cityCode);
+		entity.setAreaCode(areaCode);
+		entity.setAddress(address);*/
+		entity.setAppId(user.getAppId());
+		entity.setCompanyId(user.getMiniProgramCompanyId());
+		entity.setGmtCreate(now);
+		entity.setIsDeleted(0);
+		return entity;
+	}
+	
+	
+	private void doDubiAward(SysUser user,Double dubiCount) {
+
+		String orderNo = IdGenerator.generateNo();
+		log.info("抽奖中度币，生成订单orderNo={}", orderNo);
+		//生成订单
+		this.createRechargePayOrder(14, user, orderNo,dubiCount);
+		//保存充值日志
+		this.saveRechargeLog(user.getId().intValue(), user.getMobile(), dubiCount, orderNo,"2c");
+
+	}
+
+	@Override
+	public void doCashAward(SysUser user,Integer payOrderId,Double moneyAccount) {
+		TransfersParam transfersParam = this.buildTransfersParam("", user, "miniProgram",moneyAccount);
+		String result = payService.doTransfers(transfersParam);
+		log.info("企业支付到零钱，返回值result={}", result);
+		Map resultMap = GsonUtil.fromJson(result, Map.class);
+		modifyPayOrderInfo(payOrderId,resultMap);
+	}
+
+	/**集成测试**/
+	private TransfersParam buildCiTransfersParam(String orderNo, SysUser user, String platformCode,Double moneyAccount) {
+		TransfersParam transfersParam = new TransfersParam();
+		transfersParam.setIntenalTradeNo("test001");
+		transfersParam.setOpenId(user.getOpenId());
+		transfersParam.setAmount(30L);
+		transfersParam.setTradeDesc("随选网活动红包-测试");
+		transfersParam.setIp(getLocalIP());
+		transfersParam.setOperator(user.getId());
+		transfersParam.setPlatformCode(platformCode);
+		transfersParam.setSource(PayParam.SOURCE_SYSTEM);
+    	return transfersParam;
+	}
+	/**正式环境**/
+	private TransfersParam buildTransfersParam(String orderNo, SysUser user, String platformCode,Double moneyAccount) {
+		TransfersParam transfersParam = new TransfersParam();
+		transfersParam.setIntenalTradeNo("test001");
+		transfersParam.setOpenId(user.getOpenId());
+		transfersParam.setAmount(moneyAccount.longValue());
+		transfersParam.setTradeDesc("随选网活动红包");
+		transfersParam.setIp(getLocalIP());
+		transfersParam.setOperator(user.getId());
+		transfersParam.setPlatformCode(platformCode);
+		transfersParam.setSource(PayParam.SOURCE_SYSTEM);
+		return transfersParam;
+	}
+
+	/**奖品是现金时生成PayOrder**/
+	private int buildPayOrder(SysUser user,Integer totalMoney){
+		PayOrder payOrder=new PayOrder();
+		payOrder.setUserId(user.getId().intValue());
+		payOrder.setProductId(null);
+		payOrder.setProductName("转盘活动-奖品红包");
+		payOrder.setProductType("groupPurchase");
+		payOrder.setOrderNo(null);
+		payOrder.setTotalFee(totalMoney);
+		payOrder.setPayType(PayType.WXPAY);
+		payOrder.setPayState(PayState.REFUND);
+		payOrder.setOpenId(user.getOpenId());
+		payOrder.setOrderDate(new Date());
+		payOrder.setTradeType(TradeType.MINIPAY);
+		payOrder.setFinanceType(FinanceType.IN);
+		payOrder.setBizType(BizType.REFUND);
+		payOrder.setSysCode(Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+		payOrder.setCreator(user.getMobile());
+		payOrder.setGmtCreate(new Date());
+		payOrder.setGmtModified(new Date());
+		payOrder.setModifier(user.getMobile());
+		payOrder.setIsDeleted(0);
+		payOrder.setPlatformId(14);//企业小程序
+		payOrder.setTradeNo(null);
+		payOrder.setPayTradeNo(null);
+		payOrder.setRefundNo(null);
+		payOrder.setRemark("转盘活动抽中奖品为红包");
+		return payOrderService.add(payOrder);
+	}
+
+	/**奖品是现金时生成PayOrder**/
+	@Override
+	public int buildPayOrderOfSignIn(SysUser user,Integer totalMoney){
+		PayOrder payOrder=new PayOrder();
+		payOrder.setUserId(user.getId().intValue());
+		payOrder.setProductId(null);
+		payOrder.setProductName("春节活动-签到红包");
+		payOrder.setProductType("groupPurchase");
+		payOrder.setOrderNo(null);
+		payOrder.setTotalFee(totalMoney);
+		payOrder.setPayType(PayType.WXPAY);
+		payOrder.setPayState(PayState.REFUND);
+		payOrder.setOpenId(user.getOpenId());
+		payOrder.setOrderDate(new Date());
+		payOrder.setTradeType(TradeType.MINIPAY);
+		payOrder.setFinanceType(FinanceType.IN);
+		payOrder.setBizType(BizType.REFUND);
+		payOrder.setSysCode(Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+		payOrder.setCreator(user.getMobile());
+		payOrder.setGmtCreate(new Date());
+		payOrder.setGmtModified(new Date());
+		payOrder.setModifier(user.getMobile());
+		payOrder.setIsDeleted(0);
+		payOrder.setPlatformId(14);//企业小程序
+		payOrder.setTradeNo(null);
+		payOrder.setPayTradeNo(null);
+		payOrder.setRefundNo(null);
+		payOrder.setRemark("春节活动发送签到红包");
+		return payOrderService.add(payOrder);
+	}
+
+    /**奖品是现金时修改payOrder**/
+	private void modifyPayOrderInfo(Integer payOrderId,Map resultMap) {
+		String payRefundNo = resultMap.get("payTradeNo").toString();
+		PayOrder payOrder = new PayOrder();
+		payOrder.setId(payOrderId);
+		payOrder.setPayRefundNo(payRefundNo);
+		payOrder.setGmtModified(new Date());
+		payOrderService.update(payOrder);
+	}
+
+	/**奖品是度币时生成payOrder和更新payAccount**/
+	private void createRechargePayOrder(Integer platformId, SysUser user,String orderNo,Double dubiCount) {
+		PayOrder payOrder = this.createPayOrder(platformId, user, orderNo);
+		PayAccount payAccount = payAccountService.getPayAccountInfo(user.getId().intValue(), platformId);
+		log.info("抽奖中度币，查询账户信息 payAccount={}", payAccount);
+		if (payAccount == null) {
+			payOrder.setCurrentIntegral(0);
+			payOrder.setRemark("用户账户不存在");
+			//没有payAccount的时候，新增
+			payAccount=this.buildPayAccount(dubiCount,user);
+			log.info("抽奖中度币，查询账户信息 payAccount：{}", payAccount);
+			payAccountService.add(payAccount);
+			log.info("抽奖中度币，添加度币完成");
+		} else {
+			payOrder.setCurrentIntegral(payAccount.getBalanceAmount().intValue());//抽奖获得的度币，积分不增加
+
+			//修改用户度币
+			payAccount.setBalanceAmount(payAccount.getBalanceAmount()+dubiCount);
+			payAccount.setGmtModified(new Date());
+			payAccount.setModifier(user.getMobile());
+			log.info("抽奖中度币，更新用户度币 payAccount：{}", payAccount);
+			payAccountService.update(payAccount);
+			log.info("抽奖中度币，更新用户度币 完毕");
+		}
+		payOrder.setBizType(BizType.RECHARGE);
+		payOrder.setFinanceType(FinanceType.IN);
+		payOrder.setProductType(PayProductConstans.PAY_PRODUCT_TYPE);
+		payOrder.setProductDesc(PayProductConstans.RECHARGE_PRODUCT_DESC);
+		payOrder.setProductName(PayProductConstans.RECHARGE_PRODUCT_NAME);
+		payOrderService.add(payOrder);
+	}
+
+	private PayAccount buildPayAccount(Double dubiCount,SysUser user){
+		PayAccount payAccount=new PayAccount();
+		payAccount.setBalanceAmount(dubiCount);
+		payAccount.setUserId(user.getId().intValue());
+		payAccount.setPlatformId(null);//待确认
+		payAccount.setIsDeleted(0);
+		payAccount.setCreator(user.getMobile());
+		payAccount.setGmtCreate(new Date());
+		payAccount.setModifier(user.getMobile());
+		payAccount.setGmtModified(new Date());
+		payAccount.setPlatformBussinessType("2c");
+		return payAccount;
+	}
+
+	private PayOrder createPayOrder( Integer platformId,SysUser user,String orderNo) {
+		PayOrder payOrder = new PayOrder();
+		payOrder.setPlatformId(platformId);
+		payOrder.setOpenId(user.getOpenId());
+		payOrder.setPayType(PayType.WXPAY);//
+		payOrder.setUserId(user.getId().intValue());
+		payOrder.setProductId(null);
+		payOrder.setProductName("转盘活动-奖品度币");
+		payOrder.setPrepayId(null);
+		payOrder.setPayState(PayState.SUCCESS);//
+		payOrder.setOrderDate(new Date());
+		payOrder.setOrderNo(orderNo);
+		payOrder.setTotalFee(null);
+		payOrder.setTradeType(TradeType.MINIPAY);
+		payOrder.setUserId(user.getId().intValue());
+		payOrder.setOpenId(user.getOpenId());
+		payOrder.setGmtCreate(new Date());
+		payOrder.setGmtModified(new Date());
+		payOrder.setCreator(user.getMobile());
+		payOrder.setIsDeleted(0);
+		payOrder.setSysCode(Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+		payOrder.setGmtModified(new Date());
+		payOrder.setModifier(user.getMobile());
+		payOrder.setRemark("转盘活动抽中奖品为度币");
+		return payOrder;
+	}
+
+	/**奖品是度币时生成充值记录**/
+	private void saveRechargeLog(Integer userId, String mobile, double totalFee, String orderNo, String platformBussinessType) {
+		MgrRechargeLog mgrRechargeLog = new MgrRechargeLog();
+		mgrRechargeLog.setUserId(userId);
+		if (PayType.ALIPAY.equals("weixinpay")) {
+			mgrRechargeLog.setRechargeType(3); // 充值类型
+		} else {
+			mgrRechargeLog.setRechargeType(2); // 充值类型
+		}
+		mgrRechargeLog.setRechargeStatus(2); // 充值状态
+		mgrRechargeLog.setRechargeAmount(totalFee);
+		mgrRechargeLog.setAdministratorId(userId);
+		mgrRechargeLog.setOrderNo(orderNo);
+		mgrRechargeLog.setPlatformBussinessType(platformBussinessType); // 平台类型
+		mgrRechargeLog.setUserId(userId);
+		mgrRechargeLog.setGmtCreate(new Date());
+		mgrRechargeLog.setCreator(mobile);
+		mgrRechargeLog.setIsDeleted(0);
+		mgrRechargeLog.setSysCode(
+				Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+		mgrRechargeLog.setGmtModified(new Date());
+		mgrRechargeLog.setModifier(mobile);
+		mgrRechargeLogService.add(mgrRechargeLog);
+
+	}
+
+
+	
+	 private String getLocalIP() {
+	        List<String> ipList = new ArrayList<String>();
+	        try {
+	            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+	            NetworkInterface networkInterface;
+	            Enumeration<InetAddress> inetAddresses;
+	            InetAddress inetAddress;
+	            String ip;
+	            while (networkInterfaces.hasMoreElements()) {
+	                networkInterface = networkInterfaces.nextElement();
+	                inetAddresses = networkInterface.getInetAddresses();
+	                while (inetAddresses.hasMoreElements()) {
+	                    inetAddress = inetAddresses.nextElement();
+	                    if (inetAddress != null && inetAddress instanceof Inet4Address) { // IPV4
+	                        ip = inetAddress.getHostAddress();
+	                        return ip;
+	                    }
+	                }
+	            }
+	        } catch (SocketException e) {
+	            e.printStackTrace();
+	        }
+	        return "0.0.0.0";
+	    }
+    
+
+	private LuckyWheelRegistration buildRegEntity(String actId,Integer lotteryTotalCount,boolean isAward,SysUser user) {
+		Date now = new Date();
+		LuckyWheelRegistration regEntity = new LuckyWheelRegistration();
+		regEntity.setId(UUIDUtil.getUUID());
+		regEntity.setActId(actId);
+		regEntity.setOpenId(user.getOpenId());
+		regEntity.setNickname(user.getNickName());
+		regEntity.setJoinTime(now);
+		
+		regEntity.setLotteryTotalCount(lotteryTotalCount);
+		regEntity.setAwardsTotalCount(isAward?1:0);
+		
+		regEntity.setAppId(user.getAppId());
+		regEntity.setCompanyId(user.getMiniProgramCompanyId());
+		regEntity.setCreator(user.getNickName());
+		regEntity.setGmtCreate(now);
+		regEntity.setModifier(user.getNickName());
+		regEntity.setGmtModified(now);
+		regEntity.setIsDeleted(0);
+		return regEntity;
+	}
+	
+	
+
+	private void check(LuckyWheel actEntity,SysUser user) {
+		this.checkActStatus(actEntity);
+		
+		//配置每天抽奖规则
+		if(actEntity.getConfigItem()==LuckyWheel.CONFIG_ITEM_PER_DAY) {
+			LuckyWheelLotteryRecordActDayAggregated aggr = getTodayLotteryInfo(actEntity.getId(),user.getOpenId()); 
+			if(aggr!=null && (aggr.getLotteryCount()+1)>aggr.getLotteryNumPerDayMax().intValue()) {
+				throw new SystemException("今日抽奖机会已用完，明天再来");
+			}
+			if(aggr!=null && aggr.getRemainLotteryCount()<=0) {
+				throw new SystemException("暂无抽奖机会，分享随选网可以再抽一次哦");
+			}
+		}//配置活动抽奖规则
+		else if(actEntity.getConfigItem()==LuckyWheel.CONFIG_ITEM_PER_ACT) {
+			LuckyWheelLotteryRecordActAggregated aggr = getLotteryInfo(actEntity.getId(),user.getOpenId()); 
+			if(aggr!=null && (aggr.getLotteryCount()+1)>aggr.getLotteryNumMax().intValue()) {
+				throw new SystemException("抽奖次数超过最大限制");
+			}
+			if(aggr!=null && aggr.getRemainLotteryCount()<=0) {
+				throw new SystemException("暂无抽奖机会");
+			}
+		}
+		else {
+			throw new SystemException("活动配置不正确.");
+		}
+	}
+	
+	private void checkActStatus(LuckyWheel actEntity) {
+		Integer actStatus = luckyWheelService.getStatus(actEntity);
+		if(RedPacket.STATUS_UNBEGIN==actStatus) {
+			throw new SystemException("ACT_UNBEGIN","活动未开始");
+		}
+		if(RedPacket.STATUS_ENDED==actStatus) {
+			throw new SystemException("ACT_END","活动已结束");
+		}
+	}
+	
+	private LuckyWheelLotteryRecordActAggregated getLotteryInfo(String actId, String openId) {
+		return lotteryRecordActAggregatedService.get(actId,openId);
+	}
+	
+	private LuckyWheelLotteryRecordActDayAggregated getTodayLotteryInfo(String actId, String openId) {
+		return lotteryRecordActDayAggregatedService.get(actId,openId,new Date());
+	}
+
+	private void lotteryInfoRecord(LuckyWheel actEntity,boolean isFirstLottery,boolean isAward,SysUser user) {
+		//更新活动计数字段
+		luckyWheelService.increaseLotteryAndRegCount(actEntity.getId(), isAward, isFirstLottery);
+				
+		//配置每天抽奖规则
+		if(actEntity.getConfigItem()==LuckyWheel.CONFIG_ITEM_PER_DAY) {
+			if(isLotteryToday(actEntity.getId(),user.getOpenId())) {
+				int updCount = this.reduceTodayLotteryCount(actEntity.getId(),user.getOpenId());
+				if(updCount<=0) {
+					throw new SystemException("抽奖异常:超过今天最大限制抽奖次数");
+				}
+			}else {
+				LuckyWheelLotteryRecordActDayAggregated entity = buildLotteryRecordActDayAggregated(actEntity,user,1,actEntity.getLotteryNumPerDayDefalut()-1);
+				lotteryRecordActDayAggregatedService.create(entity);
+			}
+		}//配置活动抽奖规则
+		else if(actEntity.getConfigItem()==LuckyWheel.CONFIG_ITEM_PER_ACT) {
+			if(isLotteryBefore(actEntity.getId(),user.getOpenId())) {
+				//扣减抽奖次数
+				int updCount = this.reduceLotteryCount(actEntity.getId(), user.getOpenId());
+				if(updCount<=0) {
+					throw new SystemException("抽奖异常:超过最大限制抽奖次数");
+				}
+			}else {
+				LuckyWheelLotteryRecordActAggregated entity = buildLotteryRecordActAggregated(actEntity,user,1,actEntity.getLotteryNumDefalut()-1);
+				lotteryRecordActAggregatedService.create(entity);
+			}
+		}
+		else {
+			throw new SystemException("活动配置不正确.");
+		}
+		
+	}
+	
+	private int reduceLotteryCount(String actId, String openId) {
+		return lotteryRecordActAggregatedService.reduceLotteryCount(actId, openId);
+	}
+
+	private int reduceTodayLotteryCount(String actId, String openId) {
+		return lotteryRecordActDayAggregatedService.reduceLotteryCount(actId, openId,new Date());
+	}
+
+	private LuckyWheelLotteryRecordActDayAggregated buildLotteryRecordActDayAggregated(LuckyWheel actEntity,SysUser user,Integer lotteryCount,Integer remainLotteryCount) {
+		LuckyWheelLotteryRecordActDayAggregated entity = new LuckyWheelLotteryRecordActDayAggregated();
+		entity.setId(UUIDUtil.getUUID());
+		entity.setActId(actEntity.getId());
+		entity.setOpenId(user.getOpenId());
+		entity.setLotteryDate(new Date());
+		entity.setLotteryCount(lotteryCount);
+		entity.setRemainLotteryCount(remainLotteryCount);
+		entity.setLotteryNumPerDayMax(actEntity.getLotteryNumPerDayMax());
+		entity.setAppId(user.getAppId());
+		return entity;
+	}
+	
+	private LuckyWheelLotteryRecordActAggregated buildLotteryRecordActAggregated(LuckyWheel actEntity,SysUser user,Integer lotteryCount,Integer remainLotteryCount) {
+		LuckyWheelLotteryRecordActAggregated entity = new LuckyWheelLotteryRecordActAggregated();
+		entity.setId(UUIDUtil.getUUID());
+		entity.setActId(actEntity.getId());
+		entity.setOpenId(user.getOpenId());
+		entity.setLotteryCount(lotteryCount);
+		entity.setRemainLotteryCount(remainLotteryCount);
+		entity.setLotteryNumMax(actEntity.getLotteryNumMax());
+		entity.setAppId(user.getAppId());
+		return entity;
+	}
+
+	
+	private boolean isLotteryToday(String actId, String openId) {
+		return lotteryRecordActDayAggregatedService.isExist(actId,openId,new Date());
+	}
+
+	private void increaseLotteryRefCount(String regId,boolean isAward) {
+		luckyWheelRegistrationMapper.updateToIncreaseLotteryRefCount(regId,isAward);	
+	}
+
+	private LuckyWheelPrize lottery(String actId) {
+		
+		List<LuckyWheelPrize> prizeList= luckyWheelPrizeService.getByActId(actId);//order by seq
+		if(prizeList==null || prizeList.size()==0) {
+			throw new SystemException("未配置活动奖项");
+		}
+		
+		List<Double> orignalRates = new ArrayList<Double>(prizeList.size());
+		for (LuckyWheelPrize prize : prizeList) {
+			int remainNum = prize.getRemainNum();
+			int todayRemainNum = prize.getTodayRemainNum();
+			Double probability = prize.getProbability()/100;
+			if (remainNum <= 0 || todayRemainNum<=0) {//剩余数量为零，需使它不能被抽到
+				probability = 0.0;
+			}
+			orignalRates.add(probability);
+		}
+		
+        int size = orignalRates.size();
+ 
+        // 计算总概率，这样可以保证不一定总概率是1
+        double sumRate = 0d;
+        for (double rate : orignalRates) {
+            sumRate += rate;
+        }
+       
+        if(sumRate<=0) {
+        	throw new SystemException("奖项设置异常!");
+        }
+        // 计算每个物品在总概率的基础下的概率情况
+        List<Double> sortOrignalRates = new ArrayList<Double>(size);
+        Double tempSumRate = 0d;
+        for (double rate : orignalRates) {
+            tempSumRate += rate;
+            sortOrignalRates.add(tempSumRate / sumRate);
+        }
+
+        // 根据区块值来获取抽取到的物品索引
+        double nextDouble = Math.random();
+        
+        sortOrignalRates.add(nextDouble);
+        Collections.sort(sortOrignalRates);
+ 
+        int index = sortOrignalRates.indexOf(nextDouble);
+        
+        if(index==-1 || index>=prizeList.size()) {
+        	throw new SystemException("抽奖程序异常!");
+        }
+        
+        return prizeList.get(index);
+    }
+
+
+}

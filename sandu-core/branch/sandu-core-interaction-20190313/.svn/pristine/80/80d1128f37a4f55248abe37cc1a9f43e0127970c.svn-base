@@ -1,0 +1,47 @@
+package com.sandu.api.base.model;
+
+import lombok.Data;
+
+import java.util.Date;
+
+
+@Data
+public class InteractiveZoneReply {
+    private Long id;
+
+    private Long topicId;
+
+    private Integer blockType;
+
+    private Integer isBestAnswer;
+
+    private Integer isTop;
+
+    private Integer planId;
+
+    private Integer planType;
+
+    private Integer houseId;
+
+    private String picIds;
+
+    private Integer dataSource;
+
+    private Integer replyUserId;
+
+    private String creator;
+
+    private Date gmtCreate;
+
+    private String modifier;
+
+    private Date gmtModified;
+
+    private Integer isDeleted;
+
+    private String content;
+
+    private String jsonContent;
+    /****************biz field****************/
+
+}

@@ -1,0 +1,581 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.base.dao.InteractiveZoneMsgMapper">
+  <resultMap id="BaseResultMap" type="com.sandu.api.base.model.InteractiveZoneMsg">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="topic_id" jdbcType="BIGINT" property="topicId" />
+    <result column="reply_id" jdbcType="BIGINT" property="replyId" />
+    <result column="pic_id" jdbcType="INTEGER" property="picId" />
+    <result column="operate_type" jdbcType="INTEGER" property="operateType" />
+    <result column="block_type" jdbcType="INTEGER" property="blockType" />
+    <result column="business_type" jdbcType="INTEGER" property="businessType" />
+    <result column="is_read" jdbcType="INTEGER" property="isRead" />
+    <result column="publish_user_id" jdbcType="VARCHAR" property="publishUserId" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.sandu.api.base.model.InteractiveZoneMsg">
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, topic_id, reply_id, pic_id, operate_type, block_type, business_type, is_read, 
+    publish_user_id, creator, gmt_create, modifier, gmt_modified, is_deleted
+  </sql>
+  <sql id="Blob_Column_List">
+    content
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from interactive_zone_msg
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from interactive_zone_msg
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.base.model.InteractiveZoneMsg">
+    insert into interactive_zone_msg (id, topic_id, reply_id, 
+      pic_id, operate_type, block_type, 
+      business_type, is_read, publish_user_id, 
+      creator, gmt_create, modifier, 
+      gmt_modified, is_deleted, content
+      )
+    values (#{id,jdbcType=BIGINT}, #{topicId,jdbcType=BIGINT}, #{replyId,jdbcType=BIGINT}, 
+      #{picId,jdbcType=INTEGER}, #{operateType,jdbcType=INTEGER}, #{blockType,jdbcType=INTEGER}, 
+      #{businessType,jdbcType=INTEGER}, #{isRead,jdbcType=INTEGER}, #{publishUserId,jdbcType=VARCHAR}, 
+      #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER}, #{content,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.base.model.InteractiveZoneMsg">
+    insert into interactive_zone_msg
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="topicId != null">
+        topic_id,
+      </if>
+      <if test="replyId != null">
+        reply_id,
+      </if>
+      <if test="picId != null">
+        pic_id,
+      </if>
+      <if test="operateType != null">
+        operate_type,
+      </if>
+      <if test="blockType != null">
+        block_type,
+      </if>
+      <if test="businessType != null">
+        business_type,
+      </if>
+      <if test="isRead != null">
+        is_read,
+      </if>
+      <if test="publishUserId != null">
+        publish_user_id,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="topicId != null">
+        #{topicId,jdbcType=BIGINT},
+      </if>
+      <if test="replyId != null">
+        #{replyId,jdbcType=BIGINT},
+      </if>
+      <if test="picId != null">
+        #{picId,jdbcType=INTEGER},
+      </if>
+      <if test="operateType != null">
+        #{operateType,jdbcType=INTEGER},
+      </if>
+      <if test="blockType != null">
+        #{blockType,jdbcType=INTEGER},
+      </if>
+      <if test="businessType != null">
+        #{businessType,jdbcType=INTEGER},
+      </if>
+      <if test="isRead != null">
+        #{isRead,jdbcType=INTEGER},
+      </if>
+      <if test="publishUserId != null">
+        #{publishUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.base.model.InteractiveZoneMsg">
+    update interactive_zone_msg
+    <set>
+      <if test="topicId != null">
+        topic_id = #{topicId,jdbcType=BIGINT},
+      </if>
+      <if test="replyId != null">
+        reply_id = #{replyId,jdbcType=BIGINT},
+      </if>
+      <if test="picId != null">
+        pic_id = #{picId,jdbcType=INTEGER},
+      </if>
+      <if test="operateType != null">
+        operate_type = #{operateType,jdbcType=INTEGER},
+      </if>
+      <if test="blockType != null">
+        block_type = #{blockType,jdbcType=INTEGER},
+      </if>
+      <if test="businessType != null">
+        business_type = #{businessType,jdbcType=INTEGER},
+      </if>
+      <if test="isRead != null">
+        is_read = #{isRead,jdbcType=INTEGER},
+      </if>
+      <if test="publishUserId != null">
+        publish_user_id = #{publishUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.sandu.api.base.model.InteractiveZoneMsg">
+    update interactive_zone_msg
+    set topic_id = #{topicId,jdbcType=BIGINT},
+      reply_id = #{replyId,jdbcType=BIGINT},
+      pic_id = #{picId,jdbcType=INTEGER},
+      operate_type = #{operateType,jdbcType=INTEGER},
+      block_type = #{blockType,jdbcType=INTEGER},
+      business_type = #{businessType,jdbcType=INTEGER},
+      is_read = #{isRead,jdbcType=INTEGER},
+      publish_user_id = #{publishUserId,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      content = #{content,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.base.model.InteractiveZoneMsg">
+    update interactive_zone_msg
+    set topic_id = #{topicId,jdbcType=BIGINT},
+      reply_id = #{replyId,jdbcType=BIGINT},
+      pic_id = #{picId,jdbcType=INTEGER},
+      operate_type = #{operateType,jdbcType=INTEGER},
+      block_type = #{blockType,jdbcType=INTEGER},
+      business_type = #{businessType,jdbcType=INTEGER},
+      is_read = #{isRead,jdbcType=INTEGER},
+      publish_user_id = #{publishUserId,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <resultMap id="BaseResultMap" type="com.sandu.api.base.model.InteractiveZoneMsg">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="topic_id" jdbcType="BIGINT" property="topicId" />
+    <result column="reply_id" jdbcType="BIGINT" property="replyId" />
+    <result column="pic_id" jdbcType="INTEGER" property="picId" />
+    <result column="operate_type" jdbcType="INTEGER" property="operateType" />
+    <result column="block_type" jdbcType="INTEGER" property="blockType" />
+    <result column="business_type" jdbcType="INTEGER" property="businessType" />
+    <result column="is_read" jdbcType="INTEGER" property="isRead" />
+    <result column="publish_user_id" jdbcType="VARCHAR" property="publishUserId" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.sandu.api.base.model.InteractiveZoneMsg">
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, topic_id, reply_id, pic_id, operate_type, block_type, business_type, is_read, 
+    publish_user_id, creator, gmt_create, modifier, gmt_modified, is_deleted
+  </sql>
+  <sql id="Blob_Column_List">
+    content
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from interactive_zone_msg
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from interactive_zone_msg
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.base.model.InteractiveZoneMsg">
+    insert into interactive_zone_msg (id, topic_id, reply_id, 
+      pic_id, operate_type, block_type, 
+      business_type, is_read, publish_user_id, 
+      creator, gmt_create, modifier, 
+      gmt_modified, is_deleted, content
+      )
+    values (#{id,jdbcType=BIGINT}, #{topicId,jdbcType=BIGINT}, #{replyId,jdbcType=BIGINT}, 
+      #{picId,jdbcType=INTEGER}, #{operateType,jdbcType=INTEGER}, #{blockType,jdbcType=INTEGER}, 
+      #{businessType,jdbcType=INTEGER}, #{isRead,jdbcType=INTEGER}, #{publishUserId,jdbcType=VARCHAR}, 
+      #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER}, #{content,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.base.model.InteractiveZoneMsg">
+    insert into interactive_zone_msg
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="topicId != null">
+        topic_id,
+      </if>
+      <if test="replyId != null">
+        reply_id,
+      </if>
+      <if test="picId != null">
+        pic_id,
+      </if>
+      <if test="operateType != null">
+        operate_type,
+      </if>
+      <if test="blockType != null">
+        block_type,
+      </if>
+      <if test="businessType != null">
+        business_type,
+      </if>
+      <if test="isRead != null">
+        is_read,
+      </if>
+      <if test="publishUserId != null">
+        publish_user_id,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="topicId != null">
+        #{topicId,jdbcType=BIGINT},
+      </if>
+      <if test="replyId != null">
+        #{replyId,jdbcType=BIGINT},
+      </if>
+      <if test="picId != null">
+        #{picId,jdbcType=INTEGER},
+      </if>
+      <if test="operateType != null">
+        #{operateType,jdbcType=INTEGER},
+      </if>
+      <if test="blockType != null">
+        #{blockType,jdbcType=INTEGER},
+      </if>
+      <if test="businessType != null">
+        #{businessType,jdbcType=INTEGER},
+      </if>
+      <if test="isRead != null">
+        #{isRead,jdbcType=INTEGER},
+      </if>
+      <if test="publishUserId != null">
+        #{publishUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.base.model.InteractiveZoneMsg">
+    update interactive_zone_msg
+    <set>
+      <if test="topicId != null">
+        topic_id = #{topicId,jdbcType=BIGINT},
+      </if>
+      <if test="replyId != null">
+        reply_id = #{replyId,jdbcType=BIGINT},
+      </if>
+      <if test="picId != null">
+        pic_id = #{picId,jdbcType=INTEGER},
+      </if>
+      <if test="operateType != null">
+        operate_type = #{operateType,jdbcType=INTEGER},
+      </if>
+      <if test="blockType != null">
+        block_type = #{blockType,jdbcType=INTEGER},
+      </if>
+      <if test="businessType != null">
+        business_type = #{businessType,jdbcType=INTEGER},
+      </if>
+      <if test="isRead != null">
+        is_read = #{isRead,jdbcType=INTEGER},
+      </if>
+      <if test="publishUserId != null">
+        publish_user_id = #{publishUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.sandu.api.base.model.InteractiveZoneMsg">
+    update interactive_zone_msg
+    set topic_id = #{topicId,jdbcType=BIGINT},
+      reply_id = #{replyId,jdbcType=BIGINT},
+      pic_id = #{picId,jdbcType=INTEGER},
+      operate_type = #{operateType,jdbcType=INTEGER},
+      block_type = #{blockType,jdbcType=INTEGER},
+      business_type = #{businessType,jdbcType=INTEGER},
+      is_read = #{isRead,jdbcType=INTEGER},
+      publish_user_id = #{publishUserId,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      content = #{content,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.base.model.InteractiveZoneMsg">
+    update interactive_zone_msg
+    set topic_id = #{topicId,jdbcType=BIGINT},
+      reply_id = #{replyId,jdbcType=BIGINT},
+      pic_id = #{picId,jdbcType=INTEGER},
+      operate_type = #{operateType,jdbcType=INTEGER},
+      block_type = #{blockType,jdbcType=INTEGER},
+      business_type = #{businessType,jdbcType=INTEGER},
+      is_read = #{isRead,jdbcType=INTEGER},
+      publish_user_id = #{publishUserId,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="getList" resultMap="ResultMapWithBLOBs"
+          parameterType="com.sandu.api.base.model.InteractiveZoneMsg" >
+    SELECT
+        <include refid="Base_Column_List" />
+        ,
+        <include refid="Blob_Column_List" />
+    FROM
+        interactive_zone_msg
+    <where>
+        <if test="interactiveZoneMsg.id != null" >
+            and id = #{interactiveZoneMsg.id,jdbcType=BIGINT}
+        </if>
+        <if test="interactiveZoneMsg.topicId != null" >
+            and topic_id = #{interactiveZoneMsg.topicId,jdbcType=BIGINT}
+        </if>
+        <if test="interactiveZoneMsg.replyId != null" >
+            and reply_id = #{interactiveZoneMsg.replyId,jdbcType=BIGINT}
+        </if>
+        <if test="interactiveZoneMsg.picId != null" >
+            and pic_id = #{interactiveZoneMsg.picId,jdbcType=INTEGER}
+        </if>
+        <if test="interactiveZoneMsg.operateType != null" >
+            and operate_type = #{interactiveZoneMsg.operateType,jdbcType=INTEGER}
+        </if>
+        <if test="interactiveZoneMsg.blockType != null" >
+            and block_type = #{interactiveZoneMsg.blockType,jdbcType=INTEGER}
+        </if>
+        <if test="interactiveZoneMsg.businessType != null" >
+            and business_type = #{interactiveZoneMsg.businessType,jdbcType=INTEGER}
+        </if>
+        <if test="interactiveZoneMsg.isRead != null" >
+            and is_read = #{interactiveZoneMsg.isRead,jdbcType=INTEGER}
+        </if>
+        <if test="interactiveZoneMsg.publishUserId != null" >
+            and publish_user_id = #{interactiveZoneMsg.publishUserId,jdbcType=VARCHAR}
+        </if>
+        <if test="interactiveZoneMsg.creator != null" >
+            and creator = #{interactiveZoneMsg.creator,jdbcType=VARCHAR}
+        </if>
+        <if test="interactiveZoneMsg.gmtCreate != null" >
+            and gmt_create = #{interactiveZoneMsg.gmtCreate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="interactiveZoneMsg.modifier != null" >
+            and modifier = #{interactiveZoneMsg.modifier,jdbcType=VARCHAR}
+        </if>
+        <if test="interactiveZoneMsg.gmtModified != null" >
+            and gmt_modified = #{interactiveZoneMsg.gmtModified,jdbcType=TIMESTAMP}
+        </if>
+        <if test="interactiveZoneMsg.isDeleted != null" >
+            and is_deleted = #{interactiveZoneMsg.isDeleted,jdbcType=INTEGER}
+        </if>
+        <if test="interactiveZoneMsg.content != null" >
+            and content = #{interactiveZoneMsg.content,jdbcType=LONGVARCHAR}
+        </if>
+    </where>
+    <if test="start != null and limit != null" >
+        limit #{start}, #{limit}
+    </if>
+  </select>
+  <select id="getListCount" resultType="java.lang.Integer"
+          parameterType="com.sandu.api.base.model.InteractiveZoneMsg" >
+    SELECT
+        count(1)
+    FROM
+    interactive_zone_msg
+    <where>
+        <if test="id != null" >
+            and id = #{id,jdbcType=BIGINT}
+        </if>
+        <if test="topicId != null" >
+            and topic_id = #{topicId,jdbcType=BIGINT}
+        </if>
+        <if test="replyId != null" >
+            and reply_id = #{replyId,jdbcType=BIGINT}
+        </if>
+        <if test="picId != null" >
+            and pic_id = #{picId,jdbcType=INTEGER}
+        </if>
+        <if test="operateType != null" >
+            and operate_type = #{operateType,jdbcType=INTEGER}
+        </if>
+        <if test="blockType != null" >
+            and block_type = #{blockType,jdbcType=INTEGER}
+        </if>
+        <if test="businessType != null" >
+            and business_type = #{businessType,jdbcType=INTEGER}
+        </if>
+        <if test="isRead != null" >
+            and is_read = #{isRead,jdbcType=INTEGER}
+        </if>
+        <if test="publishUserId != null" >
+            and publish_user_id = #{publishUserId,jdbcType=VARCHAR}
+        </if>
+        <if test="creator != null" >
+            and creator = #{creator,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtCreate != null" >
+            and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="modifier != null" >
+            and modifier = #{modifier,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtModified != null" >
+            and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+        </if>
+        <if test="isDeleted != null" >
+            and is_deleted = #{isDeleted,jdbcType=INTEGER}
+        </if>
+        <if test="content != null" >
+            and content = #{content,jdbcType=LONGVARCHAR}
+        </if>
+    </where>
+  </select>
+</mapper>

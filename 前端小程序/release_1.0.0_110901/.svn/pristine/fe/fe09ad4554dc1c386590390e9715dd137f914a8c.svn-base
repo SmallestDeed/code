@@ -1,0 +1,177 @@
+<!--pages/decoration/supplyDetail/supplyDetail.wxml-->
+<empty-page emptyPageObj="{{emptyPageObj}}" wx:if="{{!siShowDetail}}"></empty-page>
+<view wx:if="{{siShowDetail}}" style='padding-bottom:98rpx'>
+  <view class="tilie">
+    <!-- <image class="tilie-icon" src='{{detail.typeName=="供应"?supplyIcon:demandIcon}}'></image> -->
+    {{detail.title}}
+  </view>
+  <view class="announce-info">
+      <view class="time fr">
+        浏览 <view>{{detail.viewNum}}  |  {{detail.gmtPublish}}发布</view>
+      </view>
+      <view class="name">
+        <image  class="nickname" 
+          src='{{detail.userPicPath?resourcePath+detail.userPicPath:"/static/image/index.png"}}'></image>
+          <view class='uname'>{{detail.nickName}}</view>
+      </view>
+      <!-- <view class="site">{{detail.cityAddress+detail.districtAddress+detail.address}}</view> -->
+      
+      <view class="message">{{detail.description}}</view>
+      <image class="message-img" 
+        mode="widthFix"
+        wx:for='{{detail.supplyDemandPicList}}' 
+        wx:key='{{index}}' 
+        src="{{resourcePath+item.picPath}}"></image>
+      <!-- 户型   -->
+      <view class='list' style='height:656rpx' wx:if='{{detail.baseHouse}}'>
+        <view class='top'>
+          <image src='{{resourcePath+detail.baseHouse.thumbnailPath}}' ></image>
+        </view>
+        <view class='bottom'>
+          <view class='left'>
+            <view class='tit'>{{detail.baseHouse.livingName}}</view>
+            <view class='area'>{{detail.baseHouse.houseTypeStr}}  {{detail.baseHouse.totalArea}}m²</view>
+          </view>
+          <view class='right'>
+            <view class='toHouseDetail fr'>一键装修</view>
+          </view>
+        </view>
+      </view>
+      <!-- 方案 -->
+      <view class='list' style='height:526rpx' wx:if='{{detail.designPlanRecommendedResult}}'>
+        <view class='top2'>
+          <image src='{{resourcePath+detail.designPlanRecommendedResult.coverPath}}' ></image>
+        </view>
+        <view class='bottom'>
+          <view class='left'>
+            <view class='tit'>{{detail.designPlanRecommendedResult.designPlanName}}</view>
+            <view class='area'>{{detail.designPlanRecommendedResult.spaceStyleName}} | {{detail.designPlanRecommendedResult.spaceAreas}}</view>
+          </view>
+          <view class='right'>
+            <view class='toHouseDetail fr'>方案改造</view>
+          </view>
+        </view>
+      </view>   
+      <view class='list' style='height:526rpx' wx:if='{{detail.mydecorationPlanVo}}'>
+        <view class='top2'>
+          <image src='{{resourcePath+detail.mydecorationPlanVo.planPicPath}}' ></image>
+        </view>
+        <view class='bottom'>
+          <view class='left'>
+            <view class='tit'>{{detail.mydecorationPlanVo.designName}}</view>
+            <!-- <view class='area'>{{detail.designPlanRecommendedResult.spaceStyleName}} | {{detail.designPlanRecommendedResult.spaceAreas}}</view> -->
+          </view>
+          <view class='right'>
+            <view class='toHouseDetail fr'>方案改造</view>
+          </view>
+        </view>
+      </view> 
+  </view>
+  
+  <view class='gary'></view>
+<!-- 评论 -->
+  <view class='comment' wx:if='{{commentList.length>0}}'>
+     <view class='top'>
+        <view class='left fl'>评论 10</view>
+        <view class='right fr'>最新</view>
+     </view>
+     <view class='content' wx:for='{{commentList}}'>
+        <view class='info'>
+          <view class='personal'>
+            <image class='head' src='/static/image/index.png'></image>
+            <view class='other'>
+              <view class='username'>{{item.nickName}}</view>
+              <view class='data'>{{item.gmtCreate}}</view>
+            </view>
+          </view>
+          <view class='like'>
+              <image src='/static/image/page_icon_like_nor@2x.png'></image> 
+              <view class='txt'>57</view> 
+          </view>
+        </view>
+        <view class='textCot'>
+        {{item.reviewsMsg}}
+        </view>
+        <view class='img' wx:if='{{item.picPathList.length>0}}'>
+          <image class='image' wx:for='{{item.picPathList}}' wx:for-item='imgItem' src='{{imgItem}}'></image>
+        </view>
+        <view class='house' wx:if='{{item.baseHouse}}'>
+          <image class='image' src='{{resourcePath+item.baseHouse.thumbnailPath}} '></image>
+          <image class='tag' src="/static/image/home_icon_3d.png" ></image>
+        </view>
+        <view class='plan' wx:if='{{item.designPlanRecommendedResult || item.mydecorationPlanVo}}'>
+          <image class='image' src='/static/image/design_def.png'></image>
+          <image class='tag' src="{{imgUrl}}comment_icon_design.png" ></image>
+        </view>
+     </view>
+  </view>
+
+
+  <!-- 底部输入点赞栏 -->
+  
+  <view class='bottomBar'>
+    <view class='top'>
+      <!-- 输入框 -->
+      <view class="{{bottomType=='collect'?'ppg_search':'ppg_search2'}}" style='padding:{{imgList.length>0?"30rpx 0":"0"}}'>
+        <view class='imgList' wx:if='{{imgList.length>0 && bottomType!="collect"}}'>
+          <view wx:for='{{imgList}}' class='element'>
+            <image src='{{item}}'></image>
+            <image class='close' src='{{imgUrl}}pic_icon_delete.png' bindtap='deleteImg' data-index='{{index}}'></image>
+          </view>
+        </view>
+        <textarea class="input" bindfocus='bottomFocus' placeholder='说点什么吧...' cursor-spacing='17rpx' placeholder-class='textarea' auto-height='true' maxlength='-1' adjust-position='true' fixed="true" bindinput='textareaInput'></textarea>
+      </view> 
+      <!-- 点赞收藏图标 -->
+      <view class='pageview-box-right fl' wx:if='{{bottomType=="collect"}}'>
+        <view class='collet fl clearfix' catchtap='collectLike' >
+          <image src='{{item.isFavorite!=1?"/static/image/page_icon_collect_nor@2x.png":"/static/image/page_icon_collect_sct@2x.png"}}'>
+          </image> 
+          <text>{{item.collectNum || 0}}</text>
+        </view>
+        <!-- <view class='thumbs-up fl clearfix' data-index='{{index}}'  data-item='{{item}}' bindtap='likeCase'>
+          <image src='{{item.isLike != 1?"/static/image/page_icon_like_nor@2x.png":"/static/image/page_icon_like_sct@2x.png"}}'>
+          </image> 
+          <text>{{item.likeNum || 0}}</text>
+        </view>
+        <view class='thumbs-up fl clearfix' data-index='{{index}}'  data-item='{{item}}' bindtap='likeCase'>
+          <image src='{{item.isLike != 1?"/static/image/page_icon_like_nor@2x.png":"/static/image/page_icon_like_sct@2x.png"}}'>
+          </image> 
+          <text>{{item.likeNum || 0}}</text>
+        </view>         -->
+      </view> 
+      <image class='addMore' src='{{imgUrl}}{{addTypeFlag?"comment_icon_close.png":"comment_icon_add.png"}}' wx:if='{{bottomType=="input"}}' bindtap='addMore'></image>
+    </view>
+    <view class='bottom'>
+      <view class='addType' wx:if='{{addTypeFlag}}'>
+        <view class='element'>
+          <image src='{{imgUrl}}comment_icon_pic.png' bindtap='addImg'></image>
+          <view class='txt'>添加照片</view>
+          <view bindtap='submitComment'>发布</view>
+        </view>
+        <view class='element' bindtap='addPlan'>
+          <image src='{{imgUrl}}comment_icon_fangan.png'></image>
+          <view class='txt'>添加方案</view>
+        </view>
+        <view class='element' bindtap='addHouse'>
+          <image src='{{imgUrl}}comment_icon_huxing.png'></image>
+          <view class='txt'>添加户型</view>
+        </view>
+      </view>
+    </view>  
+  </view>  
+
+  <view class="btn-box" wx:if="{{mold == '发布'}}">
+    <!-- <view class="contact-btn" wx:if="{{mold == '供求'}}">在线联系</view> -->
+    <view class="btn" bindtap='goEdit' >
+      <image src="/static/image/redact.png"></image>
+      <view class="btn-text">编辑</view>
+    </view>
+  </view>
+</view>
+
+
+
+
+<!-- 快速导航模块 -->
+  <!-- <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav"  data="{{ ...newNav }}"/> -->

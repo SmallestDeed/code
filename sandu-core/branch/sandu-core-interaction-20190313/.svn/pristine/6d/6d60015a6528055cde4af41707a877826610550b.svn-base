@@ -1,0 +1,20 @@
+package com.sandu.service.task.dao;
+
+import com.sandu.api.task.model.AutoRenderTask;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface AutoRenderTaskMapper {
+
+    AutoRenderTask selectById(Integer mainTaskId);
+
+    int insertSelective(AutoRenderTask autoRenderTask);
+
+    List<AutoRenderTask> getSubTaskByMainTaskId(Integer mainTaskId);
+
+    int insertSubTaskBatch(List<AutoRenderTask> list);
+
+    int updateMainTaskId(Integer newMainTaskId);
+}

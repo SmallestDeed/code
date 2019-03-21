@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.system.dao.SysDictonaryDao">
+	
+	
+	<resultMap type="com.nork.system.model.SysDictBigAndSmallTypeInfoModel" id="sysDictBigAndSmallTypeInfoModel">
+		<result column="bigType" property="bigType" jdbcType="VARCHAR" />
+		<result column="bigValueKey" property="bigValueKey" jdbcType="VARCHAR" />
+		<result column="bigValue" property="bigValue" jdbcType="INTEGER" />
+		<result column="bigName" property="bigName" jdbcType="VARCHAR" />
+		<result column="smallName" property="smallName" jdbcType="VARCHAR" />
+		<result column="smallValueKey" property="smallValueKey" jdbcType="VARCHAR" />
+		<result column="smallValue" property="smallValue" jdbcType="INTEGER" />
+		<result column="smallAtt3" property="smallAtt3" jdbcType="VARCHAR" />
+		<result column="smallAtt4" property="smallAtt4" jdbcType="VARCHAR" />
+	</resultMap>
+	<!-- 根据大类类型、值、小类值获取相关信息 -->
+	<select id="selectBigAndSmallTypeByTypeAndValue" parameterType="map" resultMap="sysDictBigAndSmallTypeInfoModel">
+		select bsd.type as bigType, bsd.valuekey as bigValueKey, bsd.value as bigValue, bsd.name as bigName,
+				ssd.name as smallName, ssd.valuekey as smallValueKey, ssd.value as smallValue,
+				 ssd.att3 as smallAtt3, ssd.att4 as smallAtt4
+		from sys_dictionary bsd 
+		inner join sys_dictionary ssd on ssd.type=bsd.valuekey and ssd.value=#{sValue, jdbcType=INTEGER}  and ssd.is_deleted=0
+		    where bsd.type=#{type, jdbcType=VARCHAR} and bsd.value=#{bValue, jdbcType=INTEGER} and bsd.is_deleted=0;
+	</select>
+	
+
+</mapper>

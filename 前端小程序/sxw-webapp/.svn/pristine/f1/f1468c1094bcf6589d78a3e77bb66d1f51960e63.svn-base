@@ -1,0 +1,34 @@
+<view class='address-list' wx:if="{{addressList.length>=1}}">
+<radio-group class="radio-group" bindchange="radioChange">
+  <view class='clearfix radio-group-box {{item.isMove?"radio-group-box-active":""}}'
+     data-index='{{index}}' wx:for="{{addressList}}" wx:key='{{index}}' 
+     bindtouchstart='carTouchStart' bindtouchmove='carTouchMove'>
+      <view class="fl address-list-radio clearfix" >
+        <view class='radio-box fl'><radio color='#ff6419' value='{{index}}' checked="{{item.checked}}"/></view>
+        <view class='radio-address fl' bindtap='changeRadio' data-index='{{index}}'>
+          <view class='r-a-name-phone clearfix'>
+            <view class='name fl'>收货人：{{item.consignee || ''}}</view>
+            <view class='phone fr'>{{item.mobile}}</view>        
+          </view>
+          <view class='r-a-address'>{{item.provinceName === item.cityName? item.provinceName + item.districtName + item.address: item.provinceName + item.cityName + item.districtName + item.address}}</view>      
+        </view>
+        <view class='radio-edit fl' bindtap='toAddAddress' data-item='{{item}}' ><image src='{{staticImageUrl}}list_icon_edit.png'></image></view> 
+      </view>
+      <view class='address-delete fl' data-index='{{index}}' data-item='{{item}}' bindtap='deleteAloneAddress'>删除</view>
+  </view>
+</radio-group>
+
+</view>
+<view class='add-address-btn' bindtap='toAddAddress' >+ 新增地址</view>
+
+<empty-page emptyPageObj="{{emptyPageObj}}" wx:if="{{!addressList.length>0}}"></empty-page>
+<!-- <block wx:if="{{addressList.length<1}}">
+<view class="empty_tip ">
+  <image class="image" src="{{staticImageUrl}}me_pic_no_02.png"></image>
+  <view class="txt">您还没有添加收货地址~</view>
+</view>
+</block> -->
+<!-- 快速导航模块 -->
+  <!-- <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav" data="{{ ...newNav }}"/> -->
+  <jdNav></jdNav>

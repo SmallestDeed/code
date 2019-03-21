@@ -1,0 +1,292 @@
+<view class="main_body wen">
+  <!--banner-->
+  <!-- <view class="sjs_xq_banner">
+    
+    <swiper autoplay="{{true}}"  >
+      <block wx:for="{{targetData.coverResList}}">
+        <swiper-item>
+          <image src="{{resourcePath+item}}" class="slide-image" style="width:100%" />
+        </swiper-item>
+      </block>
+    </swiper>
+  </view> -->
+  <view class='banner'>
+    <block wx:if='{{targetData.coverResList}}'>
+      <swiper autoplay='true' style='height:400rpx;'>
+        <swiper-item wx:for="{{targetData.coverResList}}" style='height:400rpx' wx:key="{{index}}">
+            <image src="{{resourcePath+item}}" class='bannerImg'/>
+        </swiper-item>
+      </swiper>
+    </block>
+    <block wx:if='{{targetData.coverResList==null}}'>
+      <image src="{{defaultImg}}" class='bannerImg'/>
+    </block>
+  </view>
+
+  <block wx:if='{{targetData.logoUrl}}'>
+    <view class='headImg'>
+      <image class="{{ targetData.businessType == 2 ? '' : 'squre-border'}}" src="{{targetData.logoUrl?resourcePath+targetData.logoUrl: '/static/image/goods_pic_no.png'}}"></image>
+    </view>
+  </block>
+  <block wx:if='{{targetData.logoUrl==null}}'>
+    <view class='headImg'>
+      <image class="{{ targetData.businessType == 2 ? '' : 'squre-border'}}" src="{{defaultImg}}"></image>
+    </view>
+  </block>
+  <view class='shopName'>
+    {{targetData.shopName}}
+  </view>
+  <view class="detail-tips">
+    <text class='vip-text'>会员</text>
+    <text class='popular-text'>浏览{{targetData.visitCount}}</text>
+  </view>
+  <!-- <view class='popular'>
+    人气 <text>{{targetData.visitCount}}</text>
+  </view>
+  <view class='vipIcon'>
+    <image src='/static/image/member.png' class='icon1'></image>
+    <image src='/static/image/VIP.png' class='icon2'></image>
+  </view> -->
+  <view class='information'>
+    <view class='title'>服务信息</view>
+    <view class='content'>
+      <view class='style2' wx:if='{{targetData.designFeeStarting!=null && targetData.designFeeEnding!=null}}'>
+        <view class='styleTitle'>设计价格：</view>
+        <view class='styletxt2'>{{targetData.designFeeStarting}}-{{targetData.designFeeEnding}}/m²</view>
+      </view>
+      <view class='style2' wx:if='{{targetData.decorationPriceStart!=null && targetData.decorationPriceEnd!=null}}'>
+        <view class='styleTitle'>装修报价：</view>
+        <view class='styletxt'>{{targetData.decorationPriceStart}}-{{targetData.decorationPriceEnd}}/m²</view>
+      </view>
+      <view class='style' wx:if='{{targetData.businessType==5}}'>
+        <view class='styleTitle'>装修方式：</view>
+        <view class='styletxt'>{{targetData.decorationType == 0 ? '半包' : '全包'}}</view>
+      </view>
+      <block wx:if='{{targetData.categoryNames}}'>
+        <view class='style'>
+          <view class='styleTitle' wx:if='{{targetData.businessType==3||targetData.businessType==5||targetData.businessType==4}}'>擅长风格：</view>
+          <view class='styleTitle' wx:if='{{targetData.businessType==6}}'>施工范围：</view>
+          <view class='styleTitle' wx:if='{{targetData.businessType==2}}'>产品类型：</view>
+          <view class='styletxt'>{{targetData.categoryNames}}</view>
+        </view>
+      </block>
+      <view class='address'>
+        <view class='adTitle'>所在地区：</view>
+        <view class='{{targetData.longitude!=null && targetData.latitude!=null?"adTxt":"adTxt2"}}'>{{targetData.provinceName}}{{targetData.cityName}}{{targetData.areaName}}{{targetData.shopAddress}}</view>
+        <block wx:if='{{targetData.longitude!=null && targetData.latitude!=null}}'>
+          <image class='adicon' src='/static/image/address.png' bindtap='openMap'></image>
+        </block>
+      </view>
+    </view>
+  </view>
+  <view class='team' wx:if='{{teamList.length>0 && targetData.businessType==4}}'>
+      <view class='title'>
+        <view class='titleTxt'>设计师</view>
+        <view class='num' bindtap='toTeam'>
+          <text>{{teamList.length}}人</text>
+          <image class='icon' src='/static/image/next.png' wx:if='{{teamList.length>3}}'></image>
+        </view>
+      </view>
+      <view class='content'>
+        <view class='options' wx:for='{{teamListShow}}' bindtap='toTeamDetail' data-id='{{item.shopId}}' wx:key="{{index}}">
+          <block wx:if='{{item.picPath}}'>
+            <image src='{{resourcePath+item.picPath}}'></image>
+          </block>
+          <block wx:if='{{item.picPath==null}}'>
+            <image src='{{defaultImg}}'></image>
+          </block>
+          <view class='name'>{{item.shopName}}</view>
+          <view class='working-years'>{{item.workingYears}}</view>
+        </view>
+      </view>
+  </view>
+  <view class='team' wx:if='{{decorateList.length>0}}'>
+    <view class='title'>
+      <view class='titleTxt'>一键方案</view>
+      <view class='num' bindtap='toPlanList' data-type='decorate'>
+        <image class='icon' src='/static/image/next.png'></image>
+      </view>
+    </view>
+    <view class='content'>
+      <view class='index-product'>
+        <view class='goods-details-case'>
+          <case-list recommendCaseList='{{decorateList}}' border='{{true}}' planDetailFlag='{{true}}'></case-list>
+        </view>
+      </view>
+    </view>
+  </view>
+  <view class='team' wx:if="{{ targetData.businessType == 5 }}">
+    <view class='title'>
+      <view class='titleTxt'>商户服务</view>
+    </view>
+    <view class="service-content clearfix">
+      <view class="service-box fl">
+        <image src="/static/image/house inspection@2x.png"></image>
+        <view class="name">验房</view>
+        <view class="reserve-min-button" data-type="1" bindtap='showReservePop'>免费预约</view>
+      </view>
+      <view class="service-box fl">
+        <image src="/static/image/Volume room@2x.png"></image>
+        <view class="name">量房</view>
+        <view class="reserve-min-button" data-type="2" bindtap='showReservePop'>免费预约</view>
+      </view>
+      <view class="service-box fl">
+        <image src="/static/image/design@2x.png"></image>
+        <view class="name">设计</view>
+        <view class="reserve-min-button" data-type="3" bindtap='showReservePop'>免费预约</view>
+      </view>
+    </view>
+  </view>
+  <!-- 2018/09/30 产品说隐藏 -->
+  <!-- <view class='team' wx:if='{{publicList.length>0}}'>
+    <view class='title'>
+      <view class='titleTxt'>样板房</view>
+      <view class='num' bindtap='toPlanList' data-type='public'>
+        <image class='icon' src='/static/image/next.png'></image>
+      </view>
+    </view>
+    <view class='content'>
+      <view class='index-product'>
+        <view class='goods-details-case'>
+          <case-list recommendCaseList='{{publicList}}' border='{{true}}'></case-list>
+        </view>
+      </view>
+    </view>
+  </view> -->
+  <view class='team' wx-if='{{caseList.length>0}}' style='width:auto'>
+    <view class='title'>
+      <view class='titleTxt'>案例</view>
+      <view class='num' bindtap='toCaseList' wx:if='{{caseList.length>1}}'>
+        <image class='icon' src='/static/image/next.png'></image>
+      </view>
+    </view>
+    <view class='caseContent'>
+      <swiper class="case-container">
+        <swiper-item class="poject" wx:for='{{caseList}}' bindtap='toCaseDetail' data-id='{{item.caseId}}' wx:key="{{index}}">
+          <view class='options'>
+            <block wx:if='{{item.picPath!=null}}'>
+              <image src='{{resourcePath+item.picPath}}'></image>
+            </block>
+            <block wx:if='{{item.picPath==null}}'>
+              <image src='{{defaultImg}}'></image>
+            </block>
+            <view class='txt'>
+              <view class='left'>{{item.caseTitle}}</view>
+              <view class='right' wx:if='{{item.browseCount>0}}'>{{item.browseCount}}人看过</view>
+            </view>
+          </view>
+        </swiper-item>
+      </swiper>
+      <!-- <scroll-view scroll-x style='height:400rpx'>
+        <view class='poject'>
+          <view class='options' wx:for='{{caseList}}' bindtap='toCaseDetail' data-id='{{item.caseId}}' wx:key="{{index}}">
+            <block wx:if='{{item.picPath!=null}}'>
+              <image src='{{resourcePath+item.picPath}}'></image>
+            </block>
+            <block wx:if='{{item.picPath==null}}'>
+              <image src='{{defaultImg}}'></image>
+            </block>
+            <view class='txt'>
+              <view class='left'>{{item.caseTitle}}</view>
+              <view class='right' wx:if='{{item.browseCount>0}}'>{{item.browseCount}}人看过</view>
+            </view>
+          </view>
+        </view>
+      </scroll-view> -->
+    </view>
+  </view>
+  <view class='team' wx:if='{{articles.length>0}}'>
+    <view class='title'>
+      <view class='titleTxt'>博文 <text>({{ articlesNum }}条)</text></view>
+      <view class='num' bindtap='toArtList'  wx:if='{{articlesNum>3}}'>
+        <image class='icon' src='/static/image/next.png'></image>
+      </view>
+    </view>
+    <view class='artContent' wx:for='{{articles}}' bindtap='toArticles' data-id='{{item.articleId}}' wx:key="{{index}}">
+      <view class='articles'>
+        <view class='title'>{{item.articleTitle}}</view>
+        <!-- <image class='artImg' src='{{resourcePath+item.picPath}}'></image> -->
+      </view>
+      <view class='info'>
+        <view class='time'>{{item.showTime}}</view>
+        <block wx:if='{{item.browseCount!=null}}'>
+        <view class='browse'>{{item.browseCount}}人看过</view>
+        </block>
+      </view>
+    </view>
+  </view>
+  <view class='team' wx:if='{{targetData.shopIntroduced!="" && targetData.shopIntroduced!=null}}'>
+    <view class='title'>
+      <view class='titleTxt'>店铺介绍</view>
+    </view>
+  </view>    
+  <view class='shopIntroduced' wx:if='{{targetData.shopIntroduced!=""}}'>
+    <rich-text nodes='{{targetData.shopIntroduced}}'></rich-text>
+  </view>
+  <view class="reserve">
+    <button bindtap='showReservePop' data-type="4">点我预约</button>
+  </view>
+    <!-- <view class='main_body-chat-logo' catchtap='routerToChatFrame'><image src='/static/image/chat.png'></image></view> -->
+</view>
+
+<!-- 点我预约弹窗 -->
+<view class='reserve-pop' wx:if="{{ isShowReservePop }}">
+  <view class='reserve-pop-box'>
+    <view class='title'>免费预约</view>
+    <view class='tips'>预约后会有专业人员与您联系</view>
+    <view class='inp-content'>
+      <input placeholder='姓名' value='{{ bindedName }}' bindinput='changeName'></input>
+      <view class="before-binding-phone-box" wx:if="{{ !isbindedPhone && !isNeededShowPhone}}">
+        <input type='number' bindinput='changeMobile' placeholder='手机号'></input>
+      </view>
+      <view class="before-binding-phone-box" wx:if="{{ !isbindedPhone && isNeededShowPhone }}">
+        <input type='number' bindinput='changeMobile' placeholder='手机号'></input>
+        <view class="verify-phone-box clearfix">
+          <input class="fl" type='number' bindinput='changeCode' placeholder='验证码'></input>
+          <view class="verify-text fl" bindtap='getCode'>{{ bindingPhoneGetCodeText }}</view>
+        </view>
+      </view>
+      <view class="after-binding-phone-box" wx:if="{{ isbindedPhone && isNeededShowPhone }}">
+        <text class="bind-tips">您已绑定手机号</text><text class="bind-phone">{{ bindingPhoneMobile }}</text>
+        <view class="bind-text" bindtap="showBindPhone">修改手机号></view>
+      </view>
+    </view>
+    <view class="reserve-button" bindtap='goToReserve'>
+      预约
+    </view>
+    <view class="close" bindtap='closeReservePop'></view>
+  </view>
+</view>
+
+  <!--介绍  -->
+  <!-- <view class="sjs_xq_js">
+    <view class="zxfw_sjsdm">
+			<view class="sjsdm_jieshao">
+        <view class="sjsdm_left">
+          <view class="sjsdm_logo"><image src="{{resourcePath+targetData.logoUrl}}"></image></view>
+          <view class="sjsdm_leixing">{{targetData.businessTypeName}}</view>
+        </view>
+        <view class="sjsdm_right">
+          <view class="sjsdm_title">
+            <view class="sjsdm_ming">{{targetData.shopName}}</view>
+            <view wx:if="{{targetData.memberYear>=0}}" class="sjsdm_hydj">会员</view>
+                 <view wx:if="{{targetData.authGrade>=0}}" class="sjsdm_hydj">已认证</view>
+          </view>
+          <view class="sjsdm_text">浏览 <span>{{targetData.visitCount}}</span></view>
+        </view>
+      </view>
+      <view class="sjsdm_scfg" wx:if='{{targetData.categoryNames}}'>
+					<view class="scfg_title" wx:if='{{targetData.businessType==3||targetData.businessType==5||targetData.businessType==4}}'>擅长风格</view>
+          <view class="scfg_title" wx:if='{{targetData.businessType==6}}'>施工范围</view>
+          <view class="scfg_title" wx:if='{{targetData.businessType==2}}'>产品类型</view>
+					<view class="scfg_text">{{targetData.categoryNames}}</view>
+				</view>
+				<view class="sjsdm_szdz">
+					<view class="scfg_title">所在地址</view>
+					<view class="scfg_xq_text">{{targetData.provinceName}}{{targetData.cityName}}{{targetData.areaName}}{{targetData.shopAddress}}
+            <image src="{{imgURL}}xq_weizhi.png"></image>
+          </view>
+				</view>
+    </view>
+  </view> -->
+  

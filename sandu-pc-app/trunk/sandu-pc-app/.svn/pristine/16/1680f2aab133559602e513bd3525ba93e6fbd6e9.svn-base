@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.panorama.dao.DesignPlanStoreReleaseMapper">
+
+    <!-- **插入定义** -->
+    <insert id="insertSelective" parameterType="com.sandu.panorama.model.DesignPlanStoreRelease"  useGeneratedKeys="true" keyProperty="id">
+        insert into design_plan_store_release
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="uuid != null">uuid, </if>
+        <if test="userId != null">user_id, </if>
+        <if test="shareTitle != null">share_title,</if>
+        <if test="shareType != null">share_type,</if>
+        <if test="pv != null">pv, </if>
+        <if test="unionGroupId != null">union_group_id, </if>
+        <if test="unionSpecialOfferId != null">union_special_offer_id, </if>
+        <if test="unionContactId != null">union_contact_id, </if>
+        <if test="houseId != null">house_id, </if>
+        <if test="housePicId != null">house_pic_id, </if>
+        <if test="sysCode!= null">sys_code, </if>
+        <if test="creator!= null">creator, </if>
+        <if test="gmtCreate!= null">gmt_create, </if>
+        <if test="modifier!= null">modifier, </if>
+        <if test="gmtModified!= null">gmt_modified, </if>
+        <if test="isDeleted!= null">is_deleted, </if>
+        <if test="remark!= null">remark, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+        <if test="uuid != null">#{uuid,jdbcType=VARCHAR}, </if>
+        <if test="userId != null">#{userId,jdbcType=INTEGER}, </if>
+        <if test="shareTitle != null">#{shareTitle,jdbcType=VARCHAR},</if>
+        <if test="shareType != null">#{shareType,jdbcType=INTEGER},</if>
+        <if test="pv != null">#{pv,jdbcType=INTEGER}, </if>
+        <if test="unionGroupId != null">#{unionGroupId,jdbcType=INTEGER}, </if>
+        <if test="unionSpecialOfferId != null">#{unionSpecialOfferId,jdbcType=INTEGER}, </if>
+        <if test="unionContactId != null">#{unionContactId,jdbcType=INTEGER}, </if>
+        <if test="houseId != null">#{houseId,jdbcType=INTEGER}, </if>
+        <if test="housePicId != null">#{housePicId,jdbcType=INTEGER}, </if>
+        <if test="sysCode!= null">#{sysCode,jdbcType=VARCHAR}, </if>
+        <if test="creator!= null">#{creator,jdbcType=VARCHAR}, </if>
+        <if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP}, </if>
+        <if test="modifier!= null">#{modifier,jdbcType=VARCHAR}, </if>
+        <if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP}, </if>
+        <if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER}, </if>
+        <if test="remark!= null">#{remark,jdbcType=VARCHAR}, </if>
+        </trim>
+    </insert>
+
+    <!-- **更新定义** -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.panorama.model.DesignPlanStoreRelease">
+        update design_plan_store_release
+        <set>
+            <if test="uuid != null">uuid = #{uuid,jdbcType=VARCHAR}, </if>
+            <if test="userId != null">user_id = #{userId,jdbcType=INTEGER}, </if>
+            <if test="shareTitle != null">share_title = #{shareTitle,jdbcType=VARCHAR},</if>
+            <if test="shareType != null">share_type = #{shareType,jdbcType=INTEGER},</if>
+            <if test="pv != null">pv = #{pv,jdbcType=INTEGER}, </if>
+            <if test="unionGroupId != null">union_group_id = #{unionGroupId,jdbcType=INTEGER}, </if>
+            <if test="unionSpecialOfferId != null">union_special_offer_id = #{unionSpecialOfferId,jdbcType=INTEGER}, </if>
+            <if test="unionContactId != null">union_contact_id = #{unionContactId,jdbcType=INTEGER}, </if>
+            <if test="houseId != null">house_id = #{houseId,jdbcType=INTEGER}, </if>
+            <if test="housePicId != null">house_pic_id = #{housePicId,jdbcType=INTEGER}, </if>
+            <if test="sysCode!= null">sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+            <if test="creator!= null">creator = #{creator,jdbcType=VARCHAR}, </if>
+            <if test="gmtCreate!= null">gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+            <if test="modifier!= null">modifier = #{modifier,jdbcType=VARCHAR}, </if>
+            <if test="gmtModified!= null">gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+            <if test="isDeleted!= null">is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+            <if test="remark!= null">remark = #{remark,jdbcType=VARCHAR}, </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!-- **删除定义** -->
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        update design_plan_store_release set is_deleted = 1 , gmt_modified = now()
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+        id,uuid,user_id,share_title,share_type,pv,union_group_id,union_special_offer_id,union_contact_id,house_id,house_pic_id,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,remark
+    </sql>
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.sandu.panorama.model.DesignPlanStoreRelease">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="uuid" property="uuid" jdbcType="VARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="share_title" property="shareTitle" jdbcType="VARCHAR"/>
+        <result column="share_type" property="shareType" jdbcType="INTEGER"/>
+        <result column="pv" property="pv" jdbcType="INTEGER"/>
+        <result column="union_group_id" property="unionGroupId" jdbcType="INTEGER"/>
+        <result column="union_special_offer_id" property="unionSpecialOfferId" jdbcType="INTEGER"/>
+        <result column="union_contact_id" property="unionContactId" jdbcType="INTEGER"/>
+        <result column="house_id" property="houseId" jdbcType="INTEGER"/>
+        <result column="house_pic_id" property="housePicId" jdbcType="INTEGER"/>
+        <result column="sys_code" property="sysCode" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="AllResultMap"
+            parameterType="java.lang.Integer">
+        select
+        <include refid="All_Column_List" />
+        from design_plan_store_release
+        where is_deleted = 0 and id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <resultMap id="getPanoramaResultMap" type="com.sandu.panorama.model.output.DesignPlanStoreReleaseVo">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="uuid" property="uuid" jdbcType="VARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+        <result column="share_title" property="shareTitle" jdbcType="INTEGER"/>
+        <result column="share_type" property="shareType" jdbcType="INTEGER"/>
+        <result column="pv" property="pv" jdbcType="INTEGER"/>
+        <result column="union_group_id" property="unionGroupId" jdbcType="INTEGER"/>
+        <result column="union_special_offer_id" property="unionSpecialOfferId" jdbcType="INTEGER"/>
+        <result column="house_id" property="houseId" jdbcType="INTEGER"/>
+        <result column="house_pic_id" property="housePicId" jdbcType="INTEGER"/>
+        <result column="housePicPath" property="housePicPath" jdbcType="VARCHAR"/>
+        <result column="main_design_plan_id" property="mainDesignPlanId" jdbcType="INTEGER"/>
+        <result column="coverPicPath" property="coverPicPath" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!-- 根据uuid查询720分享 -->
+    <select id="getDesignPlanStoreRelease" resultMap="getPanoramaResultMap"
+            parameterType="java.lang.String">
+        select r.id,r.uuid,r.user_id,r.share_title,r.share_type,r.pv,r.union_group_id,r.union_special_offer_id,r.union_contact_id,r.house_id,r.house_pic_id from design_plan_store_release r
+        where r.is_deleted = 0 and r.uuid = #{uuid,jdbcType=VARCHAR};
+    </select>
+
+    <!-- 通过用户ID获取分享总数 -->
+    <select id="getCountByUserId" resultType="java.lang.Integer"
+            parameterType="com.sandu.panorama.model.input.DesignPlanStoreReleaseSearch">
+        select count(r.id) from design_plan_store_release r
+        left join design_plan_store_release_details rd on rd.store_release_id = r.id
+        left join design_plan_render_scene dprs on dprs.id = rd.design_plan_id
+        left join res_render_pic rrp on rrp.id = dprs.cover_pic_id
+        where r.is_deleted = 0 and rd.is_deleted = 0 and rd.is_main = 1
+        <if test="userId != null">
+            and r.user_id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="shareTitle != null and shareTitle != ''">
+            and r.share_title like concat("%", #{shareTitle,jdbcType=VARCHAR}, "%")
+        </if>
+        order by r.gmt_create desc
+    </select>
+
+    <!-- 通过用户ID获取分享列表 -->
+    <select id="getListByUserId" resultMap="getPanoramaResultMap"
+            parameterType="com.sandu.panorama.model.input.DesignPlanStoreReleaseSearch">
+        select r.id,r.share_title,r.gmt_create,r.share_type,rd.design_plan_id main_design_plan_id,rrp.pic_path coverPicPath,r.pv from design_plan_store_release r
+        left join design_plan_store_release_details rd on rd.store_release_id = r.id
+        left join design_plan_render_scene dprs on dprs.id = rd.design_plan_id
+        left join res_render_pic rrp on rrp.id = dprs.cover_pic_id
+        where r.is_deleted = 0 and rd.is_deleted = 0 and rd.is_main = 1
+        <if test="userId != null">
+            and r.user_id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="shareTitle != null and shareTitle != ''">
+            and r.share_title like concat("%", #{shareTitle,jdbcType=VARCHAR}, "%")
+        </if>
+        order by r.gmt_create desc
+        <if test="start != null and limit != null">
+            LIMIT #{start}, #{limit}
+        </if>
+    </select>
+
+    <!-- 获取方案封面图  -->
+    <select id="getCoverPicPath" resultType="java.lang.String"
+            parameterType="java.lang.Integer">
+        select rrp.pic_path from design_plan_render_scene dprs
+        left join res_render_pic rrp on rrp.design_scene_id = dprs.id
+        and (rrp.file_key = 'design.designPlan.render.small.pic' or rrp.file_key = 'design.designPlan.render.video.cover')
+        and rrp.is_deleted = 0
+        where dprs.is_deleted = 0 and dprs.id = #{mainDesignPlanId,jdbcType=INTEGER}
+        order by rrp.id desc limit 1;
+    </select>
+    
+    <!-- TEMP -->
+    <insert id="createResPic" parameterType="com.sandu.system.model.po.ResPicPO" useGeneratedKeys="true" keyProperty="id">
+		insert into res_pic
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		<if test="sysCode!= null">sys_code, </if>
+		<if test="creator!= null">creator, </if>
+		<if test="gmtCreate!= null">gmt_create, </if>
+		<if test="modifier!= null">modifier, </if>
+		<if test="gmtModified!= null">gmt_modified, </if>
+		<if test="isDeleted!= null">is_deleted, </if>
+		<if test="picCode!= null">pic_code, </if>
+		<if test="picName!= null">pic_name, </if>
+		<if test="picFileName!= null">pic_file_name, </if>
+		<if test="picType!= null">pic_type, </if>
+		<if test="picSize!= null">pic_size, </if>
+		<if test="picWeight!= null">pic_weight, </if>
+		<if test="picHigh!= null">pic_high, </if>
+		<if test="picSuffix!= null">pic_suffix, </if>
+		<if test="picLevel!= null">pic_level, </if>
+		<if test="picFormat!= null">pic_format, </if>
+		<if test="picPath!= null">pic_path, </if>
+		<if test="picDesc!= null">pic_desc, </if>
+		<if test="picOrdering!= null">pic_ordering, </if>
+		<if test="fileKey!= null">file_key, </if>
+		<if test="fileKeys!= null">file_keys, </if>
+		<if test="businessIds!= null">business_ids, </if>
+		<if test="smallPicInfo!= null">small_pic_info, </if>
+		<if test="viewPoint!= null">view_point, </if>
+		<if test="scene!= null">scene, </if>
+		<if test="sequence!= null">sequence, </if>
+		<if test="dateAtt1!= null">date_att1, </if>
+		<if test="dateAtt2!= null">date_att2, </if>
+		<if test="businessId!= null">business_id, </if>
+		<if test="numAtt2!= null">num_att2, </if>
+		<if test="numAtt3!= null">num_att3, </if>
+		<if test="numAtt4!= null">num_att4, </if>
+		<if test="remark!= null">remark, </if>
+		<if test="renderingType!= null">rendering_type, </if>
+		<if test="panoPath!= null">pano_path, </if>
+		<if test="sysTaskPicId!= null">sys_task_pic_id, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="picCode!= null">  #{picCode,jdbcType=VARCHAR}, </if>
+		<if test="picName!= null">  #{picName,jdbcType=VARCHAR}, </if>
+		<if test="picFileName!= null">  #{picFileName,jdbcType=VARCHAR}, </if>
+		<if test="picType!= null">  #{picType,jdbcType=VARCHAR}, </if>
+		<if test="picSize!= null">  #{picSize,jdbcType=INTEGER}, </if>
+		<if test="picWeight!= null">  #{picWeight,jdbcType=VARCHAR}, </if>
+		<if test="picHigh!= null">  #{picHigh,jdbcType=VARCHAR}, </if>
+		<if test="picSuffix!= null">  #{picSuffix,jdbcType=VARCHAR}, </if>
+		<if test="picLevel!= null">  #{picLevel,jdbcType=VARCHAR}, </if>
+		<if test="picFormat!= null">  #{picFormat,jdbcType=VARCHAR}, </if>
+		<if test="picPath!= null">  #{picPath,jdbcType=VARCHAR}, </if>
+		<if test="picDesc!= null">  #{picDesc,jdbcType=VARCHAR}, </if>
+		<if test="picOrdering!= null">  #{picOrdering,jdbcType=VARCHAR}, </if>
+		<if test="fileKey!= null">  #{fileKey,jdbcType=VARCHAR}, </if>
+		<if test="fileKeys!= null">  #{fileKeys,jdbcType=VARCHAR}, </if>
+		<if test="businessIds!= null">  #{businessIds,jdbcType=VARCHAR}, </if>
+		<if test="smallPicInfo!= null">  #{smallPicInfo,jdbcType=VARCHAR}, </if>
+		<if test="viewPoint!= null">  #{viewPoint,jdbcType=INTEGER}, </if>
+		<if test="scene!= null">  #{scene,jdbcType=INTEGER}, </if>
+		<if test="sequence!= null">  #{sequence,jdbcType=INTEGER}, </if>
+		<if test="dateAtt1!= null">  #{dateAtt1,jdbcType=TIMESTAMP}, </if>
+		<if test="dateAtt2!= null">  #{dateAtt2,jdbcType=TIMESTAMP}, </if>
+		<if test="businessId!= null">  #{businessId,jdbcType=INTEGER}, </if>
+		<if test="numAtt2!= null">  #{numAtt2,jdbcType=INTEGER}, </if>
+		<if test="numAtt3!= null">  #{numAtt3,jdbcType=DOUBLE}, </if>
+		<if test="numAtt4!= null">  #{numAtt4,jdbcType=DOUBLE}, </if>
+		<if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>
+		<if test="renderingType!= null">  #{renderingType,jdbcType=VARCHAR}, </if>
+		<if test="panoPath!= null">  #{panoPath,jdbcType=VARCHAR}, </if>
+		<if test="sysTaskPicId!= null">  #{sysTaskPicId,jdbcType=INTEGER}, </if>
+		</trim>
+	</insert>
+
+    <!-- 更新资源表 TEMP -->
+    <update id="updateResPic" parameterType="com.sandu.system.model.po.ResPicPO">
+        update res_pic
+        <set>
+            <if test="businessId != null">business_id = #{businessId,jdbcType=INTEGER}, </if>
+            <if test="modifier!= null">modifier = #{modifier,jdbcType=VARCHAR}, </if>
+            <if test="gmtModified!= null">gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+            <if test="isDeleted!= null">is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+</mapper>

@@ -1,0 +1,552 @@
+package com.nork.decorateOrder.service.impl;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import com.nork.decorateOrder.constant.ProprietorInfoConstants;
+import com.nork.decorateOrder.model.DecoratePrice;
+import com.nork.decorateOrder.model.output.NotBeenSelectedOrderVO;
+import com.nork.decorateOrder.service.DecoratePriceService;
+import com.nork.decorateOrder.service.DecorateSeckillService;
+import com.nork.design.model.DecorateDesignPlanImgInfo;
+import com.nork.design.service.DecorateDesignPlanImgService;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.PredicateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.nork.decorateOrder.dao.DecorateOrderMapper;
+import com.nork.decorateOrder.model.DecorateOrder;
+import com.nork.decorateOrder.model.DecorateSeckillOrder;
+import com.nork.decorateOrder.model.input.DecorateCustomerListQuery;
+import com.nork.decorateOrder.model.output.DecorateCustomerDetail;
+import com.nork.decorateOrder.model.output.DecorateCustomerVO;
+import com.nork.decorateOrder.service.ProprietorInfoService;
+import com.nork.system.model.SysUser;
+
+import org.springframework.stereotype.Service;
+
+import com.nork.common.util.Utils;
+import com.nork.common.util.collections.Lists;
+import com.nork.decorateOrder.config.DecorateOrderConfig;
+import com.nork.decorateOrder.constant.DecorateOrderConstants;
+import com.nork.decorateOrder.constant.DecorateSeckillConstants;
+import com.nork.decorateOrder.model.search.DecorateOrderSearch;
+import com.nork.decorateOrder.service.DecorateOrderService;
+
+@Service("decorateOrderService")
+public class DecorateOrderServiceImpl implements DecorateOrderService {
+
+	private final static Logger LOGGER = LoggerFactory.getLogger(DecorateOrderServiceImpl.class);
+	
+	private final static String LOGPREFIX = "[装修订单模块]:";
+	
+	@Autowired
+	private DecorateOrderMapper decorateOrderMapper;
+
+    @Autowired
+    private ProprietorInfoService proprietorInfoService;
+
+	@Autowired
+    private DecoratePriceService decoratePriceService;
+
+	@Autowired
+	private DecorateDesignPlanImgService decorateDesignPlanImgService;
+	
+	@Autowired
+	private DecorateSeckillService decorateSeckillService;
+
+	@Override
+	public List<DecorateOrder> getDecorateSeckillIdAndOrderOverTimeList(DecorateOrderSearch decorateOrderSearch) {
+		// ------参数验证 ->start
+		if(decorateOrderSearch == null) {
+			LOGGER.error(LOGPREFIX + "decorateOrderSearch = null");
+			return null;
+		}
+		// ------参数验证 ->end
+		
+		/*List<Long> returnList = decorateOrderMapper.selectDecorateSeckillIdBySearch(decorateOrderSearch);*/
+		List<DecorateOrder> returnList = decorateOrderMapper.selectDecorateSeckillIdAndOrderOverTimeBySearch(decorateOrderSearch);
+		
+		// ------去空 ->start
+		/*CollectionUtils.filter(returnList, PredicateUtils.notNullPredicate());*/
+		// ------去空 ->end
+		
+		return returnList;
+	}
+
+	@Override
+	public int getMyClientCount(Long userId) {
+		// ------参数验证 ->start
+		if(userId == null) {
+			LOGGER.error(LOGPREFIX + "userId = null");
+			return 0;
+		}
+		// ------参数验证 ->end
+		
+		// 设置搜索条件 ->start
+		DecorateOrderSearch decorateOrderSearch = new DecorateOrderSearch();
+		decorateOrderSearch.setUserId(userId);
+		List<Integer> orderStatusList = Arrays.asList(new Integer[] {
+			DecorateOrderConstants.DECORATEORDER_ORDERSTATUS_PAY_WAIT_TO_COMMUNICATE,
+			DecorateOrderConstants.DECORATEORDER_ORDERSTATUS_HAVE_INTENTION,
+			DecorateOrderConstants.DECORATEORDER_ORDERSTATUS_HAVE_HAS_SIGNED,
+			DecorateOrderConstants.DECORATEORDER_ORDERSTATUS_WAIT_PAY_SERVICE
+		});
+		decorateOrderSearch.setOrderStatusList(orderStatusList);
+		// 设置搜索条件 ->end
+
+		return this.getCount(decorateOrderSearch);
+	}
+
+	@Override
+	public int getCount(DecorateOrderSearch decorateOrderSearch) {
+		// ------参数验证 ->start
+		if(decorateOrderSearch == null) {
+			LOGGER.error(LOGPREFIX + "decorateOrderSearch = null");
+			return 0;
+		}
+		// ------参数验证 ->end
+		
+		return decorateOrderMapper.selectCountBySearch(decorateOrderSearch);
+	}
+
+    @Override
+    public int getCount(DecorateCustomerListQuery query) {
+        return decorateOrderMapper.selectCount(query);
+    }
+
+    /**
+     * 查询"我的客户列表”
+     * 1. 从数据库decorate_order left join proprietor_info 查出列表
+     *
+     * 2. 循环列表，处理 地址的显示 和 存在数据字典中的字段的显示
+     *
+     * 3. 处理电话号码
+     * @param query 查询入参
+     * @return
+     */
+    @Override
+    public List<DecorateCustomerVO> getList(DecorateCustomerListQuery query) {
+        //1.从数据库查出列表
+        List<DecorateCustomerVO> customerList = decorateOrderMapper.selectList(query);
+        if (null!=customerList&&customerList.size()>0){
+            for (DecorateCustomerVO c:customerList) {
+                LOGGER.info(LOGPREFIX+" getList方法--- 处理 显示数据前 数据DecorateCustomerVO："+c);
+                //2.处理 地址的显示 存在数据字典中的字段的显示
+                proprietorInfoService.setMoreInfo(c);
+                LOGGER.info(LOGPREFIX+" getList方法--- 处理 显示数据后 数据DecorateCustomerVO："+c);
+                //3.处理电话号码(支付不成功，则不显示完整电话号码)
+                if (null!=c.getOrderStatus()
+						&&c.getOrderStatus()<=(DecorateOrderConstants.DECORATEORDER_ORDERSTATUS_PAY_OVERTIME)){
+                    String newMobile = com.nork.decorateOrder.common.Utils.delMobile(c.getMobile());
+					LOGGER.info(LOGPREFIX+" getList方法--- 处理后电话号码："+newMobile);
+                    c.setMobile(newMobile);
+                }
+                //4.若有方案，则展示方案封面图
+				if (null!=c.getDesignplanType()&&null!=c.getDesignplanId()){
+					DecorateDesignPlanImgInfo planImgInfo = getDesignPlanPicPath(c.getDesignplanType(), c.getDesignplanId());
+					LOGGER.info(LOGPREFIX+" getList方法--- 方案图路径："+planImgInfo);
+					if (null!=planImgInfo){
+						c.setPlanPicPath(planImgInfo.getPicPath());
+						c.setPlanName(planImgInfo.getPlanName());
+						c.setPlanRecommendedId(planImgInfo.getPlanId());
+						c.setFullHousePlanUUID(planImgInfo.getFullHousePlanUUID());
+					}
+
+				}
+				//5.处理支付倒计时(抢单15分钟倒计时，非抢单24小时倒计时)
+				if (null!=c.getOrderType()&&null!=c.getOrderTime()){
+					long countDown = dealLostTime(c.getOrderType(), c.getOrderStatus(), c.getOrderTime());
+					if (countDown>0){
+						c.setPayRemainingTime(countDown);
+					}
+				}
+				//6.处理“服务费截止时间”(上传合同后五个工作日)
+				if (c.getOrderStatus().equals(DecorateOrderConstants.DECORATEORDER_ORDERSTATUS_WAIT_PAY_SERVICE)){
+					String dateStr = com.nork.decorateOrder.common.Utils.getDate(c.getContractUploadTime(), 5);
+					LOGGER.info(LOGPREFIX+" getCustomerDetail方法--- 服务费截止时间："+dateStr);
+					c.setEndOfServicePayTimeStr(dateStr);
+				}
+				//处理度币的显示(数据库存的是元，1元=10度币)
+				if (null!=c.getPrice()){
+					BigDecimal num=new BigDecimal(10);
+					c.setPrice(c.getPrice().multiply(num));
+				}
+            }
+            return customerList;
+        }
+        return null;
+    }
+
+    /**
+     * 查看“客户订单详情”
+     * @param orderId 装修业主Id
+     * @return DecorateCustomerDetail
+     */
+    @Override
+    public DecorateCustomerDetail getCustomerDetail(Integer orderId) {
+        //1.通过Id查询“客户详细信息”
+        DecorateCustomerDetail detail = decorateOrderMapper.getById(orderId);
+        //2.处理 显示数据
+        proprietorInfoService.setMoreInfo(detail);
+        //3.处理电话号码
+        if (null!=detail.getOrderStatus()
+                &&detail.getOrderStatus()<=(DecorateOrderConstants.DECORATEORDER_ORDERSTATUS_PAY_OVERTIME)){
+            String newMobile = com.nork.decorateOrder.common.Utils.delMobile(detail.getMobile());
+			LOGGER.info(LOGPREFIX+" getCustomerDetail方法--- 处理后电话号码："+newMobile+"  订单此时状态"+detail.getOrderStatus());
+            detail.setMobile(newMobile);
+        }
+        //4.处理方案图的显示（如果业主信息表带有方案Id,则需要展示方案图片）
+		if (null!=detail.getDesignplanType()&&null!=detail.getDesignplanId()){
+			DecorateDesignPlanImgInfo planInfo = getDesignPlanPicPath(detail.getDesignplanType(), detail.getDesignplanId());
+			LOGGER.info(LOGPREFIX+" getCustomerDetail方法--- 方案图路径："+planInfo);
+			if (null!=planInfo){
+				detail.setPlanPicPath(planInfo.getPicPath());
+				detail.setPlanName(planInfo.getPlanName());
+				detail.setPlanRecommendedId(planInfo.getPlanId());
+				detail.setFullHousePlanUUID(planInfo.getFullHousePlanUUID());
+			}
+		}
+		//5.处理支付倒计时
+		if (null!=detail.getOrderType()&&null!=detail.getOrderTime()){
+			long countDown = dealLostTime(detail.getOrderType(), detail.getOrderStatus(), detail.getOrderTime());
+			if (countDown>0){
+				detail.setPayRemainingTime(countDown);
+			}
+		}
+		//6.处理服务费支付剩余时间（订单状态为"待支付服务费"）
+        if (detail.getOrderStatus().equals(DecorateOrderConstants.DECORATEORDER_ORDERSTATUS_WAIT_PAY_SERVICE)){
+			String dateStr = com.nork.decorateOrder.common.Utils.getDate(detail.getContractUploadTime(), 5);
+			LOGGER.info(LOGPREFIX+" getCustomerDetail方法--- 服务费截止时间："+dateStr);
+			detail.setEndOfServicePayTimeStr(dateStr);
+		}
+		//7.处理报价信息
+		if (null!=detail.getDecoratePriceId()){
+			DecoratePrice price = decoratePriceService.get(detail.getDecoratePriceId());
+			//报价状态大于0的时候，才会有报价信息
+			if (price.getStatus()>0){
+				detail.setCheckFee(price.getCheckFee());
+				detail.setDesignFee(price.getDesignFee());
+				detail.setLabourFee(price.getLabourFee());
+				detail.setMaterialFee(price.getMaterialFee());
+				BigDecimal total = detail.getMaterialFee().add(detail.getCheckFee()).add(detail.getDesignFee()).add(detail.getLabourFee());
+				detail.setTotalFee(total);
+			}
+		}
+		//8.处理度币的显示，数据库存的是元(1元=10度币)
+		if (null!=detail.getPrice()){
+			BigDecimal num=new BigDecimal(10);
+			detail.setPrice(detail.getPrice().multiply(num));
+		}
+        return detail;
+
+    }
+
+
+	/**
+	 * 处理抢单倒计时和非抢单倒计时
+	 * @param orderType 订单类型
+	 * @param orderStates 订单状态
+	 * @param createTime 订单创建时间
+	 * @return
+	 */
+    private long dealLostTime(Integer orderType,Integer orderStates,Date createTime){
+    	long countDown=0;
+    	//非抢单倒计时为24小时
+		if (orderType!=1){
+			if (0==orderStates&&createTime!=null){
+				countDown = com.nork.decorateOrder.common.Utils.delLostTime(createTime, 1);
+			}
+		}else {//抢单，支付倒计时为15分钟
+			if (orderStates==0&&createTime!=null){
+				countDown = com.nork.decorateOrder.common.Utils.delLostTime2(createTime);
+			}
+		}
+		return countDown;
+	}
+
+
+    /**
+     * 修改 客户订单信息
+     * @param update 入参
+     * @return
+     */
+    @Override
+    public boolean updateOrder(DecorateOrder update) {
+        //1.调用dao层服务操作数据
+        int result=decorateOrderMapper.updateByPrimaryKeySelective(update);
+        if (result>0){
+            return true;
+        }
+        return false;
+    }
+
+	@Override
+	public DecorateOrder add(DecorateSeckillOrder decorateSeckillorder, SysUser sysUser) {
+		// ------参数验证 ->start
+		if(decorateSeckillorder == null) {
+			LOGGER.error(LOGPREFIX + "decorateSeckill = null");
+			return null;
+		}
+		// ------参数验证 ->end
+
+		// ------设置DecorateOrder信息 ->start
+		Date now = new Date();
+
+		DecorateOrder decorateOrder = new DecorateOrder();
+		decorateOrder.setCustomerId(decorateSeckillorder.getCustomerId());
+		decorateOrder.setCompanyId(sysUser.getpCompanyId());
+		decorateOrder.setProprietorInfoId(decorateSeckillorder.getProprietorInfoId());
+		decorateOrder.setOrderType(DecorateOrderConstants.DECORATEORDER_ORDERTYPE_SECKILL);
+		decorateOrder.setOrderStatus(DecorateOrderConstants.DECORATEORDER_ORDERSTATUS_UNPAID);
+		decorateOrder.setDecorateSeckillOrderId(decorateSeckillorder.getId());
+		decorateOrder.setUserId(sysUser.getId().longValue());
+		decorateOrder.setOrderTimeout(Utils.getTimeAfter(now, DecorateOrderConfig.DECORATESECKILL_PAYMENT_TIMEOUT_MINUTE, Calendar.MINUTE));
+		decorateOrder.setPrice(decorateSeckillorder.getPrice());
+		decorateOrder.setCreator(sysUser.getNickName());
+		decorateOrder.setGmtCreate(now);
+		decorateOrder.setModifier(sysUser.getNickName());
+		decorateOrder.setGmtModified(now);
+		decorateOrder.setIsDeleted(DecorateOrderConstants.DECORATEORDER_ISDELETED_DEFAULT);
+		// ------设置DecorateOrder信息 ->end
+
+		this.add(decorateOrder);
+		return decorateOrder;
+	}
+
+	@Override
+	public Long add(DecorateOrder decorateOrder) {
+		// ------参数验证 ->start
+		if(decorateOrder == null) {
+			LOGGER.error(LOGPREFIX + "decorateOrder = null");
+			return null;
+		}
+		// ------参数验证 ->end
+
+		decorateOrderMapper.insertSelective(decorateOrder);
+		return decorateOrder.getId();
+	}
+
+	@Override
+	public DecorateOrder add(DecoratePrice decoratePrice, SysUser sysUser) {
+		// ------参数验证 ->start
+		if(decoratePrice == null) {
+			LOGGER.error(LOGPREFIX + "decoratePrice = null");
+			return null;
+		}
+		// ------参数验证 ->end
+		
+		// ------设置DecorateOrder属性 ->start
+		Date now = new Date();
+		
+		DecorateOrder decorateOrder = new DecorateOrder();
+		decorateOrder.setCustomerId(decoratePrice.getCustomerId());
+		decorateOrder.setCompanyId(decoratePrice.getCompanyId());
+		decorateOrder.setProprietorInfoId(decoratePrice.getProprietorInfoId());
+		decorateOrder.setOrderType(DecorateOrderConstants.DECORATEORDER_ORDERTYPE_BID);
+		decorateOrder.setOrderStatus(DecorateOrderConstants.DECORATEORDER_ORDERSTATUS_UNPAID);
+		decorateOrder.setDecoratePriceId(decoratePrice.getId());
+		decorateOrder.setUserId(decoratePrice.getBidUserId());
+		decorateOrder.setOrderTimeout(Utils.getTimeAfter(now, 24, Calendar.HOUR));
+		if(decorateOrder.getOrderStatus() != null &&
+				decorateOrder.getOrderStatus().intValue() == DecorateOrderConstants.DECORATEORDER_ORDERSTATUS_PAY_WAIT_TO_COMMUNICATE.intValue()) {
+			decorateOrder.setPayTime(now);
+		}
+		decorateOrder.setPrice(decoratePrice.getPrice());
+		decorateOrder.setCreator(sysUser == null ? "unknow" : sysUser.getNickName());
+		decorateOrder.setGmtCreate(now);
+		decorateOrder.setModifier(sysUser == null ? "unknow" : sysUser.getNickName());
+		decorateOrder.setGmtModified(now);
+		decorateOrder.setIsDeleted(DecorateOrderConstants.DECORATEORDER_ISDELETED_DEFAULT);
+		// ------设置DecorateOrder属性 ->end
+		
+		this.add(decorateOrder);
+		return decorateOrder;
+	}
+
+	@Override
+	public DecorateOrder findOneByPriceId(Long orderId) {
+		// ------参数验证 ->start
+		if(orderId == null) {
+			LOGGER.error("{} orderId = null", LOGPREFIX);
+			return null;
+		}
+		// ------参数验证 ->end
+		
+		return decorateOrderMapper.selectByDecoratePriceId(orderId);
+	}
+
+	@Override
+	public DecorateOrder findOneBySeckillId(Long decorateSeckillId) {
+		// ------参数验证 ->start
+		if(decorateSeckillId == null) {
+			LOGGER.error("{} decorateSeckillId = null", LOGPREFIX);
+			return null;
+		}
+		// ------参数验证 ->end
+		
+		return decorateOrderMapper.selectBySeckillId(decorateSeckillId);
+	}
+
+	@Override
+	public DecorateOrder get(Long id) {
+		// ------参数验证 ->start
+		if(id == null) {
+			LOGGER.error("{} id = null", LOGPREFIX);
+			return null;
+		}
+		// ------参数验证 ->end
+		
+		return decorateOrderMapper.selectByPrimaryKey(id);
+	}
+
+	@Override
+	public int updateOrderStatusByDecoratePriceId(Integer orderStatus,
+			Long decoratePriceId) {
+		// ------参数验证 ->start
+		if(orderStatus == null) {
+			LOGGER.error("{} orderStatus = null", LOGPREFIX);
+			return 0;
+		}
+		if(decoratePriceId == null) {
+			LOGGER.error("{} decoratePriceId = null", LOGPREFIX);
+			return 0;
+		}
+		// ------参数验证 ->end
+		
+		return decorateOrderMapper.updateOrderStatusByDecoratePriceId(orderStatus, decoratePriceId);
+	}
+
+	@Override
+	public int updateOrderStatusByDecorateSeckillId(Integer orderStatus, Long decorateSeckillId) {
+		// ------参数验证 ->start
+		if(orderStatus == null) {
+			LOGGER.error("{} orderStatus = null", LOGPREFIX);
+			return 0;
+		}
+		if(decorateSeckillId == null) {
+			LOGGER.error("{} decoratePriceId = null", LOGPREFIX);
+			return 0;
+		}
+		// ------参数验证 ->end
+		
+		return decorateOrderMapper.updateOrderStatusByDecorateSeckillId(orderStatus, decorateSeckillId);
+	}
+
+	/**
+	 * 查询方案封面图
+	 * @param type 类型
+	 * @param planId 方案Id
+	 * @return string picPath
+	 */
+	private  DecorateDesignPlanImgInfo getDesignPlanPicPath(Integer type,Long planId){
+		DecorateDesignPlanImgInfo planInfo=null;
+		if (ProprietorInfoConstants.DESIGN_PLAN_WHOLE_HOUSE.equals(type)){
+			planInfo = decorateDesignPlanImgService.getWholeHouseById(planId);
+			if (null!=planInfo){
+				return planInfo;
+			}
+		}
+		else if (ProprietorInfoConstants.DESIGN_PLAN_RENDER_SCENE.equals(type)){
+			planInfo = decorateDesignPlanImgService.getRecommendedById(planId);
+			if (null!=planInfo){
+				return planInfo;
+			}
+		}
+		return planInfo;
+	}
+
+	@Override
+	public int updateOrderStatusById(Integer orderStatus, Long id) {
+		// ------参数验证 ->start
+		if(orderStatus == null) {
+			LOGGER.error("{} orderStatus = null", LOGPREFIX);
+			return 0;
+		}
+		if(id == null) {
+			LOGGER.error("{} id = null", LOGPREFIX);
+			return 0;
+		}
+		// ------参数验证 ->end
+		
+		return decorateOrderMapper.updateOrderStatusById(orderStatus, id);
+	}
+	
+	@Override
+	public void updateOverTimeOrder() {
+		
+		LOGGER.info("{} 开始检测并处理超时订单", LOGPREFIX);
+		Long startTime = new Date().getTime();
+		
+		// ------获取所有支付超时的数据 ->start
+		List<DecorateOrder> decorateOrderList = this.getOverTimeOrderList();
+		// ------获取所有支付超时的数据 ->end
+		
+		if(Lists.isEmpty(decorateOrderList)) {
+			LOGGER.info("{} 没有需要更新的超时订单, 本次定时钟处理完毕({} s)", LOGPREFIX, (System.currentTimeMillis() - startTime) / 1000);
+			return;
+		}
+		
+		// ------统计数据 ->start
+		// 我需要获得需要更新的超时订单idList + 这些order是限时快抢的订单list(为了做一个逻辑:限时快抢支付超时, copy一条显示快抢数据)
+		// 
+		List<Long> orderIdList = new ArrayList<Long>();
+		List<Long> seckillOrderIdList = new ArrayList<Long>();
+		
+		decorateOrderList.forEach(item -> {
+			orderIdList.add(item.getId());
+			if(item.getDecorateSeckillOrderId() != null && item.getDecorateSeckillOrderId() > 0) {
+				seckillOrderIdList.add(item.getDecorateSeckillOrderId());
+			}
+		});
+		// ------统计数据 ->start
+		
+		// 修改这批支付超时的数据的状态由 "待支付" -> "支付超时" ->start
+		this.updateOrderStatusByIdList(DecorateOrderConstants.DECORATEORDER_ORDERSTATUS_PAY_OVERTIME, orderIdList);
+		// 修改这批支付超时的数据的状态由 "待支付" -> "支付超时" ->end
+		
+		// 如果有抢单数据支付超时,则copy一条抢单数据重新加入抢单列表 ->start
+		/*decorateSeckillService.copy(seckillOrderIdList);*/
+		// 如果有抢单数据支付超时,则copy一条抢单数据重新加入抢单列表 ->end
+		
+		// 上述逻辑变更: 由copy一条抢单数据 变更为: update原抢单数据为未抢的状态 ->start
+		decorateSeckillService.update(null, DecorateSeckillConstants.DECORATESECKILLSEARCH_STATUS_NOT_BEING_SNAPPED_UP, seckillOrderIdList);
+		// 上述逻辑变更: 由copy一条抢单数据 变更为: update原抢单数据为未抢的状态 ->end
+		
+		LOGGER.info("{} 更新了{}条订单数据, 本次定时钟处理完毕({} s)", LOGPREFIX, orderIdList.size(), (System.currentTimeMillis() - startTime) / 1000);
+	}
+
+	public void updateOrderStatusByIdList(Integer orderStatus, List<Long> idList) {
+		// ------参数验证 ->start
+		if(orderStatus == null) {
+			LOGGER.error("{} orderStatus = null", LOGPREFIX);
+			return;
+		}
+		if(Lists.isEmpty(idList)) {
+			LOGGER.error("{} Lists.isEmpty(idList) = true", LOGPREFIX);
+			return;
+		}
+		// ------参数验证 ->start
+		
+		decorateOrderMapper.updateOrderStatusByIdList(orderStatus, idList);
+	}
+
+	@Override
+	public List<DecorateOrder> getOverTimeOrderList() {
+		return decorateOrderMapper.selectOverTimeOrderList(new Date());
+	}
+
+
+	@Override
+	public List<NotBeenSelectedOrderVO> getNotBeenSelectedOrder(Long customerId) {
+		return decorateOrderMapper.selectByCustomerId(customerId);
+	}
+
+
+}

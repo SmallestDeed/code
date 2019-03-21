@@ -1,0 +1,144 @@
+package com.sandu.base.service.impl;
+
+import com.sandu.base.dao.BaseAreaMapper;
+import com.sandu.base.model.BaseArea;
+import com.sandu.base.model.search.BaseAreaSearch;
+import com.sandu.base.model.vo.BaseAreaVo;
+import com.sandu.base.service.BaseAreaService;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+/**
+ * @version V1.0
+ * @Title: BaseAreaServiceImpl.java
+ * @Package com.sandu.system.service.impl
+ * @Description:系统-行政区域ServiceImpl
+ * @createAuthor pandajun
+ * @CreateDate 2015-05-19 15:31:09
+ */
+@Service("baseAreaService")
+public class BaseAreaServiceImpl implements BaseAreaService
+{
+
+	private static Logger logger = LoggerFactory.getLogger(BaseAreaServiceImpl.class);
+	@Autowired
+	private BaseAreaMapper baseAreaMapper;
+
+	/**
+	 * 新增数据
+	 *
+	 * @param baseArea
+	 * @return int
+	 */
+	@Override
+	public int add(BaseArea baseArea)
+	{
+		baseAreaMapper.insertSelective(baseArea);
+		return baseArea.getId();
+	}
+
+	/**
+	 * 更新数据
+	 *
+	 * @param baseArea
+	 * @return int
+	 */
+	@Override
+	public int update(BaseArea baseArea)
+	{
+		return baseAreaMapper.updateByPrimaryKeySelective(baseArea);
+	}
+
+	/**
+	 * 删除数据
+	 *
+	 * @param id
+	 * @return int
+	 */
+	@Override
+	public int delete(Integer id)
+	{
+		return baseAreaMapper.deleteByPrimaryKey(id);
+	}
+
+	/**
+	 * 获取数据详情
+	 *
+	 * @param id
+	 * @return BaseArea
+	 */
+	@Override
+	public BaseArea get(Integer id)
+	{
+		return baseAreaMapper.selectByPrimaryKey(id);
+	}
+
+	/**
+	 * 所有数据
+	 *
+	 * @param baseArea
+	 * @return List<BaseArea>
+	 */
+	@Override
+	public List<BaseArea> getList(BaseArea baseArea)
+	{
+		if (baseArea != null && StringUtils.isNotBlank(baseArea.getPid()))
+		{
+			if (baseArea.getLevelId() == 0 && Integer.parseInt(baseArea.getPid()) == 0)
+			{
+				return baseAreaMapper.selectAllCity(baseArea);
+			}
+		}
+		return baseAreaMapper.selectList(baseArea);
+	}
+
+	/**
+	 * 获取数据数量
+	 *
+	 * @return int
+	 */
+	@Override
+	public int getCount(BaseAreaSearch baseAreaSearch)
+	{
+		return baseAreaMapper.selectCount(baseAreaSearch);
+	}
+
+	/**
+	 * 分页获取数据
+	 *
+	 * @return List<BaseArea>
+	 */
+	@Override
+	public List<BaseArea> getPaginatedList(BaseAreaSearch baseAreaSearch)
+	{
+
+		return baseAreaMapper.selectPaginatedList(baseAreaSearch);
+	}
+
+	/**
+	 * 获取城市列表
+	 */
+	public List<BaseArea> getCityList()
+	{
+		return baseAreaMapper.selectCityList();
+	}
+
+	@Override
+	public String getCodeName(String code)
+	{
+
+		return baseAreaMapper.selectCodeName(code);
+	}
+
+	@Override
+	public List<BaseAreaVo> getAreaList(BaseArea baseArea) {
+		return baseAreaMapper.selectAreaList(baseArea);
+	}
+
+}

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.mobileArea.dao.MobileAreaMapper">
+    <resultMap id="BaseResultMap" type="com.sandu.api.mobileArea.model.MobileArea">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="mobile_prefix" jdbcType="VARCHAR" property="mobilePrefix"/>
+        <result column="corp" jdbcType="VARCHAR" property="corp"/>
+        <result column="province_code" jdbcType="VARCHAR" property="provinceCode"/>
+        <result column="province_name" jdbcType="VARCHAR" property="provinceName"/>
+        <result column="city_code" jdbcType="VARCHAR" property="cityCode"/>
+        <result column="city_name" jdbcType="VARCHAR" property="cityName"/>
+        <result column="zip_code" jdbcType="VARCHAR" property="zipCode"/>
+        <result column="area_code" jdbcType="VARCHAR" property="areaCode"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,mobile_prefix,corp,province_code,province_name,city_code,city_name,zip_code,area_code
+    </sql>
+
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true" parameterType="com.sandu.api.mobileArea.model.MobileArea">
+        insert into base_mobile_area
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="mobilePrefix != null">
+                mobile_prefix,
+            </if>
+            <if test="corp != null">
+                corp,
+            </if>
+            <if test="provinceCode != null">
+                province_code,
+            </if>
+            <if test="provinceName != null">
+                province_name,
+            </if>
+            <if test="cityCode != null">
+                city_code,
+            </if>
+            <if test="cityName != null">
+                city_name,
+            </if>
+            <if test="zipCode != null">
+                zip_code,
+            </if>
+            <if test="areaCode != null">
+                area_code,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="mobilePrefix != null">
+                #{mobilePrefix,jdbcType=VARCHAR},
+            </if>
+            <if test="corp != null">
+                #{corp,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceCode != null">
+                #{provinceCode,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceName != null">
+                #{provinceName,jdbcType=VARCHAR},
+            </if>
+            <if test="cityCode != null">
+                #{cityCode,jdbcType=VARCHAR},
+            </if>
+            <if test="cityName != null">
+                #{cityName,jdbcType=VARCHAR},
+            </if>
+            <if test="zipCode != null">
+                #{zipCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaCode != null">
+                #{areaCode,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKey" parameterType="com.sandu.api.mobileArea.model.MobileArea">
+        update base_mobile_area
+        <set>
+            <if test="id != null">
+                id = #{id,jdbcType=INTEGER},
+            </if>
+            <if test="mobilePrefix != null">
+                mobile_prefix = #{mobilePrefix,jdbcType=VARCHAR},
+            </if>
+            <if test="corp != null">
+                corp = #{corp,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceCode != null">
+                province_code = #{provinceCode,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceName != null">
+                province_name = #{provinceName,jdbcType=VARCHAR},
+            </if>
+            <if test="cityCode != null">
+                city_code = #{cityCode,jdbcType=VARCHAR},
+            </if>
+            <if test="cityName != null">
+                city_name = #{cityName,jdbcType=VARCHAR},
+            </if>
+            <if test="zipCode != null">
+                zip_code = #{zipCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaCode != null">
+                area_code = #{areaCode,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        update base_mobile_area set is_deleted = 1
+        where id IN
+        <foreach separator="," open="(" close=")" collection="mobileAreaIds" item="mobileAreaId">
+            #{mobileAreaId}
+        </foreach>
+    </update>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from base_mobile_area
+        where id = #{mobileAreaId,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectByMobilePrefix" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from base_mobile_area
+        where mobile_prefix = #{mobilePrefix,jdbcType=VARCHAR}
+    </select>
+
+</mapper>

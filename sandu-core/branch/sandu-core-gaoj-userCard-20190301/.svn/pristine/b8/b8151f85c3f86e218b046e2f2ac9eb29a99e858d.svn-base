@@ -1,0 +1,66 @@
+package com.sandu.api.springFestivalActivity.service;
+
+import com.sandu.api.base.common.exception.BizException;
+import com.sandu.api.springFestivalActivity.model.WxUserSignin;
+import com.sandu.api.springFestivalActivity.output.SignInVo;
+import com.sandu.api.springFestivalActivity.output.UserSignInRecordVo;
+import com.sandu.api.user.model.SysUser;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+public interface WxUserSigninService {
+    /**
+     * 功能描述: 获取用户签到记录
+     *
+     * @param activityId
+     * @param userId
+     * @return java.util.List<com.sandu.api.springFestivalActivity.output.UserSignInRecordVo>
+     * @throws BizException
+     * @author gaoj
+     * @date 17:02
+     */
+    List<UserSignInRecordVo> getUserSignInRecordList(long activityId, Integer userId) throws BizException;
+
+    /**
+     * 功能描述: 签到
+     *
+     * @param sysUser
+     * @return boolean
+     * @throws BizException
+     * @author gaoj
+     * @date 2019/1/21 10:07
+     */
+    SignInVo signIn(Long activityId, SysUser sysUser) throws BizException;
+
+    /**
+     * 功能描述: 修改签到相关表关于抽奖的值
+     *
+     * @param activityId
+     * @param sysUser
+     * @return boolean
+     * @throws BizException
+     * @author gaoj
+     * @date 2019/1/23 21:10
+     */
+    boolean updateLotteryCount(Long activityId, SysUser sysUser) throws BizException;
+
+    SysUser getUserById(Integer userId);
+
+    int updateUser(SysUser record);
+
+    /**
+     * 获取今天所有签到的红包金额总和
+     *
+     * @param activityId 活动ID
+     * @return
+     */
+    BigDecimal getTodayTotalRedPacketNum(Long activityId);
+
+    int insertRedPacketBatch(ArrayList<WxUserSignin> wxUserSignInList);
+
+    List<WxUserSignin> getAllBySignInDay(Long activityId, int day);
+}

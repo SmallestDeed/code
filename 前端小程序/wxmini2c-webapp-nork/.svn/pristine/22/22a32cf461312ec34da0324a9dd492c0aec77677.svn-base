@@ -1,0 +1,133 @@
+<view class='case-details' style='height:{{caseListheight}};overflow:{{caseListOverflow}}'>
+    <!-- 头部 -->
+    <view class='case-details-header'>
+        <view class='details-header-image'>
+            <image src='{{caseDetails.designPlanCoverPath? resourcePath + caseDetails.designPlanCoverPath: "../static/image/goods_pic_no.png"}}'>
+            </image>
+        </view>
+        <view class='details-header-explained'>
+            <view class='header-explained-title clearfix'>
+                <view class='explained-title-text fl ellipsis'>{{caseDetails.designPlanName}}</view>
+                <view class='explained-title-sign fl' wx:if='{{caseDetails.groupPrimaryId}}'>精选</view>
+                <view class='explained-title-pageview fr'>浏览 {{caseDetails.useCount}}</view>
+            </view>
+            <view class='clearfix header-explained-style-box'>
+                <view class='header-explained-style fl'>
+                    <text>{{caseDetails.spaceStyleName}}  </text>
+                    <text wx:if='{{caseDetails.planHouseType != 2 && !(caseDetails.designPlanRecommendId == caseDetails.groupPrimaryId||caseDetails.planRecommendedId==caseDetails.groupPrimaryId)}}'>|  {{caseDetails.spaceArea}}㎡</text>
+                    <text>{{caseDetails.planDecoratePriceList.length>0?'| ' + caseDetails.planDecoratePriceList[0].decorateTypeName + '￥' + caseDetails.planDecoratePriceList[0].decoratePrice + '元/m²': ''}}</text>
+                </view>
+                <view class='fl' data-item='{{caseDetails.planDecoratePriceList}}' wx:if='{{caseDetails.planDecoratePriceList.length>0}}' catchtap='showDecoratePriceBox'>
+                    <image src='../static/image/home_icon_more_02.png'></image>
+                </view>
+            </view>
+            <!-- catchtap='toShopDetail' -->
+            <view class='header-explained-designer'>
+                <view class='explained-designer-picture fl'>
+                    <image src='{{caseDetails.designerHeadPic?resourcePath + caseDetails.designerHeadPic:"../static/image/index.png"}}'></image>
+                </view>
+                <view class='explained-designer-message fl'>
+                    <view class='designer-message-name ellipsis'>{{caseDetails.designerName || '暂无'}}</view>
+                    <view class='designer-message-call'>设计师</view>
+                </view>
+                <view wx:if='{{caseDetails.shopId&&fuck}}' class='explained-designer-router fr'>进入店铺</view>
+            </view>
+        </view>
+    </view>
+    <!-- 视频漫游效果 -->
+    <view wx:if='{{isWholeHouse != 2}}' class='case-details-video' data-type='video' data-item='{{caseDetails}}' catchtap='toThreeD'>
+        <view class='details-video-title'>视频漫游效果</view>
+        <view class='details-video-message'>
+            <view class='video-message-image'>
+                <image src='{{caseDetails.designPlanCoverPath? resourcePath + caseDetails.designPlanCoverPath: "../static/image/goods_pic_no.png"}}'>
+                </image>
+            </view>
+            <view class='video-message-logo'>
+                <image src='../static/image/5.png'></image>
+            </view>
+        </view>
+    </view>
+    <!-- 720效果 -->
+    <view class='case-details-seven' data-type='seven' data-item='{{caseDetails}}' catchtap='toThreeD'>
+        <view class='details-seven-title'>720漫游效果</view>
+        <view class='details-seven-message'>
+            <view class='seven-message-image'>
+                <image src='{{caseDetails.designPlanCoverPath? resourcePath + caseDetails.designPlanCoverPath: "../static/image/goods_pic_no.png"}}'>
+                </image>
+            </view>
+            <view class='seven-message-logo'>
+                <image src='../static/image/3.png'></image>
+            </view>
+        </view>
+    </view>
+    <!-- 多点效果 -->
+    <view wx:if='{{isWholeHouse != 2}}' class='case-details-roam' data-type='roam' data-item='{{caseDetails}}' catchtap='toThreeD'>
+        <view class='details-roam-title'>多点漫游效果</view>
+        <view class='details-roam-message'>
+            <view class='roam-message-image'>
+                <image src='{{caseDetails.designPlanCoverPath? resourcePath + caseDetails.designPlanCoverPath: "../static/image/goods_pic_no.png"}}'>
+                </image>
+            </view>
+            <view class='roam-message-logo'>
+                <image src='../static/image/4.png'></image>
+            </view>
+        </view>
+    </view>
+    <!-- 方案信息富文本 -->
+    <view class='case-details-message'>
+        <import src="../../utils/wxParse/wxParse.wxml" />
+        <view class='g-m-table'>
+            <template is="wxParse" data="{{wxParseData:article.nodes}}" />
+        </view>
+    </view>
+    <view class='case-details-navigate'>
+        <view class='details-navigate-collage fl clearfix' catchtap='collectCase'>
+            <view class='navigate-collage-image fl'>
+                <image src='{{caseDetails.isFavorite!=1?"../static/image/page_icon_collect_nor@2x.png":"../static/image/page_icon_collect_sct@2x.png"}}'>
+                </image>
+            </view>
+            <view class='navigate-collage-text fl'>收藏 {{caseDetails.collectNum || 0}}</view>
+        </view>
+        <view class='details-navigate-like fl clearfix' catchtap='likeCase'>
+            <view class='navigate-like-image fl'>
+                <image src='{{caseDetails.isLike != 1?"../static/image/page_icon_like_nor@2x.png":"../static/image/page_icon_like_sct@2x.png"}}'></image>
+            </view>
+            <view class='navigate-like-text fl'>点赞 {{caseDetails.likeNum || 0}}</view>
+        </view>
+        <view class='details-navigate-fitment fr clearfix' catchtap='putInMyhouse'>
+            装进我家
+        </view>
+    </view>
+    <view class='zzzcs' wx:if="{{getPhone}}">
+        <view class='showView'>
+            <image src='{{staticImageUrl}}zhuce02@2x.png' class='bgImg'></image>
+            <view class='items' style='margin-top:50rpx;'>
+                <input placeholder='手机号' maxlength='11' type='number' value='{{getObj.phone}}' bindinput='changeInput' data-type="phone"></input>
+            </view>
+            <view class='items code'>
+                <input placeholder='验证码' data-type="code" maxlength='8' type='number' disabled='{{!inputFlag2}}' bindinput='changeInput' value='{{getObj.code}}'></input>
+                <view class='pubCode  {{inputFlag?"":"disableds"}}' bindtap='{{inputFlag&&message=="获取验证码"?"getCodeFun":""}}'>
+                    {{message?message:"获取验证码"}}
+                </view>
+            </view>
+            <view class='items btns {{inputFlag2?"":"disableds"}}' bindtap='{{inputFlag2?"submitFun":""}}'>确认</view>
+            <image src='{{staticImageUrl}}home_pop_close.png' class='close' bindtap='closeFun'></image>
+        </view>
+    </view>
+    <!-- 装修报价说明弹框 -->
+    <view class='decorate-mask' wx:if='{{decoratePriceBox}}'>
+        <view class='decorate-price-box'>
+            <view class='price-box-title'>装修报价</view>
+            <view class='price-box-list'>
+                <view class='price-box-item' wx:for='{{decoratePriceList}}' wx:key='{{index}}'>
+                    <view class='box-item-main clearfix'>
+                        <view class='fl'>{{item.decorateTypeName}}</view>
+                        <view class='fr'>￥{{item.decoratePrice}}/m²</view>
+                    </view>
+                    <view class='box-item-secondary'>{{item.text}}</view>
+                </view>
+            </view>
+            <view class='price-box-confirm' catchtap='showDecoratePriceBox'>我知道了</view>
+        </view>
+    </view>
+</view>

@@ -1,0 +1,9 @@
+package com.sandu.api.springFestivalActivity.service;
+
+import com.sandu.api.springFestivalActivity.model.WxUserTask;
+
+import java.util.List;
+
+public interface WxUserTaskService {
+    List<WxUserTask> selectSelective(WxUserTask wxUserTask);
+}

@@ -1,0 +1,1341 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.design.dao.DesignPlanMapper">
+    <!--<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>-->
+    <!-- **插入定义** -->
+    <insert id="insertSelective" parameterType="com.nork.design.model.DesignPlan" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into design_plan
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="planCode!= null">plan_code,</if>
+            <if test="planName!= null">plan_name,</if>
+            <if test="planSource!= null">plan_source,</if>
+            <if test="houseId!= null">house_id,</if>
+            <if test="supplyDemandId!= null">supply_demand_id,</if>
+            <if test="livingId!= null">living_id,</if>
+            <if test="residentialUnitsName!= null">residential_units_name,</if>
+            <if test="userId!= null">user_id,</if>
+            <if test="mediaType!= null">media_type,</if>
+            <if test="designSourceType!= null">design_source_type,</if>
+            <if test="designId!= null">design_id,</if>
+            <if test="designTemplateId!= null">design_template_id,</if>
+            <if test="designStyleId!= null">design_style_id,</if>
+            <if test="picId!= null">pic_id,</if>
+            <if test="modelId!= null">model_id,</if>
+            <if test="model3dId!= null">model_3d_id,</if>
+            <if test="modelU3dId!= null">model_u3d_id,</if>
+            <if test="webModelU3dId!= null">web_model_u3d_id,</if>
+            <if test="iosModelU3dId!= null">ios_model_u3d_id,</if>
+            <if test="ipadModelU3dId!= null">ipad_model_u3d_id,</if>
+            <if test="pcModelU3dId!= null">pc_model_u3d_id,</if>
+            <if test="androidModelU3dId!= null">android_model_u3d_id,</if>
+            <if test="macBookpcModelU3dId!= null">macBookpc_model_u3d_id,</if>
+            <if test="configFileId!= null">config_file_id,</if>
+            <if test="planDesc!= null">plan_desc,</if>
+            <if test="spaceCommonId!= null">space_common_id,</if>
+            <if test="sysCode!= null">sys_code,</if>
+            <if test="creator!= null">creator,</if>
+            <if test="gmtCreate!= null">gmt_create,</if>
+            <if test="modifier!= null">modifier,</if>
+            <if test="gmtModified!= null">gmt_modified,</if>
+            <if test="isDeleted!= null">is_deleted,</if>
+            <if test="remark!= null">remark,</if>
+            <!--<if test="eveningFileId!= null">evening_file_id, </if>
+            <if test="dawnFileId!= null">dawn_file_id, </if>
+            <if test="nightFileId!= null">night_file_id, </if>-->
+            <if test="shareTotal!= null">share_total,</if>
+            <if test="isOpen!= null">is_open,</if>
+            <if test="isChange!= null">is_change,</if>
+            <if test="isDecorated!= null">is_decorated,</if>
+            <if test="draftState!= null">draft_state,</if>
+            <if test="baiMoState!= null">baiMo_state,</if>
+            <if test="stuffFinishState!= null">stuff_finish_state,</if>
+            <if test="decorateFinishState!= null">decorate_finish_state,</if>
+
+
+            <if test="coverPicId!= null">cover_pic_id,</if>
+            <!-- 		<if test="isRelease!= null">is_release, </if> -->
+            <if test="releaseTime!= null">release_time,</if>
+            <if test="designRecommendedStyleId!= null">design_recommended_style_id,</if>
+
+            <if test="isRecommended!= null">is_recommended,</if>
+            <if test="isDefaultDecorate!= null">is_default_decorate,</if>
+            <if test="planNumber!= null">plan_number,</if>
+            <if test="designSceneId!= null">design_scene_id,</if>
+            <if test="visible!= null">visible,</if>
+            <if test="sceneModified!= null">scene_modified,</if>
+            <if test="recommendedPlanId!= null">recommended_plan_id,</if>
+
+            <if test="businessType != null">business_type,</if>
+
+            <if test="spellingFlowerFileId!= null">spelling_flower_file_id,</if>
+            <if test="spellingFlowerProduct!= null">spelling_flower_product,</if>
+            <if test="waterjetInfo!= null">waterjet_info,</if>
+            <if test="customizedProductOrderCode!= null">customized_product_order_code,</if>
+            <if test="customizedProductConfigId!= null">customized_product_config_id,</if>
+            <if test="orderId!= null">order_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="planCode!= null">#{planCode,jdbcType=VARCHAR},</if>
+            <if test="planName!= null">#{planName,jdbcType=VARCHAR},</if>
+            <if test="planSource!= null">#{planSource,jdbcType=VARCHAR},</if>
+            <if test="houseId!= null">#{houseId,jdbcType=INTEGER},</if>
+            <if test="supplyDemandId!= null">#{supplyDemandId,jdbcType=INTEGER},</if>
+            <if test="livingId!= null">#{livingId,jdbcType=INTEGER},</if>
+            <if test="residentialUnitsName!= null">#{residentialUnitsName,jdbcType=VARCHAR},</if>
+            <if test="userId!= null">#{userId,jdbcType=INTEGER},</if>
+            <if test="mediaType!= null">#{mediaType,jdbcType=INTEGER},</if>
+            <if test="designSourceType!= null">#{designSourceType,jdbcType=INTEGER},</if>
+            <if test="designId!= null">#{designId,jdbcType=INTEGER},</if>
+            <if test="designTemplateId!= null">#{designTemplateId,jdbcType=INTEGER},</if>
+            <if test="designStyleId!= null">#{designStyleId,jdbcType=INTEGER},</if>
+            <if test="picId!= null">#{picId,jdbcType=INTEGER},</if>
+            <if test="modelId!= null">#{modelId,jdbcType=INTEGER},</if>
+            <if test="model3dId!= null">#{model3dId,jdbcType=INTEGER},</if>
+            <if test="modelU3dId!= null">#{modelU3dId,jdbcType=INTEGER},</if>
+            <if test="webModelU3dId!= null">#{webModelU3dId,jdbcType=INTEGER},</if>
+            <if test="iosModelU3dId!= null">#{iosModelU3dId,jdbcType=INTEGER},</if>
+            <if test="ipadModelU3dId!= null">#{ipadModelU3dId,jdbcType=INTEGER},</if>
+            <if test="pcModelU3dId!= null">#{pcModelU3dId,jdbcType=INTEGER},</if>
+            <if test="androidModelU3dId!= null">#{androidModelU3dId,jdbcType=INTEGER},</if>
+            <if test="macBookpcModelU3dId!= null">#{macBookpcModelU3dId,jdbcType=INTEGER},</if>
+            <if test="configFileId!= null">#{configFileId,jdbcType=INTEGER},</if>
+            <if test="planDesc!= null">#{planDesc,jdbcType=VARCHAR},</if>
+            <if test="spaceCommonId!= null">#{spaceCommonId,jdbcType=INTEGER},</if>
+            <if test="sysCode!= null">#{sysCode,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">#{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">#{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER},</if>
+            <if test="remark!= null">#{remark,jdbcType=VARCHAR},</if>
+            <!--<if test="eveningFileId!= null">  #{eveningFileId,jdbcType=INTEGER}, </if>
+            <if test="dawnFileId!= null">  #{dawnFileId,jdbcType=INTEGER}, </if>
+            <if test="nightFileId!= null">  #{nightFileId,jdbcType=INTEGER}, </if>-->
+            <if test="shareTotal!= null">#{shareTotal,jdbcType=INTEGER},</if>
+            <if test="isOpen!= null">#{isOpen,jdbcType=INTEGER},</if>
+            <if test="isChange!= null">#{isChange,jdbcType=INTEGER},</if>
+            <if test="isDecorated!= null">#{isDecorated,jdbcType=INTEGER},</if>
+            <if test="draftState!= null">#{draftState,jdbcType=INTEGER},</if>
+            <if test="baiMoState!= null">#{baiMoState,jdbcType=INTEGER},</if>
+            <if test="stuffFinishState!= null">#{stuffFinishState,jdbcType=INTEGER},</if>
+            <if test="decorateFinishState!= null">#{decorateFinishState,jdbcType=INTEGER},</if>
+
+
+            <if test="coverPicId!= null">#{coverPicId,jdbcType=INTEGER},</if>
+            <if test="releaseTime!= null">#{releaseTime,jdbcType=TIMESTAMP},</if>
+            <if test="designRecommendedStyleId!= null">#{designRecommendedStyleId,jdbcType=INTEGER},</if>
+
+            <if test="isRecommended!= null">#{isRecommended,jdbcType=INTEGER},</if>
+            <if test="isDefaultDecorate!= null">#{isDefaultDecorate,jdbcType=INTEGER},</if>
+            <if test="planNumber!= null">#{planNumber,jdbcType=VARCHAR},</if>
+
+            <if test="designSceneId!= null">#{designSceneId,jdbcType=INTEGER},</if>
+            <if test="visible!= null">#{visible,jdbcType=INTEGER},</if>
+            <if test="sceneModified!= null">#{sceneModified,jdbcType=INTEGER},</if>
+            <if test="recommendedPlanId!= null">#{recommendedPlanId,jdbcType=INTEGER},</if>
+
+            <if test="businessType != null">#{businessType,jdbcType=INTEGER},</if>
+
+            <if test="spellingFlowerFileId!= null">#{spellingFlowerFileId,jdbcType=INTEGER},</if>
+            <if test="spellingFlowerProduct!= null">#{spellingFlowerProduct,jdbcType=VARCHAR},</if>
+            <if test="waterjetInfo!= null">#{waterjetInfo,jdbcType=VARCHAR},</if>
+            <if test="customizedProductOrderCode!= null">#{customizedProductOrderCode,jdbcType=VARCHAR},</if>
+            <if test="customizedProductConfigId!= null">#{customizedProductConfigId,jdbcType=INTEGER},</if>
+            <if test="orderId!= null">#{orderId,jdbcType=INTEGER},</if>
+        </trim>
+    </insert>
+
+    <!-- **更新定义** -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.nork.design.model.DesignPlan">
+        update design_plan
+        <set>
+            <if test="planCode!= null">plan_code = #{planCode,jdbcType=VARCHAR},</if>
+            <if test="planName!= null">plan_name = #{planName,jdbcType=VARCHAR},</if>
+            <if test="userId!= null">user_id = #{userId,jdbcType=INTEGER},</if>
+            <if test="mediaType!= null">media_type = #{mediaType,jdbcType=INTEGER},</if>
+            <if test="designSourceType!= null">design_source_type = #{designSourceType,jdbcType=INTEGER},</if>
+            <if test="designId!= null">design_id = #{designId,jdbcType=INTEGER},</if>
+            <if test="designTemplateId!= null">design_template_id = #{designTemplateId,jdbcType=INTEGER},</if>
+            <if test="designStyleId!= null">design_style_id = #{designStyleId,jdbcType=INTEGER},</if>
+            <if test="picId!= null">pic_id = #{picId,jdbcType=INTEGER},</if>
+            <if test="modelId!= null">model_id = #{modelId,jdbcType=INTEGER},</if>
+            <if test="model3dId!= null">model_3d_id = #{model3dId,jdbcType=INTEGER},</if>
+            <if test="modelU3dId!= null">model_u3d_id = #{modelU3dId,jdbcType=INTEGER},</if>
+            <if test="webModelU3dId!= null">web_model_u3d_id = #{webModelU3dId,jdbcType=INTEGER},</if>
+            <if test="iosModelU3dId!= null">ios_model_u3d_id = #{iosModelU3dId,jdbcType=INTEGER},</if>
+            <if test="pcModelU3dId!= null">pc_model_u3d_id = #{pcModelU3dId,jdbcType=INTEGER},</if>
+            <if test="ipadModelU3dId!= null">ipad_model_u3d_id = #{ipadModelU3dId,jdbcType=INTEGER},</if>
+            <if test="androidModelU3dId!= null">android_model_u3d_id = #{androidModelU3dId,jdbcType=INTEGER},</if>
+            <if test="macBookpcModelU3dId!= null">macBookpc_model_u3d_id = #{macBookpcModelU3dId,jdbcType=INTEGER},</if>
+            <if test="configFileId!= null">config_file_id = #{configFileId,jdbcType=INTEGER},</if>
+            <if test="spaceCommonId!= null">space_common_id = #{spaceCommonId,jdbcType=INTEGER},</if>
+            <if test="planDesc!= null">plan_desc = #{planDesc,jdbcType=VARCHAR},</if>
+            <if test="sysCode!= null">sys_code = #{sysCode,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">creator = #{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">modifier = #{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">is_deleted = #{isDeleted,jdbcType=INTEGER},</if>
+            <if test="remark!= null">remark = #{remark,jdbcType=VARCHAR},</if>
+            <!--<if test="eveningFileId!= null">  evening_file_id = #{eveningFileId,jdbcType=INTEGER}, </if>
+            <if test="dawnFileId!= null">  dawn_file_id = #{dawnFileId,jdbcType=INTEGER}, </if>
+            <if test="nightFileId!= null">  night_file_id = #{nightFileId,jdbcType=INTEGER}, </if>-->
+            <if test="shareTotal!= null">share_total = #{shareTotal,jdbcType=INTEGER},</if>
+            <if test="isOpen!= null">is_open = #{isOpen,jdbcType=INTEGER},</if>
+            <if test="isChange!= null">is_change = #{isChange,jdbcType=INTEGER},</if>
+            <if test="isDecorated!= null">is_decorated = #{isDecorated,jdbcType=INTEGER},</if>
+            <if test="isDecorated!= null">is_decorated = #{isDecorated,jdbcType=INTEGER},</if>
+            <if test="draftState!= null">draft_state = #{draftState,jdbcType=INTEGER},</if>
+            <if test="baiMoState!= null">baiMo_state = #{baiMoState,jdbcType=INTEGER},</if>
+            <if test="stuffFinishState!= null">stuff_finish_state = #{stuffFinishState,jdbcType=INTEGER},</if>
+            <if test="decorateFinishState!= null">decorate_finish_state = #{decorateFinishState,jdbcType=INTEGER},</if>
+
+
+            <if test="coverPicId!= null">cover_pic_id = #{coverPicId,jdbcType=INTEGER},</if>
+            <!-- 		<if test="isRelease!= null">is_release = #{isRelease,jdbcType=INTEGER}, </if> -->
+            <if test="releaseTime!= null">release_time =#{releaseTime,jdbcType=TIMESTAMP},</if>
+            <if test="designRecommendedStyleId!= null">design_recommended_style_id =
+                #{designRecommendedStyleId,jdbcType=INTEGER},
+            </if>
+
+            <if test="effectsConfig!= null">effects_config = #{effectsConfig,jdbcType=VARCHAR},</if>
+
+            <if test="isRecommended!= null">is_recommended = #{isRecommended,jdbcType=INTEGER},</if>
+            <if test="isDefaultDecorate!= null">is_default_decorate = #{isDefaultDecorate,jdbcType=INTEGER},</if>
+            <if test="planNumber!= null">plan_number = #{planNumber,jdbcType=VARCHAR},</if>
+
+            <if test="designSceneId!= null">design_scene_id = #{designSceneId,jdbcType=INTEGER},</if>
+            <if test="visible!= null">visible = #{visible,jdbcType=INTEGER},</if>
+            <if test="sceneModified!= null and sceneModified > 0 ">scene_modified = #{sceneModified,jdbcType=INTEGER},
+            </if>
+            <if test="planType!= null and planType > 0 ">plan_type = #{planType,jdbcType=INTEGER},</if>
+            <if test="spellingFlowerFileId!= null">spelling_flower_file_id = #{spellingFlowerFileId,jdbcType=INTEGER},
+            </if>
+            <if test="spellingFlowerProduct!= null">spelling_flower_product =
+                #{spellingFlowerProduct,jdbcType=VARCHAR},
+            </if>
+            <if test="customizedProductOrderCode!= null">customized_product_order_code =
+                #{customizedProductOrderCode,jdbcType=VARCHAR},
+            </if>
+            <if test="customizedProductConfigId!= null">customized_product_config_id =
+                #{customizedProductConfigId,jdbcType=VARCHAR},
+            </if>
+            <if test="orderId!= null">order_id = #{orderId,jdbcType=VARCHAR},</if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!-- **删除定义** -->
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from design_plan
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+
+
+		id,spelling_flower_product,spelling_flower_file_id,is_recommended,is_default_decorate,plan_number,design_recommended_style_id,release_time,cover_pic_id,plan_code,plan_name,plan_source,house_id,living_id,residential_units_name,user_id,media_type,design_source_type,design_id,share_total,is_open,is_change,
+		is_decorated,draft_state,baiMo_state,stuff_finish_state,decorate_finish_state,design_template_id,design_style_id,pic_id,model_id,model_3d_id,model_u3d_id,web_model_u3d_id,ios_model_u3d_id,ipad_model_u3d_id,pc_model_u3d_id,
+		android_model_u3d_id,macBookpc_model_u3d_id,config_file_id,space_common_id,plan_desc,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,remark,evening_file_id,dawn_file_id,night_file_id,effects_config,
+		design_scene_id,visible,scene_modified,recommended_plan_id,business_type,waterjet_info,customized_product_order_code,customized_product_config_id,order_id
+
+	</sql>
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.nork.design.model.DesignPlan">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="plan_code" property="planCode" jdbcType="VARCHAR"/>
+        <result column="plan_name" property="planName" jdbcType="VARCHAR"/>
+        <result column="plan_source" property="planSource" jdbcType="VARCHAR"/>
+        <result column="house_id" property="houseId" jdbcType="INTEGER"/>
+        <result column="living_id" property="livingId" jdbcType="INTEGER"/>
+        <result column="residential_units_name" property="residentialUnitsName" jdbcType="VARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="media_type" property="mediaType" jdbcType="INTEGER"/>
+        <result column="design_source_type" property="designSourceType" jdbcType="INTEGER"/>
+        <result column="design_id" property="designId" jdbcType="INTEGER"/>
+        <result column="design_template_id" property="designTemplateId" jdbcType="INTEGER"/>
+        <result column="design_style_id" property="designStyleId" jdbcType="INTEGER"/>
+        <result column="pic_id" property="picId" jdbcType="INTEGER"/>
+        <result column="model_id" property="modelId" jdbcType="INTEGER"/>
+        <result column="model_3d_id" property="model3dId" jdbcType="INTEGER"/>
+        <result column="model_u3d_id" property="modelU3dId" jdbcType="INTEGER"/>
+        <result column="web_model_u3d_id" property="webModelU3dId" jdbcType="INTEGER"/>
+        <result column="ios_model_u3d_id" property="iosModelU3dId" jdbcType="INTEGER"/>
+        <result column="ipad_model_u3d_id" property="ipadModelU3dId" jdbcType="INTEGER"/>
+        <result column="pc_model_u3d_id" property="pcModelU3dId" jdbcType="INTEGER"/>
+        <result column="android_model_u3d_id" property="androidModelU3dId" jdbcType="INTEGER"/>
+        <result column="macBookpc_model_u3d_id" property="macBookpcModelU3dId" jdbcType="INTEGER"/>
+        <result column="config_file_id" property="configFileId" jdbcType="INTEGER"/>
+        <result column="space_common_id" property="spaceCommonId" jdbcType="INTEGER"/>
+        <result column="space_function_id" property="spaceFunctionId" jdbcType="INTEGER"/>
+        <result column="space_areas" property="spaceAreas" jdbcType="VARCHAR"/>
+        <result column="plan_desc" property="planDesc" jdbcType="VARCHAR"/>
+        <result column="sys_code" property="sysCode" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <!--<result  column="evening_file_id" property="eveningFileId" jdbcType="INTEGER" />
+        <result  column="dawn_file_id" property="dawnFileId" jdbcType="INTEGER" />
+        <result  column="night_file_id" property="nightFileId" jdbcType="INTEGER" />-->
+        <result column="share_total" property="shareTotal" jdbcType="INTEGER"/>
+        <result column="is_open" property="isOpen" jdbcType="INTEGER"/>
+        <result column="is_change" property="isChange" jdbcType="INTEGER"/>
+        <result column="is_decorated" property="isDecorated" jdbcType="INTEGER"/>
+        <result column="draft_state" property="draftState" jdbcType="INTEGER"/>
+        <result column="baiMo_state" property="baiMoState" jdbcType="INTEGER"/>
+        <result column="stuff_finish_state" property="stuffFinishState" jdbcType="INTEGER"/>
+        <result column="decorate_finish_state" property="decorateFinishState" jdbcType="INTEGER"/>
+
+        <result column="spelling_flower_file_id" property="spellingFlowerFileId" jdbcType="INTEGER"/>
+        <result column="spelling_flower_product" property="spellingFlowerProduct" jdbcType="INTEGER"/>
+
+        <result column="cover_pic_id" property="coverPicId" jdbcType="INTEGER"/>
+        <result column="release_time" property="releaseTime" jdbcType="TIMESTAMP"/>
+        <result column="design_recommended_style_id" property="designRecommendedStyleId" jdbcType="INTEGER"/>
+        <result column="effects_config" property="effectsConfig" jdbcType="VARCHAR"/>
+        <result column="is_recommended" property="isRecommended" jdbcType="INTEGER"/>
+        <result column="is_default_decorate" property="isDefaultDecorate" jdbcType="INTEGER"/>
+        <result column="plan_number" property="planNumber" jdbcType="VARCHAR"/>
+
+        <result column="design_scene_id" property="designSceneId" jdbcType="INTEGER"/>
+        <result column="visible" property="visible" jdbcType="INTEGER"/>
+        <result column="scene_modified" property="sceneModified" jdbcType="INTEGER"/>
+        <result column="recommended_plan_id" property="recommendedPlanId" jdbcType="INTEGER"/>
+        <result column="business_type" property="businessType" jdbcType="INTEGER"/>
+        <result column="waterjet_info" property="waterjetInfo" jdbcType="VARCHAR"/>
+        <result column="customized_product_order_code" property="customizedProductOrderCode" jdbcType="VARCHAR"/>
+        <result column="customized_product_config_id" property="customizedProductConfigId" jdbcType="INTEGER"/>
+        <result column="order_id" property="orderId" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!-- **查询定义** -->
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="AllResultMap"
+            parameterType="java.lang.Integer">
+        select
+        <include refid="All_Column_List"/>
+        from design_plan
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+
+    <!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+            parameterType="com.nork.design.model.DesignPlan">
+        select
+        <include refid="All_Column_List"/>
+        from design_plan
+        where 1=1
+        <if test="spellingFlowerProduct!= null">and spelling_flower_product =
+            #{spellingFlowerProduct,jdbcType=VARCHAR}
+        </if>
+        <if test="spellingFlowerFileId!= null">and spelling_flower_file_id = #{spellingFlowerFileId,jdbcType=INTEGER}
+        </if>
+        <if test="isRecommended!= null">and is_recommended = #{isRecommended,jdbcType=INTEGER}</if>
+        <if test="isDefaultDecorate!= null">and is_default_decorate = #{isDecorate,jdbcType=INTEGER}</if>
+        <if test="planNumber!= null">and plan_number = #{planNumber,jdbcType=VARCHAR}</if>
+
+        <if test="designRecommendedStyleId!= null">and design_recommended_style_id =
+            #{designRecommendedStyleId,jdbcType=INTEGER}
+        </if>
+        <if test="releaseTime!= null">and release_time =#{releaseTime,jdbcType=TIMESTAMP}</if>
+        <!--         <if test="isRelease!= null"> and is_release = #{isRelease,jdbcType=INTEGER}  </if> -->
+        <if test="coverPicId!= null">and cover_pic_id = #{coverPicId,jdbcType=INTEGER}</if>
+
+
+        <if test="id!= null">and id = #{id,jdbcType=INTEGER}</if>
+        <if test="planCode!= null">and plan_code = #{planCode,jdbcType=VARCHAR}</if>
+        <if test="planName!= null">and plan_name = #{planName,jdbcType=VARCHAR}</if>
+        <if test="userId!= null">and user_id = #{userId,jdbcType=INTEGER}</if>
+        <if test="mediaType!= null">and media_type = #{mediaType,jdbcType=INTEGER}</if>
+        <if test="designId!= null">and design_id = #{designId,jdbcType=INTEGER}</if>
+        <if test="designSourceType!= null">and design_source_type = #{designSourceType,jdbcType=INTEGER}</if>
+        <if test="designStyleId!= null">and design_style_id = #{designStyleId,jdbcType=INTEGER}</if>
+        <if test="picId!= null">and pic_id = #{picId,jdbcType=INTEGER}</if>
+        <if test="modelId!= null">and model_id = #{modelId,jdbcType=INTEGER}</if>
+        <if test="model3dId!= null">and model_3d_id = #{model3dId,jdbcType=INTEGER}</if>
+        <if test="modelU3dId!= null">and model_u3d_id = #{modelU3dId,jdbcType=INTEGER}</if>
+        <if test="webModelU3dId!= null">and web_model_u3d_id = #{webModelU3dId,jdbcType=INTEGER}</if>
+        <if test="configFileId!= null">and config_file_id = #{configFileId,jdbcType=INTEGER}</if>
+        <if test="spaceCommonId!= null">and space_common_id = #{spaceCommonId,jdbcType=INTEGER}</if>
+        <if test="planDesc!= null">and plan_desc = #{planDesc,jdbcType=VARCHAR}</if>
+
+        <if test="draftState!= null">and draft_state = #{draftState,jdbcType=INTEGER}</if>
+        <if test="baiMoState!= null">and baiMo_state = #{baiMoState,jdbcType=INTEGER}</if>
+        <if test="stuffFinishState!= null">and stuff_finish_state = #{stuffFinishState,jdbcType=INTEGER}</if>
+        <if test="decorateFinishState!= null">and decorate_finish_state = #{decorateFinishState,jdbcType=INTEGER}</if>
+
+        <if test="sysCode!= null">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="creator!= null">and creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="gmtCreate!= null">and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}</if>
+        <if test="modifier!= null">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="gmtModified!= null">and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}</if>
+        <if test="isDeleted!= null">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+
+        <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderNum != null and  orderNum !='' ">
+                ${orderNum}
+            </if>
+        </if>
+        <if test="orders != null and  orders !=''  ">
+            order by ${orders}
+        </if>
+    </select>
+
+    <!-- 分页汇总 -->
+    <select id="selectCount" resultType="int"
+            parameterType="com.nork.design.model.search.DesignPlanSearch">
+        select count(*)
+        from design_plan
+        where 1=1
+        <if test="spellingFlowerProduct!= null">and spelling_flower_product =
+            #{spellingFlowerProduct,jdbcType=VARCHAR}
+        </if>
+        <if test="spellingFlowerFileId!= null">and spelling_flower_file_id = #{spellingFlowerFileId,jdbcType=INTEGER}
+        </if>
+        <if test="isRecommended!= null">and is_recommended = #{isRecommended,jdbcType=INTEGER}</if>
+        <if test="isDefaultDecorate!= null">and is_default_decorate = #{isDecorate,jdbcType=INTEGER}</if>
+        <if test="planNumber!= null">and plan_number = #{planNumber,jdbcType=VARCHAR}</if>
+
+        <if test="designRecommendedStyleId!= null">and design_recommended_style_id =
+            #{designRecommendedStyleId,jdbcType=INTEGER}
+        </if>
+        <if test="releaseTime!= null">and release_time =#{releaseTime,jdbcType=TIMESTAMP}</if>
+        <!-- 		<if test="isRelease!= null"> and is_release = #{isRelease,jdbcType=INTEGER}  </if> -->
+        <if test="coverPicId!= null">and cover_pic_id = #{coverPicId,jdbcType=INTEGER}</if>
+
+        <if test="planCode !=  null and planCode !=  ''   ">and plan_code = #{planCode,jdbcType=VARCHAR}</if>
+        <if test="sch_PlanCode_ !=  null and sch_PlanCode_ !=  ''   ">
+            and plan_code like CONCAT(CONCAT('%',#{sch_PlanCode_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_PlanCode !=  null and sch_PlanCode !=  ''   ">
+            and plan_code like CONCAT('%',#{sch_PlanCode,jdbcType=VARCHAR})
+        </if>
+        <if test="schPlanCode_ !=  null and schPlanCode_ !=  ''   ">
+            and plan_code like CONCAT(#{schPlanCode_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="planCodeStart !=  null and planCodeEnd!= null  ">
+            and plan_code between #{planCodeStart,jdbcType=VARCHAR} and #{planCodeEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="planName !=  null and planName !=  ''   ">and plan_name = #{planName,jdbcType=VARCHAR}</if>
+        <if test="sch_PlanName_ !=  null and sch_PlanName_ !=  ''   ">
+            and plan_name like CONCAT(CONCAT('%',#{sch_PlanName_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_PlanName !=  null and sch_PlanName !=  ''   ">
+            and plan_name like CONCAT('%',#{sch_PlanName,jdbcType=VARCHAR})
+        </if>
+        <if test="schPlanName_ !=  null and schPlanName_ !=  ''   ">
+            and plan_name like CONCAT(#{schPlanName_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="planNameStart !=  null and planNameEnd!= null  ">
+            and plan_name between #{planNameStart,jdbcType=VARCHAR} and #{planNameEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="modelId!= null">and model_id = #{modelId,jdbcType=INTEGER}</if>
+        <if test="userName !=  null and userName!='' ">and user_id in (select u.id FROM sys_user u where u.user_name
+            LIKE CONCAT(CONCAT('%',#{userName,jdbcType=VARCHAR}),'%') and u.is_deleted = 0)
+        </if>
+        <if test="designId !=  null  ">and design_id = #{designId,jdbcType=INTEGER}</if>
+        <if test="designSourceType !=  null ">and design_source_type = #{designSourceType,jdbcType=INTEGER}</if>
+        <if test="mediaType !=  null  ">and media_type = #{mediaType,jdbcType=INTEGER}</if>
+        <if test="designStyleId !=  null  ">and design_style_id = #{designStyleId,jdbcType=INTEGER}</if>
+
+        <if test="draftState != null">and draft_state = #{draftState,jdbcType=INTEGER}</if>
+        <if test="baiMoState != null">and baiMo_state = #{baiMoState,jdbcType=INTEGER}</if>
+        <if test="stuffFinishState != null">and stuff_finish_state = #{stuffFinishState,jdbcType=INTEGER}</if>
+        <if test="decorateFinishState != null">and decorate_finish_state = #{decorateFinishState,jdbcType=INTEGER}</if>
+
+        <if test="planDesc !=  null and planDesc !=  ''   ">and plan_desc = #{planDesc,jdbcType=VARCHAR}</if>
+        <if test="sch_PlanDesc_ !=  null and sch_PlanDesc_ !=  ''   ">
+            and plan_desc like CONCAT(CONCAT('%',#{sch_PlanDesc_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_PlanDesc !=  null and sch_PlanDesc !=  ''   ">
+            and plan_desc like CONCAT('%',#{sch_PlanDesc,jdbcType=VARCHAR})
+        </if>
+        <if test="schPlanDesc_ !=  null and schPlanDesc_ !=  ''   ">
+            and plan_desc like CONCAT(#{schPlanDesc_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="planDescStart !=  null and planDescEnd!= null  ">
+            and plan_desc between #{planDescStart,jdbcType=VARCHAR} and #{planDescEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="sysCode !=  null and sysCode !=  ''   ">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+            and sys_code like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+            and sys_code like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+        </if>
+        <if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+            and sys_code like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+            and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="creator !=  null and creator !=  ''   ">and creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+            and creator like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+            and creator like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+        </if>
+        <if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+            and creator like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="creatorStart !=  null and creatorEnd!= null  ">
+            and creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtCreate !=  null  ">
+            and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+            and gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+        </if>
+        <if test="modifier !=  null and modifier !=  ''   ">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+            and modifier like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+            and modifier like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+        </if>
+        <if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+            and modifier like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="modifierStart !=  null and modifierEnd!= null  ">
+            and modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtModified !=  null  ">
+            and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+        </if>
+        <if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+            and gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+        </if>
+        <if test="isDeleted !=  null  ">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="remark !=  null and remark !=  ''   ">and remark = #{remark,jdbcType=VARCHAR}</if>
+        <if test="sch_Remark_ !=  null and sch_Remark_ !=  ''   ">
+            and remark like CONCAT(CONCAT('%',#{sch_Remark_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Remark !=  null and sch_Remark !=  ''   ">
+            and remark like CONCAT('%',#{sch_Remark,jdbcType=VARCHAR})
+        </if>
+        <if test="schRemark_ !=  null and schRemark_ !=  ''   ">
+            and remark like CONCAT(#{schRemark_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="remarkStart !=  null and remarkEnd!= null  ">
+            and remark between #{remarkStart,jdbcType=VARCHAR} and #{remarkEnd,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <resultMap id="DesigPlanWithResult" type="com.nork.design.model.DesigPlanWithResult">
+        <result column="file_name" property="fileName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 查询所有，可排序 -->
+    <select id="selectDesignList" resultMap="DesigPlanWithResult"
+            parameterType="com.nork.design.model.DesignPlan">
+        SELECT rf.file_name AS fileName
+        FROM design_plan dp ,res_pic rp,res_file rf WHERE 1=1 AND dp.`pic_id`=rp.`id` AND dp.`config_file_id` = rf.`id`
+        <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderNum != null and  orderNum !='' ">
+                ${orderNum}
+            </if>
+        </if>
+        <if test="orders != null and  orders !=''  ">
+            order by ${orders}
+        </if>
+        <if test="start !=-1 and limit !=-1">LIMIT #{start}, #{limit}</if>
+    </select>
+
+    <!-- 分页查询 ,可在DesignPlanSearch中自定义查询条件-->
+    <select id="selectPaginatedList" resultMap="AllResultMap"
+            parameterType="com.nork.design.model.search.DesignPlanSearch">
+        select
+        <include refid="All_Column_List"/>
+        from design_plan
+        where 1=1
+        <if test="spellingFlowerProduct!= null">and spelling_flower_product =
+            #{spellingFlowerProduct,jdbcType=VARCHAR}
+        </if>
+        <if test="spellingFlowerFileId!= null">and spelling_flower_file_id = #{spellingFlowerFileId,jdbcType=INTEGER}
+        </if>
+        <if test="isRecommended!= null">and is_recommended = #{isRecommended,jdbcType=INTEGER}</if>
+        <if test="isDefaultDecorate!= null">and is_default_decorate = #{isDecorate,jdbcType=INTEGER}</if>
+        <if test="planNumber!= null">and plan_number = #{planNumber,jdbcType=VARCHAR}</if>
+
+        <if test="designRecommendedStyleId!= null">and design_recommended_style_id =
+            #{designRecommendedStyleId,jdbcType=INTEGER}
+        </if>
+        <if test="releaseTime!= null">and release_time =#{releaseTime,jdbcType=TIMESTAMP}</if>
+        <!-- 		<if test="isRelease!= null"> and is_release = #{isRelease,jdbcType=INTEGER}  </if> -->
+        <if test="coverPicId!= null">and cover_pic_id = #{coverPicId,jdbcType=INTEGER}</if>
+
+        <if test="planCode !=  null and planCode !=  ''   ">and plan_code = #{planCode,jdbcType=VARCHAR}</if>
+        <if test="sch_PlanCode_ !=  null and sch_PlanCode_ !=  ''   ">
+            and plan_code like CONCAT(CONCAT('%',#{sch_PlanCode_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_PlanCode !=  null and sch_PlanCode !=  ''   ">
+            and plan_code like CONCAT('%',#{sch_PlanCode,jdbcType=VARCHAR})
+        </if>
+        <if test="schPlanCode_ !=  null and schPlanCode_ !=  ''   ">
+            and plan_code like CONCAT(#{schPlanCode_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="planCodeStart !=  null and planCodeEnd!= null  ">
+            and plan_code between #{planCodeStart,jdbcType=VARCHAR} and #{planCodeEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="planName !=  null and planName !=  ''   ">and plan_name = #{planName,jdbcType=VARCHAR}</if>
+        <if test="sch_PlanName_ !=  null and sch_PlanName_ !=  ''   ">
+            and plan_name like CONCAT(CONCAT('%',#{sch_PlanName_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_PlanName !=  null and sch_PlanName !=  ''   ">
+            and plan_name like CONCAT('%',#{sch_PlanName,jdbcType=VARCHAR})
+        </if>
+        <if test="schPlanName_ !=  null and schPlanName_ !=  ''   ">
+            and plan_name like CONCAT(#{schPlanName_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="planNameStart !=  null and planNameEnd!= null  ">
+            and plan_name between #{planNameStart,jdbcType=VARCHAR} and #{planNameEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="userName !=  null and userName!='' ">and user_id in (select u.id FROM sys_user u where u.user_name
+            like CONCAT(CONCAT('%',#{userName,jdbcType=VARCHAR}),'%') and u.is_deleted = 0)
+        </if>
+        <if test="designId !=  null  ">and design_id = #{designId,jdbcType=INTEGER}</if>
+        <if test="designSourceType !=  null  ">and design_source_type = #{designSourceType,jdbcType=INTEGER}</if>
+        <if test="mediaType !=  null  ">and media_type = #{mediaType,jdbcType=INTEGER}</if>
+        <if test="designStyleId !=  null  ">and design_style_id = #{designStyleId,jdbcType=INTEGER}</if>
+
+        <if test="draftState != null">and draft_state = #{draftState,jdbcType=INTEGER}</if>
+        <if test="baiMoState != null">and baiMo_state = #{baiMoState,jdbcType=INTEGER}</if>
+        <if test="stuffFinishState != null">and stuff_finish_state = #{stuffFinishState,jdbcType=INTEGER}</if>
+        <if test="decorateFinishState != null">and decorate_finish_state = #{decorateFinishState,jdbcType=INTEGER}</if>
+
+        <if test="planDesc !=  null and planDesc !=  ''   ">and plan_desc = #{planDesc,jdbcType=VARCHAR}</if>
+        <if test="sch_PlanDesc_ !=  null and sch_PlanDesc_ !=  ''   ">
+            and plan_desc like CONCAT(CONCAT('%',#{sch_PlanDesc_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_PlanDesc !=  null and sch_PlanDesc !=  ''   ">
+            and plan_desc like CONCAT('%',#{sch_PlanDesc,jdbcType=VARCHAR})
+        </if>
+        <if test="schPlanDesc_ !=  null and schPlanDesc_ !=  ''   ">
+            and plan_desc like CONCAT(#{schPlanDesc_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="planDescStart !=  null and planDescEnd!= null  ">
+            and plan_desc between #{planDescStart,jdbcType=VARCHAR} and #{planDescEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="sysCode !=  null and sysCode !=  ''   ">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+            and sys_code like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+            and sys_code like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+        </if>
+        <if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+            and sys_code like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+            and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="creator !=  null and creator !=  ''   ">and creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+            and creator like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+            and creator like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+        </if>
+        <if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+            and creator like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="creatorStart !=  null and creatorEnd!= null  ">
+            and creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtCreate !=  null  ">
+            and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+            and gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+        </if>
+        <if test="modifier !=  null and modifier !=  ''   ">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+            and modifier like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+            and modifier like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+        </if>
+        <if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+            and modifier like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="modifierStart !=  null and modifierEnd!= null  ">
+            and modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtModified !=  null  ">
+            and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+        </if>
+        <if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+            and gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+        </if>
+        <if test="isDeleted !=  null  ">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="remark !=  null and remark !=  ''   ">and remark = #{remark,jdbcType=VARCHAR}</if>
+        <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderNum != null and  orderNum !='' ">${orderNum}</if>
+        </if>
+        <if test="orders != null and  orders !=''  ">order by ${orders}</if>
+        <if test="order == null and  orders == null ">order by id desc</if>
+        <if test="start !=-1 and limit !=-1">LIMIT #{start}, #{limit}</if>
+    </select>
+
+    <!-- 其他Map等查询方式 -->
+
+    <!-- 设计方案查询 -->
+    <select id="getDesignList" resultMap="AllResultMap" parameterType="com.nork.design.model.DesignPlan">
+        SELECT
+        <include refid="All_Column_List"/>
+        <if test="mostType!=null and mostType!='' and mostType=='mostComment'">
+            ,(SELECT count(c.design_plan_id) FROM design_plan_comment c where plan.id=c.design_plan_id) as comment
+        </if>
+        <if test="mostType!=null and mostType!='' and mostType=='mostLike'">
+            ,(SELECT count(l.design_id) FROM design_plan_like l where plan.id=l.design_id) as comment
+        </if>
+        <if test="mostType!=null and mostType!='' and mostType=='mostShare'">
+            ,plan.share_total as comment
+        </if>
+        FROM design_plan plan
+        WHERE 1=1 and plan.is_open = 1
+        <if test="designSourceType!= null">AND plan.design_source_type = #{designSourceType,jdbcType=INTEGER}</if>
+        <if test="spaceName!=null and spaceName!='' ">
+            AND plan.space_common_id in
+            (
+            SELECT space.id FROM space_common space
+            WHERE space.space_name LIKE CONCAT(CONCAT('%',#{spaceName,jdbcType=VARCHAR}),'%')
+            )
+        </if>
+        <if test="spaceAreas!=null and spaceAreas!='' and spaceFunctionId!=null and spaceFunctionId!=''">
+            AND plan.space_common_id in
+            (
+            SELECT space.id FROM space_common space
+            WHERE space.space_function_id = #{spaceFunctionId,jdbcType=INTEGER} AND space.space_areas =
+            #{spaceAreas,jdbcType=VARCHAR}
+            )
+        </if>
+        <if test="userId!= null">AND plan.user_id = #{userId,jdbcType=INTEGER}</if>
+        <if test="spaceCommonId!= null">AND plan.space_common_id = #{spaceCommonId,jdbcType=INTEGER}</if>
+        <if test="designStyleId!= null and designStyleId!= '' and designStyleId!= -1 ">AND plan.design_style_id =
+            #{designStyleId,jdbcType=INTEGER}
+        </if>
+        <if test="mediaType != null">
+            and plan.media_type = #{mediaType,jdbcType=INTEGER}
+        </if>
+        <if test="isOpen != null">
+            AND plan.is_open = #{isOpen,jdbcType=INTEGER}
+        </if>
+        <if test="order != null and  order !=''  ">
+            order by
+            <if test="mostType!=null and mostType!='' and mostType=='mostComment'">
+                comment desc,
+            </if>
+            <if test="mostType!=null and mostType!=''  and mostType=='mostLike'">
+                comment desc,
+            </if>
+            <if test="mostType!=null and mostType!=''  and mostType=='mostShare'">
+                comment desc,
+            </if>
+            ${order}
+        </if>
+        <if test="start !=-1 and limit !=-1">LIMIT #{start}, #{limit}</if>
+    </select>
+
+    <!-- 设计方案查询 -->
+    <select id="getPlanList" resultMap="AllResultMap" parameterType="com.nork.design.model.DesignPlan">
+        SELECT
+        a.id,a.plan_code,a.plan_name,a.residential_units_name,a.user_id,a.pic_id,
+        a.plan_desc,a.gmt_create,a.gmt_modified,a.cover_pic_id,a.release_time,a.space_common_id,
+        a.customized_product_order_code,a.customized_product_config_id,po.pact_no,po.client_name
+        <if test="mostType!=null and mostType!='' and mostType=='mostComment'">
+            ,(SELECT COUNT(c.design_plan_id) FROM design_plan_comment c WHERE a.id=c.design_plan_id) as comment
+        </if>
+        <if test="mostType!=null and mostType!='' and mostType=='mostLike'">
+            ,(SELECT COUNT(l.design_id) FROM design_plan_like l WHERE a.id=l.design_id) as comment
+        </if>
+        <if test="mostType!=null and mostType!='' and mostType=='mostShare'">
+            ,a.share_total as comment
+        </if>
+        FROM design_plan a
+        LEFT JOIN design_plan_customized_product_order po ON po.`plan_id` = a.`id` AND po.`is_deleted` = 0
+        JOIN space_common sc ON a.space_common_id = sc.id
+        <if test="multifunctionQuery!=null and multifunctionQuery!='' ">
+            JOIN design_plan_brand dpb on a.id = dpb.plan_id
+            JOIN base_brand bb on dpb.brand_id = bb.id
+        </if>
+        WHERE 1=1
+        <if test="userId!= null">AND a.user_id = #{userId,jdbcType=INTEGER}</if>
+        AND visible=0
+        <if test="multifunctionQuery!=null and multifunctionQuery!='' ">
+            AND bb.brand_name LIKE CONCAT(CONCAT('%',#{brandName,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="planName!=null and planName!='' ">
+            AND a.plan_name LIKE CONCAT(CONCAT('%',#{planName,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="planNumber!= null  and planNumber!='' ">
+            and a.plan_number like CONCAT(CONCAT('%',#{planNumber,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="spaceAreas==null  and spaceFunctionId!=null and spaceFunctionId!=''">
+            AND sc.space_function_id = #{spaceFunctionId,jdbcType=INTEGER}
+        </if>
+        AND a.design_source_type in(6,7)
+        <if test="spaceName!=null and spaceName!='' ">
+            AND a.space_common_id in
+            (
+            SELECT id FROM space_common
+            WHERE space_name LIKE CONCAT(CONCAT('%',#{spaceName,jdbcType=VARCHAR}),'%')
+            )
+        </if>
+
+        <if test="spaceAreas!=null and spaceAreas!='' and spaceFunctionId!=null and spaceFunctionId!=''">
+            AND a.space_common_id in
+            (
+            SELECT space.id FROM space_common space
+            WHERE space.space_function_id = #{spaceFunctionId,jdbcType=INTEGER} AND space.space_areas =
+            #{spaceAreas,jdbcType=VARCHAR}
+            )
+        </if>
+        <if test="spaceCommonId!= null">AND a.space_common_id = #{spaceCommonId,jdbcType=INTEGER}</if>
+        <if test="designStyleId!= null and designStyleId!= '' and designStyleId!= -1 ">AND a.design_style_id =
+            #{designStyleId,jdbcType=INTEGER}
+        </if>
+        <if test="mediaType != null">
+            AND a.media_type = #{mediaType,jdbcType=INTEGER}
+        </if>
+        <if test="isOpen != null">
+            AND a.is_open = #{isOpen,jdbcType=INTEGER}
+        </if>
+        <if test="searchKeyword != null and searchKeyword != ''">
+            AND (po.client_name LIKE CONCAT(CONCAT('%',#{searchKeyword,jdbcType=VARCHAR}),'%')
+            or po.pact_no = #{searchKeyword,jdbcType=VARCHAR})
+        </if>
+        GROUP BY a.id
+        <if test="order != null and  order !=''  ">
+            order by
+            <if test="mostType!=null and mostType!='' and mostType=='mostComment'">
+                comment desc,
+            </if>
+            <if test="mostType!=null and mostType!=''  and mostType=='mostLike'">
+                comment desc,
+            </if>
+            <if test="mostType!=null and mostType!=''  and mostType=='mostShare'">
+                comment desc,
+            </if>
+            <if test="classifiedSort != null and classifiedSort == 1">
+                po.pact_no_sort_time desc,
+            </if>
+            <if test="classifiedSort != null and classifiedSort == 2">
+                po.client_name_sort_time desc,
+            </if>
+            ${order}
+        </if>
+        <if test="start !=-1 and limit !=-1">LIMIT #{start}, #{limit}</if>
+    </select>
+
+    <select id="getPlanListByAreas" resultMap="AllResultMap" parameterType="com.nork.design.model.DesignPlan">
+        SELECT
+        plan.id,plan_code,plan_name,plan.user_id,
+        media_type,design_source_type,
+        design_id,design_template_id,
+        design_style_id,plan.pic_id,plan.model_id,plan.model_3d_id,
+        plan.model_u3d_id,plan.web_model_u3d_id,plan.ios_model_u3d_id,
+        plan.ipad_model_u3d_id,plan.pc_model_u3d_id,plan.android_model_u3d_id,
+        plan.macBookpc_model_u3d_id,plan.config_file_id,plan.space_common_id,
+        plan.plan_desc,plan.sys_code,plan.creator,
+        plan.gmt_create,plan.modifier,plan.gmt_modified,plan.share_total
+        <if test="mostType!=null and mostType!='' and mostType=='mostComment'">
+            ,(SELECT COUNT(c.design_plan_id) from design_plan_comment c where plan.id=c.design_plan_id) as comment
+        </if>
+        FROM design_plan plan
+        LEFT JOIN space_common sc on plan.space_common_id = sc.id
+        WHERE 1=1 and plan.is_open = 1
+        <if test="designSourceType!= null">and design_source_type = #{designSourceType,jdbcType=INTEGER}</if>
+        <if test="spaceName!=null and spaceName!='' ">
+            AND plan.space_common_id in
+            (
+            SELECT space.id FROM space_common space
+            WHERE space.space_name like CONCAT(CONCAT('%',#{spaceName,jdbcType=VARCHAR}),'%')
+            )
+        </if>
+        <if test="userId!= null">and user_id = #{userId,jdbcType=INTEGER}</if>
+        <if test="spaceCommonId!= null">and plan.space_common_id = #{spaceCommonId,jdbcType=INTEGER}</if>
+        <if test="designStyleId!= null and designStyleId!= -1 ">and plan.design_style_id =
+            #{designStyleId,jdbcType=INTEGER}
+        </if>
+        <if test="spaceFunctionId!= null and spaceFunctionId!='' ">and sc.space_function_id =
+            #{spaceFunctionId,jdbcType=INTEGER}
+        </if>
+        <if test="spaceAreas!= null and spaceAreas!='' ">and sc.space_areas = #{spaceAreas,jdbcType=VARCHAR}</if>
+        <if test="spaceName!= null and spaceName!='' ">and sc.space_name like
+            CONCAT(CONCAT('%',#{spaceName,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="mediaType != null">
+            AND plan.media_type = #{mediaType,jdbcType=INTEGER}
+        </if>
+        <if test="order != null and  order !=''  ">
+            ORDER BY
+            <if test="mostType!=null and mostType!='' and mostType=='mostComment'">
+                comment desc,
+            </if>
+            ${order}
+        </if>
+        <!-- <if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if> -->
+    </select>
+
+    <!-- 设计方案汇总 -->
+    <select id="getPlanCount" resultType="int" parameterType="com.nork.design.model.DesignPlan">
+        SELECT count(DISTINCT plan.id)
+        FROM design_plan plan
+        LEFT JOIN design_plan_customized_product_order po ON po.`plan_id` = plan.`id` AND po.`is_deleted` = 0
+        JOIN space_common space ON plan.space_common_id = space.id
+
+        <if test="multifunctionQuery!=null and multifunctionQuery!='' ">
+            JOIN base_brand bb on dpb.brand_id = bb.id
+        </if>
+        WHERE 1=1
+        <if test="userId!= null">and plan.user_id = #{userId,jdbcType=INTEGER}</if>
+        AND visible=0
+        <if test="multifunctionQuery!=null and multifunctionQuery!='' ">
+            AND bb.brand_name LIKE CONCAT(CONCAT('%',#{brandName,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="planName!=null and planName!='' ">
+            AND plan.plan_name LIKE CONCAT(CONCAT('%',#{planName,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="planNumber!= null  and planNumber!='' ">
+            and plan.plan_number like CONCAT(CONCAT('%',#{planNumber,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="spaceAreas==null  and spaceFunctionId!=null and spaceFunctionId!=''">
+            AND space.space_function_id = #{spaceFunctionId,jdbcType=INTEGER}
+        </if>
+        AND plan.design_source_type in(6,7)
+        <if test="spaceName!=null and spaceName!='' ">
+            AND plan.space_common_id in
+            (
+            SELECT space.id FROM space_common space
+            WHERE space.space_name like CONCAT(CONCAT('%',#{spaceName,jdbcType=VARCHAR}),'%')
+            )
+        </if>
+        <if test="designStyleId!= null and designStyleId!= -1 ">and plan.design_style_id =
+            #{designStyleId,jdbcType=INTEGER}
+        </if>
+        <if test="spaceAreas!=null and spaceAreas!='' and spaceFunctionId!=null and spaceFunctionId!=''">
+            AND plan.space_common_id in
+            (
+            SELECT space.id FROM space_common space
+            WHERE space.space_function_id = #{spaceFunctionId,jdbcType=INTEGER} AND space.space_areas =
+            #{spaceAreas,jdbcType=VARCHAR}
+            )
+        </if>
+
+        <if test="mediaType != null">
+            and plan.media_type = #{mediaType,jdbcType=INTEGER}
+        </if>
+        <if test="isOpen != null">
+            AND plan.is_open = #{isOpen,jdbcType=INTEGER}
+        </if>
+        <if test="searchKeyword != null and searchKeyword != ''">
+            AND (po.client_name LIKE CONCAT(CONCAT('%',#{searchKeyword,jdbcType=VARCHAR}),'%')
+            or po.pact_no = #{searchKeyword,jdbcType=VARCHAR})
+        </if>
+    </select>
+    <!-- 用户最新的一个方案 -->
+    <select id="getUserMaxPlan" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT user_id,space_common_id,design_id,max(gmt_create)
+        FROM design_plan
+        WHERE user_id = #{userId,jdbcType=INTEGER}
+        AND design_id = #{designId,jdbcType=INTEGER}
+        AND is_deleted = 0
+        GROUP BY space_common_id,design_id,user_id
+        <if test="times > 0">
+            having max(gmt_create) > now() - interval #{times,jdbcType=INTEGER} second
+        </if>
+        ORDER BY max(gmt_create) desc
+    </select>
+    <!-- 设计详情Result -->
+    <resultMap id="designPlanResultMap" type="com.nork.design.model.DesignPlanResult">
+        <id column="id" property="designId" jdbcType="INTEGER"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="space_function_id" property="spaceFunctionId" jdbcType="INTEGER"/>
+        <result column="design_style_id" property="designStyleId" jdbcType="INTEGER"/>
+        <result column="is_open" property="isOpen" jdbcType="INTEGER"/>
+        <result column="plan_code" property="designCode" jdbcType="VARCHAR"/>
+        <result column="plan_name" property="designName" jdbcType="VARCHAR"/>
+        <result column="design_id" property="designTempletId" jdbcType="VARCHAR"/>
+        <result column="nick_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="space_code" property="spaceCode" jdbcType="VARCHAR"/>
+        <result column="space_name" property="spaceName" jdbcType="VARCHAR"/>
+        <result column="space_areas" property="spaceAreas" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="pic_path" property="picPath" jdbcType="VARCHAR"/>
+        <result column="share_total" property="shareTotal" jdbcType="INTEGER"/>
+        <!-- 		<result  column="cover_pic_Id" property="coverPicId" jdbcType="INTEGER" /> -->
+    </resultMap>
+    <!-- 设计详情查询 -->
+    <select id="designList" resultMap="designPlanResultMap" parameterType="com.nork.design.model.DesignPlanResult">
+        SELECT dp.id,dp.plan_code,dp.plan_name,dp.design_id,dp.user_id,dp.gmt_create,dp.gmt_modified,
+        sc.space_code,sc.space_name,sc.space_areas,su.nick_name,rp.pic_path,sc.space_function_id,dp.design_style_id
+        ,dp.is_open,dp.share_total
+        FROM design_plan dp
+        LEFT JOIN space_common sc ON dp.space_common_id=sc.id
+        LEFT JOIN sys_user su ON dp.user_id=su.id and su.is_deleted = 0
+        LEFT JOIN res_pic rp ON dp.pic_id=rp.id
+        WHERE 1=1
+        <if test="id != null">
+            AND dp.id = #{id,jdbcType=INTEGER}
+        </if>
+    </select>
+    <!-- 样板展示 -->
+    <!-- <select id="modelShowList" resultMap="designPlanResultMap" parameterType="com.nork.design.model.DesignPlanResult">
+        SELECT dp.id,dp.plan_code,dp.plan_name,dp.user_id,dp.gmt_create,dp.gmt_modified,
+        sc.space_code,sc.space_name,sc.space_areas,su.user_name,rp.pic_path
+        FROM design_plan dp
+        LEFT JOIN space_common sc ON dp.space_common_id=sc.id
+        LEFT JOIN sys_user su ON dp.user_id=su.id
+        LEFT JOIN res_pic rp ON dp.pic_id=rp.id
+        <if test="">
+        LEFT JOIN design_plan_collect dc ON dp.pic_id=dc.design_id
+        </if>
+
+        LEFT JOIN design_plan_comment dco ON dp.id=dco.design_plan_id
+        WHERE 1=1
+        <if test="id != null">
+            AND dp.id =  #{id,jdbcType=INTEGER}
+        </if>
+    </select> -->
+    <!--获取样板房产品Id-->
+    <select id="getTemplateProductId" resultType="int" parameterType="java.util.Map">
+    	SELECT dtp.id FROM design_templet_product dtp
+    	JOIN design_plan dp ON dp.design_template_id = dtp.design_templet_id
+    	WHERE 1=1
+    	and dp.id = #{planId,jdbcType=INTEGER}
+    	and dtp.product_id = #{productId,jdbcType=INTEGER}
+    	GROUP BY dtp.product_id
+    </select>
+    <!-- end-->
+
+
+    <!-- 通过plan_id获得设计方案状态 -->
+    <select id="getDesignPlanState" resultType="int" parameterType="java.lang.Integer">
+
+        <!-- 		 SELECT COUNT(*) from base_product as a  -->
+        <!-- 		 LEFT JOIN design_plan_product as b on(a.id=b.product_id) where b.plan_id =#{designPlanId} and a.product_code like  'baimo%' -->
+        SELECT count(*) from design_plan_product as a
+        LEFT JOIN base_product as b on(a.product_id=b.id) where a.plan_id =#{designPlanId}
+        and a.is_deleted=0
+        and b.product_code like 'baimo%'
+
+    </select>
+
+    <!-- Result -->
+    <resultMap id="designPlanModelMap" type="com.nork.design.model.DesignPlanModel">
+        <id column="id" property="designPlanId" jdbcType="INTEGER"/>
+        <result column="plan_code" property="planCode" jdbcType="VARCHAR"/>
+        <result column="plan_name" property="planName" jdbcType="VARCHAR"/>
+        <result column="plan_source" property="planSource" jdbcType="VARCHAR"/>
+        <result column="residential_units_name" property="residentialUnitsName" jdbcType="VARCHAR"/>
+        <result column="model_id" property="modelId" jdbcType="INTEGER"/>
+        <result column="space_function_id" property="spaceFunctionId" jdbcType="INTEGER"/>
+        <result column="config_file_id" property="configFileId" jdbcType="INTEGER"/>
+        <result column="space_common_id" property="spaceCommonId" jdbcType="INTEGER"/>
+        <result column="design_template_id" property="designTemplateId" jdbcType="INTEGER"/>
+        <result column="model_path" property="modelPath" jdbcType="VARCHAR"/>
+        <result column="file_path" property="filePath" jdbcType="VARCHAR"/>
+        <result column="design_code" property="designTempletCode" jdbcType="VARCHAR"/>
+        <result column="space_code" property="spaceCode" jdbcType="VARCHAR"/>
+        <result column="space_name" property="spaceName" jdbcType="VARCHAR"/>
+        <result column="space_areas" property="spaceAreas" jdbcType="VARCHAR"/>
+        <result column="value" property="houseTypeValue" jdbcType="INTEGER"/>
+        <result column="name" property="houseTypeName" jdbcType="VARCHAR"/>
+        <result column="spelling_flower_product" property="spellingFlowerProduct" jdbcType="INTEGER"/>
+        <result column="spelling_flower_file_id" property="spellingFlowerFileId" jdbcType="INTEGER"/>
+        <result column="daylight_u3d_model_id" property="daylightU3dModelId" jdbcType="INTEGER"/>
+        <result column="dusklight_u3d_model_id" property="dusklightU3dModelId" jdbcType="INTEGER"/>
+        <result column="nightlight_u3d_model_id" property="nightlightU3dModelId" jdbcType="INTEGER"/>
+        <result column="spelling_flower_file_id" property="spellingFlowerFileId" jdbcType="INTEGER"/>
+        <result column="spelling_flower_product" property="spellingFlowerProduct" jdbcType="INTEGER"/>
+        <result column="waterjet_info" property="waterjetInfo" jdbcType="VARCHAR"/>
+        <result column="customized_product_order_code" property="customizedProductOrderCode" jdbcType="VARCHAR"/>
+        <result column="customized_product_config_id" property="customizedProductConfigId" jdbcType="INTEGER"/>
+        <result column="order_id" property="orderId" jdbcType="INTEGER"/>
+        <result column="partners_name" property="partnersName" jdbcType="VARCHAR"/>
+        <result column="exterior_order_id" property="exteriorOrderId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="selectDesignPlanInfo" resultMap="designPlanModelMap" parameterType="java.lang.Integer">
+        SELECT
+        dp.id,dp.residential_units_name,dp.plan_source,dp.`plan_code`,dp.`plan_name`,dp.`model_id`,dp.`config_file_id`,
+        dp.`space_common_id`,dp.`design_template_id`,rm.`model_path`,rf.`file_path`,
+        dt.`design_code`,sc.space_code,sc.space_name,sc.space_areas,sc.daylight_u3d_model_id,sc.dusklight_u3d_model_id,sc.nightlight_u3d_model_id,
+        sd.`value`,sd.`name`,dp.spelling_flower_file_id,dp.spelling_flower_product,dp.waterjet_info,
+        dp.customized_product_order_code,dp.customized_product_config_id,dp.order_id,po.`exterior_order_id`,po.`partners_name`
+        FROM design_plan dp
+
+        LEFT JOIN res_model rm ON rm.`id` = dp.`model_id` AND rm.`is_deleted` = 0
+
+        LEFT JOIN res_design rf ON rf.`id` = dp.`config_file_id` AND rf.`is_deleted` = 0
+
+        LEFT JOIN design_templet dt ON dt.`id` = dp.`design_template_id`
+        <!-- 注释掉 by huangsongbo 2018.5.4,应对情况:样板房删除,关联的设计方案应该也能正常进入 -->
+        <!-- AND dt.`is_deleted` = 0 -->
+
+        LEFT JOIN space_common sc ON sc.`id` = dp.`space_common_id`
+        <!-- 注释掉 by huangsongbo 2018.5.4,应对情况:样板房删除,关联的设计方案应该也能正常进入 -->
+        <!-- AND sc.`is_deleted` = 0 -->
+
+        LEFT JOIN sys_dictionary sd ON (sc.`space_function_id` = sd.`value` AND sd.`type` = 'houseType' AND
+        sd.`is_deleted` = 0)
+
+        LEFT JOIN design_plan_customized_product_order po ON po.`id` = dp.order_id AND po.is_deleted = 0
+
+        WHERE dp.is_deleted = 0 and dp.id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectIosDesignPlanInfo" resultMap="designPlanModelMap" parameterType="java.lang.Integer">
+        SELECT
+        dp.id,dp.residential_units_name,dp.plan_source,dp.`plan_code`,dp.`plan_name`,dp.`model_id`,dp.`config_file_id`,
+        dp.`space_common_id`,dp.`design_template_id`,rm.`model_path`,rf.`file_path`,
+        dt.`design_code`,sc.space_code,sc.space_name,sc.space_areas,sc.daylight_ios_u3d_model_id AS
+        daylight_u3d_model_id,sc.dusklight_ios_u3d_model_id AS dusklight_u3d_model_id,sc.nightlight_ios_u3d_model_id AS
+        nightlight_u3d_model_id,
+        sd.`value`,sd.`name`,dp.spelling_flower_file_id,dp.spelling_flower_product,dp.waterjet_info,
+        dp.customized_product_order_code,dp.customized_product_config_id,dp.order_id,po.`exterior_order_id`,po.`partners_name`
+        FROM design_plan dp
+
+        LEFT JOIN res_model rm ON rm.`id` = dp.`model_id` AND rm.`is_deleted` = 0
+
+        LEFT JOIN res_design rf ON rf.`id` = dp.`config_file_id` AND rf.`is_deleted` = 0
+
+        LEFT JOIN design_templet dt ON dt.`id` = dp.`design_template_id`
+        <!-- 注释掉 by huangsongbo 2018.5.4,应对情况:样板房删除,关联的设计方案应该也能正常进入 -->
+        <!-- AND dt.`is_deleted` = 0 -->
+
+        LEFT JOIN space_common sc ON sc.`id` = dp.`space_common_id`
+        <!-- 注释掉 by huangsongbo 2018.5.4,应对情况:样板房删除,关联的设计方案应该也能正常进入 -->
+        <!-- AND sc.`is_deleted` = 0 -->
+
+        LEFT JOIN sys_dictionary sd ON (sc.`space_function_id` = sd.`value` AND sd.`type` = 'houseType' AND
+        sd.`is_deleted` = 0)
+
+        LEFT JOIN design_plan_customized_product_order po ON po.`id` = dp.order_id AND po.is_deleted = 0
+
+        WHERE dp.is_deleted = 0 and dp.id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectAndroidDesignPlanInfo" resultMap="designPlanModelMap" parameterType="java.lang.Integer">
+        SELECT
+        dp.id,dp.residential_units_name,dp.plan_source,dp.`plan_code`,dp.`plan_name`,dp.`model_id`,dp.`config_file_id`,
+        dp.`space_common_id`,dp.`design_template_id`,rm.`model_path`,rf.`file_path`,
+        dt.`design_code`,sc.space_code,sc.space_name,sc.space_areas,sc.daylight_android_u3d_model_id AS
+        daylight_u3d_model_id,sc.dusklight_android_u3d_model_id AS
+        dusklight_u3d_model_id,sc.nightlight_android_u3d_model_id AS nightlight_u3d_model_id,
+        sd.`value`,sd.`name`,dp.spelling_flower_file_id,dp.spelling_flower_product,dp.waterjet_info,
+        dp.customized_product_order_code,dp.customized_product_config_id,dp.order_id,po.`exterior_order_id`,po.`partners_name`
+        FROM design_plan dp
+
+        LEFT JOIN res_model rm ON rm.`id` = dp.`model_id` AND rm.`is_deleted` = 0
+
+        LEFT JOIN res_design rf ON rf.`id` = dp.`config_file_id` AND rf.`is_deleted` = 0
+
+        LEFT JOIN design_templet dt ON dt.`id` = dp.`design_template_id`
+        <!-- 注释掉 by huangsongbo 2018.5.4,应对情况:样板房删除,关联的设计方案应该也能正常进入 -->
+        <!-- AND dt.`is_deleted` = 0 -->
+
+        LEFT JOIN space_common sc ON sc.`id` = dp.`space_common_id`
+        <!-- 注释掉 by huangsongbo 2018.5.4,应对情况:样板房删除,关联的设计方案应该也能正常进入 -->
+        <!-- AND sc.`is_deleted` = 0 -->
+
+        LEFT JOIN sys_dictionary sd ON (sc.`space_function_id` = sd.`value` AND sd.`type` = 'houseType' AND
+        sd.`is_deleted` = 0)
+
+        LEFT JOIN design_plan_customized_product_order po ON po.`id` = dp.order_id AND po.is_deleted = 0
+        WHERE dp.is_deleted = 0 and dp.id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <select id="getProductDTOList" resultType="com.nork.design.model.ProductDTO" parameterType="java.lang.Integer">
+		SELECT d.product_id as productId, d.product_type_value as productTypeValue, ssd.valuekey as valueKey,d.pos_index_path as posIndexPath FROM
+		(SELECT c.*,b.product_type_value,b.product_small_type_value  FROM (select a.* FROM  design_plan_product a WHERE a.plan_id = #{designPlanId} AND a.is_deleted = 0) c
+ 		LEFT JOIN base_product b ON b.is_deleted = 0 AND c.init_product_id = b.id ) d
+		LEFT JOIN sys_dictionary bsd ON bsd.type='productType' AND bsd.value=d.product_type_value AND bsd.is_deleted=0
+		INNER JOIN sys_dictionary ssd ON ssd.type=bsd.valuekey AND ssd.value= d.product_small_type_value AND ssd.is_deleted=0
+	</select>
+
+    <select id="getPlansBySpaceInfo" resultMap="AllResultMap">
+		SELECT
+	dp.id,
+	dp.is_recommended,
+	dp.is_default_decorate,
+	dp.plan_number,
+	dp.design_recommended_style_id,
+	dp.release_time,
+	dp.cover_pic_id,
+	dp.plan_code,
+	dp.plan_name,
+	dp.plan_source,
+	dp.house_id,
+	dp.living_id,
+	dp.residential_units_name,
+	dp.user_id,
+	dp.media_type,
+	dp.design_source_type,
+	dp.design_id,
+	dp.share_total,
+	dp.is_open,
+	dp.is_change,
+	dp.is_decorated,
+	dp.draft_state,
+	dp.baiMo_state,
+	dp.stuff_finish_state,
+	dp.decorate_finish_state,
+	dp.design_template_id,
+	dp.design_style_id,
+	dp.pic_id,
+	dp.model_id,
+	dp.model_3d_id,
+	dp.model_u3d_id,
+	dp.web_model_u3d_id,
+	dp.ios_model_u3d_id,
+	dp.ipad_model_u3d_id,
+	dp.pc_model_u3d_id,
+	dp.android_model_u3d_id,
+	dp.macBookpc_model_u3d_id,
+	dp.config_file_id,
+	dp.space_common_id,
+	dp.designPlan_render_pic_ids,
+	dp.plan_desc,
+	dp.sys_code,
+	dp.creator,
+	dp.gmt_create,
+	dp.modifier,
+	dp.gmt_modified,
+	dp.is_deleted,
+	dp.remark,
+	dp.evening_file_id,
+	dp.dawn_file_id,
+	dp.night_file_id,
+	dp.effects_config
+FROM
+	design_plan_recommended dp
+LEFT JOIN space_common sc ON sc.id = dp.space_common_id
+WHERE
+	1 = 1
+AND (FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},dp.apply_space_areas) or sc.space_areas = #{spaceAreas,jdbcType=VARCHAR})
+AND sc.space_function_id =  #{spaceFunctionId,jdbcType=INTEGER}
+AND sc.is_deleted = 0
+AND dp.is_deleted = 0
+AND dp.is_release = 1
+	</select>
+
+    <select id="getSceneModifiedById" parameterType="int" resultType="com.nork.design.model.DesignPlan">
+		SELECT id,scene_modified sceneModified FROM design_plan WHERE is_deleted=0 AND id=#{id}
+	</select>
+
+
+    <select id="getTempDesignPaln4RenderBakSceneTask" resultMap="AllResultMap">
+        SELECT
+        <include refid="All_Column_List"/>
+        FROM design_plan where is_deleted=0 AND visible=1 AND design_scene_id > 0 AND
+        TIMESTAMPDIFF(MINUTE,gmt_create,NOW()) > 10
+    </select>
+
+    <delete id="batchDelTempDesign">
+        delete from design_plan
+        where visible=1 AND id in
+        <foreach collection="delPlanIdList" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+    <select id="getTempDesignPalnBySceneId" parameterType="com.nork.design.model.DesignPlan"
+            resultType="com.nork.design.model.DesignPlan">
+		SELECT id FROM design_plan WHERE design_scene_id=#{designSceneId} AND user_id=#{userId} AND visible=1 AND is_deleted=0 LIMIT 1
+	</select>
+
+    <!-- COMMON-525 -->
+    <!-- 1. 查询品牌所在企业所经营的产品小分类valuekey 参数：品牌id -->
+    <select id="getCompanyValueKey" resultType="java.lang.String">
+		SELECT GROUP_CONCAT(att1)
+		FROM sys_dictionary
+		WHERE type = (SELECT valuekey FROM (SELECT type,valuekey,value FROM sys_dictionary WHERE type = 'industry') t
+				WHERE t.value = (SELECT industry FROM base_company WHERE id = (SELECT company_id FROM base_brand WHERE id = #{brandId}))
+			)
+	</select>
+    <!-- 2. 查询该品牌所经营的大小分类所过滤出的设计方案中产品中不是该品牌的产品编码 -->
+    <select id="getProductCode" resultType="java.lang.String">
+        SELECT product_code
+        FROM (SELECT product_code,brand_id,product_type_value,product_small_type_value
+        FROM base_product t,(SELECT product_id FROM design_plan_product WHERE plan_id = #{planId}) t1
+        WHERE t.id = t1.product_id) t
+        WHERE t.product_type_value IN (SELECT value FROM sys_dictionary
+        WHERE valuekey IN (SELECT DISTINCT type FROM sys_dictionary
+        WHERE valuekey IN
+        <foreach collection="valuekeyList" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ))
+        AND t.product_small_type_value IN (SELECT value FROM sys_dictionary
+        WHERE valuekey IN
+        <foreach collection="valuekeyList" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        )
+        AND t.brand_id != -1
+        AND t.brand_id != #{brandId}
+    </select>
+
+    <select id="countGroundStructure" resultType="int">
+		SELECT
+		  COUNT(sp.id)
+		FROM
+		  design_plan dp,
+		  design_templet_product dtp,
+		  structure_product sp
+		WHERE dp.design_template_id = dtp.design_templet_id
+		  AND sp.id = dtp.product_group_id
+		  AND dtp.group_type = 1
+		  AND sp.structure_type = 'DJ'
+		  AND dp.is_deleted = 0
+		  AND dtp.is_deleted = 0
+		  AND sp.is_deleted = 0
+		  AND dp.id = #{designPlanId}
+	</select>
+
+    <select id="countGroundStructureProduct" resultType="int">
+		SELECT
+		  COUNT(spd.product_id)
+		FROM
+		  design_plan dp
+		  LEFT JOIN design_plan_product dpp
+		    ON dp.id = dpp.plan_id
+		  LEFT JOIN structure_product sp
+		    ON sp.id = dpp.plan_group_id
+		  LEFT JOIN structure_product_details spd
+		    ON sp.id = spd.structure_id
+		WHERE dpp.group_type = 1
+		  AND sp.structure_type = 'DJ'
+		  AND dp.is_deleted = 0
+		  AND dpp.is_deleted = 0
+		  AND sp.is_deleted = 0
+		  AND spd.is_deleted = 0
+		  AND dp.id = #{designPlanId}
+	</select>
+
+    <select id="getDesignPlanSource" resultType="int">
+        SELECT
+        dt.origin
+        FROM
+        design_plan dp
+        LEFT JOIN design_templet dt
+        ON dp.design_template_id = dt.id
+        WHERE
+        <!--dt.is_deleted = 0
+        AND dp.is_deleted = 0
+        AND -->
+        dp.id = #{designPlanId}
+    </select>
+</mapper>

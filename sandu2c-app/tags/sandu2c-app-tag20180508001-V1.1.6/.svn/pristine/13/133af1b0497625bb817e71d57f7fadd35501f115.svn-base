@@ -1,0 +1,46 @@
+package com.sandu.user.model.input;/**
+ * @ Author     ：weisheng.
+ * @ Date       ：Created in PM 3:07 2018/7/3 0003
+ * @ Description：${description}
+ * @ Modified By：
+ * @Version: $version$
+ */
+
+import lombok.Data;
+import org.hibernate.validator.constraints.Length;
+
+import javax.annotation.RegEx;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
+import java.io.Serializable;
+
+/**
+ * @Title: 发送一条私信参数接受
+ * @Package
+ * @Description:
+ * @author weisheng
+ * @date 2018/7/3 0003PM 3:07
+ */
+@Data
+public class UserPrivateMessageInput implements Serializable{
+    private static final long serialVersionUID = -7570426701430489077L;
+    /**
+     * 接受者Id
+     */
+    @Min(value = 1,message = "接受者Id不能为空")
+    private Integer friendId;
+
+    /**
+     * 消息类型,1：普通消息 2：系统消息
+     */
+     @Max(value = 2,message = "消息类型不正确")
+     @Min(value = 1,message = "消息类型不正确")
+    private Integer messageType;
+
+    /**
+     * 消息内容
+     */
+    @Length(min=1, max=4000,message = "留言内容为空或留言内容超出2000字")
+    private String messageContent;
+
+}

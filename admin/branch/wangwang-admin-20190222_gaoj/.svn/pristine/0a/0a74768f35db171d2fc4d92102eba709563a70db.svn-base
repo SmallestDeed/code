@@ -1,0 +1,58 @@
+## 三度空间上传功能整理
+
+### 上传地址
+
+    在res.properties中 通过fileKey来匹配 
+    例如 fileKey是 design.designTemplet.effectPlan
+    则对应的上传路径就匹配下面这条数据
+    design.designTemplet.effectPlan.upload.path = /AA/c_basedesign/[yyyy]/[MM]/[dd]/[HH]/design/designTemplet/effectPlan/
+    
+    地址解释:/AA 代表windowpc上传  /BB 代表安卓上传  /CC 代表ios上传  /DD 代表ipad上传  /EE 代表macbook 上传  /FF 代表web上传 
+            这个约束好像并没有使用
+            
+            /c_basedesign 代表模块地址 
+            /[yyyy]/[MM]/[dd]/[HH] 代表时间地址
+            /design/designTemplet/effectPlan/ 代表自定义目录
+            
+### 图片上传
+
+##### 上传页面地址
+
+    http://localhost:8081/jsp/system/resPic/batchAddPage.htm
+  
+##### 对应方法
+
+    com.nork.system.controller.ResPicController#batchAddPage
+    
+##### 对应jsp:
+
+    pages/jsp/system/resPic/batchAdd.jsp
+    
+##### 提交上传地址
+
+    http://localhost:8081/jsp/system/resPic/batchSave.htm
+    
+##### 传递参数:
+     
+    fileKey=product.baseBrand.logo  # 用于匹配 res.properties中的地址定义
+                                    # 例如: design.designTemplet.effectPlan 匹配 design.designTemplet.effectPlan.upload.path
+    businessId=0   #添加时为 0  编辑是 为当时编辑的东西的id
+    opType=simple  # simple 表示单文件上传  不写应该代表多文件上传
+    sysCode=1514171136374   # 时间毫秒数 好像并没有什么用
+    watermarkState=undefined  #水印 用在户型和空间上传是生成水印? 不确定
+    
+### 文件上传
+
+    和 图片上传差不多 就是 多建了了一个ResFileController 拷贝了代码 改了改
+    
+### 模型上传
+
+    也和 图片上传差不多 就是 多建了了一个ResModelController 拷贝了代码 改了改
+    
+### 空间户型上传
+
+    感觉还是差不多呢 ResHousePicController 
+    
+### 材质图片上传,样板房图片,品牌图片,产品图片 都是通用图片上传
+    
+   

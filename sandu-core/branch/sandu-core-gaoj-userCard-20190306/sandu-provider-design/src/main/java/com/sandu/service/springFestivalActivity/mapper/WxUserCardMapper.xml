@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.springFestivalActivity.dao.WxUserCardMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.api.springFestivalActivity.model.WxUserCard" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="activity_id" property="activityId" jdbcType="BIGINT" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="business_type" property="businessType" jdbcType="TINYINT" />
+    <result column="card_number" property="cardNumber" jdbcType="INTEGER" />
+    <result column="card_date" property="cardDate" jdbcType="DATE" />
+    <result column="card_status" property="cardStatus" jdbcType="TINYINT" />
+    <result column="receive_time" property="receiveTime" jdbcType="TIMESTAMP" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, activity_id, user_id, business_type, card_number, card_date, card_status, receive_time, 
+    creator, gmt_create, modifier, gmt_modified, is_deleted
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from wx_user_card
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from wx_user_card
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.springFestivalActivity.model.WxUserCard" >
+    insert into wx_user_card (id, activity_id, user_id, 
+      business_type, card_number, card_date, 
+      card_status, receive_time, creator, 
+      gmt_create, modifier, gmt_modified, 
+      is_deleted)
+    values (#{id,jdbcType=BIGINT}, #{activityId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, 
+      #{businessType,jdbcType=TINYINT}, #{cardNumber,jdbcType=INTEGER}, #{cardDate,jdbcType=DATE}, 
+      #{cardStatus,jdbcType=TINYINT}, #{receiveTime,jdbcType=TIMESTAMP}, #{creator,jdbcType=VARCHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{isDeleted,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.springFestivalActivity.model.WxUserCard" useGeneratedKeys="true"
+          keyColumn="id" keyProperty="id">
+    insert into wx_user_card
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="activityId != null" >
+        activity_id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="businessType != null" >
+        business_type,
+      </if>
+      <if test="cardNumber != null" >
+        card_number,
+      </if>
+      <if test="cardDate != null" >
+        card_date,
+      </if>
+      <if test="cardStatus != null" >
+        card_status,
+      </if>
+      <if test="receiveTime != null" >
+        receive_time,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="activityId != null" >
+        #{activityId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="businessType != null" >
+        #{businessType,jdbcType=TINYINT},
+      </if>
+      <if test="cardNumber != null" >
+        #{cardNumber,jdbcType=INTEGER},
+      </if>
+      <if test="cardDate != null" >
+        #{cardDate,jdbcType=DATE},
+      </if>
+      <if test="cardStatus != null" >
+        #{cardStatus,jdbcType=TINYINT},
+      </if>
+      <if test="receiveTime != null" >
+        #{receiveTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.springFestivalActivity.model.WxUserCard" >
+    update wx_user_card
+    <set >
+      <if test="activityId != null" >
+        activity_id = #{activityId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="businessType != null" >
+        business_type = #{businessType,jdbcType=TINYINT},
+      </if>
+      <if test="cardNumber != null" >
+        card_number = #{cardNumber,jdbcType=INTEGER},
+      </if>
+      <if test="cardDate != null" >
+        card_date = #{cardDate,jdbcType=DATE},
+      </if>
+      <if test="cardStatus != null" >
+        card_status = #{cardStatus,jdbcType=TINYINT},
+      </if>
+      <if test="receiveTime != null" >
+        receive_time = #{receiveTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.springFestivalActivity.model.WxUserCard" >
+    update wx_user_card
+    set activity_id = #{activityId,jdbcType=BIGINT},
+      user_id = #{userId,jdbcType=BIGINT},
+      business_type = #{businessType,jdbcType=TINYINT},
+      card_number = #{cardNumber,jdbcType=INTEGER},
+      card_date = #{cardDate,jdbcType=DATE},
+      card_status = #{cardStatus,jdbcType=TINYINT},
+      receive_time = #{receiveTime,jdbcType=TIMESTAMP},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectSelective" resultType="com.sandu.api.springFestivalActivity.model.WxUserCard" flushCache="true" >
+    SELECT
+        <include refid="Base_Column_List" />
+    FROM
+        wx_user_card
+    <where>
+        <if test="record.id != null">
+          AND id = #{record.id,jdbcType=BIGINT}
+        </if>
+        <if test="record.activityId != null" >
+          AND activity_id = #{record.activityId,jdbcType=BIGINT}
+        </if>
+        <if test="record.userId != null" >
+          AND user_id = #{record.userId,jdbcType=BIGINT}
+        </if>
+        <if test="record.businessType != null" >
+          AND business_type = #{record.businessType,jdbcType=TINYINT}
+        </if>
+        <if test="record.cardNumber != null" >
+          AND card_number = #{record.cardNumber,jdbcType=INTEGER}
+        </if>
+        <if test="record.cardDate != null" >
+          AND card_date = #{record.cardDate,jdbcType=DATE}
+        </if>
+        <if test="record.cardStatus != null" >
+          AND card_status = #{record.cardStatus,jdbcType=TINYINT}
+        </if>
+        <if test="record.receiveTime != null" >
+          AND receive_time = #{record.receiveTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="record.creator != null" >
+          AND creator = #{record.creator,jdbcType=VARCHAR}
+        </if>
+        <if test="record.gmtCreate != null" >
+          AND gmt_create = #{record.gmtCreate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="record.modifier != null" >
+          AND modifier = #{record.modifier,jdbcType=VARCHAR}
+        </if>
+        <if test="record.gmtModified != null" >
+          AND gmt_modified = #{record.gmtModified,jdbcType=TIMESTAMP}
+        </if>
+        <if test="record.isDeleted != null" >
+          AND is_deleted = #{record.isDeleted,jdbcType=INTEGER}
+        </if>
+    </where>
+    <if test="start != null and limit != null" >
+        limit #{start}, #{limit}
+    </if>
+  </select>
+  <select id="getTodayCardList" parameterType="java.lang.Long" resultType="com.sandu.api.springFestivalActivity.model.WxUserCard" >
+    SELECT
+        <include refid="Base_Column_List" />
+    FROM
+        wx_user_card
+    WHERE
+        activity_id = #{activityId}
+        AND is_deleted = 0
+        AND TO_DAYS(now()) = TO_DAYS(card_date)
+  </select>
+</mapper>

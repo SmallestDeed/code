@@ -1,0 +1,211 @@
+package com.sandu.search.dao;
+
+import com.sandu.search.entity.designplan.po.DesignPlanProductPo;
+import com.sandu.search.entity.elasticsearch.po.*;
+import com.sandu.search.entity.elasticsearch.po.house.HouseLivingPo;
+import com.sandu.search.entity.elasticsearch.po.metadate.*;
+import com.sandu.search.exception.MetaDataException;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+/**
+ * 元数据数据访问层
+ *
+ * @date 20171213
+ * @auth pengxuangang
+ */
+@Repository
+public interface MetaDataDao {
+
+    /**
+     * 查询产品分类元数据
+     *
+     * @return
+     */
+    List<ProductCategoryPo> queryProductCategoryMetaData();
+
+    /**
+     * 查询产品风格元数据
+     *
+     * @return
+     */
+    List<ProductStylePo> queryProductStyleMetaData();
+
+    /**
+     * 查询产品材质元数据
+     *
+     * @return
+     */
+    List<ProductTexturePo> queryProductTextureMetaData();
+
+    /**
+     * 查询品牌元数据
+     *
+     * @return
+     */
+    List<BrandPo> queryBrandMetaData();
+
+    /**
+     * 查询产品分类关联信息
+     *
+     * @return
+     */
+    List<ProductCategoryRelPo> queryProductCategoryRelMetaData();
+
+    /**
+     * 查询图片资源元数据
+     *
+     * @return
+     */
+    List<ResPicPo> queryResPicMetaData();
+
+    /**
+     * 根据ID查询图片资源元数据
+     *
+     * @return
+     */
+    ResPicPo getResPicMetaDataById(@Param("id") int id);
+
+    /**
+     * 查询产品组合关联元数据
+     *
+     * @return
+     */
+    List<ProductGroupRelPo> queryProductGroupRelMetaData();
+
+    /**
+     * 查询产品组合元数据
+     *
+     * @return
+     */
+    List<ProductGroupPo> queryProductGroupMetaData();
+
+    /**
+     * 查询草稿设计方案产品元数据
+     *
+     * @return
+     */
+    List<DesignPlanProductPo> queryTempDesignPlanProductMetaData();
+
+    /**
+     * 查询推荐设计方案产品元数据
+     *
+     * @return
+     */
+    List<DesignPlanProductPo> queryRecommendDesignPlanProductMetaData();
+
+    /**
+     * 查询自定义设计方案产品元数据
+     *
+     * @return
+     */
+    List<DesignPlanProductPo> queryDiyDesignPlanProductMetaData();
+
+    /**
+     * 查询系统字典元数据
+     *
+     * @return
+     * @throws MetaDataException
+     */
+    List<SystemDictionaryPo> querySystemDictionaryMetaData();
+
+    /**
+     * 查询户型小区元数据
+     *
+     * @return
+     */
+    List<HouseLivingPo> queryHouseLivingMetaData();
+
+    /**
+     * 查询区域元数据
+     *
+     * @return
+     */
+    List<AreaPo> queryAreaMetaData();
+
+    /**
+     * 查询公司元数据
+     *
+     * @return
+     */
+    List<CompanyPo> queryCompanyMetaData();
+
+    /**
+     * 查询公司分类关联元数据
+     *
+     * @return
+     */
+    List<CompanyCategoryRelPo> queryCompanyCategoryRelMetaData();
+
+    /**
+     * 查询设计方案样板房元数据
+     *
+     * @return
+     */
+    List<DesignTemplatePo> queryDesignTemplatePoMetaData();
+
+    /**
+     * 查询2B平台产品数据
+     *
+     * @return
+     */
+    List<ProductPlatformRelPo> queryToBPlatformProductMetaData();
+
+    /**
+     * 查询2C平台产品数据
+     *
+     * @return
+     */
+    List<ProductPlatformRelPo> queryToCPlatformProductMetaData();
+
+    /**
+     * 查询Sandu平台产品数据
+     *
+     * @return
+     */
+    List<ProductPlatformRelPo> querySanduPlatformProductMetaData();
+
+    /**
+     * 查询产品属性元信息
+     *
+     * @return
+     */
+    List<ProductAttributePo> queryProductAttrMetaData();
+
+    /**
+     * 查询产品使用次数统计
+     *
+     * @return
+     */
+    List<ProductUsagePo> queryProductUsageCountSatatistics();
+
+    /**
+     * 查询联盟品牌元数据
+     *
+     * @return
+     */
+    List<UnionBrandPo> queryUnionBrandMetaData();
+
+    /**
+     * 查询渲染图片元数据
+     *
+     * @return
+     */
+    List<ResPicPo> queryRenderPicMetaData();
+
+    /**
+     * 查询设计方案品牌元数据
+     *
+     * @return
+     */
+    List<DesignPlanBrandPo> queryDesignPlanBrandMetaData();
+
+    /**
+     * 查询空间元数据
+     *
+     * @return
+     */
+    List<SpaceCommonPo> querySpaceCommonMetaData();
+}

@@ -1,0 +1,34 @@
+<view class='dredge-combo'>
+  <view class='combo-mycard'>
+    <image src='{{staticImageUrl}}me_bg_card_01.png'></image>
+    <view class='mycard-message clearfix'>
+      <view class='message-title'>渲染服务</view>
+      <view class='message-instructions'>有限期内免费渲染</view>      
+      <view class='message-residue fr' wx:if='{{isMember}}'>剩余 {{expiryTime}} 天</view>
+    </view>
+  </view>
+  <view class='combo-choose clearfix'>
+    <view 
+      class='choose-month fl {{isMonthOrYears===index?"choose-active":""}}'
+      wx:for='{{packageInMonthlyPamrams}}'
+      wx:key='{{index}}'
+      data-item='{{item}}'
+      data-index='{{index}}'
+      bindtap='chooseCombo'>
+      <view>{{item.text}}</view>
+      <view class='money'>￥{{item.packagePrice}}</view>      
+    </view>  
+  </view>
+  <view class='combo-hint'>购买套餐后，在有效期内可免费渲染，不限次数。</view>
+  <view class='combo-dredgeBtn' bindtap='instantlyDredgeCombo'>
+    立即开通
+  </view>  
+  <view class='combo-protocol'>
+点击去充值，即表示已经阅读并同意《用户使用协议》
+本公司不会以任何形式要求您输入银行卡账户和密码
+  </view>
+</view>
+<!-- 快速导航模块 -->
+  <!-- <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav"data="{{ ...newNav }}"/> -->
+  <jdNav></jdNav>

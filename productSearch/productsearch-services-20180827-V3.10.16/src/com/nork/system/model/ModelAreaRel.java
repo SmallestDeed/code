@@ -1,0 +1,236 @@
+package com.nork.system.model;
+
+import com.nork.common.model.Mapper;
+import com.nork.product.model.SplitTextureDTO;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * @Author chenqiang
+ * @Description 模型-贴图区域关联 实体
+ * @Date 2018/8/7 0007 10:06
+ * @Modified By
+ */
+public class ModelAreaRel  extends Mapper implements Serializable {
+    /**
+     * 模型ID
+     */
+    private Integer id;
+
+    /**
+     * 模型ID
+     */
+    private Integer modelId;
+
+    /**
+     * 区域编码
+     */
+    private String code;
+
+    /**
+     * 区域名称
+     */
+    private String name;
+
+    /**
+     * 是否删除：0否，1是
+     */
+    private Byte isDeleted;
+
+    /**
+     * 创建时间
+     */
+    private Date gmtCreate;
+
+    /**
+     * 修改时间
+     */
+    private Date gmtModified;
+
+    /**
+     * 创建人
+     */
+    private String creator;
+
+    /**
+     * 区域材质默认宽度
+     */
+    private Integer width;
+
+    /**
+     * 区域材质默认高度
+     */
+    private Integer height;
+
+    /**
+     * 模型ID
+     * @return id 模型ID
+     */
+    public Integer getId() {
+        return id;
+    }
+
+    /**
+     * 模型ID
+     * @param id 模型ID
+     */
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    /**
+     * 模型ID
+     * @return model_id 模型ID
+     */
+    public Integer getModelId() {
+        return modelId;
+    }
+
+    /**
+     * 模型ID
+     * @param modelId 模型ID
+     */
+    public void setModelId(Integer modelId) {
+        this.modelId = modelId;
+    }
+
+    /**
+     * 区域编码
+     * @return code 区域编码
+     */
+    public String getCode() {
+        return code;
+    }
+
+    /**
+     * 区域编码
+     * @param code 区域编码
+     */
+    public void setCode(String code) {
+        this.code = code == null ? null : code.trim();
+    }
+
+    /**
+     * 区域名称
+     * @return name 区域名称
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * 区域名称
+     * @param name 区域名称
+     */
+    public void setName(String name) {
+        this.name = name == null ? null : name.trim();
+    }
+
+    /**
+     * 是否删除：0否，1是
+     * @return is_deleted 是否删除：0否，1是
+     */
+    public Byte getIsDeleted() {
+        return isDeleted;
+    }
+
+    /**
+     * 是否删除：0否，1是
+     * @param isDeleted 是否删除：0否，1是
+     */
+    public void setIsDeleted(Byte isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    /**
+     * 创建时间
+     * @return gmt_create 创建时间
+     */
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    /**
+     * 创建时间
+     * @param gmtCreate 创建时间
+     */
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    /**
+     * 修改时间
+     * @return gmt_modified 修改时间
+     */
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    /**
+     * 修改时间
+     * @param gmtModified 修改时间
+     */
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    /**
+     * 创建人
+     * @return creator 创建人
+     */
+    public String getCreator() {
+        return creator;
+    }
+
+    /**
+     * 创建人
+     * @param creator 创建人
+     */
+    public void setCreator(String creator) {
+        this.creator = creator == null ? null : creator.trim();
+    }
+
+    /**
+     * 区域材质默认宽度
+     * @return width 区域材质默认宽度
+     */
+    public Integer getWidth() {
+        return width;
+    }
+
+    /**
+     * 区域材质默认宽度
+     * @param width 区域材质默认宽度
+     */
+    public void setWidth(Integer width) {
+        this.width = width;
+    }
+
+    /**
+     * 区域材质默认高度
+     * @return height 区域材质默认高度
+     */
+    public Integer getHeight() {
+        return height;
+    }
+
+    /**
+     * 区域材质默认高度
+     * @param height 区域材质默认高度
+     */
+    public void setHeight(Integer height) {
+        this.height = height;
+    }
+
+
+    public SplitTextureDTO getSplitTextureDTO(){
+        SplitTextureDTO splitTextureDTO = new SplitTextureDTO();
+        splitTextureDTO.setKey(Integer.parseInt(this.code) + 1 + "");
+        splitTextureDTO.setName(this.name);
+        splitTextureDTO.setTextureRegionName(this.name);
+        splitTextureDTO.setHeight((null == this.height || 0 == this.height) ? 80 : this.height);
+        splitTextureDTO.setWidth((null == this.width || 0 == this.width) ? 80 : this.width);
+        return splitTextureDTO;
+    }
+}

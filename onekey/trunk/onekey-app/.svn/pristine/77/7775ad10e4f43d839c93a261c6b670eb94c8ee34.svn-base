@@ -1,0 +1,91 @@
+package com.nork.common.constant.util;
+
+import java.util.HashMap;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.nork.common.cache.CacheManager;
+import com.sandu.common.LoginContext;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+
+import com.nork.common.model.LoginUser;
+import com.nork.common.util.Utils;
+import com.nork.system.cache.SysUserCacher;
+
+public class SystemCommonUtil {
+
+	private static Logger logger = Logger.getLogger(SystemCommonUtil.class);
+	
+	public static LoginUser getLoginUserFromRequest(HttpServletRequest request) {
+		if(StringUtils.isNotEmpty(request.getHeader("isRenderServer"))) {
+			return getLoginUserInfoByAuthData(request);
+		} else {
+			return getLoginUserInfoFromCache(request);
+		}
+
+//		if(Utils.enableRedisCache()) {
+//			return getLoginUserInfoFromCache(request);
+//		}else {
+//			return getLoginUserInfoByAuthData(request);
+//		}
+
+//		return getLoginUserInfoByAuthData(request);
+	}
+
+	//TODO: What the mean about 2 ? (2,web2),(3,pc),(4,mac),(5,ios),(6,adr),(7,ipad)
+	public static String getMediaType(HttpServletRequest request) {
+		LoginUser user = null;
+		if(StringUtils.isNotEmpty(request.getHeader("isRenderServer"))) {
+			user = getLoginUserInfoByAuthData(request);
+		} else {
+			user = getLoginUserInfoFromCache(request);
+		}
+		String mediaType = null!=user?user.getMediaType():null;
+		return mediaType;
+	}
+
+	//从缓存里获取登录用户信息
+	public static LoginUser getLoginUserInfoFromCache(HttpServletRequest request) {
+		LoginUser user = LoginContext.getLoginUser(LoginUser.class);
+//		LoginUser user = null;
+//		if (request.getAttribute("AuthorizationData") != null) {
+//			@SuppressWarnings("unchecked")
+//			HashMap<String, Object> map = (HashMap<String, Object>) request.getAttribute("AuthorizationData");
+//			String ukey = map.get("ukey").toString();
+//			String signflat = map.get("signflat").toString();
+//			user = (LoginUser) CacheManager.getInstance().getCacher().getObject(signflat+ukey);
+////			user = SysUserCacher.getCacheLoginUserByUserkey(ukey);
+//		}
+		if(null==user){
+			logger.error("getLoginUserInfoFromCache==> user is null");
+		}
+		return user;
+		
+	}
+	
+	//从Http headers 获取登录用户信息
+	public static LoginUser getLoginUserInfoByAuthData(HttpServletRequest request) {
+		LoginUser user = null;
+		if(request.getAttribute("AuthorizationData") != null) {
+			@SuppressWarnings("unchecked")
+			HashMap<String, Object> map = (HashMap<String, Object>) request.getAttribute("AuthorizationData");
+			String uName = map.get("uname") + "";
+			String mType = map.get("mtype") + "";
+			Long uIdValue = (Long)map.get("uid");
+			Long uTypeValue = (Long)map.get("utype");
+			int uId = uIdValue.intValue();
+			int uType = uTypeValue.intValue();
+			String ukey = map.get("ukey") + "";
+			user = new LoginUser();
+			user.setMediaType(mType);
+			user.setUserKey(ukey);
+			user.setUserType(Integer.valueOf(uType));
+			user.setLoginName(uName);
+			user.setId(Integer.valueOf(uId));
+		}
+		
+		return user;
+	}
+	
+}

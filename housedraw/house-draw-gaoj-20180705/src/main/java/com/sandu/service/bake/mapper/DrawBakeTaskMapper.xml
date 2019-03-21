@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sandu.service.bake.dao.DrawBakeTaskMapper">
+
+    <resultMap id="bakeTaskBoMap" type="com.sandu.api.house.bo.DrawBakeTaskBO">
+        <result column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="house_id" property="houseId" />
+        <result column="house_code" property="houseCode" />
+        <result column="status" property="status" />
+        <result column="message" property="message" />
+        <result column="rel_house_id" property="relHouseId" />
+        <collection property="drawBakeTaskDetail" ofType="com.sandu.api.house.model.DrawBakeTaskDetail">
+            <result column="detail_id" property="id" />
+            <result column="task_id" property="taskId" />
+            <result column="space_id" property="spaceId" />
+            <result column="space_code" property="spaceCode" />
+            <result column="product_data" property="productData" />
+            <result column="space_file_ids" property="spaceFileIds" />
+            <result column="space_file_path" property="spaceFilePath" />
+        </collection>
+    </resultMap>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO draw_bake_task (
+		  user_id,
+		  house_id,
+		  house_code,
+		  STATUS,
+		  message,
+		  creator,
+		  gmt_create,
+		  MODIFIER,
+		  queue_name,
+		  priority)
+		VALUES (
+		  #{userId}, 
+		  #{houseId}, 
+		  #{houseCode}, 
+		  #{status}, 
+		  #{message},
+		  #{creator}, 
+		  #{gmtCreate}, 
+		  #{modifier},
+		  #{queueName},
+		  #{priority})
+    </insert>
+
+	<select id="list" resultMap="bakeTaskBoMap">
+        SELECT 
+		  t.id,
+		  t.house_id,
+		  t.house_code,
+		  t.user_id,
+		  t.`status`,
+		  t.message,
+		  td.id detail_id,
+		  td.product_data,
+		  td.space_code,
+		  td.space_id,
+		  td.task_id,
+		  td.space_file_ids,
+		  td.space_file_path
+		FROM
+		  draw_bake_task t
+		  LEFT JOIN draw_bake_task_detail td
+		    ON t.id = td.task_id
+		WHERE t.is_deleted = 0
+		  AND td.is_deleted = 0
+		  AND td.status IN (1, 4)
+		  AND td.bake_fail_count <![CDATA[ <= ]]> #{failCount}
+		  AND t.timer_reset_count <![CDATA[ <= ]]> #{resetCount}
+        <!-- AND dbt.queue_name = #{queueName} -->
+		  AND t.id = #{taskId}
+		ORDER BY t.priority DESC,
+		  td.gmt_modified
+    </select>
+
+    <select id="getDrawBakeTask" resultMap="bakeTaskBoMap">
+        SELECT 
+		  dbt.id,
+		  dbt.house_id,
+		  dbt.house_code,
+		  dbt.user_id,
+		  dbt.`status`,
+		  dbt.message,
+		  dbtd.id detail_id,
+		  dbtd.product_data,
+		  dbtd.space_code,
+		  dbtd.space_id,
+		  dbtd.task_id,
+		  dbtd.space_file_ids,
+		  dbtd.space_file_path 
+		FROM
+		  draw_bake_task dbt 
+		  LEFT JOIN draw_bake_task_detail dbtd 
+		    ON dbt.id = dbtd.task_id 
+		WHERE dbt.id = #{taskId} 
+    </select>
+
+    <update id="updateDrawBakeTaskStatus">
+        UPDATE 
+		  draw_bake_task t 
+		SET
+		  t.status = #{status}, 
+		  t.message = #{message}
+		WHERE id = #{id} and t.status in (1,4)
+    </update>
+    
+    <select id="getTaskDetailCount" resultType="int">
+    	SELECT 
+		  COUNT(*) 
+		FROM
+		  draw_bake_task_detail t 
+		WHERE t.status != 3 
+		  AND t.task_id = 
+		  (SELECT 
+		    td.task_id 
+		  FROM
+		    draw_bake_task_detail td 
+		  WHERE td.id = #{taskDetailId})
+    </select>
+    
+    <select id="getBakeSuccessTask" resultType="int">
+    	SELECT 
+		  COUNT(*) 
+		FROM
+		  draw_bake_task_detail t 
+		WHERE t.is_deleted = 0
+		  AND t.status = 3
+		  AND t.task_id = #{taskId}
+    </select>
+    
+    <update id="updateForRelHouseId">
+    	UPDATE 
+		  draw_bake_task 
+		SET
+		  ref_house_id = #{refHouseId} 
+		  where id = #{taskId} 
+		  	and ref_house_id is null 
+    </update>
+
+	<select id="selectTaskMessage"  resultType="com.sandu.api.house.bo.DrawBakeTaskBO">
+        SELECT
+           id,user_id,house_id,house_code,status,message,rel_house_id
+         FROM
+           draw_bake_task
+         WHERE
+		    1=1
+		<if test="houseId != null and ''!=houseId">AND house_id = #{houseId}</if>
+	</select>
+	
+	<select id="getTaskDetailById" resultType="map">
+		SELECT 
+		  td.task_id,
+		  t.house_id,
+		  t.user_id
+		FROM
+		  draw_bake_task t,
+		  draw_bake_task_detail td 
+		WHERE t.id = td.task_id 
+		  AND t.status = 2 
+		  AND td.id = #{taskDetailId}
+	</select>
+	
+	<update id="updateTaskStatusByTaskDetailId">
+		UPDATE 
+		  draw_bake_task t 
+		SET
+		  t.status = #{status} 
+		WHERE t.id = 
+		  (SELECT 
+		    td.task_id 
+		  FROM
+		    draw_bake_task_detail td 
+		  WHERE td.id = #{taskDetailId})
+	</update>
+	
+	<!--SECOND、 MINUTE、 HOUR -->
+	<select id="getBakeFailTaskDetail" resultType="map">
+		SELECT 
+		  t.id AS taskId,
+		  t.house_id AS houseId, 
+		  td.id AS taskDetailId
+		FROM
+		  draw_bake_task t,
+		  draw_bake_task_detail td 
+		WHERE t.id = td.task_id
+		  AND td.is_deleted = 0
+		  AND t.timer_reset_count <![CDATA[ <= ]]> #{resetCount}
+		  AND (
+		    (
+		      td.status = 2 
+		      AND TIMESTAMPDIFF(MINUTE , td.gmt_modified, NOW()) &gt; #{timeout}
+		    ) 
+		    OR (
+		      td.status = 4 
+		      AND td.bake_fail_count &gt; #{failCount}
+		    )
+		  )
+	</select>
+
+	<select id="getBakeFailTask" resultType="map">
+		SELECT
+		  t.id AS taskId,
+		  t.house_id AS houseId
+		FROM
+		  draw_bake_task t
+		WHERE t.is_deleted = 0
+		  AND t.status = 2
+		  AND t.timer_reset_count <![CDATA[ <= ]]> #{resetCount}
+		  AND TIMESTAMPDIFF(MINUTE, t.gmt_modified, NOW()) &gt; #{timeout}
+	</select>
+	
+	<update id="restFailTask">
+		UPDATE 
+		  draw_bake_task t 
+		SET
+		  t.status = 4,
+		  t.timer_reset_count = t.timer_reset_count + 1
+		WHERE t.status NOT IN (1, 3) 
+		  AND t.id IN 
+		<foreach collection="args" item="item" open="(" separator="," close=")">
+		  #{item}
+		</foreach>
+	</update>
+
+	<select id="getBakeTaskByQueueName" resultType="com.sandu.api.house.model.DrawBakeTask">
+		SELECT
+		  *
+		FROM
+		  draw_bake_task t
+		WHERE t.is_deleted = 0
+		  AND t.status IN (1, 4)
+		  AND t.queue_name = #{queueName}
+		  AND t.timer_reset_count <![CDATA[ <= ]]> #{resetCount}
+		ORDER BY t.priority DESC,
+  		  t.gmt_modified
+		LIMIT 10
+	</select>
+
+	<select id="getPushBakeFailTask" resultType="com.sandu.api.house.model.BakeFailTask">
+		SELECT
+		  td.*
+		FROM
+		  draw_bake_task t,
+		  draw_bake_task_detail td
+		WHERE t.id = td.task_id
+		  AND t.is_deleted = 0
+		  AND td.is_deleted = 0
+		  AND t.status = 4
+		  AND td.status = 4
+		  AND t.timer_reset_count <![CDATA[ > ]]> #{resetCount}
+		LIMIT 100
+	</select>
+
+	<update id="fix2_3Task">
+		UPDATE
+		  draw_bake_task t
+		SET
+		  t.status = 3
+		WHERE t.id IN
+		  <foreach collection="failTasks" item="item" open="(" separator="," close=")">
+			  #{item.taskId}
+		  </foreach>
+	</update>
+
+	<update id="deleteBakeFailTask">
+		UPDATE
+		  draw_bake_task t
+		SET
+		  t.is_deleted = 1
+		WHERE t.id IN
+		<foreach collection="failTasks" item="item" open="(" separator="," close=")">
+			#{item.taskId}
+		</foreach>
+	</update>
+
+	<update id="deleteBakeFailTaskDetail">
+		UPDATE
+		  draw_bake_task_detail td
+		SET
+		  td.is_deleted = 1
+		WHERE td.id IN
+		<foreach collection="failTasks" item="item" open="(" separator="," close=")">
+		  #{item.id}
+		</foreach>
+	</update>
+</mapper>

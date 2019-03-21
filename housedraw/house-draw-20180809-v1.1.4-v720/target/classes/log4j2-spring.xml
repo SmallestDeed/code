@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <properties>
+        <property name="console-pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p ${PID:-} [%15.15t] %-40.40logger{39} : %m%n</property>
+    </properties>
+
+    <appenders>
+        <console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${console-pattern}"/>
+        </console>
+
+        <RollingFile name="RollingFileInfo" fileName="/data001/website/housedraw_jar/house-draw-info.log"
+                     filePattern="/data001/website/housedraw_jar/$${date:yyyy-MM-dd}/house-draw-info-%d{yyyy-MM-dd}-%i.log">
+            <!--<Filters>-->
+                <!--<ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>-->
+                <!--<ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>-->
+            <!--</Filters>-->
+            <PatternLayout pattern="${console-pattern}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+
+        <RollingFile name="RollingFileError" fileName="/data001/website/housedraw_jar/house-draw-error.log"
+                     filePattern="/data001/website/housedraw_jar/$${date:yyyy-MM-dd}/house-draw-error-%d{yyyy-MM-dd}-%i.log">
+            <ThresholdFilter level="ERROR"/>
+            <PatternLayout pattern="${console-pattern}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+    </appenders>
+
+    <loggers>
+        <logger name="com.sandu" level="INFO" />
+        <logger name="org.mybatis" level="ERROR" />
+        <logger name="org.springframework" level="INFO" />
+
+        <root level="INFO">
+            <appender-ref ref="Console"/>
+            <appender-ref ref="RollingFileInfo"/>
+            <appender-ref ref="RollingFileError"/>
+        </root>
+    </loggers>
+</configuration>

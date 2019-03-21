@@ -1,0 +1,57 @@
+package com.sandu.designplan.product.model;
+
+import com.sandu.design.model.DesignPlanProduct;
+
+/***
+ * 设计方案产品保存任务参数
+ * @author qiu.jun
+ * @date 2016.06.16
+ *
+ */
+public class ProductSaveParameter {
+    private DesignPlanProduct designPlanProduct;
+    private Integer designPlanId;
+    private String context;
+    private Integer reUploadConfig;
+
+    public ProductSaveParameter(DesignPlanProduct designPlanProduct, Integer designPlanId, String context, Integer reUploadConfig) {
+        this.designPlanProduct = designPlanProduct;
+        this.designPlanId = designPlanId;
+        this.context = context;
+        this.reUploadConfig = reUploadConfig;
+    }
+
+    public DesignPlanProduct getDesignPlanProduct() {
+        return designPlanProduct;
+    }
+
+    public void setDesignPlanProduct(DesignPlanProduct designPlanProduct) {
+        this.designPlanProduct = designPlanProduct;
+    }
+
+    public Integer getDesignPlanId() {
+        return designPlanId;
+    }
+
+    public void setDesignPlanId(Integer designPlanId) {
+        this.designPlanId = designPlanId;
+    }
+
+    public String getContext() {
+        return context;
+    }
+
+    public void setContext(String context) {
+        this.context = context;
+    }
+
+    public Integer getReUploadConfig() {
+        return reUploadConfig;
+    }
+
+    public void setReUploadConfig(Integer reUploadConfig) {
+        this.reUploadConfig = reUploadConfig;
+    }
+
+
+}

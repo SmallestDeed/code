@@ -1,0 +1,581 @@
+package com.sandu.fullhouse.service.impl;
+
+import com.google.gson.Gson;
+import com.sandu.cache.service.RedisService;
+import com.sandu.design.model.DesignPlanProduct;
+import com.sandu.designplan.dao.DesignPlanRecommendedMapper;
+import com.sandu.designplan.model.*;
+import com.sandu.designplan.service.DesignPlanLikeService;
+import com.sandu.designplan.service.DesignPlanRecommendedService;
+import com.sandu.designplan.service.DesignPlanSummaryInfoService;
+import com.sandu.designplan.vo.MydecorationPlanVo;
+import com.sandu.designplan.vo.PlanDecoratePriceBO;
+import com.sandu.fullhouse.dao.FullHouseDesignPlanDetailMapper;
+import com.sandu.fullhouse.dao.FullHouseDesignPlanMapper;
+import com.sandu.fullhouse.input.FullHouseDesignPlanListQuery;
+import com.sandu.fullhouse.model.FullHouseDesignPlan;
+import com.sandu.fullhouse.model.FullHouseDesignPlanDetail;
+import com.sandu.fullhouse.service.FullHouseDesignPlanService;
+import com.sandu.product.model.BaseCompany;
+import com.sandu.product.model.BaseProduct;
+import com.sandu.product.service.BaseBrandService;
+import com.sandu.product.service.BaseProductService;
+import com.sandu.render.model.AutoRenderTask;
+import com.sandu.system.model.ResFile;
+import com.sandu.system.service.ResFileService;
+import com.sandu.system.service.ResRenderPicService;
+import com.sandu.user.model.LoginUser;
+import com.sandu.user.model.UserTypeCode;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
+
+import static com.sandu.cache.RedisKeyConstans.*;
+import static java.util.stream.Collectors.toList;
+
+@Service("fullHouseDesignPlanService")
+public class FullHouseDesignPlanServiceImpl implements FullHouseDesignPlanService {
+    @Autowired
+    private FullHouseDesignPlanMapper fullHouseDesignPlanMapper;
+    @Autowired
+    private ResFileService resFileService;
+    @Autowired
+    private DesignPlanLikeService designPlanLikeService;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private DesignPlanSummaryInfoService designPlanSummaryInfoService;
+    @Autowired
+    private FullHouseDesignPlanDetailMapper fullHouseDesignPlanDetailMapper;
+    @Autowired
+    private DesignPlanRecommendedService designPlanRecommendedService;
+    @Autowired
+    private DesignPlanRecommendedMapper designPlanRecommendedMapper;
+    @Autowired
+    private BaseProductService baseProductService;
+    @Autowired
+    private BaseBrandService baseBrandService;
+    @Autowired
+    private ResRenderPicService resRenderPicService;
+    @Value("${file.storage.path}")
+    private String basePath;
+
+    private final static Gson GSON = new Gson();
+    private static Logger logger = LoggerFactory.getLogger(FullHouseDesignPlanServiceImpl.class);
+
+    @Override
+    public int deleteByPrimaryKey(Integer id) {
+        return fullHouseDesignPlanMapper.deleteByPrimaryKey(id);
+    }
+
+    @Override
+    public int insert(FullHouseDesignPlan record) {
+        return fullHouseDesignPlanMapper.insert(record);
+    }
+
+    @Override
+    public int insertSelective(FullHouseDesignPlan record) {
+        return fullHouseDesignPlanMapper.insertSelective(record);
+    }
+
+    @Override
+    public FullHouseDesignPlan selectByPrimaryKey(Integer id) {
+        return fullHouseDesignPlanMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public int updateByPrimaryKeySelective(FullHouseDesignPlan record) {
+        return fullHouseDesignPlanMapper.updateByPrimaryKeySelective(record);
+    }
+
+    @Override
+    public int updateByPrimaryKey(FullHouseDesignPlan record) {
+        return fullHouseDesignPlanMapper.updateByPrimaryKey(record);
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/8/29 16:59
+     * 查询小程序方案列表的全屋方案
+     *
+     * @param planRecommendedListModel
+     * @return
+     */
+    @Override
+    public List<DesignPlanRecommendedResult> selectFullHouseDesignPlanList(PlanRecommendedListModel planRecommendedListModel, String companyCode, BaseCompany baseCompany) {
+        // 登录用户信息
+        LoginUser loginUser = planRecommendedListModel.getLoginUser();
+        if (loginUser == null) {
+            loginUser = new LoginUser();
+            loginUser.setId(0);
+            loginUser.setUserType(UserTypeCode.USER_TYPE_OUTER_B2C);
+        }
+        // 查询对象
+        FullHouseDesignPlanListQuery query = new FullHouseDesignPlanListQuery();
+        query.setPlanId(planRecommendedListModel.getId());
+        query.setUserId(loginUser.getId());
+        if (companyCode.equals(baseCompany.getCompanyCode())) {
+            query.setBrandIds(null);
+            query.setCompanyId(null);
+            query.setSourceType(1);
+        } else {
+            query.setBrandIds(planRecommendedListModel.getBrandList());
+            query.setCompanyId(planRecommendedListModel.getCompanyId());
+        }
+        query.setStart(planRecommendedListModel.getStart());
+        query.setLimit(planRecommendedListModel.getLimit());
+        if (planRecommendedListModel.getDesignRecommendedStyleId() != null && !"".equals(planRecommendedListModel.getDesignRecommendedStyleId())) {
+            query.setDesignPlanStyleId(Integer.parseInt(planRecommendedListModel.getDesignRecommendedStyleId()));
+        }
+        query.setDecoratePriceRange(planRecommendedListModel.getDecoratePriceRange());
+        query.setDecoratePriceType(planRecommendedListModel.getDecoratePriceType());
+        query.setPlatformId(planRecommendedListModel.getPlatformId());
+        query.setDesignRecommendedStyleName(planRecommendedListModel.getDesignRecommendedStyleName());
+        List<DesignPlanRecommendedResult> fullHouseDesignPlanList = fullHouseDesignPlanMapper.getFullHousePlanList(query);
+        for (DesignPlanRecommendedResult result : fullHouseDesignPlanList) {
+            if (result.getShops() != null && result.getShops().size() > 0) {
+                result.setShopId(result.getShops().get(0).getShopId());
+                result.setDesignerHeadPic(result.getShops().get(0).getLogo());
+            }
+            // 查询点赞收藏信息
+            DesignPlanSummaryInfo summaryInfo =
+                    designPlanLikeService.getFullHousePlanInfoOfCache(loginUser.getId(), result.getPlanRecommendedId());
+            if (null != summaryInfo) {
+                if (null != summaryInfo.getLikeNum()) {
+                    result.setLikeNum(summaryInfo.getLikeNum());
+                }
+                if (null != summaryInfo.getCollectNum()) {
+                    result.setCollectNum(summaryInfo.getCollectNum());
+                }
+                if (null != summaryInfo.getIsLike()) {
+                    result.setIsLike(summaryInfo.getIsLike());
+                }
+                if (null != summaryInfo.getViewNum()) {
+                    result.setViewNum(summaryInfo.getViewNum());
+                }
+                if (null != summaryInfo.getIsFavorite()) {
+                    result.setIsFavorite(summaryInfo.getIsFavorite());
+                }
+            }
+        }
+        return fullHouseDesignPlanList;
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/8/29 18:41
+     * 查询符合条件的全屋方案总数
+     *
+     * @param planRecommendedListModel
+     * @return
+     */
+    @Override
+    public Integer selectFullHouseDesignPlanCount(PlanRecommendedListModel planRecommendedListModel, String companyCode, BaseCompany baseCompany) {
+        FullHouseDesignPlanListQuery query = new FullHouseDesignPlanListQuery();
+        if (companyCode.equals(baseCompany.getCompanyCode())) {
+            query.setBrandIds(null);
+            query.setCompanyId(null);
+            query.setSourceType(1);
+        } else {
+            query.setCompanyId(planRecommendedListModel.getCompanyId());
+            query.setBrandIds(planRecommendedListModel.getBrandList());
+        }
+        query.setStart(planRecommendedListModel.getStart());
+        query.setLimit(planRecommendedListModel.getLimit());
+        if (planRecommendedListModel.getDesignRecommendedStyleId() != null && !"".equals(planRecommendedListModel.getDesignRecommendedStyleId())) {
+            query.setDesignPlanStyleId(Integer.parseInt(planRecommendedListModel.getDesignRecommendedStyleId()));
+        }
+        query.setDecoratePriceRange(planRecommendedListModel.getDecoratePriceRange());
+        query.setDecoratePriceType(planRecommendedListModel.getDecoratePriceType());
+        query.setPlatformId(planRecommendedListModel.getPlatformId());
+        query.setDesignRecommendedStyleName(planRecommendedListModel.getDesignRecommendedStyleName());
+        Integer count = fullHouseDesignPlanMapper.getFullHousePlanCount(query);
+        return count;
+    }
+
+    @Override
+    public List<PlanDecoratePriceBO> getPlanDecoratePriceByFullHouseId(Integer fullHousePlanId) {
+        return fullHouseDesignPlanMapper.getPlanDecoratePriceByFullHouseId(fullHousePlanId);
+    }
+
+    @Override
+    public List<DesignPlanRecommendedResult> selectFullHouseDesignPlanDetail(PlanRecommendedListModel planRecommendedListModel, String companyCode, BaseCompany baseCompany) {
+        // 更新全屋方案的浏览次数
+        synchronized (FullHouseDesignPlanServiceImpl.class) {
+            //从缓存中获取方案点赞总数,获取不到从数据库查找,再存入缓存
+            String designPlanLikeNum = redisService.getMap(FULL_HOUSE_DESIGN_PLAN_VIEW_NUM_MAP, planRecommendedListModel.getId() + "");
+            long viewNum = 0;
+            if (StringUtils.isEmpty(designPlanLikeNum)) {
+                DesignPlanSummaryInfo summaryInfo = designPlanSummaryInfoService.getFullHouseInfo(planRecommendedListModel.getId());
+                if (null != summaryInfo) {
+                    if (summaryInfo.getViewNum() != null) {
+                        viewNum = (long) summaryInfo.getViewNum();
+                    }
+                }
+                redisService.addMap(FULL_HOUSE_DESIGN_PLAN_VIEW_NUM_MAP, planRecommendedListModel.getId() + "", viewNum + "");
+            }
+            viewNum = redisService.mapIncrby(FULL_HOUSE_DESIGN_PLAN_VIEW_NUM_MAP, planRecommendedListModel.getId() + "", 1L);
+            redisService.addMap(FULL_HOUSE_DESIGN_PLAN_VIEW_NUM_SYNCHRONIZE_MAP, planRecommendedListModel.getId() + "", viewNum + "");
+        }
+        // 查询全屋方案详情
+        List<DesignPlanRecommendedResult> list = this.selectFullHouseDesignPlanList(planRecommendedListModel, companyCode, baseCompany);
+        // 获取全屋方案详情的描述文件ID
+        DesignPlanRecommendedResult designPlanRecommendedResult = list.get(0);
+        logger.info("查找全屋方案方案详情结果:{}", designPlanRecommendedResult.toString());
+        if (designPlanRecommendedResult.getDescFileId() == null) {
+            // 没有描述文件，直接返回全屋方案详情
+            logger.info("没有描述文件，直接返回全屋方案详情");
+            return list;
+        }
+        int fileId = designPlanRecommendedResult.getDescFileId();
+        // 读取推荐方案详情的描述文件
+        ResFile resFile = resFileService.get(fileId);
+        if (resFile == null) {
+            // 没有找到资源文件，直接返回详情
+            logger.info("没有找到资源文件，直接返回全屋方案详情");
+            return list;
+        }
+        String filePath = basePath + resFile.getFilePath();
+        logger.info("推荐方案详情文件路径:{}", filePath);
+        try {
+            FileReader fileReader = new FileReader(filePath);
+            BufferedReader br = new BufferedReader(fileReader);
+            StringBuilder sb = new StringBuilder();
+            String str;
+            // 读取文件内容
+            while ((str = br.readLine()) != null) {
+                sb.append(str);
+            }
+            designPlanRecommendedResult.setDesc(sb.toString());
+        } catch (FileNotFoundException e) {
+            logger.error("", e);
+        } catch (IOException e) {
+            logger.error("", e);
+        }
+        return list;
+    }
+
+    @Override
+    public Integer getFavoriteFullHousePlanCount(DesignPlanRecommended designPlanRecommended) {
+        return fullHouseDesignPlanMapper.getFavoriteFullHousePlanCount(designPlanRecommended);
+    }
+
+    @Override
+    public List<DesignPlanRecommendedResult> getFavoriteFullHousePlan(DesignPlanRecommended designPlanRecommended) {
+        List<DesignPlanRecommendedResult> list = fullHouseDesignPlanMapper.getFavoriteFullHousePlan(designPlanRecommended);
+        return list;
+    }
+
+    @Override
+    public Integer getHouseIdByFullPlanId(Integer fullPlanId) {
+        // 参数验证 ->start
+        if (fullPlanId == null) {
+            return null;
+        }
+        // 参数验证 ->end
+
+        return fullHouseDesignPlanMapper.getHouseIdByFullPlanId(fullPlanId);
+    }
+
+    @Override
+    public int getMydecorationPlanCount(Integer userId) {
+
+        return fullHouseDesignPlanMapper.selectMydecorationPlanCount(userId);
+    }
+
+    @Override
+    public List<MydecorationPlanVo> getMydecorationPlanList(MydecorationPlanAdd mydecorationPlanAdd) {
+        return fullHouseDesignPlanMapper.selectMydecorationPlanList(mydecorationPlanAdd);
+    }
+
+    @Override
+    public int getMyPlanCount(Integer userId) {
+        return fullHouseDesignPlanMapper.selectMyPlanCount(userId);
+    }
+
+    @Override
+    public List<MydecorationPlanVo> getMyPlanList(MydecorationPlanAdd mydecorationPlanAdd) {
+
+        return fullHouseDesignPlanMapper.selectMyPlanList(mydecorationPlanAdd);
+    }
+
+    @Override
+    public int updatePlanName(com.nork.common.model.LoginUser loginUser, String planName, Integer planType, Integer planId, Integer taskId, Integer renderState) {
+        //修改任务表和任务状态表中的方案名称
+        int autoRenderTaskId;
+        AutoRenderTask autoRenderTask = this.buildAutoRenderTask(planName, taskId, loginUser);
+        if (planType == 1) {
+            if (null == renderState || renderState == 6) {
+                autoRenderTaskId = fullHouseDesignPlanMapper.updateAutoRenderTask(autoRenderTask);
+            } else {
+                autoRenderTaskId = fullHouseDesignPlanMapper.updateAutoRenderTaskState(autoRenderTask);
+            }
+        } else {
+            if (null == renderState || renderState == 6) {
+                autoRenderTaskId = fullHouseDesignPlanMapper.updateAutoRenderTaskByMainTaskId(autoRenderTask);
+            } else {
+                autoRenderTaskId = fullHouseDesignPlanMapper.updateAutoRenderTaskStateByMainTaskId(autoRenderTask);
+            }
+        }
+
+
+        if (autoRenderTaskId == 0) {
+            return 0;
+        }
+        //装修方案来源为1即是旧数据,2为全屋方案
+
+        if (planType == 1 && renderState != null && renderState == 2) {
+            //修改DesignPlanRenderScene表中的方案名称
+            DesignPlanRenderScene designPlanRenderScene = this.buildDesignPlanRenderScene(loginUser, planName, planId);
+            return fullHouseDesignPlanMapper.updateDesignPlanRenderScene(designPlanRenderScene);
+        } else if (renderState != null && renderState == 2) {
+            //修改FullHouseDesignPlan表中的方案名称
+            FullHouseDesignPlan fullHouseDesignPlan = this.buildFullHouseDesignPlan(loginUser, planName, planId);
+            return fullHouseDesignPlanMapper.updateFullHouseDesignPlan(fullHouseDesignPlan);
+        }
+
+
+        return autoRenderTaskId;
+
+
+    }
+
+    private AutoRenderTask buildAutoRenderTask(String planName, Integer taskId, com.nork.common.model.LoginUser loginUser) {
+        AutoRenderTask autoRenderTask = new AutoRenderTask();
+        autoRenderTask.setPlanName(planName);
+        autoRenderTask.setGmtModified(new Date());
+        autoRenderTask.setModifier(loginUser.getName());
+        autoRenderTask.setOperationUserId(loginUser.getId());
+        autoRenderTask.setId(taskId);
+        return autoRenderTask;
+    }
+
+    @Override
+    public int delMyDecorationPlan(com.nork.common.model.LoginUser loginUser, Integer planType, Integer planId, Integer taskId, Integer renderState) {
+        //逻辑删除任务表和任务状态表中的方案
+        int autoRenderTaskId;
+        if (planType == 1) {
+            if (null == renderState || renderState == 6) {
+                autoRenderTaskId = fullHouseDesignPlanMapper.delAutoRenderTask(taskId);
+            } else {
+                autoRenderTaskId = fullHouseDesignPlanMapper.delAutoRenderTaskState(taskId);
+            }
+        } else {
+
+            if (null == renderState || renderState == 6) {
+                autoRenderTaskId = fullHouseDesignPlanMapper.delAutoRenderTaskByMainTask(taskId);
+            } else {
+                autoRenderTaskId = fullHouseDesignPlanMapper.delAutoRenderTaskStateByMainTask(taskId);
+            }
+
+        }
+
+
+        if (autoRenderTaskId == 0) {
+            return 0;
+        }
+
+        if (planType == 1 && renderState != null && renderState == 2) {
+            //逻辑删除DesignPlanRenderScene表中的方案
+            return fullHouseDesignPlanMapper.delDesignPlanRenderScene(loginUser.getId(), planId);
+        } else if (renderState != null && renderState == 2) {
+            //删除FullHouseDesignPlan表中的方案
+            return fullHouseDesignPlanMapper.delFullHouseDesignPlan(loginUser.getId(), planId);
+        }
+        return autoRenderTaskId;
+    }
+
+    private DesignPlanRenderScene buildDesignPlanRenderScene(com.nork.common.model.LoginUser loginUser, String planName, Integer planId) {
+        DesignPlanRenderScene designPlanRenderScene = new DesignPlanRenderScene();
+        designPlanRenderScene.setId(planId);
+        designPlanRenderScene.setPlanName(planName);
+        designPlanRenderScene.setGmtModified(new Date());
+        designPlanRenderScene.setModifier(loginUser.getName());
+        designPlanRenderScene.setUserId(loginUser.getId());
+        return designPlanRenderScene;
+    }
+
+    private FullHouseDesignPlan buildFullHouseDesignPlan(com.nork.common.model.LoginUser loginUser, String planName, Integer planId) {
+        FullHouseDesignPlan fullHouseDesignPlan = new FullHouseDesignPlan();
+        Date date = new Date();
+        fullHouseDesignPlan.setId(planId);
+        fullHouseDesignPlan.setUserId(loginUser.getId());
+        fullHouseDesignPlan.setGmtModified(date);
+        fullHouseDesignPlan.setModifier(loginUser.getName());
+        fullHouseDesignPlan.setPlanName(planName);
+        return fullHouseDesignPlan;
+    }
+
+    @Override
+    public String showDesignPlanConfig(Integer id) {
+        FullHouseDesignPlan primaryPlan = fullHouseDesignPlanMapper.selectByPrimaryKey(id);
+        if (Objects.isNull(primaryPlan)) {
+            logger.warn("获取方案失败,id:{}", id);
+            return "";
+        }
+        return resFileService.readFile(primaryPlan.getDescFileId());
+    }
+
+    @Override
+    public List<DesignPlanProductVO> listDesignPlanProducts(Integer planId, Integer productBatchType,
+                                                            String spaceName, Integer pageNo) {
+//        Map<String,List<BaseProduct>> baseAllProducts = new HashMap<>();
+        List<DesignPlanProductVO> designPlanProductVOList = new ArrayList<>();
+        List<FullHouseDesignPlanDetail> details = fullHouseDesignPlanDetailMapper.selectByPlanId(planId);
+        List<DesignPlanRecommended> designPlanList = new ArrayList<>();
+        for (FullHouseDesignPlanDetail detail : details) {
+            DesignPlanRecommended designPlans = designPlanRecommendedService.getBaseInfo(detail.getRecommendedPlanGroupPrimaryId());
+            designPlanList.add(designPlans);
+        }
+        Map<String, Integer> comboMap = new HashMap<>();
+        String newName;
+        Integer newNum;
+        //过滤子方案
+        Iterator iterator = designPlanList.iterator();
+        while (iterator.hasNext()) {
+            DesignPlanRecommended result = (DesignPlanRecommended) iterator.next();
+            if (comboMap.containsKey(result.getSpaceTypeName())) {
+                //获取key 例如 （卧室，客餐厅）
+                newName = result.getSpaceTypeName();
+                //如果有相同空间，则在名字后加+1
+                newNum = comboMap.get(result.getSpaceTypeName()) + 1;
+                comboMap.put(result.getSpaceTypeName(), newNum);
+                result.setSpaceTypeName(newName + newNum);
+            } else {
+                comboMap.put(result.getSpaceTypeName(), 1);
+                newName = result.getSpaceTypeName();
+                result.setSpaceTypeName(newName);
+            }
+
+            if (spaceName != null) {
+                if (result.getSpaceTypeName().equals(spaceName)) {
+                    iterator.remove();
+                    continue;
+                }
+            }
+
+            List<DesignPlanProduct> designPlanProducts = designPlanRecommendedMapper.listDesignPlanProducts(result.getId());
+            if (designPlanProducts != null && designPlanProducts.size() > 0) {
+                List<Integer> productIds = designPlanProducts.stream().map(DesignPlanProduct::getProductId).collect(toList());
+                List<BaseProduct> baseProducts = baseProductService.getProductListByType(productIds, productBatchType);
+                Integer pageSize = baseProducts.size() > 15 ? 15 : baseProducts.size();
+                if (pageNo != null) {
+                    if (pageNo * 15 > baseProducts.size()) {
+                        pageSize = baseProducts.size();
+                    } else {
+                        pageSize = pageNo * 15;
+                    }
+                }
+                baseProducts = baseProducts.subList(0, pageSize);
+                List<Integer> brandIds = baseProducts.stream().map(brand -> brand.getBrandId()).collect(toList());
+                Map<Integer, String> brandIdAndNameMap = baseBrandService.brandIdAndNameMap(brandIds);
+
+                List<Integer> picIds = baseProducts.stream().map(BaseProduct::getPicId).collect(toList());
+                //根据图片id查询图片途径
+                Map<Integer, String> picPathMap = resRenderPicService.idAndPathMap(picIds);
+
+                for (BaseProduct product : baseProducts) {
+                    product.setBrandName(brandIdAndNameMap.get(product.getBrandId()));
+                    //设置图片
+                    product.setPicPath(picPathMap.get(product.getPicId()));
+                }
+                DesignPlanProductVO planProductVO = new DesignPlanProductVO();
+                planProductVO.setSpaceName(result.getSpaceTypeName());
+                planProductVO.setProducts(baseProducts);
+                planProductVO.setProductsSize(baseProducts.size());
+                designPlanProductVOList.add(planProductVO);
+//                baseAllProducts.put(result.getSpaceTypeName(),baseProducts);
+            }
+        }
+        return designPlanProductVOList;
+    }
+
+    @Override
+    public List<ResRenderPic> getResRenderCoverPic(List<Integer> sceneIds) {
+        return fullHouseDesignPlanMapper.selectResRenderCoverPic(sceneIds);
+    }
+
+    @Override
+    public DesignPlanRecommendedResult selectFullHouseDesignPlanDetailById(Integer planId, Integer userId) {
+
+
+        // 查询对象
+        DesignPlanRecommendedResult fullHouseDesignPlan = fullHouseDesignPlanMapper.getFullHousePlanById(planId, userId);
+        logger.info(fullHouseDesignPlan.toString());
+
+        if (fullHouseDesignPlan.getShops() != null && fullHouseDesignPlan.getShops().size() > 0) {
+            fullHouseDesignPlan.setShopId(fullHouseDesignPlan.getShops().get(0).getShopId());
+            fullHouseDesignPlan.setDesignerHeadPic(fullHouseDesignPlan.getShops().get(0).getLogo());
+        }
+        // 查询点赞收藏信息
+        DesignPlanSummaryInfo summaryInfo =
+                designPlanLikeService.getFullHousePlanInfoOfCache(userId, fullHouseDesignPlan.getPlanRecommendedId());
+        if (null != summaryInfo) {
+            if (null != summaryInfo.getLikeNum()) {
+                fullHouseDesignPlan.setLikeNum(summaryInfo.getLikeNum());
+            }
+            if (null != summaryInfo.getCollectNum()) {
+                fullHouseDesignPlan.setCollectNum(summaryInfo.getCollectNum());
+            }
+            if (null != summaryInfo.getIsLike()) {
+                fullHouseDesignPlan.setIsLike(summaryInfo.getIsLike());
+            }
+            if (null != summaryInfo.getViewNum()) {
+                fullHouseDesignPlan.setViewNum(summaryInfo.getViewNum());
+            }
+            if (null != summaryInfo.getIsFavorite()) {
+                fullHouseDesignPlan.setIsFavorite(summaryInfo.getIsFavorite());
+            }
+        }
+
+        return fullHouseDesignPlan;
+    }
+
+    @Override
+    public ResRenderPic getResRenderCoverPicById(Integer businessId) {
+        return fullHouseDesignPlanMapper.selectResRenderCoverPicById(businessId);
+    }
+
+    @Override
+    public List<DesignPlanRecommendedResult> selectFullHouseDesignPlanDetailList(List<Integer> fullHousePlanIds, Integer userId) {
+        List<DesignPlanRecommendedResult> fullHouseDesignPlanList = fullHouseDesignPlanMapper.getSuperiorFullHousePlanList(userId, fullHousePlanIds);
+        for (DesignPlanRecommendedResult result : fullHouseDesignPlanList) {
+            if (result.getShops() != null && result.getShops().size() > 0) {
+                result.setShopId(result.getShops().get(0).getShopId());
+                result.setDesignerHeadPic(result.getShops().get(0).getLogo());
+            }
+            // 查询点赞收藏信息
+            DesignPlanSummaryInfo summaryInfo =
+                    designPlanLikeService.getFullHousePlanInfoOfCache(userId, result.getPlanRecommendedId());
+            if (null != summaryInfo) {
+                if (null != summaryInfo.getLikeNum()) {
+                    result.setLikeNum(summaryInfo.getLikeNum());
+                }
+                if (null != summaryInfo.getCollectNum()) {
+                    result.setCollectNum(summaryInfo.getCollectNum());
+                }
+                if (null != summaryInfo.getIsLike()) {
+                    result.setIsLike(summaryInfo.getIsLike());
+                }
+                if (null != summaryInfo.getViewNum()) {
+                    result.setViewNum(summaryInfo.getViewNum());
+                }
+                if (null != summaryInfo.getIsFavorite()) {
+                    result.setIsFavorite(summaryInfo.getIsFavorite());
+                }
+            }
+        }
+        return fullHouseDesignPlanList;
+    }
+
+
+}

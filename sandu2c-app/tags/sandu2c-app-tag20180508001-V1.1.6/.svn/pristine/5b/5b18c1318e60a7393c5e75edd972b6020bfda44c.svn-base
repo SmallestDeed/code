@@ -1,0 +1,142 @@
+package com.sandu.goods.service.impl;
+
+
+import com.sandu.goods.dao.BaseGoodsSPUMapper;
+import com.sandu.goods.model.BO.GoodsBO;
+import com.sandu.goods.model.BO.GoodsDetailBO;
+import com.sandu.goods.model.BO.GoodsInfoToOrderBO;
+import com.sandu.goods.model.BO.GoodsSkuBO;
+import com.sandu.goods.model.BaseGoodsSKU;
+import com.sandu.goods.model.BaseGoodsSPU;
+import com.sandu.goods.model.PO.GoodsListPO;
+import com.sandu.goods.output.GoodsDetailVO;
+import com.sandu.goods.output.SpuAttributeVO;
+import com.sandu.goods.service.BaseGoodsSPUService;
+import com.sandu.system.model.ResPic;
+import com.sandu.system.service.ResPicService;
+import lombok.extern.log4j.Log4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+
+@Log4j
+@Service("baseGoodsSPUService")
+public class BaseGoodsSPUServiceImpl implements BaseGoodsSPUService
+{
+    @Autowired
+    private BaseGoodsSPUMapper baseGoodsSPUMapper;
+    @Autowired
+    private ResPicService resPicService;
+
+    @Override
+    public BaseGoodsSPU selectByPrimaryKey(Integer id)
+    {
+        return baseGoodsSPUMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public Integer getGoodsListCount(GoodsListPO goodsListPO)
+    {
+        goodsListPO.setStart(null);
+        goodsListPO.setLimit(null);
+
+        return baseGoodsSPUMapper.getGoodsSpuIdList(goodsListPO).size();
+    }
+
+    @Override
+    public List<GoodsBO> getGoodsList(GoodsListPO goodsListPO)
+    {
+        List<Integer> ids = baseGoodsSPUMapper.getGoodsSpuIdList(goodsListPO);
+        if (ids == null || ids.size() == 0)
+        {
+            return null;
+        }
+
+        List<GoodsBO> goodsBOList = baseGoodsSPUMapper.getGoodsSpuList(ids);
+        for (GoodsBO goodsBO : goodsBOList)
+        {
+            if (goodsBO.getPrice() == null)
+            {
+                goodsBO.setPrice(new BigDecimal(0));
+            }
+        }
+        return goodsBOList;
+    }
+
+    @Override
+    public GoodsDetailVO getGoodsDetail(Integer id)
+    {
+        GoodsDetailVO goodsDetailVO = new GoodsDetailVO();
+
+        GoodsDetailBO goodsDetailBO = baseGoodsSPUMapper.getGoodsDetail(id);
+        List<GoodsSkuBO> skus = goodsDetailBO.getSkus();
+
+        if (skus == null || skus.size() == 0)
+        {
+            goodsDetailVO.setId(goodsDetailBO.getId());
+            goodsDetailVO.setProductDesc(goodsDetailBO.getProductDesc());
+            goodsDetailVO.setProductName(goodsDetailBO.getSpuName());
+            goodsDetailVO.setProductModelNumber(goodsDetailBO.getProductModelNumber());
+            goodsDetailVO.setSmallPiclist(null);
+            goodsDetailVO.setPrice("0");
+        }else
+        {
+            List<Integer> ids = new ArrayList<>();
+            BigDecimal minPrice = skus.get(0).getPrice();
+            Integer salePrice = skus.get(0).getSalePrice();
+            for (GoodsSkuBO goodsSkuBO : skus)
+            {
+                if (goodsSkuBO.getPrice().compareTo(minPrice) < 0)
+                {
+                    minPrice = goodsSkuBO.getPrice();
+                    salePrice = goodsSkuBO.getSalePrice();
+                }
+                ids.add(goodsSkuBO.getMainPicId());
+            }
+            List<ResPic> pics = resPicService.getResPicByIds(ids);
+            List<String> picPaths = new ArrayList<>();
+            for (ResPic resPic : pics)
+            {
+                picPaths.add(resPic.getPicPath());
+            }
+
+            goodsDetailVO.setId(goodsDetailBO.getId());
+            goodsDetailVO.setProductDesc(goodsDetailBO.getProductDesc());
+            goodsDetailVO.setProductName(goodsDetailBO.getSpuName());
+            goodsDetailVO.setProductModelNumber(goodsDetailBO.getProductModelNumber());
+            goodsDetailVO.setSmallPiclist(picPaths);
+            goodsDetailVO.setPrice(minPrice.toString());
+            goodsDetailVO.setSalePrice(salePrice.toString());
+            goodsDetailVO.setLimitation(goodsDetailBO.getLimitation());
+        }
+
+        return goodsDetailVO;
+    }
+
+    @Override
+    public List<SpuAttributeVO> getSpuAttrList(Integer id)
+    {
+        List<SpuAttributeVO> spuAttrList = baseGoodsSPUMapper.getSpuAttrList(id);
+        if (spuAttrList == null || spuAttrList.size() == 0)
+        {
+            spuAttrList = new ArrayList<>();
+            SpuAttributeVO spuAttributeVO = new SpuAttributeVO();
+            spuAttributeVO.setAttrId(0);
+            spuAttributeVO.setAttrKeyName("默认");
+            spuAttributeVO.setAttrValueId(0);
+            spuAttributeVO.setAttrValueName("默认");
+            spuAttrList.add(spuAttributeVO);
+        }
+        return spuAttrList;
+    }
+
+    @Override
+    public GoodsInfoToOrderBO getGoodsInfoToOrder(Integer productId)
+    {
+        return baseGoodsSPUMapper.getGoodsInfoToOrder(productId);
+    }
+}

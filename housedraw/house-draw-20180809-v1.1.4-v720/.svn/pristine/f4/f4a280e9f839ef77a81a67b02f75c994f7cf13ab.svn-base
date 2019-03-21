@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sandu.service.system.dao.SystemDictionaryMapper">
+
+    <select id="listSysDictionaryByType" resultType="com.sandu.api.house.model.SystemDictionary">
+        select
+          id, type, valuekey, `value`, att1, att2, att4, att5, name, att6
+        from sys_dictionary
+        where is_deleted = 0
+        <if test="type != null and type != ''"> and type=#{type}</if>
+        <if test="valuekey != null and valuekey != ''"> and valuekey=#{valuekey}</if>
+        <if test="value != null and value != ''"> and value=#{value}</if>
+        <if test="att3 != null and att3 != ''"> and att3=#{att3}</if>
+    </select>
+    
+    <select id="listHardBaimoType" resultType="com.sandu.api.house.model.SystemDictionary">
+    	SELECT 
+    	  d.id,
+		  d.name,
+		  d.type,
+		  d.valuekey,
+		  d.value
+		FROM
+		  sys_dictionary d 
+		WHERE d.type = #{type} 
+		  AND d.valuekey IN 
+		  (SELECT 
+		    d.type 
+		  FROM
+		    sys_dictionary d 
+		  WHERE d.att3 = #{att3} 
+		    AND d.att4 = #{att4})
+		 ORDER BY ordering ASC;
+    </select>
+    
+    <select id="listHardBaimoSamllType" resultType="com.sandu.api.house.model.SystemDictionary">
+    	SELECT 
+		  d1.id,
+		  d1.name,
+		  d1.type,
+		  d1.valuekey,
+		  d1.value 
+		FROM
+		  sys_dictionary d1 
+		WHERE d1.type = 
+		  (SELECT 
+		    d2.valuekey 
+		  FROM
+		    sys_dictionary d2 
+		  WHERE d2.type = #{type}
+		    AND d2.value = #{value}) 
+		  AND d1.att3 = #{att3} 
+		  AND (d1.att6 IS NULL 
+		    OR d1.att6 = '')
+		 ORDER BY d1.ordering ASC;
+    </select>
+    
+    <select id="listSoftBiamoType" resultType="com.sandu.api.house.bo.SystemDictionaryBO">
+    	SELECT 
+		  d1.valuekey,
+		  d1.name,
+		  d1.value,
+		  d2.name 
+		FROM
+		  sys_dictionary d1 
+		  LEFT JOIN sys_dictionary d2 
+		    ON d2.type = d1.valuekey 
+		WHERE d1.type = #{type} 
+		  AND d2.att3 = #{att3}
+		  AND d2.att4 = #{att4}
+		  AND d1.is_deleted = 0 
+		  AND d2.is_deleted = 0 
+		GROUP BY d1.valuekey 
+		ORDER BY d1.ordering ASC
+    </select>
+    
+    <sql id="All_Column_List">
+		id,type,valuekey,value,name,att1,att2,att3,att4,att5,att6
+	</sql>
+    
+    <resultMap id="AllResultMap" type="com.sandu.api.house.model.SystemDictionary">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="type" property="type" jdbcType="VARCHAR" />
+		<result  column="valuekey" property="valuekey" jdbcType="VARCHAR" />
+		<result  column="value" property="value" jdbcType="INTEGER" />
+		<result  column="name" property="name" jdbcType="VARCHAR" />
+		<result  column="att1" property="att1" jdbcType="VARCHAR" />
+		<result  column="att2" property="att2" jdbcType="VARCHAR" />
+		<result  column="att3" property="att3" jdbcType="VARCHAR" />
+		<result  column="att4" property="att4" jdbcType="VARCHAR" />
+		<result  column="att5" property="att5" jdbcType="VARCHAR" />
+		<result  column="att6" property="att6" jdbcType="VARCHAR" />
+	</resultMap>
+    
+    <!-- findOneByValueKey -->
+    <select id="findOneByValueKey" resultMap="AllResultMap">
+    	select 
+    	 <include refid="All_Column_List" />
+    	from 
+    	 sys_dictionary 
+    	where valueKey = #{valuekey, jdbcType=VARCHAR} 
+    	limit 1
+    </select>
+    
+    <!-- findOneByTypeAndArea -->
+    <select id="findOneByTypeAndArea" resultMap="AllResultMap">
+    	select 
+    	  * 
+    	from 
+    	  sys_dictionary d
+		where d.type = #{type}
+		  and d.att4 &lt;= #{area}
+		  and d.att5 &gt;= #{area}
+		limit 1
+    </select>
+    
+    <select id="getProductType" resultType="com.sandu.api.product.bo.ProductTypeBO">
+		SELECT 
+		  d1.name AS pro_type_name,
+		  d1.value AS pro_type_val,
+		  d1.valuekey AS pro_type_code,
+		  d2.name AS pro_small_type_name,
+		  d2.value AS pro_small_type_val,
+		  d2.valuekey AS pro_small_type_code
+		FROM
+		  sys_dictionary d1,
+		  sys_dictionary d2 
+		WHERE d1.valuekey = d2.type 
+		  AND d1.type = 'productType' 
+		  AND d1.value = #{productType}
+		  AND d2.value = #{productSmallType} 
+		  <!-- 门框 -->
+<!-- 	  	  <if test="productType != 3 and productSmallType != 19"> -->
+<!-- 	  		AND d2.att4 = 2 -->
+<!-- 	  	  </if> -->
+		  AND d1.is_deleted = 0 
+		  AND d2.is_deleted = 0
+    </select>
+    
+    <select id="getProductTypes" resultType="com.sandu.api.product.bo.ProductTypeBO">
+		SELECT 
+		  p.id AS pro_id,
+		  d1.name AS pro_type_name,
+		  d1.value AS pro_type_val,
+		  d1.valuekey AS pro_type_code,
+		  d2.name AS pro_small_type_name,
+		  d2.value AS pro_small_type_val,
+		  d2.valuekey AS pro_small_type_code 
+		FROM
+		  sys_dictionary d1,
+		  sys_dictionary d2,
+		  base_product p
+		WHERE d1.valuekey = d2.type 
+		  AND d1.type = 'productType' 
+		  AND p.product_type_value = d1.value 
+		  AND p.product_small_type_value = d2.value
+		  AND d1.is_deleted = 0 
+		  AND d2.is_deleted = 0
+		  AND p.is_deleted = 0
+		  AND d1.value IN
+		  <foreach collection="proTypes" item="proType" open="(" separator="," close=")">
+		  	#{proType.proType}
+		  </foreach>
+		  AND d2.value IN
+		  <foreach collection="proTypes" item="proType" open="(" separator="," close=")">
+		  	#{proType.proSmallType}
+		  </foreach>
+		  AND p.id IN
+		  <foreach collection="proTypes" item="proType" open="(" separator="," close=")">
+		  	#{proType.proId}
+		  </foreach>
+    </select>
+</mapper>

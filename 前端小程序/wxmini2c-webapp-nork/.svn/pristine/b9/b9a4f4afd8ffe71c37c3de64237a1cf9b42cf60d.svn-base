@@ -1,0 +1,25 @@
+<view class='main'>
+    <image class='main_bgImg' src='../../static/image/score_banner.jpg'></image>
+    <view class='mainBody'>
+        <view class='body_top'>
+            <view class='items'>
+                <text>可用积分</text>
+                <text>{{mypointamount}}</text>
+            </view>
+            <view class='items' bindtap='getMyGifts'>
+                <text>我的礼品</text>
+                <text>{{myordercount}}</text>
+            </view>
+        </view>
+    </view>
+    <view class='goodsList' wx:if="{{gifts.length>0&&gifts}}">
+        <view class='items' wx:for="{{gifts}}" wx:key="Index">
+            <image  src='{{item.converImage?resourcePath+item.converImage:"../../static/image/goods_pic_no.png"}}' 
+                id='{{item.id}}' 
+                bindtap='imageclick'>
+            </image>
+            <view>{{item.name}}</view>
+            <view class='data'>{{item.point}}积分<text> {{item.price?'￥'+item.price:''}}</text></view>
+        </view>
+    </view>
+</view>

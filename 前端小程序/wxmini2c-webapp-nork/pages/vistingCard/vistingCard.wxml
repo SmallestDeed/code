@@ -1,0 +1,109 @@
+<!--pages/vistingCard/vistingCard.wxml-->
+<!-- <view bindtap='toTest'>12311111111111111111111111111111111111231231</view> -->
+<view class='card'>
+  <view class='company'>{{detail.companyName}}</view>
+  <view class='name'>{{detail.userName}}</view>
+  <view class='job'>{{detail.companyPost}}</view>
+  <view class='phone'>
+    <image class='smallIcon' src='{{staticImageUrl}}/icon-MPdianhu@2x.png'></image>
+    {{detail.phone}}
+  </view>
+  <view class='email'>
+    <image class='smallIcon' src='{{staticImageUrl}}/icon- MPyouxiang@2x.png'></image>
+    {{detail.email}}
+  </view>
+  <view class='address'>
+    <image class='smallIcon' src='{{staticImageUrl}}/icon-MPdizhi@2x.png'></image>
+    <text>{{detail.address}}</text>
+    </view>
+  <image class='headPic' src='{{resourcePath+detail.userHeadPicPath}}'></image>
+</view>
+<view class='shareBtn'>
+  <view class='share' bindtap='share'>分享名片</view>
+  <view class='callme' bindtap='callMe'>请Ta联系我</view>
+</view>
+<view class='info'>
+  <view class='options' bindtap='callCard' data-phone='{{detail.phone}}' data-num='2'>
+    <image class='icon' src='{{staticImageUrl}}icon-call@2x.png'></image>
+    <view class='title'>拨打电话</view>
+    <view class='detail'>{{detail.phone}}</view>
+  </view>
+  <view class='options' bindtap='copyText' data-text='{{detail.userWechat}}' data-num='1'>
+    <image class='icon' src='{{staticImageUrl}}icon-weiixn@2x.png'></image>
+    <view class='title'>加我微信</view>
+    <view class='detail'>{{detail.userWechat}}</view>
+  </view>
+  <view class='options' bindtap='copyText' data-text='{{detail.email}}' data-num='3'>
+    <image class='icon' src='{{staticImageUrl}}icon-youxiang@2x.png'></image>
+    <view class='title'>邮箱地址</view>
+    <view class='detail'>{{detail.email}}</view>
+  </view>
+  <view class='options' bindtap='copyText' data-text='{{detail.address}}' data-num='4'>
+    <image class='icon' src='{{staticImageUrl}}icon-dizhi@2x.png'></image>
+    <view class='title'>线下地址</view>
+    <view class='detail'>{{detail.address}}</view>
+  </view>
+</view>
+<view class='gary' wx:if='{{detail.resume}}'></view>
+<view class='personal' wx:if='{{detail.resume}}'>
+  <view class='title'>个人介绍</view>
+  <view class='content'>{{detail.resume}}</view>
+</view>
+<view class='gary' wx:if='{{detail.resPicVoList.length>=1}}'></view>
+<view class='picture' wx:if='{{detail.resPicVoList.length>=1}}'>
+  <view class='title'>照片展示</view>
+  <image class='pic' mode='widthFix' wx:for='{{detail.resPicVoList}}' src='{{resourcePath+item.picPath}}'></image>
+</view>
+
+
+<view class='contentMe' wx:if='{{callFlag}}'>
+  <image class='cancle fr' src='{{staticImageUrl}}goods_icon_close@2x.png' bindtap='cancleCall'></image>
+  <view class='title'>提交信息</view>
+  <view class='detail'>提交信息可以请他快速联系您</view>
+  <view class='items' >
+        <input placeholder='手机号' maxlength='11' type='number' value='{{getObj.phone}}' bindinput='changeInput' data-type="phone"></input>
+    </view>
+    <view class='items code'>
+        <input placeholder='验证码' data-type="code" maxlength='8' type='number' disabled='{{!inputFlag2}}' bindinput='changeInput' value='{{getObj.code}}'></input>
+        <view class='pubCode  {{inputFlag?"":"disableds"}}' bindtap='{{message=="获取验证码"?"getCodeFun":""}}'>
+            {{message?message:"获取验证码"}}
+        </view>
+        <view>{{message}}{{inputFlag}}</view>
+    </view>
+    <view class='items btns {{inputFlag2?"":"disableds"}}' bindtap='{{inputFlag2?"submitFun":""}}' data-num='5'>确认</view>
+</view>
+
+<view class='login' wx:if='{{loginFlag}}'>
+  <image class='logo' src='{{resourcePath+detail.companyLogoPath}}'></image>
+  <text style='margin-top:40rpx;'>亲爱的用户,您好</text>
+  <text>初次使用小程序请先登录</text>
+  <button open-type="getUserInfo" class='show-author' bindgetuserinfo="getUserInfo">
+    <view class='loginBtn'>微信登录</view>
+  </button>
+</view>
+<view class='black' wx:if='{{loginFlag || callFlag ||shareFlag}}'></view>
+
+<view class='shareOP' wx:if='{{shareFlag}}'>
+  <view class='options'>
+    <button open-type='share'>
+      <view class='op'>
+        <image src='{{staticImageUrl}}icon-share-weixin@2x.png'></image>
+        <text>微信好友</text>
+      </view>
+    </button>
+    <view class='op' bindtap='showImage'>
+      <image src='{{staticImageUrl}}icon - share - mingpian@2x.png'></image>
+      <text>名片海报</text>
+    </view>
+  </view>
+  <view class='cancle' bindtap='shareCancle'>取消</view>
+</view>
+
+<view class='goIndex' bindtap='goIndex'>
+  <image class='icon' src='{{resourcePath+detail.companyLogoPath}}'></image>
+  <view class='txt'>去首页 ></view>
+</view>
+
+<!-- <createPosterVisting id="createPoster" shareParam='{{shareParam}}'></createPosterVisting> 
+
+<canvas canvas-id="myCanvas" class='hide'></canvas>  -->

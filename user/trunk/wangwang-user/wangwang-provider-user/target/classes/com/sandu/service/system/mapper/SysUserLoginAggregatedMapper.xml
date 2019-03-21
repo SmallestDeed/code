@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.system.dao.SysUserLoginAggregatedDao">
+	
+	<select id="queryUserAggregatedInfo" resultType="com.sandu.api.system.model.SysUserLoginAggregated">
+         SELECT
+                *
+         FROM
+                sys_user_login_aggregated
+         WHERE
+                is_deleted = 0 AND
+                user_id = #{userId} AND
+                platform_id = #{platformId}
+                limit 1
+	</select>
+
+    <insert id="insertUserLoginAggregated" parameterType="com.sandu.api.system.model.SysUserLoginAggregated">
+        insert into sys_user_login_aggregated
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId!= null">user_id, </if>
+            <if test="platformId!= null">platform_id, </if>
+            <if test="sysCode!= null">sys_code, </if>
+            <if test="creator!= null">creator, </if>
+            <if test="gmtCreate!= null">gmt_create, </if>
+            <if test="modifier!= null">modifier, </if>
+            <if test="gmtModified!= null">gmt_modified, </if>
+            <if test="isDeleted!= null">is_deleted, </if>
+            <if test="loginCount != null">login_count, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId!= null">  #{userId,jdbcType=INTEGER}, </if>
+            <if test="platformId!= null">  #{platformId,jdbcType=INTEGER}, </if>
+            <if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+            <if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+            <if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+            <if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+            <if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+            <if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+            <if test="loginCount != null">  #{loginCount,jdbcType=INTEGER}, </if>
+        </trim>
+    </insert>
+
+    <update id="updateUserLoginAggregated">
+        update
+            sys_user_login_aggregated
+        SET
+            login_count = login_count + 1,
+            gmt_modified = now(),
+            modifier = 'system'
+        where
+            user_id = #{userId,jdbcType=INTEGER}
+            and platform_id = #{platformId}
+            and is_deleted = 0
+    </update>
+	
+</mapper>

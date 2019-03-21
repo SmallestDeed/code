@@ -1,0 +1,202 @@
+
+// export const appid = 'wx17c320f6c1feb057';//zuoyou
+// export const shareTitle = '左右旗舰总店'
+// export const _720url = 'https://720'
+
+// export const appid = 'wxe24ed743feb9c17f'; //诺克appid
+// export const shareTitle = '诺克照明'
+// export const _720url = 'https://720'
+
+// export const appid = 'wx0c11b729a27ec96a';//巴洛克appid
+// export const shareTitle = '巴洛克木业'
+// export const _720url = 'https://720'
+
+// export const appid = 'wx9f0537efb186bf12';//伯克丽appid
+// export const shareTitle = '伯克丽风尚'
+// export const _720url = 'https://720'
+
+// export const appid = 'wx5c888e92b7498af7';//适度
+// export const shareTitle = '适度家居集团'
+// export const _720url = 'https://720'
+
+// export const appid = 'wxb13c586ba00424d4';//方内生活appid
+// export const shareTitle = '方内生活'
+// export const _720url = 'https://720'
+
+// export const appid = 'wxab644357fca9a0ce';//天基
+// export const shareTitle = 'TJ天基电气'
+// export const _720url = 'https://720'
+
+// export const appid = 'wx582ac6424738f549'; // 博蕊斯头等舱
+// export const shareTitle = '博蕊斯头等座'
+// export const _720url = 'https://720'
+
+// export const appid = 'wx3da59ee0cd1b83e8';//陆虎凯旋/深圳市安东尼奥有限公司
+// export const shareTitle = '深圳市安东尼奥有限公司';
+// export const title = '陆虎凯旋';
+// export const _720url = 'https://720'
+
+// export const appid = 'wx588abfc9e04b9005';//侨利家具
+// export const shareTitle = '侨利家具'
+// export const _720url = 'https://720'
+
+// export const appid = 'wxca935488a206bc19';//古弛行轻奢整体家居
+// export const shareTitle = '古弛行轻奢整体家居'           
+// export const _720url = 'https://720'
+
+// export const appid = 'wx70b15129badc5b8e';//富誉家具
+// export const shareTitle = '富誉家具'
+// export const _720url = 'https://720'
+
+// export const appid = 'wx0aff38e8deefad8d';//迎旺轩智能家居
+// export const shareTitle = '迎旺轩智能家居'  
+// export const _720url = 'https://720'
+
+// export const appid = 'wx24b793bca46835c7';//依丽思家居
+// export const shareTitle = '依丽思家居'
+// export const _720url = 'https://720'
+
+// export const appid = 'wx5ddadafbb4619f02';//欧野家居
+// export const shareTitle = '欧野家居'
+// export const _720url = 'https://720'
+
+// export const appid = 'wxd42a5b38bd615865';//佛山市枝凡轩家具有限公司
+// export const shareTitle = '佛山市枝凡轩家具有限公司'
+// export const _720url = 'https://720'
+
+// export const appid = 'wxe8455e63bb9f7c25';//nvc雷士家居照明
+// export const shareTitle = 'nvc雷士家居照明'
+// export const _720url = 'https://720'
+
+/*****************************************************/
+/*               以下小程序绑定720a1域名               */
+/*****************************************************/
+
+// export const appid = 'wxa8c8016c684f2031';//	古镇灯饰MALL优选商城
+// export const shareTitle = '古镇灯饰MALL优选商城'
+// export const _720url = 'https://720a1'
+
+// export const appid = 'wxbffc34941f2791d3';//	江西康名箭家具有限公司
+// export const shareTitle = '康名箭家具VR设计'
+// export const _720url = 'https://720a1'
+
+// export const appid = 'wx0834e390f4a61d4a';//	佛山琪辉家具有限公司
+// export const shareTitle = '一站式自动生成效果图'
+// export const _720url = 'https://720a1'
+
+// export const appid = 'wx8851c6e9b436b508';//	金柏丽雅整体卫浴
+// export const shareTitle = '金柏丽雅整体卫浴'
+// export const _720url = 'https://720a1'
+
+// export const appid = 'wx4ef9c3acfd8312ca';//	精度小程序
+// export const shareTitle = '精度小程序'
+// export const _720url = 'https://720a1'
+
+// export const appid = 'wx3d2f66412fde75f2'; //豪天家具
+// export const shareTitle = '豪天家具'
+// export const _720url = 'https://720a1'
+
+// export const appid = 'wx35015880765e7d9e'; //利鼎利
+// export const shareTitle = '佛利仕家居'
+// export const _720url = 'https://720a1'
+
+// export const appid = 'wxfc6db4f1aa33bc19'; //御家新中式瓷砖
+// export const shareTitle = '御家瓷砖'
+// export const _720url = 'https://720a1'
+
+// export const appid = 'wx30021ecdddebedcc'; // 佛山市顺德区杰盟家具制造有限公司
+// export const shareTitle = '卡昂设计家'
+// export const _720url = 'https://720a1'
+
+// export const appid = 'wxcd0ccd61d0035857'; // 深圳市叁和云享家居有限公司
+// export const shareTitle = '叁和云享家居'
+// export const _720url = 'https://720a1'
+
+// export const appid = 'wx1ec525d104c69a46'; // 中山市福瑞卫浴设备有限公司
+// export const shareTitle = 'FRAE菲瑞全卫定制'
+// export const _720url = 'https://720a1'
+
+// export const appid = 'wx27887de6b085988f'; // 台州菲戈贝尔厨卫科技有限公司
+// export const shareTitle = '菲戈贝尔'
+// export const _720url = 'https://720a1'
+
+// export const appid = 'wx88e5ad26c52f216b'; // 浙江财纳福诺木业有限公司
+// export const shareTitle = '乐迈地板'
+// export const _720url = 'https://720a1'
+
+// export const appid = 'wx28551f19dabe91e0'; // 广东昊晟陶瓷有限公司
+// export const shareTitle = '新濠大理石瓷砖'
+// export const _720url = 'https://720a1'
+
+// export const appid = 'wx79841060c8b3d7c9'; //  东莞市江明家具有限公司 
+// export const shareTitle = '北豪森'
+// export const _720url = 'https://720a1'
+
+// export const appid = 'wx2948a41ad9891d06'; //  佛山市顺德区富怡美家具有限公司
+// export const shareTitle = '富丹尼斯'
+// export const _720url = 'https://720a1'
+
+// export const appid = 'wx96e37dd4e4508f79'; //  安信地板
+// export const shareTitle = '安信地板'
+// export const _720url = 'https://720a1'
+
+// export const appid = 'wx89a7144a8f95b4a4'; //  广东尚驰睡眠科技有限公司
+// export const shareTitle = '尚驰'
+// export const _720url = 'https://720a2'
+
+// export const appid = 'wxf21246c3bbe1517f'; //  佛山市奢筑家具
+// export const shareTitle = '奢筑家具'
+// export const _720url = 'https://720a2'
+
+// export const appid = 'wx94a302fcafe468b4'; //  广东尚驰睡眠科技有限公司
+// export const shareTitle = '尚驰米兰'
+// export const _720url = 'https://720a2'
+
+export const appid = 'wxc168f92a18e5c196'; //  三度云享家
+export const shareTitle = '三度云享家'
+export const _720url = 'https://720a2'
+
+
+/*---------- 环境切换 -------- */
+// let isCi = true;
+let isCi = false;
+
+let ciStr = isCi ? '.ci' : '';
+export const staticImageUrl = 'http://wximg' + (isCi ? '.dev' : '') + '.sanduspace.com/'
+export const resourcePath = 'https://show' + ciStr + '.sanduspace.com'; // 资源路径
+export const sevenUrl = _720url + ciStr + '.sanduspace.com/v-seven.html#/?' // 720H5链接地址
+export const grassSevenUrl = _720url + ciStr + '.sanduspace.com/v-seven-grass.html#/?'
+export const wholeHouseUrl = _720url + ciStr + '.sanduspace.com/v-seven-make.html#/?'
+export const basePath = { // 根源路径
+    productSearchUrl: 'https://productsearch' + ciStr + '.sanduspace.com/app', // 产品搜索服务
+    renderUrl: 'https://render' + ciStr + '.sanduspace.com/app', // 渲染服务
+    payUrl: 'https://zhifu' + ciStr + '.sanduspace.com/v1', // 集成支付服务
+    baseUrl: 'https://wxapi' + ciStr + '.sanduspace.com/v1/miniprogram', // 其余服务
+    limitUrl: 'https://sso' + ciStr + '.sanduspace.com/v1', // 登录服务
+    userUrl: 'https://uc' + ciStr + '.sanduspace.com', // 用户中心
+    fullsearchUrl: 'https://fullsearch' + ciStr + '.sanduspace.com/', //fullsearch
+    shopUrl: 'https://shopapi' + ciStr + '.sanduspace.com/', // 店铺信息
+    systemUrl: 'https://system' + ciStr + '.sanduspace.com',//banner、购买套餐服务
+    unionUrl: 'https://unionapi' + ciStr + '.sanduspace.com/v1/',
+    coreUrl: 'https://core' + ciStr + '.sanduspace.com/v1',
+    sellingPointUrl: 'https://stat' + ciStr + '.sanduspace.com' // 埋点url
+};
+
+/*预发布*/
+// export const staticImageUrl = 'http://wximg.dev.sanduspace.com/'
+// export const resourcePath = 'https://preshow.sanduspace.com'; // 资源路径
+// export const sevenUrl = url ? url : 'https://pre720.sanduspace.com/v-seven.html#/?' // 720H5链接地址
+// export const wholeHouseUrl = 'https://pre720.sanduspace.com/v-seven-make.html#/?' // 全屋链接地址
+// export const basePath = { // 根源路径
+//   productSearchUrl: 'https://preproductsearch.sanduspace.com/app/', // 产品搜索服务
+//   renderUrl: 'https://prerender.sanduspace.com/app', // 渲染服务
+//   payUrl: 'https://prezhifu.sanduspace.com/v1', // 集成支付服务
+//   baseUrl: 'https://prewxapi.sanduspace.com/v1/miniprogram', // 其余服务
+//   limitUrl: 'https://presso.sanduspace.com/v1/', // 登录服务
+//   userUrl: 'https://preuc.sanduspace.com', // 用户中心
+//   fullsearchUrl: "https://prefullsearch.sanduspace.com/", //fullsearch
+//   shopUrl: 'https://preshopapi.sanduspace.com/', // 店铺信息
+//   systemUrl: 'https://presystem.sanduspace.com/v1/',//banner、购买套餐服务
+//   coreUrl: 'https://precore.sanduspace.com/v1/'
+// };
+

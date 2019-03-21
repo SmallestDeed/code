@@ -1,0 +1,64 @@
+package com.sandu.design.service;
+
+import java.util.List;
+
+import com.sandu.design.model.DesignPlanProduct;
+import com.sandu.design.model.PosNameInfo;
+import com.sandu.onekey.model.ProductListByTypeInfo.PlanProductInfo;
+
+public interface DesignPlanProductService {
+
+	/**
+	 * 根据PlanProductInfo创建DesignPlanProduct数据,返回id
+	 * @param planProductInfoMatched
+	 * @param username 创建人
+	 * @param planId 设计方案id
+	 * @param opType 是否是自动渲染
+	 * @return
+	 */
+	public Integer createByPlanProductInfo(PlanProductInfo planProductInfo, Integer planId, String username, Integer opType);
+	
+	/**
+	 * 一件装修匹配材质
+	 * 
+	 * @author huangsongbo
+	 * @param splitTexturesChooseInfo 匹配到的产品的材质信息(初始)(从base_product表中获得的多材质信息)(根据推进方案产品的属性自行搜索出来的产品数据)
+	 * @param productId 推荐方案产品id
+	 * @param splitTexturesInfoRecommended 推荐方案产品的当前选择材质
+	 * @return
+	 */
+	public String matchSplitTexturesInfo(String splitTexturesChooseInfo, Integer productId,
+			String splitTexturesInfoRecommended);
+
+	int add(DesignPlanProduct designPlanProduct);
+	
+	/**
+	 *    获取数据详情
+	 *
+	 * @param id
+	 * @return  DesignPlanProduct 
+	 */
+	public DesignPlanProduct get(Integer id);
+	
+	/**
+	 * 新建DesignPlanProduct通过配置文件
+	 * 
+	 * @author huangsongbo
+	 * @param configEncrypt
+	 * @param posNameInfoList 
+	 * @param opType 
+	 * @return
+	 */
+	boolean updateByConfig(String configEncrypt, List<PosNameInfo> posNameInfoList, Integer opType);
+
+	int update(DesignPlanProduct designPlanProduct);
+	
+	/**
+	 * 所有数据
+	 * 
+	 * @param  designPlanProduct
+	 * @return   List<DesignPlanProduct>
+	 */
+	public List<DesignPlanProduct> getList(DesignPlanProduct designPlanProduct);
+	
+}

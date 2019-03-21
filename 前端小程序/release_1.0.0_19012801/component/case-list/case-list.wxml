@@ -1,0 +1,200 @@
+<wxs module="filter" src="../../utils/public.wxs"></wxs>
+<view class='case-list'>
+  <form bindsubmit='formToThreeD' report-submit='true'>
+  <!-- 方案列表 -->
+    <view class='case-item {{border?"case-item-border":""}}' wx:for='{{recommendCaseList}}' 
+      wx:key='{{index}}' 
+      data-id='{{item.designPlanRecommendId || item.planRecommendedId}}' 
+      data-type='{{item.spaceFunctionId}}'    
+      >
+      <!--    -->
+      <view class='case-image' >
+        <button form-type='submit' data-item='{{item}}' data-type='720' bindtap='{{true}}' class='bigPth'>
+          <view class='case-image-logo'>
+            <image src='{{staticImageUrl}}case-logo.gif'></image>
+          </view>
+          <form bindsubmit='routerToHouseSearch' catchtap='{{true}}' report-submit='true' class='Renovation-house' wx:if='{{!isOneKeyToDecorate}}'>
+            <button form-type='submit'  data-type='push' data-item='{{item}}'>装修我家 </button>
+            <image class='arrow' src='{{staticImageUrl}}page_icon_more.png'></image>
+          </form> 
+           <view class='page_view_cost' wx:if="{{item.copyRightPermission==1}}" data-item='{{item}}' catchtap='ShowplanCost'>
+              <image src='{{staticImageUrl}}money.png'></image>
+              <text>{{item.planPrice}}</text>
+              <text class='isBuy' wx:if='{{item.havePurchased==1}}'>已购买</text>
+           </view>
+           <!-- rzd 181211随选网UI优化调整 方案收费标识 end -->       
+          <!-- <image class='btn' wx:if='{{isOneKeyToDecorate}}' src='{{staticImageUrl}}home_icon_3d.png'></image> -->
+          <image class='bigPth' wx:if="{{item.designPlanCoverPath}}" 
+            src='{{resourcePath + item.designPlanCoverPath}}'></image>
+          <image class='bigPth' wx:elseif="{{item.coverPath}}" src='{{resourcePath + item.coverPath}}'></image>
+        <image wx:elseif="{{!item.coverPath&&!item.designPlanCoverPath}}" 
+            class='bigPth' src='{{staticImageUrl}}home_pic_no.png'></image>
+          <!-- <image class='bigPth' src='{{item.designPlanCoverPath?resourcePath + item.designPlanCoverPath:"{{staticImageUrl}}home_pic_no.png"}}'></image>
+          <image class='bigPth' src='{{resourcePath + (item.coverPath || item.designPlanCoverPath)}}'></image> -->
+        </button> 
+        <!-- <image class="btn" src="{{staticImageUrl}}home_icon_3d.png"></image> -->
+      <!-- <image src="{{resourcePath}}/{{item.rendePicPath}}"></image> -->
+        <!-- <block wx:if='{{item.superiorSign==1}}'>
+        <image class='topTag' src='{{staticImageUrl}}home_msg_jingxuan.png'></image>
+        </block> -->
+        
+        <!-- <view class='Renovation-house' 
+             wx:if="{{item.recommendedType!=1}}"
+            catchtap='putInMyhouse' data-item='{{item}}' data-groupPrimaryId="{{item.planRecommendedId}}"> 
+          装进我家 <image class='arrow' src='{{staticImageUrl}}page_icon_more_white@2x.png'></image>
+        </view> -->
+        <!-- <view class='seven-two-ico clearfix'>
+          <view class='video identical-class' wx:if='{{item.planHouseType !== 2}}'>
+            <image src='{{staticImageUrl}}place_icon_vedio@2x.png' data-item='{{item}}' data-type='video' catchtap='toThreeD'></image>
+          </view>  
+          <button form-type='submit' data-item='{{item}}' catchtap='{{true}}' data-type='720' class='identical-class'>
+            <view class='single-point'>
+              <image src='{{staticImageUrl}}place_icon_720@2x.png'></image>
+            </view>
+          </button>
+          <button form-type='submit' wx:if='{{item.planHouseType !== 2}}' data-item='{{item}}' catchtap='{{true}}' data-type='roam' class='identical-class'>
+            <view class='multi-point'>
+              <image src='{{staticImageUrl}}place_icon_morepoint@2x.png'></image>
+            </view>
+          </button>
+          <view class='single-point identical-class'  data-item='{{item}}'  catchtap='toImg'>
+            <image src='{{staticImageUrl}}place_icon_pic.png'></image>
+          </view>
+        </view>       -->
+      </view>
+      <view class='case-text'>
+        <view class='case-mes'>
+          <view class='case-mes-name {{(item.spaceType==13 || item.spaceFunctionId==13)?"acts":""}}'>
+            <image class='tag' src='{{staticImageUrl}}home_msg_all.png' wx:if='{{item.spaceType==13 || item.spaceFunctionId==13}}'></image>
+            {{item.planName || item.designPlanName}}  
+          </view>
+          
+             <!-- rzd 181121随选网UI优化调整 收藏点赞 start -->
+            <view class='colletAndsup'>
+              <view class='colletAndsup_item' data-index='{{index}}' catchtap='collectCase' data-item='{{item}}'>
+                  <image 
+                  src='{{item.isFavorite!=1?staticImageUrl+"page_icon_collect_nor.png":staticImageUrl+"page_icon_collect_sct.png"}}'>
+                  </image> 
+                <text style='{{item.isFavorite==1?"color:#ffaa33":""}}'>{{filter.maxNumber(item.collectNum) }}</text>
+              </view>
+              <view class='colletAndsup_item' data-index='{{index}}'  data-item='{{item}}' bindtap='likeCase'>
+                  <image 
+                  src='{{item.isLike != 1?staticImageUrl+"page_icon_like_nor.png":staticImageUrl+"page_icon_like_sct.png"}}'>
+                  </image> 
+                <text  style='{{item.isLike==1?"color:#ffaa33":""}}'>{{filter.maxNumber(item.likeNum)}}</text>
+              </view> 
+            </view>
+            <!-- <view class='case-planDetail' wx:if='{{planDetailFlag}}' catchtap='toPlanDetail' data-item='{{item}}'>
+            方案详情
+          </view> -->
+          <!-- rzd 181121随选网UI优化调整 收藏点赞 end -->
+          
+          <!-- <view class='case-mes-userphoto'>
+            <image 
+            src='{{item.designerHeadPic?resourcePath + item.designerHeadPic:staticImageUrl+"index.png"}}'>
+            </image>
+          </view> -->
+          <!-- <view class='case-mes-function fr clearfix' wx:if='{{item.planHouseType != 2}}'>
+            <view class='collet fl clearfix' data-index='{{index}}' catchtap='collectCase' data-item='{{item}}'>
+                <image 
+                src='{{item.isFavorite!=1?staticImageUrl+"page_icon_collect_nor@2x.png":staticImageUrl+"page_icon_collect_sct@2x.png"}}'>
+                </image> 
+              <text>{{item.collectNum || 0}}</text>
+            </view>
+            <view class='thumbs-up fl clearfix' data-index='{{index}}'  data-item='{{item}}' catchtap='likeCase'>
+                <image 
+                src='{{item.isLike != 1?staticImageUrl+"page_icon_like_nor@2x.png":staticImageUrl+"page_icon_like_sct@2x.png"}}'>
+                </image> 
+              <text>{{item.likeNum || 0}}</text>
+            </view>              
+          </view>             -->
+        </view>
+        <view class='case-style clearfix'>
+          <view class='fl' style='letter-spacing:-0.001rpx;'>
+              <block>
+                <text>{{item.spaceStyleName || item.styleName}} </text>
+                <text wx:if='{{(item.spaceFunctionId != 13 || item.planHouseType !=2) && !(item.designPlanRecommendId == item.groupPrimaryId||item.planRecommendedId==item.groupPrimaryId)}}'>| {{item.spaceArea || item.spaceAreas}}m²</text> 
+                <text>{{item.planDecoratePriceList.length>0?'| ' + item.planDecoratePriceList[0].decorateTypeName + '￥' + item.planDecoratePriceList[0].decoratePrice + '元/m²': ''}} </text>
+              </block>
+          </view>
+          <view class='fl case-style-image' 
+          data-item='{{item.planDecoratePriceList}}' 
+          wx:if='{{item.planDecoratePriceList.length>0}}' 
+          catchtap='showDecoratePriceBox'>
+            <image src='{{staticImageUrl}}home_icon_more_02.png'></image>
+          </view>
+         
+        </view>        
+      </view>
+      <!-- <view 
+        class="copyRightPrice {{item.havePurchased==1?'galys':''}}"
+        wx-if="{{(item.copyRightPermission==1||(item.copyRightPermission==0&&item.havePurchased==1))&&!showCopyRightPrice}}">
+       版权费: {{item.planPrice}}度币
+      </view> -->
+      <!-- 版权收费 -->
+      <!--rzd181121随选网UI调整优化去掉原收费标识
+       <view 
+        class="copyRightPrice {{item.havePurchased==1?'galys':''}}"
+        wx-if="{{(item.copyRightPermission==1||(item.copyRightPermission==0&&item.havePurchased==1))&&!showCopyRightPrice}}">
+       版权费: {{item.planPrice}}度币
+      </view>
+      <view class='case-pageview'>
+        <view class='case-pageview-box clearfix' >
+          <view class='pageview-box-left fl'>
+            浏览量 {{item.useCount || item.viewNum || 0}}
+          </view>
+          <view class='pageview-box-right fl'>
+            <view class='collet fl clearfix' data-index='{{index}}' catchtap='collectCase' data-item='{{item}}'>
+                <image 
+                src='{{item.isFavorite!=1?staticImageUrl+"page_icon_collect_nor@2x.png":staticImageUrl+"page_icon_collect_sct@2x.png"}}'>
+                </image> 
+              <text>{{item.collectNum || 0}}</text>
+            </view>
+            <view class='thumbs-up fl clearfix' data-index='{{index}}'  data-item='{{item}}' bindtap='likeCase'>
+                <image 
+                src='{{item.isLike != 1?staticImageUrl+"page_icon_like_nor@2x.png":staticImageUrl+"page_icon_like_sct@2x.png"}}'>
+                </image> 
+              <text>{{item.likeNum || 0}}</text>
+            </view>    
+          </view>   
+        </view>   
+      </view>
+      -->
+    </view> 
+  <!-- 装修报价说明弹框 -->
+    <view class='decorate-mask' wx:if='{{decoratePriceBox}}' catchtouchmove='{{true}}'>
+      <view class='decorate-price-box'>
+          <view class='price-box-title'>装修报价</view>
+          <view class='price-box-list'>
+            <view class='price-box-item' wx:for='{{decoratePriceList}}' wx:key='{{index}}'>
+              <view class='box-item-main clearfix'>
+                <view class='fl'>{{item.decorateTypeName}}</view> <view class='fr'>￥{{item.decoratePrice}}/m²</view>
+              </view>
+              <view class='box-item-secondary'>{{item.text}}</view>
+            </view>
+          </view>
+          <view class='price-box-confirm' catchtap='hideDecoratePriceBox'>我知道了</view>
+      </view>
+    </view>
+
+    <!-- rzd181121随选网UI调整方案收费弹框 start-->
+    
+    <view class='planCost_bg' wx:if="{{planCostShow&&!newView}}">
+      <view class='planCost_box'>
+        <image src='{{staticImageUrl}}pop_pic_cost.png'></image>
+        <view class='planCost_title'>该方案为付费方案</view>
+        <view class='planCost_title'>使用时需要支付版权费</view>
+        <view class='planCost_price'>
+          <text wx:if="{{havePurchased==1}}">
+            <text style='text-decoration:line-through'> {{planPrice}}度币 ({{planPrice/10}}元)</text> 　<text>(已购买)</text>
+          </text>
+          <text wx:else>
+           {{planPrice}}度币　({{planPrice/10}}元)
+          </text>
+        </view>
+        <view class='planCost_but' bindtap='closePlanCost'>我知道了</view>
+      </view>
+    </view>
+    <!-- rzd181121随选网UI调整方案收费弹框 end-->
+  </form>
+</view>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.act3.dao.LuckyWheelLotteryRecordActAggregatedMapper">
+
+  <select id="selectById" parameterType="java.lang.String" resultType="com.sandu.api.act3.model.LuckyWheelLotteryRecordActAggregated">
+    select 
+    *
+    from wx_act_lucky_wheel_lottery_record_act_aggregated
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+
+	<select id="selectList"
+		resultType="com.sandu.api.act3.model.LuckyWheelLotteryRecordActAggregated">
+		select
+		*
+		from wx_act_lucky_wheel_lottery_record_act_aggregated
+		where 1=1
+		<if test="id != null">
+			and id = #{id,jdbcType=VARCHAR}
+		</if>
+		<if test="actId != null">
+			and act_id = #{actId,jdbcType=VARCHAR}
+		</if>
+		<if test="openId != null">
+			and open_id = #{openId,jdbcType=VARCHAR}
+		</if>
+		<if test="lotteryCount != null">
+			and lottery_count = #{lotteryCount,jdbcType=INTEGER}
+		</if>
+		<if test="remainLotteryCount != null">
+			and remain_lottery_count = #{remainLotteryCount,jdbcType=INTEGER}
+		</if>
+		<if test="lotteryNumMax != null">
+			and lottery_num_max = #{lotteryNumMax,jdbcType=INTEGER}
+		</if>
+		<if test="appId != null">
+			and app_id = #{appId,jdbcType=VARCHAR}
+		</if>
+
+	</select>
+  
+  <insert id="insert" parameterType="com.sandu.api.act3.model.LuckyWheelLotteryRecordActAggregated">
+    insert into wx_act_lucky_wheel_lottery_record_act_aggregated
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="actId != null">
+        act_id,
+      </if>
+      <if test="openId != null">
+        open_id,
+      </if>
+      <if test="lotteryCount != null">
+        lottery_count,
+      </if>
+      <if test="remainLotteryCount != null">
+        remain_lottery_count,
+      </if>
+      <if test="lotteryNumMax != null">
+        lottery_num_max,
+      </if>
+      <if test="appId != null">
+        app_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="actId != null">
+        #{actId,jdbcType=VARCHAR},
+      </if>
+      <if test="openId != null">
+        #{openId,jdbcType=VARCHAR},
+      </if>
+      <if test="lotteryCount != null">
+        #{lotteryCount,jdbcType=INTEGER},
+      </if>
+       <if test="remainLotteryCount != null">
+        #{remainLotteryCount,jdbcType=INTEGER},
+      </if>
+      <if test="lotteryNumMax != null">
+        #{lotteryNumMax,jdbcType=INTEGER},
+      </if>
+      <if test="appId != null">
+        #{appId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateById" parameterType="com.sandu.api.act3.model.LuckyWheelLotteryRecordActAggregated">
+    update wx_act_lucky_wheel_lottery_record_act_aggregated
+    <set>
+      <if test="actId != null">
+        act_id = #{actId,jdbcType=VARCHAR},
+      </if>
+      <if test="openId != null">
+        open_id = #{openId,jdbcType=VARCHAR},
+      </if>
+      <if test="lotteryCount != null">
+        lottery_count = #{lotteryCount,jdbcType=INTEGER},
+      </if>
+       <if test="remainLotteryCount != null">
+        remain_lottery_count = #{remainLotteryCount,jdbcType=INTEGER},
+      </if>
+      <if test="lotteryNumMax != null">
+        lottery_num_max = #{lotteryNumMax,jdbcType=INTEGER},
+      </if>
+      <if test="appId != null">
+        app_id = #{appId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+   <update id="updateToIncreaseLotteryCount" >
+        update wx_act_lucky_wheel_lottery_record_act_aggregated 
+        	set 
+        		remain_lottery_count = remain_lottery_count+1
+        where 
+        	act_id = #{actId} 
+        	and open_id = #{openId} 
+        	and lottery_count+remain_lottery_count &lt; lottery_num_max
+    </update>
+    
+    <update id="updateToReduceLotteryCount" >
+        update wx_act_lucky_wheel_lottery_record_act_aggregated 
+        	set 
+        		lottery_count=lottery_count+1,
+        		remain_lottery_count = remain_lottery_count-1
+        where 
+        	act_id = #{actId} 
+        	and open_id = #{openId} 
+        	and remain_lottery_count &gt; 0
+    </update>
+    
+  
+</mapper>

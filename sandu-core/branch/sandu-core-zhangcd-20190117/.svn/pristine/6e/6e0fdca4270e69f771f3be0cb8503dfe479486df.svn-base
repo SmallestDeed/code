@@ -1,0 +1,444 @@
+package com.sandu.service.springFestivalActivity.impl.biz;
+
+import com.sandu.api.base.common.exception.BizException;
+import com.sandu.api.base.model.ResPic;
+import com.sandu.api.base.model.SysUser;
+import com.sandu.api.base.service.RedisService;
+import com.sandu.api.base.service.ResPicService;
+import com.sandu.api.base.service.SysUserService;
+import com.sandu.api.springFestivalActivity.input.UserInviteRecordSearch;
+import com.sandu.api.springFestivalActivity.model.*;
+import com.sandu.api.springFestivalActivity.output.GiveMeFiveVo;
+import com.sandu.api.springFestivalActivity.output.RedPointFlagVo;
+import com.sandu.api.springFestivalActivity.output.UserInviteRecordVo;
+import com.sandu.api.springFestivalActivity.service.*;
+import com.sandu.api.springFestivalActivity.service.biz.FilmTicketActivityService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service("filmTicketActivityService")
+public class FilmTicketActivityServiceImpl implements FilmTicketActivityService {
+    private static final String CLASS_LOG_PREFIX = "[电影票活动服务]";
+    private static final String REDIS_LOCK_PREFIX = "activity_lock:";
+
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private SysUserService sysUserService;
+    @Autowired
+    private ResPicService resPicService;
+    @Autowired
+    private WxUserTaskService wxUserTaskService;
+    @Autowired
+    private WxSpringActivityService wxSpringActivityService;
+    @Autowired
+    private WxUserCardService wxUserCardService;
+    @Autowired
+    private WxUserInviteRecordService wxUserInviteRecordService;
+    @Autowired
+    private WxFilmTicketService wxFilmTicketService;
+
+    /**
+     * 获取红点标识
+     *
+     * @param userId     用户ID
+     * @param activityId 活动ID
+     * @return hasTaskFlag 是否有可领取的任务，activityOverFlag 活动是否结束，cardNumFlag 今日是否还有可领的卡片
+     */
+    @Override
+    public RedPointFlagVo getRedPointFlag(Long userId, Long activityId) {
+        RedPointFlagVo flag = new RedPointFlagVo(true, true, true);
+        // 有可领取任务或可完成任务
+        WxUserTask task = this.getUserTask(userId, activityId);
+        if (task != null) {
+            flag.setHasTaskFlag(task.getTaskOneStatus() != 2 || task.getTaskTwoStatus() != 2 || task.getTaskThreeStatus() != 2);
+        }
+        // 活动未结束
+        WxSpringActivity activity = wxSpringActivityService.selectByPrimaryKey(activityId);
+        if (activity != null) {
+            flag.setActivityOverFlag(activity.getFilmRemainNum() > 0 && activity.getIsDeleted() == 0);
+        } else {
+            log.warn(CLASS_LOG_PREFIX + "当前活动不存在。 activityId:{}", activityId);
+            flag.setActivityOverFlag(false);
+        }
+        // 今日获取拼图数量小于3
+        List<WxUserCard> cardList = this.getTodayCard(userId, activityId);
+        if (cardList != null && cardList.size() >= 3) {
+            flag.setCardNumFlag(false);
+        }
+        // 返回结果
+        return flag;
+    }
+
+    /**
+     * 助力
+     *
+     * @param giveUserId    助力的用户ID
+     * @param getUserId     获得助力的用户ID
+     * @param activityId    活动ID
+     * @param isLoginBefore 助力用户是否第一次登陆
+     * @return success 助力是否成功, message 助力消息
+     */
+    @Transactional
+    @Override
+    public GiveMeFiveVo giveMeFive(Long giveUserId, Long getUserId, Long activityId, Integer isLoginBefore) {
+        byte cardFlag = 1;
+        Long cardId = null;
+        String remark = null;
+        try {
+            if (isLoginBefore == 0) {
+                if ((cardId = this.addCard(getUserId, activityId, new Byte("3"))) != null) {
+                    cardFlag = 0;
+                }
+            }
+            WxUserCard wxUserCard = WxUserCard.builder().userId(getUserId).activityId(activityId).isDeleted(0).build();
+            List<WxUserCard> cardList = wxUserCardService.selectSelective(wxUserCard, null, null);
+            if (cardList != null && cardList.size() >= 12 && cardFlag == 0) {
+                this.allotFilmTicket(getUserId, activityId);
+            }
+        } catch (BizException e) {
+            log.warn(CLASS_LOG_PREFIX + e.getMessage());
+            remark = e.getMessage();
+        }
+        this.addInviteRecord(getUserId, giveUserId, activityId, isLoginBefore.byteValue(), cardFlag, cardId, remark);
+        return new GiveMeFiveVo(isLoginBefore == 0, isLoginBefore == 0 ? "助力成功" : "助力失败，你不是新用户");
+    }
+
+    /**
+     * 获取邀请好友记录列表
+     *
+     * @param search 查询参数
+     * @return 邀请记录列表
+     */
+    @Override
+    public List<UserInviteRecordVo> getInviteRecord(UserInviteRecordSearch search) {
+        WxUserInviteRecord wxUserInviteRecord = WxUserInviteRecord.builder().userId(search.getUserId()).activityId(search.getActivityId()).isDeleted(0).build();
+        List<WxUserInviteRecord> list = wxUserInviteRecordService.selectSelective(wxUserInviteRecord, search.getStart(), search.getLimit());
+        if (list != null && list.size() > 0) {
+            List<UserInviteRecordVo> voList = new ArrayList<>();
+            for (WxUserInviteRecord userInviteRecord : list) {
+                String cardWord = null;
+                if (userInviteRecord.getCardFlag() == 0 && userInviteRecord.getCardId() != null) {
+                    WxUserCard wxUserCard = WxUserCard.builder().id(userInviteRecord.getCardId()).build();
+                    List<WxUserCard> cardList = wxUserCardService.selectSelective(wxUserCard, 0, 1);
+                    if (cardList != null && cardList.size() > 0) {
+                        WxUserCard card = cardList.get(0);
+                        cardWord = this.getCardWord(card.getCardNumber());
+                    }
+                }
+                voList.add(UserInviteRecordVo.builder()
+                        .id(userInviteRecord.getId())
+                        .nickName(userInviteRecord.getNickName())
+                        .headPic(userInviteRecord.getHeadPic())
+                        .inviteDate(userInviteRecord.getGmtCreate())
+                        .cardFlag(userInviteRecord.getCardFlag() != null && userInviteRecord.getCardFlag() == 0 ? true : false)
+                        .cardWord(cardWord)
+                        .remark(userInviteRecord.getRemark())
+                        .build());
+            }
+            return voList;
+        }
+        return null;
+    }
+
+    /**
+     * 查询今日获得的卡片
+     *
+     * @param userId     用户ID
+     * @param activityId 活动ID
+     * @return
+     */
+    private List<WxUserCard> getTodayCard(Long userId, Long activityId) {
+        WxUserCard wxUserCard = WxUserCard.builder().userId(userId).activityId(activityId).isDeleted(0).build();
+        List<WxUserCard> cardList = wxUserCardService.selectSelective(wxUserCard, null, null);
+        if (cardList != null) {
+            List<WxUserCard> todayCardList = this.getTodayCard(cardList);
+            if (todayCardList != null && todayCardList.size() > 3) {
+                log.warn(CLASS_LOG_PREFIX + "用户今天获得的卡片大于3张。 userId:{},activityId:{}", userId, activityId);
+            }
+            return todayCardList;
+        }
+        return null;
+    }
+
+    /**
+     * 获取今日获得的卡片
+     *
+     * @param cardList 用户获得的所有卡片集合
+     * @return
+     */
+    private List<WxUserCard> getTodayCard(List<WxUserCard> cardList) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        if (cardList != null) {
+            List<WxUserCard> todayCardList = cardList.stream()
+                    .filter(card -> format.format(new Date()).equals(format.format(card.getCardDate())) && card.getIsDeleted() == 0)
+                    .collect(Collectors.toList());
+            return todayCardList;
+        }
+        return null;
+    }
+
+    /**
+     * 查询用户领取的任务
+     *
+     * @param userId     用户ID
+     * @param activityId 活动ID
+     * @return
+     */
+    private WxUserTask getUserTask(Long userId, Long activityId) {
+        WxUserTask wxUserTask = WxUserTask.builder().userId(userId).activityId(activityId).isDeleted(0).build();
+        List<WxUserTask> userTaskList = wxUserTaskService.selectSelective(wxUserTask);
+        if (userTaskList != null) {
+            if (userTaskList.size() > 1) {
+                log.warn(CLASS_LOG_PREFIX + "查出的用户任务表结果大于1条。 userId:{},activityId", userId, activityId);
+            }
+            return userTaskList.get(0);
+        }
+        return null;
+    }
+
+    /**
+     * 获取卡片
+     *
+     * @param userId       用户ID
+     * @param activityId   活动ID
+     * @param businessType 获得途径(0-绑定手机号;1-装修我家;2-产品替换;3-邀请好友)
+     * @return 卡片ID
+     */
+    private Long addCard(Long userId, Long activityId, Byte businessType) {
+        if (this.check(userId, activityId)) {
+            // 加锁防并发问题
+            String key = REDIS_LOCK_PREFIX + userId + "," + activityId;
+            String value = UUID.randomUUID().toString();
+            if (this.getLock(key, value, 5, 2, 120)) {
+                if (this.check(userId, activityId)) {
+                    Date date = new Date();
+                    WxUserCard wxUserCard = WxUserCard.builder().userId(userId).activityId(activityId).isDeleted(0).build();
+                    List<WxUserCard> cardList = wxUserCardService.selectSelective(wxUserCard, null, null);
+                    wxUserCard = WxUserCard.builder()
+                            .activityId(activityId)
+                            .userId(userId)
+                            .businessType(businessType)
+                            .cardNumber(cardList == null ? 1 : cardList.size() + 1)
+                            .cardDate(date)
+                            .cardStatus(new Byte("0"))
+                            .creator(userId + "")
+                            .gmtCreate(date)
+                            .modifier(userId + "")
+                            .gmtModified(date)
+                            .isDeleted(0)
+                            .build();
+                    int i = wxUserCardService.insertSelective(wxUserCard);
+                    if (i <= 0) {
+                        return null;
+                    }
+                    this.releaseLock(key, value);
+                    return wxUserCard.getId();
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 分配电影票
+     *
+     * @param userId     用户ID
+     * @param activityId 活动ID
+     * @return
+     */
+    private boolean allotFilmTicket(Long userId, Long activityId) {
+        WxFilmTicket ticket = wxFilmTicketService.getEmptyTicket(null);
+        if (ticket == null) {
+            throw new BizException("活动已结束");
+        }
+        String key = REDIS_LOCK_PREFIX + "filmTicketLock";
+        String value = UUID.randomUUID().toString();
+        if (this.getLock(key, value, 5, 1, 100)) {
+            ticket = wxFilmTicketService.getEmptyTicket(null);
+            if (ticket == null) {
+                throw new BizException("活动已结束");
+            }
+            ticket.setUserId(userId);
+            ticket.setAllotTime(new Date());
+            ticket.setTicketStatus(new Byte("1"));
+            ticket.setModifier(userId + "");
+            ticket.setGmtModified(new Date());
+            int i = wxFilmTicketService.updateByPrimaryKeySelective(ticket);
+            if (i > 0) {
+                WxSpringActivity wxSpringActivity = wxSpringActivityService.selectByPrimaryKey(activityId);
+                if (wxSpringActivity.getIsDeleted() == 0) {
+                    throw new RuntimeException("该活动不存在。");
+                }
+                wxSpringActivity.setFilmRemainNum(wxSpringActivity.getFilmRemainNum() - 1);
+                wxSpringActivity.setFilmUseNum(wxSpringActivity.getFilmUseNum() + 1);
+                i = wxSpringActivityService.updateByPrimaryKeySelective(wxSpringActivity);
+                if (i == 0) {
+                    throw new RuntimeException("更新春节活动信息失败。");
+                }
+            }
+            this.releaseLock(key, value);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 添加邀请记录
+     *
+     * @param userId       邀请人ID
+     * @param inviteUserId 被邀请人ID
+     * @param activityId   活动ID
+     * @param status       是否有效（邀请的是不是新用户）
+     * @param cardFlag     是否获得卡片
+     * @param cardId       卡片ID
+     * @param remark       备注
+     * @return
+     */
+    private void addInviteRecord(long userId, long inviteUserId, long activityId, byte status, byte cardFlag, Long cardId, String remark) {
+        SysUser inviteUser = sysUserService.selectByPrimaryKey(inviteUserId);
+        if (inviteUser != null) {
+            ResPic pic = null;
+            if (inviteUser.getPicId() != null) {
+                pic = resPicService.selectByPrimaryKey(inviteUser.getPicId());
+            }
+            WxUserInviteRecord wxUserInviteRecord = WxUserInviteRecord.builder()
+                    .activityId(activityId)
+                    .openId(inviteUser.getOpenId())
+                    .nickName(inviteUser.getNickName())
+                    .headPic(pic == null || pic.getIsDeleted() == 1 ? null : pic.getPicPath())
+                    .userId(userId)
+                    .inviteUserId(inviteUserId)
+                    .status(status)
+                    .cardFlag(cardFlag)
+                    .cardId(cardId)
+                    .remark(remark)
+                    .creator(userId + "")
+                    .gmtCreate(new Date())
+                    .modifier(userId + "")
+                    .gmtModified(new Date())
+                    .isDeleted(0)
+                    .build();
+            wxUserInviteRecordService.insert(wxUserInviteRecord);
+        }
+    }
+
+    /**
+     * 校验是否有获得卡片资格
+     *
+     * @param userId     用户ID
+     * @param activityId 活动ID
+     * @return
+     */
+    private boolean check(Long userId, Long activityId) {
+        // 活动是否已经结束
+        WxSpringActivity activity = wxSpringActivityService.selectByPrimaryKey(activityId);
+        if (activity != null) {
+            if (activity.getFilmRemainNum() <= 0) {
+                throw new BizException("活动已结束");
+            }
+        } else {
+            throw new BizException("当前活动不存在");
+        }
+        // 获得总卡片数
+        WxUserCard wxUserCard = WxUserCard.builder().userId(userId).activityId(activityId).isDeleted(0).build();
+        List<WxUserCard> cardList = wxUserCardService.selectSelective(wxUserCard, null, null);
+        if (cardList != null && cardList.size() >= 12) {
+            throw new BizException("已获得12张拼图");
+        }
+        // 今日获得卡片数
+        cardList = this.getTodayCard(cardList);
+        if (cardList != null && cardList.size() >= 3) {
+            throw new BizException("每日最多获得3张拼图");
+        }
+        return true;
+    }
+
+    /**
+     * 根据卡片数字获取卡片文字
+     *
+     * @param cardNumber 卡片数字标识
+     * @return
+     */
+    private String getCardWord(Integer cardNumber) {
+        if (cardNumber != null) {
+            switch (cardNumber) {
+                case 1:
+                    return "随";
+                case 2:
+                    return "选";
+                case 3:
+                    return "网";
+                case 4:
+                    return "拜";
+                case 5:
+                    return "大";
+                case 6:
+                    return "年";
+                case 7:
+                    return "免";
+                case 8:
+                    return "费";
+                case 9:
+                    return "看";
+                case 10:
+                    return "贺";
+                case 11:
+                    return "岁";
+                case 12:
+                    return "片";
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取锁
+     *
+     * @param key   锁标识
+     * @param value 释放锁的钥匙
+     * @param retry 重试次数
+     * @param time  持有锁的最大时间，单位s
+     * @param wait  重试间隔时间，单位ms
+     * @return
+     */
+    private boolean getLock(String key, String value, int retry, long time, long wait) {
+        int retryNum = 0;
+        while (!redisService.set(key, value, "NX", "EX", time)) {
+            retryNum++;
+            if (retryNum > retry) {
+                log.warn(CLASS_LOG_PREFIX + "获取锁超时!");
+                throw new RuntimeException("超时啦，请重新试试！");
+            }
+            try {
+                Thread.sleep(wait);
+            } catch (InterruptedException e) {
+                log.error(CLASS_LOG_PREFIX + "获取锁异常!", e);
+                throw new RuntimeException("出错啦，请重新试试！");
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 释放锁
+     *
+     * @param key   锁标识
+     * @param value 释放锁的钥匙
+     */
+    private void releaseLock(String key, String value) {
+        if (value.equals(redisService.get(key))) {
+            redisService.del(key);
+        }
+    }
+}

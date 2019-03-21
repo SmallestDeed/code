@@ -1,0 +1,39 @@
+<view class='chat-frame'>
+  <view class='chat-frame-content'>
+    <scroll-view scroll-y class='chat-frame-scroll' style='height: 100%' scroll-into-view='{{scrollId}}'>
+      <view class='frame-content-title'>您正在沟通</view>
+      <!-- 小卡片部分 -->
+      <view class='frame-content-message clearfix'>
+        <view class='content-message-left fl'>
+          <image src='{{resourcePath}}{{shopDetails.logoUrl}}'></image>
+        </view>
+        <view class='content-message-right fl'>
+          <view class='message-right-name'>{{shopDetails.shopName}}</view>
+          <view class='message-right-information'>
+            作品 <text>{{shopDetails.worksCount}}</text> | 好评 <text>{{shopDetails.praiseRatePercent}}</text> | 浏览 <text>{{shopDetails.visitCount}}</text>
+          </view>          
+        </view>        
+      </view>
+      <!-- 内容部分 -->
+      <view class='frame-content-list'>
+        <view class='content-list-item' wx:for='{{chatContentList}}' wx:key='{{index}}'>
+          <view class='list-item-time'>{{item.time}}</view>
+          <view class='list-item-message clearfix' id='{{item.scrollId || ""}}'>
+            <view bindtap='routerToUserDetails'
+            class='{{item.direction == 2? "item-message-picture fl" : "item-message-picture-active fr"}}'>
+              <image src='/static/image/home_icon_head_nor.png'></image>
+            </view>
+            <view 
+              class='{{item.direction == 2? "item-message-content fl" : "item-message-content-active fr"}}'>
+              {{item.msgBody}}
+            </view>
+          </view>          
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+  <view class='chat-frame-input clearfix'>
+    <input value='{{userChatMessage}}' class='fl' cursor-spacing='20' bindinput='changeUserChatMessage'></input>
+    <view class='frame-input-btn fl' catchtap='sendUserMessage' >发送</view>
+  </view>
+</view>

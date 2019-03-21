@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.alibabatech.com/schema/dubbo
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+        ">
+	<!-- 生成远程服务代理，可以像使用本地bean一样使用demoService -->
+	<dubbo:reference id="userService"
+		interface="com.sandu.user.service.IUserService" retries="${dubbo.retries}" version="${dubbo.version}" />
+	<!-- 用户会话服务 -->
+	<dubbo:reference id="userSessionService"
+		interface="com.sandu.user.service.UserSessionService" retries="${dubbo.retries}" version="${dubbo.version}" />
+	<!-- 用户会话服务 -->
+	<dubbo:reference id="userFinanceService"
+		interface="com.sandu.user.service.UserFinanceService" retries="${dubbo.retries}" version="${dubbo.version}" />
+	<!-- 我的消息服务 -->
+	<dubbo:reference id="sysUserMessageService"
+		interface="com.sandu.user.service.SysUserMessageService" retries="${dubbo.retries}" version="${dubbo.version}" />
+	
+		<!-- 我的积分服务 -->
+	<dubbo:reference id="payAccountService"
+		interface="com.sandu.user.service.PayAccountService" retries="${dubbo.retries}" version="${dubbo.version}" />
+		
+	<dubbo:reference id="decorateOrderScoreService"
+		interface="com.sandu.decorateorderscore.service.DecorateOrderScoreService" retries="${dubbo.retries}" version="${dubbo.version}"/>	
+</beans>

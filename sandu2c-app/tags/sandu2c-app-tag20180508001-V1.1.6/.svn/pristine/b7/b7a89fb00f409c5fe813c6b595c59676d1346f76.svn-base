@@ -1,0 +1,200 @@
+package com.sandu.web.supplydemand;
+
+
+import com.nork.common.model.LoginUser;
+import com.sandu.common.LoginContext;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.supplydemand.convert.BaseSupplyDemandConvert;
+import com.sandu.supplydemand.input.BaseSupplyDemandAdd;
+import com.sandu.supplydemand.model.BaseSupplyDemand;
+import com.sandu.supplydemand.service.SupplyDemandService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
+/**
+ * @author weisheng
+ * @Title:
+ * @Package
+ * @Description:
+ * @date 2018/4/27 0027PM 5:37
+ */
+@Slf4j
+@RestController
+@RequestMapping("/v1/union/supplydemand")
+public class SupplyDemandController {
+    private final static String CLASS_LOG_PREFIX = "[供求基础服务]";
+
+    @Autowired
+    private SupplyDemandService supplyDemandService;
+
+    /**
+     * @Title: 供求信息列表
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/getallsupplydemandinfo",method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEnvelope getAllSupplyDemandInfo(@RequestBody BaseSupplyDemandAdd baseSupplyDemandAdd, HttpServletRequest request) {
+
+        //查询个人供求信息
+        if(null!=baseSupplyDemandAdd.getMark()&&baseSupplyDemandAdd.getMark().equals("MySupplydemandinfo")){
+            LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+            if(loginUser==null){
+                return new ResponseEnvelope(false,"请先登录");
+            }
+            baseSupplyDemandAdd.setCreatorId(loginUser.getId());
+        }
+
+     //查询所有供求信息总数
+        int total = supplyDemandService.getAllSupplyDemandCount(baseSupplyDemandAdd);
+        if(total==0){
+            return new ResponseEnvelope(false,"没有查询到供求信息");
+        }
+        //查询所有供求信息详情
+        List<BaseSupplyDemand> baseSupplyDemandList = supplyDemandService.getAllSupplyDemandInfo(baseSupplyDemandAdd);
+
+       return new ResponseEnvelope(true,"", BaseSupplyDemandConvert.parseToBaseSupplyDemandVoList(baseSupplyDemandList),
+               total);
+
+    }
+
+
+    /**
+     * @Title: 发布供求信息
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/addallsupplydemandinfo",method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEnvelope addSupplyDemandInfo(@RequestBody BaseSupplyDemand baseSupplyDemand, HttpServletRequest request) {
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if(loginUser==null){
+            return new ResponseEnvelope(false,"请先登录");
+        }
+        baseSupplyDemand.setCreator(loginUser.getName());
+        baseSupplyDemand.setCreatorId(loginUser.getId());
+        baseSupplyDemand.setModifier(loginUser.getName());
+        baseSupplyDemand.setCreatorTypeValue(loginUser.getUserType());
+        int supplyDemandId = supplyDemandService.addSupplyDemandInfo(baseSupplyDemand);
+        if(supplyDemandId==0){
+            return new ResponseEnvelope(false,"新增供求信息失败");
+        }
+        return new ResponseEnvelope(true,"新增供求信息成功",supplyDemandId);
+
+
+    }
+
+
+    /**
+     * @Title: 编辑供求信息
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/updatemysupplydemandinfo",method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEnvelope updateMySupplyDemandInfo(@RequestBody BaseSupplyDemand baseSupplyDemand, HttpServletRequest request) {
+       LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if(loginUser==null){
+            return new ResponseEnvelope(false,"请先登录");
+        }
+        int supplyDemandId = supplyDemandService.updateSupplyDemandInfo(baseSupplyDemand);
+        if(supplyDemandId==0){
+            return new ResponseEnvelope(false,"供求信息修改失败");
+        }
+        return new ResponseEnvelope(true,"供求信息修改成功",supplyDemandId);
+    }
+
+
+
+    /**
+     * @Title: 供求信息上下架
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/updatemysupplydemandstatus",method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEnvelope updateMySupplyDemandStatus(@RequestBody BaseSupplyDemandAdd baseSupplyDemandAdd, HttpServletRequest request) {
+       LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if(loginUser==null){
+            return new ResponseEnvelope(false,"请先登录");
+        }
+        if(baseSupplyDemandAdd.getSupplyDemandId()==null||baseSupplyDemandAdd.getSupplyDemandId()==0){
+            return new ResponseEnvelope(false,"缺失参数SupplyDemandId");
+        }
+        //(0:上架中,1:已下架)
+        if(baseSupplyDemandAdd.getPushStatus()==null||baseSupplyDemandAdd.getPushStatus()==0){
+            return new ResponseEnvelope(false,"缺失参数pushStatus");
+        }
+        BaseSupplyDemand supplyDemandInfo = supplyDemandService.getSupplyDemandInfo(baseSupplyDemandAdd.getSupplyDemandId());
+        if(supplyDemandInfo==null){
+            return new ResponseEnvelope(false,"未知的供求信息");
+
+        }
+        String statusStr = baseSupplyDemandAdd.getPushStatus() == 0 ? "上架" : "下架";
+        if(supplyDemandInfo.getPushStatus().intValue()==baseSupplyDemandAdd.getPushStatus().intValue()){
+            return new ResponseEnvelope(false,"这条供求信息已经"+statusStr);
+        }
+        //修改供求信息数据
+        Integer statusId = supplyDemandService.updateMySupplyDemandStatus(baseSupplyDemandAdd);
+        if(statusId==0){
+            return new ResponseEnvelope(false,statusStr);
+        }
+
+        return new ResponseEnvelope(true,statusStr);
+
+    }
+
+
+
+    /**
+     * @Title: 记录供求信息浏览次数
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/addsupplydemandviewnum",method = RequestMethod.POST)
+    @ResponseBody
+    @ApiOperation(value = "供求信息浏览", response = ResponseEnvelope.class)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "供求信息ID", required = true, paramType = "query", dataType = "int")
+    })
+    public ResponseEnvelope addSupplyDemandViewNum(@RequestBody BaseSupplyDemand baseSupplyDemand, HttpServletRequest request) {
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if(loginUser==null){
+            return new ResponseEnvelope(false,"请先登录");
+        }
+       if(baseSupplyDemand.getId()==null||baseSupplyDemand.getId()==0){
+           return new ResponseEnvelope(false,"缺失参数Id");
+       }
+        BaseSupplyDemand supplyDemandInfo = supplyDemandService.getSupplyDemandInfo(baseSupplyDemand.getId());
+        Integer viewNum = supplyDemandInfo.getViewNum();
+        viewNum++;
+        BaseSupplyDemand newBaseSupplyDemand = new BaseSupplyDemand();
+        newBaseSupplyDemand.setId(supplyDemandInfo.getId());
+        newBaseSupplyDemand.setViewNum(viewNum);
+        Integer supplyDemandId = supplyDemandService.updateSupplyDemandInfo(newBaseSupplyDemand);
+        if(supplyDemandId==0){
+            new ResponseEnvelope(false,"浏览失败");
+        }
+        return new ResponseEnvelope(true,"浏览成功",viewNum);
+    }
+
+
+
+}

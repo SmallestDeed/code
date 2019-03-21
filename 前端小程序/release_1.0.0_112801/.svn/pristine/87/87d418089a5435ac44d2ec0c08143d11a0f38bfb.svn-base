@@ -1,0 +1,39 @@
+<view class='search-more-brand'>
+  <view class='more-brand-header clearfix'>
+    <view class='brand-header-comfirm fl' data-type='cancle' bindtap='confirmBrand'>取消</view>   
+    <view class='brand-header-comfirm fr' data-type='confirm' bindtap='confirmBrand'>确定</view> 
+  </view>
+
+
+  <scroll-view style="height: 1500rpx;" class='more-brand-main' scroll-y='{{true}}' 
+  scroll-with-animation='{{true}}' scroll-into-view='{{userScrollKey}}'>
+    <view class='brand-main-item clearfix' 
+    wx:for='{{moreBrandList}}'
+    wx:key='{{key}}'
+    wx:if='{{value.length != 0}}'
+    wx:for-index="key"
+    id='{{key}}'
+    wx:for-item="value">
+      <view class='main-item-title'>{{key}}</view>
+      <view 
+      class='main-item-content ellipsis fl {{brandContentSecondIndex==key + index?"main-item-content-active":""}}'               bindtap='chooseBrand'
+      data-key='{{key}}'
+      data-index='{{index}}'
+      wx:for='{{value}}' 
+      wx:key='{{index}}'
+      data-categoryCode='{{item.categoryCode}}'>
+        {{item.categoryName}}
+      </view>      
+    </view>
+  </scroll-view>
+
+
+  <view class='more-brand-navigate'>
+    <view class='brand-navigate-item' 
+    wx:for='{{moreBrandList}}' 
+    wx:if='{{item.length != 0}}'
+    bindtap='scrollKey'
+    data-key='{{index}}'
+    wx:key='{{index}}'>{{index}}</view>
+  </view>  
+</view>

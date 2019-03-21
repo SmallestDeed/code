@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.customer.dao.CustomerBaseInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.customer.model.CustomerBaseInfo" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="company_id" property="companyId" jdbcType="INTEGER" />
+    <result column="level" property="level" jdbcType="TINYINT" />
+    <result column="score" property="score" jdbcType="DOUBLE" />
+    <result column="alot_status" property="alotStatus" jdbcType="TINYINT" />
+    <result column="alot_user_id" property="alotUserId" jdbcType="INTEGER" />
+    <result column="channel_company_id" property="channelCompanyId" jdbcType="INTEGER" />
+    <result column="alot_time" property="alotTime" jdbcType="TIMESTAMP" />
+    <result column="alot_type" property="alotType" jdbcType="TINYINT" />
+    <result column="province_code" property="provinceCode" jdbcType="VARCHAR" />
+    <result column="city_code" property="cityCode" jdbcType="VARCHAR" />
+    <result column="area_code" property="areaCode" jdbcType="VARCHAR" />
+    <result column="street_code" property="streetCode" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id, company_id, level, score, alot_status, alot_user_id, channel_company_id, 
+    alot_time, alot_type, province_code, city_code, area_code, street_code, address, is_deleted, 
+    remark, creator, gmt_create, modifier, gmt_modified
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from customer_base_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  
+  <select id="selectByUserId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+    select 
+    <include refid="Base_Column_List" />
+    from customer_base_info
+    where user_id = #{userId,jdbcType=BIGINT}
+  </select>
+
+  <!-- 查询符合条件的客户信息 -->  
+  <select id="selectCustomerInfoByMap" resultMap="BaseResultMap" parameterType="java.util.Map">
+  	  select 
+	    <include refid="Base_Column_List" />
+	    from customer_base_info
+	    where 1=1
+	    <if test="limitString != null and limitString !=''">
+			${limitString}
+	   </if>
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from customer_base_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.customer.model.CustomerBaseInfo" >
+    insert into customer_base_info (id, user_id, company_id, 
+      level, score, alot_status, 
+      alot_user_id, channel_company_id, alot_time, 
+      alot_type, province_code, city_code, 
+      area_code, street_code, address, 
+      is_deleted, remark, creator, 
+      gmt_create, modifier, gmt_modified
+      )
+    values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=INTEGER}, #{companyId,jdbcType=INTEGER}, 
+      #{level,jdbcType=TINYINT}, #{score,jdbcType=DOUBLE}, #{alotStatus,jdbcType=TINYINT}, 
+      #{alotUserId,jdbcType=INTEGER}, #{channelCompanyId,jdbcType=INTEGER}, #{alotTime,jdbcType=TIMESTAMP}, 
+      #{alotType,jdbcType=TINYINT}, #{provinceCode,jdbcType=VARCHAR}, #{cityCode,jdbcType=VARCHAR}, 
+      #{areaCode,jdbcType=VARCHAR}, #{streetCode,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, 
+      #{isDeleted,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.customer.model.CustomerBaseInfo" >
+    insert into customer_base_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="companyId != null" >
+        company_id,
+      </if>
+      <if test="level != null" >
+        level,
+      </if>
+      <if test="score != null" >
+        score,
+      </if>
+      <if test="alotStatus != null" >
+        alot_status,
+      </if>
+      <if test="alotUserId != null" >
+        alot_user_id,
+      </if>
+      <if test="channelCompanyId != null" >
+        channel_company_id,
+      </if>
+      <if test="alotTime != null" >
+        alot_time,
+      </if>
+      <if test="alotType != null" >
+        alot_type,
+      </if>
+      <if test="provinceCode != null" >
+        province_code,
+      </if>
+      <if test="cityCode != null" >
+        city_code,
+      </if>
+      <if test="areaCode != null" >
+        area_code,
+      </if>
+      <if test="streetCode != null" >
+        street_code,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="companyId != null" >
+        #{companyId,jdbcType=INTEGER},
+      </if>
+      <if test="level != null" >
+        #{level,jdbcType=TINYINT},
+      </if>
+      <if test="score != null" >
+        #{score,jdbcType=DOUBLE},
+      </if>
+      <if test="alotStatus != null" >
+        #{alotStatus,jdbcType=TINYINT},
+      </if>
+      <if test="alotUserId != null" >
+        #{alotUserId,jdbcType=INTEGER},
+      </if>
+      <if test="channelCompanyId != null" >
+        #{channelCompanyId,jdbcType=INTEGER},
+      </if>
+      <if test="alotTime != null" >
+        #{alotTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="alotType != null" >
+        #{alotType,jdbcType=TINYINT},
+      </if>
+      <if test="provinceCode != null" >
+        #{provinceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="cityCode != null" >
+        #{cityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="areaCode != null" >
+        #{areaCode,jdbcType=VARCHAR},
+      </if>
+      <if test="streetCode != null" >
+        #{streetCode,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+   <update id="batchUpdate" parameterType="java.util.List">
+		<foreach collection="updateList" item="info" index="index" open="" close="" separator=";">
+			 update customer_base_info
+		    <set >
+		      <if test="info.score != null" >
+		        score = #{info.score,jdbcType=DOUBLE},
+		      </if>
+		    </set>
+		    where user_id = #{info.userId,jdbcType=BIGINT}
+		</foreach>
+	</update>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.customer.model.CustomerBaseInfo" >
+    update customer_base_info
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="companyId != null" >
+        company_id = #{companyId,jdbcType=INTEGER},
+      </if>
+      <if test="level != null" >
+        level = #{level,jdbcType=TINYINT},
+      </if>
+      <if test="score != null" >
+        score = #{score,jdbcType=DOUBLE},
+      </if>
+      <if test="alotStatus != null" >
+        alot_status = #{alotStatus,jdbcType=TINYINT},
+      </if>
+      <if test="alotUserId != null" >
+        alot_user_id = #{alotUserId,jdbcType=INTEGER},
+      </if>
+      <if test="channelCompanyId != null" >
+        channel_company_id = #{channelCompanyId,jdbcType=INTEGER},
+      </if>
+      <if test="alotTime != null" >
+        alot_time = #{alotTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="alotType != null" >
+        alot_type = #{alotType,jdbcType=TINYINT},
+      </if>
+      <if test="provinceCode != null" >
+        province_code = #{provinceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="cityCode != null" >
+        city_code = #{cityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="areaCode != null" >
+        area_code = #{areaCode,jdbcType=VARCHAR},
+      </if>
+      <if test="streetCode != null" >
+        street_code = #{streetCode,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="com.sandu.customer.model.CustomerBaseInfo" >
+    update customer_base_info
+    set user_id = #{userId,jdbcType=INTEGER},
+      company_id = #{companyId,jdbcType=INTEGER},
+      level = #{level,jdbcType=TINYINT},
+      score = #{score,jdbcType=DOUBLE},
+      alot_status = #{alotStatus,jdbcType=TINYINT},
+      alot_user_id = #{alotUserId,jdbcType=INTEGER},
+      channel_company_id = #{channelCompanyId,jdbcType=INTEGER},
+      alot_time = #{alotTime,jdbcType=TIMESTAMP},
+      alot_type = #{alotType,jdbcType=TINYINT},
+      province_code = #{provinceCode,jdbcType=VARCHAR},
+      city_code = #{cityCode,jdbcType=VARCHAR},
+      area_code = #{areaCode,jdbcType=VARCHAR},
+      street_code = #{streetCode,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

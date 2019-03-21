@@ -1,0 +1,48 @@
+package com.sandu.api.base.input;
+
+import lombok.Data;
+
+import java.io.Serializable;
+
+/**
+ * @ClassName: InteractiveZoneReplyAdd
+ * @Auther: gaoj
+ * @Date: 2019/3/13 17:37
+ * @Description:
+ * @Version 1.0
+ */
+@Data
+public class InteractiveZoneReplyAdd implements Serializable {
+    private Long id;
+
+    private Long topicId;
+
+    private Integer blockType;
+
+    private Integer isBestAnswer;
+
+    private Integer isTop;
+
+    private Integer planId;
+
+    private Integer planType;
+
+    private Integer houseId;
+
+    private String picIds;
+
+    private Integer dataSource;
+
+    private Integer replyUserId;
+
+    private Integer isDeleted;
+
+    private String content;
+
+    private String jsonContent;
+
+    /***************************/
+    private String blockTypeValueKey;
+
+    private Integer virtualLikeNum;
+}

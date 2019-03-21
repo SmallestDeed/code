@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.search.dao.MetaDataDao">
+
+    <!-- 获取草稿设计方案产品元数据 -->
+    <select id="getTempDesignPlanProductMetaDataById" resultType="com.sandu.search.entity.designplan.po.DesignPlanProductPo">
+        SELECT
+          id                AS id,
+          init_product_id   AS initProductId
+        FROM
+          design_plan_product
+        WHERE
+          is_deleted = 0
+        AND
+          init_product_id &lt;&gt; 0
+        AND
+          id = #{id}
+        LIMIT
+          0,1
+    </select>
+
+    <!-- 获取推荐设计方案产品元数据 -->
+    <select id="getRecommendDesignPlanProductMetaDataById" resultType="com.sandu.search.entity.designplan.po.DesignPlanProductPo">
+        SELECT
+          id                AS id,
+          init_product_id   AS initProductId
+        FROM
+          design_plan_recommended_product
+        WHERE
+          is_deleted = 0
+        AND
+          init_product_id &lt;&gt; 0
+        AND
+          id = #{id}
+        LIMIT
+          0,1
+    </select>
+
+    <!-- 获取自定义设计方案产品元数据 -->
+    <select id="getDiyDesignPlanProductMetaDataById" resultType="com.sandu.search.entity.designplan.po.DesignPlanProductPo">
+        SELECT
+          id                AS id,
+          init_product_id   AS initProductId
+        FROM
+          design_plan_product_render_scene
+        WHERE
+          is_deleted = 0
+        AND
+          init_product_id &lt;&gt; 0
+        AND
+          id = #{id}
+        LIMIT
+          0,1
+    </select>
+</mapper>

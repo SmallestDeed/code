@@ -1,0 +1,430 @@
+// pages/publishMessage/publishMessage.js
+let API = getApp().API
+let $App = getApp()
+Page({
+
+  /**
+   * 页面的初始数据
+   */
+  data: {
+    resourcePath: getApp().resourcePath,
+    staticImageUrl: getApp().staticImageUrl,
+    supplyDemandId: '',
+    title: '',
+    text: '',
+    btnText: '发布',
+    addImg: [],
+    addImgId: [],
+    addPlanId: '', // 方案id
+    firstJump:true,
+    addPlanImg: '', // 方案图片
+    planType: '', // 方案类型
+    addHouseId: '', // 户型id
+    addHouseImg: '', // 户型图片
+    height:'',
+    content: [{str1:''}]
+  },
+
+  /**
+   * 生命周期函数--监听页面加载
+   */
+  onLoad: function (options) {
+    wx.hideShareMenu();
+    let type = options.type;
+    if (type == 'edit') {
+      wx.setNavigationBarTitle({title: '编辑信息'});
+      this.setData({ 
+        btnText: '重新发布',
+        supplyDemandId: options.id
+        });
+      this.getDetail(options.id);
+    } else {
+      this.setData({
+        addPlanId: type == 'plan' ? options.id : '', // 方案id
+        addPlanImg: type == 'plan' ? options.imgUrl : '', // 方案图片
+        planType: options.planType ? options.planType : '', // 方案类型
+        addHouseId: type == 'house' ? options.id : '', // 户型id
+        addHouseImg: type == 'house' ? options.imgUrl : '' // 户型图片
+      });
+    }
+  },
+
+  /*编辑页面请求回显数据*/
+  getDetail(id) {
+    API.getSupplydemandinfoDetail({ supplyDemandId: id }).then(res => {
+      if (res.obj) {
+        let addImgId = [];
+        let addImg = [];
+        if (res.obj.supplyDemandPicList) {
+          res.obj.supplyDemandPicList.forEach((value, index) => {
+            addImgId.push(value.id);
+            addImg.push(value.picPath);
+          })
+        }
+        let addPlanId = '', addPlanImg = '';
+        if (res.obj.mydecorationPlanVo) {
+          addPlanId = res.obj.mydecorationPlanVo.businessId,
+          addPlanImg = res.obj.mydecorationPlanVo.planPicPath
+        }
+        if (res.obj.designPlanRecommendedResult) {
+          addPlanId = res.obj.designPlanRecommendedResult.designPlanRecommendId;
+          addPlanImg = res.obj.designPlanRecommendedResult.coverPath;
+        }
+        let text;
+        if(res.obj.description){
+          text=description
+        }
+        if(res.obj.content){
+          let content=res.obj.content.split(";");
+          for(let i = 0; i < res.obj.content.length;i++){
+            content[i]=JSON.parse(content[i])
+          }
+          text=content
+        }
+        this.setData({
+          title: res.obj.title,
+          text: text,
+          content:text,
+          addPlanId: addPlanId,
+          addPlanImg: addPlanImg,
+          addHouseId: res.obj.baseHouse ? res.obj.baseHouse.id : '',
+          addHouseImg: res.obj.baseHouse ? res.obj.baseHouse.largeThumbnailPath : '',
+          addImgId: addImgId,
+          addImg: addImg,
+          planType: res.obj.planType
+        });
+      }
+    });
+  },
+
+  /*标题*/
+  titleBlur(e) {
+    let i = /[\uD83C|\uD83D|\uD83E][\uDC00-\uDFFF][\u200D|\uFE0F]|[\uD83C|\uD83D|\uD83E][\uDC00-\uDFFF]|[0-9|*|#]\uFE0F\u20E3|[0-9|#]\u20E3|[\u203C-\u3299]\uFE0F\u200D|[\u203C-\u3299]\uFE0F|[\u2122-\u2B55]|\u303D|[\A9|\AE]\u3030|\uA9|\uAE|\u3030/ig;
+    this.setData({
+      title: e.detail.value.replace(i, '').replace(/\s+/g, '')
+    });
+  },
+
+  /*内容*/
+  // textBlur(e) {
+  //   // let i = /[\uD83C|\uD83D|\uD83E][\uDC00-\uDFFF][\u200D|\uFE0F]|[\uD83C|\uD83D|\uD83E][\uDC00-\uDFFF]|[0-9|*|#]\uFE0F\u20E3|[0-9|#]\u20E3|[\u203C-\u3299]\uFE0F\u200D|[\u203C-\u3299]\uFE0F|[\u2122-\u2B55]|\u303D|[\A9|\AE]\u3030|\uA9|\uAE|\u3030/ig;
+  //   this.setData({
+  //     // text: e.detail.value.replace(i, '').replace(/\s+/g, '')
+  //     text: e.detail.value
+  //   });
+  // },
+  textInput(e){
+    let id = e.currentTarget.dataset.id;
+    let obj=this.data.content;
+    obj[id].str1 = e.detail.value
+    this.setData({
+      content: obj
+    })
+  },
+  /*添加方案*/
+  addProject() {
+    if(this.data.addPlanId!='' || this.data.addHouseId !=''){
+      wx.showToast({
+        icon:'none',
+        title: '户型、方案只能上传一个'
+      })
+      return;
+    }
+    wx.navigateTo({
+      url: '/pages/plan/selection-scheme/selections-scheme',
+    })
+  },
+
+  /*添加户型*/
+  addHouse() {
+    if(this.data.addPlanId!='' || this.data.addHouseId!=''){
+      wx.showToast({
+        icon:'none',
+        title: '户型、方案只能上传一个',
+      })
+      return;
+    }
+    wx.navigateTo({
+      url: '/pages/plan/selection-house-type/selection-house-type',
+    })
+  },
+
+  /*添加图片*/
+  addImg() {
+    let that = this;
+    let num = 10
+    if (this.data.content.length >= 10) {
+      wx.showToast({ title: '图片不得超过10张', icon: 'none' });
+      return;
+    }
+    wx.chooseImage({
+      count: 9,
+      sourceType: ['album', 'camera'],
+      sizeType: ['compressed'],
+      success: (res) => {
+        if (res.tempFiles.length + this.data.content.length > num){
+          wx.showToast({
+            title: '图片不得超过10张',
+          })
+          return;
+        }
+        for(let i=0;i<res.tempFilePaths.length;i++){
+          API.uploadFileIssuedImage({
+            'platform': 'mini',
+            'module': 'demand',
+            'type': 'image',
+            'path': res.tempFilePaths[i]
+          }).then(res => {
+            if (res.success) {
+              wx.showToast({ title: '上传成功', icon: 'success' });
+              let index = this.data.content.length - 1, obj = this.data.content
+              obj[index].pic=(res.obj.url)
+              obj[index].picId=(res.obj.resId)
+              obj[index + 1] = { str1: '' }
+              let imgArr = this.data.addImg;
+              let imgIdArr = this.data.addImgId
+              imgArr.push(res.obj.url);
+              imgIdArr.push(res.obj.resId);
+              this.setData({
+                addImg: imgArr,
+                addImgId: imgIdArr
+              });
+              that.setData({
+                content:obj
+              });
+             
+            } else {
+              wx.showToast({ title: '上传失败', icon: 'none' });
+            }
+          })
+        }
+        
+      }
+    })
+
+  },
+  deleteImg(e){
+    let index = e.currentTarget.dataset.index;
+    let obj = this.data.content;
+    obj[index].pic='';
+    obj[index].picId='';
+    if(obj[index].str1==''&&obj[index].pic==''&& obj.length>1){
+      obj.splice(index, 1);
+    }
+    let addImgId = this.data.addImgId;
+    let addImg = this.data.addImg;
+    addImgId.splice(index, 1);
+    addImg.splice(index, 1)
+    this.setData({
+      content:obj,
+      addImgId: addImgId,
+      addImg: addImg
+    })
+
+  },
+  /*删除*/
+  delete(e) {
+    let type = e.currentTarget.dataset.type;
+    if (type == '方案') { 
+      this.setData({
+        addPlanId: '', 
+        addPlanImg: ''
+      });
+    }
+    if (type == '户型') { 
+      this.setData({
+        addHouseId: '',
+        addHouseImg: ''
+      });
+    }
+    // if (type == '图片') {
+    //   let index = e.currentTarget.dataset.index;
+    //   let addImgId = this.data.addImgId;
+    //   let addImg = this.data.addImg;
+    //   addImgId.splice(index, 1);
+    //   addImg.splice(index, 1)
+    //   this.setData({
+    //     addImgId: addImgId,
+    //     addImg: addImg
+    //   });
+    // }
+  },
+
+  /*发布*/
+  goPublish() { 
+    // console.log(this.data.addPlanImg, '方案图片');
+    // console.log(this.data.addHouseImg, '户型图片');
+    if (this.data.title.replace(/\s+/g, '') == '') {
+      wx.showToast({ title: '请填写标题', icon: 'none'})
+      return;
+    }
+    
+    // if (this.data.text.replace(/\s+/g, '') == '') {
+    //   wx.showToast({ title: '请填写内容', icon: 'none' })
+    //   return;
+    // }
+    if(!this.data.firstJump){
+      return
+    }
+    this.data.firstJump = false
+    for(let i = 0;i<this.data.content.length;i++){
+      this.data.content[i] = JSON.stringify(this.data.content[i]);
+    }
+    let content = this.data.content.join(';')
+    console.log(this.data.addImgId)
+    let obj = {
+      title: this.data.title,
+      content: content,
+      province: wx.getStorageSync('cityLoctionItem').pid,
+      city: wx.getStorageSync('cityLoctionItem').areaCode,
+      coverPicId: this.data.addImgId.length > 0 ? this.data.addImgId.join(',') : '',
+      planId: this.data.addPlanId,
+      planType: Number(this.data.planType),
+      houseId: this.data.addHouseId
+    }
+    if (this.data.btnText == '发布') {
+      API.publishMessage(obj).then(res => {
+        console.log('想你',res)
+        if (res.status) {
+          wx.showToast({
+            title: '发布成功',
+            icon: 'success',
+            duration: 2000,
+            success: () => {
+              setTimeout(() => {
+                wx.switchTab({
+                  url: '/pages/interaction/interactiveArea/interactiveArea'
+               }) 
+                this.data.firstJump = true;
+              } 
+              , 3000)
+            }
+          });
+        } else {
+          wx.showToast({
+            title: res.message,
+            icon: 'none',
+            duration: 2000,
+          })
+          this.data.firstJump = true
+        }
+      });
+    }
+    if (this.data.btnText == '重新发布') {
+      obj.id = this.data.supplyDemandId;
+      API.editSupplyAndDemand(obj).then(res => {
+        if (res.status){
+          wx.showToast({
+            title: '编辑成功',
+            icon: 'success',
+            duration: 2000,
+            success: () => {
+              setTimeout(() => { wx.navigateBack({ delta: 1 }) }, 3000)
+              this.data.firstJump = true
+            }
+          });
+        }else{
+          wx.showToast({
+            title: '编辑失败',
+            icon: 'none',
+            duration: 2000,
+          })
+          this.data.firstJump = true
+        }
+      });
+    }
+    
+  },
+
+  /**
+   * 生命周期函数--监听页面初次渲染完成
+   */
+  onReady: function () {
+
+  },
+
+  /**
+   * 生命周期函数--监听页面显示
+   */
+  onShow: function () {
+    var that = this;
+
+    let id = "#textareawrap";
+    let query = wx.createSelectorQuery();//创建查询对象
+    query.select(id).boundingClientRect();//获取view的边界及位置信息
+    query.exec(function (res) {
+      that.setData({
+        height: res[0].height + "rpx"
+      })
+    })
+  },
+
+  /**
+   * 生命周期函数--监听页面隐藏
+   */
+  onHide: function () {
+
+  },
+
+  /**
+   * 生命周期函数--监听页面卸载
+   */
+  onUnload: function () {
+
+  },
+
+  /**
+   * 页面相关事件处理函数--监听用户下拉动作
+   */
+  onPullDownRefresh: function () {
+
+  },
+
+  /**
+   * 页面上拉触底事件的处理函数
+   */
+  onReachBottom: function () {
+
+  },
+
+  /**
+   * 用户点击右上角分享
+   */
+  onShareAppMessage: function () {
+
+  },
+
+isEmojiCharacter(substring) {
+    for( var i = 0; i<substring.length; i++) {
+  var hs = substring.charCodeAt(i);
+  if (0xd800 <= hs && hs <= 0xdbff) {
+    if (substring.length > 1) {
+      var ls = substring.charCodeAt(i + 1);
+      var uc = ((hs - 0xd800) * 0x400) + (ls - 0xdc00) + 0x10000;
+      if (0x1d000 <= uc && uc <= 0x1f77f) {
+        return true;
+      }
+    }
+  } else if (substring.length > 1) {
+    var ls = substring.charCodeAt(i + 1);
+    if (ls == 0x20e3) {
+      return true;
+    }
+  } else {
+    if (0x2100 <= hs && hs <= 0x27ff) {
+      return true;
+    } else if (0x2B05 <= hs && hs <= 0x2b07) {
+      return true;
+    } else if (0x2934 <= hs && hs <= 0x2935) {
+      return true;
+    } else if (0x3297 <= hs && hs <= 0x3299) {
+      return true;
+    } else if (hs == 0xa9 || hs == 0xae || hs == 0x303d || hs == 0x3030
+      || hs == 0x2b55 || hs == 0x2b1c || hs == 0x2b1b
+      || hs == 0x2b50) {
+      return true;
+    }
+  }
+}
+}
+})

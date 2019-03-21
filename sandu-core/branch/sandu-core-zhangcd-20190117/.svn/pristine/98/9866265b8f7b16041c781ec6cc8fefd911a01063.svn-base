@@ -1,0 +1,203 @@
+package com.sandu.service.springFestivalActivity.impl;
+
+import com.sandu.api.base.common.LoginUser;
+import com.sandu.api.base.common.exception.BizException;
+import com.sandu.api.springFestivalActivity.model.WxRedPacketSummary;
+import com.sandu.api.springFestivalActivity.model.WxSpringActivity;
+import com.sandu.api.springFestivalActivity.model.WxUserSignin;
+import com.sandu.api.springFestivalActivity.output.DateVo;
+import com.sandu.api.springFestivalActivity.output.UserSignInRecordVo;
+import com.sandu.api.springFestivalActivity.service.WxRedPacketSummaryService;
+import com.sandu.api.springFestivalActivity.service.WxSpringActivityService;
+import com.sandu.api.springFestivalActivity.service.WxUserSigninService;
+import com.sandu.service.springFestivalActivity.dao.WxUserSigninMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+@Slf4j
+@Service("wxUserSigninService")
+public class WxUserSigninServiceImpl implements WxUserSigninService {
+
+    private static final String CLASS_LOG_PREFIX = "【签到记录service】";
+
+    @Autowired
+    private WxUserSigninMapper wxUserSigninMapper;
+    @Autowired
+    private WxSpringActivityService wxSpringActivityService;
+    @Autowired
+    private WxRedPacketSummaryService wxRedPacketSummaryService;
+
+    /**
+     * 获取用户签到记录列表
+     * 1.获取活动时间段（是否需要判断活动是否结束？我想的是在签到的时候判断，活动列表一直会显示）
+     * 2.获取用户签到记录
+     * 3.组装所有数据
+     */
+    @Override
+    public List<UserSignInRecordVo> getUserSignInRecordList(long activityId, Integer userId) throws BizException {
+        if (0L == activityId) {
+            throw new BizException("获取用户签到记录，参数activityId为空");
+        }
+        if (null == userId || 0 == userId) {
+            throw new BizException("获取用户签到记录，参数userId为空");
+        }
+        log.info(CLASS_LOG_PREFIX + "获取用户签到记录，activityId={},userId={}", activityId, userId);
+        // 获取签到活动开始和结束时间
+        DateVo signInDate = this.getSignInDate(activityId);
+        //组装签到活动的每一天的签到记录集合
+        List<UserSignInRecordVo> allSignInList = this.getActivitySignInList(signInDate);
+        //获取用户已经签到天数的集合
+        List<WxUserSignin> userSigninList = wxUserSigninMapper.getSignInListByUserId(activityId, userId.longValue());
+        //把已经签到的数据放入返回的签到集合中
+        byte signIn = 1;
+        if (!CollectionUtils.isEmpty(userSigninList)) {
+            for (WxUserSignin wxUserSignin : userSigninList) {
+                for (UserSignInRecordVo daySignIn : allSignInList) {
+                    if (wxUserSignin.getSigninDate().equals(daySignIn.getSigninDate())) {
+                        BeanUtils.copyProperties(wxUserSignin, daySignIn);
+                        daySignIn.setIsSignIn(signIn);
+                    }
+                }
+            }
+        }
+        return allSignInList;
+    }
+
+    /**
+     * 签到
+     * 1.获取活动时间段，判断活动是否结束
+     * 2.判断今日红包剩余金额,判断红包总剩余金额
+     * 3.随机获取红包金额（除夕当天还要特殊判断，红包更大一点。）
+     * 4.调用伟文接口发红包
+     * 5.插入签到数据
+     * 6.修改今日发红包金额数，今日剩余红包数，总红包剩余数
+     * 7.判断签到次数，为3的倍数则提示可以抽奖
+     */
+    @Override
+    public boolean signIn(Long activityId, LoginUser loginUser) throws BizException {
+        if (null == loginUser || null == loginUser.getId() || 0 >= loginUser.getId()) {
+            throw new BizException("请登录");
+        }
+        if (null == activityId || 0 >= activityId) {
+            throw new BizException("活动id为空");
+        }
+        // 1.获取活动时间段，判断活动是否结束
+        DateVo signInDate = this.getSignInDate(activityId);
+        Date beginDate = signInDate.getBeginDate();
+        Date endDate = signInDate.getEndDate();
+        Date now = new Date();
+        if (now.before(beginDate)) {
+            throw new BizException("活动未开始");
+        }
+        if (now.after(endDate)) {
+            throw new BizException("活动已结束");
+        }
+        // 2.判断今日红包剩余金额,判断红包总剩余金额
+        this.verifyRedPacketRemain(activityId);
+
+
+    }
+
+    /**
+     * 功能描述: 判断今日红包剩余金额,判断红包总剩余金额
+     *
+     * @param activityId
+     * @return void
+     * @throws
+     * @author gaoj
+     * @date 2019/1/21 16:14
+     */
+    private void verifyRedPacketRemain(Long activityId) {
+        Date now = new Date();
+        // 2.1.判断今日是否有人领过红包，没有则在红包表插入一条记录
+        WxRedPacketSummary wxRedPacketSummary = wxRedPacketSummaryService.getBySignInDate(activityId, now);
+        if (null == wxRedPacketSummary) {
+            //表示当日还没有人领过红包，需在红包表插入一条记录，数据从活动表获取
+            WxSpringActivity wxSpringActivity = wxSpringActivityService.selectByPrimaryKey(activityId);
+            if (null == wxSpringActivity) {
+                throw new BizException("获取活动数据失败，请检查活动id：" + activityId);
+            }
+            wxRedPacketSummary = new WxRedPacketSummary();
+            wxRedPacketSummary.setActivityId(activityId);
+            wxRedPacketSummary.setSigninDate(now);
+            wxRedPacketSummary.setRedPacketDayNum(wxSpringActivity.getRedPacketDayNum());
+            wxRedPacketSummary.setRedPacketRemainNum(wxSpringActivity.getRedPacketDayNum());
+            wxRedPacketSummary.setRedPacketUseNum(new BigDecimal(0));
+            wxRedPacketSummary.setCreator("system");
+            wxRedPacketSummary.setModifier("system");
+            wxRedPacketSummary.setGmtCreate(now);
+            wxRedPacketSummary.setGmtModified(now);
+            wxRedPacketSummary.setIsDeleted(0);
+            wxRedPacketSummaryService.insert(wxRedPacketSummary);
+        }
+        //判断红包金额
+        BigDecimal redPacketRemainNum = wxRedPacketSummary.getRedPacketRemainNum();
+        
+    }
+
+    /**
+     * 功能描述: 根据活动时间组装每天的签到列表集合
+     *
+     * @param signInDateVo
+     * @return List<UserSignInRecordVo>
+     * @author gaoj
+     * @date 2019/1/20 22:12
+     */
+    private List<UserSignInRecordVo> getActivitySignInList(DateVo signInDateVo) {
+        // 查询起始时间和截止时间
+        Date beginDate = signInDateVo.getBeginDate();
+        Date endDate = signInDateVo.getEndDate();
+        log.info(CLASS_LOG_PREFIX + "获取用户签到记录，beginDate={},endDate={}", beginDate, endDate);
+        // 算出起始时间和截止时间中间的每一天，返回每天对象集合
+        long day = (endDate.getTime() - beginDate.getTime()) / (1000 * 60 * 60 * 24) + 1;
+        log.info(CLASS_LOG_PREFIX + "获取用户签到记录，活动间隔天数：{}", day);
+        List<UserSignInRecordVo> allSignInRecordVoList = new ArrayList<>((int) day);
+        UserSignInRecordVo daySignInRecordVo;
+        Calendar calendar = Calendar.getInstance();
+        for (int i = 0; i < day; i++) {
+            calendar.setTime(beginDate);
+            calendar.add(Calendar.DAY_OF_MONTH, i);
+            daySignInRecordVo = new UserSignInRecordVo();
+            daySignInRecordVo.setSigninDate(calendar.getTime());
+            daySignInRecordVo.setSigninDay(calendar.get(Calendar.DAY_OF_MONTH));
+            allSignInRecordVoList.add(daySignInRecordVo);
+        }
+        return allSignInRecordVoList;
+    }
+
+    /**
+     * 功能描述: 获取签到活动的开始和结束时间
+     *
+     * @param activityId
+     * @return com.sandu.api.springFestivalActivity.output.DateVo
+     * @throws
+     * @author gaoj
+     * @date 2019/1/21 10:43
+     */
+    private DateVo getSignInDate(long activityId) {
+        // 查询起始时间和截止时间
+        log.info(CLASS_LOG_PREFIX + "获取签到活动时间,activityId={}", activityId);
+        DateVo signInDateVo = wxSpringActivityService.getSignInDate(activityId);
+        if (null == signInDateVo) {
+            throw new BizException("获取签到活动时间为空");
+        }
+        if (null == signInDateVo.getBeginDate()) {
+            throw new BizException("获取签到活动开始时间为空");
+        }
+        if (null == signInDateVo.getEndDate()) {
+            throw new BizException("获取签到活动结束时间为空");
+        }
+        log.info(CLASS_LOG_PREFIX + "获取用户签到记录，beginDate={},endDate={}", signInDateVo.getBeginDate(), signInDateVo.getEndDate());
+
+        return signInDateVo;
+    }
+}

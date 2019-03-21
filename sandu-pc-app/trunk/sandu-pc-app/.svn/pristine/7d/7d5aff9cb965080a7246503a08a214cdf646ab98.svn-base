@@ -1,0 +1,24 @@
+package com.sandu.house.model.input;
+
+import com.sandu.common.model.Mapper;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.List;
+
+@Data
+public class BaseHouseSearch extends Mapper implements Serializable{
+
+    @ApiModelProperty(value = "小区名称", dataType = "String")
+    private String livingName;
+    @ApiModelProperty(value = "小区IDS", dataType = "List", hidden = true)
+    private List<Integer> livingIds;
+    @ApiModelProperty(value = "区域编码", dataType = "String")
+    private String areaCode;
+    @ApiModelProperty(value = "小区ID", dataType = "INTEGER")
+    private Integer livingId;
+    @ApiModelProperty(value = "用户ID", dataType = "Integer", hidden = true)
+    private Integer userId;
+
+}

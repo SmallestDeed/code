@@ -1,0 +1,141 @@
+package com.sandu.web.user;/**
+ * @ Author     ：weisheng.
+ * @ Date       ：Created in AM 10:09 2018/5/14 0014
+ * @ Description：${description}
+ * @ Modified By：
+ * @Version: $version$
+ */
+
+import com.nork.common.model.LoginUser;
+import com.sandu.common.LoginContext;
+import com.sandu.common.model.PageModel;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.user.model.input.UserPrivateMessageAdd;
+import com.sandu.user.model.view.UserPrivateMessageVo;
+import com.sandu.user.service.UserPrivateMessageService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
+/**
+ * @author weisheng
+ * @Title: 用户留言 私信
+ * @Package
+ * @Description:
+ * @date 2018/5/14 0014AM 10:09
+ */
+@Slf4j
+@RestController
+@RequestMapping("/v1/union/message")
+public class UserPrivateMessageController {
+    private final static String CLASS_LOG_PREFIX = "[用户留言.私信服务]";
+
+    @Autowired
+    private UserPrivateMessageService userPrivateMessageService;
+
+
+    /**
+     * @Title: 用户留言.私信列表
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/getprivatemessagelist", method = RequestMethod.GET)
+    @ResponseBody
+    @ApiOperation(value = "用户留言列表", response = ResponseEnvelope.class)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "friendId", value = "接受者ID", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "curPage", value = "当前页码", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页多少条", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "messageType", value = "消息类型,1：普通消息 2：系统消息", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "status", value = "消息状态 1：未读 2：已读 3：删除", required = false, paramType = "query", dataType = "int")
+    })
+    public ResponseEnvelope getUserPrivateMessageList(@ModelAttribute UserPrivateMessageAdd userPrivateMessageAdd,HttpServletRequest request) {
+    /*    LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, "请先登录");
+        }*/
+        userPrivateMessageAdd.setUserId(/*loginUser.getId()*/823);
+        List<UserPrivateMessageVo> userPrivateMessageVoList = userPrivateMessageService.getUserPrivateMessageList(userPrivateMessageAdd);
+
+        if (userPrivateMessageVoList == null || userPrivateMessageVoList.size() == 0) {
+            return new ResponseEnvelope(false, "\n" +
+                    "\n" +
+                    "您暂时没有收到信息哦！\n" +
+                    "\n" +
+                    "逛逛同城看看有没有您需要的服务！\n");
+        }
+
+
+        return new ResponseEnvelope(true, "", userPrivateMessageVoList);
+    }
+
+
+    /**
+     * @Title: 用户留言.私信列表详情
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/getprivatemessageinfolist", method = RequestMethod.POST)
+    @ResponseBody
+    @ApiOperation(value = "用户留言列表", response = ResponseEnvelope.class)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "friendId", value = "接受者ID", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "curPage", value = "当前页码", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页多少条", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "messageType", value = "消息类型,1：普通消息 2：系统消息", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "status", value = "消息状态 1：未读 2：已读 3：删除", required = false, paramType = "query", dataType = "int")
+    })
+    public ResponseEnvelope getUserPrivateMessageInfoList(@RequestBody UserPrivateMessageAdd userPrivateMessageAdd, HttpServletRequest request) {
+     /*   LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, "请先登录");
+        }*/
+        userPrivateMessageAdd.setUserId(/*loginUser.getId()*/823);
+        List<UserPrivateMessageVo> userPrivateMessageInfoList = userPrivateMessageService.getUserPrivateMessageInfoList(userPrivateMessageAdd);
+        if (userPrivateMessageInfoList == null || userPrivateMessageInfoList.size() == 0) {
+            return new ResponseEnvelope(false, "获取我的留言失败");
+        }
+        return new ResponseEnvelope(true, "", userPrivateMessageInfoList);
+    }
+
+
+    /**
+     * @Title: 用户留言.私信列表页面删除整个回话
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/deluserprivatemessage", method = RequestMethod.POST)
+    @ResponseBody
+    @ApiOperation(value = "用户留言列表", response = ResponseEnvelope.class)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "friendId", value = "接受者ID", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "messageType", value = "消息类型,1：普通消息 2：系统消息", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "status", value = "消息状态 1：未读 2：已读 3：删除", required = false, paramType = "query", dataType = "int")
+    })
+    public ResponseEnvelope delUserPrivateMessage(@RequestBody UserPrivateMessageAdd userPrivateMessageAdd, HttpServletRequest request) {
+     /*   LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, "请先登录");
+        }*/
+        userPrivateMessageAdd.setUserId(/*loginUser.getId()*/823);
+        Integer messageId = userPrivateMessageService.delUserPrivateMessage(userPrivateMessageAdd);
+        if (messageId == 0) {
+            return new ResponseEnvelope(false, "删除留言回话失败");
+        }
+        return new ResponseEnvelope(true, "", messageId);
+    }
+
+
+}

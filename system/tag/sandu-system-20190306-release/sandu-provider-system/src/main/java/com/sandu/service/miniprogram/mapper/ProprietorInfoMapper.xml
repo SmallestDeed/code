@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.miniprogram.dao.ProprietorInfoMapper">
+  <resultMap id="BaseResultMap" type="com.sandu.api.miniprogram.model.ProprietorInfo">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="type" jdbcType="TINYINT" property="type" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+    <result column="province_code" jdbcType="VARCHAR" property="provinceCode" />
+    <result column="city_code" jdbcType="VARCHAR" property="cityCode" />
+    <result column="area_name" jdbcType="VARCHAR" property="areaName" />
+    <result column="house_acreage" jdbcType="VARCHAR" property="houseAcreage" />
+    <result column="source_type" jdbcType="INTEGER" property="sourceType" />
+    <result column="house_type" jdbcType="VARCHAR" property="houseType" />
+    <result column="process" jdbcType="INTEGER" property="process" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_created" jdbcType="TIMESTAMP" property="gmtCreated" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+    <result column="is_init" jdbcType="INTEGER" property="isInit" />
+    <result column="business_type" jdbcType="INTEGER" property="businessType" />
+    <result column="company_type" jdbcType="INTEGER" property="companyType" />
+    <result column="company_name" jdbcType="VARCHAR" property="companyName" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, type, user_name, mobile, province_code, city_code, area_name, house_acreage, 
+    source_type, house_type, process, creator, gmt_created, modifier, gmt_modified, is_deleted,is_init,
+    business_type,company_type,company_name
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from proprietor_info
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+    <select id="selectByPhone" resultMap="BaseResultMap">
+      select
+      <include refid="Base_Column_List" />
+      from proprietor_info
+      where is_deleted = 0 and mobile = #{mobile,jdbcType=VARCHAR}
+      <if test="businessType != null">
+        and business_type = #{businessType}
+      </if>
+      <if test="type != null">
+        and type =#{type}
+      </if>
+    </select>
+  <select id="selectByInit" resultMap="BaseResultMap">
+    select user_name,mobile
+    from proprietor_info
+    order by id desc
+    limit 20
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from proprietor_info
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.miniprogram.model.ProprietorInfo">
+    insert into proprietor_info (id, type, user_name, 
+      mobile, province_code, city_code, 
+      area_name, house_acreage, source_type, 
+      house_type, process, creator, 
+      gmt_created, modifier, gmt_modified, 
+      is_deleted,is_init,business_type,company_type,company_name)
+    values (#{id,jdbcType=INTEGER}, #{type,jdbcType=TINYINT}, #{userName,jdbcType=VARCHAR}, 
+      #{mobile,jdbcType=VARCHAR}, #{provinceCode,jdbcType=VARCHAR}, #{cityCode,jdbcType=VARCHAR}, 
+      #{areaName,jdbcType=VARCHAR}, #{houseAcreage,jdbcType=VARCHAR}, #{sourceType,jdbcType=INTEGER}, 
+      #{houseType,jdbcType=VARCHAR}, #{process,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
+      #{gmtCreated,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{isDeleted,jdbcType=INTEGER},#{isInit,jdbcType=INTEGER},#{businessType},#{companyType},#{companyName})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.miniprogram.model.ProprietorInfo" keyProperty="id" useGeneratedKeys="true">
+    insert into proprietor_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="userName != null">
+        user_name,
+      </if>
+      <if test="mobile != null">
+        mobile,
+      </if>
+      <if test="provinceCode != null">
+        province_code,
+      </if>
+      <if test="cityCode != null">
+        city_code,
+      </if>
+      <if test="areaName != null">
+        area_name,
+      </if>
+      <if test="houseAcreage != null">
+        house_acreage,
+      </if>
+      <if test="sourceType != null">
+        source_type,
+      </if>
+      <if test="houseType != null">
+        house_type,
+      </if>
+      <if test="process != null">
+        process,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="gmtCreated != null">
+        gmt_created,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+      <if test="isInit != null">
+        is_init,
+      </if>
+      <if test="businessType != null">
+        business_type,
+      </if>
+      <if test="companyType != null">
+        company_type,
+      </if>
+      <if test="companyName != null">
+        company_name,
+      </if>
+      <if test="designplanId != null">
+        designplan_id,
+      </if>
+      <if test="designplanType != null">
+        designplan_Type,
+      </if>
+      <if test="appointUserId != null">
+      	 appoint_user_id
+      </if>
+      <if test="utmSource != null">utm_source,</if>
+      <if test="utmCampaign != null">utm_campaign,</if>
+      <if test="utmAdgroup != null">utm_adgroup,</if>
+      <if test="utmTerm != null">utm_term,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=TINYINT},
+      </if>
+      <if test="userName != null">
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null">
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceCode != null">
+        #{provinceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="cityCode != null">
+        #{cityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="areaName != null">
+        #{areaName,jdbcType=VARCHAR},
+      </if>
+      <if test="houseAcreage != null">
+        #{houseAcreage,jdbcType=VARCHAR},
+      </if>
+      <if test="sourceType != null">
+        #{sourceType,jdbcType=INTEGER},
+      </if>
+      <if test="houseType != null">
+        #{houseType,jdbcType=TINYINT},
+      </if>
+      <if test="process != null">
+        #{process,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreated != null">
+        #{gmtCreated,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="isInit != null">
+        #{isInit,jdbcType=INTEGER},
+      </if>
+      <if test="businessType != null">
+        #{businessType,jdbcType=INTEGER},
+      </if>
+      <if test="companyType != null">
+        #{companyType,jdbcType=INTEGER},
+      </if>
+      <if test="companyName != null">
+       	 #{companyName,jdbcType=VARCHAR},
+      </if>
+      <if test="designplanId != null">
+      	 #{designplanId,jdbcType=INTEGER},
+      </if>
+      <if test="designplanType != null">
+      	 #{designplanType,jdbcType=INTEGER},
+      </if>
+      <if test="appointUserId != null">
+      	 #{appointUserId,jdbcType=INTEGER},
+      </if>
+      <if test="utmSource != null">#{utmSource,jdbcType=VARCHAR},</if>
+      <if test="utmCampaign != null">#{utmCampaign,jdbcType=VARCHAR},</if>
+      <if test="utmAdgroup != null">#{utmAdgroup,jdbcType=VARCHAR},</if>
+      <if test="utmTerm != null">#{utmTerm,jdbcType=VARCHAR},</if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.miniprogram.model.ProprietorInfo">
+    update proprietor_info
+    <set>
+      <if test="type != null">
+        type = #{type,jdbcType=TINYINT},
+      </if>
+      <if test="userName != null">
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null">
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceCode != null">
+        province_code = #{provinceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="cityCode != null">
+        city_code = #{cityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="areaName != null">
+        area_name = #{areaName,jdbcType=VARCHAR},
+      </if>
+      <if test="houseAcreage != null">
+        house_acreage = #{houseAcreage,jdbcType=VARCHAR},
+      </if>
+      <if test="sourceType != null">
+        source_type = #{sourceType,jdbcType=INTEGER},
+      </if>
+      <if test="houseType != null">
+        house_type = #{houseType,jdbcType=VARCHAR},
+      </if>
+      <if test="process != null">
+        process = #{process,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreated != null">
+        gmt_created = #{gmtCreated,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="isInit != null">
+        is_init = #{isInit,jdbcType=INTEGER},
+      </if>
+      <if test="businessType != null">
+        business_type = #{businessType,jdbcType=INTEGER},
+      </if>
+      <if test="companyType != null">
+        company_type = #{companyType,jdbcType=INTEGER},
+      </if>
+      <if test="companyName != null">
+        company_name = #{companyName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.miniprogram.model.ProprietorInfo">
+    update proprietor_info
+    set type = #{type,jdbcType=TINYINT},
+      user_name = #{userName,jdbcType=VARCHAR},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      province_code = #{provinceCode,jdbcType=VARCHAR},
+      city_code = #{cityCode,jdbcType=VARCHAR},
+      area_name = #{areaName,jdbcType=VARCHAR},
+      house_acreage = #{houseAcreage,jdbcType=VARCHAR},
+      source_type = #{sourceType,jdbcType=INTEGER},
+      house_type = #{houseType,jdbcType=VARCHAR},
+      process = #{process,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_created = #{gmtCreated,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      is_init = #{isInit,jdbcType=INTEGER},
+      business_type = #{businessType,jdbcType=INTEGER},
+      company_type = #{companyType,jdbcType=INTEGER},
+      company_name = #{companyName,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="getProprietorInfoList" parameterType="com.sandu.api.miniprogram.input.ProprietorInfoQuery"
+          resultType="com.sandu.api.miniprogram.output.ProprietorInfoVO">
+    select
+        t1.id,
+        t1.services_type,
+        t1.user_name,
+        t1.mobile,
+        t2.shop_name,
+        t1.gmt_created,
+        t1.process
+    from
+        proprietor_info t1
+        inner join company_shop t2 on t2.id = t1.shop_id
+    where
+        t1.type = 3
+        and t1.business_type = 0
+        and t1.is_deleted = 0
+        and t2.company_id = #{companyId}
+        <if test="provinceCode != null">
+            and t1.province_code = #{provinceCode}
+        </if>
+        <if test="cityCode != null">
+            and t1.city_code = #{cityCode}
+        </if>
+        <if test="process != null">
+            and t1.process = #{process}
+        </if>
+        <if test="mobile != null">
+            and t1.mobile = #{mobile}
+        </if>
+    order by t1.gmt_created desc
+    <if test="start != null and limit != null">
+        limit #{start}, #{limit}
+    </if>
+  </select>
+  <select id="getProprietorInfoListCount" parameterType="com.sandu.api.miniprogram.input.ProprietorInfoQuery"
+          resultType="java.lang.Integer">
+    select
+        count(1)
+    from
+        proprietor_info t1
+        inner join company_shop t2 on t2.id = t1.shop_id
+    where
+        t1.type = 3
+        and t1.business_type = 0
+        and t1.is_deleted = 0
+        and t2.company_id = #{companyId}
+        <if test="provinceCode != null">
+          and t1.province_code = #{provinceCode}
+        </if>
+        <if test="cityCode != null">
+          and t1.city_code = #{cityCode}
+        </if>
+        <if test="process != null">
+          and t1.process = #{process}
+        </if>
+        <if test="mobile != null">
+          and t1.mobile = #{mobile}
+        </if>
+  </select>
+
+  <update id="updateProprietorInfoProcess" parameterType="java.util.List">
+    update
+        proprietor_info
+    set
+        process = IF(process = 1,0,1)
+    where
+        id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+  </update>
+</mapper>

@@ -1,0 +1,38 @@
+package com.sandu.product.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.product.cache.service.GroupProductDetailsCacheService;
+import com.sandu.product.dao.GroupProductDetailsMapper;
+import com.sandu.product.model.GroupProductDetails;
+import com.sandu.product.service.GroupProductDetailsService;
+
+@Service("groupProductDetailsService")
+public class GroupProductDetailsServiceImpl implements GroupProductDetailsService {
+
+	@Autowired
+	private GroupProductDetailsMapper groupProductDetailsMapper;
+	
+	@Autowired
+	private GroupProductDetailsCacheService groupProductDetailsCacheService;
+	
+	@Override
+	public List<GroupProductDetails> getListFromCache(GroupProductDetails groupProductDetails) {
+		return groupProductDetailsCacheService.getList(groupProductDetails);
+	}
+
+	/**
+	 * 所有数据
+	 * 
+	 * @param  groupProductDetails
+	 * @return   List<GroupProductDetails>
+	 */
+	@Override
+	public List<GroupProductDetails> getList(GroupProductDetails groupProductDetails) {
+	    return groupProductDetailsMapper.selectList(groupProductDetails);
+	}
+
+}

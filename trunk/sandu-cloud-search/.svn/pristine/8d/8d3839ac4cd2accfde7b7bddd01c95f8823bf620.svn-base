@@ -1,0 +1,49 @@
+package com.sandu.search.service.product.impl;
+
+import com.sandu.search.common.constant.IndexInfoQueryConfig;
+import com.sandu.search.common.constant.QueryConditionField;
+import com.sandu.search.entity.elasticsearch.response.SearchObjectResponse;
+import com.sandu.search.exception.ElasticSearchException;
+import com.sandu.search.exception.ProductFullTextQueryException;
+import com.sandu.search.service.elasticsearch.ElasticSearchService;
+import com.sandu.search.service.product.ProductFullTextQueryService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+
+/**
+ * Copyright (c) http://www.sanduspace.cn. All rights reserved.
+ *
+ * @author :  Steve
+ * @date : 2017/12/19
+ * @since : sandu_yun_1.0
+ */
+@Slf4j
+@Service("productFullTextQueryService")
+public class ProductFullTextQueryServiceImpl implements ProductFullTextQueryService {
+
+    private final static String CLASS_LOG_PREFIX = "产品搜索服务:";
+
+    @Autowired
+    private ElasticSearchService elasticSearchService;
+
+    @Override
+    public SearchObjectResponse queryProductListByText(String text, int dataSize) throws ProductFullTextQueryException {
+        SearchObjectResponse searchObjectResponse = null;
+        if (StringUtils.isNotEmpty(text)) {
+            QueryBuilder matchQueryBuilder = QueryBuilders.multiMatchQuery(text, QueryConditionField.QUERY_CONDITION_FIELD_PRODUCT_BRAND_NAME, QueryConditionField.QUERY_CONDITION_FIELD_PRODUCT_NAME, QueryConditionField.QUERY_CONDITION_FIELD_PRODUCT_STYLE_NAME, QueryConditionField.QUERY_CONDITION_FIELD_PRODUCT_TEXTURE_NAME);
+            try {
+                searchObjectResponse = elasticSearchService.productCategorySearch(Arrays.asList(matchQueryBuilder), IndexInfoQueryConfig.DEFAULT_SEARCH_DATA_START, dataSize);
+            } catch (ElasticSearchException e) {
+                log.error(CLASS_LOG_PREFIX + "通过全文搜索产品列表失败，QueryBuilder:{}, ElasticSearchException:{}.", matchQueryBuilder.toString(), e);
+                throw new ProductFullTextQueryException(CLASS_LOG_PREFIX + "通过全文搜索产品列表失败，QueryBuilder:" + matchQueryBuilder.toString() + ", ElasticSearchException:" + e);
+            }
+        }
+        return searchObjectResponse;
+    }
+}

@@ -1,0 +1,122 @@
+package com.sandu.company.model.vo;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import java.util.List;
+
+/***
+ * 店铺信息输出类
+ * @author Administrator
+ *
+ */
+@Data
+@ApiModel(value = "店铺信息", description = "店铺信息")
+public class CompanyShopDetailVo extends CompanyShopVo{
+	private static final long serialVersionUID = -7073360715574668298L;
+	@ApiModelProperty(value = "成功案例数量")
+	private int caseCount;
+	@ApiModelProperty(value = "评论数量")
+	private int commentCount;
+	@ApiModelProperty(value = "销量")
+	private int salesVolume;
+	@ApiModelProperty(value = "收藏数量")
+	private int collectionCount;
+	@ApiModelProperty(value = "点赞数量")
+	private int likeCount;
+	@ApiModelProperty(value = "一键方案数量")
+    private int onekeyPlanCount;
+    @ApiModelProperty(value = "公开方案数量")
+    private int openPlanCount;
+    @ApiModelProperty(value = "设计师数量")
+    private int designerCount;
+	@ApiModelProperty(value = "店铺封面资源地址")
+	private List<String> coverResList;
+	@ApiModelProperty(value = "店铺介绍")
+	private String shopIntroduced;
+	@ApiModelProperty(value = "店铺联系人会话id")
+	private String sessionId;
+
+	public int getCaseCount() {
+		return caseCount;
+	}
+
+	public void setCaseCount(int caseCount) {
+		this.caseCount = caseCount;
+	}
+
+	public int getCommentCount() {
+		return commentCount;
+	}
+
+	public void setCommentCount(int commentCount) {
+		this.commentCount = commentCount;
+	}
+
+	public int getOnekeyPlanCount() {
+        return onekeyPlanCount;
+    }
+
+    public void setOnekeyPlanCount(int onekeyPlanCount) {
+        this.onekeyPlanCount = onekeyPlanCount;
+    }
+
+    public int getOpenPlanCount() {
+        return openPlanCount;
+    }
+
+    public void setOpenPlanCount(int openPlanCount) {
+        this.openPlanCount = openPlanCount;
+    }
+
+	public int getSalesVolume() {
+		return salesVolume;
+	}
+
+	public void setSalesVolume(int salesVolume) {
+		this.salesVolume = salesVolume;
+	}
+
+	public int getCollectionCount() {
+		return collectionCount;
+	}
+
+	public void setCollectionCount(int collectionCount) {
+		this.collectionCount = collectionCount;
+	}
+
+	public int getLikeCount() {
+		return likeCount;
+	}
+
+	public void setLikeCount(int likeCount) {
+		this.likeCount = likeCount;
+	}
+
+	public int getDesignerCount() {
+		return designerCount;
+	}
+
+	public void setDesignerCount(int designerCount) {
+		this.designerCount = designerCount;
+	}
+
+	public List<String> getCoverResList() {
+		return coverResList;
+	}
+
+	public void setCoverResList(List<String> coverResList) {
+		this.coverResList = coverResList;
+	}
+
+	public String getShopIntroduced() {
+		return shopIntroduced;
+	}
+
+	public void setShopIntroduced(String shopIntroduced) {
+		this.shopIntroduced = shopIntroduced;
+	}
+	
+	
+}

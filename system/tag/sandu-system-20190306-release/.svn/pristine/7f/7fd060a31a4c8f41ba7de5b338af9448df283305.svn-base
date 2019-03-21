@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.banner.dao.ResBannerPicMapper">
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List" >
+        id,pic_code,pic_name,pic_file_name,pic_type,pic_size,pic_weight,pic_high,pic_suffix,pic_level,
+        pic_format,pic_path,pic_desc,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,remark
+    </sql>
+
+    <!--添加 广告-图片-->
+    <insert id="insertResBannerPic" parameterType="com.sandu.api.banner.model.ResBannerPic" useGeneratedKeys="true" keyProperty="id" >
+        insert into res_banner_pic
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="picCode != null">
+                pic_code,
+            </if>
+            <if test="picName != null">
+                pic_name,
+            </if>
+            <if test="picFileName != null">
+                pic_file_name,
+            </if>
+            <if test="picType != null">
+                pic_type,
+            </if>
+            <if test="picSize != null">
+                pic_size,
+            </if>
+            <if test="picWeight != null">
+                pic_weight,
+            </if>
+            <if test="picHigh != null">
+                pic_high,
+            </if>
+            <if test="picSuffix != null">
+                pic_suffix,
+            </if>
+            <if test="picLevel != null">
+                pic_level,
+            </if>
+            <if test="picFormat != null">
+                pic_format,
+            </if>
+            <if test="picPath != null">
+                pic_path,
+            </if>
+            <if test="picDesc != null">
+                pic_desc,
+            </if>
+            <if test="sysCode != null">
+                sys_code,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="picCode != null">
+                #{picCode,jdbcType=VARCHAR},
+            </if>
+            <if test="picName != null">
+                #{picName,jdbcType=VARCHAR},
+            </if>
+            <if test="picFileName != null">
+                #{picFileName,jdbcType=VARCHAR},
+            </if>
+            <if test="picType != null">
+                #{picType,jdbcType=VARCHAR},
+            </if>
+            <if test="picSize != null">
+                #{picSize,jdbcType=INTEGER},
+            </if>
+            <if test="picWeight != null">
+                #{picWeight,jdbcType=VARCHAR},
+            </if>
+            <if test="picHigh != null">
+                #{picHigh,jdbcType=VARCHAR},
+            </if>
+            <if test="picSuffix != null">
+                #{picSuffix,jdbcType=VARCHAR},
+            </if>
+            <if test="picLevel != null">
+                #{picLevel,jdbcType=VARCHAR},
+            </if>
+            <if test="picFormat != null">
+                #{picFormat,jdbcType=VARCHAR},
+            </if>
+            <if test="picPath != null">
+                #{picPath,jdbcType=VARCHAR},
+            </if>
+            <if test="picDesc != null">
+                #{picDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="sysCode != null">
+                #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <!--通过Id查询图片-->
+    <select id="getPicById" parameterType="java.lang.Integer" resultType="com.sandu.api.banner.model.ResBannerPic">
+        SELECT
+            <include refid="All_Column_List"/>
+        FROM
+            res_banner_pic
+        WHERE
+            id=#{picId,jdbcType=INTEGER}
+        AND
+            is_deleted =0
+    </select>
+
+    <!--删除广告-->
+    <update id="deleteResBannerPic" parameterType="com.sandu.api.banner.model.ResBannerPic" >
+        UPDATE
+            res_banner_pic
+        SET
+            is_deleted= 1,modifier = #{modifier,jdbcType=VARCHAR},
+            gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+        WHERE
+            id=#{id,javaType=INTEGER}
+    </update>
+
+    <!--修改广告信息-->
+    <update id="updateResBannerPic" parameterType="com.sandu.api.banner.model.ResBannerPic" >
+        UPDATE
+            res_banner_pic
+        <set>
+            <if test="picCode != null">
+                pic_code= #{picCode,jdbcType=VARCHAR},
+            </if>
+            <if test="picName != null">
+                pic_name=#{picName,jdbcType=VARCHAR},
+            </if>
+            <if test="picFileName != null">
+                pic_file_name=#{picFileName,jdbcType=VARCHAR},
+            </if>
+            <if test="picType != null">
+                pic_type=#{picType,jdbcType=VARCHAR},
+            </if>
+            <if test="picSize != null">
+                pic_size= #{picSize,jdbcType=INTEGER},
+            </if>
+            <if test="picWeight != null">
+                pic_weight=#{picWeight,jdbcType=VARCHAR},
+            </if>
+            <if test="picHigh != null">
+                pic_high=#{picHigh,jdbcType=VARCHAR},
+            </if>
+            <if test="picSuffix != null">
+                pic_suffix= #{picSuffix,jdbcType=VARCHAR},
+            </if>
+            <if test="picLevel != null">
+                pic_level=#{picLevel,jdbcType=VARCHAR},
+            </if>
+            <if test="picFormat != null">
+                pic_format=#{picFormat,jdbcType=VARCHAR},
+            </if>
+            <if test="picPath != null">
+                pic_path= #{picPath,jdbcType=VARCHAR},
+            </if>
+            <if test="picDesc != null">
+                pic_desc=#{picDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="sysCode != null">
+                sys_code=#{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier=#{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified=#{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remark != null">
+                remark= #{remark,jdbcType=VARCHAR},
+            </if>
+        </set>
+        WHERE
+            id=#{id,javaType=INTEGER}
+    </update>
+
+</mapper>

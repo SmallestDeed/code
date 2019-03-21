@@ -1,0 +1,44 @@
+package com.sandu.service.springFestivalActivity.dao;
+
+import com.sandu.api.springFestivalActivity.model.WxUserSignin;
+import com.sandu.api.user.model.SysUser;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+@Repository
+public interface WxUserSigninMapper {
+    int deleteByPrimaryKey(Long id);
+
+    int insert(WxUserSignin record);
+
+    int insertSelective(WxUserSignin record);
+
+    WxUserSignin selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(WxUserSignin record);
+
+    int updateByPrimaryKey(WxUserSignin record);
+
+    List<WxUserSignin> getSignInListByUserId(@Param("activityId") Long activityId, @Param("userId") Long userId);
+
+    WxUserSignin getWxUserSignInSelective(WxUserSignin wxUserSignin);
+
+    Integer getSignInCountOfUser(@Param("activityId") Long activityId, @Param("userId") Integer userId);
+
+    int updateOneLotteryFlag(@Param("activityId") Long activityId, @Param("userId") Long userId);
+
+    SysUser getUserById(@Param("userId") Integer userId);
+
+    int updateUser(SysUser record);
+
+    BigDecimal getTodayTotalRedPacketNum(Long activityId);
+
+    int insertRedPacketBatch(ArrayList<WxUserSignin> list);
+
+    List<WxUserSignin> getAllBySignInDay(@Param("activityId") Long activityId, @Param("day") int day);
+
+}

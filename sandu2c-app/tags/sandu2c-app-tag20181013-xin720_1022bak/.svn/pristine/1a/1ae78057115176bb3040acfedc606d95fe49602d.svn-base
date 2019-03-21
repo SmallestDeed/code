@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.system.dao.BaseHouseGuidePicInfoMapper">
+
+	<resultMap id="BaseResultMap" type="com.sandu.system.model.BaseHouseGuidePicInfo">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="pic_id" jdbcType="BIGINT" property="picId" />
+		<result column="house_id" jdbcType="BIGINT" property="houseId" />
+		<result column="space_type" jdbcType="SMALLINT" property="spaceType" />
+		<result column="space_common_id" jdbcType="BIGINT" property="spaceCommonId" />
+		<result column="design_templet_id" jdbcType="BIGINT" property="designTempletId" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="x_coordinate" jdbcType="VARCHAR" property="xCoordinate" />
+		<result column="y_coordinate" jdbcType="VARCHAR" property="yCoordinate" />
+		<result column="coordinate_info" jdbcType="VARCHAR" property="coordinateInfo" />
+		<result column="is_deleted" jdbcType="SMALLINT" property="isDeleted" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, pic_id, house_id, space_type, space_common_id, design_templet_id,
+		name, x_coordinate,
+		y_coordinate, coordinate_info, is_deleted
+	</sql>
+
+	<select id="selectByPrimaryKey" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from base_house_guide_pic_info
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from base_house_guide_pic_info
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+
+	<insert id="insert" parameterType="com.sandu.system.model.BaseHouseGuidePicInfo">
+		insert into base_house_guide_pic_info (id, pic_id, house_id,
+		space_type, space_common_id, design_templet_id,
+		name, x_coordinate, y_coordinate,
+		coordinate_info, is_deleted)
+		values (#{id,jdbcType=BIGINT}, #{picId,jdbcType=BIGINT},
+		#{houseId,jdbcType=BIGINT},
+		#{spaceType,jdbcType=SMALLINT}, #{spaceCommonId,jdbcType=BIGINT}, #{designTempletId,jdbcType=BIGINT},
+		#{name,jdbcType=VARCHAR}, #{xCoordinate,jdbcType=VARCHAR},
+		#{yCoordinate,jdbcType=VARCHAR},
+		#{coordinateInfo,jdbcType=VARCHAR}, #{isDeleted,jdbcType=SMALLINT})
+	</insert>
+
+	<insert id="insertSelective" parameterType="com.sandu.system.model.BaseHouseGuidePicInfo">
+		insert into base_house_guide_pic_info
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="picId != null">
+				pic_id,
+			</if>
+			<if test="houseId != null">
+				house_id,
+			</if>
+			<if test="spaceType != null">
+				space_type,
+			</if>
+			<if test="spaceCommonId != null">
+				space_common_id,
+			</if>
+			<if test="designTempletId != null">
+				design_templet_id,
+			</if>
+			<if test="name != null">
+				name,
+			</if>
+			<if test="xCoordinate != null">
+				x_coordinate,
+			</if>
+			<if test="yCoordinate != null">
+				y_coordinate,
+			</if>
+			<if test="coordinateInfo != null">
+				coordinate_info,
+			</if>
+			<if test="isDeleted != null">
+				is_deleted,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="picId != null">
+				#{picId,jdbcType=BIGINT},
+			</if>
+			<if test="houseId != null">
+				#{houseId,jdbcType=BIGINT},
+			</if>
+			<if test="spaceType != null">
+				#{spaceType,jdbcType=SMALLINT},
+			</if>
+			<if test="spaceCommonId != null">
+				#{spaceCommonId,jdbcType=BIGINT},
+			</if>
+			<if test="designTempletId != null">
+				#{designTempletId,jdbcType=BIGINT},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="xCoordinate != null">
+				#{xCoordinate,jdbcType=VARCHAR},
+			</if>
+			<if test="yCoordinate != null">
+				#{yCoordinate,jdbcType=VARCHAR},
+			</if>
+			<if test="coordinateInfo != null">
+				#{coordinateInfo,jdbcType=VARCHAR},
+			</if>
+			<if test="isDeleted != null">
+				#{isDeleted,jdbcType=SMALLINT},
+			</if>
+		</trim>
+	</insert>
+
+	<update id="updateByPrimaryKeySelective" parameterType="com.sandu.system.model.BaseHouseGuidePicInfo">
+		update base_house_guide_pic_info
+		<set>
+			<if test="picId != null">
+				pic_id = #{picId,jdbcType=BIGINT},
+			</if>
+			<if test="houseId != null">
+				house_id = #{houseId,jdbcType=BIGINT},
+			</if>
+			<if test="spaceType != null">
+				space_type = #{spaceType,jdbcType=SMALLINT},
+			</if>
+			<if test="spaceCommonId != null">
+				space_common_id = #{spaceCommonId,jdbcType=BIGINT},
+			</if>
+			<if test="designTempletId != null">
+				design_templet_id = #{designTempletId,jdbcType=BIGINT},
+			</if>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="xCoordinate != null">
+				x_coordinate = #{xCoordinate,jdbcType=VARCHAR},
+			</if>
+			<if test="yCoordinate != null">
+				y_coordinate = #{yCoordinate,jdbcType=VARCHAR},
+			</if>
+			<if test="coordinateInfo != null">
+				coordinate_info = #{coordinateInfo,jdbcType=VARCHAR},
+			</if>
+			<if test="isDeleted != null">
+				is_deleted = #{isDeleted,jdbcType=SMALLINT},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="updateByPrimaryKey" parameterType="com.sandu.system.model.BaseHouseGuidePicInfo">
+		update base_house_guide_pic_info
+		set pic_id = #{picId,jdbcType=BIGINT},
+		house_id = #{houseId,jdbcType=BIGINT},
+		space_type = #{spaceType,jdbcType=SMALLINT},
+		space_common_id = #{spaceCommonId,jdbcType=BIGINT},
+		design_templet_id = #{designTempletId,jdbcType=BIGINT},
+		name = #{name,jdbcType=VARCHAR},
+		x_coordinate = #{xCoordinate,jdbcType=VARCHAR},
+		y_coordinate = #{yCoordinate,jdbcType=VARCHAR},
+		coordinate_info = #{coordinateInfo,jdbcType=VARCHAR},
+		is_deleted = #{isDeleted,jdbcType=SMALLINT}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<!-- selectBySearch -->
+	<select id="selectBySearch" 
+		resultType="com.sandu.system.model.BaseHouseGuidePicInfo" 
+		parameterType="com.sandu.system.model.search.BaseHouseGuidePicInfoSearch">
+		select
+		bhgpi.design_templet_id as designTempletId,
+		sc.space_areas as spaceAreaValue,
+		sc.space_function_id as spaceTypeValue,
+		bhgpi.x_coordinate as xCoordinate,
+		bhgpi.y_coordinate as yCoordinate,
+		bhgpi.id as id
+		from 
+		base_house_guide_pic_info bhgpi
+		left join design_templet dt on dt.id = bhgpi.design_templet_id
+		left join space_common sc on sc.id = dt.space_common_id
+		<where>
+			bhgpi.space_type &lt;&gt; 10
+			<if test="picId != null">
+				and bhgpi.pic_id = #{picId}
+			</if>
+			<if test="isDeleted != null">
+				and bhgpi.is_deleted = #{isDeleted}
+			</if>
+			<if test="templateIds !=  null">
+				and bhgpi.design_templet_id in
+				<foreach collection="templateIds" index="index" item="item" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+		
+	</select>
+
+</mapper>

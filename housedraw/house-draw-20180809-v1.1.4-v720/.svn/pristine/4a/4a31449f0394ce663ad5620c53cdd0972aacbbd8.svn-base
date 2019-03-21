@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.fix.dao.FixCupboardMapper">
+  <select id="countFixCupboardHouse" resultType="java.lang.Integer">
+      SELECT
+        COUNT(*)
+      FROM
+        draw_base_house h
+      LEFT JOIN base_living bl ON h.living_id = bl.id
+      LEFT JOIN draw_res_file f ON h.restore_file_id = f.id
+      LEFT JOIN sys_user u ON u.id = h.user_id
+      WHERE h.is_deleted = 0
+        AND bl.is_deleted = 0
+        AND h.house_status = '6'
+        <include refid="list_fix_cupboard_house_limit" />
+        <!-- AND f.is_deleted = 0 -->
+        <include refid="list_draw_house_where_sql" />
+  </select>
+
+  <select id="listFixCupboardHouse" resultType="com.sandu.api.house.bo.DrawBaseHouseBO">
+    SELECT
+      h.id,
+      h.id house_id,
+      h.house_code,
+      h.house_name,
+      h.gmt_modified,
+      bl.living_name,
+      bl.area_long_code,
+      bl.id living_id,
+      f.file_path,
+      h.house_status,
+      h.reject_reason,
+      u.user_name,
+      u.mobile user_mobile,
+      h.snap_pic_id,
+      h.pic_res1_id,
+      h.platform_type
+    FROM
+      draw_base_house h
+      LEFT JOIN base_house bh ON h.base_house_id = bh.id
+      LEFT JOIN base_living bl ON h.living_id = bl.id
+      LEFT JOIN draw_res_file f ON h.restore_file_id = f.id
+      LEFT JOIN sys_user u ON u.id = h.user_id
+    WHERE h.is_deleted = 0
+      AND bh.is_deleted = 0
+      AND bl.is_deleted = 0
+      AND h.bugfix_status = 0
+      <include refid="list_fix_cupboard_house_limit" />
+      <!-- AND f.is_deleted = 0 -->
+      <include refid="list_draw_house_where_sql" />
+      <!--  ORDER BY h.gmt_modified DESC -->
+    LIMIT #{pageSize}
+  </select>
+
+  <sql id="list_fix_cupboard_house_limit">
+    AND EXISTS (
+      SELECT
+        sc.draw_base_house_id
+      FROM
+        draw_space_common sc,
+        draw_design_templet dt,
+        draw_design_templet_product dtp
+      WHERE dt.space_common_id = sc.id
+        AND dtp.design_templet_id = dt.id
+        AND sc.draw_base_house_id = h.id
+        AND sc.is_deleted = 0
+        AND dt.is_deleted = 0
+        AND dtp.is_deleted = 0
+        <!-- AND dtp.create_product_status = 0 -->
+        AND sc.space_code LIKE CONCAT(#{spaceCode}, '%')
+        <if test="gmtCreate != null and gmtCreate != ''">
+          AND sc.gmt_create <![CDATA[ <= ]]> #{gmtCreate}
+        </if>
+        <!-- AND p.product_code != #{productCode} -->
+      LIMIT 1)
+  </sql>
+
+  <sql id="list_draw_house_where_sql">
+    <if test="null != houseStatus">
+      AND h.house_status = #{houseStatus}
+    </if>
+    <if test="null != keyword and keyword != ''">
+      AND CONCAT(bl.living_name, h.house_name) LIKE CONCAT('%', #{keyword}, '%')
+    </if>
+    <if test="null != houseId">
+      AND h.id = #{houseId}
+    </if>
+    <if test="null != areaCode and areaCode != ''">
+      AND h.area_long_code LIKE CONCAT('%', #{areaCode}, '%')
+    </if>
+    <if test="null != companyId"> AND u.business_administration_id = #{companyId} </if>
+    <if test="null != userId"> AND h.user_id = #{userId} </if>
+      <if test="null != platformType"> AND h.platform_type = #{platformType} </if>
+  </sql>
+</mapper>

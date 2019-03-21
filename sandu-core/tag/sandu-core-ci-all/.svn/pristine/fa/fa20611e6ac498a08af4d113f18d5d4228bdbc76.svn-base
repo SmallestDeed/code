@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.base.dao.SupplyDemandPicMapper" >
+
+  <select id="selectByIds" resultType="com.sandu.supplydemand.model.SupplyDemandPic">
+
+    select * from supply_demand_pic where  is_deleted = 0
+    and
+    <if test="ids.size == 0">
+      id  = -1
+    </if>
+    <foreach collection="ids" separator="," item="it" open="id in (" close=")">
+    		#{it}
+    </foreach>
+  </select>
+  <select id="getHousePicByHouseId" resultType="com.sandu.api.base.output.PicBean">
+    select pic.id as id, pic.pic_path as url
+    from base_house house,
+         res_house_pic pic
+    where house.snap_pic_id = pic.id
+      and house.is_deleted = 0
+    limit 1;
+  </select>
+</mapper>

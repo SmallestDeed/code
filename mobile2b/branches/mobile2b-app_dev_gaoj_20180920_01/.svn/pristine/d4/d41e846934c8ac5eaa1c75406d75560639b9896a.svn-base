@@ -1,0 +1,261 @@
+package com.nork.common.constant.util;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.sandu.common.LoginContext;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+
+import com.nork.common.constant.SystemCommonConstant;
+import com.nork.common.jwt.Jwt;
+import com.nork.common.jwt.TokenState;
+import com.nork.common.model.LoginUser;
+import com.nork.common.util.Utils;
+import com.nork.product.model.PrepProductPropsInfo;
+import com.nork.product.model.PrepProductSearchInfo;
+import com.nork.system.cache.SysUserCacher;
+public class SystemCommonUtil {
+	private static Logger logger = Logger.getLogger(SystemCommonUtil.class);
+	
+	public static LoginUser getLoginUserFromSession(HttpServletRequest request) {
+		LoginUser loginUser =getCurrentLoginUserInfo(request);
+		return loginUser;
+	}
+	
+	//TODO: What the mean about 2 ? (2,web2),(3,pc),(4,mac),(5,ios),(6,adr),(7,ipad)
+	public static String getMediaType(HttpServletRequest request) {
+		LoginUser user = getLoginUserInfoByAuthData(request);
+		String mediaType = null!=user?user.getMediaType():null;
+		return mediaType;
+	}
+	
+	
+//	
+//	public static void newSysSave(Mapper obj, HttpServletRequest request) {
+//		LoginUser user = getCurrentLoginUserInfo(request);
+//		String loginName = user.getLoginName();
+//	    if(obj != null){
+//            if(obj.getId() == null){
+//            	obj.setGmtCreate(new Date());
+//            	obj.setCreator(loginName);
+//            	obj.setIsDeleted(0);
+//                if(obj.getSysCode()==null || "".equals(obj.getSysCode())){
+//                	obj.setSysCode(Utils.getCurrentDateTime(Utils.DATETIMESSS) +"_"+ Utils.generateRandomDigitString(6));
+//                }
+//            }
+//            obj.setGmtModified(new Date());
+//            obj.setModifier(loginName);
+//        }
+//	}
+	//可以通过判断来获取
+	public static LoginUser getCurrentLoginUserInfo(HttpServletRequest request) {
+		return getLoginUserInfoByAuthData(request);
+//		if(Utils.enableRedisCache()) {
+//			return getLoginUserInfoFromCache(request);
+//		}else {
+//			return getLoginUserInfoByAuthData(request);
+//		}
+	}
+	
+	//从Http headers 获取登录用户信息
+	public static LoginUser getLoginUserInfoByAuthData(HttpServletRequest request) {
+		LoginUser user = null;
+		if(request.getAttribute("AuthorizationData") != null) {
+			@SuppressWarnings("unchecked")
+			HashMap<String, Object> map = (HashMap<String, Object>) request.getAttribute("AuthorizationData");
+			String uName = map.get("uname").toString();
+			String mType = map.get("mtype").toString();
+			Long uIdValue = (Long)map.get("uid");
+			Long uTypeValue = (Long)map.get("utype");
+			int uId = uIdValue.intValue();
+			int uType = uTypeValue.intValue();
+			String ukey = map.get("ukey").toString();
+			user = new LoginUser();
+			user.setMediaType(mType);
+			user.setUserKey(ukey);
+			user.setUserType(Integer.valueOf(uType));
+			user.setLoginName(uName);
+			user.setId(Integer.valueOf(uId));
+		}
+		
+		return user;
+	}
+	
+	//从缓存里获取登录用户信息
+	public static LoginUser getLoginUserInfoFromCache(HttpServletRequest request) {
+		LoginUser user = LoginContext.getLoginUser(LoginUser.class);
+//		LoginUser user = null;
+//		if (request.getAttribute("AuthorizationData") != null) {
+//			@SuppressWarnings("unchecked")
+//			HashMap<String, Object> map = (HashMap<String, Object>) request.getAttribute("AuthorizationData");
+//			String ukey = map.get("ukey").toString();
+//			user = SysUserCacher.getCacheLoginUserByUserkey(ukey);
+//		}
+//		else {
+//			logger.error("getLoginUserInfoFromCache==>AuthorizationData is null");
+//			user = new LoginUser();
+//			user.setLoginName("noLogin");
+//		}
+		if(null==user){
+			logger.error("getLoginUserInfoFromCache==> user is null");
+//			user = new LoginUser();
+//			user.setLoginName("noLogin");
+//			user.setId(-1);
+		}
+		return user;
+		
+	}
+	
+	public static LoginUser getValidLoginUerFromCache(String ukey) {
+		LoginUser loginUserInfo = null;
+		loginUserInfo = SysUserCacher.getCacheLoginUserByUserkey(ukey);
+		if (loginUserInfo != null && StringUtils.isNoneBlank(loginUserInfo.getToken())) {
+			String token = loginUserInfo.getToken();
+			Map<String, Object> resultMap = Jwt.validToken(token);
+			TokenState state = TokenState.getTokenState((String) resultMap.get("state"));
+			switch (state) {
+			case VALID:
+				break;
+			case EXPIRED:
+				loginUserInfo = null;
+				break;
+			case INVALID:
+				loginUserInfo = null;
+				break;
+			}
+		}
+		return loginUserInfo;
+	}
+	
+	public static LoginUser getValidLoginUerFromHttpAuthData(HttpServletRequest request) {
+		LoginUser user = null;
+		if(request.getAttribute("AuthorizationData") != null) {
+			@SuppressWarnings("unchecked")
+			HashMap<String, Object> map = (HashMap<String, Object>) request.getAttribute("AuthorizationData");
+			user = new LoginUser();
+			String uName = map.get("uname").toString();
+			String token = map.get("token").toString();
+			String mType = map.get("mtype").toString();
+			Long uIdValue = (Long)map.get("uid");
+			Long uTypeValue = (Long)map.get("utype");
+			int uId = uIdValue.intValue();
+			int uType = uTypeValue.intValue();
+			String ukey = map.get("ukey").toString();
+			user.setUserKey(ukey);
+			user.setUserType(Integer.valueOf(uType));
+			user.setLoginName(uName);
+			user.setId(Integer.valueOf(uId));
+			user.setToken(token);
+			user.setMediaType(mType);
+		}
+		if (user != null && StringUtils.isNoneBlank(user.getToken())) {
+			String token = user.getToken();
+			Map<String, Object> resultMap = Jwt.validToken(token);
+			TokenState state = TokenState.getTokenState((String) resultMap.get("state"));
+			switch (state) {
+			case VALID:
+				break;
+			case EXPIRED:
+				user = null;
+				break;
+			case INVALID:
+				user = null;
+				break;
+			}
+		}
+		return user;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static LoginUser checkLoginUserIsValidByToken(String token) {
+		LoginUser user = null;
+		if (StringUtils.isNotBlank(token)) {
+			Map<String, Object> resultMap = Jwt.validToken(token);
+			TokenState state = TokenState.getTokenState((String) resultMap.get("state"));
+			logger.error("checkLoginUserIsValidByToken    state====" + state);
+			switch (state) {
+			case VALID:
+				user = new LoginUser();
+				HashMap<String, Object> map = (HashMap<String, Object>)resultMap.get("data");
+				String uName = map.get("uname").toString();
+				String mType = map.get("mtype").toString();
+				Long uIdValue = (Long)map.get("uid");
+				Long uTypeValue = (Long)map.get("utype");
+				int uId = uIdValue.intValue();
+				int uType = uTypeValue.intValue();
+				String ukey = map.get("ukey").toString();
+				user.setUserKey(ukey);
+				user.setUserType(Integer.valueOf(uType));
+				user.setLoginName(uName);
+				user.setId(Integer.valueOf(uId));
+				user.setToken(token);
+				user.setMediaType(mType);
+				break;
+			case EXPIRED:
+				break;
+			case INVALID:
+				break;
+			}
+		}
+		return user;
+	}
+	
+	public static List<List<PrepProductSearchInfo>> splitListOfSearchList(List<PrepProductSearchInfo> lists,
+			int limit) {
+		int size = lists.size();
+
+		List<List<PrepProductSearchInfo>> list = new ArrayList<List<PrepProductSearchInfo>>();
+		if (limit > size) {
+			list.add(lists);
+			return list;
+		}
+		int result = 0;
+		for (int i = 0; i < size; i = i + limit) {
+			result = i + limit;
+			if (result > size) {
+				result = size;
+			}
+			list.add(lists.subList(i, result));
+		}
+		return list;
+	}
+
+	public static List<List<PrepProductPropsInfo>> splitListOfPropsList(List<PrepProductPropsInfo> lists, int limit) {
+		int size = lists.size();
+
+		List<List<PrepProductPropsInfo>> list = new ArrayList<List<PrepProductPropsInfo>>();
+		if (limit > size) {
+			list.add(lists);
+			return list;
+		}
+		int result = 0;
+		for (int i = 0; i < size; i = i + limit) {
+			result = i + limit;
+			if (result > size) {
+				result = size;
+			}
+			list.add(lists.subList(i, result));
+		}
+		return list;
+	}
+	
+	/**
+	 * 根据token获取用户id
+	 * @param request
+	 * @return
+	 */
+	public static Integer getUserIdByToken(HttpServletRequest request) {
+		String token = request.getHeader("Authorization");
+        Map<String, Object> map = Jwt.validToken(token);
+        @SuppressWarnings("unchecked")
+		Map<String, Object> dataMap = (Map<String, Object>)map.get("data");
+        Long uid = (Long) dataMap.get("uid");
+        Integer userId = new Integer(uid.intValue());
+        return userId;
+	}
+}

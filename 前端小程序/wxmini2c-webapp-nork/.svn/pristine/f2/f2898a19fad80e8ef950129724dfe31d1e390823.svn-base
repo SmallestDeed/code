@@ -1,0 +1,181 @@
+<!--pages/house-case/house-case.wxml-->
+
+  <!--顶部选择栏-->
+<view class='house-case' style='height:{{caseListheight}};overflow:{{caseListOverflow}};' wx:if="{{isShow}}"> 
+   <view class='goods-details-case'>
+   
+    <case-list recommendCaseList='{{recommendCaseList}}' bindshowDecoratePriceBox='showDecoratePriceBox'></case-list>
+  </view> 
+
+   <view class='case-condition' wx:if='{{conditionActive >= 0}}' bindtap='closeCaseCondition'>
+    <view class='condition-box clearfix' wx:if='{{conditionActive == 0}}'>
+      <view class='single-box fl {{childConditionActive[0] == index?"condition-box-active": ""}}'
+      wx:for='{{spaceList}}'
+      wx:key='{{index}}' 
+      bindtap='chooseCondition' 
+      data-indexP='{{0}}' 
+      data-indexC='{{index}}' 
+      data-code ='{{item.houseType}}'>
+        {{item.houseName}}
+      </view>  
+    </view>
+    <view class='condition-box clearfix' wx:if='{{conditionActive == 1}}'>
+      <view class='single-box fl {{childConditionActive[1] == -1?"condition-box-active": ""}}'
+        data-indexP='{{1}}'  
+        data-indexC='{{-1}}' 
+        bindtap='chooseCondition'
+        data-code ='""'>
+          全部
+      </view> 
+      <view class='single-box fl {{childConditionActive[1] == index?"condition-box-active": ""}}'  
+        wx:for='{{areaList}}' 
+        data-indexP='{{1}}'  
+        data-indexC='{{index}}' 
+        bindtap='chooseCondition'
+        wx:key='{{index}}'         
+        data-code ='{{item.areaId}}'>
+          {{item.areaName}}m²
+      </view>  
+    </view>
+    <view class='condition-box clearfix' wx:if='{{conditionActive == 2}}'>
+      <view class='single-box fl {{childConditionActive[2] == -1?"condition-box-active": ""}}'
+        data-indexP='{{2}}'  
+        data-indexC='{{-1}}' 
+        data-name =''
+        bindtap='chooseCondition'
+        data-code ='""'>
+          全部
+      </view> 
+      <view class='single-box fl {{childConditionActive[2] == index?"condition-box-active": ""}}'
+        wx:for='{{styleList}}' 
+        wx:key='{{index}}'        
+        data-indexP='{{2}}'  
+        bindtap='chooseCondition'
+        data-indexC='{{index}}' 
+        data-name ='{{item.styleName}}'
+        data-code ='{{item.styleCode}}'>
+        {{item.styleName}}
+      </view>  
+    </view>
+  </view>  
+  
+  
+  <!-- <view class='top clearfix'>
+    <view class='room fl {{conditionActive == 0? "active" : ""}}' data-index='{{0}}' bindtap='switchCondition'>
+    {{spaceList[childConditionActive[0]].houseName}}
+    <image src='{{conditionActive == 0?"./image/choose_icon_up@2x.png" : "./image/choose_icon_down@2x.png"}}'></image>
+    </view>                    
+    <view class='area fl {{conditionActive == 1? "active" : ""}}' data-index='{{1}}' bindtap='switchCondition'>
+      {{childConditionActive[1] == -1?'面积': areaList[childConditionActive[1]].areaName + 'm²'}}
+      <image src='{{conditionActive == 1?"./image/choose_icon_up@2x.png" : "./image/choose_icon_down@2x.png"}}'></image>
+    </view>
+    <view class='style fl {{conditionActive == 2? "active" : ""}}' data-index='{{2}}' bindtap='switchCondition'>
+      {{childConditionActive[2] == -1?'风格': styleList[childConditionActive[2]].styleName}}
+      <image src='{{conditionActive == 2?"./image/choose_icon_up@2x.png" : "./image/choose_icon_down@2x.png"}}'></image>
+    </view>
+  </view>   -->
+
+
+  <!-- <view class='render-type'>
+    <view class='render-type-box'>
+      <view class='title'>选择效果图类型</view>
+      <radio-group bindchange='chooseRenderType'>
+        <view class='content-box clearfix' wx:for='{{renderType}}' wx:key='{{index}}'> 
+         <view class='text-one fl'>{{item.name}}</view>
+         <view class='text-two fl'>{{item.num}}</view>         
+         <view class='fl'><radio color='#ff6419' value='{{index}}' checked='{{item.checked}}'></radio></view>
+        </view>
+        <view class='confirm-box'>
+          <view class='cancel fl'>取消</view>
+          <view class='confirm fl'>确认</view>          
+        </view>       
+      </radio-group>
+    </view>
+  </view> -->
+   <import src="../../component/emptyTemplate/emptyTemplate.wxml"/>
+  <template is="emptyTemplate" data="{{ ...emptyTemplate }}"/> 
+</view>
+
+<view class='navTop {{!isShow?"showBot":""}}'>
+  <scroll-view class="scroll-view_H" scroll-x scroll-left="{{scroolLeft}}" scroll-with-animation>
+    <view class='items {{!getCaseParams.spaceType?"active":""}}'
+      data-ty="" data-n="0" data-i="0" bindtap='cyhangeType'>
+      全部
+    </view>
+    <view class='items {{getCaseParams.spaceType==item.houseType?"active":""}}' 
+      wx:for='{{spaceList}}' 
+      data-ty="{{item.houseType}}" 
+      data-i="{{index}}"
+      data-n="{{index+1}}"
+      wx:key='{{index}}'
+      bindtap='cyhangeType'>
+      {{item.houseName}}
+    </view>
+  </scroll-view>
+  <view class='showMore' bindtap='shouMoreFun'>
+    <image src='../static/image/nav_icon_screen_02.png'></image>
+  </view>
+</view>
+
+<view class='conditions {{!isShow?"active":""}}'>
+  <view class='showTitle' wx:if="{{getCaseParams.spaceType}}">面积</view>
+  <view class='show-rows' wx:if="{{getCaseParams.spaceType}}">
+    <view class='show-rows-items {{!areaId?"active":""}}' bindtap='areaIdFun'>
+      全部
+    </view>
+    <view 
+      class='show-rows-items {{areaId==item.areaId?"active":""}} {{(index + 2)%3==0?"unMr":""}}' 
+      wx:for-index='index'
+      bindtap='areaIdFun'
+      wx:key='{{index}}'
+      data-info="{{item.areaId}}"
+      wx:for='{{areaList}}'>
+      {{item.areaName}}m²
+    </view>
+  </view>
+  <view class='showTitle' wx:if="{{getCaseParams.spaceType}}">风格</view>
+  <view class='show-rows' wx:if="{{getCaseParams.spaceType}}">
+    <view class='show-rows-items {{!styleCode?"active":""}}' bindtap='styleCodeFun'>全部</view>
+    <view 
+      class='show-rows-items {{styleCode==item.styleCode?"active":""}} {{index==1?"unMr":""}} {{(index - 1)%3==0?"unMr":""}}' 
+      bindtap='styleCodeFun'
+      wx:for-index='index'
+      wx:key='{{index}}'
+      data-info='{{item.styleCode}}'
+      wx:for='{{styleList}}'>
+      {{item.styleName}}
+    </view>
+  </view>
+  <view class='showTitle'>装修方式</view>
+  <view class='show-rows'>
+    <view 
+      class='show-rows-items {{fitmentWayActive == index?"active":""}}' 
+      wx:for-index='index'
+      wx:key='{{index}}'
+      data-value='{{item.value}}'
+      data-index='{{index}}'
+      data-type='parent'
+      bindtap='switchFitmentWay'
+      wx:for='{{fitmentWayList}}'>
+      {{item.name}}
+    </view>
+  </view>
+  <view class='showTitle'>装修价格 <text>元/平方</text></view>
+  <view class='show-rows'>
+    <view 
+      class='show-rows-items {{fitmentWayChildActive == index?"active":""}}' 
+      wx:for-index='index'
+      wx:key='{{index}}'
+      data-type='child'
+      data-value='{{item.value}}'
+      data-index='{{index}}'
+      bindtap='switchFitmentWay'
+      wx:for='{{fitmentWayList[fitmentWayActive].sonList}}'>
+      {{item.name}}
+    </view>
+  </view>
+</view>
+<view class='btnRows' wx:if="{{!isShow}}">
+  <view class='resets' bindtap='resetFun'>重置</view>
+  <view class='submits' bindtap='submitFun'>确认</view>
+</view>

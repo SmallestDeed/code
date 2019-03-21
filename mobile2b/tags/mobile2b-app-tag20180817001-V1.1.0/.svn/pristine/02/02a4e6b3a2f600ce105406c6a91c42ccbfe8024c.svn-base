@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.design.dao.FullHouseDesignPlanMapper">
+
+	<select id="getFullHousePlanCountByUserId" resultType="java.lang.Integer">
+		select count(DISTINCT )
+		from full_house_design_plan
+		where user_id = #{userId} and source_type = 2 and is_deleted = 0
+	</select>
+
+	<select id="getFullHousePlanListByUserId" resultType="com.nork.design.model.ThumbData"
+		parameterType="com.nork.design.model.DesignPlanRenderScene">
+		select
+		  	fh.id as cpId,
+			fh.plan_name as name,
+			rrp.pic_path as pic,
+			fh.vr_resource_uuid as fullHousePlanUUID,
+			fh.gmt_modified as ctime
+		from full_house_design_plan fh
+		left join res_render_pic rrp on fh.plan_pic_id = rrp.id
+		where user_id = #{userId} and source_type = 2 and is_deleted = 0
+		order by fh.gmt_modified desc
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+</mapper>

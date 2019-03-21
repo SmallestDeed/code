@@ -1,0 +1,87 @@
+package com.sandu.base.service;
+
+
+import com.sandu.base.model.BaseArea;
+import com.sandu.base.model.search.BaseAreaSearch;
+import com.sandu.base.model.vo.BaseAreaVo;
+
+import java.util.List;
+
+
+
+
+/**
+ * @version V1.0
+ * @Title: BaseAreaService.java
+ * @Package com.sandu.system.service
+ * @Description:系统-行政区域Service
+ * @createAuthor pandajun
+ * @CreateDate 2015-05-19 11:43:41
+ */
+public interface BaseAreaService {
+    /**
+     * 新增数据
+     *
+     * @param baseArea
+     * @return int
+     */
+    int add(BaseArea baseArea);
+
+    /**
+     * 更新数据
+     *
+     * @param baseArea
+     * @return int
+     */
+    int update(BaseArea baseArea);
+
+    /**
+     * 删除数据
+     *
+     * @param id
+     * @return int
+     */
+    int delete(Integer id);
+
+    /**
+     * 获取数据详情
+     *
+     * @param id
+     * @return BaseArea
+     */
+    BaseArea get(Integer id);
+
+
+    /**
+     * 所有数据
+     *
+     * @param baseArea
+     * @return List<BaseArea>
+     */
+    List<BaseArea> getList(BaseArea baseArea);
+
+    /**
+     * 获取数据数量
+     *
+     * @return int
+     */
+    int getCount(BaseAreaSearch baseAreaSearch);
+
+    /**
+     * 分页获取数据
+     *
+     * @return List<BaseArea>
+     */
+    List<BaseArea> getPaginatedList(
+            BaseAreaSearch baseAreatSearch);
+
+	String getCodeName(String code);
+
+    List<BaseAreaVo> getAreaList(BaseArea baseArea);
+
+    List<BaseArea> getNewAreaList();
+
+    BaseArea getBaseAreaByAreaCode(String province);
+
+    List<BaseArea> getList2(BaseArea baseArea);
+}

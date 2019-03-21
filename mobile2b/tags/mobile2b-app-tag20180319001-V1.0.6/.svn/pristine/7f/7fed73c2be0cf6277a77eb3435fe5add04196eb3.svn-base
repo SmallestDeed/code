@@ -1,0 +1,139 @@
+package com.nork.task.controller;
+
+import com.nork.common.util.ThumbnailUtil;
+import com.nork.system.model.ResRenderPic;
+import com.nork.task.dao.SysTaskMapper;
+import net.coobird.thumbnailator.Thumbnails;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.URI;
+import java.net.URL;
+import java.util.List;
+
+
+/**
+ * @Author Gao Jun
+ * @Description
+ * @Date:Created Administrator in 下午 7:41 2018/6/5 0005
+ * @Modified By:
+ */
+@Component
+public class RefreshPicThread extends Thread {
+
+    private static Logger logger = LoggerFactory.getLogger(RefreshPicThread.class);
+
+    private Integer start;
+    private Integer limit;
+    private ApplicationContext applicationContext;
+
+    public void setStartAndLimit(Integer start, Integer limit) {
+        this.start = start;
+        this.limit = limit;
+    }
+
+    public RefreshPicThread(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
+    public void run() {
+//        logger.info("我进Thread来了！！！----------------------");
+        SysTaskMapper sysTaskMapper = applicationContext.getBean(SysTaskMapper.class);
+//        SysTaskMapper sysTaskMapper = (SysTaskMapper) SpringContextUtil.getBean("SysTaskMapper");
+        logger.info("我获取到参数了！！！-------------mapper = " + sysTaskMapper + ", start = " + start + ", limit = " + limit);
+        //获取图片集合
+        List<ResRenderPic> smallPicList = sysTaskMapper.getOriginalSmallPic(start, limit);
+        logger.info("获取到所有缩略图了。。。。。。。");
+        if (smallPicList == null || smallPicList.size() <= 0) {
+            return;
+        }
+        List<ResRenderPic> largePicList = sysTaskMapper.getOriginalLargePic(smallPicList);
+        logger.info("我获取到原图集合了！！！------------------");
+        //遍历压缩图片
+        for (ResRenderPic smallPic : smallPicList) {
+            for (ResRenderPic largePic : largePicList) {
+//                logger.info("我遍历了！！！------------------");
+                //参数校验
+                if (largePic == null || smallPic == null) {
+                    logger.error("RefreshPicThread : run ---- pic have null !!! largePic=" + largePic + ", smallPic=" + smallPic);
+                    continue;
+                }
+                //获取id并参数校验
+                Integer largePicId = largePic.getId();
+                Integer smallPicPid = smallPic.getPid();
+                if (largePicId == null || smallPicPid == null) {
+                    logger.error("RefreshPicThread : run ---- picId have null !!! largePicId=" + largePicId + ", smallPicPid=" + smallPicPid,
+                            "largePic=" + largePic + ", smallPic=" + smallPic);
+                    continue;
+                }
+                //pid和id是否相同
+                if (largePicId.equals(smallPicPid)) {
+                    logger.info("我遇到id相同的了！！！--------------------largePicId = " + largePicId);
+                    //获取路径
+                    String largePicPath = largePic.getPicPath();
+                    String smallPicPath = smallPic.getPicPath();
+                    //参数判断
+                    if (StringUtils.isEmpty(largePicPath) || StringUtils.isEmpty(smallPicPath)) {
+                        logger.error("RefreshPicThread : run ---- picPath have null !!! " +
+                                "largePicId=" + largePicId + ", largePicPath=" + largePicPath + ", smallPicPid=" + smallPicPid + ", smallPicPath=" + smallPicPath);
+                        continue;
+                    }
+
+                    largePicPath = "show.dev.sanduspace.com" + largePicPath;
+                    smallPicPath = "show.dev.sanduspace.com" + smallPicPath;
+
+                    File largeFile = new File(largePicPath);
+                    File smallFile = new File(smallPicPath);
+
+                    logger.info("largeFile---------"+largeFile);
+                    logger.info("smallFile---------"+smallFile);
+
+//                    if(!largeFile.exists() || !smallFile.exists()){
+//                        logger.error("要读取的文件不存在 ----largeFile = "+largeFile+", smallFile = "+smallFile);
+//                        continue;
+//                    }
+
+                    try {
+
+
+                        FileInputStream fileInputStream = new FileInputStream(largeFile);
+//                        URI largeUri = URI.create(largePicPath);
+//                        URI smallUri = URI.create(smallPicPath);
+                    } catch (IOException e) {
+                        logger.error("文件读取失败！！！-------------");
+                        continue;
+                    }
+
+                    //压缩图片
+                    try {
+                        BufferedImage originalImage = ImageIO.read(largeFile);
+
+                        logger.info("---- 输入参数 ------ originalImage= "+originalImage);
+
+                        BufferedImage thumbnailImage = Thumbnails.of(originalImage)
+                                .size(ThumbnailUtil.PIC_WIDTH, ThumbnailUtil.PIC_HIGHT)
+                                .scale(0.9)
+                                .asBufferedImage();
+//                                .toFile(smallPicPath);
+                        FileOutputStream fileOutputStream = new FileOutputStream(smallFile);
+                        ImageIO.write(thumbnailImage,"jpg",fileOutputStream);
+
+                        logger.info("refreshPic success!!!  largePicId=" + largePicId + ", smallPicPid=" + smallPicPid);
+                    } catch (Exception e) {
+                        logger.error("RefreshPicThread : run ---- exception=" + e+
+                                "------- largePicId=" + largePicId + ", largePicPath=" + largePicPath + ", smallPicPid=" + smallPicPid + ", smallPicPath=" + smallPicPath);
+                    }
+                }
+            }
+        }
+        logger.info("我全部执行完了！！！--------------------------");
+
+    }
+}

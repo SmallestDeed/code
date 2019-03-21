@@ -1,0 +1,467 @@
+// pages/web-detail-complicated/web-detail-complicated.js
+import fetch from '../../utils/fetch.js'
+import {
+    emptyTemplate
+} from '../../component/emptyTemplate/emptyTemplate'
+let $App = getApp();
+let opt = {};
+var WxParse = require('../../utils/wxParse/wxParse.js');
+var { shareTitle } = require('../../utils/config.js');
+var shareTitle = { shareTitle }.shareTitle;
+Page({
+    emptyTemplate, // 无数据组件
+    /**
+     * 页面的初始数据
+     */
+    data: {
+        type: 'plan',
+        shopid: '',
+        List: {},
+        selectNumber: 1,
+        favoriteRequest: true,
+        isNk:true,
+        collectRequest: true,
+        recommendCaseList: [],
+        resourcePath: getApp().resourcePath,
+        sevenUrl: getApp().sevenUrl,
+        pageSize: 5,
+        getCaseParams: {
+            spaceType: '',
+            designPlanStyleId: '',
+            spaceArea: ''
+        },
+        totalCount: 0,
+        caseListheight: '',
+        caseListOverflow: 'none',
+        shopList: {},
+        richtxt: '',
+        casePageSize: 5,
+        caseList: [],
+        cityName: '',
+        longitude: '',
+        latitude: '',
+        citys: '',
+        distance: '',
+    },
+
+    /**
+     * 生命周期函数--监听页面加载
+     * 
+     */
+    onLoad: function(options) {
+        new $App.quickNavigation()
+        this.setData({
+            shopid: options.id,
+            distance: this.setNum(options.distance),
+            longitude: options.longitude ? options.longitude : '',
+            latitude: options.latitude ?  options.latitude : '',
+            cityName: options.name,
+        })
+        opt = options;
+        this.getDetail();
+        this.getRecommendCaseList();
+        new this.emptyTemplate() // 注册组件；
+        this.getCase()
+        
+    },
+    setNum:function(e){
+        if (!e || e == 'null' | e =='undefined')
+            return ''
+        let num = parseFloat(e);
+        return num > 999 ? num.toFixed(1) : num.toFixed(1);
+    },
+    goLocation: function () {
+        if ((this.data.latitude != 'null' && this.data.latitude) && (this.data.longitude != 'null' && this.data.longitude)){
+            wx.openLocation({
+                latitude: parseFloat(this.data.latitude),
+                longitude: parseFloat(this.data.longitude),
+                name: this.data.cityName,
+                address: this.data.citys
+            })
+        }else{
+            wx.showToast({
+                title: '未获取该门店经纬度',
+                duration: 1000,
+                icon: 'none'
+            })
+        }
+    },
+    getDetail() {
+        let url = '/v1/sandu/mini/companyshop/detail';
+        fetch(url, 'get', {
+            shopId: this.data.shopid,
+            platformValue:1
+            }, 'shop')
+            .then((res) => {
+                if (res.code == 200) {
+
+                    this.setData({
+                        List: res.data,
+                        citys: res.data.provinceName + res.data.cityName + res.data.areaName + res.data.shopAddress,
+                        richtxt: res.data.shopIntroduced
+                    })
+                }
+                console.log(this.data.richtxt);
+                WxParse.wxParse('article', 'html', this.data.richtxt, this, 0);
+            })
+    },
+    getCase() {
+        let url = '/v1/sandu/mini/companyshop/projectCaseList';
+        fetch(url, 'get', {
+                pageNo: 1,
+                pageSize: this.data.casePageSize,
+                shopId: this.data.shopid
+            }, 'shop')
+            .then((res) => {
+
+                if (res.code == 200) {
+                    this.setData({
+                        caseList: res.data
+                    })
+                }
+            })
+    },
+
+    /**
+     * 生命周期函数--监听页面初次渲染完成
+     */
+    onReady: function() {
+
+    },
+    onPageScroll: function(e) { // 获取滚动条当前位置
+
+    },
+    /**
+     * 生命周期函数--监听页面显示
+     */
+    onShow: function() {
+
+    },
+
+    /**
+     * 生命周期函数--监听页面隐藏
+     */
+    onHide: function() {
+
+    },
+
+    /**
+     * 生命周期函数--监听页面卸载
+     */
+    onUnload: function() {
+
+    },
+
+    /**
+     * 页面相关事件处理函数--监听用户下拉动作
+     */
+    onPullDownRefresh: function() {
+
+    },
+
+    /**
+     * 页面上拉触底事件的处理函数
+     */
+    onReachBottom: function() {
+        if (this.data.pageSize < this.data.totalCount) {
+            let nPageSize = this.data.pageSize + 5
+            this.setData({
+                pageSize: nPageSize
+            })
+        }
+        this.getRecommendCaseList();
+    },
+
+    /**
+     * 用户点击右上角分享
+     */
+    onShareAppMessage: function(res) {
+        if (res.from === 'menu') {
+            return $App.shareAppMessageFn(false);
+        }
+    },
+    changeplan(e) {
+        let type = e.currentTarget.dataset.type,
+            num = e.currentTarget.dataset.num
+        if (num == this.data.selectNumber) {
+            return
+        } else {
+            this.setData({
+                type: type,
+                selectNumber: num,
+                pageSize: 5
+            })
+            this.getRecommendCaseList()
+        }
+
+    },
+    call(e) {
+        let phone = e.currentTarget.dataset.phone
+        wx.makePhoneCall({
+            phoneNumber: phone,
+        })
+    },
+    enlargeImage(url) { // 查看大图
+        wx.previewImage({
+            current: url, // 当前显示图片的http链接
+            urls: [url] // 需要预览的图片http链接列表
+        })
+    },
+    toThreeD(e) { // 调转到3D界面
+        let type = e.currentTarget.dataset.type,
+            item = e.currentTarget.dataset.item
+        if (type === '720' || type === 'roam' || type === 'photo') {
+            let routerQueryType = ''
+            if (type === '720' || type === 'photo') {
+                routerQueryType = 'seven'
+            } else {
+                routerQueryType = 'roam'
+            }
+            let sevenObj = {
+                token: wx.getStorageSync('token'),
+                platformCode: 'brand2c',
+                operationSource: 1,
+                planId: item.designPlanRecommendId,
+                routerQueryType: routerQueryType,
+                customReferer: $App.wxUrl,
+                platformNewCode: 'miniProgram'
+            }
+            let webUrl = this.data.sevenUrl
+            for (let key in sevenObj) {
+                webUrl += key + '=' + sevenObj[key] + '&'
+            }
+            getApp().data.webUrl = webUrl
+            $App.myNavigateBack('pages/web-720/web-720')
+            return
+        }
+        let url = `/mobile/designPlanRecommended/getRecommendedPictureList.htm`
+        fetch(url, 'post', {
+                planRecommendedId: item.designPlanRecommendId,
+                remark: type
+            }, 'render')
+            .then(res => {
+                if (res.success) {
+                    if (type == 'photo') {
+                        return res.datalist[0].pid
+                    } else {
+                        return res.datalist[0].id
+                    }
+                } else {
+                    return false
+                }
+            })
+            .then(res => {
+                if (res) {
+                    let url = `/mobile/design/designPlan/getPanoPicture.htm`
+                    fetch(url, 'post', {
+                            thumbId: res
+                        }, 'render')
+                        .then(res => {
+                            if (res.success) {
+                                if (type == 'photo') {
+                                    this.enlargeImage(res.obj.url)
+                                } else if (type == 'video') {
+
+                                    this.toVideo(res.obj.url)
+                                }
+                            } else {
+                                wx.showToast({
+                                    title: '打开失败',
+                                    icon: 'none'
+                                })
+                            }
+                        })
+                }
+            })
+        // getApp().data.webUrl = 'https://zuoyou.m.sanduspace.com'
+        // wx.navigateTo({
+        //   url: '../web-720/web-720',
+        // })
+    },
+    toVideo(url) {
+        wx.navigateTo({
+            url: '../video/video?url=' + url
+        })
+    },
+    getRecommendCaseList() { // 获取方案列表
+        let displayType;
+        if (this.data.selectNumber == 2) {
+            displayType = 'decorate'
+        } else if (this.data.selectNumber == 3) {
+            displayType = 'public'
+        }
+        let url = `/designplan/designplanrecommendedlist`
+        fetch(url, 'get', {
+                curPage: 1,
+                pageSize: this.data.pageSize,
+                spaceType: '',
+                designPlanStyleId: '',
+                spaceArea: '',
+                displayType: displayType,
+                isSortByReleaseTime: 0,
+            })
+            .then(res => {
+                if (res.status) {
+                    if (res.obj) {
+                        this.setData({
+                            recommendCaseList: res.obj,
+                            totalCount: res.totalCount
+                        })
+                        this.emptyTemplateShow('hide')
+                    } else {
+                        this.emptyTemplateShow('show')
+                        wx.showToast({
+                            title: '未搜索到相关案例',
+                            icon: 'none',
+                            duration: 1000
+                        })
+                        this.setData({
+                            recommendCaseList: [],
+                            totalCount: 0
+                        })
+                    }
+                } else {
+                    this.emptyTemplateShow('show')
+                    wx.showToast({
+                        title: '未搜索到相关案例',
+                        icon: 'none',
+                        duration: 1000
+                    })
+                    this.setData({
+                        recommendCaseList: [],
+                        totalCount: 0
+                    })
+                }
+            })
+    },
+    putInMyhouse(e) { // 装进我家
+        // this.renderTypeShow() // 显示组件
+        let item = e.currentTarget.dataset.item
+        wx.setStorageSync('caseItem', item)
+        wx.navigateTo({
+            url: '../case-house-type/case-house-type'
+        })
+    },
+
+    collectCase(e) { // 方案收藏
+        var that = this
+        if (that.data.collectRequest == true) {
+            that.setData({
+                collectRequest: false
+            })
+            let url = `/designplanfavorite/setFavoriteOrUnfavorite`,
+                item = e.currentTarget.dataset.item,
+                index = e.currentTarget.dataset.index,
+                status = null,
+                title = '收藏'
+            if (item.isFavorite) {
+                status = 0
+            } else {
+                status = 1
+            }
+            status == 0 ? title = '取消收藏' : '收藏'
+            fetch(url, 'post', {
+                    status: status,
+                    recommendId: item.designPlanRecommendId
+                })
+                .then((res) => {
+
+                    if (res.success) {
+                        this.data.recommendCaseList[index].isFavorite = status
+                        status == 0 ? this.data.recommendCaseList[index].collectNum -= 1 : this.data.recommendCaseList[index].collectNum += 1
+                        this.setData({
+                            recommendCaseList: this.data.recommendCaseList
+                        })
+                        wx.showToast({
+                            title: title + '成功'
+                        })
+                        setTimeout(function() {
+                            that.setData({
+                                collectRequest: true
+                            })
+                        }, 500)
+
+                    } else {
+                        wx.showToast({
+                            title: '收藏失败',
+                            icon: 'none'
+                        })
+                        setTimeout(function() {
+                            that.setData({
+                                collectRequest: true
+                            })
+                        }, 500)
+                    }
+                })
+        } else {
+            return
+        }
+
+    },
+    likeCase(e) { // 方案点赞
+        var that = this;
+        if (that.data.favoriteRequest == true) {
+            that.setData({
+                favoriteRequest: false
+            })
+            let url = `/designPlanLike/setLikeOrDislike`,
+                item = e.currentTarget.dataset.item,
+                index = e.currentTarget.dataset.index,
+                status = null,
+                title = '点赞'
+            if (item.isLike) {
+                status = 0
+            } else {
+                status = 1
+            }
+            status == 0 ? title = '取消点赞' : '点赞'
+            fetch(url, 'post', {
+                    status: status,
+                    designId: item.designPlanRecommendId
+                })
+                .then((res) => {
+                    if (res.success) {
+                        this.data.recommendCaseList[index].isLike = status
+                        status == 0 ? this.data.recommendCaseList[index].likeNum -= 1 : this.data.recommendCaseList[index].likeNum += 1
+                        this.setData({
+                            recommendCaseList: this.data.recommendCaseList
+                        })
+                        wx.showToast({
+                            title: title + '成功'
+                        })
+                        setTimeout(function() {
+                            that.setData({
+                                favoriteRequest: true
+                            })
+                        }, 500)
+                    } else {
+                        wx.showToast({
+                            title: title + '失败',
+                            icon: 'none'
+                        })
+                        setTimeout(function() {
+                            that.setData({
+                                favoriteRequest: true
+                            })
+                        }, 500)
+                    }
+                })
+        } else {
+            return;
+        }
+    },
+    errorFunction: function(e) {
+        var _errImg = e.target.dataset.img
+        var _errObj = {}
+        _errObj[_errImg] = "../mini-offcial-web/image/wei_pic_nor.png"
+        this.setData(_errObj) //注意这里的赋值方式,只是将数据列表中的此项图片路径值替换掉  
+    },
+    toWorkCase(e) {
+
+        let id = e.currentTarget.dataset.id
+        wx.navigateTo({
+            url: '/pages/work-case/work-case?id=' + id,
+        })
+    },
+
+})

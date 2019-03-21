@@ -1,0 +1,43 @@
+<!--pages/homeList/homeList.wxml-->
+<view class="main_body wen">
+  <view class="header">
+    <view class="header_title {{headerActive == 1? 'header_active':''}}" data-index='1' bindtap='changeType'>
+      <text class="txt">软装</text>
+    </view>
+    <view class="header_xian"></view>
+    <view class="header_title {{headerActive == 0? 'header_active':''}}" data-index='0' bindtap='changeType'>
+      <text class="txt">硬装</text>
+    </view>
+  </view>
+  <!-- <view class='navTop' wx:if='{{softList.length<2}}'></view> -->
+  <view class='navTop' wx:if="{{softList.length > 1}}">
+    <scroll-view scroll-x scroll-left="{{scroolLeft}}" scroll-with-animation>
+      <view class="items {{index === tabIndex ? 'active' : ''}}" wx:for='{{softList}}' data-i="{{index}}" data-name="{{item.spaceName}}" wx:key='{{index}}' catchtap='cyhangeType'>
+        {{item.spaceName}}
+      </view>
+    </scroll-view>
+  </view>
+  <view class='emptyList' wx:if="{{(productList[0].products.length==0) || emptyType}}">
+    <image class='emptyPicture' mode='widthFix' src='{{staticImageUrl}}empty-Order.png'></image>
+    <text class='emptyText'>该方案暂时还没有清单喔~</text>
+  </view>
+  <view class="{{softList.length <=1 ? 'homeListTop':'homeList'}}">
+    <view class='restaurantList'>
+      <!-- <view class='restaurantTitle'>{{item.spaceName}}</view> -->
+      <view class='restaurantInfo' wx:for="{{productList[0].products}}" wx:for-item="productItem" wx:key='productItem.index'>
+        <image src='{{productItem.picPath ? resourcePath + productItem.picPath:defaultImg}}'></image>
+        <view class='info-box'>
+          <view class='infoName'>{{productItem.productName}}</view>
+          <view class='brand'>品牌：{{productItem.brandName == 0 || !productItem.brandName?'暂无品牌':productItem.brandName}}</view>
+        </view>
+        <view class='info-right'>
+          <text class='price'>{{productItem.salePrice == 0 || !productItem.salePrice?'暂无定价':productItem.salePrice}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+<!-- 快速导航模块 -->
+  <!-- <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav" data="{{ ...newNav }}"/> -->
+  <jdNav></jdNav>

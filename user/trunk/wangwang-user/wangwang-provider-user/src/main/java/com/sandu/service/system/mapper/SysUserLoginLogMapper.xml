@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.system.dao.SysUserLoginLogDao">
+
+    <insert id="insertSysUserLoginLog" parameterType="com.sandu.api.system.model.SysUserLoginLog">
+
+        insert into sys_user_login_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId!= null">user_id, </if>
+            <if test="loginTime!= null">login_time, </if>
+            <if test="loginType!= null">login_type, </if>
+            <if test="clientIp!= null">client_ip, </if>
+            <if test="serverIp!= null">server_ip, </if>
+            <if test="loginDevice!= null">login_device, </if>
+            <if test="systemModel!= null">system_model, </if>
+            <if test="sysCode!= null">sys_code, </if>
+            <if test="creator!= null">creator, </if>
+            <if test="gmtCreate!= null">gmt_create, </if>
+            <if test="modifier!= null">modifier, </if>
+            <if test="gmtModified!= null">gmt_modified, </if>
+            <if test="isDeleted!= null">is_deleted, </if>
+            <if test="att1!= null">att1, </if>
+            <if test="att2!= null">att2, </if>
+            <if test="numa1!= null">numa1, </if>
+            <if test="numa2!= null">numa2, </if>
+            <if test="remark!= null">remark, </if>
+            <if test="platformId!= null">platform_id, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId!= null">  #{userId,jdbcType=INTEGER}, </if>
+            <if test="loginTime!= null">  #{loginTime,jdbcType=TIMESTAMP}, </if>
+            <if test="loginType!= null">  #{loginType}, </if>
+            <if test="clientIp!= null">  #{clientIp,jdbcType=VARCHAR}, </if>
+            <if test="serverIp!= null">  #{serverIp,jdbcType=VARCHAR}, </if>
+            <if test="loginDevice!= null">  #{loginDevice,jdbcType=VARCHAR}, </if>
+            <if test="systemModel!= null">  #{systemModel,jdbcType=VARCHAR}, </if>
+            <if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+            <if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+            <if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+            <if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+            <if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+            <if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+            <if test="att1!= null">  #{att1,jdbcType=VARCHAR}, </if>
+            <if test="att2!= null">  #{att2,jdbcType=VARCHAR}, </if>
+            <if test="numa1!= null">  #{numa1,jdbcType=INTEGER}, </if>
+            <if test="numa2!= null">  #{numa2,jdbcType=INTEGER}, </if>
+            <if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>
+            <if test="platformId!= null">  #{platformId}, </if>
+        </trim>
+
+    </insert>
+
+    <select id="getLastLoginInfo" resultType="com.sandu.api.system.model.SysUserLoginLog">
+        SELECT * FROM sys_user_login_log
+        WHERE user_id = #{userId}
+        AND platform_id= #{platformId}
+        AND is_deleted=0
+        AND login_type=1
+        ORDER BY login_time DESC limit 0,1
+    </select>
+
+</mapper>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.act.dao.WxActBargainAwardMsgMapper">
+    <sql id="Base_Column_List">
+        id,act_id,registration_id,open_id,message,app_id,creator,gmt_create,modifier,gmt_modified,is_deleted
+    </sql>
+
+    <insert id="insertWxActBargainAwardMsg" parameterType="com.sandu.api.act.model.WxActBargainAwardMsg">
+        insert into wx_act_bargain_award_msg
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="actId != null">
+                act_id,
+            </if>
+            <if test="registrationId != null">
+                registration_id,
+            </if>
+            <if test="openId != null">
+                open_id,
+            </if>
+            <if test="message != null">
+                message,
+            </if>
+            <if test="appId != null">
+                app_id,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="actId != null">
+                #{actId,jdbcType=VARCHAR},
+            </if>
+            <if test="registrationId != null">
+                #{registrationId,jdbcType=VARCHAR},
+            </if>
+            <if test="openId != null">
+                #{openId,jdbcType=VARCHAR},
+            </if>
+            <if test="message != null">
+                #{message,jdbcType=VARCHAR},
+            </if>
+            <if test="appId != null">
+                #{appId,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=TINYINT},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateWxActBargainAwardMsgById" parameterType="com.sandu.api.act.model.WxActBargainAwardMsg">
+        update wx_act_bargain_award_msg
+        <set>
+            <if test="id != null">
+                id = #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="actId != null">
+                act_id = #{actId,jdbcType=VARCHAR},
+            </if>
+            <if test="registrationId != null">
+                registration_id = #{registrationId,jdbcType=VARCHAR},
+            </if>
+            <if test="openId != null">
+                open_id = #{openId,jdbcType=VARCHAR},
+            </if>
+            <if test="message != null">
+                message = #{message,jdbcType=VARCHAR},
+            </if>
+            <if test="appId != null">
+                app_id = #{appId,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=TINYINT},
+            </if>
+        </set>
+        where id = #{id,jdbcType=VARCHAR}
+    </update>
+
+    <update id="deleteWxActBargainAwardMsgById" >
+        update wx_act_bargain_award_msg set
+        is_deleted = 1,
+        modifier = #{modifier,jdbcType=VARCHAR},
+        gmt_modified = NOW()
+        where id = #{awardMsgId,jdbcType=VARCHAR}
+    </update>
+
+    <select id="selectWxActBargainAwardMsgById" resultType="com.sandu.api.act.model.WxActBargainAwardMsg">
+        select
+        <include refid="Base_Column_List"/>
+        from wx_act_bargain_award_msg
+        where id = #{awardMsgId}
+    </select>
+
+    <select id="selectCountByActId" parameterType="com.sandu.api.act.input.WxActBargainAwardMsgQuery" resultType="java.lang.Integer">
+        SELECT COUNT(id)
+        FROM wx_act_bargain_award_msg
+        WHERE is_deleted=0
+        <if test="actId != null">
+           AND act_id = #{actId}
+        </if>
+    </select>
+
+    <select id="selectListByActId" parameterType="com.sandu.api.act.input.WxActBargainAwardMsgQuery"
+            resultType="com.sandu.api.act.output.WxActBargainAwardMsgVO">
+        select
+        <include refid="Base_Column_List"/>
+        from wx_act_bargain_award_msg
+        where is_deleted=0
+        <if test="actId != null">
+            AND act_id = #{actId}
+        </if>
+        ORDER BY gmt_create DESC
+        <!--<if test="start != null and limit != null">
+            limit #{page},#{limit}
+        </if>-->
+
+    </select>
+
+    <select id="selectMsgRandomList" parameterType="java.lang.String" resultType="com.sandu.api.act.output.WxActBargainAwardMsgWebVO">
+        SELECT
+        id      AS  awardmsgId,
+        act_id  AS  actId,
+        message AS  message
+        FROM wx_act_bargain_award_msg
+        WHERE is_deleted=0
+        AND act_id = #{actId}
+        ORDER BY RAND() LIMIT 20
+    </select>
+    
+</mapper>

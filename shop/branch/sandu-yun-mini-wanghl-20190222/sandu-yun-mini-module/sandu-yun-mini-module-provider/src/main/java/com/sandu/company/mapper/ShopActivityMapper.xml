@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.company.dao.ShopActivityDao">
+
+  <select id="findFontPageList"  resultType="com.sandu.company.model.vo.ShopActivityVo"
+      parameterType="com.sandu.company.model.query.ShopActivityQuery">
+		SELECT 
+		id,company_id,shop_id,activity_name,activity_desc,start_date,end_date 
+		FROM  company_shop_activity a
+		WHERE a.is_deleted = #{DEL_FLAG_NORMAL} and end_date>(select now())
+	    <if test="startdate != null and  startdate != '' ">
+			AND start_date > #{startdate}
+		</if>
+	    <if test="enddate != null and  enddate != '' ">
+			AND end_date > #{enddate}
+		</if>
+	    <if test="companyId != null and  companyId != '' ">
+		    AND company_id =#{companyId}
+	    </if>
+	     <if test="shopId != null and  shopId != '' ">
+		    AND shop_id =#{shopId}
+	    </if>
+		order by a.id desc 
+        limit #{start},#{pageSize}
+	</select>
+	
+	<select id="findFontCount"  resultType="long"
+      parameterType="com.sandu.company.model.query.ShopActivityQuery">
+		SELECT count(a.id)
+		FROM  company_shop_activity a 
+		WHERE a.is_deleted = #{DEL_FLAG_NORMAL} and end_date > now()
+	    <if test="companyId != null and  companyId != '' ">
+		    AND company_id =#{companyId}
+	    </if>
+	     <if test="shopId != null and  shopId != '' ">
+		    AND shop_id =#{shopId}
+	    </if>
+	</select>
+	
+	<select id="getDetail"  resultType="com.sandu.company.model.vo.ShopActivityDetailVo"
+      parameterType="long">
+		SELECT company_id,shop_id,activity_name,activity_desc,start_date,end_date 
+		FROM  company_shop_activity a 
+		WHERE id=#{id} 
+	</select>
+	
+</mapper>

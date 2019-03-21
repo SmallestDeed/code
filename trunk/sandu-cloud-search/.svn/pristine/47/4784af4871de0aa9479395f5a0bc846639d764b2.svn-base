@@ -1,0 +1,549 @@
+package com.sandu.search.initialize;
+
+import com.google.gson.reflect.TypeToken;
+import com.sandu.search.common.constant.IndexInfoQueryConfig;
+import com.sandu.search.common.tools.EntityCopyUtils;
+import com.sandu.search.common.tools.JsonUtil;
+import com.sandu.search.common.tools.StorageComponent;
+import com.sandu.search.config.ElasticSearchConfig;
+import com.sandu.search.entity.elasticsearch.constant.IndexConstant;
+import com.sandu.search.entity.elasticsearch.constant.TypeConstant;
+import com.sandu.search.entity.elasticsearch.dbobject.ProductStyleDBPo;
+import com.sandu.search.entity.elasticsearch.dbobject.ProductTextureDBPo;
+import com.sandu.search.entity.elasticsearch.dto.IndexRequestDTO;
+import com.sandu.search.entity.elasticsearch.index.CategoryProductIndexMappingData;
+import com.sandu.search.entity.elasticsearch.po.ProductCategoryPo;
+import com.sandu.search.entity.elasticsearch.po.ProductPo;
+import com.sandu.search.entity.elasticsearch.po.metadate.CompanyPo;
+import com.sandu.search.entity.elasticsearch.po.product.ProductPlatformData;
+import com.sandu.search.entity.elasticsearch.response.BulkStatistics;
+import com.sandu.search.exception.CategoryProductIndexException;
+import com.sandu.search.exception.ElasticSearchException;
+import com.sandu.search.service.elasticsearch.ElasticSearchService;
+import com.sandu.search.service.index.CategoryProductIndexService;
+import com.sandu.search.storage.company.BrandMetaDataStorage;
+import com.sandu.search.storage.company.CompanyMetaDataStorage;
+import com.sandu.search.storage.product.*;
+import com.sandu.search.storage.resource.ResPicMetaDataStorage;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 搜索引擎产品分类索引初始化
+ *
+ * @date 20171212
+ * @auth pengxuangang
+ */
+@Slf4j
+@Component
+public class ElasticSearchCategoryProductIndex {
+
+    private final static String CLASS_LOG_PREFIX = "初始化搜索引擎产品分类索引:";
+
+    @Autowired
+    private StorageComponent storageComponent;
+    @Autowired
+    private ElasticSearchConfig elasticSearchConfig;
+    @Autowired
+    private ElasticSearchService elasticSearchService;
+    @Autowired
+    private BrandMetaDataStorage brandMetaDataStorage;
+    @Autowired
+    private ResPicMetaDataStorage resPicMetaDataStorage;
+    @Autowired
+    private CompanyMetaDataStorage companyMetaDataStorage;
+    @Autowired
+    private ProductStyleMetaDataStorage productStyleMetaDataStorage;
+    @Autowired
+    private CategoryProductIndexService categoryProductIndexService;
+    @Autowired
+    private ProductTextureMetaDataStorage productTextureMetaDataStorage;
+    @Autowired
+    private ProductPlatformMetaDataStorage productPlatformMetaDataStorage;
+    @Autowired
+    private ProductCategoryMetaDataStorage productCategoryMetaDataStorage;
+    @Autowired
+    private ProductAttributeMetaDataStorage productAttributeMetaDataStorage;
+    @Autowired
+    private ProductUsageCountMetaDataStorage productUsageCountMetaDataStorage;
+    @Autowired
+    private ProductCategoryRelMetaDataStorage productCategoryRelMetaDataStorage;
+
+    /**
+     * 初始化搜索引擎产品信息
+     *
+     * @date 20171212
+     * @auth pengxuangang
+     */
+    @PostConstruct
+    public void initElasticSearchProductIndex() {
+
+        //初始化元数据
+        storageComponent.reloadAllStorageInMemory(true);
+
+        //是否需要索引产品数据
+        boolean indexProductData = elasticSearchConfig.isIndexProductData();
+        log.info(CLASS_LOG_PREFIX + "是否需要索引产品数据:{}", indexProductData);
+        //索引数据
+        if (indexProductData) {
+            //同步产品信息数据
+            syncProductInfoData();
+        }
+    }
+
+    /**
+     * 同步产品信息数据
+     */
+    public void syncProductInfoData() {
+
+        log.info(CLASS_LOG_PREFIX + "开始索引产品分类数据........");
+        //开始时间
+        long startTime = System.currentTimeMillis();
+
+        //数据查询初始位
+        int start = 0;
+        //每次数据量
+        int limit = IndexInfoQueryConfig.DEFAULT_QUERY_PRODUCTPOINFO_LIMIT;
+
+        //是否继续处理
+        boolean isContinueHandler = true;
+        //总数据量
+        int totalProductCount = 0;
+        //总索引量
+        int totalIndexCount = 0;
+        //异常数据
+        int totalExceptionCount = 0;
+
+        while (isContinueHandler) {
+            List<ProductPo> productPoList;
+            /********************************** 查询产品信息 *********************************/
+            //更新全量数据
+            try {
+                productPoList = categoryProductIndexService.queryProductPoList(start, limit);
+            } catch (CategoryProductIndexException e) {
+                log.error(CLASS_LOG_PREFIX + "查询产品信息失败:CategoryProductIndexException:{}", e);
+                return;
+            }
+
+            //递增start下标
+            start = start + limit;
+
+            //无数据中断操作
+            if (null == productPoList || 0 == productPoList.size()) {
+                log.info(CLASS_LOG_PREFIX + "查询产品分类息数据为空：start:{},limit:{}.", start, limit);
+                return;
+            }
+            //数据不足指定数据量表示已查询出最后一条数据,终止循环
+            if (productPoList.size() < IndexInfoQueryConfig.DEFAULT_QUERY_PRODUCTPOINFO_LIMIT) {
+                isContinueHandler = false;
+            }
+
+            //索引产品数据
+            int successIndexCount = indexProdcutData(productPoList);
+
+            //累加数据量
+            totalProductCount += productPoList.size();
+            totalIndexCount += successIndexCount;
+            totalExceptionCount += productPoList.size() - successIndexCount;
+        }
+
+        log.info(CLASS_LOG_PREFIX + "索引所有产品分类数据完成!!!产品数据量:{}, 索引数据量:{},失败数:{},共耗时:{}ms", new String[]{
+                totalProductCount + "",
+                totalIndexCount + "",
+                totalExceptionCount + "",
+                (System.currentTimeMillis() - startTime) + ""
+        });
+    }
+
+    /**
+     * 索引产品数据
+     *
+     * @param productPoList 产品对象
+     * @return 索引成功数
+     */
+    public int indexProdcutData(List<ProductPo> productPoList) {
+
+        if (null == productPoList || 0 >= productPoList.size()) {
+            return 0;
+        }
+
+        //失败数
+        int failCount = 0;
+
+        //批量提交数据对象
+        List<Object> bulkIndexList = new ArrayList<>(IndexInfoQueryConfig.DEFAULT_QUERY_PRODUCTPOINFO_LIMIT);
+
+        /********************************** 处理产品分类信息数据 *********************************/
+        for (ProductPo productPo : productPoList) {
+            //定义索引数据对象
+            CategoryProductIndexMappingData categoryProductIndexMappingData = new CategoryProductIndexMappingData();
+
+            /*************** Field1:产品基本数据 *******************/
+            categoryProductIndexMappingData.setId(productPo.getId());
+            categoryProductIndexMappingData.setDataIsDelete(productPo.getDataIsDelete());
+            categoryProductIndexMappingData.setProductCode(productPo.getProductCode());
+            categoryProductIndexMappingData.setProductName(productPo.getProductName());
+            categoryProductIndexMappingData.setProductBrandId(productPo.getProductBrandId());
+            categoryProductIndexMappingData.setProductBrandName(brandMetaDataStorage.getBrandNameById(productPo.getProductBrandId()));
+            categoryProductIndexMappingData.setProductFullPaveLength(productPo.getProductFullPaveLength());
+            categoryProductIndexMappingData.setProductModelNumber(productPo.getProductModelNumber());
+            categoryProductIndexMappingData.setProductMeasurementCode(productPo.getProductMeasurementCode());
+            categoryProductIndexMappingData.setProductGroundLayoutIden(productPo.getProductGroundLayoutIden());
+            //天花布局标识
+            String productCeilingLayoutIdenStr = productPo.getProductCeilingLayoutIden();
+            if (!StringUtils.isEmpty(productCeilingLayoutIdenStr)) {
+                categoryProductIndexMappingData.setProductCeilingLayoutIdenList(Arrays.asList(productCeilingLayoutIdenStr.split(",")));
+            }
+
+            //包含的所有分类ID和分类名
+            categoryProductIndexMappingData.setAllProductCategoryId(productCategoryRelMetaDataStorage.getCategoryListByProductId(categoryProductIndexMappingData.getId()));
+            categoryProductIndexMappingData.setAllProductCategoryName(productCategoryMetaDataStorage.queryProductCategoryIdByProductId(categoryProductIndexMappingData.getAllProductCategoryId()));
+            //默认获取第一个为当前分类
+            if (null != categoryProductIndexMappingData.getAllProductCategoryId() && categoryProductIndexMappingData.getAllProductCategoryId().size() > 0) {
+                Integer categoryId = categoryProductIndexMappingData.getAllProductCategoryId().get(0);
+                categoryProductIndexMappingData.setProductCategoryId(categoryId);
+            }
+
+            //风格ID数据格式化
+            List<Integer> styleList = new ArrayList<>();
+            if (!StringUtils.isEmpty(productPo.getProductStyleId())) {
+                styleList.add(productPo.getProductStyleId());
+            }
+
+            if (!StringUtils.isEmpty(productPo.getProductStyleIdArr())) {
+                ProductStyleDBPo productStyleDBPo = JsonUtil.fromJson(productPo.getProductStyleIdArr(), ProductStyleDBPo.class);
+                //父类风格
+                if (!StringUtils.isEmpty(productStyleDBPo.getIsLeaf_1())) {
+                    for (String parentStyleId : productStyleDBPo.getIsLeaf_0().split(",")) {
+                        if (!StringUtils.isEmpty(parentStyleId)) {
+                            List<Integer> childrenStyleIdList = productStyleMetaDataStorage.getProductStyleChildrenIdByParentId(Integer.valueOf(parentStyleId));
+                            styleList.addAll(childrenStyleIdList);
+                        }
+
+                    }
+                }
+                //子类风格
+                if (!StringUtils.isEmpty(productStyleDBPo.getIsLeaf_0())) {
+                    String[] childrenStyleArr = productStyleDBPo.getIsLeaf_0().split(",");
+                    for (String childrenStyleId : childrenStyleArr) {
+                        styleList.add(Integer.valueOf(childrenStyleId));
+                    }
+                }
+                categoryProductIndexMappingData.setProductStyleList(styleList);
+            }
+
+            //风格名称数据格式化
+            List<Integer> productStyleList = categoryProductIndexMappingData.getProductStyleList();
+            if (null != productStyleList && 0 != productStyleList.size()) {
+                List<String> productStyleNameList = new ArrayList<>(productStyleList.size());
+                productStyleList.forEach(productStyleId -> {
+                    productStyleNameList.add(productStyleMetaDataStorage.getProductStyleNameById(productStyleId));
+                });
+                categoryProductIndexMappingData.setStyleNameList(productStyleNameList);
+            }
+
+            categoryProductIndexMappingData.setProductSpecification(productPo.getProductSpecification());
+            categoryProductIndexMappingData.setProductColorId(productPo.getProductColorId());
+            categoryProductIndexMappingData.setProductLength(productPo.getProductLength());
+            categoryProductIndexMappingData.setProductWidth(productPo.getProductWidth());
+            categoryProductIndexMappingData.setProductHeight(productPo.getProductHeight());
+            categoryProductIndexMappingData.setProductSalePrice(productPo.getProductSalePrice());
+            categoryProductIndexMappingData.setProductSalePriceValue(productPo.getProductSalePriceValue());
+            categoryProductIndexMappingData.setProductPicId(productPo.getProductPicId());
+
+            //产品图片ID数据格式化
+            if (!StringUtils.isEmpty(productPo.getProductPicArr())) {
+                String[] picIdArr = productPo.getProductPicArr().split(",");
+                List<Integer> picIdList = new ArrayList<>(picIdArr.length);
+                for (String picId : picIdArr) {
+                    picIdList.add(Integer.valueOf(picId));
+                }
+                categoryProductIndexMappingData.setProductPicList(picIdList);
+            }
+
+            //产品图片路径数据格式化
+            Integer picId = categoryProductIndexMappingData.getProductPicId();
+            if (null != picId && 0 != picId) {
+                categoryProductIndexMappingData.setProductPicPath(resPicMetaDataStorage.getProductBrandMapMetaData(picId));
+            }
+            List<Integer> productPicIdList = categoryProductIndexMappingData.getProductPicList();
+            if (null != productPicIdList && 0 < productPicIdList.size()) {
+                categoryProductIndexMappingData.setProductPicPathList(resPicMetaDataStorage.queryProductBrandMapMetaData(productPicIdList));
+            }
+
+
+            categoryProductIndexMappingData.setProductModelId(productPo.getProductModelId());
+            categoryProductIndexMappingData.setProductDesc(productPo.getProductDesc());
+            categoryProductIndexMappingData.setProductSystemCode(productPo.getProductSystemCode());
+            categoryProductIndexMappingData.setProductCreateDate(productPo.getProductCreateDate());
+            categoryProductIndexMappingData.setProductModifyDate(productPo.getProductModifyDate());
+            categoryProductIndexMappingData.setProductPutawayDate(productPo.getProductPutawayDate());
+
+            //产品材质ID数据格式化
+            List<String> productMaterialList = new ArrayList<>();
+            if (!StringUtils.isEmpty(productPo.getProductMaterialId())) {
+                productMaterialList.add(productPo.getProductMaterialId());
+            }
+            if (!StringUtils.isEmpty(productPo.getProductMaterialIdArr())) {
+                List<ProductTextureDBPo> productTextureDBPoList;
+                try {
+                    productTextureDBPoList = JsonUtil.fromJson(productPo.getProductMaterialIdArr(), new TypeToken<List<ProductTextureDBPo>>() {
+                    }.getType());
+                } catch (Exception e) {
+                    log.error(CLASS_LOG_PREFIX + "产品材质数据格式化异常，字符串转对象异常:Str:{},Exception:{}", productPo.getProductMaterialIdArr(), e);
+                    failCount++;
+                    continue;
+                }
+                for (ProductTextureDBPo productTextureDBPo : productTextureDBPoList) {
+                    if (!StringUtils.isEmpty(productTextureDBPo.getTextureIds())) {
+                        String[] textureArr = productTextureDBPo.getTextureIds().split(",");
+                        for (String textture : textureArr) {
+                            productMaterialList.add(textture);
+                        }
+                    }
+                }
+            }
+            categoryProductIndexMappingData.setProductMaterialList(productMaterialList);
+
+            //产品材质名数据格式化
+            List<String> productMaterialIdList = categoryProductIndexMappingData.getProductMaterialList();
+            if (null != productMaterialIdList && 0 != productMaterialIdList.size()) {
+                List<String> productMaterialNameList = new ArrayList<>(productMaterialIdList.size());
+                categoryProductIndexMappingData.getProductMaterialList().forEach(productMaterialId -> {
+                    productMaterialNameList.add(productTextureMetaDataStorage.getProductTextureNameById(productMaterialId));
+                });
+                categoryProductIndexMappingData.setProductMaterialNameList(productMaterialNameList);
+            }
+
+            categoryProductIndexMappingData.setProductTypeValue(productPo.getProductTypeValue());
+            categoryProductIndexMappingData.setProductTypeSmallValue(productPo.getProductTypeSmallValue());
+            categoryProductIndexMappingData.setProductPutawayState(productPo.getProductPutawayState());
+            categoryProductIndexMappingData.setProductDesignerId(productPo.getProductDesignerId());
+            categoryProductIndexMappingData.setProductSeriesId(productPo.getProductSeriesId());
+
+            /*************** Field2:产品分类数据 *******************/
+            //当前分类对象
+            ProductCategoryPo productCategoryPo = productCategoryMetaDataStorage.getProductCategory(categoryProductIndexMappingData.getProductCategoryId());
+            if (null != productCategoryPo) {
+                //Step 1: 确定当前产品分类层级
+
+                if (null == productCategoryPo) {
+                    log.warn(CLASS_LOG_PREFIX + "产品分类数据-确定当前产品分类层级-ProductCategoryPo is null.CategoryProductIndexMappingData:{}.", categoryProductIndexMappingData.toString());
+                    failCount++;
+                    continue;
+                }
+                categoryProductIndexMappingData.setProductCategoryCode(productCategoryPo.getProductCategoryCode());
+                //产品长编码列表
+                categoryProductIndexMappingData.setProductCategoryLongCodeList(
+                        productCategoryMetaDataStorage.queryProductCategoryLongCodeByCategoryIdList(
+                                categoryProductIndexMappingData.getAllProductCategoryId()));
+                categoryProductIndexMappingData.setParentCategoryId(productCategoryPo.getParentCategoryId());
+                categoryProductIndexMappingData.setCategoryName(productCategoryPo.getCategoryName());
+                categoryProductIndexMappingData.setCategoryLevel(productCategoryPo.getCategoryLevel());
+                categoryProductIndexMappingData.setCategoryOrder(productCategoryPo.getCategoryOrder());
+                categoryProductIndexMappingData.setCategorySystemCode(productCategoryPo.getCategorySystemCode());
+
+                //Step 2: 根据不同层级装配数据
+                ProductCategoryPo firstLevelProductCategoryPo, secondLevelProductCategoryPo, thirdLevelProductCategoryPo, fourthLevelProductCategoryPo, fifthLevelProductCategoryPo;
+                switch (productCategoryPo.getCategoryLevel()) {
+                    case 2:
+                        //二级对象
+                        categoryProductIndexMappingData.setSecondLevelCategoryId(productCategoryPo.getId());
+                        categoryProductIndexMappingData.setSecondLevelCategoryName(productCategoryPo.getCategoryName());
+
+                        //一级对象
+                        firstLevelProductCategoryPo = productCategoryMetaDataStorage.getProductCategory(productCategoryPo.getParentCategoryId());
+                        categoryProductIndexMappingData.setFirstLevelCategoryId(firstLevelProductCategoryPo.getId());
+                        categoryProductIndexMappingData.setFirstLevelCategoryName(firstLevelProductCategoryPo.getCategoryName());
+                        //每级数据添加
+                        categoryProductIndexMappingData.setAllLevelCategoryName(Arrays.asList(
+                                categoryProductIndexMappingData.getFirstLevelCategoryName(),
+                                categoryProductIndexMappingData.getSecondLevelCategoryName()));
+                        break;
+                    case 3:
+                        //三级对象
+                        categoryProductIndexMappingData.setThirdLevelCategoryId(productCategoryPo.getId());
+                        categoryProductIndexMappingData.setThirdLevelCategoryName(productCategoryPo.getCategoryName());
+                        //二级对象
+                        secondLevelProductCategoryPo = productCategoryMetaDataStorage.getProductCategory(productCategoryPo.getParentCategoryId());
+                        categoryProductIndexMappingData.setSecondLevelCategoryId(secondLevelProductCategoryPo.getId());
+                        categoryProductIndexMappingData.setSecondLevelCategoryName(secondLevelProductCategoryPo.getCategoryName());
+                        //一级对象
+                        firstLevelProductCategoryPo = productCategoryMetaDataStorage.getProductCategory(secondLevelProductCategoryPo.getParentCategoryId());
+                        categoryProductIndexMappingData.setFirstLevelCategoryId(firstLevelProductCategoryPo.getId());
+                        categoryProductIndexMappingData.setFirstLevelCategoryName(firstLevelProductCategoryPo.getCategoryName());
+                        //每级数据添加
+                        categoryProductIndexMappingData.setAllLevelCategoryName(Arrays.asList(
+                                categoryProductIndexMappingData.getFirstLevelCategoryName(),
+                                categoryProductIndexMappingData.getSecondLevelCategoryName(),
+                                categoryProductIndexMappingData.getThirdLevelCategoryName()));
+                        break;
+                    case 4:
+                        //四级对象
+                        categoryProductIndexMappingData.setFourthLevelCategoryId(productCategoryPo.getId());
+                        categoryProductIndexMappingData.setFourthLevelCategoryName(productCategoryPo.getCategoryName());
+                        //三级对象
+                        thirdLevelProductCategoryPo = productCategoryMetaDataStorage.getProductCategory(productCategoryPo.getParentCategoryId());
+                        categoryProductIndexMappingData.setThirdLevelCategoryId(thirdLevelProductCategoryPo.getId());
+                        categoryProductIndexMappingData.setThirdLevelCategoryName(thirdLevelProductCategoryPo.getCategoryName());
+                        //二级对象
+                        secondLevelProductCategoryPo = productCategoryMetaDataStorage.getProductCategory(thirdLevelProductCategoryPo.getParentCategoryId());
+                        categoryProductIndexMappingData.setSecondLevelCategoryId(secondLevelProductCategoryPo.getId());
+                        categoryProductIndexMappingData.setSecondLevelCategoryName(secondLevelProductCategoryPo.getCategoryName());
+                        //一级对象
+                        firstLevelProductCategoryPo = productCategoryMetaDataStorage.getProductCategory(secondLevelProductCategoryPo.getParentCategoryId());
+                        categoryProductIndexMappingData.setFirstLevelCategoryId(firstLevelProductCategoryPo.getId());
+                        categoryProductIndexMappingData.setFirstLevelCategoryName(firstLevelProductCategoryPo.getCategoryName());
+                        //每级数据添加
+                        categoryProductIndexMappingData.setAllLevelCategoryName(Arrays.asList(
+                                categoryProductIndexMappingData.getFirstLevelCategoryName(),
+                                categoryProductIndexMappingData.getSecondLevelCategoryName(),
+                                categoryProductIndexMappingData.getThirdLevelCategoryName(),
+                                categoryProductIndexMappingData.getFourthLevelCategoryName()));
+                        break;
+                    case 5:
+                        //五级对象
+                        categoryProductIndexMappingData.setFifthLevelCategoryId(productCategoryPo.getId());
+                        categoryProductIndexMappingData.setFifthLevelCategoryName(productCategoryPo.getCategoryName());
+                        //四级对象
+                        fourthLevelProductCategoryPo = productCategoryMetaDataStorage.getProductCategory(productCategoryPo.getParentCategoryId());
+                        categoryProductIndexMappingData.setFourthLevelCategoryId(fourthLevelProductCategoryPo.getId());
+                        categoryProductIndexMappingData.setFourthLevelCategoryName(fourthLevelProductCategoryPo.getCategoryName());
+                        //三级对象
+                        thirdLevelProductCategoryPo = productCategoryMetaDataStorage.getProductCategory(fourthLevelProductCategoryPo.getParentCategoryId());
+                        categoryProductIndexMappingData.setThirdLevelCategoryId(thirdLevelProductCategoryPo.getId());
+                        categoryProductIndexMappingData.setThirdLevelCategoryName(thirdLevelProductCategoryPo.getCategoryName());
+                        //二级对象
+                        secondLevelProductCategoryPo = productCategoryMetaDataStorage.getProductCategory(thirdLevelProductCategoryPo.getParentCategoryId());
+                        categoryProductIndexMappingData.setSecondLevelCategoryId(secondLevelProductCategoryPo.getId());
+                        categoryProductIndexMappingData.setSecondLevelCategoryName(secondLevelProductCategoryPo.getCategoryName());
+                        //一级对象
+                        firstLevelProductCategoryPo = productCategoryMetaDataStorage.getProductCategory(secondLevelProductCategoryPo.getParentCategoryId());
+                        categoryProductIndexMappingData.setFirstLevelCategoryId(firstLevelProductCategoryPo.getId());
+                        categoryProductIndexMappingData.setFirstLevelCategoryName(firstLevelProductCategoryPo.getCategoryName());
+                        //每级数据添加
+                        categoryProductIndexMappingData.setAllLevelCategoryName(Arrays.asList(
+                                categoryProductIndexMappingData.getFirstLevelCategoryName(),
+                                categoryProductIndexMappingData.getSecondLevelCategoryName(),
+                                categoryProductIndexMappingData.getThirdLevelCategoryName(),
+                                categoryProductIndexMappingData.getFourthLevelCategoryName(),
+                                categoryProductIndexMappingData.getFifthLevelCategoryName()));
+                        break;
+                    default:
+                        failCount++;
+                        log.error(CLASS_LOG_PREFIX + "根据不同层级装配不同分类数据异常!未知分类层级Level:{}", productCategoryPo.getCategoryLevel());
+                }
+            }
+
+            /*************** Field3:产品公司数据 *******************/
+            Integer productBrandId = categoryProductIndexMappingData.getProductBrandId();
+            if (null != productBrandId && 0 < productBrandId) {
+                //公司ID
+                Integer companyId = brandMetaDataStorage.getCompanyIdByBrandId(productBrandId);
+                if (null != companyId && 0 < companyId) {
+                    categoryProductIndexMappingData.setCompanyId(companyId);
+                    //公司对象
+                    CompanyPo companyPo = companyMetaDataStorage.getCompanyPoByCompanyId(companyId);
+                    if (null != companyPo) {
+                        //公司编码
+                        categoryProductIndexMappingData.setCompanyCode(companyPo.getCompanyCode());
+                        //公司行业
+                        categoryProductIndexMappingData.setCompanyIndustry(companyPo.getCompanyIndustry());
+                    }
+                }
+            }
+
+            /*************** Field4:产品全平台过滤数据 *******************/
+            ProductPlatformData productPlatformData = productPlatformMetaDataStorage.queryProductPlatformByProductId(categoryProductIndexMappingData.getId());
+            if (null != productPlatformData) {
+                //平台数据
+                EntityCopyUtils.copyData(productPlatformData, categoryProductIndexMappingData);
+                //平台编码列表
+                List<String> platformCodeList = new ArrayList<>(9);
+                if (null != productPlatformData.getPlatformProductToBMobile()) {
+                    platformCodeList.add(productPlatformData.getPlatformProductToBMobile().getPlatformCode());
+                }
+                if (null != productPlatformData.getPlatformProductToBPc()) {
+                    platformCodeList.add(productPlatformData.getPlatformProductToBPc().getPlatformCode());
+                }
+                if (null != productPlatformData.getPlatformProductToCSite()) {
+                    platformCodeList.add(productPlatformData.getPlatformProductToCSite().getPlatformCode());
+                }
+                if (null != productPlatformData.getPlatformProductToCMobile()) {
+                    platformCodeList.add(productPlatformData.getPlatformProductToCMobile().getPlatformCode());
+                }
+                if (null != productPlatformData.getPlatformProductSanduManager()) {
+                    platformCodeList.add(productPlatformData.getPlatformProductSanduManager().getPlatformCode());
+                }
+                if (null != productPlatformData.getPlatformProductHouseDraw()) {
+                    platformCodeList.add(productPlatformData.getPlatformProductHouseDraw().getPlatformCode());
+                }
+                if (null != productPlatformData.getPlatformProductMerchantsManager()) {
+                    platformCodeList.add(productPlatformData.getPlatformProductMerchantsManager().getPlatformCode());
+                }
+                if (null != productPlatformData.getPlatformProductTest()) {
+                    platformCodeList.add(productPlatformData.getPlatformProductTest().getPlatformCode());
+                }
+                if (null != productPlatformData.getPlatformProductU3dPlugin()) {
+                    platformCodeList.add(productPlatformData.getPlatformProductU3dPlugin().getPlatformCode());
+                }
+                categoryProductIndexMappingData.setPlatformCodeList(platformCodeList);
+            }
+
+            /*************** Field5:产品过滤属性数据 *******************/
+            Map<String, String> productFilterAttributeMap = productAttributeMetaDataStorage.getProductFilterAttributeMap(categoryProductIndexMappingData.getId());
+            if (null != productFilterAttributeMap && 0 < productFilterAttributeMap.size()) {
+                categoryProductIndexMappingData.setProductFilterAttributeMap(productFilterAttributeMap);
+            }
+
+            /*************** Field6:产品排序属性数据 *******************/
+            Map<String, String> productOrderAttributeMap = productAttributeMetaDataStorage.getProductOrderAttributeMap(categoryProductIndexMappingData.getId());
+            if (null != productOrderAttributeMap && 0 < productOrderAttributeMap.size()) {
+                categoryProductIndexMappingData.setProductOrderAttributeMap(productOrderAttributeMap);
+            }
+
+            /*************** Field7:产品使用次数数据 *******************/
+            //产品使用次数数据
+            Map<Integer, Integer> productUsageCountMetaDataMap = productUsageCountMetaDataStorage.getProductUsageCountMetaDataMap(categoryProductIndexMappingData.getId());
+            if (null != productUsageCountMetaDataMap && 0 < productUsageCountMetaDataMap.size()) {
+                categoryProductIndexMappingData.setProductUsageCount(productUsageCountMetaDataMap);
+            }
+
+                /*
+                * 创建索引对象---分类索引从1级开始建立
+                * */
+            IndexRequestDTO indexRequestDTO = new IndexRequestDTO(
+                    IndexConstant.INDEX_PRODUCT_INFO,
+                    TypeConstant.TYPE_DEFAULT,
+                    categoryProductIndexMappingData.getId() + "",
+                    JsonUtil.toJson(categoryProductIndexMappingData)
+            );
+
+            //加入批量对象
+            bulkIndexList.add(indexRequestDTO);
+        }
+
+        //索引数据
+        BulkStatistics bulkStatistics = null;
+        try {
+            bulkStatistics = elasticSearchService.bulk(bulkIndexList);
+        } catch (ElasticSearchException e) {
+            log.error(CLASS_LOG_PREFIX + "索引产品分类数据异常:ElasticSearchException:{}", e);
+        }
+        log.info(CLASS_LOG_PREFIX + "索引产品分类数据成功:成功索引数:{},无效索引数:{},BulkStatistics:{}", new String[]{
+                bulkIndexList.size() + "",
+                failCount + "",
+                null == bulkStatistics ? null : bulkStatistics.toString()
+        });
+
+        return productPoList.size() - failCount;
+    }
+}

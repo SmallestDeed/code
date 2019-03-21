@@ -1,0 +1,40 @@
+package com.sandu.system.cache.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.common.cache.CacheManager;
+import com.sandu.common.cache.util.KeyGenerator;
+import com.sandu.common.metadata.ModuleType;
+import com.sandu.system.cache.service.ResModelCacheService;
+import com.sandu.system.model.ResModel;
+import com.sandu.system.service.ResModelService;
+
+@Service("resModelCacheService")
+public class ResModelCacheServiceImpl implements ResModelCacheService {
+
+	@Autowired
+	private ResModelService resModelService;
+	
+	/***
+     * 获取单个模型资源的详情
+     * @param id
+     * @return
+     */
+	@Override
+	public ResModel get(int id){
+		ResModel pic=null;
+		String key=KeyGenerator.getIdKey(ModuleType.ResModel, id);
+		if(CacheManager.getInstance().getCacher()!=null){
+			pic=(ResModel)CacheManager.getInstance().getCacher().getObject(key);
+			if(pic==null){
+				pic=resModelService.get(id);
+				if(pic!=null){
+				    CacheManager.getInstance().getCacher().setObject(key, pic, 0);
+				}
+			}
+		}
+		return pic;
+	}
+	
+}

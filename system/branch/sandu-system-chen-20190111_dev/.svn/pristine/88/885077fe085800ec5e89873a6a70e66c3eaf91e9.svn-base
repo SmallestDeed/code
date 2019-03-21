@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.pointmall.dao.GiftDao">
+    <sql id="authColumns">
+		a.id,
+		a.company_id,
+		a.credential_type,
+		a.credential_file_url,
+		a.auth_state,
+		a.auth_date,
+		a.auth_remark,
+		a.auth_id
+	</sql>
+
+    <sql id="giftColumns">
+        a.id,
+        a.name,
+        a.code,
+        a.explain,
+        a.introduce,
+        a.inventory,
+        a.price,
+        a.point,
+        b.filename,
+        a.express_fee expressFee
+    </sql>
+
+    <select id="findFrontList"  resultType="com.sandu.api.pointmall.model.vo.GiftVo"
+            parameterType="com.sandu.api.pointmall.model.query.GiftQuery">
+        SELECT
+        <include refid="giftColumns" />
+        FROM  imall_gifts a left join (select filename,gift_id from imall_gift_image where small=1 AND is_deleted=0) b
+        on a.id=b.gift_id
+        WHERE a.is_deleted = 0
+        AND a.is_putaway = 1
+        order by a.price desc
+    </select>
+
+    <select id="get" resultType="com.sandu.api.pointmall.model.vo.GiftVo">
+        SELECT
+        <include refid="giftColumns" />
+        FROM  imall_gifts a left join (select filename,gift_id from imall_gift_image where cover=1) b
+        on a.id=b.gift_id
+        WHERE a.is_deleted = 0
+        <if test="giftId != null and giftId != -1">
+            AND a.id = #{giftId}
+        </if>
+    </select>
+
+    <select id="getGiftAndImgsById" resultType="com.sandu.api.pointmall.model.vo.GiftSingleVo">
+        SELECT
+            id,
+            name,
+            code,
+            `explain`,
+            introduce,
+            inventory,
+            price,
+            point,
+            express_fee expressFee
+        FROM imall_gifts WHERE id = #{giftId} AND is_deleted = 0
+    </select>
+
+    <update id="updateInventory">
+        UPDATE imall_gifts SET inventory = #{inventory} WHERE id = #{id}
+    </update>
+</mapper>

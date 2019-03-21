@@ -1,0 +1,251 @@
+package com.sandu.base.service.impl;
+
+import com.sandu.base.dao.BaseAreaMapper;
+import com.sandu.base.model.BaseArea;
+import com.sandu.base.model.search.BaseAreaSearch;
+import com.sandu.base.model.vo.BaseAreaVo;
+import com.sandu.base.service.BaseAreaService;
+
+import com.sandu.common.tool.PinYin4jUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+/**
+ * @version V1.0
+ * @Title: BaseAreaServiceImpl.java
+ * @Package com.sandu.system.service.impl
+ * @Description:系统-行政区域ServiceImpl
+ * @createAuthor pandajun
+ * @CreateDate 2015-05-19 15:31:09
+ */
+@Service("baseAreaService")
+public class BaseAreaServiceImpl implements BaseAreaService
+{
+
+	private static Logger logger = LoggerFactory.getLogger(BaseAreaServiceImpl.class);
+	@Autowired
+	private BaseAreaMapper baseAreaMapper;
+
+	/**
+	 * 新增数据
+	 *
+	 * @param baseArea
+	 * @return int
+	 */
+	@Override
+	public int add(BaseArea baseArea)
+	{
+		baseAreaMapper.insertSelective(baseArea);
+		return baseArea.getId();
+	}
+
+	/**
+	 * 更新数据
+	 *
+	 * @param baseArea
+	 * @return int
+	 */
+	@Override
+	public int update(BaseArea baseArea)
+	{
+		return baseAreaMapper.updateByPrimaryKeySelective(baseArea);
+	}
+
+	/**
+	 * 删除数据
+	 *
+	 * @param id
+	 * @return int
+	 */
+	@Override
+	public int delete(Integer id)
+	{
+		return baseAreaMapper.deleteByPrimaryKey(id);
+	}
+
+	/**
+	 * 获取数据详情
+	 *
+	 * @param id
+	 * @return BaseArea
+	 */
+	@Override
+	public BaseArea get(Integer id)
+	{
+		return baseAreaMapper.selectByPrimaryKey(id);
+	}
+
+	/**
+	 * 所有数据
+	 *
+	 * @param baseArea
+	 * @return List<BaseArea>
+	 */
+	@Override
+	public List<BaseArea> getList(BaseArea baseArea)
+	{
+		if (baseArea != null && StringUtils.isNotBlank(baseArea.getPid()))
+		{
+			if (baseArea.getLevelId() == 0 && Integer.parseInt(baseArea.getPid()) == 0)
+			{
+				return baseAreaMapper.selectAllCity(baseArea);
+			}
+		}
+		return baseAreaMapper.selectList(baseArea);
+	}
+
+	/**
+	 * 获取数据数量
+	 *
+	 * @return int
+	 */
+	@Override
+	public int getCount(BaseAreaSearch baseAreaSearch)
+	{
+		return baseAreaMapper.selectCount(baseAreaSearch);
+	}
+
+	/**
+	 * 分页获取数据
+	 *
+	 * @return List<BaseArea>
+	 */
+	@Override
+	public List<BaseArea> getPaginatedList(BaseAreaSearch baseAreaSearch)
+	{
+
+		return baseAreaMapper.selectPaginatedList(baseAreaSearch);
+	}
+
+	/**
+	 * 获取城市列表
+	 */
+	public List<BaseArea> getCityList()
+	{
+		return baseAreaMapper.selectCityList();
+	}
+
+	@Override
+	public String getCodeName(String code)
+	{
+
+		return baseAreaMapper.selectCodeName(code);
+	}
+
+	@Override
+	public List<BaseAreaVo> getAreaList(BaseArea baseArea) {
+		return baseAreaMapper.selectAreaList(baseArea);
+	}
+
+	@Override
+	public List<BaseArea> getNewAreaList() {
+		BaseArea baseArea = new BaseArea();
+
+		List<BaseArea> list = new ArrayList<BaseArea>();
+
+		// 返回列表
+		List<BaseArea> nList = new ArrayList<>();
+
+		baseArea.setIsDeleted(0);
+		list = this.getList(baseArea);
+//			logger.info(CLASS_LOG_PREFIX + "查询所有省市区域完成:{}", gson.toJson(list));
+
+		// 省份城市按照字母A~Z排序start
+		List<BaseArea> newBaseArea = null;
+		try {
+			newBaseArea = deepCopy(list);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		for (int i = 0; i < list.size(); i++) {
+			if (!com.sandu.common.util.StringUtils.isEmpty(list.get(i).getAreaName())) {
+				String pinyin = PinYin4jUtils.hanziToPinyin(list.get(i).getAreaName(), "");
+
+				// 多音字单独处理
+				if (list.get(i).getAreaName().equals("重庆市")) {
+					list.get(i).setAreaName("chongqing");
+				} else if(list.get(i).getAreaName().equals("广东省")){
+					list.get(i).setAreaName("A");
+				} else if(list.get(i).getAreaName().equals("深圳市")){
+					list.get(i).setAreaName("AA");
+				}else {
+					list.get(i).setAreaName(pinyin);
+				}
+			}
+		}
+
+		Collections.sort(list, new Comparator<BaseArea>() {
+			@Override
+			public int compare(BaseArea o1, BaseArea o2) {
+				return o1.getAreaName().compareTo(o2.getAreaName());
+			}
+		});
+
+		for (BaseArea b : list) {
+			for (BaseArea n : newBaseArea) {
+				if (b.getId().intValue() == n.getId().intValue()) {
+					b.setAreaName(n.getAreaName());
+				}
+			}
+
+		}
+		// 省份城市按照字母A~Z排序end
+
+		// 省市区嵌套
+		for (BaseArea province : list) {
+			if (province.getLevelId() == 1) {
+				List<BaseArea> cityList = new ArrayList<>();
+				for (BaseArea city : list) {
+					if (city.getLevelId() == 2 && city.getPid().equals(province.getAreaCode())) {
+						List<BaseArea> strictList = new ArrayList<>();
+
+						for (BaseArea strict : list) {
+							if (strict.getLevelId() == 3 && strict.getPid().equals(city.getAreaCode())) {
+								// 将区放入市内
+								strictList.add(strict);
+							}
+
+						}
+						city.setLowerArea(strictList);
+						// 将市放入省内
+						cityList.add(city);
+					}
+				}
+				province.setLowerArea(cityList);
+				// 将省放入返回列表
+				nList.add(province);
+			}
+		}
+		return nList;
+	}
+
+	@Override
+	public BaseArea getBaseAreaByAreaCode(String province) {
+		return baseAreaMapper.selectBaseAreaByCode(province);
+	}
+
+
+	public static <T> List<T> deepCopy(List<T> src) throws IOException, ClassNotFoundException {
+		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+		ObjectOutputStream out = new ObjectOutputStream(byteOut);
+		out.writeObject(src);
+
+		ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray());
+		ObjectInputStream in = new ObjectInputStream(byteIn);
+		@SuppressWarnings("unchecked")
+		List<T> dest = (List<T>) in.readObject();
+		return dest;
+	}
+}

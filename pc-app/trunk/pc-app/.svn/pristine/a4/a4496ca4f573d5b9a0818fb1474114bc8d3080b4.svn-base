@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.design.dao.UsedProductsMapper">
+<!--<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>-->
+	<!-- **插入定义** -->
+	<insert id="insertSelective" parameterType="com.nork.design.model.UsedProducts"  useGeneratedKeys="true" keyProperty="id">
+		insert into used_products
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		<if test="userId!= null">user_id, </if>
+		<if test="designId!= null">design_id, </if>
+		<if test="productId!= null">product_id, </if>
+		<if test="sysCode!= null">sys_code, </if>
+		<if test="creator!= null">creator, </if>
+		<if test="gmtCreate!= null">gmt_create, </if>
+		<if test="modifier!= null">modifier, </if>
+		<if test="gmtModified!= null">gmt_modified, </if>
+		<if test="isDeleted!= null">is_deleted, </if>
+		<if test="att1!= null">att1, </if>
+		<if test="att2!= null">att2, </if>
+		<if test="numa1!= null">numa1, </if>
+		<if test="numa2!= null">numa2, </if>
+		<if test="status!= null">status, </if>
+		<if test="remark!= null">remark, </if>
+		<if test="planProductId!= null">plan_product_id, </if>
+		<if test="posIndexPath!= null">pos_index_path, </if>
+		<if test="resUsedId!= null">res_used_id, </if>
+		<if test="groupId!= null">group_id, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="userId!= null">  #{userId,jdbcType=INTEGER}, </if>
+		<if test="designId!= null">  #{designId,jdbcType=INTEGER}, </if>
+		<if test="productId!= null">  #{productId,jdbcType=INTEGER}, </if>
+		<if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="att1!= null">  #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  #{att2,jdbcType=VARCHAR}, </if>
+		<if test="numa1!= null">  #{numa1,jdbcType=INTEGER}, </if>
+		<if test="numa2!= null">  #{numa2,jdbcType=INTEGER}, </if>
+		<if test="status!= null">  #{status,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>	
+		<if test="planProductId!= null">#{planProductId,jdbcType=INTEGER},  </if>
+		<if test="posIndexPath!= null">#{posIndexPath,jdbcType=VARCHAR},  </if>
+		<if test="resUsedId!= null">#{resUsedId,jdbcType=INTEGER},  </if>
+		<if test="groupId!= null">#{groupId,jdbcType=INTEGER},  </if>
+		</trim>
+	</insert>
+
+	<!-- **更新定义** -->
+	<update id="updateByPrimaryKeySelective" parameterType="com.nork.design.model.UsedProducts">
+		update used_products
+		<set>
+		<if test="userId!= null">  user_id = #{userId,jdbcType=INTEGER}, </if>
+		<if test="designId!= null">  design_id = #{designId,jdbcType=INTEGER}, </if>
+		<if test="productId!= null">  product_id = #{productId,jdbcType=INTEGER}, </if>
+		<if test="sysCode!= null">  sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  creator = #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  modifier = #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="att1!= null">  att1 = #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  att2 = #{att2,jdbcType=VARCHAR}, </if>
+		<if test="numa1!= null">  numa1 = #{numa1,jdbcType=INTEGER}, </if>
+		<if test="numa2!= null">  numa2 = #{numa2,jdbcType=INTEGER}, </if>
+		<if test="status!= null">  status = #{status,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  remark = #{remark,jdbcType=VARCHAR}, </if>
+		<if test="planProductId!= null">  plan_product_id = #{planProductId,jdbcType=INTEGER}, </if>
+		<if test="posIndexPath!= null">  pos_index_path = #{posIndexPath,jdbcType=VARCHAR}, </if>
+		<if test="resUsedId!= null">  res_used_id = #{resUsedId,jdbcType=INTEGER}, </if>
+		<if test="groupId!= null">  group_id = #{groupId,jdbcType=INTEGER}, </if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<!-- **删除定义** -->
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from used_products
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	
+	<!-- **常量定义** -->
+	<sql id="All_Column_List">
+		id,user_id,design_id,product_id,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,att1,att2,numa1,numa2,status,remark,group_id
+	</sql>
+	
+	<!-- **结果定义** -->
+	<resultMap id="AllResultMap" type="com.nork.design.model.UsedProducts">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="user_id" property="userId" jdbcType="INTEGER" />
+		<result  column="design_id" property="designId" jdbcType="INTEGER" />
+		<result  column="product_id" property="productId" jdbcType="INTEGER" />
+		<result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="att1" property="att1" jdbcType="VARCHAR" />
+		<result  column="att2" property="att2" jdbcType="VARCHAR" />
+		<result  column="numa1" property="numa1" jdbcType="INTEGER" />
+		<result  column="numa2" property="numa2" jdbcType="INTEGER" />
+		<result  column="status" property="status" jdbcType="INTEGER" />
+		<result  column="remark" property="remark" jdbcType="VARCHAR" />
+		<result  column="group_id" property="groupId" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<!-- **查询定义** -->
+	<!-- 按主键查询 -->
+	<select id="selectByPrimaryKey" resultMap="AllResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="All_Column_List" />
+		from used_products
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+		parameterType="com.nork.design.model.UsedProducts">
+		select
+		<include refid="All_Column_List" />
+		from used_products
+        where 1=1
+		<if test="userId!= null">  and user_id = #{userId,jdbcType=INTEGER} </if>
+		<if test="designId!= null">  and design_id = #{designId,jdbcType=INTEGER} </if>
+		<if test="productId!= null">  and product_id = #{productId,jdbcType=INTEGER} </if>
+		<if test="sysCode!= null">  and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="creator!= null">  and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="gmtCreate!= null">  and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+		<if test="modifier!= null">  and modifier = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="gmtModified!= null">  and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP} </if>
+		<if test="isDeleted!= null">  and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1!= null">  and att1 = #{att1,jdbcType=VARCHAR} </if>
+		<if test="att2!= null">  and att2 = #{att2,jdbcType=VARCHAR} </if>
+		<if test="numa1!= null">  and numa1 = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2!= null">  and numa2 = #{numa2,jdbcType=INTEGER} </if>
+		<if test="status!= null">  and status = #{status,jdbcType=INTEGER} </if>
+		<if test="remark!= null">  and remark = #{remark,jdbcType=VARCHAR} </if>
+		<if test="groupId!= null">  and group_id = #{groupId,jdbcType=INTEGER} </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order}
+			<if test="orderNum != null and  orderNum !='' ">
+				${orderNum}
+			</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">
+		   order by ${orders}
+		</if>
+	</select>
+	
+	<!-- 分页汇总 -->
+	<select id="selectCount" resultType="int"
+		parameterType="com.nork.design.model.search.UsedProductsSearch">
+		SELECT count(*)
+	    FROM used_products y
+	    LEFT JOIN sys_user u on y.user_id = u.id and u.is_deleted = 0
+	    LEFT JOIN base_product p on y.product_id =p.id 
+	    LEFT JOIN design_plan d on y.design_id = d.id
+		WHERE 1=1	
+		  <if test="userName != null and userName != '' ">
+    		and u.user_name like CONCAT('%',#{userName,jdbcType=VARCHAR},'%') 
+	    </if>
+	    <if test="productName !=  null and productName !=  ''   ">
+			and p.product_name  like CONCAT('%',#{productName,jdbcType=VARCHAR},'%')
+		 </if>	
+	    <if test="planName !=  null and planName !=  ''   ">
+			and d.plan_name  like CONCAT('%',#{planName,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="productTypeValue !=  null and productTypeValue !=  ''   ">
+			and p.product_type_value  = #{productTypeValue,jdbcType=VARCHAR}
+		</if>
+		<if test="userId !=  null  ">			and y.user_id  = #{userId,jdbcType=INTEGER} </if>
+		<if test="designId !=  null  ">			and y.design_id  = #{designId,jdbcType=INTEGER} </if>
+		<if test="productId !=  null  ">			and y.product_id  = #{productId,jdbcType=INTEGER} </if>
+		<if test="gmtCreate !=  null  ">
+			and y.gmt_create  = #{gmtCreate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and y.gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="modifier !=  null and modifier !=  ''   "> and y.modifier  = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and y.modifier  like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and y.modifier  like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		 </if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and y.modifier  like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and y.modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtModified !=  null  ">
+			and y.gmt_modified  = #{gmtModified,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and y.gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="isDeleted !=  null  ">			and y.is_deleted  = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="groupId!= null">  and group_id = #{groupId,jdbcType=INTEGER} </if>
+	</select>
+	
+	<!-- 分页查询 ,可在UsedProductsSearch中自定义查询条件-->
+	<select id="selectPaginatedList" resultMap="AllResultMap"
+		parameterType="com.nork.design.model.search.UsedProductsSearch">
+		SELECT
+		y.id as id,y.user_id as userId, y.product_id as productId
+	    FROM used_products y
+	    LEFT JOIN sys_user u on y.user_id = u.id  and u.is_deleted = 0
+	    LEFT JOIN base_product p on y.product_id =p.id 
+	    LEFT JOIN design_plan d on y.design_id = d.id
+		WHERE 1=1	
+		  <if test="userName != null and userName != '' ">
+    		and u.user_name like CONCAT('%',#{userName,jdbcType=VARCHAR},'%') 
+	    </if>
+	    <if test="productName !=  null and productName !=  ''   ">
+			and p.product_name  like CONCAT('%',#{productName,jdbcType=VARCHAR},'%')
+		 </if>	
+	    <if test="planName !=  null and planName !=  ''   ">
+			and d.plan_name  like CONCAT('%',#{planName,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="userId !=  null  ">			and y.user_id  = #{userId,jdbcType=INTEGER} </if>
+		<if test="designId !=  null  ">			and y.design_id  = #{designId,jdbcType=INTEGER} </if>
+		<if test="productId !=  null  ">			and y.product_id  = #{productId,jdbcType=INTEGER} </if>
+		<if test="gmtCreate !=  null  ">
+			and y.gmt_create  = #{gmtCreate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and y.gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="modifier !=  null and modifier !=  ''   "> and y.modifier  = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and y.modifier  like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and y.modifier  like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		 </if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and y.modifier  like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and y.modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtModified !=  null  ">
+			and y.gmt_modified  = #{gmtModified,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and y.gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="isDeleted !=  null  ">			and y.is_deleted  = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order} <if test="orderNum != null and  orderNum !='' ">${orderNum}</if>
+		</if>
+		<if test="groupId!= null">  and group_id = #{groupId,jdbcType=INTEGER} </if>
+		<if test="orders != null and  orders !=''  ">  order by #{orders}</if>
+		<if test="order == null and  orders == null ">  order by id desc</if>
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+
+
+	<resultMap type="com.nork.design.model.UserProductPlan" id="userProductPlanList">
+    	<result column="id" property="id" jdbcType="INTEGER" />
+    	<result column="status" property="status" jdbcType="INTEGER" />
+    	<result column="user_id" property="userId" jdbcType="INTEGER"/>
+    	<result column="user_name" property="userName" jdbcType="VARCHAR"/>
+    	<result column="product_id" property="productId" jdbcType="INTEGER"/>
+    	<result column="product_name" property="productName" jdbcType="VARCHAR"/>
+		<result column="brand_name" property="brandName" jdbcType="VARCHAR"/>
+		<result column="product_code" property="productCode" jdbcType="VARCHAR"/>
+    	<result column="product_desc" property="productDesc" jdbcType="VARCHAR"/>
+    	<result column="sale_price" property="salePrice" jdbcType="DECIMAL"/> 
+    	<result column="design_id" property="planId" jdbcType="INTEGER"/>
+    	<result column="plan_name" property="planName" jdbcType="VARCHAR"/>
+		<result column="gmt_create_str" property="gmtCreateStr" jdbcType="VARCHAR"/>
+		<result column="pic_path" property="productPath" jdbcType="VARCHAR"/>
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result column="collect_state" property="collectState" jdbcType="INTEGER"/>
+		<result column="collect_id" property="collectId" jdbcType="INTEGER"/>
+		<result column="product_type" property="productType" jdbcType="VARCHAR"/>
+		<result column="config_context" property="configContext" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <!-- 其他Map等查询方式 -->
+ <!--    <select id="getUserProductPlan" resultMap="userProductPlanList" parameterType="com.nork.design.model.UserProductPlan">
+	    select u.user_name as userName,y.product_id as productId,y.design_id as planId from used_products y
+	    left join sys_user u on y.user_id = u.id 
+	    where 1=1
+	    <if test="userName != null and userName != '' ">
+    		and u.user_name =  #{user_name,jdbcType=VARCHAR}
+	    </if>
+    </select> -->
+
+	<select id="getUsedProductPlanCount" resultType="int"
+			parameterType="com.nork.design.model.search.UsedProductsSearch">
+		SELECT count(distinct(y.product_id))
+		FROM used_products y
+	    LEFT JOIN sys_user u on y.user_id = u.id and u.is_deleted = 0
+	    LEFT JOIN base_product p on y.product_id =p.id
+	    LEFT JOIN design_plan d on y.design_id = d.id
+		left join base_brand b on b.id = p.brand_id
+		LEFT JOIN (SELECT upc.id,upc.product_id,upc.user_id	FROM user_product_collect upc WHERE 1 = 1
+		<if test="userId != null and userId != ''">
+			and upc.user_id = #{userId,jdbcType=INTEGER}
+		</if>
+		) t2 ON t2.product_id = p.id and t2.user_id = y.user_id
+	    WHERE 1=1
+		<if test="userId != null and userId != '' ">
+			and u.id =  #{userId,jdbcType=INTEGER}
+		</if>
+		<if test="designId != null and designId != '' ">
+			and y.design_id =  #{designId,jdbcType=INTEGER}
+		</if>
+		<if test="isInternalUser != null and isInternalUser == 'yes'">
+			AND  p.putaway_state in (1,2,3)
+		</if>
+		<if test="isInternalUser == null or isInternalUser == ''"><!-- 以前已经上架显示，现在是已发布的显示   -->
+			and p.putaway_state = 3
+		</if>
+	    <if test="productName !=  null and productName !=  ''   ">
+			and p.product_name  like CONCAT('%',#{productName,jdbcType=VARCHAR},'%')
+	    </if>
+	    <if test="planName !=  null and planName !=  ''   ">
+			and d.plan_name  like CONCAT('%',#{planName,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="productTypeValue !=  null and productTypeValue !=  ''   ">
+			and p.product_type_value  = #{productTypeValue,jdbcType=VARCHAR}
+		</if>
+		and y.is_deleted = 0
+		<if test="distinct != null and distinct != ''">
+			GROUP BY y.product_id
+		</if>
+	</select>
+
+    <select id="getUsedProductPlanList" resultMap="userProductPlanList" parameterType="com.nork.design.model.search.UsedProductsSearch">
+	    SELECT y.id,y.product_id AS product_id,y.status,
+		u.id AS user_id,
+		u.user_name,
+		d.plan_name,
+		b.brand_name,
+		p.product_name,
+		rp.pic_path,
+		p.product_code,
+		y.gmt_create,
+		sd.valuekey product_type,
+		CASE
+		WHEN t2.id IS NOT NULL
+		THEN 1
+		ELSE 0
+		END AS collect_state,
+		t2.id AS collect_id
+		FROM used_products y
+	    LEFT JOIN sys_user u on y.user_id = u.id and u.is_deleted = 0
+	    LEFT JOIN base_product p on y.product_id =p.id
+	    LEFT JOIN design_plan d on y.design_id = d.id
+		LEFT JOIN res_pic rp on p.pic_id = rp.id
+		left join base_brand b on b.id = p.brand_id
+		LEFT JOIN (SELECT s.valuekey,s.value FROM sys_dictionary s WHERE s.type = 'productType') sd
+		ON sd.value = p.product_type_value
+		LEFT JOIN (SELECT upc.id,upc.product_id,upc.user_id	FROM user_product_collect upc WHERE 1 = 1
+		<if test="userId != null and userId != ''">
+			and upc.user_id = #{userId,jdbcType=INTEGER}
+		</if>
+		) t2 ON t2.product_id = p.id and t2.user_id = y.user_id
+	    WHERE 1=1
+		<if test="userId != null and userId != '' ">
+			and u.id =  #{userId,jdbcType=INTEGER}
+		</if>
+		<if test="designId != null and designId != '' ">
+			and y.design_id =  #{designId,jdbcType=INTEGER}
+		</if>
+		<if test="isInternalUser != null and isInternalUser == 'yes'">
+			AND  (p.putaway_state = 1 or p.putaway_state = 2  or p.putaway_state = 3)
+		</if>
+		<if test="isInternalUser == null or isInternalUser == ''"><!-- 以前已经上架显示，现在是已发布的显示   -->
+			and p.putaway_state = 3
+		</if>
+	    <if test="userName != null and userName != '' ">
+    		and u.user_name like CONCAT('%',#{userName,jdbcType=VARCHAR},'%') 
+	    </if>
+	    <if test="id != null and id != '' ">
+    		and y.id =  #{id,jdbcType=INTEGER}
+	    </if>
+	    <if test="productName !=  null and productName !=  ''   ">
+			and p.product_name  like CONCAT('%',#{productName,jdbcType=VARCHAR},'%')
+	    </if>
+	    <if test="planName !=  null and planName !=  ''   ">
+			and d.plan_name  like CONCAT('%',#{planName,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="productTypeValue !=  null and productTypeValue !=  ''   ">
+			and p.product_type_value  = #{productTypeValue,jdbcType=VARCHAR}
+		</if>
+		and y.is_deleted = 0
+		<if test="distinct != null and distinct != ''">
+			GROUP BY y.product_id
+		</if>
+		group by y.product_id
+		order by max(y.gmt_modified) desc
+	   <if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+    </select>
+
+</mapper>

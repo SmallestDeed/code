@@ -1,0 +1,591 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.product.dao.ProductGroupDao">
+
+
+	<!-- 菜刀.楼 added -->
+
+	<resultMap type="com.nork.product.model.ProductGroupBaseInfoModel" id="productGroupBaseInfoResult">
+		
+		<id column="id" property="groupID" jdbcType="INTEGER" />
+		<result  column="group_code" property="groupCode" jdbcType="VARCHAR" />
+		<result  column="group_name" property="groupName" jdbcType="VARCHAR" />
+		<result  column="pic_id" property="picID" jdbcType="INTEGER" />
+		<result  column="location" property="location" jdbcType="VARCHAR" />
+		
+		
+		<result  column="file_path" property="filePath" jdbcType="VARCHAR" />
+		<result  column="pic_path" property="picPath" jdbcType="VARCHAR" />
+		
+		<result column="group_price" property="groupPrice" javaType="double" jdbcType="DOUBLE"/>  
+		<result column="space_area_value" property="spaceCommonArea" javaType="INTEGER"/>
+
+		<!--
+		/*结构id*/
+	private Integer productStructureId;
+	/*结构name*/
+	private String structureName;
+	/*结构code*/
+	private String structureCode;
+	/*结构Config*/
+	private String structureConfig; 
+	sp.config_file_id, sp.structure_code, sp.structure_name, sp.id as 'structure_id'
+		 -->
+		<result  column="structure_id" property="productStructureId" jdbcType="INTEGER" />
+		<result  column="structure_name" property="structureName" jdbcType="VARCHAR" />
+		<result  column="structure_code" property="structureCode" jdbcType="VARCHAR" />
+		<result  column="config_file_id" property="structureConfig" jdbcType="INTEGER" />
+		<result  column="brand_id" property="brandId" jdbcType="INTEGER" />
+		<result  column="brand_name" property="brandName" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<resultMap type="com.nork.product.model.ProductInfoInGroupModel" id="productInfoInGroupModel">
+		
+		<!-- 
+		 gpd.group_id, gpd.product_id, gpd.is_main, gpd.is_deleted,
+			bp.brand_id, bp.product_code, bp.product_type_value, bp.product_small_type_value, bp.parent_id,
+   			bp.sale_price,
+   			bp.product_height, bp.product_width, bp.product_length, bp.material_pic_ids,
+   			rm.model_path 
+		 -->
+		
+		<id  column="group_id" property="groupID"  jdbcType="INTEGER" />
+		<result  column="product_id" property="productID" jdbcType="INTEGER" />
+		<result  column="is_main" property="isMain" jdbcType="INTEGER" />
+		<result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="brand_id" property="brandID" jdbcType="INTEGER" />
+		<result  column="product_code" property="productCode" jdbcType="VARCHAR" />
+		<result  column="product_type_value" property="productTypeValue" jdbcType="VARCHAR" />
+		<result  column="product_small_type_value" property="productSmallTypeValue" jdbcType="VARCHAR" />
+		<result  column="parent_id" property="parentID" jdbcType="INTEGER" />
+		<result  column="sale_price" property="salePrice" jdbcType="DOUBLE" />
+		<result  column="product_height" property="productHeight" jdbcType="VARCHAR" />
+		<result  column="product_width" property="productWidth" jdbcType="VARCHAR" />
+		<result  column="product_length" property="productLength" jdbcType="VARCHAR" />
+		<result  column="material_pic_ids" property="materialPicIds" jdbcType="VARCHAR" />
+		<result  column="model_path" property="modelPath" jdbcType="VARCHAR" />
+		<result  column="parent_product_type_value" property="parentProductTypeValue" jdbcType="VARCHAR" />
+		
+		<result  column="product_type_mark" property="productTypeMark" jdbcType="VARCHAR" />
+		<result  column="product_small_type_mark" property="productSmallTypeMark" jdbcType="VARCHAR" />
+		<result  column="brand_name" property="brandName" jdbcType="VARCHAR" />
+		
+		<result  column="min_height" property="minHeight" jdbcType="INTEGER" />
+		<result column="split_textures_info" property="splitTexturesInfo" jdbcType="VARCHAR"/>
+
+		<!-- 2017-01-18 -->
+		<result  column="structure_id" property="productStructureId" jdbcType="INTEGER" />
+		<result  column="chartlet_product_model_Id" property="chartletProductModelId" jdbcType="INTEGER" />
+		<!-- 2017-05-03 -->
+		<result  column="windows_u3dmodel_id" property="windowsU3dModelId" jdbcType="INTEGER" />
+		<!-- 2017-02-10 -->
+		<result column="camera_view" property="cameraView" jdbcType="VARCHAR"/>
+		<result column="camera_look" property="cameraLook" jdbcType="VARCHAR"/>
+		<result column="product_index" property="productIndex" jdbcType="INTEGER"/>
+		<!-- 2017-12-6 -->
+		<result column="split_textures_choose_info" property="splitTexturesChooseInfo" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	
+	<resultMap type="com.nork.product.model.GroupProductAllTypeModel" id="groupProductAllTypeModel">
+		
+		<!-- 
+		 big_dict.value as b_value, big_dict.valuekey as b_valuekey, big_dict.name as b_name,
+        			small_dict.value as s_value, small_dict.valuekey as s_valuekey, small_dict.name as s_name,
+       				parent_dict.value as p_value, parent_dict.valuekey as p_value, parent_dict.name as p_value 
+		 -->
+		<result  column="id" property="productID" jdbcType="INTEGER" />
+		<result  column="product_name" property="productName" jdbcType="VARCHAR" />
+		
+		<result  column="b_value" property="bValue" jdbcType="INTEGER" />
+		<result  column="b_valuekey" property="bValueKey" jdbcType="VARCHAR" />
+		<result  column="b_name" property="bName" jdbcType="VARCHAR" />
+	
+		<result  column="s_value" property="sValue" jdbcType="INTEGER" />
+		<result  column="s_valuekey" property="sValueKey" jdbcType="VARCHAR" />
+		<result  column="s_name" property="sName" jdbcType="VARCHAR" />
+		
+		<result  column="p_value" property="pValue" jdbcType="INTEGER" />
+		<result  column="p_valuekey" property="pValueKey" jdbcType="VARCHAR" />
+		<result  column="p_name" property="pName" jdbcType="VARCHAR" />
+		
+		<result  column="s_att1" property="sAtt1" jdbcType="VARCHAR" />
+		
+	</resultMap>
+	
+	
+	<!-- 查询 结构 下面的组合 -->
+	<select id="getGroupListByStructureIdV2" resultMap="productGroupBaseInfoResult">
+		select gp.id, gp.location, gp.group_code, gp.group_name, gp.pic_id, gp.group_price, 
+			rf.file_path, rp.pic_path,
+			sp.config_file_id, sp.structure_code, sp.structure_name, sp.id as 'structure_id'
+		from  structure_product  as sp 
+		LEFT JOIN  group_product as gp  on (gp.group_flag=sp.group_flag)
+		left join res_file rf on rf.id=gp.location 
+        left join res_pic rp on gp.pic_id=rp.id
+		where  sp.id = #{structureId, jdbcType=INTEGER}
+		and  gp.state = 1
+	</select>
+
+	
+	<!-- 查询以某产品为主产品创建的产品组 -->
+    <select id="getGroupListByProductV3" resultMap="productGroupBaseInfoResult"
+			parameterType="com.nork.product.model.search.GroupProductSearch">
+		select T.* from (
+		select distinct gp.id, gp.location, gp.group_code, gp.group_name, gp.pic_id, gp.group_price,gp.space_area_value,
+			rf.file_path, rp.pic_path,gpd.product_id,
+			gp.brand_id,
+			bp.product_type_value,
+			bp.product_small_type_value,
+			bb.brand_name
+			from group_product as gp
+		LEFT JOIN group_product_details as gpd on(gp.id=gpd.group_id)
+		LEFT JOIN base_product as bp on(gpd.product_id = bp.id)
+        left join res_file rf on rf.id=gp.location 
+        left join res_pic rp on gp.pic_id=rp.id
+		left join base_brand bb on bb.id = gp.brand_id
+        <!-- 删除旧属性过滤逻辑,添加新的属性过滤逻辑 -->
+		<!-- <if test="attributeConditionList !=  null and  attributeConditionList.size > 0 ">
+			RIGHT JOIN (
+			SELECT id AS product_id FROM (
+			<foreach collection="attributeConditionList" index="index" item="item" open="" separator="UNION ALL" close="">
+				select pa.product_id AS id from product_attribute pa
+				LEFT JOIN product_props pp ON pp.id = pa.attribute_value_id
+				WHERE 1=1
+				and ${item}
+			</foreach>
+			) products group by products.id having count(products.id) &gt;= #{attributeConditionSize,jdbcType=INTEGER}
+			) t4 ON (t4.product_id = bp.id)
+		</if> -->
+		where 1=1
+		<if test="structureState == 2">
+			and gpd.is_main = 1
+			and gp.design_templet_id = 0
+		</if>
+		<if test="structureState == 1">
+			and gp.design_templet_id = #{designTempletId,jdbcType=INTEGER}
+			and gp.group_flag IS NOT NULL  
+			and gp.group_flag !=''
+		</if>
+		<if test="groupType != null">
+			and group_type = #{groupType}
+		</if>
+		<!-- 组合类型过滤 -->
+		<if test="compositeType != null">
+			and gp.composite_type = #{compositeType,jdbcType=INTEGER}
+		</if>
+		<if test="brandIds != null and brandIds.size > 0 ">
+			and  gp.brand_id in
+			<foreach collection="brandIds" index="index" item="item" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="groupIds != null and groupIds.size > 0">
+			and  gp.id in
+			<foreach collection="groupIds" index="index" item="item" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="productTypeValue != null and smallTypeValue != null ">
+			and  bp.product_type_value =  #{productTypeValue,jdbcType=VARCHAR}
+		</if>
+		<if test="houseTypeList !=  null and  houseTypeList.size > 0  ">
+				and (
+				<foreach collection="houseTypeList" index="index" item="item">
+					<choose>
+						<when test="index== 0">
+							CONCAT(',', bp.house_type_values, ',') like CONCAT('%,',#{item,jdbcType=VARCHAR},',%')
+						</when>
+						<otherwise>
+							or CONCAT(',', bp.house_type_values, ',') like CONCAT('%,',#{item,jdbcType=VARCHAR},',%')
+						</otherwise>
+					</choose>
+				</foreach>
+				)
+			</if>
+		<if test="states != null and states.size > 0">
+			and gp.state IN
+			<foreach collection="states" index="index" item="item" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="structureId!= null">  and gp.structure_id = #{structureId,jdbcType=INTEGER} </if>
+		<if test="groupFlag!= null and groupFlag!= '' ">  and gp.group_flag = #{groupFlag,jdbcType=VARCHAR}</if>
+		<if test="state != null and state > 0">
+			and gp.state = #{state,jdbcType=INTEGER}
+		</if>
+		<!-- 添加新的属性过滤逻辑 -->
+		<if test="productFilterPropList != null and productFilterPropList.size > 0">
+			<foreach collection="productFilterPropList" item="productFilterPropListItem">
+				and (
+				select count(pa.id) from product_attribute pa 
+				left join product_props ppp on ppp.id = pa.attribute_id
+				left join product_props ppc on ppc.id = pa.attribute_value_id
+				where pa.product_id = bp.id
+				and ppp.filter_order = "filter"
+				and ppp.code = #{productFilterPropListItem.key}
+				and ppc.prop_value = #{productFilterPropListItem.value}) >= 1
+			</foreach>
+		</if>
+		GROUP BY gp.id
+		) T where 1=1
+		<if test="spaceCommonArea!= null and spaceCommonArea!= ''"  >
+			and (T.space_area_value &lt;= #{spaceCommonArea,jdbcType=INTEGER} or T.space_area_value is null)
+		</if>
+		<if test="categoryCode != null and categoryCode != ''" >
+			AND T.product_id IN (SELECT product_id FROM product_category_rel
+			WHERE category_id IN (SELECT pc.id FROM pro_category pc WHERE
+			pc.is_deleted = 0
+			<if test="firstStageCode != null and firstStageCode != ''">
+				and pc.first_stage_code = #{firstStageCode,jdbcType=VARCHAR}
+			</if>
+			<if test="secondStageCode != null and secondStageCode != ''">
+				and pc.second_stage_code = #{secondStageCode,jdbcType=VARCHAR}
+			</if>
+			<if test="thirdStageCode != null and thirdStageCode != ''">
+				and pc.third_stage_code = #{thirdStageCode,jdbcType=VARCHAR}
+			</if>
+			<if test="fourthStageCode != null and fourthStageCode != ''">
+				and pc.fourth_stage_code = #{fourthStageCode,jdbcType=VARCHAR}
+			</if>
+			<if test="fifthStageCode != null and fifthStageCode != ''">
+				and pc.fifth_stage_code = #{fifthStageCode,jdbcType=VARCHAR}
+			</if>
+			))
+		</if>
+		
+		<!-- 授权码逻辑(品牌,大类,小类,产品idList) -->
+		<if test="baseProductList !=  null and  baseProductList.size > 0  ">
+			and
+			<foreach collection="baseProductList" index="index" item="item" open="(" separator="or" close=")">
+				<choose>
+					<when test="item.productIdList!=null and item.productIdList.size>0">
+						(T.product_id in
+						<foreach collection="item.productIdList" index="indexProductId"
+							item="itemProductId" open="(" separator="," close=")">
+							#{itemProductId}
+						</foreach>
+						)
+					</when>
+					<otherwise>
+						<!-- 品牌&&大小类 -->
+						<choose>
+							<when test=						
+							"
+							(item.brandId == null or item.brandId == 0)
+							and (item.productTypeValue != null or item.productTypeValue != '' )
+							and (item.productSmallTypeValue != null or item.productSmallTypeValue != '') 
+							">
+							(1 != 1)
+							</when>
+							<otherwise>
+								(<!-- 1=1 -->
+									<if test="item.brandId != null and item.brandId != 0 ">
+										<!-- and -->
+										T.brand_id=#{item.brandId}
+									</if>
+									<if test="item.productTypeValue != null and item.productTypeValue != '' ">
+										and T.product_type_value=#{item.productTypeValue}
+									</if>
+									<if test="item.productSmallTypeValue != null and item.productSmallTypeValue != '' ">
+										and T.product_small_type_value=#{item.productSmallTypeValue}
+									</if>
+								)
+							</otherwise>
+						</choose>
+						<!-- 品牌||大小类 -->
+						
+						<!-- 20170425添加逻辑by huangsongbo ->start -->
+						<!-- 比如授权码关联的东鹏公司是做墙面瓷砖的,则点击墙面搜索,瓷砖小类只显示东鹏的瓷砖+无品牌瓷砖,其他小类则显示全部 -->
+						<if test="item.smallTypeValueListForShowAll != null and item.smallTypeValueListForShowAll.size > 0">
+							or T.product_small_type_value not in 
+							<foreach collection="item.smallTypeValueListForShowAll" item="item2" close=")" open="(" separator=",">
+								${item2}
+							</foreach>
+						</if> 
+						<if test="isShowWu == true">
+							<if test="brandIdWuPinPai != null">
+								or T.brand_id = #{brandIdWuPinPai}
+							</if>
+						</if>
+						<!-- 20170425添加逻辑by huangsongbo ->end -->
+						
+					</otherwise>
+				</choose>
+			</foreach>
+		</if>
+		<!-- 授权码过滤逻辑(品牌,大类,小类,产品idList)->end -->
+		
+		order by T.id desc
+		
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+	
+	<select id="getGroupListByProductV4" resultMap="productGroupBaseInfoResult"
+			parameterType="com.nork.product.model.search.GroupProductSearch">
+		
+						SELECT T.* FROM (
+				select distinct gp.id, gp.location, gp.group_code, gp.group_name, gp.pic_id, gp.group_price,gp.space_area_value,
+					rf.file_path, rp.pic_path from group_product as gp 
+				LEFT JOIN group_product_details as gpd on(gp.id=gpd.group_id)
+				LEFT JOIN base_product as bp on(gpd.product_id = bp.id)
+				left join res_file rf on rf.id=gp.location 
+		        left join res_pic rp on gp.pic_id=rp.id
+				<if test="attributeConditionList !=  null and  attributeConditionList.size > 0 ">
+					RIGHT JOIN (
+						SELECT id AS product_id FROM (
+						<foreach collection="attributeConditionList" index="index" item="item" open="" separator="UNION ALL" close="">
+							select pa.product_id AS id from product_attribute pa
+							LEFT JOIN product_props pp ON pp.id = pa.attribute_value_id
+							WHERE 1=1
+							and ${item}
+						</foreach>
+						) products group by products.id having count(products.id) &gt;= #{attributeConditionSize,jdbcType=INTEGER}
+					) t4 ON (t4.product_id = bp.id)
+				</if>
+				where 1=1
+				<if test="structureState == 2">
+					and gpd.is_main = 1
+					and gp.design_templet_id = 0
+				</if>
+				<if test="structureState == 1">
+					and gp.design_templet_id = #{designTempletId,jdbcType=INTEGER}
+					and gp.group_flag IS NOT NULL  
+					and gp.group_flag !=''
+				</if>
+				<if test="productTypeValue != null and smallTypeValue != null ">
+					and  bp.product_type_value =  #{productTypeValue,jdbcType=VARCHAR}
+		<!-- 			and  bp.product_small_type_value =  #{smallTypeValue,jdbcType=VARCHAR} -->
+		</if>
+		<if test="houseTypeList !=  null and  houseTypeList.size > 0  ">
+				and (
+				<foreach collection="houseTypeList" index="index" item="item">
+					<choose>
+						<when test="index== 0">
+							CONCAT(',', bp.house_type_values, ',') like CONCAT('%,',#{item,jdbcType=VARCHAR},',%')
+						</when>
+						<otherwise>
+							or CONCAT(',', bp.house_type_values, ',') like CONCAT('%,',#{item,jdbcType=VARCHAR},',%')
+						</otherwise>
+					</choose>
+				</foreach>
+				)
+			</if>
+		<if test="states != null and states.size > 0">
+			and gp.state IN
+			<foreach collection="states" index="index" item="item" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="structureId!= null">  and gp.structure_id = #{structureId,jdbcType=INTEGER} </if>
+		<if test="groupFlag!= null and groupFlag!= '' ">  and gp.group_flag = #{groupFlag,jdbcType=VARCHAR}</if>
+		<if test="state != null and state > 0">
+			and gp.state = #{state,jdbcType=INTEGER}
+		</if>
+		GROUP BY gp.id
+		) T where 1=1
+		<if test="spaceCommonArea!= null and spaceCommonArea!=''">
+		  and T.space_area_value &lt;= #{spaceCommonArea,jdbcType=INTEGER} or T.space_area_value is null
+		</if>
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+		
+	</select>
+	
+	
+	<!-- union 查是否收藏，系统在没有用 redis 或者 mc 进行优化的时候，先这么查 -->
+	<select id="getProductGroupUserCollectedUsingUnion" resultType="map" parameterType="java.util.Map">
+			<foreach collection="groupIDList" index="index" item="itemValue" open="" separator=" union " close=""> 
+            	select gpc.user_id as userID, gpc.group_id as groupID from group_product_collect gpc where gpc.user_id=#{userID, jdbcType=INTEGER}
+            	 and gpc.group_id=#{itemValue, jdbcType=INTEGER} 
+       		</foreach>
+	</select>
+	
+	
+	<!-- 根据产品组 id 获取产品组中产品的一些信息， 比如产品编码、产品类型值、产品小类型值、售卖价格、长宽高等等 -->
+	<select id="getProductInfoInTheGroupByGroupIDAndModelIDType" resultMap="productInfoInGroupModel" parameterType="java.util.List">
+		
+		<foreach collection="list" index="index" item="itemValue" open="" separator=" union all " close=""> 
+			<!-- select 
+					gpd.group_id, gpd.product_id, gpd.is_main, gpd.is_deleted,
+					bp.brand_id, bp.product_code, bp.product_type_value, bp.product_type_mark, bp.product_small_type_value,  bp.product_small_type_mark,
+				    bp.parent_id,bp.sale_price,bp.product_height, bp.product_width, bp.product_length, bp.material_pic_ids,
+				    parent_bp.product_type_value as parent_product_type_value,
+				    rm.model_path, bb.brand_name
+			from group_product_details gpd 
+			inner join base_product bp on bp.id=gpd.product_id 
+			left join base_product parent_bp on parent_bp.id=bp.parent_id 
+			left join res_model rm on rm.id=bp.${itemValue.idColumnName} 
+			left join base_brand bb on bp.brand_id=bb.id 
+				where gpd.group_id=#{itemValue.groupID, jdbcType=INTEGER}  -->
+				select 
+					gpd.group_id, gpd.product_id, gpd.is_main, gpd.is_deleted, gpd.chartlet_product_model_Id as chartlet_product_model_Id,
+					gpd.camera_view, gpd.camera_look,gpd.product_index,
+					bp.brand_id, bp.product_code, bp.product_type_value, bp.product_type_mark, bp.product_small_type_value,  bp.product_small_type_mark,
+					bp.parent_id,bp.sale_price,bp.product_height, bp.product_width, bp.product_length, bp.material_pic_ids, bp.split_textures_info,
+					bp.windows_u3dmodel_id,
+					parent_bp.product_type_value as parent_product_type_value,
+					rm.model_path, rm.min_height, ${itemValue.productStructureId} as structure_id,
+				    bb.brand_name,
+				    gpd.split_textures_choose_info
+				from group_product_details gpd 
+				inner join base_product bp on bp.id = 
+				<!-- 2017.2.15 huangsongbo edit ->start-->
+				<!-- add->start -->
+				gpd.product_id
+				<!-- add->end -->
+				<!-- case 
+					WHEN gpd.chartlet_product_model_Id=0 THEN gpd.product_id
+					else gpd.chartlet_product_model_Id
+				end -->
+				<!-- 2017.2.15 huangsongbo edit ->end-->
+				left join base_product parent_bp on parent_bp.id=bp.parent_id 
+				left join res_model rm on rm.id=
+				<!-- bp.${itemValue.idColumnName}  -->
+				case 
+					WHEN gpd.chartlet_product_model_Id = 0 THEN bp.${itemValue.idColumnName}
+					else (select bp2.${itemValue.idColumnName} from base_product bp2 where bp2.id = gpd.chartlet_product_model_Id)
+				end
+				
+				left join base_brand bb on bp.brand_id=bb.id 
+				where gpd.group_id=#{itemValue.groupID, jdbcType=INTEGER} 
+				
+				<!-- bad sql 
+				
+				inner join base_product bp on 
+				case 
+					WHEN gpd.chartlet_product_model_Id=0 THEN bp.id=gpd.product_id
+					else bp.id=gpd.chartlet_product_model_Id
+				end
+				-->
+		</foreach>
+		
+		<!-- add by huangsongbo 为了查出的明细列表顺序和组合配置文件保持一致 -->
+		<!-- order by gpd.id -->
+		
+	</select>
+	
+	
+	
+	
+	<!-- 获取产品组里面各个产品的 大类、小类、父类产品信息 -->
+	<select id="getProductBSPTypeValueUsingUnion" resultMap="groupProductAllTypeModel" parameterType="java.util.List">
+			<foreach collection="list" index="index" item="itemValue" open="" separator=" union " close=""> 
+            	(
+            	select 
+					bp.id, bp.product_name,
+					big_dict.value as b_value, big_dict.valuekey as b_valuekey, big_dict.name as b_name,
+				    small_dict.value as s_value, small_dict.valuekey as s_valuekey, small_dict.name as s_name, small_dict.att1 as s_att1
+				    <choose>
+					    <when test="itemValue.pValue!= null  and  itemValue.pValue !='' ">
+					        , parent_dict.value as p_value, parent_dict.valuekey as p_valuekey, parent_dict.name as p_name
+					    </when>
+					    <otherwise>
+					       , 0 as p_value, '' as p_valuekey, '' as p_name
+					    </otherwise>
+				    </choose>
+				from sys_dictionary as big_dict 
+				inner join base_product bp on bp.id=${itemValue.productID} 
+				left join sys_dictionary as small_dict on small_dict.type=big_dict.valuekey and small_dict.value=bp.product_small_type_value 
+				left join sys_dictionary as parent_dict on parent_dict.type='productType'
+				<if test="itemValue.pValue!= null  and  itemValue.pValue !='' ">
+					and parent_dict.value=${itemValue.pValue}
+				</if>
+					where 1=1 and big_dict.type='productType' and big_dict.value=bp.product_type_value and big_dict.is_deleted=0  limit 0,1
+            	) 
+       		</foreach>
+	</select>
+	
+	
+	<!-- 使用 union 方法，一次获取产品组里面产品的 res_pic 的 file_path -->
+	<select id="getProductesResPicUsingUnion" resultType="map" parameterType="java.util.List">
+		<foreach collection="list" index="index" item="item" open="" separator=" union " close="">
+			(select rp.pic_path as picPath, rp.business_id as businessID from res_pic rp
+				where 1=1 and rp.file_key='product.baseProduct.material' and rp.business_id=#{item} order by sequence asc)
+		</foreach>
+	</select>
+	
+	
+	<!-- 获取产品属性 -->
+	<select id="getProductesAttrisUsingUnion" resultType="map" parameterType="java.util.List">
+		<foreach collection="list" index="index" item="item" open="" separator=" union " close="">
+			(select 
+				pa.product_id as productID, pa.attribute_key as attributeKey, pa.attribute_value_id as attributeValueId,
+   			 	pp.prop_value as propValue 
+			from product_attribute pa 
+        	inner join product_props pp on pp.id=pa.attribute_value_id 
+				where pa.product_id=#{item} and pa.is_deleted=0)
+		</foreach>
+		
+	</select>
+
+	<!-- getGroupListByStructureIdAndStatus -->
+	<select id="getGroupListByStructureIdAndStatus" resultMap="productGroupBaseInfoResult">
+		SELECT
+			gp.id,
+			gp.location,
+			gp.group_code,
+			gp.group_name,
+			gp.pic_id,
+			gp.group_price,
+			rf.file_path,
+			rp.pic_path,
+			sp.config_file_id,
+			sp.structure_code,
+			sp.structure_name,
+			sp.id AS 'structure_id'
+		FROM
+			structure_product AS sp
+		LEFT JOIN group_product AS gp ON (
+			gp.structure_id = sp.id
+		)
+		LEFT JOIN res_file rf ON rf.id = gp.location
+		LEFT JOIN res_pic rp ON gp.pic_id = rp.id
+		WHERE
+			sp.id = #{structureId, jdbcType=INTEGER} 
+		<!-- 根据用户类型查询不同状态的数据(内部用户：测试，上架，发布    外部：发布) add by yanghz-->
+		<if test="userType !=  null and versionType !=null and versionType!='' and versionType == 2 ">
+		  	<if test="userType == 1 ">
+				and  (gp.state = 1 or  gp.state = 2 or gp.state = 3)
+		 	</if>
+			<if test="userType ==null or userType != 1 or versionType == null or versionType !=2 ">
+				and  gp.state = 3
+			</if>
+		</if>
+		<if test="brandIds != null and brandIds.size > 0">
+			and  gp.brand_id in
+			<foreach collection="brandIds" index="index" item="item" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="groupType != null">
+			and group_type = #{group_type}
+		</if>
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+
+	<!-- 查询以某产品为主产品创建的产品组 -->
+	<select id="getPlanGroupCount" resultType="int">
+		SELECT COUNT(1) FROM (SELECT group_id FROM used_products up,group_product gp
+		WHERE up.group_id = gp.id AND up.design_id = #{designPlanId, jdbcType=INTEGER}
+		AND up.is_deleted = 0 AND up.group_id > 0
+		<if test="compositeType != null and compositeType != 0">
+			AND gp.composite_type = #{compositeType, jdbcType=INTEGER}
+		</if>
+		GROUP BY up.group_id) AS t
+	</select>
+
+	<!-- 查询以某产品为主产品创建的产品组 -->
+	<select id="getPlanGroupList" resultMap="productGroupBaseInfoResult">
+
+		select distinct gp.id, gp.location, gp.group_code, gp.group_name, gp.pic_id, gp.group_price,gp.space_area_value,
+		rf.file_path, rp.pic_path from group_product as gp
+		LEFT JOIN used_products up ON up.group_id = gp.id and up.is_deleted = 0
+		left join res_file rf on rf.id = gp.location and rf.is_deleted = 0
+		left join res_pic rp on gp.pic_id = rp.id and rp.is_deleted = 0
+		where up.design_id = #{designPlanId, jdbcType=INTEGER}
+		<if test="compositeType != null and compositeType != 0">
+			AND gp.composite_type = #{compositeType, jdbcType=INTEGER}
+		</if>
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+</mapper>

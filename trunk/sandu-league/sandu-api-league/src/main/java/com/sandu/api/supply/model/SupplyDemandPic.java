@@ -1,0 +1,147 @@
+package com.sandu.api.supply.model;
+
+import java.io.Serializable;
+import java.util.Date;
+
+public class SupplyDemandPic implements Serializable{
+    private static final long serialVersionUID = -2831102742460475014L;
+    private Long id;
+
+    private String picName;
+
+    private Integer picSize;
+
+    private String picWeight;
+
+    private String picHigh;
+
+    private String picFormat;
+
+    private String picPath;
+
+    private String sysCode;
+
+    private String creator;
+
+    private Date gmtCreate;
+
+    private String modifier;
+
+    private Date gmtModified;
+
+    private Integer isDeleted;
+
+    private String remark;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getPicName() {
+        return picName;
+    }
+
+    public void setPicName(String picName) {
+        this.picName = picName == null ? null : picName.trim();
+    }
+
+    public Integer getPicSize() {
+        return picSize;
+    }
+
+    public void setPicSize(Integer picSize) {
+        this.picSize = picSize;
+    }
+
+    public String getPicWeight() {
+        return picWeight;
+    }
+
+    public void setPicWeight(String picWeight) {
+        this.picWeight = picWeight == null ? null : picWeight.trim();
+    }
+
+    public String getPicHigh() {
+        return picHigh;
+    }
+
+    public void setPicHigh(String picHigh) {
+        this.picHigh = picHigh == null ? null : picHigh.trim();
+    }
+
+    public String getPicFormat() {
+        return picFormat;
+    }
+
+    public void setPicFormat(String picFormat) {
+        this.picFormat = picFormat == null ? null : picFormat.trim();
+    }
+
+    public String getPicPath() {
+        return picPath;
+    }
+
+    public void setPicPath(String picPath) {
+        this.picPath = picPath == null ? null : picPath.trim();
+    }
+
+    public String getSysCode() {
+        return sysCode;
+    }
+
+    public void setSysCode(String sysCode) {
+        this.sysCode = sysCode == null ? null : sysCode.trim();
+    }
+
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator == null ? null : creator.trim();
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public String getModifier() {
+        return modifier;
+    }
+
+    public void setModifier(String modifier) {
+        this.modifier = modifier == null ? null : modifier.trim();
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public Integer getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark == null ? null : remark.trim();
+    }
+}

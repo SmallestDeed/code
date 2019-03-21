@@ -1,0 +1,516 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.system.dao.DesignerWorksMapper">
+<!--<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>-->
+	<!-- **插入定义** -->
+	<insert id="insertSelective" parameterType="com.nork.system.model.DesignerWorks"  useGeneratedKeys="true" keyProperty="id">
+		insert into designer_works
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		<if test="userId!= null">user_id, </if>
+		<if test="picIds!= null">pic_ids, </if>
+		<if test="area!= null">area, </if>
+		<if test="title!= null">title, </if>
+		<if test="worksDescription!= null">works_description, </if>
+		<if test="picId!= null">pic_id, </if>
+		<if test="creator!= null">creator, </if>
+		<if test="sysCode!= null">sys_code, </if>
+		<if test="gmtCreate!= null">gmt_create, </if>
+		<if test="modifier!= null">modifier, </if>
+		<if test="gmtModified!= null">gmt_modified, </if>
+		<if test="projectTime!= null">project_time, </if>
+		<if test="isDeleted!= null">is_deleted, </if>
+		<if test="att1!= null">att1, </if>
+		<if test="att2!= null">att2, </if>
+		<if test="numa1!= null">numa1, </if>
+		<if test="numa2!= null">numa2, </if>
+		<if test="remark!= null">remark, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="userId!= null">  #{userId,jdbcType=INTEGER}, </if>
+		<if test="picIds!= null">  #{picIds,jdbcType=VARCHAR}, </if>
+		<if test="area!= null">  #{area,jdbcType=VARCHAR}, </if>
+		<if test="title!= null">  #{title,jdbcType=VARCHAR}, </if>
+		<if test="worksDescription!= null">  #{worksDescription,jdbcType=VARCHAR}, </if>
+		<if test="picId!= null">  #{picId,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+		<if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="projectTime!= null">  #{projectTime,jdbcType=VARCHAR}, </if>
+		<if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="att1!= null">  #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  #{att2,jdbcType=VARCHAR}, </if>
+		<if test="numa1!= null">  #{numa1,jdbcType=INTEGER}, </if>
+		<if test="numa2!= null">  #{numa2,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>	
+		</trim>
+	</insert>
+
+	<!-- **更新定义** -->
+	<update id="updateByPrimaryKeySelective" parameterType="com.nork.system.model.DesignerWorks">
+		update designer_works
+		<set>
+		<if test="userId!= null">  user_id = #{userId,jdbcType=INTEGER}, </if>
+		<if test="picIds!= null">  pic_ids = #{picIds,jdbcType=VARCHAR}, </if>
+		<if test="area!= null">  area = #{area,jdbcType=VARCHAR}, </if>
+		<if test="title!= null">  title = #{title,jdbcType=VARCHAR}, </if>
+		<if test="worksDescription!= null">  works_description = #{worksDescription,jdbcType=VARCHAR}, </if>
+		<if test="picId!= null">  pic_id = #{picId,jdbcType=VARCHAR}, </if>
+		<if test="sysCode!= null">  sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  creator = #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  modifier = #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="projectTime!= null">  project_time = #{projectTime,jdbcType=VARCHAR}, </if>
+		<if test="isDeleted!= null">  is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="att1!= null">  att1 = #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  att2 = #{att2,jdbcType=VARCHAR}, </if>
+		<if test="numa1!= null">  numa1 = #{numa1,jdbcType=INTEGER}, </if>
+		<if test="numa2!= null">  numa2 = #{numa2,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  remark = #{remark,jdbcType=VARCHAR}, </if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<!-- **删除定义** -->
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from designer_works
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	
+	<!-- **常量定义** -->
+	<sql id="All_Column_List">
+		id,user_id,pic_ids,area,title,works_description,pic_id,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,att1,att2,numa1,numa2,remark,project_time
+	</sql>
+	
+	<!-- **结果定义** -->
+	<resultMap id="AllResultMap" type="com.nork.system.model.DesignerWorks">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="user_id" property="userId" jdbcType="INTEGER" />
+		<result  column="pic_ids" property="picIds" jdbcType="VARCHAR" />
+		<result  column="area" property="area" jdbcType="VARCHAR" />
+		<result  column="title" property="title" jdbcType="VARCHAR" />
+		<result  column="works_description" property="worksDescription" jdbcType="VARCHAR" />
+		<result  column="pic_id" property="picId" jdbcType="VARCHAR" />
+		<result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="project_time" property="projectTime" jdbcType="VARCHAR" />
+		<result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="att1" property="att1" jdbcType="VARCHAR" />
+		<result  column="att2" property="att2" jdbcType="VARCHAR" />
+		<result  column="numa1" property="numa1" jdbcType="INTEGER" />
+		<result  column="numa2" property="numa2" jdbcType="INTEGER" />
+		<result  column="remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- **查询定义** -->
+	<!-- 按主键查询 -->
+	<select id="selectByPrimaryKey" resultMap="AllResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="All_Column_List" />
+		from designer_works
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+		parameterType="com.nork.system.model.DesignerWorks">
+		select
+		<include refid="All_Column_List" />
+		from designer_works
+        where 1=1
+		<if test="userId!= null">  and user_id = #{userId,jdbcType=INTEGER} </if>
+		<if test="picIds!= null">  and pic_ids = #{picIds,jdbcType=VARCHAR} </if>
+		<if test="area!= null">  and area = #{area,jdbcType=VARCHAR} </if>
+		<if test="title!= null">  and title = #{title,jdbcType=VARCHAR} </if>
+		<if test="worksDescription!= null">  and works_description = #{worksDescription,jdbcType=VARCHAR} </if>
+		<if test="picId!= null">  and pic_id = #{picId,jdbcType=VARCHAR} </if>
+		<if test="sysCode!= null">  and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="creator!= null">  and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="gmtCreate!= null">  and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+		<if test="modifier!= null">  and modifier = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="gmtModified!= null">  and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP} </if>
+		<if test="isDeleted!= null">  and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1!= null">  and att1 = #{att1,jdbcType=VARCHAR} </if>
+		<if test="att2!= null">  and att2 = #{att2,jdbcType=VARCHAR} </if>
+		<if test="numa1!= null">  and numa1 = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2!= null">  and numa2 = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark!= null">  and remark = #{remark,jdbcType=VARCHAR} </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order}
+			<if test="orderNum != null and  orderNum !='' ">
+				${orderNum}
+			</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">
+		   order by ${orders}
+		</if>
+	</select>
+	
+	<!-- 分页汇总 -->
+	<select id="selectCount" resultType="int"
+		parameterType="com.nork.system.model.search.DesignerWorksSearch">
+		select count(*)
+		from designer_works d
+		left join sys_user u on d.user_id = u.id 
+		where 1=1
+		<if test="userId !=  null  ">			and user_id  = #{userId,jdbcType=INTEGER} </if>
+		<if test="picIds !=  null and picIds !=  ''   "> and pic_ids  = #{picIds,jdbcType=VARCHAR} </if>
+		<if test="sch_PicIds_ !=  null and sch_PicIds_ !=  ''   ">
+			and pic_ids  like CONCAT(CONCAT('%',#{sch_PicIds_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_PicIds !=  null and sch_PicIds !=  ''   ">
+			and pic_ids  like CONCAT('%',#{sch_PicIds,jdbcType=VARCHAR})
+		 </if>
+		<if test="schPicIds_ !=  null and schPicIds_ !=  ''   ">
+			and pic_ids  like CONCAT(#{schPicIds_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="picIdsStart !=  null and picIdsEnd!= null  ">
+			and pic_ids between #{picIdsStart,jdbcType=VARCHAR} and #{picIdsEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="area !=  null and area !=  ''   "> and area  = #{area,jdbcType=VARCHAR} </if>
+		<if test="sch_Area_ !=  null and sch_Area_ !=  ''   ">
+			and area  like CONCAT(CONCAT('%',#{sch_Area_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Area !=  null and sch_Area !=  ''   ">
+			and area  like CONCAT('%',#{sch_Area,jdbcType=VARCHAR})
+		 </if>
+		<if test="schArea_ !=  null and schArea_ !=  ''   ">
+			and area  like CONCAT(#{schArea_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="areaStart !=  null and areaEnd!= null  ">
+			and area between #{areaStart,jdbcType=VARCHAR} and #{areaEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="title !=  null and title !=  ''   "> and title  = #{title,jdbcType=VARCHAR} </if>
+		<if test="sch_Title_ !=  null and sch_Title_ !=  ''   ">
+			and title  like CONCAT(CONCAT('%',#{sch_Title_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Title !=  null and sch_Title !=  ''   ">
+			and title  like CONCAT('%',#{sch_Title,jdbcType=VARCHAR})
+		 </if>
+		<if test="schTitle_ !=  null and schTitle_ !=  ''   ">
+			and title  like CONCAT(#{schTitle_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="titleStart !=  null and titleEnd!= null  ">
+			and title between #{titleStart,jdbcType=VARCHAR} and #{titleEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="worksDescription !=  null and worksDescription !=  ''   "> and works_description  = #{worksDescription,jdbcType=VARCHAR} </if>
+		<if test="sch_WorksDescription_ !=  null and sch_WorksDescription_ !=  ''   ">
+			and works_description  like CONCAT(CONCAT('%',#{sch_WorksDescription_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_WorksDescription !=  null and sch_WorksDescription !=  ''   ">
+			and works_description  like CONCAT('%',#{sch_WorksDescription,jdbcType=VARCHAR})
+		 </if>
+		<if test="schWorksDescription_ !=  null and schWorksDescription_ !=  ''   ">
+			and works_description  like CONCAT(#{schWorksDescription_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="worksDescriptionStart !=  null and worksDescriptionEnd!= null  ">
+			and works_description between #{worksDescriptionStart,jdbcType=VARCHAR} and #{worksDescriptionEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="picId !=  null and picId !=  ''   "> and pic_id  = #{picId,jdbcType=VARCHAR} </if>
+		<if test="sch_PicId_ !=  null and sch_PicId_ !=  ''   ">
+			and pic_id  like CONCAT(CONCAT('%',#{sch_PicId_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_PicId !=  null and sch_PicId !=  ''   ">
+			and pic_id  like CONCAT('%',#{sch_PicId,jdbcType=VARCHAR})
+		 </if>
+		<if test="schPicId_ !=  null and schPicId_ !=  ''   ">
+			and pic_id  like CONCAT(#{schPicId_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="picIdStart !=  null and picIdEnd!= null  ">
+			and pic_id between #{picIdStart,jdbcType=VARCHAR} and #{picIdEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtCreate !=  null  ">
+			and d.gmt_create  = #{gmtCreate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and d.gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="modifier !=  null and modifier !=  ''   "> and modifier  = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and d.modifier  like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and d.modifier  like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		 </if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and d.modifier  like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and d.modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtModified !=  null  ">
+			and d.gmt_modified  = #{gmtModified,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and d.gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		 </if>
+		
+	</select>
+	
+	<!-- 分页查询 ,可在DesignerWorksSearch中自定义查询条件-->
+	<select id="selectPaginatedList" resultMap="AllResultMap"
+		parameterType="com.nork.system.model.search.DesignerWorksSearch">
+		select
+		<include refid="All_Column_List" />
+	    from designer_works
+		where 1=1	
+		<if test="userId !=  null  ">			and user_id  = #{userId,jdbcType=INTEGER} </if>
+		<if test="picIds !=  null and picIds !=  ''   "> and pic_ids  = #{picIds,jdbcType=VARCHAR} </if>
+		<if test="sch_PicIds_ !=  null and sch_PicIds_ !=  ''   ">
+			and pic_ids  like CONCAT(CONCAT('%',#{sch_PicIds_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_PicIds !=  null and sch_PicIds !=  ''   ">
+			and pic_ids  like CONCAT('%',#{sch_PicIds,jdbcType=VARCHAR})
+		 </if>
+		<if test="schPicIds_ !=  null and schPicIds_ !=  ''   ">
+			and pic_ids  like CONCAT(#{schPicIds_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="picIdsStart !=  null and picIdsEnd!= null  ">
+			and pic_ids between #{picIdsStart,jdbcType=VARCHAR} and #{picIdsEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="area !=  null and area !=  ''   "> and area  = #{area,jdbcType=VARCHAR} </if>
+		<if test="sch_Area_ !=  null and sch_Area_ !=  ''   ">
+			and area  like CONCAT(CONCAT('%',#{sch_Area_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Area !=  null and sch_Area !=  ''   ">
+			and area  like CONCAT('%',#{sch_Area,jdbcType=VARCHAR})
+		 </if>
+		<if test="schArea_ !=  null and schArea_ !=  ''   ">
+			and area  like CONCAT(#{schArea_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="areaStart !=  null and areaEnd!= null  ">
+			and area between #{areaStart,jdbcType=VARCHAR} and #{areaEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="title !=  null and title !=  ''   "> and title  = #{title,jdbcType=VARCHAR} </if>
+		<if test="sch_Title_ !=  null and sch_Title_ !=  ''   ">
+			and title  like CONCAT(CONCAT('%',#{sch_Title_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Title !=  null and sch_Title !=  ''   ">
+			and title  like CONCAT('%',#{sch_Title,jdbcType=VARCHAR})
+		 </if>
+		<if test="schTitle_ !=  null and schTitle_ !=  ''   ">
+			and title  like CONCAT(#{schTitle_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="titleStart !=  null and titleEnd!= null  ">
+			and title between #{titleStart,jdbcType=VARCHAR} and #{titleEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="worksDescription !=  null and worksDescription !=  ''   "> and works_description  = #{worksDescription,jdbcType=VARCHAR} </if>
+		<if test="sch_WorksDescription_ !=  null and sch_WorksDescription_ !=  ''   ">
+			and works_description  like CONCAT(CONCAT('%',#{sch_WorksDescription_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_WorksDescription !=  null and sch_WorksDescription !=  ''   ">
+			and works_description  like CONCAT('%',#{sch_WorksDescription,jdbcType=VARCHAR})
+		 </if>
+		<if test="schWorksDescription_ !=  null and schWorksDescription_ !=  ''   ">
+			and works_description  like CONCAT(#{schWorksDescription_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="worksDescriptionStart !=  null and worksDescriptionEnd!= null  ">
+			and works_description between #{worksDescriptionStart,jdbcType=VARCHAR} and #{worksDescriptionEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="picId !=  null and picId !=  ''   "> and pic_id  = #{picId,jdbcType=VARCHAR} </if>
+		<if test="sch_PicId_ !=  null and sch_PicId_ !=  ''   ">
+			and pic_id  like CONCAT(CONCAT('%',#{sch_PicId_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_PicId !=  null and sch_PicId !=  ''   ">
+			and pic_id  like CONCAT('%',#{sch_PicId,jdbcType=VARCHAR})
+		 </if>
+		<if test="schPicId_ !=  null and schPicId_ !=  ''   ">
+			and pic_id  like CONCAT(#{schPicId_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="picIdStart !=  null and picIdEnd!= null  ">
+			and pic_id between #{picIdStart,jdbcType=VARCHAR} and #{picIdEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="sysCode !=  null and sysCode !=  ''   "> and sys_code  = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+			and sys_code  like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+			and sys_code  like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+			and sys_code  like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+			and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="creator !=  null and creator !=  ''   "> and creator  = #{creator,jdbcType=VARCHAR} </if>
+		<if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+			and creator  like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+			and creator  like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+			and creator  like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="creatorStart !=  null and creatorEnd!= null  ">
+			and creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtCreate !=  null  ">
+			and gmt_create  = #{gmtCreate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="modifier !=  null and modifier !=  ''   "> and modifier  = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and modifier  like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and modifier  like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		 </if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and modifier  like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtModified !=  null  ">
+			and gmt_modified  = #{gmtModified,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="isDeleted !=  null  ">			and is_deleted  = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1 !=  null and att1 !=  ''   "> and att1  = #{att1,jdbcType=VARCHAR} </if>
+		<if test="sch_Att1_ !=  null and sch_Att1_ !=  ''   ">
+			and att1  like CONCAT(CONCAT('%',#{sch_Att1_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att1 !=  null and sch_Att1 !=  ''   ">
+			and att1  like CONCAT('%',#{sch_Att1,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt1_ !=  null and schAtt1_ !=  ''   ">
+			and att1  like CONCAT(#{schAtt1_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att1Start !=  null and att1End!= null  ">
+			and att1 between #{att1Start,jdbcType=VARCHAR} and #{att1End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att2 !=  null and att2 !=  ''   "> and att2  = #{att2,jdbcType=VARCHAR} </if>
+		<if test="sch_Att2_ !=  null and sch_Att2_ !=  ''   ">
+			and att2  like CONCAT(CONCAT('%',#{sch_Att2_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att2 !=  null and sch_Att2 !=  ''   ">
+			and att2  like CONCAT('%',#{sch_Att2,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt2_ !=  null and schAtt2_ !=  ''   ">
+			and att2  like CONCAT(#{schAtt2_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att2Start !=  null and att2End!= null  ">
+			and att2 between #{att2Start,jdbcType=VARCHAR} and #{att2End,jdbcType=VARCHAR}
+		 </if>
+		<if test="numa1 !=  null  ">			and numa1  = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2 !=  null  ">			and numa2  = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark !=  null and remark !=  ''   "> and remark  = #{remark,jdbcType=VARCHAR} </if>		<if test="sch_Remark_ !=  null and sch_Remark_ !=  ''   ">
+			and remark  like CONCAT(CONCAT('%',#{sch_Remark_,jdbcType=VARCHAR}),'%')
+		 </if>		<if test="sch_Remark !=  null and sch_Remark !=  ''   ">
+			and remark  like CONCAT('%',#{sch_Remark,jdbcType=VARCHAR})
+		 </if>		<if test="schRemark_ !=  null and schRemark_ !=  ''   ">
+			and remark  like CONCAT(#{schRemark_,jdbcType=VARCHAR},'%')
+		 </if>		<if test="remarkStart !=  null and remarkEnd!= null  ">
+			and remark between #{remarkStart,jdbcType=VARCHAR} and #{remarkEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order} <if test="orderNum != null and  orderNum !='' ">${orderNum}</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">  order by #{orders}</if>
+		<if test="order == null and  orders == null ">  order by id desc</if>
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+
+    <!-- 其他Map等查询方式 -->
+    <!-- **结果定义** -->
+	<resultMap id="AllDesignerWorksUserMap" type="com.nork.system.model.DesignerWorksUser">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="user_id" property="userId" jdbcType="INTEGER" />
+		<result  column="pic_ids" property="picIds" jdbcType="VARCHAR" />
+		<result  column="area" property="area" jdbcType="VARCHAR" />
+		<result  column="title" property="title" jdbcType="VARCHAR" />
+		<result  column="works_description" property="worksDescription" jdbcType="VARCHAR" />
+		<result  column="pic_id" property="picId" jdbcType="VARCHAR" />
+		<result  column="user_name" property="userName" jdbcType="VARCHAR" />
+		<result  column="nick_name" property="nickName" jdbcType="VARCHAR" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="email" property="email" jdbcType="VARCHAR" />
+		<result  column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result  column="project_time" property="projectTime" jdbcType="VARCHAR" />
+		<result  column="company_address" property="companyAddress" jdbcType="VARCHAR" />
+		<result  column="company_tel" property="companyTel" jdbcType="VARCHAR" />
+		<result  column="speciality_value" property="specialityValue" jdbcType="VARCHAR" />
+		<result  column="intro" property="intro" jdbcType="VARCHAR" />
+		<result  column="name" property="name" jdbcType="VARCHAR" />
+		<result  column="pic_path" property="picPath" jdbcType="VARCHAR" />
+		<result  column="sex" property="sex" jdbcType="INTEGER" />
+		<result  column="idcard_verify_state" property="idcardVerifyState" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<select id="getDesigners" resultMap="AllDesignerWorksUserMap"	parameterType="com.nork.system.model.DesignerWorksUser">
+		SELECT
+		d.user_id,u.user_name,d.gmt_create,u.company_address,u.company_tel,u.idcard_verify_state,u.intro,u.qq,d.project_time
+	    FROM designer_works d
+	    LEFT JOIN sys_user u on d.user_id = u.id
+		WHERE 1=1 
+		<if test="userId !=  null  "> AND d.user_id  = #{userId,jdbcType=INTEGER} </if>
+	</select>
+	
+	
+	<select id="getWorks" resultMap="AllDesignerWorksUserMap"	parameterType="com.nork.system.model.DesignerWorksUser">
+		SELECT
+		d.id,d.title,d.area,d.gmt_create,d.pic_ids,d.works_description,d.project_time
+	    FROM designer_works d
+	    LEFT JOIN sys_user u on d.user_id = u.id
+		WHERE 1=1 
+		<if test="userId !=  null  "> AND d.user_id  = #{userId,jdbcType=INTEGER} </if>
+	</select>
+	
+	
+	<select id="getFilePath" resultType="java.lang.String" parameterType="com.nork.system.model.DesignerWorksUser">
+		SELECT
+		r.pic_path AS picPath
+	    FROM designer_works d
+	    LEFT JOIN res_pic r on d.pic_ids = r.id
+		WHERE 1=1 
+		<if test="id !=  null  and  id !=''  "> AND r.id  = #{id,jdbcType=INTEGER} </if>
+	</select>
+	
+ 	<select id="getdesignerWorkList" resultMap="AllDesignerWorksUserMap" parameterType="com.nork.system.model.DesignerWorksUser">
+		SELECT
+		r.pic_path AS picPath,d.id
+	    FROM designer_works d
+	    LEFT JOIN res_pic r on d.pic_id = r.id
+		WHERE 1=1 
+		<if test="userId !=  null  and  userId !=''  "> AND d.user_id  = #{userId,jdbcType=INTEGER} </if>
+		<if test="id !=  null  and  id !=''  "> AND d.id  = #{id,jdbcType=INTEGER} </if>
+		order by d.gmt_create desc
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select> 
+	
+ 	<select id="getdesignerWorkDetail" resultMap="AllDesignerWorksUserMap" parameterType="com.nork.system.model.DesignerWorksUser">
+		SELECT
+		r.pic_path AS picPath,d.id,d.title,d.user_id,d.area,d.pic_ids,d.pic_id,d.works_description,d.project_time
+	    FROM designer_works d
+	    LEFT JOIN res_pic r on d.pic_id = r.id
+		WHERE 1=1 
+		<if test="userId !=  null  and  userId !=''  "> AND d.user_id  = #{userId,jdbcType=INTEGER} </if>
+		<if test="title !=  null and title !=  ''   ">	AND d.title  like CONCAT(CONCAT('%',#{title,jdbcType=VARCHAR}),'%')		 </if>
+		<if test="id !=  null  and  id !=''  "> AND d.id  = #{id,jdbcType=INTEGER} </if>
+		order by d.gmt_create desc
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select> 
+	
+ 	<select id="getdesignerWorkRendered" resultMap="AllDesignerWorksUserMap" parameterType="com.nork.system.model.DesignerWorksUser">
+		SELECT
+		r.pic_path AS picPath,d.id,d.title,d.user_id,d.area,d.pic_ids,d.pic_id,d.works_description,d.project_time
+	    FROM designer_works d
+	    LEFT JOIN res_pic r on d.pic_ids = r.id
+		WHERE 1=1 
+		<if test="id !=  null  and  id !=''  "> AND d.id  = #{id,jdbcType=INTEGER} </if>
+	</select> 
+	
+     <!-- end-->
+</mapper>

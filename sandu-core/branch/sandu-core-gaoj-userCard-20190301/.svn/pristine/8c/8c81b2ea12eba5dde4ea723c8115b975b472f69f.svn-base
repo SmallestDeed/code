@@ -1,0 +1,27 @@
+package com.sandu.service.springFestivalActivity.dao;
+
+import com.sandu.api.springFestivalActivity.model.WxUserTask;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface WxUserTaskMapper {
+    int deleteByPrimaryKey(Long id);
+
+    int insert(WxUserTask record);
+
+    int insertSelective(WxUserTask record);
+
+    WxUserTask selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(WxUserTask record);
+
+    int updateByPrimaryKey(WxUserTask record);
+
+    List<WxUserTask> selectSelective(WxUserTask wxUserTask);
+
+    List<WxUserTask> getUnderwayTaskList(Long activityId);
+
+    List<WxUserTask> getDoingTaskList(Long activityId);
+}

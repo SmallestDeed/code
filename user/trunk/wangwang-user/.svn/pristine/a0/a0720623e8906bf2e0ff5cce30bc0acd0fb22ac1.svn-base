@@ -1,0 +1,47 @@
+package com.sandu.service.user.impl;
+
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.api.redis.RedisService;
+import com.sandu.api.user.model.SysUserRoleGroup;
+import com.sandu.api.user.service.SysRoleGroupService;
+import com.sandu.common.constant.UserConstant;
+import com.sandu.service.user.dao.SysRoleGroupDao;
+
+@Service("sysRoleGroupService")
+public class SysRoleGroupServiceImpl implements SysRoleGroupService {
+	private Logger logger = LoggerFactory.getLogger(SysRoleGroupServiceImpl.class);
+	@Autowired
+	private SysRoleGroupDao sysRoleGroupDao;
+	
+	@Autowired
+	private RedisService redisService;
+	@Override
+	public Set<SysUserRoleGroup> getUserRoleGroupByUserId(Long userId) {
+		Set<SysUserRoleGroup> userRoleGroupSet = redisService.smembersObject(UserConstant.RBAC_USER_ROLE_GROUP_PREFIX+userId,SysUserRoleGroup.class);
+		logger.info("从缓存获取用户角色组:{}",userRoleGroupSet==null?0:userRoleGroupSet.size());
+		if(userRoleGroupSet!=null && userRoleGroupSet.size()>0) {
+			return userRoleGroupSet;
+		}
+		userRoleGroupSet = sysRoleGroupDao.selectRoleGroupsByUserId(userId);
+		logger.info("缓存没有用户角色组数据,需从数据库读取:{}",userRoleGroupSet==null?0:userRoleGroupSet.size());
+		if(userRoleGroupSet!=null && userRoleGroupSet.size()>0) {
+			redisService.saddObject(UserConstant.RBAC_USER_ROLE_GROUP_PREFIX+userId, userRoleGroupSet);
+			logger.info("将数据库查询结果更新到缓存");
+		}
+		return userRoleGroupSet;
+	}
+	@Override
+	public void batchSaveUserRoleGroupSet(Set<SysUserRoleGroup> urgs) {
+		// TODO Auto-generated method stub
+		sysRoleGroupDao.batchInsertUserRoleGroupSet(urgs);
+	}
+	
+
+	
+}

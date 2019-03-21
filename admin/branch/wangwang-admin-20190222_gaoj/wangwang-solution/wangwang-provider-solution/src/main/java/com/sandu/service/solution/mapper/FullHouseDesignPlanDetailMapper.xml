@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.solution.dao.FullHouseDesignPlanDetailMapper">
+  <resultMap id="BaseResultMap" type="com.sandu.api.solution.model.FullHouseDesignPlanDetail">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="uuid" jdbcType="VARCHAR" property="uuid" />
+    <result column="full_house_plan_id" jdbcType="INTEGER" property="fullHousePlanId" />
+    <result column="recommended_plan_group_primary_id" jdbcType="INTEGER" property="recommendedPlanGroupPrimaryId" />
+    <result column="render_scene_plan_id" jdbcType="INTEGER" property="renderScenePlanId" />
+    <result column="space_type" jdbcType="INTEGER" property="spaceType" />
+    <result column="priority_level" jdbcType="INTEGER" property="priorityLevel" />
+    <result column="plan_render_resource_id" jdbcType="INTEGER" property="planRenderResourceId" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, uuid, full_house_plan_id, recommended_plan_group_primary_id, render_scene_plan_id, 
+    space_type, priority_level, plan_render_resource_id, creator, gmt_create, modifier, 
+    gmt_modified, is_deleted, remark
+  </sql>
+  <update id="deleteByFullHousePlanId">
+    update full_house_design_plan_detail
+    set is_deleted = 1
+    where full_house_plan_id = #{planId}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from full_house_design_plan_detail
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectByPlanId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from full_house_design_plan_detail
+    where full_house_plan_id = #{planId}
+  </select>
+  <update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    update full_house_design_plan_detail
+    set is_deleted = 1
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <insert id="insert" parameterType="com.sandu.api.solution.model.FullHouseDesignPlanDetail">
+    insert into full_house_design_plan_detail (id, uuid, full_house_plan_id, 
+      recommended_plan_group_primary_id, render_scene_plan_id, 
+      space_type, priority_level, plan_render_resource_id, 
+      creator, gmt_create, modifier, 
+      gmt_modified, is_deleted, remark
+      )
+    values (#{id,jdbcType=INTEGER}, #{uuid,jdbcType=VARCHAR}, #{fullHousePlanId,jdbcType=INTEGER}, 
+      #{recommendedPlanGroupPrimaryId,jdbcType=INTEGER}, #{renderScenePlanId,jdbcType=INTEGER}, 
+      #{spaceType,jdbcType=INTEGER}, #{priorityLevel,jdbcType=INTEGER}, #{planRenderResourceId,jdbcType=INTEGER}, 
+      #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.solution.model.FullHouseDesignPlanDetail">
+    insert into full_house_design_plan_detail
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="uuid != null">
+        uuid,
+      </if>
+      <if test="fullHousePlanId != null">
+        full_house_plan_id,
+      </if>
+      <if test="recommendedPlanGroupPrimaryId != null">
+        recommended_plan_group_primary_id,
+      </if>
+      <if test="renderScenePlanId != null">
+        render_scene_plan_id,
+      </if>
+      <if test="spaceType != null">
+        space_type,
+      </if>
+      <if test="priorityLevel != null">
+        priority_level,
+      </if>
+      <if test="planRenderResourceId != null">
+        plan_render_resource_id,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="uuid != null">
+        #{uuid,jdbcType=VARCHAR},
+      </if>
+      <if test="fullHousePlanId != null">
+        #{fullHousePlanId,jdbcType=INTEGER},
+      </if>
+      <if test="recommendedPlanGroupPrimaryId != null">
+        #{recommendedPlanGroupPrimaryId,jdbcType=INTEGER},
+      </if>
+      <if test="renderScenePlanId != null">
+        #{renderScenePlanId,jdbcType=INTEGER},
+      </if>
+      <if test="spaceType != null">
+        #{spaceType,jdbcType=INTEGER},
+      </if>
+      <if test="priorityLevel != null">
+        #{priorityLevel,jdbcType=INTEGER},
+      </if>
+      <if test="planRenderResourceId != null">
+        #{planRenderResourceId,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.solution.model.FullHouseDesignPlanDetail">
+    update full_house_design_plan_detail
+    <set>
+      <if test="uuid != null">
+        uuid = #{uuid,jdbcType=VARCHAR},
+      </if>
+      <if test="fullHousePlanId != null">
+        full_house_plan_id = #{fullHousePlanId,jdbcType=INTEGER},
+      </if>
+      <if test="recommendedPlanGroupPrimaryId != null">
+        recommended_plan_group_primary_id = #{recommendedPlanGroupPrimaryId,jdbcType=INTEGER},
+      </if>
+      <if test="renderScenePlanId != null">
+        render_scene_plan_id = #{renderScenePlanId,jdbcType=INTEGER},
+      </if>
+      <if test="spaceType != null">
+        space_type = #{spaceType,jdbcType=INTEGER},
+      </if>
+      <if test="priorityLevel != null">
+        priority_level = #{priorityLevel,jdbcType=INTEGER},
+      </if>
+      <if test="planRenderResourceId != null">
+        plan_render_resource_id = #{planRenderResourceId,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.solution.model.FullHouseDesignPlanDetail">
+    update full_house_design_plan_detail
+    set uuid = #{uuid,jdbcType=VARCHAR},
+      full_house_plan_id = #{fullHousePlanId,jdbcType=INTEGER},
+      recommended_plan_group_primary_id = #{recommendedPlanGroupPrimaryId,jdbcType=INTEGER},
+      render_scene_plan_id = #{renderScenePlanId,jdbcType=INTEGER},
+      space_type = #{spaceType,jdbcType=INTEGER},
+      priority_level = #{priorityLevel,jdbcType=INTEGER},
+      plan_render_resource_id = #{planRenderResourceId,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.user.dao.UserReviewsMapper">
+    <resultMap id="BaseResultMap" type="com.sandu.user.model.UserReviews">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="business_id" property="businessId" jdbcType="INTEGER"/>
+        <result column="reviews_msg" property="reviewsMsg" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, user_id, business_id, reviews_msg, creator, gmt_create, is_deleted, remark
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from user_reviews
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from user_reviews
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" parameterType="com.sandu.user.model.UserReviews">
+    insert into user_reviews (id, user_id, business_id, 
+      reviews_msg, creator, gmt_create, 
+      is_deleted, remark)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{businessId,jdbcType=INTEGER}, 
+      #{reviewsMsg,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, 
+      #{isDeleted,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR})
+  </insert>
+    <insert id="insertSelective" parameterType="com.sandu.user.model.UserReviews" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into user_reviews
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="businessId != null">
+                business_id,
+            </if>
+            <if test="supplyDemandPublisherId != null">
+                supply_demand_publisher_id,
+            </if>
+            <if test="reviewsMsg != null">
+                reviews_msg,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="fid != null">
+                fid,
+            </if>
+            <if test="picIds != null">
+                pic_ids,
+            </if>
+            <if test="planId != null">
+                plan_id,
+            </if>
+            <if test="planType != null">
+                plan_type,
+            </if>
+            <if test="houseId != null">
+                house_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">
+                #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="businessId != null">
+                #{businessId,jdbcType=INTEGER},
+            </if>
+            <if test="supplyDemandPublisherId != null">
+                #{supplyDemandPublisherId,jdbcType=INTEGER},
+            </if>
+            <if test="reviewsMsg != null">
+                #{reviewsMsg,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="fid != null">
+                #{fid,jdbcType=INTEGER},
+            </if>
+            <if test="picIds != null">
+                #{picIds,jdbcType=INTEGER},
+            </if>
+            <if test="planId != null">
+                #{planId,jdbcType=INTEGER},
+            </if>
+            <if test="planType != null">
+                #{planType,jdbcType=INTEGER},
+            </if>
+            <if test="houseId != null">
+                #{houseId,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.user.model.UserReviews">
+        update user_reviews
+        <set>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="businessId != null">
+                business_id = #{businessId,jdbcType=INTEGER},
+            </if>
+            <if test="reviewsMsg != null">
+                reviews_msg = #{reviewsMsg,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.sandu.user.model.UserReviews">
+    update user_reviews
+    set user_id = #{userId,jdbcType=INTEGER},
+      business_id = #{businessId,jdbcType=INTEGER},
+      reviews_msg = #{reviewsMsg,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+    <select id="selectAllUserReviewsCount" resultType="int" parameterType="object">
+        select
+        count(u.id)
+        from user_reviews u
+        where
+        u.is_deleted = 0
+        <if test="supplyDemandId != null and supplyDemandId > 0">
+            AND business_id = #{supplyDemandId,jdbcType=INTEGER}
+        </if>
+
+        <if test="supplyDemandId == null or supplyDemandId == 0">
+            AND supply_demand_publisher_id = #{userId,jdbcType=INTEGER}
+        </if>
+
+    </select>
+
+    <select id="selectAllUserReviews" resultType="com.sandu.user.model.view.UserReviewsVo" parameterType="object">
+        select
+        u.id AS id,
+        u.plan_type AS planType,
+        u.reviews_msg AS reviewsMsg,
+        u.gmt_create AS gmtCreate,
+        s.nick_name AS nickName,
+        r.pic_path AS userPicPath,
+        u.business_id AS businessId,
+        u.plan_id AS planID,
+        u.house_id AS houseId,
+        u.pic_ids AS picIds,
+        u.is_read AS isRead
+        from user_reviews u
+        LEFT JOIN sys_user s ON s.id = u.user_id
+        LEFT JOIN res_pic r ON r.id = s.pic_id
+        left join node_info n ON u.id = n.content_id and n.node_type = (SELECT value from sys_dictionary where type ='nodeType' and valueKey ='userReviews') and n.is_deleted = 0
+        left join node_info_detail nd on nd.node_id = n.id and nd.is_deleted = 0 and nd.detail_type = (SELECT value from sys_dictionary where type ='detailType' and valueKey ='like')
+        where
+        u.is_deleted = 0
+        <choose>
+            <when test="supplyDemandId != null and supplyDemandId > 0 ">
+                AND u.business_id = #{supplyDemandId,jdbcType=INTEGER}
+            </when>
+            <otherwise>
+                AND u.supply_demand_publisher_id = #{userId,jdbcType=INTEGER}
+            </otherwise>
+        </choose>
+        order by
+        <choose>
+            <when test="order != null and  order !='' ">
+                ${order}
+            </when>
+            <otherwise>
+                u.gmt_create
+            </otherwise>
+        </choose>
+        desc
+
+        limit #{start},#{limit}
+    </select>
+
+
+    <select id="selectReviewsPicPath" resultType="java.lang.String" parameterType="list">
+        SELECT sdp.pic_path from supply_demand_pic sdp where sdp.id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+    <update id="updateReviewsIsRead" parameterType="java.lang.Integer" keyProperty="id" useGeneratedKeys="true">
+    update user_reviews SET is_read = 1 WHERE  id = #{id,jdbcType=INTEGER}
+</update>
+
+</mapper>

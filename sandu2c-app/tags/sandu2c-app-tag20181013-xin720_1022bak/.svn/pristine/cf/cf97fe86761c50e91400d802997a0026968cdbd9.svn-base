@@ -1,0 +1,147 @@
+package com.sandu.common.objectconvert.designplan;
+
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.designplan.model.DesignPlanRecommendedResult;
+import com.sandu.designplan.model.DesignPlanRecommendedVo;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * 设计方案推荐
+ */
+public class DesignPlanRecommend {
+
+    public static ResponseEnvelope parseToDesignPlanRecommendedVoList(ResponseEnvelope recommendedResult) {
+        ResponseEnvelope recommendedVo = new ResponseEnvelope();
+
+        if (null != recommendedResult) {
+            //获取List---------------------Obj
+            List<DesignPlanRecommendedResult> datalist = (List<DesignPlanRecommendedResult>) recommendedResult.getObj();
+            if (null != datalist) {
+                List<DesignPlanRecommendedVo> designPlanRecommendedVoList = new ArrayList<>(datalist.size());
+                DesignPlanRecommendedVo designPlanRecommendedVo = null;
+                for (DesignPlanRecommendedResult designPlanRecommendedResult : datalist) {
+                    designPlanRecommendedVo = new DesignPlanRecommendedVo();
+                    designPlanRecommendedVo.setDesignPlanName(designPlanRecommendedResult.getPlanName());
+                    designPlanRecommendedVo.setDesignPlanId(designPlanRecommendedResult.getPlanId());
+                    designPlanRecommendedVo.setDesignPlanRecommendId(designPlanRecommendedResult.getPlanRecommendedId());
+                    if(designPlanRecommendedResult.getResRenderPicPath()==null){
+                        designPlanRecommendedVo.setDesignPlanCoverPath(designPlanRecommendedResult.getCoverPath());
+                    }else{
+                        designPlanRecommendedVo.setDesignPlanCoverPath(designPlanRecommendedResult.getResRenderPicPath());
+                    }
+                    designPlanRecommendedVo.setSpaceType(designPlanRecommendedResult.getSpaceFunctionId());
+                    designPlanRecommendedVo.setSpaceArea(designPlanRecommendedResult.getSpaceAreas());
+                    designPlanRecommendedVo.setSpaceShape(designPlanRecommendedResult.getSpaceShape());
+                    designPlanRecommendedVo.setIsFavorite(designPlanRecommendedResult.getIsFavorite());
+                    designPlanRecommendedVo.setSpaceStyleName(designPlanRecommendedResult.getStyleName());
+                    designPlanRecommendedVo.setRenderCount(designPlanRecommendedResult.getRenderCount());
+                    designPlanRecommendedVo.setReleaseTime(designPlanRecommendedResult.getReleaseTime());
+                    designPlanRecommendedVo.setIsLike(designPlanRecommendedResult.getIsLike());
+                    designPlanRecommendedVo.setLikeNum(designPlanRecommendedResult.getLikeNum());
+                    designPlanRecommendedVo.setCollectNum(designPlanRecommendedResult.getCollectNum());
+                    designPlanRecommendedVo.setApplySpaceAreas(designPlanRecommendedResult.getApplySpaceAreas());
+                    designPlanRecommendedVo.setGroupPrimaryId(designPlanRecommendedResult.getGroupPrimaryId());
+                    designPlanRecommendedVo.setPlanDecoratePriceList(designPlanRecommendedResult.getPlanDecoratePriceList());
+                    designPlanRecommendedVo.setDesignerHeadPic(designPlanRecommendedResult.getDesignerHeadPic());
+                    designPlanRecommendedVo.setDesignerName(designPlanRecommendedResult.getDesignerName());
+                    designPlanRecommendedVo.setShopId(designPlanRecommendedResult.getShopId());
+                    designPlanRecommendedVo.setDesc(designPlanRecommendedResult.getDesc());
+                    designPlanRecommendedVo.setPlanHouseType(designPlanRecommendedResult.getPlanHouseType());
+                    designPlanRecommendedVo.setFullHousePlanUUID(designPlanRecommendedResult.getFullHousePlanUUID());
+                    designPlanRecommendedVo.setPlanPrice(designPlanRecommendedResult.getPlanPrice());
+                    designPlanRecommendedVo.setChargeType(designPlanRecommendedResult.getChargeType());
+                    designPlanRecommendedVo.setCopyRightPermission(designPlanRecommendedResult.getCopyRightPermission());
+                    designPlanRecommendedVo.setHavePurchased(designPlanRecommendedResult.getHavePurchased());
+                    if (designPlanRecommendedResult.getViewNum() == null){
+                        designPlanRecommendedVo.setUseCount(0 + "");
+                    }else {
+                        if (designPlanRecommendedResult.getViewNum() >= 10000){
+                            BigDecimal num = new BigDecimal(designPlanRecommendedResult.getViewNum().toString());
+                            BigDecimal w = new BigDecimal("10000.0");
+                            designPlanRecommendedVo.setUseCount(num.divide(w, 1, BigDecimal.ROUND_HALF_UP).toString() + "w");
+                        }else {
+                            designPlanRecommendedVo.setUseCount(designPlanRecommendedResult.getViewNum().toString());
+                        }
+                    }
+
+                    designPlanRecommendedVoList.add(designPlanRecommendedVo);
+                }
+                //数据过滤后重装List
+                recommendedVo.setObj(designPlanRecommendedVoList);
+            }
+
+            //重装total-------------------TotalCount
+            recommendedVo.setTotalCount(recommendedResult.getTotalCount());
+            recommendedVo.setStatus(recommendedResult.isStatus());
+        }
+
+        return recommendedVo;
+    }
+
+
+    public static List<DesignPlanRecommendedVo> convertRecommendResultListToRecommendVOList(List<DesignPlanRecommendedResult> designPlanRecommendedResults) {
+        List<DesignPlanRecommendedVo> dataList = new ArrayList <>();
+        if(designPlanRecommendedResults != null && designPlanRecommendedResults.size() > 0) {
+            for(DesignPlanRecommendedResult designPlanRecommendedResult : designPlanRecommendedResults) {
+                DesignPlanRecommendedVo designPlanRecommendedVo = convertRecommendResultToRecomendVO(designPlanRecommendedResult);
+                dataList.add(designPlanRecommendedVo);
+            }
+        }
+
+        return dataList;
+    }
+
+    public static DesignPlanRecommendedVo convertRecommendResultToRecomendVO(DesignPlanRecommendedResult designPlanRecommendedResult) {
+        DesignPlanRecommendedVo designPlanRecommendedVo = new DesignPlanRecommendedVo();
+        if (null != designPlanRecommendedResult) {
+            designPlanRecommendedVo.setDesignPlanName(designPlanRecommendedResult.getPlanName());
+            designPlanRecommendedVo.setDesignPlanId(designPlanRecommendedResult.getPlanId());
+            designPlanRecommendedVo.setDesignPlanRecommendId(designPlanRecommendedResult.getPlanRecommendedId());
+            if (designPlanRecommendedResult.getResRenderPicPath() == null) {
+                designPlanRecommendedVo.setDesignPlanCoverPath(designPlanRecommendedResult.getCoverPath());
+            } else {
+                designPlanRecommendedVo.setDesignPlanCoverPath(designPlanRecommendedResult.getResRenderPicPath());
+            }
+            designPlanRecommendedVo.setSpaceType(designPlanRecommendedResult.getSpaceFunctionId());
+            designPlanRecommendedVo.setSpaceArea(designPlanRecommendedResult.getSpaceAreas());
+            designPlanRecommendedVo.setSpaceShape(designPlanRecommendedResult.getSpaceShape());
+            designPlanRecommendedVo.setIsFavorite(designPlanRecommendedResult.getIsFavorite());
+            designPlanRecommendedVo.setSpaceStyleName(designPlanRecommendedResult.getStyleName());
+            designPlanRecommendedVo.setRenderCount(designPlanRecommendedResult.getRenderCount());
+            designPlanRecommendedVo.setReleaseTime(designPlanRecommendedResult.getReleaseTime());
+            designPlanRecommendedVo.setIsLike(designPlanRecommendedResult.getIsLike());
+            designPlanRecommendedVo.setLikeNum(designPlanRecommendedResult.getLikeNum());
+            designPlanRecommendedVo.setCollectNum(designPlanRecommendedResult.getCollectNum());
+            designPlanRecommendedVo.setApplySpaceAreas(designPlanRecommendedResult.getApplySpaceAreas());
+            designPlanRecommendedVo.setGroupPrimaryId(designPlanRecommendedResult.getGroupPrimaryId());
+            designPlanRecommendedVo.setPlanDecoratePriceList(designPlanRecommendedResult.getPlanDecoratePriceList());
+            designPlanRecommendedVo.setDesignerHeadPic(designPlanRecommendedResult.getDesignerHeadPic());
+            designPlanRecommendedVo.setDesignerName(designPlanRecommendedResult.getDesignerName());
+            designPlanRecommendedVo.setShopId(designPlanRecommendedResult.getShopId());
+            designPlanRecommendedVo.setDesc(designPlanRecommendedResult.getDesc());
+            designPlanRecommendedVo.setPlanHouseType(designPlanRecommendedResult.getPlanHouseType());
+            designPlanRecommendedVo.setFullHousePlanUUID(designPlanRecommendedResult.getFullHousePlanUUID());
+            designPlanRecommendedVo.setPlanPrice(designPlanRecommendedResult.getPlanPrice());
+            designPlanRecommendedVo.setChargeType(designPlanRecommendedResult.getChargeType());
+            designPlanRecommendedVo.setCopyRightPermission(designPlanRecommendedResult.getCopyRightPermission());
+            designPlanRecommendedVo.setHavePurchased(designPlanRecommendedResult.getHavePurchased());
+            if (designPlanRecommendedResult.getViewNum() == null) {
+                designPlanRecommendedVo.setUseCount(0 + "");
+            } else {
+                if (designPlanRecommendedResult.getViewNum() >= 10000) {
+                    BigDecimal num = new BigDecimal(designPlanRecommendedResult.getViewNum().toString());
+                    BigDecimal w = new BigDecimal("10000.0");
+                    designPlanRecommendedVo.setUseCount(num.divide(w, 1, BigDecimal.ROUND_HALF_UP).toString() + "w");
+                } else {
+                    designPlanRecommendedVo.setUseCount(designPlanRecommendedResult.getViewNum().toString());
+                }
+            }
+
+        }
+
+        return designPlanRecommendedVo;
+    }
+}

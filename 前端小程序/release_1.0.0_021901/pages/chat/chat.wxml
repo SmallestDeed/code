@@ -1,0 +1,44 @@
+<view class='chat'>
+  <view class='hint'>您正在沟通...</view>
+  <!-- 对方信息 -->
+  <view class='header-box'>
+    <view class='role-message-box'>
+      <image class='message-head' 
+        src='{{shopDetails.logoUrl ? resourcePath + shopDetails.logoUrl :"/static/images/header.png"}}'></image>
+      <view class='message'>
+        <view class='name ellipsis'>{{shopDetails.shopName}}</view>
+        <view class='data'>
+          <view class='title'>作品</view>{{shopDetails.worksCount}}
+          <view class='titles'>好评</view>{{shopDetails.praiseRatePercent}}
+          <view class='titles'>浏览</view>{{shopDetails.visitCount}}
+        </view>
+      </view>
+    </view>
+  </view>
+  <!-- 聊天列表 -->
+  <view class='chat-list'>
+    <view class='box' wx:for='{{chatContentList}}' wx:key='{{index}}'>
+      <view class='date'>{{item.time}}</view>
+      <view class='rests' wx:if='{{item.direction == 2}}'>
+        <image 
+        src='{{shopDetails.logoUrl ? resourcePath + shopDetails.logoUrl : "/static/images/home_icon_head_nor.png"}}' 
+        bindtap='routerToUserDetails'></image>
+        <view class='text'>{{item.msgBody}}</view>
+      </view>
+      <view class='own' wx:else>
+        <view class='own-text'>{{item.msgBody}}</view>
+        <image 
+          src='{{wxInfo?wxInfo.avatarUrl:"/static/images/home_icon_head_nor.png"}}'>
+        </image>
+      </view>
+    </view>
+  </view>
+  <!-- 发送框 -->
+  <view class='send-box'>
+     <input value='{{userChatMessage}}' 
+      cursor-spacing='20'
+      bindinput='changeUserChatMessage'
+      class='send-input'></input>
+     <view class='send-btn' catchtap='sendUserMessage'>发送</view>
+  </view>
+</view>

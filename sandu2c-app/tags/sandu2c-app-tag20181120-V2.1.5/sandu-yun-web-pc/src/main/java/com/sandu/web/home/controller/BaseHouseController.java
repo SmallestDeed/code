@@ -1,0 +1,226 @@
+package com.sandu.web.home.controller;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.google.gson.Gson;
+import com.sandu.base.service.BaseAreaService;
+import com.sandu.common.model.PageModel;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.common.objectconvert.home.BaseHouseObject;
+import com.sandu.common.util.collections.Lists;
+import com.sandu.designtemplate.model.DesignTempletPutawayState;
+import com.sandu.home.model.BaseHouse;
+import com.sandu.home.model.SpaceCommonStatus;
+import com.sandu.home.model.search.BaseHouseSearch;
+import com.sandu.home.model.vo.ExpandHouseVo;
+import com.sandu.home.service.BaseHouseService;
+import com.sandu.home.service.HouseSpaceNewService;
+import com.sandu.system.model.ResHousePic;
+import com.sandu.system.model.SysDictionary;
+import com.sandu.system.model.SysDictionaryConstant;
+import com.sandu.system.service.ResHousePicService;
+import com.sandu.system.service.SysDictionaryService;
+import com.sandu.user.service.SysUserService;
+import com.sandu.user.service.UserSessionService;
+
+/**
+ * @Title: BaseHouseController.java
+ * @Package com.sandu.home.controller
+ * @Description:户型Controller
+ */
+@Controller
+@RequestMapping("/v1/home/basehouse")
+public class BaseHouseController {
+    private final static String CLASS_LOG_PREFIX = "[户型搜索服务]:";
+    private final static Logger logger = LoggerFactory.getLogger(BaseHouseController.class);
+    private static Gson gson = new Gson();
+    /*** 获取路径开始部分 */
+
+    @Autowired
+    private BaseHouseService baseHouseService;
+    @Autowired
+    private BaseAreaService baseAreaService;
+    @Autowired
+    private ResHousePicService resHousePicService;
+    @Autowired
+    private HouseSpaceNewService houseSpaceNewService;
+    @Autowired
+    private UserSessionService userSessionService;
+    @Autowired
+    private SysUserService sysUserService;
+    @Autowired
+    private SysDictionaryService sysDictionaryService;
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) throws Exception {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        dateFormat.setLenient(true);
+        binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
+    }
+
+
+    /**
+     * 户型类型搜索接口
+     *
+     * @param
+     * @param request
+     * @param
+     * @return
+     */
+    @RequestMapping(value = "/getbasehouselist")
+    @ResponseBody
+    public Object houseList(@RequestParam(value = "livingId", required = false) String livingId,
+                            @ModelAttribute PageModel pageModel, HttpServletRequest request) {
+        if (StringUtils.isBlank(livingId)) {
+            return new ResponseEnvelope(false, "参数livingId不能为空");
+        }
+        BaseHouseSearch baseHouseSearch = new BaseHouseSearch();
+        List<BaseHouse> list = new ArrayList<BaseHouse>();
+        int total = 0;
+        try {
+            baseHouseSearch.setLivingId(Integer.parseInt(livingId));
+            if (null != pageModel && 0 != pageModel.getPageSize()) {
+                baseHouseSearch.setStart(pageModel.getStart());
+                baseHouseSearch.setLimit(pageModel.getPageSize());
+            } else {
+                baseHouseSearch.setLimit(PageModel.DEFAULT_PAGE_PAGESIZE);
+            }
+            this.internalPermissions(baseHouseSearch);// 判断该用户该环境 拥有 看到 哪些状态的空间和样板房，并且赋值
+            total = baseHouseService.getHaveSpaceCount(baseHouseSearch);
+            if (total > 0) {
+                list = baseHouseService.getHaveSpaceList(baseHouseSearch);
+                for (BaseHouse baseHouse : list) {
+                    // 取户型的缩略图和大图
+                    if (baseHouse.getPicRes1Id() != null && baseHouse.getPicRes1Id() != 0) {
+                        ResHousePic resHousePic = resHousePicService.get(baseHouse.getPicRes1Id());
+                        if (null != resHousePic) {
+                            baseHouse.setThumbnailPath(resHousePic.getThumbnailPath());
+                            baseHouse.setLargeThumbnailPath(resHousePic.getLargeThumbnailPath());
+                        }
+                    }else if (baseHouse.getSnapPicId() != null && baseHouse.getSnapPicId() > 0) {
+                        // 截图图片处理
+                        ResHousePic resHousePic = resHousePicService.get(baseHouse.getSnapPicId());
+                        baseHouse.setThumbnailPath(resHousePic != null ? resHousePic.getPicPath() : "");
+                        baseHouse.setLargeThumbnailPath(resHousePic != null ? resHousePic.getPicPath() : "");
+                    }
+                    // 取户型的空间定位类型
+                    List<String> spaceTypeList = houseSpaceNewService.getSpaceTypeListByHouseId(baseHouse.getId());
+                    logger.info(CLASS_LOG_PREFIX + "通过户型ID获取该户型下所有的空间类型：{}", gson.toJson(spaceTypeList));
+                    if (Lists.isEmpty(spaceTypeList)) {
+                        continue;
+                    }
+                    Map<String, Integer> elementsCount = new HashMap<String, Integer>();
+                    for (String s : spaceTypeList) {
+                        Integer i = elementsCount.get(s);
+                        if (i == null) {
+                            elementsCount.put(s, 1);
+                        } else {
+                            elementsCount.put(s, i + 1);
+                        }
+                    }
+                    baseHouse.setHouseTypeStr(((elementsCount.containsKey("3") ? elementsCount.get("3") : 0) + "厅"
+                            + (elementsCount.containsKey("4") ? elementsCount.get("4") : 0)) + "室"
+                            + (elementsCount.containsKey("6") ? elementsCount.get("6") : 0) + "卫"
+                            + (elementsCount.containsKey("5") ? elementsCount.get("5") : 0) + "厨"
+                            + (elementsCount.containsKey("7") ? elementsCount.get("7") : 0) + "书"
+                            + (elementsCount.containsKey("8") ? elementsCount.get("8") : 0) + "衣"
+                            + (elementsCount.containsKey("9") ? elementsCount.get("9") : 0) + "其他");
+
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEnvelope(false, "数据异常!");
+        }
+
+        return new ResponseEnvelope(true, "success", BaseHouseObject.convertTobaseLivingVo(list), total);
+
+    }
+    
+    
+    /**
+     * 获取购买户型的相关配置
+     * @param request
+     * @return
+     */
+
+    @RequestMapping(value = "/getexpandhousedict")
+    @ResponseBody
+    public Object getExpandHouseDict(HttpServletRequest request) {
+
+        SysDictionary sysDictionary = new SysDictionary();
+        sysDictionary.setIsDeleted(0);
+        sysDictionary.setOrders(" ordering asc ");
+        sysDictionary.setType(SysDictionaryConstant.EXPAND_HOUSE_TYPE);
+        List<SysDictionary> list = sysDictionaryService.getList(sysDictionary);
+        if (list == null || list.isEmpty()) {
+        	logger.info("未找到购买户型的相关的字典配置, sysDictionary ==> {}", sysDictionary);
+        	return new ResponseEnvelope(false, "未找到购买户型的相关的字典配置");
+        }
+        
+        List<ExpandHouseVo> exList = new ArrayList<ExpandHouseVo>();
+        list.forEach(dict -> {
+        	ExpandHouseVo vo = new ExpandHouseVo();
+        	vo.setId(dict.getId());
+        	vo.setType(dict.getType());
+        	vo.setValuekey(dict.getValuekey());
+        	vo.setValue(dict.getValue());
+        	vo.setExpandNumber(Integer.parseInt(dict.getAtt2()));
+        	vo.setExpandIntegral(Double.parseDouble(dict.getAtt1()));
+        	exList.add(vo);
+        });
+        
+        return new ResponseEnvelope(true, "success", exList);
+    }
+
+    /**
+     * 判断该用户该环境 拥有 看到 哪些状态的空间和样板房，并且赋值
+     *
+     * @param loginUser
+     * @param baseHouseSearch
+     */
+    public void internalPermissions(BaseHouseSearch baseHouseSearch) {
+        Integer spaceCommonStatusList[] = null;// 存放空间状态的list 用于in 查询
+        Integer designTempletPutawayStateList[] = null; // 存放样板房状态的list 用于in 查询
+        spaceCommonStatusList = new Integer[]{SpaceCommonStatus.IS_RELEASE};
+        designTempletPutawayStateList = new Integer[]{DesignTempletPutawayState.IS_RELEASE};
+        baseHouseSearch.setSpaceCommonStatusList(spaceCommonStatusList);
+        baseHouseSearch.setDesignTempletPutawayStateList(designTempletPutawayStateList);
+    }
+
+    @ResponseBody
+    @RequestMapping("/queryBaseHouse")
+    public Object listBaseHouseBySceneIds(String sceneIds, HttpServletRequest request){
+        logger.debug("Process in BaseHouseController.listBaseHouseBySceneIds method parameter sceneIds:{}", sceneIds);
+        List<BaseHouse> baseHouseList = null;
+        if(com.sandu.common.util.StringUtils.isEmpty(sceneIds)){
+            return new ResponseEnvelope(true, "success", baseHouseList);
+        }
+
+        List<String> ids = Arrays.asList(sceneIds.split(","));
+        baseHouseList = baseHouseService.listBaseHouseByDesignPLanReanderSceneId(ids);
+        return new ResponseEnvelope(true, "success", baseHouseList);
+    }
+}

@@ -1,0 +1,143 @@
+<!--pages/decoration/searchList/searchList.wxml-->
+<view class="sousuo_dzss sousuo_bottom">
+<view class="sousuo_search">
+      <input placeholder="" bindinput='input' type="text" value='{{keyWord}}'></input>
+      <view class="search_box">
+        <image src="{{imgURL}}ppg_search.png"></image>
+      </view>
+    </view>
+    <view class="search_quxiao" bindtap="doSearch">确定</view>
+</view>  
+
+
+<block wx:if='{{type!="service"}}'>
+<view class='type'>
+  <view class='option' bindtap='changeCtiy'>{{cityItem.areaName}}</view>
+  <view class='line'></view>
+  <view class='option' bindtap='changeClassty'>{{classtyArr[classtyValue].name}}</view>
+  <view class='line'></view>
+  <view class='option' bindtap='changeProfession'>{{professionArr[professionValue].name}}</view>
+  <view class='line'></view>
+  <view class='option' bindtap='changeSort'>{{sortArr[supTypeId].name}}</view>
+</view>
+<view class='gary'></view>
+<block>
+<view  wx:for='{{supplyList}}'>
+<view class='list'  bindtap='toDetail' data-id='{{item.supplyDemandId}}'>
+        <view class='title'>
+          <image class='icon' src='{{item.typeName=="供应"?supplyIcon:demandIcon}}'></image>
+          <view class='text'>{{item.title}}</view>
+        </view>
+        <view class='imagelist'>
+          <block wx:for='{{item.supplyDemandPicList}}'>
+          <image class='diagram'  src='{{resourcePath+item.picPath}}'></image>
+          </block>
+        </view>
+        <view class='detail'>
+        {{item.description}}
+        </view>
+        <view class='adress'>
+          <view class='left'>
+            <image class='icon' src='{{staticImageUrl}}home_icon_position.png'></image>
+            <view class='ads'>{{item.cityAddress+item.districtAddress}}</view>
+            <!--<view class='distance'>2.0km</view>-->
+          </view>
+          <view class='right'>{{item.gmtModified}}</view>
+        </view>
+      </view>
+      <view class='gary'></view>
+      </view>
+      </block>
+
+
+
+
+    <!-- <view class='black' wx:if='{{condition}}'></view> -->
+
+    <!-- <view wx:if="{{sortFlag}}" class="citypicker" wx:key='{{index}}'>
+      <view class="cityheader">
+         <view  bindtap='sortCommit' data-flag="{{false}}" class="city-cancel">取消</view>
+         <view  bindtap='sortCommit' data-flag="{{true}}" class="city-true">确定</view>
+      </view>
+    <picker-view indicator-style="height: 50px;" style="width: 100%; height: 250px;" value="{{sortValue}}" bindchange="sortChange" class="citybody">
+      <picker-view-column>
+         <view wx:for="{{sortArr}}" wx:key="item">{{item.name}}</view>
+      </picker-view-column>
+    </picker-view>  
+    </view> -->
+
+    <view class='classty' wx:if='{{sortFlag}}'>
+      <view class='width'>
+      <block wx:for='{{sortArr}}'>
+      <view class='{{supTypeId==item.id?"optionschecked":"options"}}' bindtap='sortCommit' data-id='{{item.id}}'>{{item.name}}</view>
+      </block>
+      </view>
+    </view>
+
+
+    <view class='classty' wx:if='{{classtyFlag}}'>
+      <view class='width'>
+      <block wx:for='{{classtyArr}}'>
+      <view class='{{id==item.id?"optionschecked":"options"}}' bindtap='classtyCommit' data-id='{{item.id}}' data-pid='{{item.pid}}' data-index='{{index}}'>{{item.name}}</view>
+      </block>
+      </view>
+    </view>
+
+    <view class='classty' wx:if='{{professionFlag}}'>
+      <view class='width'>
+      <block wx:for='{{professionArr}}'>
+      <view class='{{id==item.id?"optionschecked":"options"}}' bindtap='professionCommit' data-id='{{item.id}}' data-index='{{index}}'>{{item.name}}</view>
+      </block>
+      </view>
+    </view>
+  </block>
+  <block wx:if='{{type=="service"}}'>
+  <view class='type'>
+    <view class='option2' bindtap='changeCtiy'>{{cityItem.areaName}}</view>
+    <view class='line'></view>
+    <view class='option2' bindtap='changeNewHot' data-sort='newest'>时间</view>
+    <view class='line'></view>
+    <view class='option2' bindtap='changeNewHot' data-sort='hottest'>人气</view>
+  </view>
+  <view class="zxfw_sjsdm" wx:for="{{exampleList}}" wx:for-item="exampleItem" bindtap="toCompany" data-id="{{exampleItem.id}}">
+          <view class="sjsdm_jieshao">
+              <view class="sjsdm_left" >
+                <view class="sjsdm_logo"><image src="{{exampleItem.logoUrl?resourcePath+exampleItem.logoUrl:defaultImg}}" ></image></view>
+                <view class="sjsdm_leixing {{getType.typeClass(exampleItem.businessType)}}">{{getType.typeText(exampleItem.businessType)}}</view>
+              </view>
+              <view class="sjsdm_right" >
+                <view class="sjsdm_title">
+                  <view class="sjsdm_ming">{{exampleItem.shopName}}</view>
+                </view>
+                <view class="sjsdm_text">
+                <view wx:if="{{exampleItem.memberYear>=0}}" class="sjsdm_hydj">会员</view>
+                <view wx:if="{{exampleItem.authGrade>=0}}" class="sjsdm_hydj">已认证</view>
+                <block wx:if="{{exampleItem.businessType==3}}">
+                  作品 <span>{{exampleItem.worksCount}}</span> |
+                </block>
+                <!-- <block wx:if="{{exampleItem.businessType==5}}">
+                  保证金 <span>{{exampleItem.deposit}}</span> |
+                </block> -->
+                
+                <!-- 好评 <span>{{exampleItem.praiseRatePercent}}</span> | -->
+                浏览 <span>{{exampleItem.visitCount}}</span></view>
+              </view>
+              <view class="sjsdm_scfg" >
+            <view class="scfg_title" wx:if="{{exampleItem.businessType==3 ||exampleItem.businessType==5 || exampleItem.businessType==4}}">擅长风格</view>
+            <view class="scfg_title"  wx:if="{{exampleItem.businessType==6}}">施工范围</view>
+            <view class="scfg_title"  wx:if="{{exampleItem.businessType==1 ||exampleItem.businessType==2}}">产品类型</view>
+            <view class="scfg_text">{{exampleItem.categoryNames}}</view>
+          </view>
+          <view class="sjsdm_szdz">
+            <view class="scfg_title">所在地址</view>
+            <view class="scfg_text">{{exampleItem.provinceName+exampleItem.cityName+exampleItem.areaName+exampleItem.shopAddress}}</view>
+          </view>
+          <view class="sjsdm_pic">
+            <view>
+              <view class="pic_item" wx:for="{{exampleItem.lstResPic}}" wx:for-item="picItem" wx:key=""><image src="{{resourcePath}}{{picItem.picPath}}" mode="widthFix" data-imgpath="{{resourcePath}}{{picItem.picPath}}"  bindtap="doPreview"></image></view>
+            </view>
+          </view>
+          </view>
+  </view>
+  </block>  
+

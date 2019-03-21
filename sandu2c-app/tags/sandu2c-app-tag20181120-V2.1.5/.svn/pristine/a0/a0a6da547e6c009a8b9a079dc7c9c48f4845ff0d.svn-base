@@ -1,0 +1,102 @@
+package com.sandu.user.model;
+
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
+
+@Data
+public class UserBehavior implements Serializable {
+
+    private String id;
+
+    private Date gmt_create;
+//    public static final String INVITE = "invite";
+
+    private String hour_time_str;
+
+
+
+
+    @ApiModelProperty("立即邀请点击总次数")
+    private Integer invite_click_count; 
+    @ApiModelProperty("微信好友")
+    private Integer invite_wx_click_count;
+    @ApiModelProperty("朋友圈")
+    private Integer invite_pyq_click_count;
+
+
+//    public static final String PLAN_RECOMMEND = "plan_recommend";
+
+    @ApiModelProperty("分享方案点击总次数")
+    private Integer plan_recommend_click_count;
+    @ApiModelProperty("微信好友")
+    private Integer plan_recommend_wx_click_count;
+    @ApiModelProperty("朋友圈")
+    private Integer plan_recommend_pyq_click_count;
+
+
+//    public static final String INDEX_RECOMMEND = "index_recommend";
+
+    @ApiModelProperty("首页立即邀请--【立即推荐】的点击次数")
+    private Integer index_recommend_click_count;
+    @ApiModelProperty("微信好友")
+    private Integer index_recommend_wx_click_count;
+    @ApiModelProperty("朋友圈")
+    private Integer index_recommend_pyq_click_count;
+
+
+//    public static final String INDEX_MINE_INVITE = "index_mine_invite";
+
+    @ApiModelProperty("首页我的邀请--【立即邀请】的点击次数")
+    private Integer index_mine_invite_click_count;
+    @ApiModelProperty("微信好友")
+    private Integer index_mine_invite_wx_click_count;
+    @ApiModelProperty("朋友圈")
+    private Integer index_mine_invite_pyq_click_count;
+
+
+//    public static final String INDEX_BANNER_SHARE = "index_banner_share";
+
+    @ApiModelProperty("首页分享赚banner--【我要分享】的点击次数")
+    private Integer index_banner_share_click_count;
+
+
+//    public static final String INDEX_BANNER_SHARE_TO = "index_banner_share_to";
+
+    @ApiModelProperty("首页分享赚banner--【去分享赚佣金】的点击次数")
+    private Integer index_banner_share_to_click_count;
+    @ApiModelProperty("微信好友")
+    private Integer index_banner_share_to_wx_click_count;
+    @ApiModelProperty("朋友圈")
+    private Integer index_banner_share_to_pyq_click_count;
+
+
+//    public static final String INDEX_PLAN_SHARE = "index_plan_share";
+
+    @ApiModelProperty("首页方案列表的分享赚")
+    private Integer index_plan_share_click_count;
+    @ApiModelProperty("微信好友")
+    private Integer index_plan_share_wx_click_count;
+    @ApiModelProperty("朋友圈")
+    private Integer index_plan_share_pyq_click_count;
+
+
+//    public static final String PLAN720_SHARE = "plan720_share";
+
+    @ApiModelProperty("720详情分享按钮点击次数")
+    private Integer plan720_share_click_count;
+    @ApiModelProperty("微信好友")
+    private Integer plan720_share_wx_click_count;
+    @ApiModelProperty("微信朋友圈")
+    private Integer plan720_share_pyq_click_count;
+
+    @ApiModelProperty("操作用户类型")
+    private Byte behavior_type;
+
+
+    public static final Integer MEDIATION_USER = 1;
+    public static final Integer NORMAL_USER = 0;
+
+}

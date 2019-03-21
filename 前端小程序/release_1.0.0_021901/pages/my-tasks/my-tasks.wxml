@@ -1,0 +1,67 @@
+<view class='my-design'>
+  <view class='design' wx:for='{{designList}}' wx:key='{{index}}'>
+    <view class='header'>
+      <view class='handle-icon' bindtap='operation' data-index='{{index}}' data-type='handle'>···</view>
+      <view class='handle-box' wx:if='{{handleIndex == index}}'>
+        <image src='/static/images/page_icon_more.png'></image>
+        <view class='handle-list'> 
+          <view  bindtap='operation' 
+            data-type='open' 
+            data-item='{{item}}' 
+            data-index='{{index}}'>重新命名</view>
+          <view bindtap='operation' 
+            data-type='delete' 
+            data-item='{{item}}' 
+            data-index='{{index}}'>删除方案</view>
+        </view>
+      </view>
+      <image mode='aspectFill' 
+        src='{{item.planPicPath ? resourcePath+item.planPicPath :"/static/images/design_def.png"}}'
+        class='design-img'></image>
+      <image src='/static/images/home_icon_3d.png' 
+        class='icon'
+        wx:if='{{item.planRenderType==1?(item.isSuccess==2 || item.state==1):(item.vrResourceUuid)}}'
+        bindtap='toThreeD'
+        data-item='{{item}}' 
+        data-type='seven' ></image>
+      <view class='rendering-hint' wx:if='{{item.isSuccess==0 ||item.isSuccess==1}}'>
+        正在渲染中...
+      </view>  
+      <view class='rendering-hint' wx:if='{{item.isSuccess==3}}'>
+        渲染失败
+      </view>    
+      <view class='source'>{{item.taskType==0?'由装进我家生成':'由产品替换生成'}}</view>
+    </view>
+    <view class='footer'>
+      <view class='title'>
+        <view class='name ellipsis'>{{item.designName}}</view>
+        <view class='date'>{{item.gmtCreate}}</view>  
+      </view>
+      <view class='btn-box'>
+        <view class='orange' data-item='{{item}}' bindtap='goLanding'>免费报价</view>
+        <button open-type="share" class='shareBtn' data-item='{{item}}' data-type='seven'>分享</button>
+        <view wx:if='{{item.planHouseType==3 && item.houseId!=null}}'
+          bindtap='toHouseDeatil' 
+          data-item='{{item}}'>
+          继续装修
+        </view>
+      </view>
+    </view>
+  </view>
+  <!-- 重新命名框 -->
+  <view class="rechristen" wx:if="{{isShowRechristen}}" catchtouchmove='hmove'>
+    <view class="rechristen-box">
+      <view class="rechristen-title">方案重命名</view>
+      <input placeholder-style='color: #999999;' 
+        placeholder='不超过15个字' 
+        bindinput='getRename' 
+        value='{{rename}}'
+        maxlength='15'></input>
+      <view class="rechristen-btn-box">
+        <view class="cancel" bindtap='operation' data-type='cancel'>取消</view>
+        <view class="confirm" bindtap='operation' data-type='confirm'>确定</view>
+      </view>
+    </view>
+  </view>
+  <empty wx:if='{{isShowEmpty}}'></empty>
+</view>

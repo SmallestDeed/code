@@ -1,0 +1,123 @@
+<view class='case-details' style='height:{{caseListheight}};overflow:{{caseListOverflow}}'>
+  <!-- 头部 -->
+  <view class='case-details-header'>
+    <view class='details-header-image'>
+      <image 
+      src='{{caseDetails.designPlanCoverPath? resourcePath + caseDetails.designPlanCoverPath: staticImageUrl+"goods_pic_no.png"}}'>
+      </image>
+    </view>
+    <view class='details-header-explained'>
+      <view class='header-explained-title clearfix'>
+        <view class='explained-title-text fl ellipsis'>{{caseDetails.designPlanName}}</view>
+        <view class='explained-title-sign fl' wx:if='{{caseDetails.groupPrimaryId}}'>精选</view>        
+        <view class='explained-title-pageview fr'>浏览 {{caseDetails.useCount}}</view>        
+      </view>
+      <view class='clearfix header-explained-style-box'>
+        <view class='header-explained-style fl'>
+          <text>{{caseDetails.spaceStyleName}}  </text>
+          <text wx:if='{{caseDetails.planHouseType != 2 && !(caseDetails.designPlanRecommendId == caseDetails.groupPrimaryId||caseDetails.planRecommendedId==caseDetails.groupPrimaryId)}}'>|  {{caseDetails.spaceArea}}㎡</text>
+          <text>{{caseDetails.planDecoratePriceList.length>0?'| ' + caseDetails.planDecoratePriceList[0].decorateTypeName + '￥' + caseDetails.planDecoratePriceList[0].decoratePrice + '元/m²': ''}}</text>
+         </view>
+        <view class='fl' 
+        data-item='{{caseDetails.planDecoratePriceList}}' 
+        wx:if='{{caseDetails.planDecoratePriceList.length>0}}' 
+        catchtap='showDecoratePriceBox'>
+          <image src='{{staticImageUrl}}home_icon_more_02.png'></image>
+        </view>
+      </view>
+      <view class='header-explained-designer' catchtap='toShopDetail'>
+        <view class='explained-designer-picture fl'>
+        <image 
+        src='{{caseDetails.designerHeadPic?resourcePath + caseDetails.designerHeadPic:staticImageUrl+"index.png"}}'></image>
+        </view>
+        <view class='explained-designer-message fl'>
+          <view class='designer-message-name ellipsis'>{{caseDetails.designerName || '暂无'}}</view>
+          <view class='designer-message-call'>设计师</view>          
+        </view>
+        <view wx:if='{{caseDetails.shopId}}' class='explained-designer-router fr'>进入店铺</view>        
+      </view>      
+    </view>    
+  </view>
+  <!-- 视频漫游效果 -->
+  <view wx:if='{{isWholeHouse != 2}}' class='case-details-video' data-type='video' data-item='{{caseDetails}}' catchtap='toThreeD'>
+    <view class='details-video-title'>视频漫游效果</view>
+    <view class='details-video-message'>
+      <view class='video-message-image'>
+      <image 
+      src='{{caseDetails.designPlanCoverPath? resourcePath + caseDetails.designPlanCoverPath: staticImageUrl+"goods_pic_no.png"}}'>
+      </image>
+      </view>
+      <view class='video-message-logo'><image src='{{staticImageUrl}}place_icon_vedio@2x.png'></image></view>      
+    </view>
+  </view>
+  <form bindsubmit='formToThreeD' report-submit='true'>
+    <!-- 720效果 -->
+    <button form-type='submit' data-item='{{caseDetails}}' catchtap='{{true}}' data-type='seven'>
+      <view class='case-details-seven'>
+        <view class='details-seven-title'>720漫游效果</view>
+        <view class='details-seven-message'>
+          <view class='seven-message-image'>
+          <image 
+          src='{{caseDetails.designPlanCoverPath? resourcePath + caseDetails.designPlanCoverPath: staticImageUrl+"goods_pic_no.png"}}'>
+          </image>
+          </view>
+          <view class='seven-message-logo'><image src='{{staticImageUrl}}place_icon_720@2x.png'></image></view>      
+        </view>
+      </view>
+    </button>
+    <!-- 多点效果 -->
+    <button wx:if='{{isWholeHouse != 2}}' form-type='submit' data-item='{{caseDetails}}' catchtap='{{true}}' data-type='roam'>
+      <view class='case-details-roam'>
+        <view class='details-roam-title'>多点漫游效果</view>
+        <view class='details-roam-message'>
+          <view class='roam-message-image'>
+          <image 
+          src='{{caseDetails.designPlanCoverPath? resourcePath + caseDetails.designPlanCoverPath: staticImageUrl+"goods_pic_no.png"}}'>
+          </image>
+          </view>
+          <view class='roam-message-logo'><image src='{{staticImageUrl}}place_icon_morepoint@2x.png'></image></view>      
+        </view>
+      </view>
+    </button>
+  </form>
+  <!-- 方案信息富文本 -->
+  <view class='case-details-message'>
+      <import src="../../utils/wxParse/wxParse.wxml"/>    
+      <view class='g-m-table'><template is="wxParse" data="{{wxParseData:article.nodes}}"/></view>
+  </view>
+  <view class='case-details-navigate'>
+    <view class='details-navigate-collage fl clearfix' catchtap='collectCase'>
+      <view class='navigate-collage-image fl'>
+        <image 
+        src='{{caseDetails.isFavorite!=1?staticImageUrl+"page_icon_collect_nor@2x.png":staticImageUrl+"page_icon_collect_sct@2x.png"}}'>
+        </image>
+      </view>
+      <view class='navigate-collage-text fl'>收藏 {{caseDetails.collectNum || 0}}</view>
+    </view>
+    <view class='details-navigate-like fl clearfix' catchtap='likeCase'>
+      <view class='navigate-like-image fl'> 
+        <image 
+        src='{{caseDetails.isLike != 1?staticImageUrl+"page_icon_like_nor@2x.png":staticImageUrl+"page_icon_like_sct@2x.png"}}'></image>
+        </view>
+      <view class='navigate-like-text fl'>点赞 {{caseDetails.likeNum || 0}}</view>
+    </view>
+    <view class='details-navigate-fitment fr clearfix' catchtap='putInMyhouse'>
+      装进我家
+    </view>
+  </view>
+  <!-- 装修报价说明弹框 -->
+  <view class='decorate-mask' wx:if='{{decoratePriceBox}}'>
+    <view class='decorate-price-box'>
+        <view class='price-box-title'>装修报价</view>
+        <view class='price-box-list'>
+          <view class='price-box-item' wx:for='{{decoratePriceList}}' wx:key='{{index}}'>
+            <view class='box-item-main clearfix'>
+              <view class='fl'>{{item.decorateTypeName}}</view> <view class='fr'>￥{{item.decoratePrice}}/m²</view>
+            </view>
+            <view class='box-item-secondary'>{{item.text}}</view>
+          </view>
+        </view>
+        <view class='price-box-confirm' catchtap='showDecoratePriceBox'>我知道了</view>
+    </view>
+  </view>
+</view>

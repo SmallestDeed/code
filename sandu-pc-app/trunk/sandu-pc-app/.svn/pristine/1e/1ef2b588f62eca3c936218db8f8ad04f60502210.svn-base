@@ -1,0 +1,290 @@
+package com.sandu.system.service.impl;
+
+import java.io.File;
+import java.util.Date;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.common.model.LoginUser;
+import com.sandu.common.util.FileUploadUtils;
+import com.sandu.common.util.Utils;
+import com.sandu.common.util.constant.FileModel;
+import com.sandu.design.model.DesignPlan;
+import com.sandu.design.model.constant.DesignPlanConstants;
+import com.sandu.design.service.DesignPlanService;
+import com.sandu.design.service.OptimizePlanService;
+import com.sandu.system.dao.ResDesignMapper;
+import com.sandu.system.model.ResDesign;
+import com.sandu.system.service.ResDesignService;
+
+@Service("resDesignService")
+public class ResDesignServiceImpl implements ResDesignService {
+
+	private static final Logger logger = LoggerFactory.getLogger(ResDesignServiceImpl.class);
+	
+	@Autowired
+	private ResDesignMapper resDesignMapper;
+	
+	@Autowired
+	private OptimizePlanService optimizePlanService;
+	
+	@Autowired
+	private DesignPlanService designPlanService;
+	
+	@Override
+	public long copySpellingFlowerFile(Integer spellingFlowerFileId, Integer planId, String planCode) {
+		long  sceneSpellingFlowerFileId = 0;
+		if(spellingFlowerFileId ==null || spellingFlowerFileId.intValue() <= 0 ) {
+			return sceneSpellingFlowerFileId;
+		}
+		ResDesign resDesign  = this.get(spellingFlowerFileId);
+		if(resDesign == null) {
+			return sceneSpellingFlowerFileId;
+		}
+		String resFilePath = resDesign.getFilePath();
+		String fileKey = "onekeydesign.designPlan.spellingFlowerFile";
+		
+		if (StringUtils.isNotEmpty(resFilePath)) {
+			String srcPath = Utils.getAbsolutePath(resFilePath, Utils.getAbsolutePathType.encrypt);
+			File srcresourcesFile = new File(srcPath);
+			if (!srcresourcesFile.getParentFile().exists()) {
+				srcresourcesFile.getParentFile().mkdirs();
+			}
+			String resourcesName = resFilePath.substring(resFilePath.replace("/", "\\").lastIndexOf("\\") + 1,resFilePath.length());
+			if ("linux".equals(FileUploadUtils.SYSTEM_FORMAT)) {
+				resourcesName = resFilePath.substring(resFilePath.lastIndexOf("/") + 1, resFilePath.length());
+			}
+			String newPath = Utils.getPropertyName("config/res", "onekeydesign.designPlan.spellingFlowerFile","/AA/d_userdesign/[yyyy]/[MM]/[dd]/[HH]/onekeydesign/designPlan/spellingFlowerFile/");
+			newPath = Utils.replaceDate(newPath);
+			String tarName = resourcesName.substring(resourcesName.lastIndexOf("/") + 1,resourcesName.lastIndexOf("_")) + "_" + Utils.getCurrentDateTime(Utils.DATETIMESSS)
+					+ resourcesName.substring(resourcesName.indexOf("."));
+			String targetName = newPath + tarName;
+			String local_targetPath = Utils.getAbsolutePath(targetName.replace("/", "\\"), Utils.getAbsolutePathType.encrypt);
+
+			File local_targetFile = new File(local_targetPath);
+			if (!local_targetFile.getParentFile().exists()) {
+				local_targetFile.getParentFile().mkdirs();
+			}
+			boolean flag = false;
+			String resPath = resFilePath.substring(0, resFilePath.lastIndexOf("/") + 1);
+			String dbFilePath = Utils.getAbsolutePath(newPath + tarName, Utils.getAbsolutePathType.encrypt);
+			if (Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD) == 1) {
+				if (srcresourcesFile.isFile() && srcresourcesFile.exists()) { /* 判断文件是否存在*/
+					flag = FileUploadUtils.fileCopy(srcresourcesFile, local_targetFile);
+				} else {
+					logger.error("srcresourcesFile is not  exists !srcresourcesFile="+srcresourcesFile);
+				}
+			} else if (Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD) == 2) {
+				
+				/*flag = FtpUploadUtils.downFile(resPath, resourcesName); 下载到本地
+				if (FileUploadUtils.fileCopy(srcresourcesFile, local_targetFile)) {
+					if (flag){ 
+						flag = FtpUploadUtils.uploadFile(tarName, dbFilePath, newPath); 上传ftp服务器
+						if(flag){
+							FileUploadUtils.deleteFile(newPath + tarName);	 删除本地
+						}else{
+							return sceneSpellingFlowerFileId;
+						}
+					}else{
+						return sceneSpellingFlowerFileId;
+					}
+				}else{
+					logger.error("copy file is error");
+					return -1;
+				}*/
+			}else{
+				/* 3 本地和ftp同时上传(默认是本地上传)*/
+				/* resPath：FTP服务器上的相对路径，resourcesName：要下载的文件名，newPath+tarName：下载到本地文件路径+文件名称*/
+				/*flag = FtpUploadUtils.downFile(resPath, resourcesName); 下载到本地 
+				if (!flag || FileUploadUtils.fileCopy(srcresourcesFile, local_targetFile)) {
+					logger.error("copy file is error");
+					return -1;
+				}
+				if (flag) {
+					 tarName:文件名称，dbFilePath:本地文件路径，newPath:ftp服务器存放文件路径
+					flag = FtpUploadUtils.uploadFile(tarName, dbFilePath, newPath); 上传ftp服务器
+					if(!flag){
+						return sceneSpellingFlowerFileId;
+					}
+				}else{
+					return sceneSpellingFlowerFileId;
+				}*/
+			}
+			resDesign.setSysCode(planCode);
+			resDesign.setFilePath(targetName);
+			resDesign.setFileKey(fileKey);
+			resDesign.setBusinessId(planId);
+			resDesign.setFileCode(planCode);
+			sceneSpellingFlowerFileId =   this.add(resDesign);
+		}
+
+		return sceneSpellingFlowerFileId;
+	}
+
+	@Override
+	public int add(ResDesign resDesign) {
+		resDesignMapper.insertSelective(resDesign);
+		return resDesign.getId();
+	}
+	
+	@Override
+	public ResDesign get(Integer id) {
+		return resDesignMapper.selectByPrimaryKey(id);
+	}
+
+	@Override
+	public Integer createResDesignByFile(File file, String fileKey, String code, String username, Integer businessId, Integer opType) {
+		// *参数验证 ->start
+		if(file == null || !file.exists()) {
+			logger.error("------function:ResDesignServiceImpl.createResDesignByFile(....)->\n文件没有找到 or file = null");
+			return null;
+		}
+		if(StringUtils.isEmpty(fileKey)) {
+			logger.error("------function:ResDesignServiceImpl.createResDesignByFile(....)->\n参数fileKey:StringUtils.isEmpty(fileKey) = true");
+			return null;
+		}
+		if(StringUtils.isEmpty(code)) {
+			logger.error("------function:ResDesignServiceImpl.createResDesignByFile(....)->\n参数code:StringUtils.isEmpty(code) = true");
+			return null;
+		}
+		if(StringUtils.isEmpty(username)) {
+			logger.error("------function:ResDesignServiceImpl.createResDesignByFile(....)->\n参数username:StringUtils.isEmpty(username) = true");
+			return null;
+		}
+		if(businessId == null) {
+			logger.error("------function:ResDesignServiceImpl.createResDesignByFile(....)->\n参数businessId:businessId = null");
+			return null;
+		}
+		if (opType == null) {
+			opType = DesignPlanConstants.USER_RENDER;
+		}
+		// *参数验证 ->end
+		
+		Map <String, String>map = FileUploadUtils.getMap(file, "design.designPlan.u3dconfig.upload.path", false);
+		return this.saveResDesign(map, code, username, businessId, opType);
+	}
+	
+	private Integer saveResDesign(Map<String, String> map, String code, String username, Integer businessId, Integer opType) {
+		
+		// *参数验证 ->start
+		if(map == null) {
+			logger.error("------function:ResDesignServiceImpl.saveResDesign(....)->\n参数map = null");
+			return null;
+		}
+		if(StringUtils.isEmpty(code)) {
+			logger.error("------function:ResDesignServiceImpl.saveResDesign(....)->\n参数code:StringUtils.isEmpty(code) = true");
+			return null;
+		}
+		if(StringUtils.isEmpty(username)) {
+			logger.error("------function:ResDesignServiceImpl.saveResDesign(....)->\n参数username:StringUtils.isEmpty(username) = true");
+			return null;
+		}
+		if(businessId == null) {
+			logger.error("------function:ResDesignServiceImpl.saveResDesign(....)->\n参数businessId:businessId = null");
+			return null;
+		}
+		if (opType == null) {
+			opType = DesignPlanConstants.USER_RENDER;
+		}
+		// *参数验证 ->end
+		
+		ResDesign resDesign = new ResDesign();
+		String dbFilePath = map.get(FileUploadUtils.DB_FILE_PATH).toString();
+		String fileName = map.get(FileModel.FILE_NAME).toString();
+		resDesign.setSysCode(code);
+		resDesign.setFileCode(code);
+		Date now = new Date();
+		resDesign.setGmtCreate(now);
+		resDesign.setGmtModified(now);
+		resDesign.setCreator(username);
+		resDesign.setModifier(username);
+		resDesign.setIsDeleted(0);
+		resDesign.setFileName(fileName);
+		resDesign.setFileSize(map.get(FileModel.FILE_SIZE).toString());
+		resDesign.setFileSuffix(map.get(FileModel.FILE_SUFFIX).toString());
+		resDesign.setBusinessId(businessId);
+		resDesign.setFileOriginalName(Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+		resDesign.setFilePath(dbFilePath);
+		resDesign.setFileKey(map.get(FileModel.FILE_KEY).toString());
+		resDesign.setFileLevel("0");
+		resDesign.setFileType("设计方案配置文件");
+		
+		Integer id = null;
+		if(DesignPlanConstants.AUTO_RENDER != opType) {
+			id = this.add(resDesign);
+		}else {
+			// 自动渲染
+			id = optimizePlanService.add(resDesign);
+		}
+		if( id > 0 ) {
+			return id;
+		}else{
+			return null;
+		}
+	}
+
+	/**
+	 * 将设计方案配置文件信息记录到数据库中
+	 */
+	@Override
+	public boolean saveResDesign(DesignPlan designPlan, Map map){
+		if( map != null && map.size() > 0 ){
+			ResDesign resDesign = new ResDesign();
+			String dbFilePath = map.get(FileUploadUtils.DB_FILE_PATH).toString();
+			String fileName = map.get(FileModel.FILE_NAME).toString();
+			resDesign.setSysCode(designPlan.getPlanCode());
+			resDesign.setFileCode(designPlan.getPlanCode());
+			resDesign.setGmtCreate(new Date());
+			resDesign.setGmtModified(new Date());
+			resDesign.setCreator(designPlan.getCreator());
+			resDesign.setModifier(designPlan.getCreator());
+			resDesign.setIsDeleted(0);
+			resDesign.setFileName(fileName);
+			resDesign.setFileSize(map.get(FileModel.FILE_SIZE).toString());
+			resDesign.setFileSuffix(map.get(FileModel.FILE_SUFFIX).toString());
+			resDesign.setBusinessId(Integer.valueOf(designPlan.getId()));
+			resDesign.setFileOriginalName(Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+			resDesign.setFilePath(dbFilePath);
+			resDesign.setFileKey(map.get(FileModel.FILE_KEY).toString());
+			resDesign.setFileLevel("0");
+			resDesign.setFileType("设计方案配置文件");
+			Integer id = this.add(resDesign);
+			if( id > 0 ) {
+				DesignPlan newDesginPlan = new DesignPlan();
+				newDesginPlan.setId(designPlan.getId());
+				newDesginPlan.setConfigFileId(id);
+				designPlanService.update(newDesginPlan);
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+		return  true;
+	}
+
+	/**
+	 * 自动存储系统字段
+	 */
+	@Override
+	public void sysSave(ResDesign model, LoginUser loginUser){
+		if(model != null){
+			if(model.getId() == null){
+				model.setGmtCreate(new Date());
+				model.setCreator(loginUser.getLoginName());
+				model.setIsDeleted(0);
+				if(model.getSysCode()==null || "".equals(model.getSysCode())){
+					model.setSysCode(Utils.getCurrentDateTime(Utils.DATETIMESSS) +"_"+ Utils.generateRandomDigitString(6));
+				}
+			}
+			model.setGmtModified(new Date());
+			model.setModifier(loginUser.getLoginName());
+		}
+	}
+	
+}

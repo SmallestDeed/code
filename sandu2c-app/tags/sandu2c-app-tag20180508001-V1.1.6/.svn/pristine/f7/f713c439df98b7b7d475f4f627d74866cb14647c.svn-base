@@ -1,0 +1,60 @@
+package com.sandu.render;
+
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.designplan.model.DesignPlanRecommended;
+import com.sandu.designplan.service.DesignPlanRecommendedService;
+import com.sandu.designplan.service.DesignPlanRenderSceneService;
+import com.sandu.pano.model.scene.PanoramaVo;
+import com.sandu.render.model.ResRenderData;
+import com.sandu.system.service.ResRenderPicService;
+import com.sandu.web.designtemplet.controller.DesignTempletController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
+
+@Controller
+@RequestMapping("/v1/miniprogram/render/renderpic")
+public class ResRenderPicController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ResRenderPicController.class.getName());
+    private final static String CLASS_LOG_PREFIX = "[方案资源服务]";
+
+    @Autowired
+    private ResRenderPicService resRenderPicService;
+    @Autowired
+    private DesignPlanRecommendedService designPlanRecommendedService;
+
+
+    /**
+     * 获取设计方案的照片,单点720,多点720,视频资源
+     *
+     * @param request
+     *
+     * @return
+     */
+    @RequestMapping(value = {"/getrenderres"},method= RequestMethod.GET)
+    @ResponseBody
+    public Object getRenderPic(@ModelAttribute PanoramaVo panoramaVo,HttpServletRequest request){
+        Integer designPlanRecommendedId = panoramaVo.getDesignPlanRecommendedId();
+        Integer designPlanRenderSceneId = panoramaVo.getDesignPlanRenderSceneId();
+        Map<String,List<ResRenderData>> map = null;
+        if(designPlanRecommendedId!=null&&designPlanRecommendedId.intValue()>0){
+            map =  resRenderPicService.getAllResRenderPic(designPlanRecommendedId, ResRenderPicService.renderResEnum.designPlanRecommended);
+        }else if(designPlanRenderSceneId!=null&&designPlanRenderSceneId>0){
+            map =  resRenderPicService.getAllResRenderPic(designPlanRenderSceneId, ResRenderPicService.renderResEnum.designPlanRenderScene);
+        }else {
+            return  new ResponseEnvelope(false,"该方案无渲染资源");
+        }
+      return  new ResponseEnvelope(true,"",map);
+    }
+
+}

@@ -1,0 +1,91 @@
+var typeText = function (type) {
+  if (type == undefined)
+    return;
+  var str = ""
+  if (type == 3)
+    str = '设计师';
+  else if (type == 1)
+    str = "品牌厂商";
+  else if (type == 2)
+    str = "建材家居";
+  else if (type == 5)
+    str = "装修公司";
+  else if (type == 6)
+    str = "施工单位";
+  return str;
+}
+
+var typeClass = function (type) {
+  if (type == undefined)
+    return;
+  var str = ""
+  if (type == 3)
+    str = ' label_sjs';
+  else if (type == 1)
+    str = " label_ppcs";
+  else if (type == 2)
+    str = " label_jcjj";
+  else if (type == 5)
+    str = " label_zxgs";
+  else if (type == 6)
+    str = " label_sgdw";
+  return str;
+}
+
+var typeHref = function (type, id) {
+  if (type == undefined || id == undefined)
+    return;
+  var str = ""
+  if (type == 3)
+    str = "/pages/decoration/designerDetail/designerDetail?id=" + id;
+  else if (type == 1)
+    str = "/pages/brandHall/bHStore/bHStore?id=" + id;
+  else if (type == 2)
+    str = "/pages/decoration/materialDetail/materialDetail?id=" + id;
+  else if (type == 5)
+    str = "/pages/decoration/companyDetail/companyDetail?id=" + id;
+  else if (type == 6)
+    str = "/pages/decoration/builderDetail/builderDetail?id=" + id;
+  return str;
+}
+
+var brandHref = function (type) {
+  if (type == undefined)
+    return;
+  var str = "";
+  str = "/pages/brandHall/brandList/brandList?tab=" + type;
+  return str;
+}
+
+var decorationHref = function (type) {
+  if (type == undefined)
+    return;
+  var str = "";
+  str = "../../decoration/brandList/brandList?tab=" + type;
+  return str;
+}
+
+var brandTypeText = function (type) {
+  if (type == undefined)
+    return;
+  var str = ""
+  if (type == 1000)
+    str = "建材";
+  else if (type == 2000)
+    str = "家居";
+  else if (type == 4000)
+    str = "电器";
+  return str;
+}
+function pageViewCountFilter(count) {
+  return count < 10000 ? count : (count / 10000).toFixed(2)
+}
+module.exports = {
+  typeText: typeText,//获取店铺类型名称
+  typeClass: typeClass,
+  typeHref: typeHref,//跳转指定类型的店铺详情页
+  brandHref: brandHref,//跳转品牌馆 如建材 家居 电器
+  decorationHref: decorationHref,//跳转店铺列表 如设计师装修公司
+  brandTypeText: brandTypeText,
+  pageViewCountFilter: pageViewCountFilter
+}

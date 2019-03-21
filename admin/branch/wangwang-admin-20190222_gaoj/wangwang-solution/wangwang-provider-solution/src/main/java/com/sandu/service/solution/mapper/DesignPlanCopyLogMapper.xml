@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.solution.dao.DesignPlanCopyLogMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.api.solution.model.DesignPlanCopyLog" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="kind" property="kind" jdbcType="TINYINT" />
+    <result column="source_id" property="sourceId" jdbcType="INTEGER" />
+    <result column="target_id" property="targetId" jdbcType="INTEGER" />
+    <result column="target_company_id" property="targetCompanyId" jdbcType="INTEGER" />
+    <result column="target_kind" property="targetKind" jdbcType="TINYINT" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="plan_type" property="planType" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, kind, source_id, target_id, target_company_id, target_kind, gmt_create,plan_type
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from design_plan_copy_log
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from design_plan_copy_log
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insertSelective" parameterType="com.sandu.api.solution.model.DesignPlanCopyLog" >
+    insert into design_plan_copy_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="kind != null" >
+        kind,
+      </if>
+      <if test="sourceId != null" >
+        source_id,
+      </if>
+      <if test="targetId != null" >
+        target_id,
+      </if>
+      <if test="targetCompanyId != null" >
+        target_company_id,
+      </if>
+      <if test="targetKind != null" >
+        target_kind,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="sourceCompanyId != null" >
+        source_company_id,
+      </if>
+      <if test="planType != null">
+        plan_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="kind != null" >
+        #{kind,jdbcType=TINYINT},
+      </if>
+      <if test="sourceId != null" >
+        #{sourceId,jdbcType=INTEGER},
+      </if>
+      <if test="targetId != null" >
+        #{targetId,jdbcType=INTEGER},
+      </if>
+      <if test="targetCompanyId != null" >
+        #{targetCompanyId,jdbcType=INTEGER},
+      </if>
+      <if test="targetKind != null" >
+        #{targetKind,jdbcType=TINYINT},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sourceCompanyId != null" >
+        #{sourceCompanyId},
+      </if>
+      <if test="planType != null" >
+        #{planType},
+      </if>
+    </trim>
+  </insert>
+  <select id="selectListSelective" resultMap="BaseResultMap" >
+     SELECT  
+    <include refid="Base_Column_List" />
+    FROM design_plan_copy_log
+  </select>
+
+  <delete id="deleteByPlanId">
+    delete from design_plan_copy_log where target_id = #{planId} and kind = #{kind}
+  </delete>
+
+  <delete id="deleteBySourceId">
+    delete from design_plan_copy_log where source_id = #{sourceId} and kind = #{kind} and plan_type = #{planType}
+  </delete>
+
+  <delete id="deleteByTargetCompanyAndSource">
+    delete from design_plan_copy_log
+    where source_id = #{designPlanId} and target_company_id = #{targetCompanyId} and kind = #{kind}
+    and plan_type = #{planType}
+  </delete>
+  <delete id="removeLog">
+     delete from design_plan_copy_log
+    where target_id = #{targetId} and plan_type =#{planType}
+  </delete>
+    <delete id="deleteByPlanIdAndCompanyId">
+      delete from design_plan_copy_log
+      where company_id != 2501
+      and plan_id IN 
+      <foreach collection="planIds" open="(" close=")" separator="," item="id">
+        #{id}
+      </foreach>
+    </delete>
+
+    <select id="listDeliveredPlanId" resultType="java.lang.Integer">
+    select target_id from design_plan_copy_log
+    where source_id = #{designPlanId} and kind = #{kind} and target_company_id = #{cid} and plan_type =#{planType}
+  </select>
+  <select id="queryLog" resultType="com.sandu.api.solution.model.DesignPlanCopyLog">
+    select target_id from design_plan_copy_log
+    where source_id = #{sourceId} and source_company_id = #{sourceCompanyId} and target_company_id = #{targetCompanyId}
+    and plan_type =#{planType}
+  </select>
+  <select id="getDeliverDetail" resultType="com.sandu.api.solution.model.DesignPlanCopyLog">
+    select distinct source_id
+    from design_plan_copy_log
+    where source_company_id = #{companyId}
+    and kind = 2 and source_id in
+    <foreach collection="planIds" item="it" separator="," open="(" close=")">
+      #{it}
+    </foreach>
+  </select>
+  <select id="getCopyLogBySource" resultType="com.sandu.api.solution.model.DesignPlanCopyLog">
+    select * from design_plan_copy_log
+    where source_company_id = #{companyId}
+    and kind = 2 and source_id = #{sourceId}
+  </select>
+</mapper>

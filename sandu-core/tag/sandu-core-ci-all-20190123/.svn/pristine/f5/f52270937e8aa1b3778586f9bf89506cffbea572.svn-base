@@ -1,0 +1,33 @@
+package com.sandu.api.springFestivalActivity.input;
+
+import lombok.Data;
+
+import java.io.Serializable;
+
+@Data
+public class UserInviteRecordSearch implements Serializable {
+    /**
+     * 用户ID
+     */
+    private Long userId;
+    /**
+     * 活动ID
+     */
+    private Long activityId;
+    /**
+     * 当前页
+     */
+    private Integer pageNo;
+    /**
+     * 每页数据量
+     */
+    private Integer pageSize;
+
+    public Integer getStart(){
+        return pageNo == null ? 0 : (pageNo - 1) * (pageSize == null ? 20 : pageSize);
+    }
+
+    public Integer getLimit(){
+        return pageSize == null ? 20 : pageSize;
+    }
+}

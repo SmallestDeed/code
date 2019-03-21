@@ -1,0 +1,36 @@
+package com.sandu.system.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.system.cache.service.ResModelCacheService;
+import com.sandu.system.dao.ResModelMapper;
+import com.sandu.system.model.ResModel;
+import com.sandu.system.service.ResModelService;
+
+@Service("resModelService")
+public class ResModelServiceImpl implements ResModelService {
+
+	@Autowired
+	private ResModelMapper resModelMapper;
+	
+	@Autowired
+	private ResModelCacheService resModelCacheService;
+	
+	/**
+	 *    获取数据详情
+	 *
+	 * @param id
+	 * @return  ResModel 
+	 */
+	@Override
+	public ResModel get(Integer id) {
+		return resModelMapper.selectByPrimaryKey(id);
+	}
+
+	@Override
+	public ResModel getFromCache(Integer id) {
+		return resModelCacheService.get(id);
+	}
+
+}

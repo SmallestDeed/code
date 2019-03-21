@@ -1,0 +1,37 @@
+package com.sandu.supplydemand.dao;
+
+import java.util.List;
+
+import com.sandu.supplydemand.model.SupplyDemandPic;
+import com.sandu.supplydemand.model.SupplyDemandPicExample;
+import org.apache.ibatis.annotations.Param;
+
+public interface SupplyDemandPicMapper {
+    int countByExample(SupplyDemandPicExample example);
+
+    int deleteByExample(SupplyDemandPicExample example);
+
+    int deleteByPrimaryKey(Long id);
+
+    int insert(SupplyDemandPic record);
+
+    int insertSelective(SupplyDemandPic record);
+
+    List<SupplyDemandPic> selectByExample(SupplyDemandPicExample example);
+
+    SupplyDemandPic selectByPrimaryKey(Long id);
+
+    int updateByExampleSelective(@Param("record") SupplyDemandPic record, @Param("example") SupplyDemandPicExample example);
+
+    int updateByExample(@Param("record") SupplyDemandPic record, @Param("example") SupplyDemandPicExample example);
+
+    int updateByPrimaryKeySelective(SupplyDemandPic record);
+
+    int updateByPrimaryKey(SupplyDemandPic record);
+
+    List<SupplyDemandPic> selectListBycoverPicIdList(List<Integer> coverPicIdList);
+
+    List<List<SupplyDemandPic>> selectListBydescriptionPicList(List<List<Integer>> descriptionPicList);
+
+    List<SupplyDemandPic> selectSupplyDemandPic(List<Integer> coverPicIdList);
+}

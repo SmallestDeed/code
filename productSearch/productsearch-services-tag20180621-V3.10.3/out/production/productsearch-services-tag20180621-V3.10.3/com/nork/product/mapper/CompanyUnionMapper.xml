@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.product.dao.CompanyUnionMapper">
+
+    <!-- **封装结果UnionVO** -->
+    <resultMap id="VOResultMap" type="com.nork.product.vo.UnionVO">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result  column="name" property="name" jdbcType="VARCHAR" />
+        <result  column="company_number" property="companyNumber" jdbcType="INTEGER" />
+        <result  column="begin_time" property="beginTime" jdbcType="TIMESTAMP" />
+        <result  column="end_time" property="endTime" jdbcType="TIMESTAMP" />
+        <result  column="status" property="status" jdbcType="INTEGER" />
+        <result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+        <result  column="creator" property="creator" jdbcType="VARCHAR" />
+        <result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+        <result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+        <result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+        <result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+        <result  column="remark" property="remark" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <!-- 根据企业id查他所在的所有联盟的信息 -->
+    <select id="selectByCompanyId" resultMap="VOResultMap" parameterType="java.lang.Integer">
+        SELECT
+        u.id,
+        u.name,
+        u.company_number,
+        u.begin_time,
+        u.end_time,
+        u.status,
+        u.sys_code,
+        u.creator,
+        u.gmt_create,
+        u.modifier,
+        u.gmt_modified,
+        u.is_deleted,
+        u.remark
+        FROM company_union u INNER JOIN company_union_ref r
+        ON u.id = r.union_id WHERE r.company_id = #{companyId,jdbcType=INTEGER} AND u.is_deleted = 0
+    </select>
+
+    <!-- 根据联盟id查联盟下面所有的企业id-->
+    <select id="selectByUnionId" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+        SELECT company_id FROM company_union_ref where union_id = #{unionId,jdbcType=INTEGER} AND is_deleted = 0
+    </select>
+
+    <!-- 根据企业id查和他联盟的所有企业id -->
+    <select id="selectAllCompanyId" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+        SELECT
+            company_id
+          FROM
+            company_union_ref
+          WHERE union_id IN
+            (SELECT
+              union_id
+            FROM
+              company_union_ref
+            WHERE company_id = #{companyId,jdbcType=INTEGER})
+    </select>
+
+    <!-- 根据企业id查和他联盟的所有企业的品牌id -->
+    <select id="selectAllBrandId" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+        SELECT
+          id
+        FROM
+          base_brand
+        WHERE company_id IN
+          (SELECT
+            company_id
+          FROM
+            company_union_ref
+          WHERE union_id IN
+            (SELECT
+              union_id
+            FROM
+              company_union_ref
+            WHERE company_id = #{companyId,jdbcType=INTEGER}))
+    </select>
+</mapper>

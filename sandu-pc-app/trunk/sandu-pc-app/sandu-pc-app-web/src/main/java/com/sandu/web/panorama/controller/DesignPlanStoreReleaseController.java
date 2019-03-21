@@ -1,0 +1,228 @@
+package com.sandu.web.panorama.controller;
+
+import com.sandu.cityunion.model.UnionSpecialOffer;
+import com.sandu.common.LoginContext;
+import com.sandu.common.model.LoginUser;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.common.util.StringUtils;
+import com.sandu.design.model.input.DesignPlanRecommendedSearch;
+import com.sandu.design.model.output.DesignPlanRecommendedVo;
+import com.sandu.design.model.output.DesignPlanStyleVo;
+import com.sandu.design.service.DesignPlanRecommendedServiceV2;
+import com.sandu.panorama.model.input.DesignPlanStoreReleaseAdd;
+import com.sandu.panorama.model.input.DesignPlanStoreReleaseSearch;
+import com.sandu.panorama.model.output.DesignPlanStoreReleaseVo;
+import com.sandu.panorama.model.output.MakeDesignPlanStoreReleaseResultVo;
+import com.sandu.panorama.model.output.UnionGroupVo;
+import com.sandu.panorama.model.output.UnionSpecialOfferVo;
+import com.sandu.panorama.service.DesignPlanStoreReleaseService;
+import com.sandu.panorama.service.UnionGroupService;
+import com.sandu.panorama.service.UnionSpecialOfferService;
+import com.sandu.product.model.input.PlanProductModel;
+import com.sandu.product.model.output.BaseProductDetailsVo;
+import com.sandu.product.model.output.ProductsCostType;
+import com.sandu.product.service.DesignPlanProductService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Api(value = "720分享制作", tags = "Panorama", description = "720分享制作")
+@RestController
+@RequestMapping("/v1/panorama")
+@Slf4j
+public class DesignPlanStoreReleaseController {
+
+    @Autowired
+    private DesignPlanStoreReleaseService designPlanStoreReleaseService;
+    @Autowired
+    private DesignPlanRecommendedServiceV2 designPlanRecommendedServiceV2;
+    @Autowired
+    private DesignPlanProductService designPlanProductService;
+    @Autowired
+    private UnionGroupService unionGroupService;
+    @Autowired
+    private UnionSpecialOfferService specialOfferService;
+
+    private static Logger logger = LoggerFactory.getLogger(DesignPlanStoreReleaseController.class);
+
+    /**
+     * 720分享制作
+     * @param designPlanStoreReleaseAdd
+     * @return
+     */
+    @ApiOperation(value = "720分享制作", response = ResponseEnvelope.class)
+    @PostMapping("/make")
+    public Object make(@RequestBody DesignPlanStoreReleaseAdd designPlanStoreReleaseAdd){
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if( loginUser == null ){
+            return new ResponseEnvelope<>(false,"当前登录失效，请重新登录");
+        }
+        MakeDesignPlanStoreReleaseResultVo resultVo = null;
+        try {
+            resultVo  = designPlanStoreReleaseService.makePanorama(designPlanStoreReleaseAdd, loginUser);
+        } catch (Exception e) {
+            logger.error("make------>720分享制作出现异常:",e);
+            return new ResponseEnvelope<>(false,"出现异常，新增失败！");
+        }
+        if(resultVo != null && resultVo.getId() != null){
+            return new ResponseEnvelope<>(true, resultVo);
+        }else{
+            return new ResponseEnvelope<>(false, "720分享制作失败");
+        }
+    }
+
+    /**
+     * 获取720分享
+     * @param uuid
+     * @return
+     */
+    @ApiOperation(value = "获取720分享", response = DesignPlanStoreReleaseVo.class)
+    @GetMapping("/get")
+    public Object get(@RequestParam String uuid){
+        /*LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if( loginUser == null ){
+            return new ResponseEnvelope<>(false,"当前登录失效，请重新登录");
+        }*/
+        DesignPlanStoreReleaseVo designPlanStoreReleaseVo = designPlanStoreReleaseService.getPanorama(uuid);
+        // 更新浏览量
+        designPlanStoreReleaseService.updatePv(uuid);
+        return new ResponseEnvelope<DesignPlanStoreReleaseVo>(true,designPlanStoreReleaseVo);
+    }
+
+    /**
+     * 我的分享列表
+     * @param designPlanStoreReleaseSearch
+     * @return
+     */
+    @ApiOperation(value = "我的分享列表", response = ResponseEnvelope.class)
+    @PostMapping("/list")
+    public Object list(@RequestBody DesignPlanStoreReleaseSearch designPlanStoreReleaseSearch){
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if( loginUser == null ){
+            return new ResponseEnvelope<>(false,"当前登录失效，请重新登录");
+        }
+        designPlanStoreReleaseSearch.setUserId(loginUser.getId());
+        int total = designPlanStoreReleaseService.getCountByUserId(designPlanStoreReleaseSearch);
+        List<DesignPlanStoreReleaseVo> designPlanStoreReleaseVoList = null;
+        if( total > 0 ){
+            designPlanStoreReleaseVoList = designPlanStoreReleaseService.getListByUserId(designPlanStoreReleaseSearch);
+        }
+        return new ResponseEnvelope<>(total, designPlanStoreReleaseVoList);
+    }
+
+
+    /**
+     * 删除我的分享
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "删除我的分享", response = ResponseEnvelope.class)
+    @GetMapping("/del")
+    public Object del(@RequestParam Integer id){
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if( loginUser == null ){
+            return new ResponseEnvelope<>(false,"当前登录失效，请重新登录");
+        }
+        Boolean flag = designPlanStoreReleaseService.delStoreRelease(id, loginUser.getId());
+        if( flag ){
+            return new ResponseEnvelope<>(true,"删除成功");
+        }else{
+            return new ResponseEnvelope<>(false,"删除失败");
+        }
+    }
+
+    /**
+     * 可切换方案列表
+     * @param designPlanRecommendedSearch
+     * @return
+     */
+    @ApiOperation(value = "方案切换列表", response = ResponseEnvelope.class)
+    @PostMapping("/planRecommendedList")
+    public Object planRecommendedList(@RequestBody DesignPlanRecommendedSearch designPlanRecommendedSearch){
+        if( designPlanRecommendedSearch == null || designPlanRecommendedSearch.getUserId() == null ){
+            return new ResponseEnvelope<>(false,"参数异常");
+        }
+        int totalCount = designPlanRecommendedServiceV2.selectCount(designPlanRecommendedSearch);
+        List<DesignPlanRecommendedVo> list = null;
+        if( totalCount > 0 ){
+            list = designPlanRecommendedServiceV2.selectList(designPlanRecommendedSearch);
+        }
+        return new ResponseEnvelope<>(totalCount, list);
+    }
+
+
+    /**
+     * 获取设计方案风格列表
+     * @param designPlanType
+     * @return
+     */
+    @ApiOperation(value = "方案风格列表", response = ResponseEnvelope.class)
+    @GetMapping("/getPlanStyleList")
+    public Object getPlanStyleList(@RequestParam Integer designPlanType){
+        if( designPlanType == null ){
+            return new ResponseEnvelope<>(false,"参数异常");
+        }
+        List<DesignPlanStyleVo> list = designPlanRecommendedServiceV2.getPlanStyleList(designPlanType);
+        return new ResponseEnvelope<>(true, list);
+    }
+
+
+    /**
+     * 获取方案产品清单
+     * @param model
+     * @return
+     */
+    @ApiOperation(value = "方案产品列表", response = ResponseEnvelope.class)
+    @PostMapping("/getProductList")
+    public Object getProductList(@RequestBody PlanProductModel model) {
+        if (model.getRecommendedId()==null && model.getRenderSceneId()==null) {
+            return new ResponseEnvelope<>(false,"参数异常");
+        }
+        List<ProductsCostType> designPlanProductList = designPlanProductService.getDesignPlanProductList(model);
+        if (designPlanProductList == null) {
+            return new ResponseEnvelope<>(false,"数据为空");
+        }
+        return new ResponseEnvelope<>(true,"成功",designPlanProductList.size(), designPlanProductList);
+    }
+
+    /**
+     * 获取费用清单产品详情
+     * @param productId
+     * @return
+     */
+    @ApiOperation(value = "费用清单产品详情" ,response = ResponseEnvelope.class)
+    @GetMapping("/getProductDetails")
+    public Object getProductDetails(@RequestParam("productId") Integer productId){
+        if( productId == null ){
+            return new ResponseEnvelope<>(false,"参数异常");
+        }
+        BaseProductDetailsVo productDetailsVo = designPlanProductService.getProductDetails(productId);
+        return new ResponseEnvelope<>(true, productDetailsVo);
+    }
+
+    @ApiOperation(value="获取联盟门店分组信息",response = UnionGroupVo.class)
+    @GetMapping("/getUnionGroupInfo")
+    public Object getUnionGroupInfo(@RequestParam String uuid){
+        if(uuid == null){
+            return new ResponseEnvelope<>(false,"缺失参数uuid");
+        }
+        UnionGroupVo unionGroupVo = unionGroupService.getUnionGroupInfoByUUID(uuid);
+        return new ResponseEnvelope<>(true,unionGroupVo);
+    }
+
+    @ApiOperation(value="获取优惠活动信息",response = UnionSpecialOfferVo.class)
+    @GetMapping("/getUnionSpecialOfferInfo")
+    public Object getUnionSpecialOfferInfo(@RequestParam String uuid){
+        if(uuid == null){
+            return new ResponseEnvelope<>(false,"缺失参数uuid");
+        }
+        UnionSpecialOfferVo unionSpecialOfferVo = specialOfferService.selectUnionSpecialOfferVoByUuid(uuid);
+        return new ResponseEnvelope<>(true,unionSpecialOfferVo);
+    }
+}

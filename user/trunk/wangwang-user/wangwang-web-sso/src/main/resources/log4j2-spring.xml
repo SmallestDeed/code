@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration status="WARN">
+    <Properties>
+        <!--需把 appName 的 value 改成实际应用名称-->
+        <Property name="appName" value="sso-web"/>
+        <!--此项不允许修改！-->
+        <Property name="rootPath" value="/data001/mfs/logs"/>
+        <Property name="PID">????</Property>
+        <Property name="LOG_EXCEPTION_CONVERSION_WORD">%xwEx</Property>
+        <Property name="LOG_LEVEL_PATTERN">%5p</Property>
+        <Property name="LOG_DATEFORMAT_PATTERN">yyyy-MM-dd HH:mm:ss.SSS</Property>
+        <Property name="CONSOLE_LOG_PATTERN">%clr{%d{${LOG_DATEFORMAT_PATTERN}}}{faint} %clr{${LOG_LEVEL_PATTERN}} %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c{1.}}{cyan} %clr{:}{faint} %m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}</Property>
+        <Property name="FILE_LOG_PATTERN">%d{${LOG_DATEFORMAT_PATTERN}} ${LOG_LEVEL_PATTERN} ${sys:PID} --- [%t] %-40.40c{1.} : %m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}</Property>
+    </Properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout pattern="${sys:CONSOLE_LOG_PATTERN}"/>
+        </Console>
+        <RollingFile name="appLog" fileName="${rootPath}/${appName}/info-${appName}.log"
+                     filePattern="${rootPath}/${appName}/info-${appName}-%d{yyyyMMdd}-%i.log">
+            <PatternLayout pattern="${sys:CONSOLE_LOG_PATTERN}"/>
+            <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="24" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="600MB"/>
+            </Policies>
+            <DefaultRolloverStrategy compressionLevel="0" max="5"/>
+        </RollingFile>
+        <RollingFile name="appErrorLog" fileName="${rootPath}/${appName}/error-${appName}.log"
+                     filePattern="${rootPath}/${appName}/error-${appName}-%d{yyyyMMdd}-%i.log">
+            <PatternLayout pattern="${sys:CONSOLE_LOG_PATTERN}"/>
+            <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="24" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="600MB"/>
+            </Policies>
+            <DefaultRolloverStrategy compressionLevel="0" max="2"/>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <!--可指定日志输出级别-->
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="appLog"/>
+            <AppenderRef ref="appErrorLog"/>
+        </Root>
+        <Logger name="com.sandu" level="info" additivity="true"/>
+    </Loggers>
+</configuration>
+

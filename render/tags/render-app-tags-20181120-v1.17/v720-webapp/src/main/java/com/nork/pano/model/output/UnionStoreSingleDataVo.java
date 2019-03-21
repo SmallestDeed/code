@@ -1,0 +1,222 @@
+package com.nork.pano.model.output;
+
+import com.nork.cityunion.model.vo.UnionStoreVo;
+import com.nork.common.util.Utils;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * 同店联盟方案分享场景信息Vo
+ * Created by chenm on 2018/9/30.
+ */
+public class UnionStoreSingleDataVo implements Serializable{
+    private static final long serialVersionUID = 1L;
+
+    /**  联系人  **/
+    private String contactName;
+    /**  电话  **/
+    private String contactPhone;
+    /** 用户 id **/
+    private Integer userId;
+    /**用户logo**/
+    private String logo;
+    /** 用户自定义分享文案(描述) **/
+   /* private String title;*/
+    /** 分享标题 **/
+    private String shareTitle;
+    /** 用户自定义分享描述 **/
+    private String desc ;
+    /** 人气值 （联盟方案访问次数）popularityValue**/
+    private Integer pv;
+    /** 发布方案名称 **/
+    private String releaseName;
+    /** 企业店铺**/
+    private Integer companyShopId;
+    /** 控制场景中功能按钮显示的值 1,2,3,4,5**/
+    private Integer viewControlType;
+    /** 联盟门店ID **/
+    private Integer unionGroupId;
+    /** 优惠活动ID **/
+    private Integer unionSpecialOfferId;
+    /** 场景信息 **/
+    private List<PanoramaDataVo> details ;
+
+    /**废弃的参数 begin**/
+    /** 公司名称 **/
+    private String companyName;
+    /** 公司LOGO **/
+    private String companyLogoPath;
+    /**  店面名称  **/
+    private String name;
+    /**  地址  **/
+    private String address;
+    /**  是否显示logo(0否/1是)  **/
+    private Integer isDisplayed;
+    /** 品牌LOGO **/
+    private String brandLogoPath;
+
+    public String getShareTitle() {
+        return shareTitle;
+    }
+
+    public void setShareTitle(String shareTitle) {
+        this.shareTitle = shareTitle;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    /**废弃的参数 end**/
+
+
+    public Integer getUnionGroupId() {
+        return unionGroupId;
+    }
+
+    public void setUnionGroupId(Integer unionGroupId) {
+        this.unionGroupId = unionGroupId;
+    }
+
+    public Integer getUnionSpecialOfferId() {
+        return unionSpecialOfferId;
+    }
+
+    public void setUnionSpecialOfferId(Integer unionSpecialOfferId) {
+        this.unionSpecialOfferId = unionSpecialOfferId;
+    }
+
+    public String getLogo() {
+        return logo;
+    }
+
+    public String getContactPhone() {
+        return contactPhone;
+    }
+
+    public void setContactPhone(String contactPhone) {
+        this.contactPhone = contactPhone;
+    }
+
+    public String getContactName() {
+        return contactName;
+    }
+
+    public void setContactName(String contactName) {
+        this.contactName = contactName;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo;
+    }
+
+    public Integer getPv() {
+        return pv;
+    }
+
+    public void setPv(Integer pv) {
+        this.pv = pv;
+    }
+
+    public Integer getViewControlType() {
+        return viewControlType;
+    }
+
+    public void setViewControlType(Integer viewControlType) {
+        this.viewControlType = viewControlType;
+    }
+
+    public Integer getCompanyShopId() {
+        return companyShopId;
+    }
+
+    public void setCompanyShopId(Integer companyShopId) {
+        this.companyShopId = companyShopId;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getCompanyLogoPath() {
+        return companyLogoPath;
+    }
+
+    public void setCompanyLogoPath(String companyLogoPath) {
+        this.companyLogoPath = companyLogoPath;
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public Integer getIsDisplayed() {
+        return isDisplayed;
+    }
+
+    public void setIsDisplayed(Integer isDisplayed) {
+        this.isDisplayed = isDisplayed;
+    }
+
+    public Integer getPopularityValue() {
+        return pv;
+    }
+
+    public void setPopularityValue(Integer popularityValue) {
+        this.pv = popularityValue;
+    }
+
+    public String getBrandLogoPath() {
+        return brandLogoPath;
+    }
+
+    public void setBrandLogoPath(String brandLogoPath) {
+        this.brandLogoPath = brandLogoPath;
+    }
+
+    public String getReleaseName() {
+        return releaseName;
+    }
+
+    public void setReleaseName(String releaseName) {
+        this.releaseName = releaseName;
+    }
+
+    public List<PanoramaDataVo> getDetails() {
+        return details;
+    }
+
+    public void setDetails(List<PanoramaDataVo> details) {
+        this.details = details;
+    }
+}

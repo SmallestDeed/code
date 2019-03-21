@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.system.dao.BaseAreaMapper">
+
+    <sql id="All_Column_List">
+        id,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,area_code,area_name,level_id,pid,zip_code,first_letter,ordering,long_code,remark
+    </sql>
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.sandu.system.model.BaseArea">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+        <result  column="creator" property="creator" jdbcType="VARCHAR" />
+        <result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+        <result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+        <result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+        <result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+        <result  column="area_code" property="areaCode" jdbcType="VARCHAR" />
+        <result  column="area_name" property="areaName" jdbcType="VARCHAR" />
+        <result  column="level_id" property="levelId" jdbcType="INTEGER" />
+        <result  column="pid" property="pid" jdbcType="VARCHAR" />
+        <result  column="zip_code" property="zipCode" jdbcType="VARCHAR" />
+        <result  column="first_letter" property="firstLetter" jdbcType="VARCHAR" />
+        <result  column="ordering" property="ordering" jdbcType="INTEGER" />
+        <result  column="long_code" property="longCode" jdbcType="VARCHAR" />
+        <result  column="remark" property="remark" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <insert id="insertSelective" parameterType="com.sandu.system.model.BaseArea"  useGeneratedKeys="true" keyProperty="id">
+        insert into base_area
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sysCode!= null">sys_code, </if>
+            <if test="creator!= null">creator, </if>
+            <if test="gmtCreate!= null">gmt_create, </if>
+            <if test="modifier!= null">modifier, </if>
+            <if test="gmtModified!= null">gmt_modified, </if>
+            <if test="isDeleted!= null">is_deleted, </if>
+            <if test="areaCode!= null">area_code, </if>
+            <if test="areaName!= null">area_name, </if>
+            <if test="levelId!= null">level_id, </if>
+            <if test="pid!= null">pid, </if>
+            <if test="zipCode!= null">zip_code, </if>
+            <if test="firstLetter!= null">first_letter, </if>
+            <if test="ordering!= null">ordering, </if>
+            <if test="longCode!= null">long_code, </if>
+            <if test="remark!= null">remark, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+            <if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+            <if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+            <if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+            <if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+            <if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+            <if test="areaCode!= null">  #{areaCode,jdbcType=VARCHAR}, </if>
+            <if test="areaName!= null">  #{areaName,jdbcType=VARCHAR}, </if>
+            <if test="levelId!= null">  #{levelId,jdbcType=INTEGER}, </if>
+            <if test="pid!= null">  #{pid,jdbcType=VARCHAR}, </if>
+            <if test="zipCode!= null">  #{zipCode,jdbcType=VARCHAR}, </if>
+            <if test="firstLetter!= null">  #{firstLetter,jdbcType=VARCHAR}, </if>
+            <if test="ordering!= null">  #{ordering,jdbcType=INTEGER}, </if>
+            <if test="longCode!= null">  #{longCode,jdbcType=VARCHAR}, </if>
+            <if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>
+        </trim>
+    </insert>
+
+    <!-- **更新定义** -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.system.model.BaseArea">
+        update base_area
+        <set>
+            <if test="sysCode!= null">  sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+            <if test="creator!= null">  creator = #{creator,jdbcType=VARCHAR}, </if>
+            <if test="gmtCreate!= null">  gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+            <if test="modifier!= null">  modifier = #{modifier,jdbcType=VARCHAR}, </if>
+            <if test="gmtModified!= null">  gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+            <if test="isDeleted!= null">  is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+            <if test="areaCode!= null">  area_code = #{areaCode,jdbcType=VARCHAR}, </if>
+            <if test="areaName!= null">  area_name = #{areaName,jdbcType=VARCHAR}, </if>
+            <if test="levelId!= null">  level_id = #{levelId,jdbcType=INTEGER}, </if>
+            <if test="pid!= null">  pid = #{pid,jdbcType=VARCHAR}, </if>
+            <if test="zipCode!= null">  zip_code = #{zipCode,jdbcType=VARCHAR}, </if>
+            <if test="firstLetter!= null">  first_letter = #{firstLetter,jdbcType=VARCHAR}, </if>
+            <if test="ordering!= null">  ordering = #{ordering,jdbcType=INTEGER}, </if>
+            <if test="longCode!= null">  long_code = #{longCode,jdbcType=VARCHAR}, </if>
+            <if test="remark!= null">  remark = #{remark,jdbcType=VARCHAR}, </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!-- **删除定义** -->
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from base_area
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="AllResultMap"
+            parameterType="java.lang.Integer">
+        select
+        <include refid="All_Column_List" />
+        from base_area
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+            parameterType="com.sandu.system.model.BaseArea">
+        select
+        <include refid="All_Column_List" />
+        from base_area
+        where 1=1 and is_deleted=0
+        <if test="sysCode!= null">  and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+        <if test="creator!= null">  and creator = #{creator,jdbcType=VARCHAR} </if>
+        <if test="gmtCreate!= null">  and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+        <if test="modifier!= null">  and modifier = #{modifier,jdbcType=VARCHAR} </if>
+        <if test="gmtModified!= null">  and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP} </if>
+        <if test="isDeleted!= null">  and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+        <if test="areaCode!= null">  and area_code = #{areaCode,jdbcType=VARCHAR} </if>
+        <if test="areaName!= null">  and area_name = #{areaName,jdbcType=VARCHAR} </if>
+        <if test="levelId!= null">  and level_id = #{levelId,jdbcType=INTEGER} </if>
+        <if test="pid!= null">  and pid = #{pid,jdbcType=VARCHAR} </if>
+        <if test="zipCode!= null">  and zip_code = #{zipCode,jdbcType=VARCHAR} </if>
+        <if test="firstLetter!= null">  and first_letter = #{firstLetter,jdbcType=VARCHAR} </if>
+        <if test="ordering!= null">  and ordering = #{ordering,jdbcType=INTEGER} </if>
+        <if test="longCode!= null">  and long_code = #{longCode,jdbcType=VARCHAR} </if>
+        <if test="remark!= null">  and remark = #{remark,jdbcType=VARCHAR} </if>
+        order by ordering desc
+    </select>
+
+    <!-- 根据区域编码和区域等级得到区域信息-->
+    <select id="selectAreaInfoByAreaLongCode"  resultMap="AreaInfoResuleMap" parameterType="com.sandu.system.model.search.BaseAreaQueryBean">
+        SELECT a1.area_name AS province,
+        <if test="cityCode != null">
+            a2.area_name AS city,
+        </if>
+        <if test="areaCode != null">
+            a3.area_name AS district
+        </if>
+        FROM base_area a1
+        LEFT JOIN base_area a2 ON a1.area_code = a2.pid
+        LEFT JOIN base_area a3 ON a2.area_code = a3.pid
+        WHERE a1.area_code= #{proviceCode}
+        <if test="cityCode">
+             AND a2.area_code= #{cityCode}
+        </if>
+        <if test="areaCode != null">
+            AND a3.area_code= #{areaCode}
+        </if>
+    </select>
+
+    <resultMap id="AreaInfoResuleMap" type="com.sandu.system.model.bo.HouseAreaBo">
+        <result column="province" property="province" jdbcType="VARCHAR"/>
+        <result column="city" property="city" jdbcType="VARCHAR"/>
+        <result column="district" property="district" jdbcType="VARCHAR"/>
+    </resultMap>
+</mapper>

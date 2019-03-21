@@ -1,0 +1,197 @@
+
+<view class='goods-search' style='{{filtrateBoxShow || parentFiltrateBoxShow?"height:100%;overflow:hidden;":""}}'>
+<!-- 搜索框 -->
+  <view class='goods-search-input clearfix'>
+    <view class='search-input-logo {{isShowSearchRecord? "":"search-input-logo-active"}}'>
+      <image src='http://open.rjhq.cn/xz/wx/images/ppg_search.png'></image>
+      <input class=' fl search-input'
+        bindtap='goSearch' 
+        bindconfirm="beginSearchGoodsList"
+        value="{{searchName}}"
+        bindinput='inputName'
+        placeholder="搜{{searchType != 1 ? '产品' : '品牌'}}" placeholder-class='search-input-placeholder'>
+    </input>
+    </view>
+    <text class="{{isShowSearchRecord?'search-text':'search-text-active'}}" bindtap='beginSearchGoodsList'>搜索</text>
+  </view>
+  <!-- 分类选择 -->
+  <view class='search-list-navigate' wx:if="{{searchType != 1 && noresult}}">
+    <view class='list-navigate-all fl' 
+      data-index='0'
+      bindtap='showFiltrateBox'>
+        {{parentGoodsFiltrateList[parentFiltrateListActive].categoryName}}
+      <image src='{{parentFiltrateBoxShow?"/static/image/720_icon_up.png":"/static/image/720_icon_down.png"}}'></image>
+    </view>
+    <view class='list-navigate-filtrate fr' 
+      data-index='1'
+      bindtap='showFiltrateBox'>筛选 <image src='/static/image/@2x筛选.png'></image></view>      
+  </view>
+  <view class="search-brand-nav" wx:if="{{searchType == 1}}">
+    <view class="{{index == brandNavIndex?'nav-item-active':'nav-item'}}" 
+      wx:for="{{brandNavList}}" 
+      wx:key="{{index}}" 
+      bindtap='selectNav' 
+      data-id="{{index}}">
+      {{item.name}}
+      <view class="floor" wx:if="{{index == brandNavIndex}}"></view>
+    </view>
+  </view>
+  <!-- 搜索历史，热门搜索 -->
+  <view class="search-record" wx:if="{{isShowSearchRecord}}">
+    <view class="hot-search">
+      <view class="search-title">热门搜索</view>
+      <view class="search-list">
+        <text class="search-item" 
+          bindtap='beginSearchGoodsList'
+          data-id="{{item}}"
+          wx:for="{{hotList}}" 
+          wx:key="{{index}}">{{item}}</text>
+      </view>
+    </view>
+    <view class="search-history" wx:if="{{historyList.length > 0}}">
+      <view class="search-title">
+        历史搜索
+        <image class="delete" src="/static/image/huxing_icon_delete.png" bindtap='historyDelete'></image>
+      </view>
+      <view class="search-list">
+        <text class="search-item" 
+          bindtap='beginSearchGoodsList'
+          data-id="{{item}}"
+          wx:for="{{historyList}}" 
+          wx:key="{{index}}">{{item}}</text>
+      </view>
+    </view>
+  </view>
+  <!-- 搜索出来的商品列表 -->
+  <view class='goods-search-list' wx:if="{{noresult}}">
+    <view class='search-list-content clearfix' wx:if="{{searchType != 1}}">
+      <view class='list-content-item fl' 
+        data-id='{{item.spuId}}'
+        bindtap='routerToGoodsDetails'
+        wx:for='{{goodsList}}' wx:key='{{index}}'>
+        <view class='content-item-image'><image src='{{item.picPath?resourcePath + item.picPath:"/static/image/goods_pic_no.png"}}'></image></view>
+        <view class='content-item-title ellipsis'>{{item.spuName}}</view>
+        <view class='content-item-message clearfix'>
+          <view class='item-message-price fl'>{{item.price ==0?'暂无定价':'￥' + item.price}}</view>
+          <!-- <view class='item-message-personNum fr'>{{item.sellNumber}}人购买</view>           -->
+        </view>        
+      </view>
+    </view>
+    <view class='search-list-brand clearfix' wx:if="{{searchType == 1}}">
+      <view class='brand-item' wx:for="{{searchBrandList}}" wx:key="{{index}}">
+        <image 
+          class='brand-item-img' 
+          src="{{item.coverResPicPathList? resourcePath + item.coverResPicPathList[0] : '/static/image/goods_pic_no.png'}}"></image>
+        <view class='brand-item-footer'>
+          <image src="{{item.logoUrl?resourcePath + item.logoUrl:'/static/image/goods_pic_no.png'}}"></image>
+          <view class="brand-item-message">
+            <view class="message-title ellipsis">{{item.shopName}}</view>
+            <view class="message-type">{{item.firstCategoryNames}}</view>
+            <view class="message-type ellipsis">擅长风格：{{item.categoryNames}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+  <!-- 三级筛选框 -->
+  <view class='goods-search-parentFiltrate' wx:if='{{parentFiltrateBoxShow}}'>
+    <view class='search-parentFiltrate-content'>
+      <view class='content-item-second clearfix'>
+        <view class='item-second-alone ellipsis fl {{parentFiltrateListActive==index?"item-second-alone-active":""}}' 
+        wx:for='{{parentGoodsFiltrateList}}'
+        wx:key='{{index}}'
+        data-index='{{index}}'
+        bindtap='switchChildrenFiltrate'
+        data-index="{{index}}">{{item.categoryName}}</view>  
+      </view>
+    </view>
+  </view>
+  <!-- 四级五级筛选框 -->
+  <view class='goods-search-filtrate' wx:if="{{filtrateBoxShow}}">
+    <view class='search-filtrate-content'>
+      <view 
+      class='filtrate-content-item {{filtrateActive[index]?"filtrate-content-item-active": ""}}' 
+      wx:for='{{childGoodsFiltrateList}}' wx:key="{{index}}">
+        <view class='content-item-first clearfix' data-index="{{index}}" bindtap='upDownFristBox'>
+          <view class='fl'>{{item.categoryName}}</view>
+          <view class='fr item-first-image {{secondFiltrateActive[index]>=0?"item-first-image-active":""}}'>
+          {{secondFiltrateActive[index] == -1?'全部': childGoodsFiltrateList[index].productCategoryVoList[secondFiltrateActive[index]].categoryName}} 
+      <image src='{{filtrateActive[index]?"/static/image/720_icon_up.png":"/static/image/720_icon_down.png"}}'></image></view>
+        </view>
+        <view class='content-item-second clearfix'>
+          <view class='item-second-alone ellipsis fl {{secondFiltrateActive[index] == childIndex?"item-second-alone-active":""}}' 
+          wx:if='{{item.categoryName === "品牌" && item.productCategoryVoList.length > 12 && childIndex >= 11?false:true}}'
+          wx:for='{{item.productCategoryVoList}}'
+          bindtap='changeSecondActive'
+          data-name='{{childItem.categoryName}}'
+          wx:for-index="childIndex"
+          wx:key="{{childIndex}}"
+          data-index="{{index}}"
+          data-child="{{childIndex}}"
+          wx:for-item='childItem' >{{childItem.categoryName}}</view>
+          <view class='item-second-alone ellipsis fl'
+          bindtap='changeSecondActive' 
+          data-name='更多品牌...'                   
+          data-index="{{index}}"
+          data-child="{{11}}"                
+          wx:if='{{item.categoryName === "品牌" && item.productCategoryVoList.length > 12}}'>更多品牌...</view>  
+        </view>
+      </view>
+    </view>
+    <view class='search-filtrate-resetorcomfirm'>
+      <view class='filtrate-resetorcomfirm-reset' bindtap='resetSecondFiltrateActive'>重置</view>
+      <view class='filtrate-resetorcomfirm-comfirm' bindtap='confirmChildFiltrate'>确定</view>        
+    </view>    
+  </view>
+  <!-- 无数据时提示 -->
+  <view class='{{searchType != 1?"goods-search-noresult-active":"goods-search-noresult"}}' 
+    wx:if="{{!noresult}}">
+    抱歉，暂无你搜索的{{searchType != 1 ? '产品' : '品牌'}}
+  </view>
+  <!-- 猜你喜欢 -->
+  <view class='goods-search-like' wx:if='{{!noresult}}'>
+    <view class='search-like-title'>
+      <view class='like-title-box'>
+        <view class='title-box-border'></view>
+        <view class='title-box-text'>猜你喜欢</view>   
+      </view>   
+    </view> 
+    <view class='search-like-content' wx:if="{{searchType != 1}}">
+      <view class='like-content-item fl' 
+        data-id='{{item.spuId}}' 
+        bindtap='routerToGoodsDetails'
+        wx:for='{{goodsList}}' wx:key='{{index}}'>
+        <view class='content-item-image'>
+        <image src='{{item.picPath?resourcePath + item.picPath:"/static/image/goods_pic_no.png"}}'></image>
+        </view>
+        <view class='content-item-title ellipsis'>{{item.spuName}}</view>
+        <view class='content-item-message clearfix'>
+          <view class='item-message-price fl'>{{item.price ==0 || !item.price ?'暂无定价':'￥' + item.price}}</view>
+          <!-- <view class='item-message-personNum fr'>{{item.sellNumber}}人购买</view> -->
+        </view>        
+      </view>
+    </view>
+    <view class='search-list-brand clearfix' wx:if="{{searchType == 1}}">
+      <view class='brand-item' 
+        wx:for="{{searchBrandList}}" 
+        data-id="{{item.id}}"
+        wx:key="{{index}}" 
+        bindtap='routerToGoodsDetails'>
+        <image 
+          class='brand-item-img' 
+          src="{{item.coverResPicPathList? resourcePath + item.coverResPicPathList[0] : '/static/image/goods_pic_no.png'}}"></image>
+        <view class='brand-item-footer'>
+          <image src="{{item.logoUrl?resourcePath + item.logoUrl:'/static/image/goods_pic_no.png'}}"></image>
+          <view class="brand-item-message">
+            <view class="message-title ellipsis">{{item.shopName}}</view>
+            <view class="message-type">{{item.firstCategoryNames}}</view>
+            <view class="message-type ellipsis">擅长风格：{{item.categoryNames}}</view>
+          </view>
+        </view>
+      </view>
+    </view>   
+  </view>
+  <view class="to-top" wx:if='{{ifShowToTopLogo}}' bindtap="goTop">
+     <image src='/static/image/to_top.png'></image>
+  </view>
+</view>

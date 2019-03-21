@@ -1,0 +1,159 @@
+<!--pages/confirm-order/confirm-order.wxml-->
+<wxs src="../../utils/public.wxs" module="toSpilt" />
+<view class='confirm-order'>
+  <view class='order-address'>
+    <view class='add-address' wx:if='{{!defaultAddress.consignee}}' bindtap='toAddAddress'>
+      <view class='add-icon fl'><image src='{{staticImageUrl}}list_icon_add.png'></image></view>
+      <view class='add-text fl'>添加收货地址</view>
+    </view>
+    <view class='choose-address' bindtap='toAddressList' wx:if='{{defaultAddress.consignee}}'>
+      <view class='address-icon'><image src='{{staticImageUrl}}list_icon_adress.png'></image></view>
+      <view class='user-mes'>{{defaultAddress.consignee}} {{defaultAddress.mobile}}</view>
+      <view class='address-mes'>
+      {{defaultAddress.provinceName === defaultAddress.cityName? defaultAddress.provinceName + defaultAddress.districtName + defaultAddress.address: defaultAddress.provinceName + defaultAddress.cityName + defaultAddress.districtName + defaultAddress.address}}
+      </view>  
+      <view class='address-arrow'><image src='{{staticImageUrl}}list_icon_more.png'></image></view>    
+      <image class='botBg' src='{{staticImageUrl}}order_address_msg.png'></image>   
+    </view>    
+  </view>
+  <view class='order-details clearfix'>
+    <view class='details-image fl'>
+       
+ <image src='{{resourcePath + productDetailsObj.productPicPath}}'></image> 
+       <!-- <image src='{{resourcePath + productDetailsObj.smallPiclist[0]}}'></image>  -->
+    </view>
+    <view class='details-text fl'>
+      <view class='text-name'>{{productDetailsObj.productName}}</view>
+       <view class='text-model'>{{productDetailsObj.attribute}}</view>  
+       <!-- <view class='text-model'>{{productDetailsObj.productColorName || '默认'}};{{productDetailsObj.productStyleName || '默认'}}</view>  -->
+      <view class='text-price clearfix'>
+        <view class='fl'>￥{{productDetailsObj.price}}</view>
+        <view class='fr count'>× {{productDetailsObj.purchaseNumber}}</view>        
+      </view>      
+    </view>
+  </view>
+<!-- wx:if="{{flagTitle}}" -->
+  <view class='clcView' >
+    <text class='ts'>优惠券</text>
+    <view class='chooseMore' wx:if="{{!active&&couponList.length>0}}" bindtap='chooseTapT'>
+      {{couponListT.length}} 张可用<image src='{{staticImageUrl}}home_icon_more.png'></image>
+    </view>
+    <view class='chooseMore' wx:if="{{!active&&couponList.length<=0}}">
+      不可用<image src='{{staticImageUrl}}home_icon_more.png'></image>
+    </view>
+    <view class='chooseMore orenage' wx:if="{{active}}" bindtap='chooseTapT'>
+      优惠{{ssMoney}}元<image src='{{staticImageUrl}}home_icon_more.png'></image>
+    </view>
+  </view>
+
+  <view class='order-price'>
+    <view class='goods-price clearfix'>
+      <view class='text fl'>商品金额</view>
+      <view class='price fr'>￥{{goodsPrice}}</view>      
+    </view>
+    <view class='goods-price clearfix' wx:if="{{ssMoney}}">
+      <view class='text fl'>优惠金额</view>
+      <view class='price fr'>-￥{{ssMoney}}</view>   
+    </view>
+    <view class='logistics-price clearfix'>
+      <view class='text fl'>物流运费</view>
+      <view class='price fr'>+￥{{productDetailsObj.transportMoney*productDetailsObj.purchaseNumber}}</view>  
+    </view>    
+  </view>  
+<view class='clcView' style='margin-bottom:20rpx' wx:if="{{flagJxs&&businessType!=9}}">
+    <text class='ts'>选择配送商</text>
+    <view class='chooseMore'
+        style='color:#000'
+         wx:if="{{distributorVal}}" bindtap='closeDistributor'>
+      {{distributorVal}}<image src='{{staticImageUrl}}home_icon_more.png'></image>
+    </view>
+    <view class='chooseMore' wx:if="{{!distributorVal}}" bindtap='closeDistributor'>
+      请选择<image src='{{staticImageUrl}}home_icon_more.png'></image>
+    </view>
+  </view>
+
+  <view class='order-remarks clearfix'>
+    <view class='text fl'>备注信息 </view>
+    <view class='message fl'><input maxlength='20' bindinput='inputRemask' placeholder-class='input-box' placeholder='选填：20字以内'></input></view>  
+  </view>
+
+  <view class='zzcView'wx:if="{{isShowZzc}}">
+    <view class='rViews'>
+      <view class='titles'>请选择优惠卷<image bindtap='chooseTapF' src='{{staticImageUrl}}pop_nav_icon_close_02.png'></image></view>
+      <view class='mains'>
+        <view class='items' bindtap='chTap' wx:for="{{couponListT}}" wx:key="index" data-chindex="{{index}}">
+          <view class='itemL'>
+            <view class='tops' 
+                style="{{item.discountAmount>=10000?'font-size: 60rpx;':''}}"><view wx:if="{{item.discountAmount!=0}}">￥</view>
+              {{item.discountAmount!=0?item.discountAmount:item.rebateFactor+"折"}}
+            </view>
+            <view class='bots'>
+              {{item.couponType==1?"新人专享":(item.orderAmount==0?"无门槛":"满"+item.orderAmount+"元立减")}}
+            </view>
+          </view>
+          <view class='itemR'>
+            <view class='ps'>使用范围: {{item.productScopeType==1?"全店通用":"指定商品"}}</view>
+            <view class='ps'>使用期限: {{item.beginTime?toSpilt.toSpilt(item.beginTime,' ',0):''}}~{{item.finalTime?toSpilt.toSpilt(item.finalTime,' ',0):''}}</view>
+            <view class='chse {{chindex==index?"active":""}}'></view>
+          </view>
+          <!-- toSpilt -->
+        </view>
+        <view class='def' wx:if="{{couponListF.length>0}}"><text>以下优惠券不可用</text></view>
+        <view class='items itemGlays' wx:for="{{couponListF}}" wx:if="{{couponListF.length>0}}">
+          <view class='itemL'>
+            <view class='tops'
+                style="{{item.discountAmount>=10000?'font-size: 60rpx;':''}}"><view wx:if="{{item.discountAmount!=0}}">￥</view>
+              {{item.discountAmount!=0?item.discountAmount:item.rebateFactor+"折"}}
+            </view>
+            <view class='bots'>
+              {{item.couponType==1?"新人专享":(item.orderAmount==0?"无门槛":"满"+item.orderAmount+"元立减")}}
+            </view>
+          </view>
+          <view class='itemR'>
+            <view class='ps'>使用范围: {{item.productScopeType==1?"全店通用":"指定商品"}}</view>
+            <view class='ps'>使用期限: {{item.beginTime?toSpilt.toSpilt(item.beginTime,' ',0):''}}~{{item.finalTime?toSpilt.toSpilt(item.finalTime,' ',0):''}}</view>
+          </view>
+        </view>
+        
+        <view class='btns' bindtap='subTap'>确认</view>
+      </view>
+    </view>
+  </view>
+
+  <view class='order-footer clearfix'>
+    <view class='footer-price fl'>
+      合计： <text>￥{{totalPrice}}</text>
+    </view>
+    <view class='footer-payment fl' bindtap='immediatePayment'>立即支付</view>    
+  </view>  
+</view>
+<view class='zzcView' wx:if="{{distributor}}">
+    <view class='distributorMain'>
+        <view class='distributorTit'>请选择经销商<image src='{{staticImageUrl}}pop_nav_icon_close_02.png' bindtap='closeDistributor'></image></view>
+        <view class='mainPlans'>
+            <view class='items' bindtap='chooseBind' 
+                data-id='{{item.id}}' wx:for="{{distributorObj}}"
+                data-i = '{{index}}' data-item="{{item}}"
+                wx:key="{{index}}" data-val="{{item.distributorVal}}"
+            >
+                {{item.distributorVal}}
+                <image src='{{staticImageUrl}}{{distrId==index?"list_icon_check_sel.png":"list_icon_check_nor.png"}}'></image>
+            </view>
+        </view>
+    </view>
+</view>
+
+     <view class="joinFail-dialog"  wx:if="{{isFail}}" >
+       <view class="dialogBox">
+         <image class="close" data-type="close" bindtap="closeDialog" src="{{staticImageUrl}}pop_nav_icon_close_02.png" />
+         <image class="failImg" src="{{staticImageUrl}}pop_icon_sorry.png" />
+         <view class="text">抱歉，该团已满员！</view>
+         <view class="tip">是否需要直接开团？</view>
+         <view class="openAssembleBtn"  data-type="open"  bindtap="closeDialog">直接开团</view>
+       </view>
+     </view>
+
+
+  <!-- 快速导航 -->
+  <import src="../../component/quick-navigation/quick-navigation.wxml"/>
+  <template is="quickNavigation" data="{{ ...quickNavigation }}"/>

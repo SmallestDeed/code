@@ -1,0 +1,200 @@
+<view class="order-nav">
+    <view class="order-nav-iteam {{orderType==0?'active':''}}" data-type="0" bindtap="changeData">全部</view>
+    <view class="order-nav-iteam {{orderType==1?'active':''}}" data-type="1" bindtap="changeData">待付款</view>
+    <view class="order-nav-iteam {{orderType==2?'active':''}}" data-type="2" bindtap="changeData">待发货</view>
+    <view class="order-nav-iteam {{orderType==3?'active':''}}" data-type="3" bindtap="changeData">待收货</view>
+</view>
+<view  wx:if="{{selectData.length>0}}">
+    <!-- 待付款 -->
+    <view class="order-iteam clearfix" wx:for="{{selectData}}" wx:key='{{index}}' bindtap='toDetail' data-id='{{item.id}}'>
+        <view class="order-iteam-title clearfix">
+            
+              <view class="title-left fl">订单编号：{{item.orderCode}}</view>
+              <!--待确认和已确认-->
+            <block wx:if='{{item.orderStatus==0||item.orderStatus==1}}'>
+              <!--付款中和未付款-->  
+              <block wx:if='{{item.payStatus==0||item.payStatus==1}}'>
+                <view class="title-right fr">待付款</view>
+              </block>
+              <!--已付款-->
+              <block wx:if='{{item.payStatus==2}}'>
+                <view class="title-right fr" wx:if="{{item.shippingStatus==0}}">待发货</view>
+                <view class="title-right fr" wx:if="{{item.shippingStatus==1}}">待收货</view>
+              </block>
+            </block>
+            <!--已 取消-->
+            <block wx:if='{{item.orderStatus==2}}'>
+              <view class="title-right fr">已取消</view>
+            </block>
+            <!--无效-->
+            <block wx:if='{{item.orderStatus==3}}'>
+              <view class="title-right fr">已取消</view>
+            </block>
+            <!--已完成-->
+            <block wx:if='{{item.orderStatus==4}}'>
+              <view class="title-right fr">已完成</view>
+            </block>
+            <!--退货-->
+            <block wx:if='{{item.orderStatus==5}}'>
+              <view class="title-right fr">退货</view>
+            </block>
+           
+        </view>
+        <!-- 中间 -->
+        <view class="order-iteam-body">
+            <view class="order-iteam-list" wx:for="{{item.orderProductList}}" wx:key='{{index}}'>
+                <view class="order-left fl">
+                    <image src="{{item.productPicPath?resourcePath+item.productPicPath:staticImageUrl+'goods_pic_no.png'}}" class="headimg"></image>
+                </view>       
+                <view class="order-mid fl">
+                    <view class="order-mid-top">{{item.productName}}</view>
+                
+                    <view class="order-mid-mid">
+                      <block wx:if='{{item.attribute}}'>{{item.attribute || '默认'}}</block>
+                    </view>
+                   
+               
+                    <view class="order-mid-bottom">￥{{item.productPrice}}</view>
+                </view>
+                <view class="order-right fr">
+                    <text>× {{item.productNumber}}</text>
+                </view>
+                
+            </view>
+        </view>
+        <!-- 尾部 -->
+        <!-- 待付款 -->
+        <block wx:if="{{(item.orderStatus==0||item.orderStatus==1)&&(item.payStatus==0||item.payStatus==1)}}">
+        <view class="order-count clearfix" >
+            <view class="order-count-deatail fr">
+                <text class="deatail-word fr">合计: ￥{{item.orderAmount}}
+                </text>
+                <text class="deatail-count fr">共<text class="deatail-count-count">{{item.orderProductList.length}}</text>件商品</text>
+            </view>
+        </view>
+        <view class="btn fr">
+            <botton class="bt">支付</botton>
+        </view>
+        </block>
+
+        <!-- 待发货 -->
+        <block wx:if='{{item.payStatus==2}}'>
+        <view class="order-count clearfix">
+            <view class="order-count-deatail fr">
+                <text class="deatail-word fr">合计: ￥{{item.orderAmount}}
+                </text>
+                <text class="deatail-count fr">共<text class="deatail-count-count">{{item.orderProductList.length}}</text>件商品</text>
+            </view>
+        </view>
+        </block>
+        
+    </view>
+    <!--  <navigator class="order-iteam clearfix">
+        <view class="order-iteam-title clearfix">
+            <view class="title-left fl">订单编号：ZYSF26586665400</view>
+            <view class="title-right fr">待发货</view>
+        </view>
+        <view class="order-iteam-body">
+            <view class="order-iteam-list">
+                <view class="order-left fl">
+                    <image src="/static//static/image1.jpeg" class="headimg"></image>
+                </view>
+                <view class="order-mid fl">
+                    <view class="order-mid-top">小户型简约木质茶几</view>
+                    <view class="order-mid-mid">桃木色； 简约</view>
+                    <view class="order-mid-bottom">￥1688</view>
+                </view>
+                <view class="order-right fr">
+                    <text>× 2</text>
+                </view>
+            </view>
+        </view>
+        <view class="order-count clearfix">
+            <view class="order-count-deatail fr">
+                <text class="deatail-word fr">合计: ￥12999
+                </text>
+                <text class="deatail-count fr">共
+                    <text class="deatail-count-count">3</text>件商品</text>
+            </view>
+        </view>
+    </navigator>
+
+    <navigator class="order-iteam clearfix">
+        <view class="order-iteam-title clearfix">
+            <view class="title-left fl">订单编号：ZYSF26586665400</view>
+            <view class="title-right fr">待收货</view>
+        </view>
+        <view class="order-iteam-body">
+            <view class="order-iteam-list">
+                <view class="order-left fl">
+                    <image src="/static//static/image1.jpeg" class="headimg"></image>
+                </view>
+                <view class="order-mid fl">
+                    <view class="order-mid-top">小户型简约木质茶几</view>
+                    <view class="order-mid-mid">桃木色； 简约</view>
+                    <view class="order-mid-bottom">￥1688</view>
+                </view>
+                <view class="order-right fr">
+                    <text>× 2</text>
+                </view>
+            </view>
+        </view>
+        <view class="order-count clearfix">
+            <view class="order-count-deatail fr">
+                <text class="deatail-word fr">合计: ￥12999
+                </text>
+                <text class="deatail-count fr">共
+                    <text class="deatail-count-count">3</text>件商品</text>
+            </view>
+        </view>
+    </navigator>
+
+    <navigator class="order-iteam clearfix">
+        <view class="order-iteam-title clearfix">
+            <view class="title-left fl">订单编号：ZYSF26586665400</view>
+            <view class="title-right finshed fr">已完成</view>
+        </view>
+        <view class="order-iteam-body">
+            <view class="order-iteam-list">
+                <view class="order-left fl">
+                    <image src="/static//static/image1.jpeg" class="headimg"></image>
+                </view>
+                <view class="order-mid fl">
+                    <view class="order-mid-top">小户型简约木质茶几</view>
+                    <view class="order-mid-mid">桃木色； 简约</view>
+                    <view class="order-mid-bottom">￥1688</view>
+                </view>
+                <view class="order-right fr">
+                    <text>× 2</text>
+                </view>
+            </view>
+        </view>
+        <view class="order-count clearfix">
+            <view class="order-count-deatail fr">
+                <text class="deatail-word fr">合计: ￥12999
+                </text>
+                <text class="deatail-count fr">共
+                    <text class="deatail-count-count">3</text>件商品</text>
+            </view>
+        </view>
+    </navigator> -->
+</view>
+<empty-page emptyPageObj="{{emptyPageObj}}" wx:if="{{!selectData.length>0}}"></empty-page>
+<!-- <block wx:if="{{!selectData.length>0}}">
+<view class="empty_tip ">
+  <image class="image" src="{{staticImageUrl}}me_pic_order_no.png"></image>
+  <view class="txt">{{message}}</view>
+</view>
+</block> -->
+
+<!-- <view class="systemInfo" wx:if="{{!selectData.length>0}}">
+<image src="/static//static/imageme_icon_order_no.png" ></image>
+    <view class="txt">
+        {{message}}
+    </view>
+</view> -->
+
+<!-- 快速导航模块 -->
+  <!-- <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav" data="{{ ...newNav }}"/> -->
+  <jdNav></jdNav>

@@ -1,0 +1,41 @@
+package com.sandu.user.model;/**
+ * @ Author     ：weisheng.
+ * @ Date       ：Created in PM 3:09 2018/5/24 0024
+ * @ Description：${description}
+ * @ Modified By：
+ * @Version: $version$
+ */
+
+/**
+ * @Title: 用户角色常量
+ * @Package
+ * @Description:
+ * @author weisheng
+ * @date 2018/5/24 0024PM 3:09
+ */
+public class UserRoleContants {
+    public static final int  USER1 = 1 ;  /*内部用户*/
+
+    public static final int  DEALERS = 3 ;  /*经销商*/
+
+    public static final int  FIRM = 2 ;  /*厂商*/
+
+    public static final int  COMMON = 8 ;  /*普通用户*/
+
+    public static final int  SCHOOL =7 ;  /*学校（培训机构）*/
+
+    public static final int  DECORATE_COMPANY =6 ;  /*装修公司*/
+
+    public static final int  DESIGNER = 5 ;  /*设计师*/
+
+    public static final int  DESIGNER_COMPANY = 4 ;  /*设计公司*/
+
+    public static final int  TOURISTS = 9 ;  /*游客*/
+
+    public static final int  COMPANYINTERNAL_USER = 10;  /*企业内部用户*/
+    public static final int  MEDIATION = 11;  /*中介*/
+    public static final int  FOREMAN = 13;  /*工长*/
+
+
+
+}

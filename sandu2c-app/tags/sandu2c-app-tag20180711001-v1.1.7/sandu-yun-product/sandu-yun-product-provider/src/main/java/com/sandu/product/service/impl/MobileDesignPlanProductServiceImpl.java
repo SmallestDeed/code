@@ -1,0 +1,309 @@
+package com.sandu.product.service.impl;
+
+import com.google.gson.Gson;
+import com.sandu.common.util.Utils;
+import com.sandu.design.model.ProductsCost;
+import com.sandu.design.model.ProductsCostType;
+import com.sandu.pano.model.scene.PanoramaVo;
+import com.sandu.product.dao.MobileDesignPlanProductMapper;
+import com.sandu.product.dao.SysDictionaryProductTypeMapper;
+import com.sandu.product.model.BaseCompany;
+import com.sandu.product.model.MobileDesignPlanProduct;
+import com.sandu.product.model.ProductCostDetail;
+import com.sandu.product.service.BaseCompanyService;
+import com.sandu.product.service.MobileDesignPlanProductService;
+import com.sandu.system.model.SysDictionary;
+import com.sandu.system.model.SysDictionaryBo;
+import com.sandu.system.service.SysDictionaryService;
+import com.sandu.user.model.SysUser;
+import com.sandu.user.service.SysUserService;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
+/**
+ * @Author Gao Jun
+ * @Description
+ * @Date:Created Administrator in 上午 10:35 2018/5/23 0023
+ * @Modified By:
+ */
+@Service("mobileDesignPlanProductService")
+public class MobileDesignPlanProductServiceImpl implements MobileDesignPlanProductService {
+
+    private static Logger logger = Logger.getLogger(MobileDesignPlanProductServiceImpl.class);
+    private final Gson GSON = new Gson();
+    @Autowired
+    private MobileDesignPlanProductMapper mobileDesignPlanProductMapper;
+    @Autowired
+    private SysDictionaryService sysDictionaryService;
+    @Autowired
+    private SysDictionaryProductTypeMapper sysDictionaryProductTypeMapper;
+    @Autowired
+    private BaseCompanyService baseCompanyService;
+    @Autowired
+    private ProCategoryService proCategoryService;
+
+    /**
+     * 查询产品清单
+     *
+     * @param panoramaVo
+     * @return
+     */
+    @Override
+    public List<ProductsCostType> getDesignPlanProductList(PanoramaVo panoramaVo) {
+        logger.info("getDesignPlanProductList ----- panoramaVo == " + panoramaVo);
+        Integer userId = panoramaVo.getUserId();
+        Integer platformId = panoramaVo.getPlatformId();
+        Integer designPlanRecommendedId = panoramaVo.getDesignPlanRecommendedId();
+        Integer designPlanRenderSceneId = panoramaVo.getDesignPlanRenderSceneId();
+        Integer companyId = panoramaVo.getCompanyId();
+        Integer isSandu = panoramaVo.getIsSandu();
+        String platformBussinessType = panoramaVo.getPlatformBussinessType();
+        if (userId == null) {
+            logger.error("getDesignPlanProductList -- userId:" + userId);
+            return null;
+        }
+
+        if (companyId == null || companyId.intValue() <= 0) {
+            logger.error("getDesignPlanProductList -- sysUser.getBusinessAdministrationId() is null:" + companyId);
+            return null;
+        }
+
+        MobileDesignPlanProduct designPlanProduct = new MobileDesignPlanProduct();
+        designPlanProduct.setPlatformId(platformId);
+        designPlanProduct.setDesignPlanRecommendedId(designPlanRecommendedId);
+        designPlanProduct.setDesignPlanRenderSceneId(designPlanRenderSceneId);
+        designPlanProduct.setPlatformBussinessType(platformBussinessType);
+        List<ProductCostDetail> productCostDetailList;
+        //获取产品清单
+        if (designPlanRenderSceneId != null) {
+            productCostDetailList = mobileDesignPlanProductMapper.getRenderSceneProductList(designPlanProduct);
+        } else if (designPlanRecommendedId != null) {
+            productCostDetailList = mobileDesignPlanProductMapper.getRecommendedProductList(designPlanProduct);
+        } else {
+            logger.error("getDesignPlanProductList--产品清单列表参数方案id为空");
+            return null;
+        }
+        if (productCostDetailList == null || productCostDetailList.size() <= 0) {
+            logger.error("getDesignPlanProductList--获取产品清单为空：productCostDetailList--" + productCostDetailList);
+            return null;
+        }
+
+        BaseCompany baseCompany = baseCompanyService.get(companyId);
+
+        //经销商厂商把同行业非本公司的去掉，其他用户的不过滤
+        List<ProductCostDetail> productCostList = new ArrayList<>();
+        for (ProductCostDetail productCostDetail : productCostDetailList) {
+            List<SysDictionaryBo> productTypeValueList = null;
+            if (baseCompany.getBusinessType() != null && baseCompany.getBusinessType() ==1) {
+                //厂商只有厂商公司同行排他过滤（基于公司）
+                productTypeValueList = this.getProductTypeValue(baseCompany);
+                for (SysDictionaryBo sysDictionaryBo : productTypeValueList) {
+
+                    if (sysDictionaryBo.getBigTypeValue().equals(productCostDetail.getProductTypeValue()) &&
+                            sysDictionaryBo.getSmallTypeValue().equals(productCostDetail.getProductSmallTypeValue())) {
+                        //可见范围内的,只展示自己的
+                        if (companyId.equals(productCostDetail.getCompanyId())) {
+                            productCostList.add(productCostDetail);
+                        }
+                    } else {
+                        //可见范围外的，全都展示
+                        productCostList.add(productCostDetail);
+                    }
+
+                }
+
+            } else if (baseCompany.getBusinessType() != null && baseCompany.getBusinessType() ==2) {
+                //经销商有经销商公司的同行排他（基于品牌）
+                companyId = baseCompany.getPid();
+
+                BaseCompany company = baseCompanyService.get(companyId);
+                productTypeValueList = this.getProductTypeValue(company);
+                String brandIdStr = baseCompany.getBrandIds();
+                if (StringUtils.isNotBlank(brandIdStr)) {
+                    String[] split = brandIdStr.split(",");
+                    List<Integer> brandIdList = new ArrayList<>();
+                    for (String idStr : split) {
+                        brandIdList.add(Integer.parseInt(idStr));
+                    }
+                    //经销商的品牌集合
+                    if (brandIdList.size() > 0) {
+
+                        for (SysDictionaryBo sysDictionaryBo : productTypeValueList) {
+
+                            if (sysDictionaryBo.getBigTypeValue().equals(productCostDetail.getProductTypeValue()) &&
+                                    sysDictionaryBo.getSmallTypeValue().equals(productCostDetail.getProductSmallTypeValue())) {
+                                //可见范围内的,只展示自己品牌的
+                                for (Integer brandId : brandIdList) {
+                                    if (brandId.equals(productCostDetail.getBrandId())) {
+                                        productCostList.add(productCostDetail);
+                                    }
+                                }
+                            } else {
+                                //可见范围外的，全都展示
+                                productCostList.add(productCostDetail);
+                            }
+
+                        }
+                    }
+
+                }
+
+            } else {
+                //其他不过滤
+                productCostList.add(productCostDetail);
+            }
+        }
+
+        //获取数据字典价格单位
+        SysDictionary dictionary = sysDictionaryService.findOneByTypeAndValueKey("productUnitPrice", "price_yuan");
+        if (dictionary == null) {
+            logger.error("getDesignPlanProductList--获取数据字典价格单位为空：dictionary--" + dictionary);
+            return null;
+        }
+        //查询所有分类
+        //产品总类别：电器，硬装，软装
+        List<ProductsCostType> productsCostTypeList = this.getProductCostType();
+        //产品小类别集合
+        List<ProductsCost> productsCostList = this.getProductCost();
+
+        if (productsCostList == null || productsCostList.size() <= 0 || productsCostTypeList == null || productsCostTypeList.size() <= 0) {
+            logger.error("getDesignPlanProductList--获取产品大小类有一个为空：productsCostTypeList--" + productsCostTypeList + ",productsCostList--" + productsCostList);
+            return null;
+        }
+        //遍历产品列表和产品小类列表，把产品放入对应的小类
+        //产品小分类的总价
+        BigDecimal costTotalPrice;
+        for (ProductsCost productsCost : productsCostList) {
+            costTotalPrice = new BigDecimal(0);
+            for (ProductCostDetail productCostDetail : productCostDetailList) {
+                //给小类设值替换搜索的时候需要
+                productCostDetail.setSmallTypeValue(productCostDetail.getProductSmallTypeValue());
+
+                //不是本公司的产品则产品总价和单价都为0
+                if (null == productCostDetail.getTotalPrice() || !companyId.equals(productCostDetail.getCompanyId())) {
+                    productCostDetail.setUnitPrice(new BigDecimal(0));
+                    productCostDetail.setTotalPrice(new BigDecimal(0));
+                }
+                //装进我家多点 design_plan_product_render_scene表中的is_replace_texture是否材质替换为null
+                //如果为null，变为0
+                if (null == productCostDetail.getIsReplaceTexture()) {
+                    productCostDetail.setIsReplaceTexture(0);
+                }
+
+                if (productsCost.getCostTypeCode().equals(productCostDetail.getTypeValueKey())) {
+                    productCostDetail.setProductUnit(dictionary.getName());
+                    productsCost.getDetailList().add(productCostDetail);
+                    productsCost.setUserId(userId);
+                    productsCost.setSalePriceValueName(dictionary.getName());
+                    if (productsCost.getProductIds() == null || productsCost.getProductIds().length() == 0) {
+                        productsCost.setProductIds(productCostDetail.getProductId() + "");
+                    } else {
+                        productsCost.setProductIds(productsCost.getProductIds() + "," + productCostDetail.getProductId());
+                    }
+                    productsCost.setProductCount(productsCost.getProductCount() + 1);
+                    //把产品总价加到对应的分类总价中
+                    costTotalPrice = costTotalPrice.add(productCostDetail.getTotalPrice());
+
+                }
+            }
+            productsCost.setTotalPrice(costTotalPrice);
+
+        }
+        //把没有产品的小分类移除
+        Iterator<ProductsCost> productsCostIterator = productsCostList.iterator();
+        while (productsCostIterator.hasNext()) {
+            ProductsCost productsCost = productsCostIterator.next();
+            if (productsCost.getDetailList().size() == 0) {
+                productsCostIterator.remove();
+            }
+        }
+        //把产品小类放入对应的大类
+        //产品大分类的总价
+        BigDecimal costTypeTotalPrice;
+        for (ProductsCostType productsCostType : productsCostTypeList) {
+            costTypeTotalPrice = new BigDecimal(0);
+            for (ProductsCost productsCost : productsCostList) {
+                if (productsCostType.getCostTypeCode().equals(productsCost.getProductTypeValue())) {
+                    productsCostType.getDetailList().add(productsCost);
+                    productsCostType.setProductCount(productsCost.getProductCount());
+                    productsCostType.setSalePriceValueName(dictionary.getName());
+                    productsCostType.setUserId(userId);
+                    if (productsCostType.getCostCodes() == null || productsCostType.getCostCodes().length() == 0) {
+                        productsCostType.setCostCodes(productsCost.getCostTypeCode());
+                    } else {
+                        productsCostType.setCostCodes(productsCostType.getCostCodes() + "," + productsCost.getCostTypeCode());
+                    }
+                    //把产品小分类总价加到对应的大分类总价中
+                    costTypeTotalPrice = costTypeTotalPrice.add(productsCost.getTotalPrice());
+                }
+            }
+            productsCostType.setTotalPrice(costTypeTotalPrice);
+        }
+        //查询价格
+
+        //查询数量
+
+        //把没有小分类的大分类移除
+        Iterator<ProductsCostType> productsCostTypeIterator = productsCostTypeList.iterator();
+        while (productsCostTypeIterator.hasNext()) {
+            ProductsCostType productsCostType = productsCostTypeIterator.next();
+            if (productsCostType.getDetailList().size() == 0) {
+                productsCostTypeIterator.remove();
+            }
+        }
+        logger.info("getDesignPlanProductList ---- List<ProductsCostType> ==" + productsCostTypeList);
+        return productsCostTypeList;
+    }
+
+    //获取数据字典产品总类别
+    private List<ProductsCostType> getProductCostType() {
+        return sysDictionaryProductTypeMapper.getProductTotalType();
+    }
+
+    //获取数据字典小类别
+    private List<ProductsCost> getProductCost() {
+        return sysDictionaryProductTypeMapper.getProductCost();
+    }
+
+    /**
+     * 根据公司获取产品可见范围对应的基础分类
+     * @param baseCompany
+     * @return
+     */
+    public List<SysDictionaryBo> getProductTypeValue(BaseCompany baseCompany) {
+        List<SysDictionaryBo> sysDictionaryBoList = null;
+        if (null != baseCompany) {
+            String productVisibilityRange = baseCompany.getProductVisibilityRange();
+
+            if (null != productVisibilityRange && !"".equals(productVisibilityRange)) {
+                String[] split = productVisibilityRange.split(",");
+                List<String> productVisibilityRangeList = Arrays.asList(split);
+                //将可见产品范围转成list
+                List<Integer> visibilityRangeIdList = Utils.getIntegerListFromStringList(productVisibilityRangeList);
+                //根据可见范围查询到所有可见的分类编码
+                List<String> visibilityRangeCodeList = proCategoryService.getCodeListByIdList(visibilityRangeIdList);
+                //根据所有可见范围的code获得数据字典的大小类list
+                sysDictionaryBoList = sysDictionaryService.getListByValueKeys(visibilityRangeCodeList);
+            } else {
+                logger.error("企业配置的“产品可见范围”是空");
+            }
+        }
+        return sysDictionaryBoList;
+    }
+
+
+    public static void main(String[] args) {
+        BigDecimal bigDecimal = new BigDecimal(0);
+        //这样会报空指针
+        bigDecimal = bigDecimal.add(null);
+        System.out.println("---------" + bigDecimal);
+    }
+}

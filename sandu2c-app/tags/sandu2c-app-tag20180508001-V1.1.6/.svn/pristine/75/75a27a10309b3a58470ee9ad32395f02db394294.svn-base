@@ -1,0 +1,69 @@
+package com.sandu.web.base.controller;
+
+import com.google.gson.Gson;
+import com.sandu.banner.output.BaseBannerListVO;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.platform.BasePlatform;
+import com.sandu.system.service.*;
+import io.swagger.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
+/**
+ * 基础-广告 控制层
+ * @author WangHaiLin
+ * @date 2018/5/11  13:47
+ */
+
+@Api(tags = "baseBanner",description = "基础-广告")
+@Controller
+@RequestMapping("/v1/xzminiprogram/base/banner")
+public class BaseBannerController {
+    private final static Gson gson = new Gson();
+    private final static String CLASS_LOG_PREFIX = "[基础-广告控制层]:";
+    private final static Logger logger = LoggerFactory.getLogger(BaseBannerController.class);
+
+    @Autowired
+    private BasePlatformService basePlatformService;
+
+    @Autowired
+    private BaseBannerBizService baseBannerBizService;
+
+
+    /**
+     * 选装网获取Banner列表接口
+     * @param positionCode
+     * @param request
+     * @return
+     */
+    @ApiOperation(value = "选装网广告",response = BaseBannerListVO.class)
+    @ApiImplicitParam(name = "positionCode",value = "位置编码(system:module:page:positon)",paramType = "query",dataType = "String",required = true)
+    @ResponseBody
+    @RequestMapping(value = "/list",method = RequestMethod.GET)
+    public ResponseEnvelope getXZBannerImgs(@RequestParam(value = "positionCode") String positionCode,
+                                            HttpServletRequest request ) {
+        if (null==positionCode||"".equals(positionCode)){
+            logger.debug(CLASS_LOG_PREFIX,"位置编码",gson.toJson(positionCode));
+            return new ResponseEnvelope(false,"positionCode参数有误");
+        }
+       //从头部获取平台编码
+        String platformCode = request.getHeader("Platform-Code");
+        //根据平台编码查询平台id
+        if(null!=platformCode){
+            BasePlatform basePlatform = basePlatformService.getByPlatformCode(platformCode);
+            logger.debug(CLASS_LOG_PREFIX,"选装网平台信息",gson.toJson(basePlatform));
+            if(null!=basePlatform){
+                List<BaseBannerListVO> bannerListVOS = baseBannerBizService.getBannerImgs(1, positionCode, basePlatform.getId());
+                return new ResponseEnvelope(true,"success",bannerListVOS,bannerListVOS.size());
+            }
+            return new ResponseEnvelope(false,"平台不存在");
+        }
+        return new ResponseEnvelope(false,"从头部获取平台编码失败");
+    }
+}

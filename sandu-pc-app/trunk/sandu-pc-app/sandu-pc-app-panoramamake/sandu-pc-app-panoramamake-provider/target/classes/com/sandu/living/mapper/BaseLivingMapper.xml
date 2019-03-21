@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.living.dao.BaseLivingMapper">
+
+    <resultMap id="listMap" type="com.sandu.living.model.output.BaseLivingVo">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="living_name" property="livingName" jdbcType="VARCHAR"/>
+        <result column="area_name" property="areaName" jdbcType="VARCHAR"/>
+        <result column="living_address" property="livingAddress" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 查询小区数量 -->
+    <select id="count" resultType="java.lang.Integer"
+            parameterType="com.sandu.living.model.input.BaseLivingSearch">
+        select count(DISTINCT bl.id) from base_living bl
+        left join base_area ba on bl.area_id = ba.area_code
+        LEFT JOIN base_house bh ON bl.id = bh.living_id AND bl.is_deleted = 0
+        LEFT JOIN house_space_new sh ON sh.house_id = bh.id AND sh.is_deleted = 0
+        LEFT JOIN space_common sc ON sc.id = sh.standard_space_id AND sc.is_deleted = 0
+        LEFT JOIN design_templet dt ON dt.space_common_id = sc.id AND dt.is_deleted = 0
+        LEFT JOIN design_plan_render_scene dprs ON dprs.design_template_id = dt.id AND dprs.is_deleted = 0
+        where bl.is_deleted = 0 and ba.is_deleted = 0
+        <!-- 只显示户型绘制产生的户型对应的小区 -->
+        AND sc.origin = 1
+        <if test="userId != null">
+            AND dprs.user_id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="livingName != null and livingName != ''">
+            and bl.living_name like CONCAT(CONCAT('%',#{livingName,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="areaId != null and areaId != ''">
+            and ba.long_code like CONCAT(CONCAT('%.',#{areaId,jdbcType=VARCHAR}),'.%')
+        </if>
+    </select>
+
+    <!-- 查询小区列表 -->
+    <select id="list" resultMap="listMap"
+            parameterType="com.sandu.living.model.input.BaseLivingSearch">
+        select distinct bl.id,bl.living_name,ba.area_name,bl.living_address from base_living bl
+        left join base_area ba on bl.area_id = ba.area_code
+        LEFT JOIN base_house bh ON bl.id = bh.living_id AND bl.is_deleted = 0
+        LEFT JOIN house_space_new sh ON sh.house_id = bh.id AND sh.is_deleted = 0
+        LEFT JOIN space_common sc ON sc.id = sh.standard_space_id AND sc.is_deleted = 0
+        LEFT JOIN design_templet dt ON dt.space_common_id = sc.id AND dt.is_deleted = 0
+        LEFT JOIN design_plan_render_scene dprs ON dprs.design_template_id = dt.id AND dprs.is_deleted = 0
+        where bl.is_deleted = 0 and ba.is_deleted = 0
+        <!-- 只显示户型绘制产生的户型对应的小区 -->
+        AND sc.origin = 1
+        <if test="userId != null">
+            AND dprs.user_id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="livingName != null and livingName != ''">
+            and bl.living_name like CONCAT(CONCAT('%',#{livingName,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="areaId != null and areaId != ''">
+            and ba.long_code like CONCAT(CONCAT('%',#{areaId,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="start != null and limit != null">
+            LIMIT #{start}, #{limit}
+        </if>
+    </select>
+
+</mapper>

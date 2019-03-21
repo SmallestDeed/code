@@ -1,0 +1,144 @@
+package com.sandu.design.service.impl;
+
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.common.model.LoginUser;
+import com.sandu.design.dao.DesignPlanRecommendedMapper;
+import com.sandu.design.model.DesignPlanRecommended;
+import com.sandu.design.service.DesignPlanRecommendedProductService;
+import com.sandu.design.service.DesignPlanRecommendedService;
+import com.sandu.product.model.constant.ProductTypeConstant;
+import com.sandu.system.model.SysDictionary;
+import com.sandu.system.model.SysRole;
+import com.sandu.system.model.search.SysUserRoleSearch;
+import com.sandu.system.service.SysDictionaryService;
+import com.sandu.system.service.SysRoleService;
+import com.sandu.system.service.SysUserRoleService;
+
+@Service("designPlanRecommendedService")
+public class DesignPlanRecommendedServiceImpl implements DesignPlanRecommendedService {
+
+	@Autowired
+	private DesignPlanRecommendedMapper designPlanRecommendedMapper;
+	
+	@Autowired
+	private SysRoleService sysRoleService;
+	
+	@Autowired
+	private SysUserRoleService sysUserRoleService;
+	
+	@Autowired
+	private SysDictionaryService sysDictionaryService;
+	
+	@Autowired
+	private DesignPlanRecommendedProductService designPlanRecommendedProductService;
+	
+	@Override
+	public DesignPlanRecommended get(Integer id) {
+		return designPlanRecommendedMapper.selectByPrimaryKey(id);
+	}
+
+	Logger logger = LoggerFactory.getLogger(DesignPlanRecommendedServiceImpl.class);
+	
+	/**
+	 * 判断是否有审核权限
+	 * @param loginUser
+	 * @return
+	 */
+	@Override
+	public boolean isDesignPlanCheck(LoginUser loginUser,Integer userId){
+		boolean permissions = false;
+		if(loginUser == null && userId == null){
+			return permissions;
+		}
+
+		Integer roleId = null;
+		List<SysRole>roleList = null;
+		try{
+			SysRole sysRole = new SysRole();
+			sysRole.setIsDeleted(0);
+			sysRole.setCode("0232");
+			roleList = sysRoleService.selectList(sysRole);
+			if(roleList!=null && roleList.size()>= 1 ){
+				roleId = roleList.get(0).getId();
+			}else{
+				return permissions;
+			}
+			if(roleId !=null && roleId.intValue()>0){
+				SysUserRoleSearch sysUserRoleSearch = new SysUserRoleSearch();
+				if(loginUser != null){
+					sysUserRoleSearch.setUserId(loginUser.getId());
+				}else{
+					sysUserRoleSearch.setUserId(userId);
+				}
+				sysUserRoleSearch.setRoleId(roleId);
+				int count = sysUserRoleService.selectCount(sysUserRoleSearch);
+				if(count>0){
+					permissions = true;
+				}
+			}
+		}catch (Exception e) {
+			logger.error("isDesignPlanCheck  methods the error  :" + e);
+			return permissions;
+		}
+		return permissions;
+	}
+
+	@Override
+	public boolean getIsRemmendedPlanHasDyba(Integer planRecommendedId) {
+		// 参数验证 ->start
+		if(planRecommendedId == null){
+			return false;
+		}
+		// 参数验证 ->end
+		int count = this.getCountByPlanIdAndProductType(
+				planRecommendedId,
+				/*ProductTypeConstant.PRODUCT_BIG_TYPE_BA, */
+				ProductTypeConstant.PRODUCT_SMALL_TYPE_DYBA
+		);
+		if(count == 0){
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public int getCountByPlanIdAndProductType(
+			Integer planRecommendedId,
+			/*String bigTypeValuekey, */
+			String smallTypeValuekey) {
+		// 参数验证 ->start
+		if(planRecommendedId == null){
+			return 0;
+		}
+		/*if(StringUtils.isEmpty(bigTypeValuekey)){
+			return 0;
+		}*/
+		if(StringUtils.isEmpty(smallTypeValuekey)){
+			return 0;
+		}
+		// 参数验证 ->end
+
+		/*SysDictionary sysDictionaryBigType = sysDictionaryService.findOneByValueKey(bigTypeValuekey);
+		if(sysDictionaryBigType == null){
+			return 0;
+		}*/
+		SysDictionary sysDictionarySmallType = sysDictionaryService.findOneByValueKey(smallTypeValuekey);
+		if(sysDictionarySmallType == null){
+			return 0;
+		}
+		SysDictionary sysDictionaryBigType = sysDictionaryService.findOneByValueKey(sysDictionarySmallType.getType());
+		if(sysDictionaryBigType == null){
+			return 0;
+		}
+		return designPlanRecommendedProductService.getCountByPlanIdAndProductTypeValue(
+				planRecommendedId, sysDictionaryBigType.getValue(), sysDictionarySmallType.getValue());
+	}
+	
+}

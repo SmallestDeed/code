@@ -1,0 +1,73 @@
+package com.sandu.goods.service.impl;
+
+
+import com.sandu.goods.dao.BaseGoodsSKUMapper;
+import com.sandu.goods.input.GoodsSkuQuery;
+import com.sandu.goods.model.BaseGoodsSKU;
+import com.sandu.goods.output.GoodsSkuVO;
+import com.sandu.goods.service.BaseGoodsSKUService;
+import com.sandu.system.service.ResPicService;
+import lombok.extern.log4j.Log4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+
+@Service("baseGoodsSKUService")
+@Log4j
+public class BaseGoodsSKUServiceImpl implements BaseGoodsSKUService
+{
+    @Autowired
+    private BaseGoodsSKUMapper baseGoodsSKUMapper;
+    @Autowired
+    private ResPicService resPicService;
+
+    @Override
+    public GoodsSkuVO getSkuInfoByAttrs(GoodsSkuQuery attrValueIds)
+    {
+        GoodsSkuVO goodsSkuVO = new GoodsSkuVO();
+        List<BaseGoodsSKU> skus = baseGoodsSKUMapper.getSkusBySpuId(attrValueIds.getSpuId());
+        List<Integer> attrValIds = attrValueIds.getAttrValueIds();
+
+        for (BaseGoodsSKU sku : skus)
+        {
+            String[] attrIdsStrs = sku.getAttributeIds().split(",");
+            List<Integer> skuAttrIds = new ArrayList<>();
+            for (String attrIdsStr : attrIdsStrs)
+            {
+                skuAttrIds.add(Integer.parseInt(attrIdsStr));
+            }
+            Integer flag = 0;
+            for (Integer valId : attrValIds)
+            {
+                for (Integer attrId : skuAttrIds)
+                {
+                    if (valId.equals(attrId))
+                    {
+                        flag += 1;
+                    }
+                }
+            }
+            if (flag == skuAttrIds.size())
+            {
+                goodsSkuVO.setSkuId(sku.getId());
+                goodsSkuVO.setInventory(sku.getInventory());
+                goodsSkuVO.setPrice(sku.getPrice());
+                goodsSkuVO.setProductId(sku.getProductId());
+                goodsSkuVO.setListPic(resPicService.get(sku.getListPicId()).getPicPath());
+                goodsSkuVO.setMainPic(resPicService.get(sku.getMainPicId()).getPicPath());
+                return goodsSkuVO;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<Integer> getProductIdsBySpuId(Integer spuId)
+    {
+        return baseGoodsSKUMapper.getProductIdsBySpuId(spuId);
+    }
+}

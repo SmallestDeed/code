@@ -1,0 +1,131 @@
+<!--index.wxml-->
+<import src="../../utils/wxParse/wxParse.wxml"/>  
+<view class='index'>
+  <view class='index-container'>
+     <swiper style='{{imageArray.length<=0?"height:0":""}}' circular indicator-active-color="#ff6419" indicator-dots autoplay="true" duration="1000">
+      <swiper-item wx:for="{{imageArray}}" wx:key='{{index}}'>
+        <view class='index-banner' bindtap='goWeiGuang' data-num='{{index}}'>
+          <image src='{{resourcePath+item}}'></image>
+        </view>
+      </swiper-item>
+    </swiper> 
+  </view>
+
+<view class='gridView'>
+    <view class='tabRows'>
+        <view class='items g3'
+            wx:for="{{navRows}}"
+            data-url="{{item.url}}"
+            wx:key="{{index}}"
+        bindtap='toUrl'>
+            <image src='{{item.picPath}}'></image>
+            <view>{{item.name}}</view>
+        </view>
+    </view>
+    <view class='listRows' wx:if="{{couponList.length>0}}">
+        <view class='items {{item.isAlreadyGet==0?"":"glay"}}' wx:for="{{couponList}}" wx:key="index">
+            <image src='{{item.isAlreadyGet==0?"../static/image/home_bg_coupons_02.png":"../static/image/home_bg_coupons_01.png"}}'></image>
+            <text class='money {{item.discountAmount>=10000?"small":""}}'>{{item.discountAmount!=0?'￥'+item.discountAmount:item.rebateFactor+"折"}}</text>
+            <text class='type'>
+              {{item.couponType==1?"新人专享":(item.orderAmount!=0?"满"+item.orderAmount+"元立减":"无门槛")}}
+            </text>
+            <text class='click' data-id='{{item.id}}' wx:if="{{item.isAlreadyGet==0}}" bindtap='receive'>立即领取</text>
+            <text class='click' wx:if="{{item.isAlreadyGet!=0}}" bindtap='unreceive'>已领取</text>
+          </view>
+    </view>
+</view>
+
+  <view class='index-product index-top' style='margin-top:20rpx;' wx:if="{{specialSaleList.length>0}}">
+    <view class='product-name clearfix'>
+      <text class='fl'>{{typeName}}</text>
+      <!-- data-url="1" data-type="specialOfferl"  -->
+      <view class='a fr' bindtap='gotoPge' data-url="{{typeId}}" data-type="specialOfferl">
+        查看更多<image class='more' src='image/home_icon_more.png'></image>
+      </view>
+      <scroll-view scroll-x="true" style=" white-space: nowrap; display: flex">
+        <view class='scroll-item'>
+          <!-- for: specialSaleList  -->
+          <!-- specialOfferlList / specialSaleList   -->
+          <view 
+            wx:for="{{specialSaleList}}" wx:key='{{index}}' class='scroll-product'
+            bindtap='toPage' data-id="{{item.id}}" style='{{index==0?"margin-left:30rpx;":"margin-left:20rpx;"}}'>
+              <image class='tapView' src='{{typeImg}}'></image>
+              <image src='{{resourcePath+item.picPath}}'></image>
+              <view class='scroll-title'>{{item.productName}}</view>
+              <view class='scroll-price clearfix'>
+                <view class='now fl'>{{item.price&&item.price!=0?('￥'+item.price):'暂无定价'}}</view>
+                <!-- <view class='discount fl'>￥{{item.salePrice}}</view> -->
+              </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+
+  <!-- 新品  -->
+
+  <view class='index-product' wx:if="{{presellList.length>0}}">
+    <view class='product-name clearfix mro'>
+      <text class='fl'>新品预售</text>
+      <view class='fr' bindtap='gotoPge' data-url="1" data-type="presellList">
+        查看更多<image class='more' src='image/home_icon_more.png'></image>
+      </view>
+    </view>
+    <!-- for:presellList  -->
+    <view class='pro-list clearfix'>
+      <view wx:for="{{presellList}}" wx:key="item" class='pro-list-iteam {{(index+1)%2==0?"ml":""}}' bindtap='toPage' data-id="{{item.id}}">
+        <image src='{{item.picPath?resourcePath+item.picPath:"../static/image/goods_pic_no.png"}}' data-url='{{resourcePath+item.picPath}}'></image>
+        <image class='tapView' src='../static/image/home_icon_new.png'></image>
+        <view class='pro-list-iteam-title'>{{item.productName}}</view>
+        <view class='pro-list-iteam-price'>{{item.price&&item.price!=0?('￥'+item.price):'暂无定价'}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 方案  -->
+  <view class='index-product'>
+    <view class='product-name clearfix mro'>
+      <text class='fl'>一键方案</text>
+      <view class='fr' bindtap='gotoPge' data-url="2">
+        查看更多<image class='more' src='image/home_icon_more.png'></image>
+      </view>
+    </view>
+    <view class='goods-details-case'>
+    
+      <case-list border='{{true}}' recommendCaseList='{{recommendCaseList}}' bindshowDecoratePriceBox='showDecoratePriceBox'></case-list>
+    </view>
+
+
+  </view>
+
+  <block wx:if='{{hideFlag==false}}'>
+  <view class='index-product' style='padding-bottom:40rpx'>
+    <view class='product-name clearfix'>
+      <text class='fl'>品牌介绍</text>
+    </view>
+    <view class='brand-img' wx:if="{{brandImg}}">
+      <image src='{{resourcePath+brandImg}}' data-url=''></image>
+    </view>
+    <view class='content'>
+      {{article}}
+    </view>
+  </view>
+  </block>
+</view>
+
+<view class='zzcs' wx:if="{{getPhone}}"></view>
+<view class='showView' wx:if="{{getPhone}}">
+    <image src='{{staticImageUrl}}zhuce01@2x.png' class='bgImg'></image>
+    <view class='items' style='margin-top:50rpx;'>
+        <input placeholder='手机号' maxlength='11' type='number' value='{{getObj.phone}}' bindinput='changeInput' data-type="phone"></input>
+    </view>
+    <view class='items code'>
+        <input placeholder='验证码' data-type="code" maxlength='8' type='number' disabled='{{!inputFlag2}}' bindinput='changeInput' value='{{getObj.code}}'></input>
+        <view class='pubCode  {{inputFlag?"":"disableds"}}' bindtap='{{inputFlag&&message=="获取验证码"?"getCodeFun":""}}'>
+            {{message?message:"获取验证码"}}
+        </view>
+    </view>
+    <view class='items btns {{inputFlag2?"":"disableds"}}' bindtap='{{inputFlag2?"submitFun":""}}'>确认</view>
+    <image src='{{staticImageUrl}}home_pop_close.png' class='close' bindtap='closeFun'></image>
+</view> 

@@ -1,0 +1,133 @@
+<!--pages/decoration/planList/planList.wxml-->
+<import src="../../../utils/wxParse/wxParse.wxml"/>
+<view class='plan-introduction'>
+    <view class="plan-banner">
+        <image class='banner-img' src="{{resourcePath + Detail.designPlanCoverPath }}"></image>
+        <image class='icon-img' data-item='{{Detail}}' src="{{staticImageUrl}}place_icon_720@2x.png" bindtap='goTo720View'></image>
+    </view>
+    <view class='plan-content'>
+      <template is="wxParse" data="{{wxParseData: article.nodes}}"/> 
+    </view>
+    <!-- <view class="plan-content">
+        <view class="title">品味 - 好品味让生活变得妙不可言</view>
+        <view class="decoration">现代简约、北欧风情</view>
+        <view class="tips">
+            <text class="tip-box">质感</text>
+            <text class="tip-box">悠闲自在</text>
+            <text class="tip-box">细腻</text>
+        </view>
+        <view class="detail">
+        好品味是一种难得的天分，不再依赖于金钱的堆砌，而是在质感和设计的搭配中，创造美感受美。</view>
+    </view>
+    <view class='type-box'>
+          <view class='type-title'>客餐厅</view>
+      <swiper class="scroll-view-box">
+          <swiper-item class='type-list' wx:for='{{typeList}}' wx:key='{{index}}'>
+            <view class='shop-image'>
+              <image src="{{staticImageUrl}}goods_pic_no.png"></image>
+            </view>
+          </swiper-item>
+      </swiper>
+      <view class='type-detail'>白色沙发，让你感觉房间更宽阔，舒适，每天回家就有一个好心情喔~</view>
+    </view>
+    <view class='type-box'>
+          <view class='type-title'>卧室</view>
+      <swiper class="scroll-view-box">
+          <swiper-item class='type-list' wx:for='{{typeList}}' wx:key='{{index}}'>
+            <view class='shop-image'>
+              <image src="{{staticImageUrl}}goods_pic_no.png"></image>
+            </view>
+          </swiper-item>
+      </swiper>
+      <view class='type-detail'>白色沙发，让你感觉房间更宽阔，舒适，每天回家就有一个好心情喔~</view>
+    </view>
+    <view class='type-box'>
+      <view class='type-title'>厨房</view>
+      <swiper class="scroll-view-box">
+          <swiper-item class='type-list' wx:for='{{typeList}}' wx:key='{{index}}'>
+            <view class='shop-image'>
+              <image src="{{staticImageUrl}}goods_pic_no.png"></image>
+            </view>
+          </swiper-item>
+      </swiper>
+    </view>
+    <view class='type-box'>
+      <view class='type-title'>特色服务</view>
+      <view class='type-image'>
+        <image src="{{staticImageUrl}}goods_pic_no.png"></image>
+      </view>
+      <view class='type-rule'>
+        <view class='type-rule-text'> 1、免费量房：根据需求推荐1~3家装修公司免费量房；</view>
+        <view class='type-rule-text'> 2、免费报价审核：297项报价审核，确保0增项开工；</view>
+        <view class='type-rule-text'> 3、免费材料验收：超过100种材料验收，防止假劣产品出现；</view>
+        <view class='type-rule-text'> 4、免费节点验收：198个施工项目验收，保证高标准施工工艺；</view>
+        <view class='type-rule-text'> 5、免费环保服务：手机检测，绿色环保，说到做到。</view>
+      </view>
+    </view> -->
+    <view class='designer-info-box'>
+      <view class='avatar'>
+        <image src="{{ Detail.designerHeadPic ? resourcePath + Detail.designerHeadPic : staticImageUrl+'index.png' }}"></image>
+      </view>
+      <view class='info'>
+        <view class='name'>{{Detail.designerName}}</view>
+        <view class='tips' wx:if='{{Detail.chargeType==1}}'>
+            <!-- Detail.chargeType==1 -->
+          <!-- <text class='type'>全包</text> -->
+          <text class='account'>版权费：{{Detail.planPrice}}度币</text>
+        </view>
+        
+        <view class='price' wx:if="{{Detail.planDecoratePriceList && Detail.planDecoratePriceList.length > 0}}">
+          装修报价：
+          <text wx:for="{{ Detail.planDecoratePriceList }}" wx:key="{{ index }}" wx:for-item="priceItem">{{ priceItem.decorateTypeName }}{{ priceItem.decoratePrice }}/㎡{{index == Detail.planDecoratePriceList.length - 1 ? '' : '、' }}</text>
+        </view>
+      </view>
+      <view class='home-note' bindtap="toHomeList">家装清单</view>
+    </view>
+    <view class="plan-button-group">
+        <view class="box collect-box" bindtap='collectCase' data-item='{{Detail}}'>
+            <image src="{{staticImageUrl}}detail_icon_Collection_{{Detail.isFavorite==1 ? 'sel' : 'nor'}}.png"></image>
+        </view>
+        <view class="box like-box" bindtap='likeCase' data-item='{{Detail}}'>
+            <image src="{{staticImageUrl}}detail_icon_like_{{Detail.isLike==1 ? 'sel' : 'nor'}}.png"></image>
+        </view>
+        <view class="button btn-design" data-type="4" bindtap='ReservePop' >
+            找我设计
+        </view>
+        <view class="button btn-inhome" catchtap='putInMyhouse'>
+            装进我家
+        </view>
+    </view>
+</view>
+   
+
+<view class='reserve-pop' wx:if="{{ isShowReservePop }}">
+  <view class='reserve-pop-box'>
+    <view class='title'>免费预约</view>
+    <view class='tips'>预约后会有专业人员与您联系</view>
+    <view class='inp-content'>
+      <input placeholder='姓名' value='{{ bindedName }}' bindinput='changeName'></input>
+      <view class="before-binding-phone-box" wx:if="{{ !isbindedPhone && !isNeededShowPhone}}">
+        <input type='number' maxlength='11' bindinput='changeMobile' placeholder='手机号'></input>
+      </view>
+      <view class="before-binding-phone-box" wx:if="{{ !isbindedPhone && isNeededShowPhone }}">
+        <input type='number' bindinput='changeMobile' placeholder='手机号'></input>
+        <view class="verify-phone-box clearfix">
+          <input class="fl" type='number' bindinput='changeCode' maxlength='6' placeholder='验证码'></input>
+          <view class="verify-text fl" bindtap='getCode'>{{ bindingPhoneGetCodeText }}</view>
+        </view>
+      </view>
+      <view class="after-binding-phone-box" wx:if="{{ isbindedPhone && isNeededShowPhone }}">
+        <text class="bind-tips">您已绑定手机号</text><text class="bind-phone">{{ bindingPhoneMobile }}</text>
+        <view class="bind-text" bindtap="showBindPhone">修改手机号></view>
+      </view>
+    </view>
+    <view class="reserve-button" bindtap='goToReserve'>
+      预约
+    </view>
+    <view class="close" bindtap='closeReservePop'></view> 
+  </view>
+</view>
+<!-- 快速导航模块 -->
+  <!-- <import src="../../../component/newNav/newNav.wxml"/>
+  <template is="newNav" data="{{ ...newNav }}"/> -->
+  <jdNav></jdNav>

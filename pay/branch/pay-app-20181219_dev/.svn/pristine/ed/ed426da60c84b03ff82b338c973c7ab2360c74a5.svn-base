@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.pay.goods.dao.GoodsMapper">
+
+    <resultMap id="goodsResultMapFromDictionary" type="com.sandu.pay.goods.model.Goods">
+        <result  column="value" property="goodsId" jdbcType="INTEGER" />
+        <result  column="att1" property="adjustFee" jdbcType="INTEGER" />
+        <result  column="att2" property="price" jdbcType="INTEGER" />
+        <result  column="att3" property="score" jdbcType="INTEGER" />
+    </resultMap>
+
+    <select id="getGoodsInfo" resultMap="goodsResultMapFromDictionary"
+        parameterType="java.lang.String">
+        SELECT `VALUE`,ATT1,ATT2,ATT3
+        FROM sys_dictionary
+        WHERE 1 = 1
+        <if test="type != null and type != ''">
+          AND `type` = #{dicType,jdbcType.VARCHAR}
+        </if>
+        <if test="value != null and value != ''">
+          AND `value` = #{value,jdbcType.VARCHAR}
+        </if>
+    </select>
+</mapper>

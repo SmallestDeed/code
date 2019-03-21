@@ -1,0 +1,1008 @@
+package com.sandu.activity.service.impl;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import com.google.common.collect.Lists;
+import com.sandu.activity.model.query.CouponCanBeUsedQuery;
+import com.sandu.activity.model.vo.*;
+import com.sandu.order.MallBaseOrderService;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.sandu.activity.dao.CouponDao;
+import com.sandu.activity.model.Coupon;
+import com.sandu.activity.model.CouponProduct;
+import com.sandu.activity.model.CouponUser;
+import com.sandu.activity.model.query.CouponProductQuery;
+import com.sandu.activity.model.query.CouponQuery;
+import com.sandu.activity.model.query.CouponUserQuery;
+import com.sandu.activity.service.CouponService;
+import com.sandu.cache.service.RedisService;
+import com.sandu.common.constant.GlobalConstant;
+import com.sandu.common.utils.DateUtil;
+import com.sandu.common.utils.DigitalUtils;
+import com.sandu.common.utils.IdWorker;
+import com.sandu.common.utils.StringUtils;
+import com.sandu.matadata.CacheKeys;
+import com.sandu.matadata.Page;
+import com.sandu.matadata.ResultCode;
+import com.sandu.matadata.ResultMessage;
+import com.sandu.matadata.enums.CouponEffectiveDateMode;
+import com.sandu.matadata.enums.CouponProductScopeType;
+import com.sandu.matadata.enums.CouponStateType;
+import com.sandu.matadata.enums.CouponType;
+
+@Service("couponService")
+@Transactional(readOnly = true)
+public class CouponServiceImpl implements CouponService {
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(CouponServiceImpl.class.getName());
+    @Autowired
+    private CouponDao couponDao;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private MallBaseOrderService mallBaseOrderService;
+
+    private int getUserReceiveCount(long couponId) {
+        int count = 0;
+        String key = CacheKeys.getUserReceiveCouponCount(couponId);
+        if (redisService.exists(key)) {
+            count = Integer.parseInt(redisService.get(key));
+        } else {
+            CouponUserQuery query = new CouponUserQuery();
+            query.setCouponId(BigInteger.valueOf(couponId));
+            count = couponDao.findUserReceiveCount(query);
+            redisService.addString(key, GlobalConstant.LONG_CACHE_SECONDS, String.valueOf(count));
+        }
+        return count;
+    }
+
+    private void formatCoupon(CouponVo vo) {
+        String useDuration = "";
+        String pattern = "yyyy.MM.dd";
+        if (vo.getEffectiveDateMode() == 1) {
+            useDuration = DateUtil.formatDate(vo.getStartTime(), pattern) + "-"
+                    + DateUtil.formatDate(vo.getEndTime(), pattern);
+        } else {
+            useDuration = "领券当日" + vo.getEffectiveDays() + "天后过期";
+        }
+        vo.setUseDuration(useDuration);
+    }
+
+    private void formatCouponUser(CouponUserVo vo) {
+        String useDuration = "";
+        String pattern = "yyyy.MM.dd";
+        if (vo.getEffectiveDateMode() == 1) {
+            useDuration = DateUtil.formatDate(vo.getStartTime(), pattern) + "-"
+                    + DateUtil.formatDate(vo.getEndTime(), pattern);
+        } else {
+            useDuration = "领券当日" + vo.getEffectiveDays() + "天后过期";
+        }
+        vo.setUseDuration(useDuration);
+    }
+
+    private void setCoupon(CouponVo vo) {
+        if (vo.getQty() == 0) {
+            vo.setReceiveRate("0.00%");
+            vo.setUsedRate("0.00%");
+        } else {
+            float receiveRate = vo.getReceiveQty() / vo.getQty();
+            vo.setReceiveRate(DigitalUtils.FloatToPercent(receiveRate));
+            float usedRate = vo.getUsedQty() / vo.getQty();
+            vo.setUsedRate(DigitalUtils.FloatToPercent(usedRate));
+        }
+        vo.setUserReceiveCount(getUserReceiveCount(vo.getId()));
+    }
+
+    @Override
+    public boolean deleteCoupon(long couponId) {
+        int num = couponDao.deleteCoupon(couponId);
+        if (num > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean deleteCouponProduct(long id) {
+        int num = couponDao.deleteCouponProduct(id);
+        if (num > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public CouponVo getCoupon(long couponId) {
+        return couponDao.getCoupon(couponId);
+    }
+
+    @Override
+    public Page<CouponProductVo> getCouponProductList(CouponProductQuery query) {
+        Page<CouponProductVo> page = new Page<CouponProductVo>();
+        long count = couponDao.findCouponProductCount(query);
+        List<CouponProductVo> list = couponDao.getCouponProductList(query);
+        page.setCount(count);
+        if (list != null && list.size() > 0) {
+            page.setList(list);
+            return page;
+        }
+        return null;
+    }
+
+    @Override
+    public Page<CouponVo> getCouponList(CouponQuery query) {
+        Page<CouponVo> page = new Page<CouponVo>();
+        long count = couponDao.findCouponCount(query);
+        List<CouponVo> list = couponDao.getCouponList(query);
+        page.setCount(count);
+        if (list != null && list.size() > 0) {
+            for (CouponVo vo : list) {
+                setCoupon(vo);
+            }
+            page.setList(list);
+        }
+        return page;
+    }
+
+    @Override
+    public Page<CouponUserVo> getExpiredList(CouponUserQuery query) {
+        Page<CouponUserVo> page = new Page<CouponUserVo>();
+        long count = couponDao.findExpiredCount(query);
+        List<CouponUserVo> list = couponDao.getExpiredList(query);
+        page.setCount(count);
+        if (list != null && list.size() > 0) {
+            for (CouponUserVo vo : list) {
+                formatCouponUser(vo);
+            }
+            //根据优惠券修改时间排序
+            List<CouponUserVo> result = list.stream().sorted(Comparator.comparing(CouponUserVo::getEndTime).reversed()).collect(Collectors.toList());
+            page.setList(list);
+            return page;
+        }
+        return null;
+    }
+
+    @Override
+    public Page<CouponUserVo> getUnUsedList(CouponUserQuery query) {
+        Page<CouponUserVo> page = new Page<CouponUserVo>();
+        long count = couponDao.findUnUsedCount(query);
+        List<CouponUserVo> list = couponDao.getUnUsedList(query);
+        page.setCount(count);
+        if (list != null && list.size() > 0) {
+            for (CouponUserVo vo : list) {
+                formatCouponUser(vo);
+            }
+            //根据ReceiveTime排序返回
+            List<CouponUserVo> result = list.stream().sorted(Comparator.comparing(CouponUserVo::getReceiveTime).reversed()).collect(Collectors.toList());
+            page.setList(result);
+            return page;
+        }
+        return null;
+    }
+
+    @Override
+    public Page<CouponUserVo> getUsedList(CouponUserQuery query) {
+        Page<CouponUserVo> page = new Page<CouponUserVo>();
+        long count = couponDao.findUsedCount(query);
+        List<CouponUserVo> list = couponDao.getUsedList(query);
+        page.setCount(count);
+        if (list != null && list.size() > 0) {
+            for (CouponUserVo vo : list) {
+                formatCouponUser(vo);
+            }
+            List<CouponUserVo> result = list.stream().sorted(Comparator.comparing(CouponUserVo::getUsedTime).reversed()).collect(Collectors.toList());
+            page.setList(result);
+            return page;
+        }
+        return null;
+    }
+
+   /* @Override
+    public Page<CouponVo> getWaitingReceiveList(CouponUserQuery query) {
+        // TODO Auto-generated method stub
+        Page<CouponVo> page = new Page<CouponVo>();
+        //long count = couponDao.findWaitingReceiveCount(query);
+        List<CouponVo> list = couponDao.getWaitingReceiveList(query);
+        //page.setCount(count);
+        if (list != null && list.size() > 0) {
+            list.stream()
+                    .forEach(item -> {
+                        item.setIsEffectiveDate(0);
+                        if (item.getEffectiveDateMode() == 2 && item.getReceiveId() != 0) {
+                            int count = couponDao.selectCountCouponByid(item.getReceiveId());
+                            if (count > 0) {
+                                item.setIsEffectiveDate(1);
+                            }
+                        }
+                        formatCoupon(item);
+                    });
+            page.setList(list);
+            return page;
+        }
+        return null;
+    }*/
+
+    @Override
+    public Page<CouponVo> getWaitingReceiveList(CouponUserQuery query) {
+        // TODO Auto-generated method stub
+        Page<CouponVo> page = new Page<CouponVo>();
+        //long count = couponDao.findWaitingReceiveCount(query);
+        List<CouponVo> list = couponDao.getWaitingReceiveList(query);
+        //page.setCount(count);
+        if (list != null && list.size() > 0) {
+            list.stream()
+                    .forEach(item -> {
+                        item.setIsEffectiveDate(0);
+                        if (item.getEffectiveDateMode() == 2 && item.getReceiveId() != 0) {
+                            int count = couponDao.selectCountCouponByid(item.getId());
+                            if (count > 0) {
+                                item.setIsEffectiveDate(1);
+                            }
+                        }
+                        formatCoupon(item);
+                    });
+            page.setList(list);
+            return page;
+        }
+        return null;
+    }
+
+
+    public Page<CouponVo> getWaitingReceiveList2(CouponUserQuery query) {
+        // TODO Auto-generated method stub
+        Page<CouponVo> page = new Page<CouponVo>();
+        //long count = couponDao.findWaitingReceiveCount(query);
+        List<CouponVo> list = couponDao.getWaitingReceiveList(query);
+        //page.setCount(count);
+        if (list != null && list.size() > 0) {
+
+            Set<CouponVo> collect = list.stream().map(item -> {
+                if (item.getEffectiveDateMode() == 2 && item.getReceiveId() != 0) {
+                    int count = couponDao.selectCountCouponByid(item.getReceiveId());
+                    if (count > 0) {
+                        item.setIsEffectiveDate(1);
+                    } else {
+                        item.setIsEffectiveDate(0);
+                    }
+                } else {
+                    item.setIsEffectiveDate(0);
+                }
+                return item;
+            }).collect(Collectors.toSet());
+
+            for (CouponVo vo : collect) {
+                formatCoupon(vo);
+            }
+
+            List<CouponVo> result = collect.stream().collect(Collectors.toList());
+
+            page.setList(result);
+            return page;
+        }
+        return null;
+    }
+
+    @Override
+    public ResultMessage receive(long couponId, long userId) {
+        ResultMessage message = new ResultMessage();
+        message.setCode(ResultCode.ServerError);
+        //第一期用户领取过一张优惠券不能再次领取,产品需求,故在此加逻辑
+        int count = couponDao.getCouponCountByUseId(couponId, userId);
+        if (count > 0) {
+            message.setCode(ResultCode.REPEAT_RECEIVE_CODE);
+            message.setMessage("已经领取了该优惠券");
+            return message;
+        }
+        CouponVo couponvo = couponDao.getCoupon(couponId);
+        if (couponvo != null && couponvo.getCouponState() == 2) {
+            boolean canReceive = true;
+           /* int maxReceiveQty = couponvo.getMaxReceiveQty();
+            if (maxReceiveQty > 0) {
+                //校验用户领取总量
+                int receviedcount = couponDao.getCouponCountByUseId(couponId, userId);
+                if (receviedcount >= maxReceiveQty) {
+                    canReceive = false;
+                    message.setMessage("已超过每人最大领取数量" + maxReceiveQty + "张");
+                }
+            }*/
+            if (couponvo.getQty() > 0) {
+                // 计算优惠券剩余量
+                int rest = couponvo.getQty() - couponvo.getReceiveQty();
+                if (rest <= 0) {
+                    canReceive = false;
+                    message.setMessage("优惠券可领取数量为0");
+                }
+            }
+
+            //检查是否是新人优惠券
+            boolean check = this.checkCoupleCoupon(couponvo, userId);
+
+            if (!check) {
+                canReceive = Boolean.FALSE;
+                message.setCode(ResultCode.CURRENT_USER_NON_NEW_CUSTOMER);
+                message.setMessage("只有新人可以领取");
+            }
+
+            if (canReceive) {
+                IdWorker idWorker = new IdWorker(0, 1);
+                CouponUser couponuser = new CouponUser();
+                // 有效期方式 1:固定时间段 2:领券日算起
+                couponuser.setCompanyId(couponvo.getCompanyId());
+                couponuser.setShopId(couponvo.getShopId());
+                couponuser.setUserId(userId);
+                couponuser.setReceiveNo(idWorker.nextId());
+                couponuser.setCouponId(couponvo.getId());
+                couponuser.setCouponState(couponvo.getCouponState());
+                couponuser.preInsert();
+                int type = couponvo.getEffectiveDateMode();
+                if (type == 2) {
+                    int days = couponvo.getEffectiveDays();
+                    Date sysdate = new Date();
+                    couponuser.setStartTime(sysdate);
+                    couponuser.setEndTime(DateUtil.getAddDateString(sysdate, days));
+                } else {
+                    couponuser.setStartTime(couponvo.getStartTime());
+                    couponuser.setEndTime(couponvo.getEndTime());
+                }
+                couponuser.setReceiveTime(new Date());
+                // 领券
+                int num = couponDao.receive(couponuser);
+                if (num > 0) {
+                    // 更新领取数量
+                    Coupon coupon = new Coupon();
+                    coupon.setId(couponvo.getId());
+                    coupon.setReceiveQty(1);
+                    couponDao.updateReceiveQty(coupon);
+                    message.setCode(ResultCode.Success);
+                    message.setMessage("成功领取优惠券");
+                } else {
+                    message.setMessage("领取优惠券时发生未知错误,请重试");
+                }
+            }
+        }
+        return message;
+    }
+
+    /**
+     * 检验是否为新人优惠券
+     *
+     * @param couponvo
+     * @return
+     */
+    private boolean checkCoupleCoupon(CouponVo couponvo, Long userId) {
+        if (couponvo.getCouponType() == 1) {
+            //新人优惠券 =>未进行过消费的用户均为新人
+            int result = mallBaseOrderService.countUserConsumerSuccessOrder(userId);
+            if (result > 0) {
+                return Boolean.FALSE;
+            }
+        }
+        return Boolean.TRUE;
+    }
+
+    @Override
+    public boolean save(Coupon coupon) {
+        logger.info("保存/修改优惠券id =>{}" + coupon.getId());
+        int num = 0;
+        if (StringUtils.isNotBlank(coupon.getStrStartTime())) {
+            coupon.setStartTime(DateUtil.parseDate(coupon.getStrStartTime()));
+        }
+        if (StringUtils.isNotBlank(coupon.getStrEndTime())) {
+            coupon.setEndTime(DateUtil.parseDate(coupon.getStrEndTime()));
+        }
+        if (StringUtils.isNotBlank(coupon.getProductIds())) {
+            List<CouponProduct> lstProduct = new ArrayList<CouponProduct>();
+            String[] productIds = coupon.getProductIds().split(",");
+            for (String id : productIds) {
+                CouponProduct product = new CouponProduct();
+                product.setGoodsId(Long.parseLong(id));
+                lstProduct.add(product);
+            }
+            coupon.setLstProduct(lstProduct);
+        }
+        if (coupon.getId() == null || coupon.getId() == 0) {
+            coupon.preInsert();
+            num = couponDao.insert(coupon);
+            // 指定商品
+            if (coupon.getProductScopeType() == CouponProductScopeType.Part.value()) {
+                if (coupon.getLstProduct() != null && coupon.getLstProduct().size() > 0) {
+                    List<CouponProduct> list = new ArrayList<CouponProduct>();
+                    for (CouponProduct product : coupon.getLstProduct()) {
+                        product.setGoodsId(product.getGoodsId());
+                        product.setCouponId(coupon.getId());
+                        product.preInsert();
+                        list.add(product);
+                    }
+                    couponDao.insertProductBatch(list);
+                }
+            }
+        } else {
+            coupon.preUpdate();
+            num = couponDao.update(coupon);
+            // 指定商品
+            if (coupon.getProductScopeType() == CouponProductScopeType.Part.value()) {
+                if (coupon.getLstProduct() != null && coupon.getLstProduct().size() > 0) {
+                    CouponProductQuery query = new CouponProductQuery();
+                    List<BigInteger> lstGoodsIds = new ArrayList<BigInteger>();
+                    query.setCouponId(BigInteger.valueOf(coupon.getId()));
+                    List<CouponProduct> list = new ArrayList<CouponProduct>();
+                    for (CouponProduct product : coupon.getLstProduct()) {
+                        lstGoodsIds.add(BigInteger.valueOf(product.getGoodsId()));
+                        product.setGoodsId(product.getGoodsId());
+                        product.setCouponId(coupon.getId());
+                        product.preInsert();
+                        list.add(product);
+                    }
+                    query.setLstGoodsIds(lstGoodsIds);
+                    couponDao.deleteCouponProductWithCouponId(coupon.getId());
+                    couponDao.insertProductBatch(list);
+                }
+            }
+        }
+        if (num > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public ResultMessage updateState(long couponId, int state) {
+        ResultMessage message = new ResultMessage();
+        message.setCode(ResultCode.Success);
+        int result = 0;
+        CouponVo coupon = getCoupon(couponId);
+        if (coupon.getCouponState() == state) {
+            message.setMessage("原状态跟新状态一致,无需更新");
+            return message;
+        }
+        // 失效优惠券
+        if (state == CouponStateType.Expired.value()) {
+            result = couponDao.updateCouponState(couponId, state);
+            result += couponDao.updateCouponUserState(couponId, state);
+        }
+        //启用优惠券
+        if (state == CouponStateType.Progress.value()) {
+            boolean canUpdate = true;
+            if (coupon.getCouponType() == CouponType.NewMember.value()) {
+                CouponQuery query = new CouponQuery();
+                query.setCouponType(Integer.valueOf(CouponType.NewMember.value()));
+                query.setCompanyId(coupon.getCompanyId());
+                query.setCouponState(Integer.valueOf(CouponStateType.Progress.value()));
+                long count = couponDao.findCouponCount(query);
+                int maxQty = GlobalConstant.MAX_AVAILABLE_NEW_MEMBER_COUPON_COUNT;
+                if (count >= maxQty) {
+                    canUpdate = false;
+                    message.setMessage("新人券最多只能启用" + maxQty + "张");
+                }
+            }
+            if (canUpdate) {
+                if (coupon.getEffectiveDateMode() == CouponEffectiveDateMode.FixedTime.value()) {
+                    Date now = new Date();
+                    if (coupon.getEndTime().getTime() < now.getTime()) {
+                        message.setMessage("优惠券已经过期,不能启用");
+                        canUpdate = false;
+                    }
+                }
+            }
+            if (canUpdate) {
+                result = couponDao.updateCouponState(couponId, state);
+                result += couponDao.updateCouponUserState(couponId, state);
+            }
+        }
+        if (result > 0) {
+            if (state == CouponStateType.Expired.value()) {
+                message.setMessage("优惠券已经成功停止");
+            } else {
+                message.setMessage("优惠券已经成功启用");
+            }
+        }
+        return message;
+    }
+
+    /**
+     * 获取商品可使用优惠卷列表
+     *
+     * @param goodsId 商品Id
+     * @return List 商品可用优惠卷列表
+     * @author : WangHaiLin
+     */
+    @Override
+    public List<GoodsCouponVO> getGoodsCouponList(Long goodsId, Long userId, Long companyId, Double totalFree) {
+        List<GoodsCouponVO> result = new ArrayList<>();
+
+        //查询商品可用优惠卷
+        //1.查询是否有全店通用的优惠券
+        List<GoodsCouponVO> goodsCouponVOs = couponDao.selectCommonCouponByCompanyId(companyId);
+        if (goodsCouponVOs != null && !goodsCouponVOs.isEmpty()) {
+            result.addAll(goodsCouponVOs);
+        }
+
+        //将productId转换成good_spu_id
+        //Long goodsId = couponDao.selectBaseProduct(productId);
+
+        //2.获取产品指定优惠券
+        List<GoodsCouponVO> couponVOList = couponDao.selectCouponByGoodsId(goodsId, companyId);
+        if (null != couponVOList && couponVOList.size() > 0) {
+            result.addAll(couponVOList);
+        }
+
+        //过滤某个商品可用优惠券
+        List<GoodsCouponVO> filterList = this.filterGoodsUsedCoupon(result, totalFree, userId);
+
+        //根据优惠金额排序
+        //List<GoodsCouponVO> collect = filterList.stream().sorted(Comparator.comparing(GoodsCouponVO::getDiscountAmount).reversed()).collect(Collectors.toList());
+        List<GoodsCouponVO> collect = sortDicounAmount(filterList, totalFree);
+
+        return collect;
+    }
+
+    private List<GoodsCouponVO> sortDicounAmount(List<GoodsCouponVO> filterList, Double totalFree) {
+        filterList.stream().forEach(f -> {
+            if (1 == f.getDiscountMode()) {//固定金额
+                BigDecimal discountAmount = new BigDecimal(f.getDiscountAmount());
+                f.setRealDiscount(discountAmount);
+            } else {//折扣系数
+                //折扣系数时：订单金额=原订金额-(原订单金额*折扣系数)
+                BigDecimal price = new BigDecimal(totalFree);
+                BigDecimal rebateFactor = new BigDecimal(f.getRebateFactor() / 100);
+                BigDecimal discountAmount = price.multiply(rebateFactor);
+                f.setRealDiscount(discountAmount);
+            }
+        });
+        return filterList.stream().sorted(Comparator.comparing(GoodsCouponVO::getRealDiscount).reversed()).collect(Collectors.toList());
+    }
+
+    /**
+     * 过滤某个商品可用优惠券
+     *
+     * @param result
+     * @param totalFree
+     * @param userId
+     * @return
+     */
+    private List<GoodsCouponVO> filterGoodsUsedCoupon(List<GoodsCouponVO> result, Double totalFree, Long userId) {
+
+        List<GoodsCouponVO> goodsCouponVOS = new ArrayList<>();
+
+        for (GoodsCouponVO g : result) {
+
+            //检验优惠券是否是限量领取
+            boolean checkQty = this.checkQty(g);
+
+            //检验是否是过期优惠券
+            boolean checkExpired = this.checkExpired(g);
+
+            //检验是否符合满减优惠
+            //boolean checkOrderAmount = this.checkOrderAmount(g, totalFree);
+
+            if (checkQty == true && checkExpired == true) {
+                int count = couponDao.countCouponUser(g.getCouponId(), userId);
+                if (count > 0) {
+                    g.setIsAlreadyGet(1);
+                } else {
+                    g.setIsAlreadyGet(0);
+                }
+                g.setUserQty(count);
+                goodsCouponVOS.add(g);
+            }
+        }
+        return goodsCouponVOS;
+    }
+
+    /**
+     * 检验是否符合满减优惠
+     *
+     * @param goodsCouponVO
+     * @param totalFree
+     */
+    private boolean checkOrderAmount(GoodsCouponVO goodsCouponVO, Double totalFree) {
+        if (goodsCouponVO.getOrderAmount() != 0) {
+            return goodsCouponVO.getOrderAmount() < totalFree.intValue();
+        }
+        return true;
+    }
+
+    /**
+     * 检验是否是过期优惠券
+     *
+     * @param goodsCouponVO
+     * @return
+     */
+    private boolean checkExpired(GoodsCouponVO goodsCouponVO) {
+        if (null != goodsCouponVO.getStartTime() && null != goodsCouponVO.getEndTime()) {
+            return (goodsCouponVO.getEffectiveDateMode() == 1 &&
+                    new Date().compareTo(goodsCouponVO.getEndTime()) < 0) || goodsCouponVO.getEffectiveDateMode() == 2;
+            //comparaDate(goodsCouponVO.getStartTime(), goodsCouponVO.getEndTime());
+        }
+        return true;
+    }
+
+    /**
+     * 检验优惠券是否是限量领取
+     *
+     * @param goodsCouponVO
+     * @return
+     */
+    private boolean checkQty(GoodsCouponVO goodsCouponVO) {
+        if (goodsCouponVO.getQty() > 0) {
+            return goodsCouponVO.getQty() > 0 && goodsCouponVO.getReceiveQty() < goodsCouponVO.getQty();
+        }
+        return true;
+    }
+
+    private boolean comparaDate(Date startTime, Date endTime) {
+        Calendar date = Calendar.getInstance();
+        date.setTime(new Date());
+
+        Calendar begin = Calendar.getInstance();
+        begin.setTime(startTime);
+
+        Calendar end = Calendar.getInstance();
+        end.setTime(endTime);
+
+        return date.after(begin) && date.before(end);
+    }
+
+
+    /**
+     * @param query 查询入参
+     * @description 获取用户可使用优惠卷列表
+     * @author : WangHaiLin
+     * @date : 2018/7/30 16:21
+     * @return: java.util.List<com.sandu.activity.model.vo.CouponCanBeUsedVO>
+     */
+    @Override
+    public List<CouponCanBeUsedVO> getUserCanBeUsedCouponList(CouponCanBeUsedQuery query) {
+
+        //处理用户可用优惠券
+        return this.handlerUserHaveCoupons(query);
+
+        //处理店铺通用优惠券
+        /*List<CouponCanBeUsedVO> commonCounpons =  this.handlerCommonCoupons(query);
+
+        List<CouponCanBeUsedVO> resultCounpons = new ArrayList<>();
+        resultCounpons.addAll(userUse);
+        resultCounpons.addAll(resultCounpons);*/
+    }
+
+    /**
+     * 处理店铺通用优惠券
+     *
+     * @param query
+     * @return
+     */
+    private List<CouponCanBeUsedVO> handlerCommonCoupons(CouponCanBeUsedQuery query) {
+        List<Coupon> coupons = couponDao.getCouponByCompanyId(query.getCompanyId());
+
+        List<Coupon> collect = coupons.stream().filter(f -> {
+            return query.getTotalPrice() >= f.getDiscountAmount();
+        }).collect(Collectors.toList());
+
+        return this.builderCouponCanBeUsedVO(collect, query.getTotalPrice());
+    }
+
+    /**
+     * 处理用户拥有的优惠券
+     *
+     * @param query
+     * @return
+     */
+    private List<CouponCanBeUsedVO> handlerUserHaveCoupons(CouponCanBeUsedQuery query) {
+
+        //将产品ids转换成list
+        if (StringUtils.isNotEmpty(query.getProductId())) {
+            List<Long> productIds = Arrays.stream(query.getProductId().split(",")).map(m -> {
+                return Long.valueOf(m);
+            }).collect(Collectors.toList());
+
+            //转换good_spu_id
+            List<Long> goodsId = couponDao.selectGoodSpuIds(productIds);
+
+            //获取用户所拥有的优惠券
+            List<CouponUser> couponUsers = couponDao.selectUserCanBeUsedCoupons(query.getCompanyId(), query.getUserId());
+            logger.info("查询用户可以优惠卷列表：activity_coupon_user表查询结果:{}", couponUsers);
+
+            if (couponUsers != null && !couponUsers.isEmpty()) {
+
+                //获取优惠券详情
+                List<Long> couponIds = couponUsers.stream().map(m -> {
+                    return m.getCouponId();
+                }).collect(Collectors.toList());
+
+                //记录用户每张优惠券领取数量
+                //Map<Long, Long> map = couponIds.stream().collect(Collectors.groupingBy(p -> p, Collectors.counting()));
+
+                //获取用户是拥有指定商品的优惠券详情
+                List<CouponCanBeUsedVO> designations = designationProductCoupons(query, couponIds, goodsId);
+
+                //获取全店通用的商品优惠券
+                List<CouponCanBeUsedVO> commons = commonProductCoupons(couponIds, query);
+
+                List<CouponCanBeUsedVO> result = new ArrayList<>();
+
+                result.addAll(designations);
+                result.addAll(commons);
+
+                //统计优惠金额排序返回
+                List<CouponCanBeUsedVO> collect = this.sumDiscountedPrice(result, query.getTotalPrice());
+
+                //用户每张优惠券的领取数量
+               /* collect.stream().forEach(f -> {
+                    f.setNumber(map.get(f.getCouponId()).intValue());
+                });*/
+
+                return collect;
+            }
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    private List<CouponCanBeUsedVO> sumDiscountedPrice(List<CouponCanBeUsedVO> result, Double totalPrice) {
+        result.stream().forEach(f -> {
+            if (1 == f.getDiscountMode()) {//固定金额
+                BigDecimal discountAmount = new BigDecimal(f.getDiscountAmount());
+                f.setRealDiscount(discountAmount);
+            } else {//折扣系数
+                //折扣系数时：订单金额=原订金额-(原订单金额*折扣系数)
+                BigDecimal price = new BigDecimal(totalPrice);
+                BigDecimal rebateFactor = new BigDecimal(new Double(1 - (f.getRebateFactor() / 10)).toString());
+                BigDecimal discountAmount = price.multiply(rebateFactor);
+                f.setRealDiscount(discountAmount);
+            }
+            f.setBeginTime(conversionTime(f.getStartTime()));
+            f.setFinalTime(conversionTime(f.getEndTime()));
+        });
+        return result.stream().sorted(Comparator.comparing(CouponCanBeUsedVO::getRealDiscount).reversed()).collect(Collectors.toList());
+    }
+
+    private String conversionTime(Date time) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        //获取String类型的时间
+        return sdf.format(time);
+    }
+
+    /**
+     * 获取用户是否拥有全店通用优惠券
+     *
+     * @param couponIds
+     * @param query
+     * @return
+     */
+    private List<CouponCanBeUsedVO> commonProductCoupons(List<Long> couponIds, CouponCanBeUsedQuery query) {
+        List<Coupon> coupons = couponDao.selectCouponByProductScopeTypeAndIds(couponIds, 1, query.getUserId());
+
+        List<Coupon> filterList = this.filterCouponsbyEfftiveTime(coupons);
+
+        if (filterList != null && !filterList.isEmpty()) {
+            return this.filterCouponsByTotalPrice(query.getTotalPrice(), filterList);
+        }
+
+        return Collections.EMPTY_LIST;
+    }
+
+    private List<Coupon> filterCouponsbyEfftiveTime(List<Coupon> coupons) {
+        List<Coupon> filterList = new ArrayList<>();
+        coupons.stream().forEach(f -> {
+            if (f.getEffectiveDateMode() == 1) {
+                //检验优惠券是否过期
+                if (comparaDate(f.getStartTime(), f.getEndTime())) {
+                    filterList.add(f);
+                }
+            } else {
+                int i = couponDao.selectCountCouponByid(f.getId());
+                if (i > 0) {
+                    filterList.add(f);
+                }
+            }
+        });
+        return filterList;
+    }
+
+    /**
+     * 根据商品总价过滤优惠券
+     *
+     * @param totalPrice
+     * @param coupons
+     * @return
+     */
+    private List<CouponCanBeUsedVO> filterCouponsByTotalPrice(Double totalPrice, List<Coupon> coupons) {
+        //订单金额大于优惠券金额才可以使用
+        return this.builderCouponCanBeUsedVO(coupons, totalPrice);
+    }
+
+    /**
+     * 获取用户是否拥有指定商品的优惠券
+     *
+     * @param couponIds
+     * @param goodsId
+     * @return
+     */
+    private List<CouponCanBeUsedVO> designationProductCoupons(CouponCanBeUsedQuery query, List<Long> couponIds, List<Long> goodsId) {
+        List<CouponCanBeUsedVO> CouponCanBeUsedVOs = couponDao.selectCouponByIds(couponIds, goodsId);
+
+        Map<Long, List<CouponCanBeUsedVO>> resultMap = CouponCanBeUsedVOs.stream().collect(Collectors.groupingBy(p -> p.getCouponId()));
+
+        Set<Long> buyGoodIds = goodsId.stream().collect(Collectors.toSet());
+
+        List<CouponCanBeUsedVO> resultList = new ArrayList<>();
+
+        //判断指定商品优惠券是否满足
+        for (Long l : resultMap.keySet()) {
+
+            Set<Long> collect = resultMap.get(l).stream().map(m -> {
+                return m.getGoodId();
+            }).collect(Collectors.toSet());
+
+            boolean b = collect.containsAll(buyGoodIds);
+
+            if (b) {
+                resultList.add(resultMap.get(l).get(0));
+            }
+        }
+
+        if (!resultList.isEmpty()) {
+            resultList.forEach(f -> {
+                if (((f.getOrderAmount() == 0)  //1.过滤掉满减优惠券满减金额大于总金额,2.优惠金额大于总金额
+                        || (f.getOrderAmount() != 0 && f.getOrderAmount() < query.getTotalPrice()))
+                        && (f.getDiscountAmount() < query.getTotalPrice())) {
+                    f.setCanBeUseThisTime(1);
+                } else {
+                    f.setCanBeUseThisTime(0);
+                }
+                f.setReceiveNo(f.getCouponUserNo() + "");
+            });
+        }
+        return resultList;
+    }
+
+
+    private List<CouponCanBeUsedVO> builderCouponCanBeUsedVO(List<Coupon> coupon, Double totalPrice) {
+        List<CouponCanBeUsedVO> collect = coupon.stream().map(m -> {
+            CouponCanBeUsedVO couponCanBeUsedVO = new CouponCanBeUsedVO();
+            couponCanBeUsedVO.setCouponId(m.getId());
+            couponCanBeUsedVO.setStartTime(m.getStartTime());
+            couponCanBeUsedVO.setEndTime(m.getEndTime());
+            couponCanBeUsedVO.setDiscountMode(m.getDiscountMode());
+            couponCanBeUsedVO.setDiscountAmount(m.getDiscountAmount());
+            couponCanBeUsedVO.setRebateFactor(m.getRebateFactor());
+            couponCanBeUsedVO.setOrderAmount(m.getOrderAmount());
+            couponCanBeUsedVO.setCouponType(m.getCouponType());
+            couponCanBeUsedVO.setProductScopeType(m.getProductScopeType());
+            couponCanBeUsedVO.setReceiveNo(m.getReceiveNo() + "");
+            if (((m.getOrderAmount() == 0)  //1.过滤掉满减优惠券满减金额大于总金额,2.优惠金额大于总金额
+                    || (m.getOrderAmount() != 0 && m.getOrderAmount() <= totalPrice))
+                    && (m.getDiscountAmount() < totalPrice)) {
+                couponCanBeUsedVO.setCanBeUseThisTime(1);
+            } else {
+                couponCanBeUsedVO.setCanBeUseThisTime(0);
+            }
+            return couponCanBeUsedVO;
+        }).collect(Collectors.toList());
+
+        return collect == null ? Collections.EMPTY_LIST : collect;
+    }
+
+    /**
+     * wangHL
+     * 通过优惠卷Id查询优惠卷详情
+     *
+     * @param couponId 优惠卷Id
+     * @return Coupon
+     */
+    @Override
+    public Coupon getCouponByCouponId(Long couponId) {
+        return couponDao.selectCouponById(couponId);
+    }
+
+
+    /**
+     * 修改用户优惠卷状态(优惠卷使用或取消使用)
+     *
+     * @param usedState 使用状态
+     * @param couponId  优惠卷Id
+     * @param couponId  用户Id
+     * @return boolean true 修改成功 false 修改失败
+     */
+    @Override
+    public boolean updateCouponUser(Integer usedState, Long couponId, Long userId) {
+        int result = couponDao.updateCouponUser(usedState, couponId, userId);
+        if (result > 0) {
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * wangHl
+     * 通过Id查询用户优惠卷信息
+     *
+     * @param id 主键
+     * @return CouponUser
+     */
+    @Override
+    public CouponUser getCouponUserById(Integer userId, Long couponId, Integer usedState) {
+        return couponDao.getCouponUserById(userId, couponId, usedState);
+    }
+
+    @Override
+    public int updateByUsedStateAPrimaryKey(int usedState, Long id) {
+        return couponDao.updateCouponUserByPrimaryKey(usedState, id);
+    }
+
+    @Override
+    public CouponUser getCouponByCouponNo(Long receiveNo, Integer usedState) {
+        return couponDao.getCouponUserCouponNo(receiveNo, usedState);
+    }
+
+    @Override
+    public List<Coupon> getIndexCoupons(Long companyId, Long userId) {
+        List<Coupon> coupons = couponDao.getCouponByCompanyId(companyId);
+        List<Coupon> filterLists = new ArrayList<>();
+
+        if (coupons != null && !coupons.isEmpty()) {
+            //过滤失效优惠券
+            coupons.stream().forEach(coupon -> {
+                //判断用户是否领取过优惠券
+                this.userIsReceive(coupon,userId);
+                //判断优惠券是否过期
+                boolean checkTime =  this.checkEffectiveTime(coupon,filterLists);
+                //判断优惠券是否限量
+                Boolean vaildLimt =  this.vaildCouponIsLimit(coupon);
+
+                if (checkTime && vaildLimt){
+                    filterLists.add(coupon);
+                }
+
+            });
+            //排序获取最有金额优惠券
+            List<Coupon> disCountAmount = filterLists.stream().sorted(Comparator.comparing(Coupon::getDiscountAmount).reversed()).collect(Collectors.toList());
+            return disCountAmount;
+        }
+        return filterLists;
+    }
+
+    private Boolean vaildCouponIsLimit(Coupon coupon) {
+        if (coupon.getQty() > 0 && coupon.getQty() <= coupon.getReceiveQty()){
+            return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
+    }
+
+    private boolean checkEffectiveTime(Coupon coupon, List<Coupon> filterLists) {
+        //判断优惠券是否过期
+        if (coupon.getCouponState() == 2) {
+            if (coupon.getEffectiveDateMode() == 1) {
+                boolean timeFlag = comparaDate(coupon.getStartTime(), coupon.getEndTime());
+                if (!timeFlag) {
+                    return Boolean.FALSE;
+                }else {
+                    return Boolean.TRUE;
+                }
+            }else{
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
+    }
+
+    private void userIsReceive(Coupon coupon, Long userId) {
+        //判断用户是否领取
+        int count = couponDao.countCouponUser(coupon.getId(), userId);
+        if (count > 0) {
+            coupon.setIsAlreadyGet(1);
+        } else {
+            coupon.setIsAlreadyGet(0);
+        }
+    }
+}

@@ -1,0 +1,36 @@
+package com.sandu.customer.service;
+
+import com.sandu.customer.model.CustomerOperateLog;
+
+public interface CustomerOperateLogService {
+
+	/**
+	 * 插入客户操作日志记录
+	 * @param log
+	 * @return
+	 */
+	public int addCustomerOperateLog(CustomerOperateLog log);
+
+	/**
+	 * 判断用户是否存在包年包月
+	 * @param userId
+	 * @return
+	 */
+	public int queryPayModelGroupRef(Integer userId);
+
+	/**
+	 * 查询用户渲染次数
+	 * @param userId
+	 * @param string
+	 * @return
+	 */
+	public int queryAutoRenderTaskStateCount(Integer userId, String taskType);
+
+	/**
+	 * 查看商品详情
+	 * @param userId
+	 * @param string
+	 * @return
+	 */
+	public int queryCustomerOperateLog(Integer userId, String string);
+}

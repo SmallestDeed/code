@@ -1,0 +1,135 @@
+<view class="maskLayer" wx:if="{{condition && !ishow}}" catchtouchmove='{{true}}'></view>
+<view class="type-search-space-mask" wx:if="{{isTypeNum >=0 && ishow && isLableShow}}" bindtap="closeLabel"></view>
+<view class="type-header clearfix">
+    <view class="flex_iteam fl flex_iteam_l {{!ishow?'active':''}}" data-type="1" bindtap="ishow">搜索小区
+    </view>
+    <view class="cut-off"></view>
+    <view class="flex_iteam flex_iteam_r  fr {{ishow?'active':''}}" data-type="2" bindtap="ishow">搜索空间</view>
+</view>
+<view class="type-search flex" style="display:{{ishow ? 'none' : ''}};">
+    <view class="my-container">
+        <view class="selectBody">
+            <view class="selectContext">
+                <view class="cell_select frist" bindtap='open'>
+                    <view class="label">所在地区</view>
+                    <view class="flex_iteam">
+                        <input placeholder="选择省/市/区" disabled='false' value="{{region}}" focus="{{focus}}" />
+
+                        <!-- <input placeholder="选择所在地区" disabled='false' value="{{province}} {{city}} {{county}}" focus="{{focus}}" bindtap='open'  wx:if="{{isAdress}}"/> -->
+                    </view>
+                </view>
+                <view class="cell_select">
+                    <view class="label">所在小区</view>
+                    <view class="flex_iteam">
+                        <input placeholder="请输入所在小区名称" bindinput="valChange" value="{{livingName}}" maxlength='20'/>
+                    </view>
+                </view>
+            </view>
+            <view class="type-button">
+                <button class="btn" hover-class='none' type="primary" bindtap="isListShow">搜索</button>
+            </view>
+        </view>
+        <view class='uploading-house clearfix'>
+          <view class='house-left fl' bindtap='routerToUploadHouse'><text>没有找到户型？ </text>  提交户型资料</view>
+          <view class='house-right fr' bindtap='routerToMyHouse'>我的户型</view>      
+        </view>
+        <view class='search-history' wx:if='{{historySearchList.length > 0 && historySearchListShow}}'>
+          <view class='history-title clearfix'>
+            <view class='title-text fl'>历史搜索</view>
+            <view class='title-icon fr' bindtap='deleteHistorySearchList'>
+              <image src='{{staticImageUrl}}huxing_icon_delete.png'></image>
+            </view>       
+          </view>
+          <view class='history-list clearfix'>
+            <view data-item='{{item}}' class='list-item fl' bindtap='historySearch' 
+            wx:for='{{historySearchList}}' wx:key='{{index}}'>{{item.livingName}}</view>
+          </view>
+        </view>
+    </view>
+    <view wx:if="{{condition}}" class="citypicker" wx:key='{{index}}'>
+        <picker-view indicator-style="height: 50px;" style="width: 100%; height: 300px;" value="{{value}}" bindchange="bindChange" class="citybody">
+            <view class="cityheader">
+                <view  bindtap='provincialLinkageHide' data-flag="{{false}}" class="city-cancel">取消</view>
+                <view  bindtap='provincialLinkageHide' data-flag="{{true}}" class="city-true">确定</view>
+            </view>
+            <picker-view-column>
+                <view wx:for="{{provinces}}" wx:key="item" style="line-height: 50px;padding-left:10px;">{{item.areaName}}</view>
+            </picker-view-column>
+            <picker-view-column>
+                <view wx:for="{{citys}}" wx:key="item" style="line-height: 50px;padding-left:10px;">{{item.areaName}}</view>
+            </picker-view-column>
+            <picker-view-column>
+                <view wx:for="{{countys}}" wx:key="item" style="line-height: 50px;padding-left:10px;">{{item.areaName}}</view>
+            </picker-view-column>
+        </picker-view>
+    </view>
+</view>
+<view class="type-search-space" style="display:{{!ishow ? 'none' : ''}};">
+    <view class="space-type">
+        <view class="space-type-iteam  {{isTypeNum==0 && isLableShow ?'active':''}}" data-type="0" bindtap="isTypeShow">{{spaceHeader.houseName}}
+            <image src="{{staticImageUrl}}choose_icon_down@2x.png" hidden="{{isTypeNum==0 && isLableShow}}"> </image>
+            <image src="{{staticImageUrl}}choose_icon_up@2x.png" wx:if="{{isTypeNum==0 && isLableShow }}"></image>
+        </view>
+        <view class="space-type-iteam  {{isTypeNum==1 && isLableShow ?'active':''}}" data-type="1" bindtap="isTypeShow">{{spaceHeader.areaName}}
+            <image src="{{staticImageUrl}}choose_icon_down@2x.png" hidden="{{isTypeNum==1 && isLableShow}}"> </image>
+            <image src="{{staticImageUrl}}choose_icon_up@2x.png" wx:if="{{isTypeNum==1 && isLableShow}}"></image>
+        </view>
+        <view class="space-type-iteam  {{isTypeNum==2 && isLableShow ?'active':''}}" data-type="2" bindtap="isTypeShow">{{spaceHeader.shapeName}}
+            <image src="{{staticImageUrl}}choose_icon_down@2x.png" hidden="{{isTypeNum==2 && isLableShow}}"> </image>
+            <image src="{{staticImageUrl}}choose_icon_up@2x.png" wx:if="{{isTypeNum==2 && isLableShow}}"></image>
+        </view>
+    </view>
+    <view class="space-gird type clearfix" style="display:{{isTypeNum== 0 && isLableShow ? 'block' : 'none'}};">
+        <scroll-view scroll-y="true" class="space-gird-scroll">
+            <view class="gird-view-iteam {{index==spaceNum?'active':''}}" wx:for="{{spaceList}}" data-name="{{item.houseName}}" data-type="{{item.houseType}}" bindtap="chooseHouseType" wx:key='{{index}}' data-index="{{index}}">
+                {{item.houseName}}
+            </view>
+        </scroll-view>
+    </view>
+    <view class="space-gird square clearfix" style="display:{{isTypeNum== 1 && isLableShow ? 'block' : 'none'}};">
+        <scroll-view scroll-y="true" class="space-gird-scroll">
+            <view class="gird-view-iteam {{-1==spcacNums?'active':''}}" data-id="" data-index="-1" data-name="全部" bindtap="spcacNums">
+                全部
+            </view>
+            <view class="gird-view-iteam {{index==spcacNums?'active':''}}" wx:for="{{spcacNumsList}}" data-id="{{item.areaId}}" bindtap="spcacNums" data-name="{{item.areaName}}" wx:key='{{index}}' data-index="{{index}}">
+                {{item.areaName}} m²
+            </view>
+        </scroll-view>
+    </view>
+    <view class="space-gird shape clearfix" style="display:{{isTypeNum== 2 && isLableShow ? 'block' : 'none'}};">
+        <scroll-view scroll-y="true" class="space-gird-scroll">
+            <view class="gird-view-iteam {{-1==shapeNum?'active':''}}" data-id="" data-index="-1" data-name="全部" bindtap="changeShape">
+                全部
+            </view>
+            <view class="gird-view-iteam {{index==shapeNum?'active':''}}" wx:for="{{shapeList}}" wx:key='{{index}}' data-id="{{item.shapeId}}" bindtap="changeShape" data-index="{{index}}" data-name=" {{item.shapeName}}">
+                <image class="sharpImg" src="{{staticImageUrl}}shape_{{index+1}}.png" hidden="{{ index == shapeNum}}"></image>
+                <image class="sharpImg" src="{{staticImageUrl}}shape_{{index+1}}_sct.png" wx:if="{{ index == shapeNum}}"></image>
+            </view>
+        </scroll-view>
+    </view>
+</view>
+<!-- <view class="systemInfo"  wx:if="{{contentlist.length === 0 && !historySearchListShow && !ishow}}">
+    暂无数据
+</view> -->
+<view class="product-list {{isTypeNum >=0 && ishow && isLableShow?'noscroll':''}}" wx:if="{{productList.length>0 && ishow}}">
+    <view class="product-list-iteam" bindtap='toHouseDetails' data-item='{{item}}' wx:for="{{productList}}" wx:key="unique" data-index="{{index}}">
+        <view class="product-img">
+            <image src="{{resourcePath}}/{{item.spaceviewPlanSmallPathPic}}" class="product-image-img"></image>
+            <image src="{{staticImageUrl}}type_icon_big_02@2x.png" data-index="{{index}}" class="enlargement" catchtap="previewImage">
+            </image>
+        </view>
+        <view class="product-context">
+            <!-- <view class="product-title">四期户型A栋</view> -->
+            <view class="product-message">{{item.spaceName}}</view>
+        </view>
+    </view>
+</view>
+<!-- <view class="systemInfo" wx:if="{{!productList.length>0 && ishow}}">
+    {{message}}
+</view> -->
+<view bindtap='removeCaseItem' class="list" wx:if="{{contentlist.length>0 && houseListShow}}">
+    <navigator bindtap='removeCaseItem' url="/pages/house-type/house-list/house-list?type=search&id={{item.id}}&name={{item.livingName}}" class="list-iteam" hover-class="list-iteam-active" wx:for="{{contentlist}}" wx:key='{{index}}'>
+        <view class="iteam_left">{{item.livingName}}</view>
+        <view class="iteam_right">{{item.houseCount}}个户型</view>
+    </navigator>
+</view>

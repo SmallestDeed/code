@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.activity.dao.WxSpringActivityMapper">
+  <resultMap id="BaseResultMap" type="com.sandu.api.activity.model.WxSpringActivity">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="wx_act_lucky_wheel_id" jdbcType="VARCHAR" property="wxActLuckyWheelId" />
+    <result column="film_toal_num" jdbcType="INTEGER" property="filmToalNum" />
+    <result column="film_use_num" jdbcType="INTEGER" property="filmUseNum" />
+    <result column="film_remain_num" jdbcType="INTEGER" property="filmRemainNum" />
+    <result column="red_packet_day_num" jdbcType="DECIMAL" property="redPacketDayNum" />
+    <result column="red_packet_num" jdbcType="DECIMAL" property="redPacketNum" />
+    <result column="red_packet_remain_num" jdbcType="DECIMAL" property="redPacketRemainNum" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, wx_act_lucky_wheel_id, film_toal_num, film_use_num, film_remain_num, red_packet_day_num, 
+    red_packet_num, red_packet_remain_num, creator, gmt_create, modifier, gmt_modified, 
+    is_deleted
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from wx_spring_activity
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="queryWheelList" resultType="com.sandu.api.activity.model.WxSpringActivityBO">
+    select id as wheelId,name as wheelName from wx_act_lucky_wheel where is_deleted = 0
+  </select>
+  <select id="getWheelInfo" resultType="com.sandu.api.activity.model.WxSpringActivityBO">
+	SELECT 
+	  walw.name AS wheelName,
+	  walw.begin_time AS wheelBegin,
+	  walw.end_time AS wheelEnd,
+	  wlwp.rewardTotalAmount AS rewardTotalAmount,
+	  wlwp.rewardDayAmount AS rewardDayAmount
+	FROM
+	  wx_act_lucky_wheel walw 
+	  INNER JOIN 
+	    (SELECT 
+	      act_id,
+	      wlwp.num * wlwp.value AS rewardTotalAmount,
+	      wlwp.value * wlwp.num_per_day AS rewardDayAmount 
+	    FROM
+	      wx_act_lucky_wheel_prize wlwp 
+	    WHERE wlwp.is_deleted = 0 
+	    GROUP BY act_id) wlwp 
+	    ON wlwp.act_id = walw.id 
+	WHERE walw.is_deleted = 0 
+      and walw.id = #{id}
+  </select>
+  <select id="queryAllActivity" resultType="com.sandu.api.activity.model.WxSpringActivityBO">
+		SELECT 
+		  wsa.id AS id,
+		  walw.id AS wxActLuckyWheelId,
+		  walw.name AS wheelName,
+		  wsa.film_toal_num,
+		  walw.begin_time AS wheelBegin,
+		  walw.end_time AS wheelEnd,
+		  wlwp.rewardTotalAmount AS rewardTotalAmount,
+		  wlwp.rewardDayAmount AS rewardDayAmount,
+		  wsa.red_packet_day_num,
+		  wsa.red_packet_num 
+		FROM
+		  wx_spring_activity wsa 
+		  INNER JOIN wx_act_lucky_wheel walw 
+		    ON wsa.wx_act_lucky_wheel_id = walw.id 
+		  INNER JOIN 
+		    (SELECT 
+		      act_id,
+		      IFNULL(wlwp.num * wlwp.value, 0) AS rewardTotalAmount,
+		      IFNULL(wlwp.value * wlwp.num_per_day, 0) AS rewardDayAmount 
+		    FROM
+		      wx_act_lucky_wheel_prize wlwp 
+		    WHERE wlwp.is_deleted = 0 
+		    GROUP BY act_id) wlwp 
+		    ON wlwp.act_id = walw.id 
+		    AND wsa.wx_act_lucky_wheel_id = wlwp.act_id 
+		WHERE walw.is_deleted = 0
+  </select>
+    <select id="queryExportCheck" resultType="com.sandu.api.activity.model.WxSpringActivityBO">
+      select su.nick_name as exportData1,
+            ss.sign_times as exportData2,
+            ss.red_packet_num as exportData3
+      from wx_signin_summary ss
+      left join sys_user su on ss.user_id = su.id
+      where ss.activity_id = #{activityId}
+    </select>
+  <select id="queryExportDate" resultType="com.sandu.api.activity.model.WxSpringActivityBO">
+      select us.signin_date as exportData7,
+            su.nick_name as exportData1,
+            us.gmt_create as exportData8,
+            us.red_packet_num as exportData2
+      from wx_user_signin us
+      left join sys_user su on us.user_id = su.id
+      where us.receive_status = 1 and us.activity_id = #{activityId}
+  </select>
+  <select id="queryExportWheel" resultType="com.sandu.api.activity.model.WxSpringActivityBO">
+	 SELECT 
+	  t1.nickname AS exportData1,
+	  t1.open_id,
+	  GROUP_CONCAT(t1.prize_name) AS exportData2,
+	  t2.lottery_count + t2.remain_lottery_count AS exportData3,
+	  t2.lottery_count AS exportData4
+	FROM
+	  wx_act_lucky_wheel_lottery_record t1 
+	  LEFT JOIN wx_act_lucky_wheel_lottery_record_act_aggregated t2 
+	    ON t1.open_id = t2.open_id 
+	WHERE t1.awards_status != 0 
+	  AND t1.act_id = #{wheelId}
+	  AND t2.act_id = #{wheelId}
+	GROUP BY t1.open_id,
+	  t1.nickname 
+  </select>
+  <select id="queryExportPicture" resultType="com.sandu.api.activity.model.WxSpringActivityBO">
+  	  SELECT 
+		  ut.user_id,
+		  su.nick_name AS exportData1,
+		  IFNULL(t2.card_number,0) AS exportData2,
+		  IFNULL(t3.inviteCount, 0) AS exportData3,
+		  IFNULL(ut.task_one_status, 0) AS exportData4,
+		  IFNULL(ut.task_two_status, 0) AS exportData5,
+		  IFNULL(ut.task_three_status, 0) AS exportData6 
+		FROM
+		   wx_user_task ut 
+		  LEFT JOIN sys_user su 
+		    ON ut.user_id = su.id 
+		  LEFT JOIN 
+		    (SELECT 
+		      COUNT(1) AS card_number,
+		      user_id 
+		    FROM
+		      wx_user_card 
+		    WHERE activity_id = #{activityId} 
+		    GROUP BY user_id) t2 
+		    ON ut.user_id = t2.user_id 
+		  LEFT JOIN (
+			SELECT COUNT(1) AS inviteCount,user_id FROM `wx_user_invite_record` GROUP BY user_id
+		  ) T3 ON ut.user_id = t3.user_id
+		WHERE ut.activity_id = #{activityId} 
+  </select>
+  <select id="queryExportTask" resultType="com.sandu.api.activity.model.WxSpringActivityBO">
+      SELECT 
+		IFNULL(SUM(CASE WHEN task_one_status IN(1,2) THEN 1 ELSE 0 END),0) AS exportData1,
+		IFNULL(SUM(CASE WHEN task_one_status =2 THEN 1 ELSE 0 END),0) AS exportData2,
+		IFNULL(SUM(CASE WHEN task_two_status IN(1,2) THEN 1 ELSE 0 END),0) AS exportData3,
+		IFNULL(SUM(CASE WHEN task_two_status = 2 THEN 1 ELSE 0 END),0) AS exportData4,
+		IFNULL(SUM(CASE WHEN task_three_status IN(1,2) THEN 1 ELSE 0 END),0) AS exportData5,
+		IFNULL(SUM(CASE WHEN task_three_status =2 THEN 1 ELSE 0 END),0) AS exportData6
+       FROM wx_user_task WHERE activity_id = #{activityId}
+  </select>
+  <!-- <select id="queryExportTask" resultType="com.sandu.api.activity.model.WxSpringActivityBO">
+      select
+      IFNULL(sum((t2.count)),0) as exportData1,
+      IFNULL(sum((t3.count)),0) as exportData2,
+      IFNULL(sum((t4.count)),0) as exportData3,
+      IFNULL(sum((t5.count)),0) as exportData4,
+      IFNULL(sum((t6.count)),0) as exportData5,
+      IFNULL(sum((t7.count)),0) as exportData6
+      from wx_user_task t1
+      left join (select count(DISTINCT user_id) as count,id from wx_user_task where task_one_status != 0) t2 on t1.id = t2.id
+      left join (select count(DISTINCT user_id) as count,id from wx_user_task where task_one_status = 2) t3 on t1.id = t3.id
+      left join (select count(DISTINCT user_id) as count,id from wx_user_task where task_two_status != 0) t4 on t1.id = t4.id
+      left join (select count(DISTINCT user_id) as count,id from wx_user_task where task_two_status = 2) t5 on t1.id = t5.id
+      left join (select count(DISTINCT user_id) as count,id from wx_user_task where task_three_status != 0) t6 on t1.id = t6.id
+      left join (select count(DISTINCT user_id) as count,id from wx_user_task where task_three_status = 2) t7 on t1.id = t7.id
+      where t1.activity_id = #{activityId}
+  </select> -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from wx_spring_activity
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.activity.model.WxSpringActivity">
+    insert into wx_spring_activity (id, wx_act_lucky_wheel_id, film_toal_num, 
+      film_use_num, film_remain_num, red_packet_day_num, 
+      red_packet_num, red_packet_remain_num, creator, 
+      gmt_create, modifier, gmt_modified, 
+      is_deleted)
+    values (#{id,jdbcType=BIGINT}, #{wxActLuckyWheelId,jdbcType=VARCHAR}, #{filmToalNum,jdbcType=INTEGER}, 
+      #{filmUseNum,jdbcType=INTEGER}, #{filmRemainNum,jdbcType=INTEGER}, #{redPacketDayNum,jdbcType=DECIMAL}, 
+      #{redPacketNum,jdbcType=DECIMAL}, #{redPacketRemainNum,jdbcType=DECIMAL}, #{creator,jdbcType=VARCHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{isDeleted,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.activity.model.WxSpringActivity">
+    insert into wx_spring_activity
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="wxActLuckyWheelId != null">
+        wx_act_lucky_wheel_id,
+      </if>
+      <if test="filmToalNum != null">
+        film_toal_num,
+      </if>
+      <if test="filmUseNum != null">
+        film_use_num,
+      </if>
+      <if test="filmRemainNum != null">
+        film_remain_num,
+      </if>
+      <if test="redPacketDayNum != null">
+        red_packet_day_num,
+      </if>
+      <if test="redPacketNum != null">
+        red_packet_num,
+      </if>
+      <if test="redPacketRemainNum != null">
+        red_packet_remain_num,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="wxActLuckyWheelId != null">
+        #{wxActLuckyWheelId,jdbcType=VARCHAR},
+      </if>
+      <if test="filmToalNum != null">
+        #{filmToalNum,jdbcType=INTEGER},
+      </if>
+      <if test="filmUseNum != null">
+        #{filmUseNum,jdbcType=INTEGER},
+      </if>
+      <if test="filmRemainNum != null">
+        #{filmRemainNum,jdbcType=INTEGER},
+      </if>
+      <if test="redPacketDayNum != null">
+        #{redPacketDayNum,jdbcType=DECIMAL},
+      </if>
+      <if test="redPacketNum != null">
+        #{redPacketNum,jdbcType=DECIMAL},
+      </if>
+      <if test="redPacketRemainNum != null">
+        #{redPacketRemainNum,jdbcType=DECIMAL},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.activity.model.WxSpringActivity">
+    update wx_spring_activity
+    <set>
+      <if test="wxActLuckyWheelId != null">
+        wx_act_lucky_wheel_id = #{wxActLuckyWheelId,jdbcType=VARCHAR},
+      </if>
+      <if test="filmToalNum != null">
+        film_toal_num = #{filmToalNum,jdbcType=INTEGER},
+      </if>
+      <if test="filmUseNum != null">
+        film_use_num = #{filmUseNum,jdbcType=INTEGER},
+      </if>
+      <if test="filmRemainNum != null">
+        film_remain_num = #{filmRemainNum,jdbcType=INTEGER},
+      </if>
+      <if test="redPacketDayNum != null">
+        red_packet_day_num = #{redPacketDayNum,jdbcType=DECIMAL},
+      </if>
+      <if test="redPacketNum != null">
+        red_packet_num = #{redPacketNum,jdbcType=DECIMAL},
+      </if>
+      <if test="redPacketRemainNum != null">
+        red_packet_remain_num = #{redPacketRemainNum,jdbcType=DECIMAL},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.activity.model.WxSpringActivity">
+    update wx_spring_activity
+    set wx_act_lucky_wheel_id = #{wxActLuckyWheelId,jdbcType=VARCHAR},
+      film_toal_num = #{filmToalNum,jdbcType=INTEGER},
+      film_use_num = #{filmUseNum,jdbcType=INTEGER},
+      film_remain_num = #{filmRemainNum,jdbcType=INTEGER},
+      red_packet_day_num = #{redPacketDayNum,jdbcType=DECIMAL},
+      red_packet_num = #{redPacketNum,jdbcType=DECIMAL},
+      red_packet_remain_num = #{redPacketRemainNum,jdbcType=DECIMAL},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

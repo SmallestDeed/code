@@ -1,0 +1,82 @@
+package com.sandu.service.base.impl;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.sandu.api.base.common.constant.InteractiveZoneConstant;
+import com.sandu.api.base.common.exception.BizException;
+import com.sandu.api.base.input.InteracitveZoneTopicAdd;
+import com.sandu.api.base.input.InteractiveZoneTopicQuery;
+import com.sandu.api.base.model.InteractiveZoneTopic;
+import com.sandu.api.base.model.SysDictionary;
+import com.sandu.api.base.output.InteractiveZoneTopicVO;
+import com.sandu.api.base.service.InteractiveZoneTopicService;
+import com.sandu.api.base.service.SysDictionaryService;
+import com.sandu.service.base.dao.InteractiveZoneTopicMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+/**
+ * @ClassName: InteractiveZoneTopicServiceImpl
+ * @Auther: gaoj
+ * @Date: 2019/3/13 10:00
+ * @Description:
+ * @Version 1.0
+ */
+@Service("interactiveZoneTopicService")
+@Slf4j
+public class InteractiveZoneTopicServiceImpl implements InteractiveZoneTopicService {
+
+    private final String CLASS_LOG_PREFIX = "【互动区主题业务层】";
+
+    @Autowired
+    private InteractiveZoneTopicMapper interactiveZoneTopicMapper;
+	@Autowired
+	private SysDictionaryService sysDictionaryService;
+
+	@Override
+	public List<InteractiveZoneTopic> list(InteractiveZoneTopicQuery interactiveZoneTopicQuery) {
+		this.packageParam(interactiveZoneTopicQuery);
+
+		List<InteractiveZoneTopic> interactiveZoneTopicList = interactiveZoneTopicMapper.getList(interactiveZoneTopicQuery);
+
+		return interactiveZoneTopicList;
+	}
+
+	@Override
+	public int add(InteracitveZoneTopicAdd add) {
+		InteractiveZoneTopic topic = new InteractiveZoneTopic();
+		BeanUtils.copyProperties(add, topic);
+		return interactiveZoneTopicMapper.insert(topic);
+	}
+
+	@Override
+	public PageInfo<InteractiveZoneTopicVO> queryBiz(InteractiveZoneTopicQuery query) {
+
+		PageHelper.startPage(query.getStart(), query.getPageSize());
+		PageInfo<InteractiveZoneTopicVO> page = interactiveZoneTopicMapper.queryBiz(query);
+
+		return page;
+	}
+
+	private void packageParam(InteractiveZoneTopicQuery interactiveZoneTopicQuery) {
+		String blockTypeValueKey = interactiveZoneTopicQuery.getBlockTypeValueKey();
+		SysDictionary sysDictionary = new SysDictionary();
+		sysDictionary.setType(InteractiveZoneConstant.TOPIC_TYPE);
+		sysDictionary.setValuekey(blockTypeValueKey);
+		sysDictionary = sysDictionaryService.getNameByType(sysDictionary);
+		if (null == sysDictionary) {
+			throw new BizException("参数有误");
+		}
+		interactiveZoneTopicQuery.setBlockTypeValue(sysDictionary.getValue());
+	}
+
+	@Override
+	public Integer totalCount(InteractiveZoneTopicQuery interactiveZoneTopicQuery) {
+		this.packageParam(interactiveZoneTopicQuery);
+		return interactiveZoneTopicMapper.totalCount(interactiveZoneTopicQuery);
+	}
+}

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.system.dao.SysDictionaryDao">
+
+
+    <select id="selectList" resultType="com.sandu.api.system.model.SysDictionary"
+		parameterType="com.sandu.api.system.model.SysDictionary">
+		select *
+		from sys_dictionary
+        where 1=1 and is_deleted = 0
+        <if test="att7!= null">  and att7 = #{att7,jdbcType=VARCHAR} </if>
+        <if test="att7Info!= null">  and att7_info = #{att7Info,jdbcType=VARCHAR} </if>
+        
+		<if test="sysCode!= null">  and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="creator!= null">  and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="gmtCreate!= null">  and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+		<if test="modifier!= null">  and modifier = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="gmtModified!= null">  and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP} </if>
+		<if test="isDeleted!= null">  and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="type!= null">  and type = #{type,jdbcType=VARCHAR} </if>
+		<if test="valuekey!= null">  and valuekey = #{valuekey,jdbcType=VARCHAR} </if>
+		<if test="value!= null">  and value = #{value,jdbcType=INTEGER} </if>
+		<if test="name!= null">  and name = #{name,jdbcType=VARCHAR} </if>
+		<if test="ordering!= null">  and ordering = #{ordering,jdbcType=INTEGER} </if>
+		<if test="att1!= null">  and att1 = #{att1,jdbcType=VARCHAR} </if>
+		<if test="att2!= null">  and att2 = #{att2,jdbcType=VARCHAR} </if>
+		<if test="att3!= null">  and att3 = #{att3,jdbcType=VARCHAR} </if>
+		<if test="att4!= null">  and att4 = #{att4,jdbcType=VARCHAR} </if>
+		<if test="att5!= null">  and att5 = #{att5,jdbcType=VARCHAR} </if>
+		<if test="att6!= null">  and att6 = #{att6,jdbcType=VARCHAR} </if>
+		<if test="att1Info!= null">  and att1_info = #{att1Info,jdbcType=VARCHAR} </if>
+		<if test="att2Info!= null">  and att2_info = #{att2Info,jdbcType=VARCHAR} </if>
+		<if test="att3Info!= null">  and att3_info = #{att3Info,jdbcType=VARCHAR} </if>
+		<if test="att4Info!= null">  and att4_info = #{att4Info,jdbcType=VARCHAR} </if>
+		<if test="att5Info!= null">  and att5_info = #{att5Info,jdbcType=VARCHAR} </if>
+		<if test="att6Info!= null">  and att6_info = #{att6Info,jdbcType=VARCHAR} </if>
+		<if test="dateAtt1!= null">  and date_att1 = #{dateAtt1,jdbcType=TIMESTAMP} </if>
+		<if test="dateAtt2!= null">  and date_att2 = #{dateAtt2,jdbcType=TIMESTAMP} </if>
+		<if test="numAtt1!= null">  and num_att1 = #{numAtt1,jdbcType=INTEGER} </if>
+		<if test="picId!= null">  and pic_id = #{picId,jdbcType=INTEGER} </if>
+		<if test="numAtt3!= null">  and num_att3 = #{numAtt3,jdbcType=DOUBLE} </if>
+		<if test="numAtt4!= null">  and num_att4 = #{numAtt4,jdbcType=DOUBLE} </if>
+		<if test="remark!= null">  and remark = #{remark,jdbcType=VARCHAR} </if>
+		<if test="showU3dModel!= null">  and show_u3d_model = #{showU3dModel,jdbcType=INTEGER} </if>
+	</select>
+
+	<select id="findByTypeAndValueKey" resultType="com.sandu.api.system.model.SysDictionary">
+		SELECT
+		   *
+		FROM
+		   sys_dictionary
+		WHERE
+		   type = #{type} AND
+		   valuekey = #{valueKey} AND
+		   is_deleted = 0
+		   limit 1
+	</select>
+
+    <select id="selectListBySearch" parameterType = "com.sandu.api.system.input.SysDictionarySearch" resultType="com.sandu.api.system.model.SysDictionary">
+		select * from
+		sys_dictionary
+		<where>
+			<if test="isDeleted != null">
+				and is_deleted = #{isDeleted}
+			</if>
+			<if test="type != null">
+				and type = #{type}
+			</if>
+		</where>
+    </select>
+
+	<select id="getListByTypeAndValues" resultType="com.sandu.api.system.model.SysDictionary">
+		SELECT
+		   *
+		FROM
+		   sys_dictionary
+		WHERE
+		   is_deleted = 0 AND
+		   type = #{type} AND
+		   value in
+		   <foreach collection="value" item="v" open="(" separator="," close=")">
+			   #{v}
+		   </foreach>
+	</select>
+
+</mapper>

@@ -1,0 +1,410 @@
+package com.sandu.web.designplan.controller;
+
+import com.google.gson.Gson;
+import com.nork.common.model.LoginUser;
+import com.sandu.cache.service.RedisService;
+import com.sandu.common.LoginContext;
+import com.sandu.common.exception.BizException;
+import com.sandu.common.model.PageModel;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.common.objectconvert.designplan.DesignPlanDetail;
+import com.sandu.common.objectconvert.designplan.DesignPlanRecommend;
+import com.sandu.common.objectconvert.user.UserObject;
+import com.sandu.common.util.PlatformConstant;
+import com.sandu.designplan.model.*;
+import com.sandu.designplan.service.DesignPlanRecommendFavoriteService;
+import com.sandu.designplan.service.DesignPlanRecommendedProductService;
+import com.sandu.designplan.service.DesignPlanRecommendedService;
+import com.sandu.designplan.vo.DesignPlanDetailVo;
+import com.sandu.designplan.vo.RecommendedPlanProductRelatedVo;
+import com.sandu.fullhouse.service.FullHouseDesignPlanService;
+import com.sandu.platform.BasePlatform;
+import com.sandu.product.model.BaseCompany;
+import com.sandu.product.service.BaseBrandService;
+import com.sandu.product.service.BaseCompanyService;
+import com.sandu.system.service.BasePlatformService;
+import com.sandu.user.model.UserSO;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+@Slf4j
+@RestController
+@RequestMapping("/v1/miniprogram/designplan")
+public class DesignPlanRecommendedController {
+
+    private final static Gson GSON = new Gson();
+    private final static String CLASS_LOG_PREFIX = "[推荐方案服务]:";
+    private final static Logger logger = LoggerFactory.getLogger(DesignPlanRecommendedController.class);
+
+
+    @Value("${miniprogram.platform.code}")
+    private String miniprogramplatformCode;
+
+
+    @Value("${sanducloudhome.company.code}")
+    private String companyCode;
+
+
+    @Autowired
+    private BaseBrandService baseBrandService;
+    @Autowired
+    private BaseCompanyService baseCompanyService;
+    @Autowired
+    private DesignPlanRecommendedService designPlanRecommendedService;
+    @Autowired
+    private DesignPlanRecommendFavoriteService designPlanRecommendFavoriteService;
+    @Autowired
+    private DesignPlanRecommendedProductService designPlanRecommendedProductService;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private BasePlatformService basePlatformService;
+    @Autowired
+    private FullHouseDesignPlanService fullHouseDesignPlanService;
+
+
+    /**
+     * 获取推荐方案列表数据
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping("/designplanrecommendedlist")
+    public ResponseEnvelope designPlanRecommendedList(@ModelAttribute DesignPlanRecommendedVo designPlanRecommendedVo,
+                                                      @ModelAttribute PageModel pageModel, HttpServletRequest request, HttpServletResponse response) {
+
+        //获取用户登录信息
+        UserSO userSo = null;
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        logger.info(CLASS_LOG_PREFIX + "获取登录用户信息:getUserFromCache:{}.", null == loginUser ? null : loginUser.toString());
+        if (loginUser != null) {
+            userSo = new UserSO();
+            userSo.setUserId(loginUser.getId());
+        }
+
+
+        //组装查询推荐列表数据条件
+        PlanRecommendedListModel planRecommendedListModel = new PlanRecommendedListModel();
+
+        //从请求头获取到平台编码并查询平台
+        String platformCode = request.getHeader("Platform-Code");
+        BasePlatform basePlatform;
+        try{
+            basePlatform = basePlatformService.getBasePlatform(platformCode);
+            if (basePlatform == null) {
+                return new ResponseEnvelope(false, "未知的平台");
+            }
+        }catch (Exception e){
+            log.error("查询平台数据异常"+e);
+            return new ResponseEnvelope(false, "查询平台数据异常");
+        }
+
+
+        planRecommendedListModel.setPlatformId(basePlatform.getId());
+        planRecommendedListModel.setDecoratePriceType(designPlanRecommendedVo.getDecoratePriceType());
+        planRecommendedListModel.setDecoratePriceRange(designPlanRecommendedVo.getDecoratePriceRange());
+        planRecommendedListModel.setLimit((0 == pageModel.getPageSize()) ? PageModel.DEFAULT_PAGE_PAGESIZE : pageModel.getPageSize());
+        planRecommendedListModel.setStart(pageModel.getStart());
+        planRecommendedListModel.setHouseType(designPlanRecommendedVo.getSpaceType() + "");
+        planRecommendedListModel.setAreaValue(designPlanRecommendedVo.getSpaceArea());
+        planRecommendedListModel.setDesignRecommendedStyleId(designPlanRecommendedVo.getDesignPlanStyleId());
+        planRecommendedListModel.setSpaceShape(designPlanRecommendedVo.getSpaceShape());
+        planRecommendedListModel.setDisplayType(designPlanRecommendedVo.getDisplayType());
+        planRecommendedListModel.setLoginUser(UserObject.parseUserSoToLoginUser(userSo));
+        planRecommendedListModel.setIsSortByReleaseTime(designPlanRecommendedVo.getIsSortByReleaseTime());
+        planRecommendedListModel.setIsSortByRenderCount(designPlanRecommendedVo.getIsSortByRenderCount());
+        //查询是否是访问公司
+        BaseCompany baseCompany = baseCompanyService.getCompanyByDomainUrl(request.getHeader("Referer"));
+        if (null == baseCompany ) {
+            baseCompany = baseCompanyService.getCompanyByDomainUrl(request.getHeader("Custom-Referer"));
+            if(null== baseCompany){
+                return  new ResponseEnvelope(false,"未获取到公司信息");
+            }
+        }
+        planRecommendedListModel.setCompanyId(baseCompany==null?0:baseCompany.getId().intValue());
+
+        //WEIXIN-121, Update by steve;
+        if(PlatformConstant.PLATFORM_CODE_MINI_PROGRAM.equalsIgnoreCase(basePlatform.getPlatformCode())) {
+            List<Integer> enableBrandIdList = baseCompanyService.getEnableBrandIdsByAppId(baseCompany.getAppId());
+            planRecommendedListModel.setBrandList(enableBrandIdList);
+        }
+
+//        if (null != baseCompany) {
+//            //查询公司品牌
+//            List<Integer> brandList = baseBrandService.queryBrandListByCompanyId(baseCompany.getId());
+//            logger.info(CLASS_LOG_PREFIX + "获取方案推荐列表数据-获取公司品牌信息完成:List<Integer>：{}", GSON.toJson(brandList));
+//            if (null != brandList && brandList.size() > 0) {
+//                planRecommendedListModel.setBrandList(brandList);
+//            }
+//        }
+
+        // 增加查询全屋和查询全部方案逻辑
+        ResponseEnvelope designPlanRecommendedResultObj = new ResponseEnvelope();
+        int start = planRecommendedListModel.getStart();
+        int limit = planRecommendedListModel.getLimit();
+        int fullHouseCount = 0;
+        if (designPlanRecommendedVo.getSpaceType() == null){ // 查全部
+            fullHouseCount = fullHouseDesignPlanService.selectFullHouseDesignPlanCount(planRecommendedListModel, companyCode, baseCompany);
+            List<DesignPlanRecommendedResult> fullHouseList = new ArrayList<>();
+            if (fullHouseCount > 0 && start < fullHouseCount){
+                fullHouseList = fullHouseDesignPlanService.selectFullHouseDesignPlanList(planRecommendedListModel, companyCode, baseCompany);
+            }
+            if (fullHouseList != null){
+
+                if (limit == fullHouseList.size()) {
+                    designPlanRecommendedResultObj.setTotalCount(fullHouseCount);
+                    designPlanRecommendedResultObj.setObj(fullHouseList);
+                    designPlanRecommendedResultObj.setStatus(true);
+
+                    limit = 0;
+                } else {
+                    limit = limit - fullHouseList.size();
+                }
+            }
+
+            //如果limit是0的话表示全屋方案已经够分页数据了，就不需要查询单空间方案了
+            if (limit != 0) {
+                start = start - fullHouseCount < 0 ? 0 : start - fullHouseCount;
+                planRecommendedListModel.setStart(start);
+                planRecommendedListModel.setLimit(limit);
+                designPlanRecommendedResultObj = designPlanRecommendedService.getPlanRecommendedList2(planRecommendedListModel, companyCode, baseCompany);
+                designPlanRecommendedResultObj.setTotalCount(designPlanRecommendedResultObj.getTotalCount() + fullHouseCount);
+                if (designPlanRecommendedResultObj.isStatus() && designPlanRecommendedResultObj.getObj() != null) {
+                    if (fullHouseList != null) {
+                        fullHouseList.addAll((List) designPlanRecommendedResultObj.getObj());
+                        designPlanRecommendedResultObj.setObj(fullHouseList);
+                    }
+                }
+            }
+        }else if (designPlanRecommendedVo.getSpaceType() == 13){
+            fullHouseCount = fullHouseDesignPlanService.selectFullHouseDesignPlanCount(planRecommendedListModel, companyCode, baseCompany);
+            List<DesignPlanRecommendedResult> fullHouseList = null;
+            if (fullHouseCount > 0){
+                fullHouseList = fullHouseDesignPlanService.selectFullHouseDesignPlanList(planRecommendedListModel, companyCode, baseCompany);
+            }
+            designPlanRecommendedResultObj = new ResponseEnvelope(true,"",fullHouseList,fullHouseCount);
+        }else {
+            //获取推荐列表数据
+            logger.info(CLASS_LOG_PREFIX + "获取方案推荐列表数据,获取列表数据->PlanRecommendedListModel:{}", planRecommendedListModel.toString());
+            designPlanRecommendedResultObj = designPlanRecommendedService.getPlanRecommendedList2(planRecommendedListModel,companyCode,baseCompany);
+            List<DesignPlanRecommendedResult> designPlanRecommendedResultList = (List<DesignPlanRecommendedResult>) designPlanRecommendedResultObj.getObj();
+
+            if (null == designPlanRecommendedResultList || 0 == designPlanRecommendedResultList.size()) {
+                logger.warn(CLASS_LOG_PREFIX + "获取方案推荐列表数据,获取列表数据完成->未查询到有效数据:planRecommendedListModel{}", planRecommendedListModel.toString());
+                return new ResponseEnvelope(true, "");
+            }
+        }
+        return DesignPlanRecommend.parseToDesignPlanRecommendedVoList(designPlanRecommendedResultObj);
+    }
+
+
+    /**
+     * 方案推荐详情
+     *
+     * @param planRecommendedId 方案推荐ID
+     * @return
+     */
+    @RequestMapping("/designplanrecommendeddetail")
+    public ResponseEnvelope designPlanRecommendedDetail(@RequestParam String planRecommendedId, HttpServletRequest request) {
+
+        if (StringUtils.isEmpty(planRecommendedId)) {
+            return new ResponseEnvelope(false, "必需参数为空!");
+        }
+
+        logger.info(CLASS_LOG_PREFIX + "获取方案推荐详情,planRecommendedId:{}", planRecommendedId);
+        DesignPlanRecommended designPlanRecommended = designPlanRecommendedService.designPlanRecommendedDetails(planRecommendedId);
+        logger.info(CLASS_LOG_PREFIX + "获取方案推荐详情完成,designPlanRecommended:{}", (null == designPlanRecommended ? "null" : designPlanRecommended.toString()));
+        //查询数据字典获取推荐方案风格        
+        Integer styleId = null;
+        if (designPlanRecommended != null) {
+            styleId = designPlanRecommended.getDesignRecommendedStyleId();
+        }
+
+        //转换VO对象
+        DesignPlanDetailVo designPlanDetailVo = DesignPlanDetail.parseToDesignPlanDetailVo(designPlanRecommended);
+
+        //准备查询用户收藏信息
+        if (null != designPlanDetailVo) {
+            LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+            logger.info(CLASS_LOG_PREFIX + "获取登录用户信息:getUserFromCache:{}.", null == loginUser ? null : loginUser.toString());
+            if (null != loginUser) {
+                //组装查询用户收藏条件
+                FavoriteRecommendedModel favoriteRecommendedModel = new FavoriteRecommendedModel();
+                favoriteRecommendedModel.setUserId(loginUser.getId());
+                //获取用户收藏数据
+                logger.info(CLASS_LOG_PREFIX + "获取方案推荐列表数据,获取用户收藏数据:FavoriteRecommendedModel:{}", favoriteRecommendedModel.toString());
+                List<DesignPlanRecommendedResult> designPlanRecommendedResultFavList = (List<DesignPlanRecommendedResult>) designPlanRecommendFavoriteService.favoritePlanRecommendedList(favoriteRecommendedModel).getObj();
+                logger.info(CLASS_LOG_PREFIX + "获取方案推荐列表数据,获取用户收藏数据完成:List<DesignPlanRecommendedResult>:{}", GSON.toJson(designPlanRecommendedResultFavList));
+
+                //对比数据，检查有无收藏此数据
+                if (null != designPlanRecommendedResultFavList && designPlanRecommendedResultFavList.size() > 0) {
+                    designPlanRecommendedResultFavList.forEach(designPlanRecommendedResult -> {
+                        if (planRecommendedId.equals(Integer.toString(designPlanRecommendedResult.getPlanRecommendedId()))) {
+                            //插入VO对象属性
+                            designPlanDetailVo.setIsFavorite(DesignPlanRecommendedVo.DESIGNPLAN_ALEARY_FAVORITE);
+                        }
+                    });
+                }
+            }
+        }
+        return new ResponseEnvelope(true, "", designPlanDetailVo);
+    }
+
+    /**
+     * 查询产品相关推荐方案
+     *
+     * @param productId 产品ID
+     * @return
+     */
+    @RequestMapping("/recommendedplanofproductrelated")
+    public ResponseEnvelope recommendedPlanOfProductRelated(@RequestParam Integer productId, HttpServletRequest request) {
+        if (productId == null && productId <= 0) {
+            logger.warn(CLASS_LOG_PREFIX + "查询产品相关推荐方案失败,productid is null.");
+            return new ResponseEnvelope(false, "查询产品相关推荐方案失败,productid is null.");
+        }
+
+        List<Integer> brandList = null;
+        /************************************  查询公司品牌 ***************************************************/
+
+        BaseCompany baseCompany = baseCompanyService.getCompanyByDomainUrl(request.getHeader("Referer"));
+        if (baseCompany  == null) {
+            baseCompany = baseCompanyService.getCompanyByDomainUrl(request.getHeader("Custom-Referer"));
+        }
+        if (null == baseCompany) {
+            //查询公司品牌
+            return new ResponseEnvelope(false,"未查询到公司");
+        }
+
+
+        //从缓存中获取当前平台
+        BasePlatform basePlatform = basePlatformService.getBasePlatform(miniprogramplatformCode);
+        if (basePlatform == null) {
+            return new ResponseEnvelope(false, "未知的平台");
+        }
+        Integer platformId = basePlatform.getId();
+
+
+        UserSO userSo = null;
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        logger.info(CLASS_LOG_PREFIX + "获取登录用户信息:getUserFromCache:{}.", null == loginUser ? null : loginUser.toString());
+        if (loginUser != null) {
+            userSo = new UserSO();
+            userSo.setUserId(loginUser.getId());
+        }
+
+        //WEIXIN-121, Update by steve;
+        List<Integer> enableBrandIdList = new ArrayList<>();
+        if(PlatformConstant.PLATFORM_CODE_MINI_PROGRAM.equalsIgnoreCase(basePlatform.getPlatformCode())) {
+            enableBrandIdList = baseCompanyService.getEnableBrandIdsByAppId(baseCompany.getAppId());
+        }
+
+        /************************************  查询相关推荐方案 ***************************************************/
+        //查询产品相关推荐方案
+        logger.info(CLASS_LOG_PREFIX + "查询产品相关推荐方案-->productId:{}", productId);
+        List<RecommendedPlanProductRelatedVo> recommendedPlanProductRelatedList = designPlanRecommendedProductService.queryRecommendedPlanOfProductRelatedByProductId2(productId, platformId, UserObject.parseUserSoToLoginUser(userSo),companyCode,baseCompany,enableBrandIdList);
+        logger.info(CLASS_LOG_PREFIX + "查询产品相关推荐方案完成-->List<RecommendedPlanProductRelatedVo>:{}", GSON.toJson(recommendedPlanProductRelatedList));
+
+        return new ResponseEnvelope(true, "", recommendedPlanProductRelatedList);
+    }
+
+    /**
+     * 获取方案或子方案是否适配样板房
+     *
+     * @param
+     * @return
+     */
+    @RequestMapping("/getMatchPlan")
+    @ResponseBody
+    public ResponseEnvelope getMatchPlan(@RequestBody DesignPlanRecommendedVo designPlanRecommendedVo) {
+        if (designPlanRecommendedVo == null) {
+            return new ResponseEnvelope(false, "参数为空");
+        }
+        Integer planRecommendedId = designPlanRecommendedVo.getDesignPlanRecommendId();
+        if (planRecommendedId == null) {
+            return new ResponseEnvelope(false, "推荐方案id为空");
+        }
+        Integer templateId = designPlanRecommendedVo.getTemplateId();
+        if (templateId == null) {
+            return new ResponseEnvelope(false, "样板房id为空");
+        }
+
+        DesignPlanRecommendedResult designPlanRecommended = null;
+        try {
+            designPlanRecommended = designPlanRecommendedService.getMatchPlan(designPlanRecommendedVo);
+        } catch (BizException e) {
+            return new ResponseEnvelope(false, e.getMessage());
+        }
+        if (designPlanRecommended == null) {
+            return new ResponseEnvelope(false, "方案不适合");
+        }
+
+        return new ResponseEnvelope(true, designPlanRecommended);
+    }
+
+    /**
+     * 推荐方案详情
+     * @param id
+     * @return
+     */
+    @RequestMapping("/getRecommendedDesignPlanDetail")
+    @ResponseBody
+    public ResponseEnvelope getRecommendedDesignPlanDetail(Integer id, Integer type, HttpServletRequest request){
+        if (id == null){
+            return new ResponseEnvelope(false, "获取方案详情失败，方案ID为空");
+        }
+        logger.info("获取推荐方案详情，推荐方案ID:{}", id);
+        PlanRecommendedListModel model = new PlanRecommendedListModel();
+        BasePlatform platform = basePlatformService.getByPlatformCode(miniprogramplatformCode);
+        BaseCompany baseCompany = baseCompanyService.getCompanyByDomainUrl(request.getHeader("Referer"));
+        if (null == baseCompany ) {
+            baseCompany = baseCompanyService.getCompanyByDomainUrl(request.getHeader("Custom-Referer"));
+            if(null== baseCompany){
+                return  new ResponseEnvelope(false,"未获取到公司信息");
+            }
+        }
+        if(PlatformConstant.PLATFORM_CODE_MINI_PROGRAM.equalsIgnoreCase(platform.getPlatformCode())) {
+            List<Integer> enableBrandIdList = baseCompanyService.getEnableBrandIdsByAppId(baseCompany.getAppId());
+            model.setBrandList(enableBrandIdList);
+        }
+        //获取用户登录信息
+        UserSO userSo = null;
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        logger.info(CLASS_LOG_PREFIX + "获取登录用户信息:getUserFromCache:{}.", null == loginUser ? null : loginUser.toString());
+        if (loginUser != null) {
+            userSo = new UserSO();
+            userSo.setUserId(loginUser.getId());
+        }
+        model.setId(id);
+        model.setPlatformId(platform.getId());
+        model.setLimit(1);
+        model.setStart(0);
+        model.setLoginUser(UserObject.parseUserSoToLoginUser(userSo));
+        try {
+            if (type == 0){
+                DesignPlanRecommendedResult result = designPlanRecommendedService.getRecommendedDesignPlanDetail(model, baseCompany);
+                List<DesignPlanRecommendedResult> list= Arrays.asList(result);
+                return DesignPlanRecommend.parseToDesignPlanRecommendedVoList(new ResponseEnvelope(true, "", list, 1 ));
+            }
+            if (type == 1){
+                List<DesignPlanRecommendedResult> list = fullHouseDesignPlanService.selectFullHouseDesignPlanDetail(model ,companyCode, baseCompany);
+                return DesignPlanRecommend.parseToDesignPlanRecommendedVoList(new ResponseEnvelope(true, "", list, 1 ));
+            }
+        } catch (BizException e) {
+            return new ResponseEnvelope(false, e.getMessage());
+        }
+        return new ResponseEnvelope(false, "");
+    }
+}
+

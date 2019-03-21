@@ -1,0 +1,14 @@
+<wxs module="public" src="../../utils/public.wxs"></wxs>
+<view class="banner">
+    <image src='{{staticImageUrl+"qiye_banner.png"}}'></image>
+    <view class='btns' bindtap='goAdmission'>立即入驻</view>
+</view>
+<view class='mains'>
+    <view class='items' wx:for="{{listObj}}" wx:key="{{index}}">
+        <view class='v1'>{{item.cityName}}  {{item.houseAcreage?item.houseAcreage+"m²":""}}</view>
+        <view class='v1' style='{{item.statusStr=="1"?"":"margin:0"}}'>{{item.userName}} {{public.phoneFilter(item.mobile)}}</view>
+        <view class='v1' style='margin:0' wx:if="{{item.statusStr=='1'}}">签约公司：{{item.companyName}}</view>
+        <image wx:if="{{item.statusStr=='1'}}" src='{{staticImageUrl}}qiye_icon_ok.png'></image>
+        <view wx:if="{{item.statusStr=='2'}}" class='btns'  bindtap='goAdmission'>我来报价</view>
+    </view>
+</view>

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.design.dao.DesignPlanSummaryInfoMapper">
+	<!-- **插入定义** -->
+	<insert id="insertSelective" parameterType="com.nork.design.model.DesignPlanSummaryInfo" useGeneratedKeys="true" keyProperty="id">
+		insert into design_plan_summary_info
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		<if test="designId!= null">design_id, </if>
+		<if test="likeNum!= null">like_num, </if>
+		<if test="collectNum!= null">collect_num, </if>
+		<if test="viewNum!= null">view_num, </if>
+		<if test="renderNum!= null">render_num, </if>
+		<if test="sysCode!= null">sys_code, </if>
+		<if test="creator!= null">creator, </if>
+		<if test="gmtCreate!= null">gmt_create, </if>
+		<if test="modifier!= null">modifier, </if>
+		<if test="gmtModified!= null">gmt_modified, </if>
+		<if test="isDeleted!= null">is_deleted, </if>
+		<if test="remark!= null">remark, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="designId!= null">  #{designId,jdbcType=INTEGER}, </if>
+		<if test="likeNum!= null">  #{likeNum,jdbcType=INTEGER}, </if>
+		<if test="collectNum!= null">  #{collectNum,jdbcType=INTEGER}, </if>
+		<if test="viewNum!= null">  #{viewNum,jdbcType=INTEGER}, </if>
+		<if test="renderNum!= null">  #{renderNum,jdbcType=INTEGER}, </if>
+		<if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>
+		</trim>
+	</insert>
+
+	<!-- **更新定义** -->
+	<update id="updateByPrimaryKeySelective" parameterType="com.nork.design.model.DesignPlanSummaryInfo">
+		update design_plan_summary_info
+		<set>
+		<if test="designId!= null">  design_id = #{designId,jdbcType=INTEGER}, </if>
+		<if test="likeNum!= null">  like_num = #{likeNum,jdbcType=INTEGER}, </if>
+		<if test="collectNum!= null">  collect_num = #{collectNum,jdbcType=INTEGER}, </if>
+		<if test="viewNum!= null">  view_num = #{viewNum,jdbcType=INTEGER}, </if>
+		<if test="renderNum!= null">  render_num = #{renderNum,jdbcType=INTEGER}, </if>
+		<if test="sysCode!= null">  sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  creator = #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  modifier = #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  remark = #{remark,jdbcType=VARCHAR}, </if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<!-- **删除定义** -->
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from design_plan_summary_info
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	
+	<!-- **常量定义** -->
+	<sql id="All_Column_List">
+		id,design_id,like_num,collect_num,view_num,render_num,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,remark,vr_view_num
+	</sql>
+	
+	<!-- **结果定义** -->
+	<resultMap id="AllResultMap" type="com.nork.design.model.DesignPlanSummaryInfo">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="design_id" property="designId" jdbcType="INTEGER" />
+		<result  column="like_num" property="likeNum" jdbcType="INTEGER" />
+		<result  column="collect_num" property="collectNum" jdbcType="INTEGER" />
+		<result  column="view_num" property="viewNum" jdbcType="INTEGER" />
+		<result  column="render_num" property="renderNum" jdbcType="INTEGER" />
+		<result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="vr_view_num" property="vrViewNum" javaType="INTEGER" />
+	</resultMap>
+	
+	<!-- **查询定义** -->
+	<!-- 按主键查询 -->
+	<select id="selectByPrimaryKey" resultMap="AllResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="All_Column_List" />
+		from design_plan_summary_info
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+		parameterType="com.nork.design.model.DesignPlanSummaryInfo">
+		select
+		<include refid="All_Column_List" />
+		from design_plan_summary_info
+        where 1=1
+		<if test="designId!= null">  and design_id = #{designId,jdbcType=INTEGER} </if>
+		<if test="likeNum!= null">  and like_num = #{likeNum,jdbcType=INTEGER} </if>
+		<if test="collectNum!= null">  and collect_num = #{collectNum,jdbcType=INTEGER} </if>
+		<if test="sysCode!= null">  and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="creator!= null">  and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="gmtCreate!= null">  and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+		<if test="modifier!= null">  and modifier = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="gmtModified!= null">  and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP} </if>
+		<if test="isDeleted!= null">  and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="remark!= null">  and remark = #{remark,jdbcType=VARCHAR} </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order}
+			<if test="orderNum != null and  orderNum !='' ">
+				${orderNum}
+			</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">
+		   order by ${orders}
+		</if>
+	</select>
+
+
+    <!-- 查询方案信息 -->
+	<select id="selectByDesignId" parameterType="java.lang.Integer"
+			resultType="com.nork.design.model.DesignPlanSummaryInfo">
+		SELECT
+		<include refid="All_Column_List" />
+		FROM design_plan_summary_info
+		WHERE
+		design_id = #{designId,jdbcType=INTEGER} AND is_deleted = 0
+	</select>
+
+	<insert id="saveOrUpdate" parameterType="com.nork.design.model.DesignPlanSummaryInfo">
+		insert into design_plan_summary_info
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="designId!= null">design_id, </if>
+			<if test="likeNum!= null">like_num, </if>
+			<if test="collectNum!= null">collect_num, </if>
+			<if test="viewNum!= null">view_num, </if>
+			<if test="renderNum!= null">render_num, </if>
+			<if test="sysCode!= null">sys_code, </if>
+			<if test="creator!= null">creator, </if>
+			<if test="gmtCreate!= null">gmt_create, </if>
+			<if test="modifier!= null">modifier, </if>
+			<if test="gmtModified!= null">gmt_modified, </if>
+			<if test="isDeleted!= null">is_deleted, </if>
+			<if test="remark!= null">remark, </if>
+			<if test="vrViewNum != null">vr_view_num,</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="designId!= null">  #{designId,jdbcType=INTEGER}, </if>
+			<if test="likeNum!= null">  #{likeNum,jdbcType=INTEGER}, </if>
+			<if test="collectNum!= null">  #{collectNum,jdbcType=INTEGER}, </if>
+			<if test="viewNum!= null">  #{viewNum,jdbcType=INTEGER}, </if>
+			<if test="renderNum!= null">  #{renderNum,jdbcType=INTEGER}, </if>
+			<if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+			<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+			<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+			<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+			<if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+			<if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>
+			<if test="vrViewNum != null">#{vrViewNum,jdbcType=INTEGER},</if>
+		</trim>
+		ON DUPLICATE key update
+		<if test="collectNum!= null">  collect_num = #{collectNum,jdbcType=INTEGER} </if>
+		<if test="likeNum!= null">  like_num = #{likeNum,jdbcType=INTEGER} </if>
+		<if test="vrViewNum != null"> vr_view_num = #{vrViewNum,jdbcType=INTEGER} </if>
+	</insert>
+     <!-- end-->
+
+	<update id="updateViewNumberPlusOne" parameterType="java.lang.Integer">
+		update
+		design_plan_summary_info
+		set
+		view_num = view_num + 1
+		where
+		design_id = #{planRecommendId}
+	</update>
+</mapper>

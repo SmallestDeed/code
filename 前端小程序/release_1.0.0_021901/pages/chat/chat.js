@@ -1,0 +1,234 @@
+// pages/chat/chat.js
+import utils from '../../utils/utils.js'
+let API = getApp().API, $APP = getApp();
+Page({
+
+  /**
+   * 页面的初始数据
+   */
+  data: {
+    wxInfo: null,
+    resourcePath: getApp().resourcePath,
+    friendUuid:'',
+    toUserShopId: '',
+    scrollId: '',
+    chatContentList: '',
+    chatContent: '',
+    inputFocus: true,
+    socket: '',
+    myFriendMessageObj: {},
+    shopDetails: {}, // 店铺详情
+    userChatMessage: '',
+    myFriendMessageObj: {},
+  },
+  // /*初始化*/
+  // init() {
+  //   this.setData({ wxInfo: app.globalData.userInfo ? app.globalData.userInfo : null });
+  //   console.log(wxInfo)
+  //   // Socket实时消息提醒
+  //   getApp().mySocket.on('im_unread_msg_event', content => {
+  //     this.setData({ systemNewIsRead: 0 })
+  //   })
+  //   // Socket实时渲染消息
+  //   getApp().mySocket.on('im_push_msg_event', content => {
+  //     this.setData({ idNewRenderMessages: 0 }), console.log(content, 'Socket实时渲染消息')
+  //   });
+  // },
+
+  /**
+   * 生命周期函数--监听页面加载
+   */
+  onLoad: function (options) {
+    this.init(options);
+  },
+  /*获取用户信息*/
+  // onGotUserInfo(e) {
+  //   app.globalData.userInfo = e.detail.userInfo
+  //   this.setData({
+  //     wxInfo: e.detail.userInfo
+  //   })
+  // },
+  /**
+   * 生命周期函数--监听页面初次渲染完成
+   */
+  onReady: function () {
+
+  },
+
+  /**
+   * 生命周期函数--监听页面显示
+   */
+  onShow: function () {
+    this.monitorMessage()
+    
+
+  },
+
+  pageScrollToBottom () {
+    wx.createSelectorQuery().select('.chat').boundingClientRect(rect => {
+      // 使页面滚动到底部
+      wx.pageScrollTo({
+        scrollTop: rect.bottom,
+        duration: 50
+      })
+    }).exec()
+  },
+
+  /*页面初始化数据*/
+  init(options) {
+    this.setData({ wxInfo: $APP.globalData.userInfo ? $APP.globalData.userInfo : null });
+    console.log(this.data.wxInfo)
+    options.item = options.item.replace(/(^\s+)|(\s+$)/g, "")
+    // console.log(options.item)
+    let item = JSON.parse(options.item.replace(/&/g, "$"))
+    // console.log(item)
+    this.initializeChatBox(item);
+    this.getShopDetails(item);
+    this.getChatingRecords();
+    this.refreshMessageRead();
+  },
+
+  /*初始化聊天框信息*/
+  initializeChatBox(item) {
+    this.data.friendUuid = item.contactSessionId || item.sessionId
+    this.data.toUserShopId = item.id || item.relatedObjId
+    wx.setNavigationBarTitle({ title: item.contactName || item.shopName })
+    this.setData({ myFriendMessageObj: item })
+  },
+
+  /*获取聊天记录*/
+  getChatingRecords() { 
+    API.getChatingRecords({
+      platformCode: 'sxw',
+      userSessionId: wx.getStorageSync('uuid') || '',
+      contactSessionId: this.data.friendUuid,
+      relatedObjId: this.data.toUserShopId,
+      relatedObjType: 1,
+      pageNum: 1,
+      pageSize: 10000
+    }).then(res => {
+      if (res.resultCode === 'SUCCESS') {
+        let list = res.data.list ? res.data.list.reverse() : []
+        list.length > 0 ? res.data.list[list.length - 1]['scrollId'] = `scrollId${list.length}` : ''
+        this.setData({ chatContentList: list || [], scrollId: `scrollId${list.length}` })
+        this.pageScrollToBottom()
+      }
+    })
+  },
+
+  /*重置消息未读*/
+  refreshMessageRead() { 
+    API.refreshMessageRead({
+      userSessionId: wx.getStorageSync('uuid') || '',
+      contactSessionId: this.data.friendUuid,
+      relatedObjId: this.data.toUserShopId,
+      relatedObjType: 1
+    })
+      .then(res => {
+        // console.log(res, '成功刷新')
+      })
+  },
+
+  /*获取店铺详情*/
+  getShopDetails(item) {
+    // console.log(item.id, item.relatedObjId)
+    API.getCompanyDetails({
+      shopId: item.id || item.relatedObjId || item.shopId, 
+      platformValue: 1 
+    }).then(res => {
+      if (res.code === 200 && res.data) {
+        this.setData({ shopDetails: res.data })
+      }
+    })
+  },  
+ 
+  /*发送消息*/
+  sendUserMessage(e) { 
+    if (this.data.userChatMessage) {
+      let key = 'chatContentList[' + this.data.chatContentList.length + ']';
+      let id = `scrollId${this.data.chatContentList.length}`;
+      this.setData({
+        [key]: { msgBody: this.data.userChatMessage, time: utils.getNowTime(), direction: 1, scrollId: id },
+      })
+      console.log(utils.getNowTime(), 'wqwq')
+      let obj = {
+        fromUserSessionId: wx.getStorageSync('uuid'),
+        toUserSessionId: this.data.friendUuid,
+        msgBody: this.data.userChatMessage,
+        relatedObjId: this.data.toUserShopId,
+        relatedObjType: 1,
+        fromAppId: 16,
+        relatedObjOwnerSessionId: this.data.friendUuid
+      }
+      console.log(obj)
+      this.setData({ scrollId: id, chatContent: '' })
+      getApp().mySocket.emit('im_chat_msg_event', {
+        fromUserSessionId: wx.getStorageSync('uuid'),
+        toUserSessionId: this.data.friendUuid,
+        msgBody: this.data.userChatMessage,
+        relatedObjId: this.data.toUserShopId,
+        relatedObjType: 1,
+        fromAppId: 16,
+        relatedObjOwnerSessionId: this.data.friendUuid
+      })
+      this.setData({ userChatMessage: '' })
+    }
+  },
+
+  monitorMessage() {
+    const $self = this
+    getApp().mySocket.emit('im_loc_msg_event', { userSessionId: wx.getStorageSync('uuid'), loc: 1, contactSessionId: this.data.friendUuid, appId: 16, relatedObjType: 1, relatedObjId: this.data.toUserShopId })
+    getApp().mySocket.on('im_chat_msg_event', content => {
+      // console.log(content,'111111')
+      let key = 'chatContentList[' + $self.data.chatContentList.length + ']', id = `scrollId${$self.data.chatContentList.length}`
+      $self.setData({
+        [key]: { msgBody: content.msgBody, time: utils.getNowTime(), direction: 2, scrollId: id },
+        scrollId: id
+      })
+    })
+  },
+
+  // 设置聊天内容
+  changeUserChatMessage(e) {
+    this.setData({ userChatMessage: e.detail.value })
+  },
+
+  routerToUserDetails() {
+    this.setData({ scrollId: 'scrollId' })
+  },
+
+  /**
+   * 生命周期函数--监听页面隐藏
+   */
+  onHide: function () {
+
+  },
+
+  /**
+   * 生命周期函数--监听页面卸载
+   */
+  onUnload: function () {
+
+  },
+
+  /**
+   * 页面相关事件处理函数--监听用户下拉动作
+   */
+  onPullDownRefresh: function () {
+
+  },
+
+  /**
+   * 页面上拉触底事件的处理函数
+   */
+  onReachBottom: function () {
+
+  },
+
+  /**
+   * 用户点击右上角分享
+   */
+  onShareAppMessage: function () {
+
+  }
+})

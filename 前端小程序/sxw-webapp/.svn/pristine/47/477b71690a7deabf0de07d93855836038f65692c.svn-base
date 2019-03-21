@@ -1,0 +1,140 @@
+<!--pages/house-case/house-case.wxml-->
+
+  <!--顶部选择栏-->
+<view class='house-case'> 
+
+   <view class='case-list'>
+   <case-list navText='收藏的方案' recommendCaseList='{{recommendCaseList}}' isRecommonPlan='{{1}}' bindshowDecoratePriceBox='showDecoratePriceBox'></case-list>
+    <!-- <view class="case-item" wx:for='{{recommendCaseList}}' wx:key='{{index}}'>
+      <image src='{{staticImageUrl}}home_icon_3d.png' 
+        class='go3D' 
+        data-item='{{item}}' 
+        data-type='720' 
+        bindtap='go720'>
+      </image>
+      <image src='{{item.coverPath?resourcePath+item.coverPath:staticImageUrl+"home_pic_no.png"}}'       
+        class='case-item-img'>
+      </image>
+      <view class='item-info'>
+        <view class='info-title'>{{item.planName}}</view>
+        <view class="info-type">{{item.styleName}}  |  {{item.spaceAreas}}㎡</view>
+        <image src='{{item.userPicPath?staticImageUrl+item.userPicPath:staticImageUrl+"header.png"}}'   
+          class='head-portrait'>
+        </image>
+        <view class='info-record'>
+          <view class='record-left'>浏览 {{item.visitCount}}</view>
+          <view class='record-right'>
+            <image src='{{staticImageUrl+(item.isFavorite!=1?"page_icon_collect_nor@2x.png":"page_icon_collect_sct@2x.png")}}' 
+              class='collect' 
+              data-index='{{index}}' 
+              catchtap='collectCase'>
+            </image>
+            {{item.collectNum}}
+            <image src='{{staticImageUrl+(item.isLike != 1?"page_icon_like_nor@2x.png":"page_icon_like_sct@2x.png")}}' 
+              class='assist' 
+              data-index='{{index}}' 
+              bindtap='likeCase'>
+            </image>
+            {{item.likeNum}}
+          </view>
+        </view>
+      </view>
+    </view> -->
+   </view> 
+
+
+   <view class='case-condition' wx:if='{{conditionActive >= 0}}' bindtap='closeCaseCondition'> 
+    <view class='condition-box clearfix' wx:if='{{conditionActive == 0}}'>
+      <view class='single-box fl {{childConditionActive[0] == index?"condition-box-active": ""}}'
+      wx:for='{{spaceList}}'
+      wx:key='{{index}}' 
+      bindtap='chooseCondition' 
+      data-indexP='{{0}}' 
+      data-indexC='{{index}}' 
+      data-code ='{{item.houseType}}'>
+        {{item.houseName}}
+      </view>  
+    </view>
+    <view class='condition-box clearfix' wx:if='{{conditionActive == 1}}'>
+      <view class='single-box fl {{childConditionActive[1] == -1?"condition-box-active": ""}}'
+        data-indexP='{{1}}'  
+        data-indexC='{{-1}}' 
+        bindtap='chooseCondition'
+        data-code ='""'>
+          全部
+      </view> 
+      <view class='single-box fl {{childConditionActive[1] == index?"condition-box-active": ""}}'  
+        wx:for='{{areaList}}' 
+        data-indexP='{{1}}'  
+        data-indexC='{{index}}' 
+        bindtap='chooseCondition'
+        wx:key='{{index}}'         
+        data-code ='{{item.areaId}}'>
+          {{item.areaName}}m²
+      </view>  
+    </view>
+    <view class='condition-box clearfix' wx:if='{{conditionActive == 2}}'>
+      <view class='single-box fl {{childConditionActive[2] == -1?"condition-box-active": ""}}'
+        data-indexP='{{2}}'  
+        data-indexC='{{-1}}' 
+        bindtap='chooseCondition'
+        data-code ='""'>
+          全部
+      </view> 
+      <view class='single-box fl {{childConditionActive[2] == index?"condition-box-active": ""}}'
+        wx:for='{{styleList}}' 
+        wx:key='{{index}}'        
+        data-indexP='{{2}}'  
+        bindtap='chooseCondition'
+        data-indexC='{{index}}' 
+        data-code ='{{item.styleCode}}'>
+        {{item.styleName}}
+      </view>  
+    </view>
+  </view>  
+
+  <view class='top clearfix'>
+    <view class='room fl {{conditionActive == 0? "active" : ""}}' data-index='{{0}}' bindtap='switchCondition'>
+    {{spaceList[childConditionActive[0]].houseName}}
+    <image src='{{conditionActive == 0?staticImageUrl+"choose_icon_up@2x.png" : staticImageUrl+"choose_icon_down@2x.png"}}'></image>
+    </view>                    
+    <view class='area fl {{conditionActive == 1? "active" : ""}}' data-index='{{1}}' bindtap='switchCondition'>
+      {{childConditionActive[1] == -1?'面积': areaList[childConditionActive[1]].areaName + 'm²'}}
+      <image src='{{conditionActive == 1?staticImageUrl+"choose_icon_up@2x.png" : staticImageUrl+"choose_icon_down@2x.png"}}'></image>
+    </view>
+    <view class='style fl {{conditionActive == 2? "active" : ""}}' data-index='{{2}}' bindtap='switchCondition'>
+      {{childConditionActive[2] == -1?'风格': styleList[childConditionActive[2]].styleName}}
+      <image src='{{conditionActive == 2?staticImageUrl+"choose_icon_up@2x.png" : staticImageUrl+"choose_icon_down@2x.png"}}'></image>
+    </view>
+  </view>  
+  <!-- <view class='render-type'>
+    <view class='render-type-box'>
+      <view class='title'>选择效果图类型</view>
+      <radio-group bindchange='chooseRenderType'>
+        <view class='content-box clearfix' wx:for='{{renderType}}' wx:key='{{index}}'> 
+         <view class='text-one fl'>{{item.name}}</view>
+         <view class='text-two fl'>{{item.num}}</view>         
+         <view class='fl'><radio color='#ff6419' value='{{index}}' checked='{{item.checked}}'></radio></view>
+        </view>
+        <view class='confirm-box'>
+          <view class='cancel fl'>取消</view>
+          <view class='confirm fl'>确认</view>          
+        </view>       
+      </radio-group>
+    </view>
+  </view> -->
+  <!-- <import src="../../component/render-type/render-type.wxml"/>
+  <template is="renderType" data="{{ ...renderType }}"/> -->
+</view>
+<empty-page emptyPageObj="{{emptyPageObj}}" wx:if="{{!recommendCaseList.length>0}}"></empty-page>
+ <!-- <block wx:if="{{!recommendCaseList.length>0}}">
+<view class="empty_tip ">
+  <image class="image" src="{{staticImageUrl}}me_pic_no_02.png"></image>
+  <view class="txt">暂无收藏方案</view>
+  <button class='goRenderBtn' bindtap='goRenderBtn'>去逛逛</button>
+</view>
+</block> -->
+<!-- 快速导航模块 -->
+  <!-- <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav" data="{{ ...newNav }}"/> -->
+  <jdNav></jdNav>

@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.servicepurchase.dao.ServicesPurchaseRecordMapper">
+    <resultMap id="BaseResultMap" type="com.sandu.api.servicepurchase.model.ServicesPurchaseRecord">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="company_id" jdbcType="VARCHAR" property="companyId"/>
+        <result column="order_no" jdbcType="VARCHAR" property="orderNo"/>
+        <result column="services_id" jdbcType="BIGINT" property="servicesId"/>
+        <result column="services_price_id" jdbcType="INTEGER" property="servicesPriceId"/>
+        <result column="user_scope" jdbcType="VARCHAR" property="userScope"/>
+        <result column="purchase_source" jdbcType="VARCHAR" property="purchaseSource"/>
+        <result column="unit_price" jdbcType="DECIMAL" property="unitPrice"/>
+        <result column="price_unit" jdbcType="VARCHAR" property="priceUnit"/>
+        <result column="purchase_amount" jdbcType="DECIMAL" property="purchaseAmount"/>
+        <result column="duration" jdbcType="INTEGER" property="duration"/>
+        <result column="give_duration" jdbcType="INTEGER" property="giveDuration"/>
+        <result column="free_render_duration" jdbcType="INTEGER" property="freeRenderDuration"/>
+        <result column="sandu_currency" jdbcType="INTEGER" property="sanduCurrency"/>
+        <result column="purchase_momey" jdbcType="DECIMAL" property="purchaseMomey"/>
+        <result column="pay_type" jdbcType="VARCHAR" property="payType"/>
+        <result column="purchase_time" jdbcType="TIMESTAMP" property="purchaseTime"/>
+        <result column="purchase_status" jdbcType="VARCHAR" property="purchaseStatus"/>
+        <result column="telephone" jdbcType="VARCHAR" property="telephone"/>
+        <result column="business_type" jdbcType="VARCHAR" property="businessType"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="userId" jdbcType="VARCHAR" property="userid"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, company_id, order_no, services_id, services_price_id, user_scope, purchase_source,business_type,telephone,price_unit,
+    unit_price, purchase_amount, duration, give_duration, free_render_duration, sandu_currency,
+    purchase_momey, pay_type, purchase_time, purchase_status, remark, userId, creator,
+    gmt_create, modifier, gmt_modified, is_deleted
+  </sql>
+    <sql id="where_list">
+        <if test="id != null">
+            AND id = #{id,jdbcType=BIGINT}
+        </if>
+        <if test="companyId != null">
+            AND company_id = #{companyId,jdbcType=VARCHAR}
+        </if>
+        <if test="orderNo != null">
+            AND order_no = #{orderNo,jdbcType=VARCHAR}
+        </if>
+        <if test="servicesId != null">
+            AND services_id = #{servicesId,jdbcType=BIGINT}
+        </if>
+        <if test="servicesPriceId != null">
+            AND services_price_id = #{servicesPriceId,jdbcType=INTEGER}
+        </if>
+
+        <if test="userScope != null">
+            AND user_scope = #{userScope,jdbcType=VARCHAR}
+        </if>
+        <if test="purchaseSource != null">
+            AND purchase_source = #{purchaseSource,jdbcType=VARCHAR}
+        </if>
+        <if test="businessType != null">
+            AND business_type = #{businessType,jdbcType=VARCHAR}
+        </if>
+        <if test="telephone != null">
+            AND telephone = #{telephone,jdbcType=VARCHAR}
+        </if>
+        <if test="unitPrice != null">
+            AND unit_price = #{unitPrice,jdbcType=DECIMAL}
+        </if>
+        <if test="priceUnit != null">
+            AND price_unit = #{priceUnit,jdbcType=VARCHAR}
+        </if>
+        <if test="purchaseAmount != null">
+            AND purchase_amount = #{purchaseAmount,jdbcType=DECIMAL}
+        </if>
+        <if test="duration != null">
+            AND duration = #{duration,jdbcType=INTEGER}
+        </if>
+        <if test="giveDuration != null">
+            AND give_duration = #{giveDuration,jdbcType=VARCHAR}
+        </if>
+        <if test="freeRenderDuration != null">
+            AND free_render_duration = #{freeRenderDuration,jdbcType=INTEGER}
+        </if>
+        <if test="sanduCurrency != null">
+            AND sanduCurrency = #{sanduCurrency,jdbcType=INTEGER}
+        </if>
+        <if test="purchaseMomey != null">
+            AND purchaseMomey = #{purchaseMomey,jdbcType=DECIMAL}
+        </if>
+        <if test="userId != null">
+            AND userId = #{userId,jdbcType=VARCHAR}
+        </if>
+
+        <if test="payType != null">
+            AND pay_type = #{payType,jdbcType=VARCHAR}
+        </if>
+        <if test="purchaseTime != null">
+            AND purchase_time = #{purchaseTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="purchaseStatus != null">
+            AND purchaseStatus = #{purchaseStatus,jdbcType=VARCHAR}
+        </if>
+
+        <if test="isDeleted != null">
+            AND is_deleted = #{isDeleted,jdbcType=INTEGER}
+        </if>
+    </sql>
+    <select id="queryByOption" resultMap="BaseResultMap"
+            parameterType="com.sandu.api.servicepurchase.input.query.ServicesPurchaseRecordQuery">
+        select
+        <include refid="Base_Column_List"/>
+        from services_purchase_record
+        <where>
+            <include refid="where_list"/>
+        </where>
+        order BY id desc
+        <if test="start != null and limit != null">
+            limit ${(start-1)*limit},${start*limit}
+        </if>
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from services_purchase_record
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="getRecordByOrderNum" resultType="com.sandu.api.servicepurchase.model.ServicesPurchaseRecord">
+      select * from services_purchase_record where is_deleted = 0 and  order_no = #{orderNum};
+    </select>
+    <select id="checkRecordWithUserId" resultType="com.sandu.api.servicepurchase.model.ServicesPurchaseRecord">
+    select * from services_purchase_record where usre_id = #{userId} order by id desc limit 1;
+  </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from services_purchase_record
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insertSelective" parameterType="com.sandu.api.servicepurchase.model.ServicesPurchaseRecord" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into services_purchase_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="businessType != null">
+                business_type,
+            </if>
+            <if test="telephone != null">
+                telephone,
+            </if>
+            <if test="priceUnit != null">
+                price_unit,
+            </if>
+            <if test="companyId != null">
+                company_id,
+            </if>
+            <if test="orderNo != null">
+                order_no,
+            </if>
+            <if test="servicesId != null">
+                services_id,
+            </if>
+            <if test="servicesPriceId != null">
+                services_price_id,
+            </if>
+            <if test="userScope != null">
+                user_scope,
+            </if>
+            <if test="purchaseSource != null">
+                purchase_source,
+            </if>
+            <if test="unitPrice != null">
+                unit_price,
+            </if>
+            <if test="purchaseAmount != null">
+                purchase_amount,
+            </if>
+            <if test="duration != null">
+                duration,
+            </if>
+            <if test="giveDuration != null">
+                give_duration,
+            </if>
+            <if test="freeRenderDuration != null">
+                free_render_duration,
+            </if>
+            <if test="sanduCurrency != null">
+                sandu_currency,
+            </if>
+            <if test="purchaseMomey != null">
+                purchase_momey,
+            </if>
+            <if test="payType != null">
+                pay_type,
+            </if>
+            <if test="purchaseTime != null">
+                purchase_time,
+            </if>
+            <if test="purchaseStatus != null">
+                purchase_status,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="userid != null">
+                userId,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="businessType != null">
+                #{businessType,jdbcType=VARCHAR},
+            </if>
+            <if test="telephone != null">
+                #{telephone,jdbcType=VARCHAR},
+            </if>
+            <if test="priceUnit != null">
+                #{priceUnit,jdbcType=VARCHAR},
+            </if>
+            <if test="companyId != null">
+                #{companyId,jdbcType=VARCHAR},
+            </if>
+            <if test="orderNo != null">
+                #{orderNo,jdbcType=VARCHAR},
+            </if>
+            <if test="servicesId != null">
+                #{servicesId,jdbcType=BIGINT},
+            </if>
+            <if test="servicesPriceId != null">
+                #{servicesPriceId,jdbcType=INTEGER},
+            </if>
+            <if test="userScope != null">
+                #{userScope,jdbcType=VARCHAR},
+            </if>
+            <if test="purchaseSource != null">
+                #{purchaseSource,jdbcType=VARCHAR},
+            </if>
+            <if test="unitPrice != null">
+                #{unitPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="purchaseAmount != null">
+                #{purchaseAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="duration != null">
+                #{duration,jdbcType=INTEGER},
+            </if>
+            <if test="giveDuration != null">
+                #{giveDuration,jdbcType=INTEGER},
+            </if>
+            <if test="freeRenderDuration != null">
+                #{freeRenderDuration,jdbcType=INTEGER},
+            </if>
+            <if test="sanduCurrency != null">
+                #{sanduCurrency,jdbcType=INTEGER},
+            </if>
+            <if test="purchaseMomey != null">
+                #{purchaseMomey,jdbcType=DECIMAL},
+            </if>
+            <if test="payType != null">
+                #{payType,jdbcType=VARCHAR},
+            </if>
+            <if test="purchaseTime != null">
+                #{purchaseTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="purchaseStatus != null">
+                #{purchaseStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="userid != null">
+                #{userid,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.servicepurchase.model.ServicesPurchaseRecord">
+        update services_purchase_record
+        <set>
+            <if test="companyId != null">
+                company_id = #{companyId,jdbcType=VARCHAR},
+            </if>
+            <if test="orderNo != null">
+                order_no = #{orderNo,jdbcType=VARCHAR},
+            </if>
+            <if test="businessType != null">
+                business_type = #{businessType,jdbcType=VARCHAR},
+            </if>
+            <if test="telephone != null">
+                telephone = #{telephone,jdbcType=VARCHAR},
+            </if>
+            <if test="servicesId != null">
+                services_id = #{servicesId,jdbcType=BIGINT},
+            </if>
+            <if test="servicesPriceId != null">
+                services_price_id = #{servicesPriceId,jdbcType=INTEGER},
+            </if>
+            <if test="userScope != null">
+                user_scope = #{userScope,jdbcType=VARCHAR},
+            </if>
+            <if test="purchaseSource != null">
+                purchase_source = #{purchaseSource,jdbcType=VARCHAR},
+            </if>
+            <if test="unitPrice != null">
+                unit_price = #{unitPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="purchaseAmount != null">
+                purchase_amount = #{purchaseAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="duration != null">
+                duration = #{duration,jdbcType=INTEGER},
+            </if>
+            <if test="giveDuration != null">
+                give_duration = #{giveDuration,jdbcType=INTEGER},
+            </if>
+            <if test="freeRenderDuration != null">
+                free_render_duration = #{freeRenderDuration,jdbcType=INTEGER},
+            </if>
+            <if test="sanduCurrency != null">
+                sandu_currency = #{sanduCurrency,jdbcType=INTEGER},
+            </if>
+            <if test="purchaseMomey != null">
+                purchase_momey = #{purchaseMomey,jdbcType=DECIMAL},
+            </if>
+            <if test="payType != null">
+                pay_type = #{payType,jdbcType=VARCHAR},
+            </if>
+            <if test="purchaseTime != null">
+                purchase_time = #{purchaseTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="purchaseStatus != null">
+                purchase_status = #{purchaseStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="userid != null">
+                userId = #{userid,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="selectTelephoneExists" resultType="java.lang.Integer" parameterType="java.lang.String">
+        SELECT IFNULL(COUNT(1),0) FROM services_purchase_record WHERE is_deleted = 0
+        <if test="telephone != null  and telephone !=''">
+            and telephone = #{telephone}
+        </if>
+    </select>
+
+</mapper>

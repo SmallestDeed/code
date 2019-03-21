@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sandu.service.bake.dao.DrawBakeTaskDetailMapper">
+
+    <insert id="batchSave">
+        insert into draw_bake_task_detail(
+          task_id, space_id, space_code, product_data,
+          space_file_ids, space_file_path
+        )values
+        <foreach collection="list" item="taskDetail" separator="," index="index">
+            (
+              #{taskDetail.taskId}, #{taskDetail.spaceId}, #{taskDetail.spaceCode}, #{taskDetail.productData},
+              #{taskDetail.spaceFileIds}, #{taskDetail.spaceFilePath}
+            )
+        </foreach>
+    </insert>
+    
+    <update id="updateTaskDetailStatus">
+    	UPDATE 
+		  draw_bake_task_detail td 
+		SET
+		  td.status = #{status} 
+		WHERE td.id = #{id} 
+    </update>
+
+	<sql id="Base_Column_List">
+		id, task_id, space_id, space_code, space_file_ids, space_file_path, status, is_deleted
+	</sql>
+
+	<sql id="Blob_Column_List">
+		product_data
+	</sql>
+
+	<resultMap id="BaseResultMap" type="com.sandu.api.house.model.DrawBakeTaskDetail">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="task_id" jdbcType="BIGINT" property="taskId" />
+		<result column="space_id" jdbcType="BIGINT" property="spaceId" />
+		<result column="space_code" jdbcType="VARCHAR" property="spaceCode" />
+		<result column="space_file_ids" jdbcType="VARCHAR" property="spaceFileIds" />
+		<result column="space_file_path" jdbcType="VARCHAR" property="spaceFilePath" />
+		<result column="status" jdbcType="INTEGER" property="status" />
+		<result column="is_deleted" jdbcType="SMALLINT" property="isDeleted" />
+	</resultMap>
+
+	<resultMap extends="BaseResultMap" id="ResultMapWithBLOBs"
+		type="com.sandu.api.house.model.DrawBakeTaskDetail">
+		<result column="product_data" jdbcType="LONGVARCHAR" property="productData" />
+	</resultMap>
+
+	<select id="selectByPrimaryKey" parameterType="java.lang.Long"
+		resultMap="ResultMapWithBLOBs">
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		from draw_bake_task_detail
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.house.model.DrawBakeTaskDetail">
+	    update draw_bake_task_detail
+	    <set>
+	      <if test="taskId != null">
+	        task_id = #{taskId,jdbcType=BIGINT},
+	      </if>
+	      <if test="spaceId != null">
+	        space_id = #{spaceId,jdbcType=BIGINT},
+	      </if>
+	      <if test="spaceCode != null">
+	        space_code = #{spaceCode,jdbcType=VARCHAR},
+	      </if>
+	      <if test="status != null">
+	        status = #{status,jdbcType=INTEGER},
+	      </if>
+	      <if test="spaceFileIds != null">
+	        space_file_ids = #{spaceFileIds,jdbcType=VARCHAR},
+	      </if>
+	      <if test="spaceFilePath != null">
+	        space_file_path = #{spaceFilePath,jdbcType=VARCHAR},
+	      </if>
+	      <if test="message != null">
+	        message = #{message,jdbcType=VARCHAR},
+	      </if>
+	      <if test="productData != null">
+	        product_data = #{productData,jdbcType=LONGVARCHAR},
+	      </if>
+	      <if test="gmtModified != null">
+	      	gmt_modified = #{gmtModified, jdbcType=TIMESTAMP},
+	      </if>
+	      <if test="bakeFailCount != null">
+	      	bake_fail_count = bake_fail_count + ${bakeFailCount},
+	      </if>
+	    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <update id="restFailTask">
+  	UPDATE 
+	  draw_bake_task_detail td 
+	SET
+	  td.status = 4,
+	  td.bake_fail_count = 0
+	WHERE td.status NOT IN (1, 3) 
+	  AND td.id IN 
+	  <foreach collection="args" item="item" open="(" separator="," close=")">
+	    #{item.taskDetailId}
+	  </foreach>
+  </update>
+
+  <select id="getTaskDetailByTaskId" resultType="java.lang.Long">
+	SELECT
+	  COUNT(*)
+	FROM
+	  draw_bake_task_detail td
+	WHERE td.is_deleted = 0
+	  AND td.task_id = #{taskId}
+	  <if test="status != null">
+	    AND td.status = #{status}
+	  </if>
+  </select>
+
+  <select id="getSubTask" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+	SELECT
+	  <include refid="Base_Column_List" />,
+	  <include refid="Blob_Column_List" />
+	FROM
+	  draw_bake_task_detail td
+	WHERE td.id = #{id,jdbcType=BIGINT}
+  </select>
+</mapper>

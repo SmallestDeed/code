@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.restexture.dao.ResTextureDao">
+
+    <sql id="Base_Column_List">
+        id, name, file_name, type, file_code, file_size, file_width, file_height, pic_id,
+        file_suffix, file_path, file_desc, style, texture, sys_code, creator, gmt_create,
+        modifier, gmt_modified, is_deleted, att1, att2, numa1, numa2, remark, color, gloss,
+        craft, effect_surface, texture_attr_value, lay_modes, thumbnail_id, normal_pic_id,
+        normal_param, textureBall_file_id, brand_id, texture_code , model_number
+    </sql>
+    <select id="getResTextureDetail" resultType="com.sandu.api.restexture.model.ResTexture"
+            parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from res_texture
+        where id = #{resTextureId,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteResTexture" parameterType="java.lang.Long">
+        update res_texture  set is_deleted = 1 where id = #{resTextureId}
+    </delete>
+    <insert id="addResTexture" parameterType="com.sandu.api.restexture.model.ResTexture" useGeneratedKeys="true"
+            keyProperty="id" keyColumn="id">
+        insert into res_texture
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="fileName != null">
+                file_name,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="fileCode != null">
+                file_code,
+            </if>
+            <if test="fileSize != null">
+                file_size,
+            </if>
+            <if test="fileWidth != null">
+                file_width,
+            </if>
+            <if test="fileHeight != null">
+                file_height,
+            </if>
+            <if test="picId != null">
+                pic_id,
+            </if>
+            <if test="fileSuffix != null">
+                file_suffix,
+            </if>
+            <if test="filePath != null">
+                file_path,
+            </if>
+            <if test="fileDesc != null">
+                file_desc,
+            </if>
+            <if test="style != null">
+                style,
+            </if>
+            <if test="texture != null">
+                texture,
+            </if>
+            <if test="sysCode != null">
+                sys_code,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="att1 != null">
+                att1,
+            </if>
+            <if test="att2 != null">
+                att2,
+            </if>
+            <if test="numa1 != null">
+                numa1,
+            </if>
+            <if test="numa2 != null">
+                numa2,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="color != null">
+                color,
+            </if>
+            <if test="gloss != null">
+                gloss,
+            </if>
+            <if test="craft != null">
+                craft,
+            </if>
+            <if test="effectSurface != null">
+                effect_surface,
+            </if>
+            <if test="textureAttrValue != null">
+                texture_attr_value,
+            </if>
+            <if test="layModes != null">
+                lay_modes,
+            </if>
+            <if test="thumbnailId != null">
+                thumbnail_id,
+            </if>
+            <if test="normalPicId != null">
+                normal_pic_id,
+            </if>
+            <if test="normalParam != null">
+                normal_param,
+            </if>
+            <if test="textureballFileId != null">
+                textureBall_file_id,
+            </if>
+            <if test="brandId != null">
+                brand_id,
+            </if>
+            <if test="textureCode != null">
+                texture_code,
+            </if>
+            <if test="companyId != null">
+                company_id,
+            </if>
+            <if test="modelNumber != null">
+                model_number,
+            </if>
+            <if test="initWithModelId != null">
+                init_with_model_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="fileName != null">
+                #{fileName,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=VARCHAR},
+            </if>
+            <if test="fileCode != null">
+                #{fileCode,jdbcType=VARCHAR},
+            </if>
+            <if test="fileSize != null">
+                #{fileSize,jdbcType=INTEGER},
+            </if>
+            <if test="fileWidth != null">
+                #{fileWidth,jdbcType=VARCHAR},
+            </if>
+            <if test="fileHeight != null">
+                #{fileHeight,jdbcType=VARCHAR},
+            </if>
+            <if test="picId != null">
+                #{picId,jdbcType=INTEGER},
+            </if>
+            <if test="fileSuffix != null">
+                #{fileSuffix,jdbcType=VARCHAR},
+            </if>
+            <if test="filePath != null">
+                #{filePath,jdbcType=VARCHAR},
+            </if>
+            <if test="fileDesc != null">
+                #{fileDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="style != null">
+                #{style,jdbcType=VARCHAR},
+            </if>
+            <if test="texture != null">
+                #{texture,jdbcType=VARCHAR},
+            </if>
+            <if test="sysCode != null">
+                #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="att1 != null">
+                #{att1,jdbcType=VARCHAR},
+            </if>
+            <if test="att2 != null">
+                #{att2,jdbcType=VARCHAR},
+            </if>
+            <if test="numa1 != null">
+                #{numa1,jdbcType=INTEGER},
+            </if>
+            <if test="numa2 != null">
+                #{numa2,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="color != null">
+                #{color,jdbcType=VARCHAR},
+            </if>
+            <if test="gloss != null">
+                #{gloss,jdbcType=VARCHAR},
+            </if>
+            <if test="craft != null">
+                #{craft,jdbcType=VARCHAR},
+            </if>
+            <if test="effectSurface != null">
+                #{effectSurface,jdbcType=VARCHAR},
+            </if>
+            <if test="textureAttrValue != null">
+                #{textureAttrValue,jdbcType=INTEGER},
+            </if>
+            <if test="layModes != null">
+                #{layModes,jdbcType=VARCHAR},
+            </if>
+            <if test="thumbnailId != null">
+                #{thumbnailId,jdbcType=INTEGER},
+            </if>
+            <if test="normalPicId != null">
+                #{normalPicId,jdbcType=INTEGER},
+            </if>
+            <if test="normalParam != null">
+                #{normalParam,jdbcType=VARCHAR},
+            </if>
+            <if test="textureballFileId != null">
+                #{textureballFileId,jdbcType=INTEGER},
+            </if>
+            <if test="brandId != null">
+                #{brandId,jdbcType=INTEGER},
+            </if>
+            <if test="textureCode != null">
+                #{textureCode,jdbcType=VARCHAR},
+            </if>
+            <if test="companyId != null">
+                #{companyId},
+            </if>
+            <if test="modelNumber != null">
+                #{modelNumber},
+            </if>
+            <if test="initWithModelId != null">
+                #{initWithModelId},
+            </if>
+        </trim>
+    </insert>
+    <update id="saveResTexture" parameterType="com.sandu.api.restexture.model.ResTexture">
+
+        update res_texture
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="fileName != null">
+                file_name = #{fileName,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=VARCHAR},
+            </if>
+            <if test="fileCode != null">
+                file_code = #{fileCode,jdbcType=VARCHAR},
+            </if>
+            <if test="fileSize != null">
+                file_size = #{fileSize,jdbcType=INTEGER},
+            </if>
+            <if test="fileWidth != null">
+                file_width = #{fileWidth,jdbcType=VARCHAR},
+            </if>
+            <if test="fileHeight != null">
+                file_height = #{fileHeight,jdbcType=VARCHAR},
+            </if>
+            <if test="picId != null">
+                pic_id = #{picId,jdbcType=INTEGER},
+            </if>
+            <if test="fileSuffix != null">
+                file_suffix = #{fileSuffix,jdbcType=VARCHAR},
+            </if>
+            <if test="filePath != null">
+                file_path = #{filePath,jdbcType=VARCHAR},
+            </if>
+            <if test="fileDesc != null">
+                file_desc = #{fileDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="style != null">
+                style = #{style,jdbcType=VARCHAR},
+            </if>
+            <if test="texture != null">
+                texture = #{texture,jdbcType=VARCHAR},
+            </if>
+            <if test="sysCode != null">
+                sys_code = #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="att1 != null">
+                att1 = #{att1,jdbcType=VARCHAR},
+            </if>
+            <if test="att2 != null">
+                att2 = #{att2,jdbcType=VARCHAR},
+            </if>
+            <if test="numa1 != null">
+                numa1 = #{numa1,jdbcType=INTEGER},
+            </if>
+            <if test="numa2 != null">
+                numa2 = #{numa2,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="color != null">
+                color = #{color,jdbcType=VARCHAR},
+            </if>
+            <if test="gloss != null">
+                gloss = #{gloss,jdbcType=VARCHAR},
+            </if>
+            <if test="craft != null">
+                craft = #{craft,jdbcType=VARCHAR},
+            </if>
+            <if test="effectSurface != null">
+                effect_surface = #{effectSurface,jdbcType=VARCHAR},
+            </if>
+            <if test="textureAttrValue != null">
+                texture_attr_value = #{textureAttrValue,jdbcType=INTEGER},
+            </if>
+            <if test="layModes != null">
+                lay_modes = #{layModes,jdbcType=VARCHAR},
+            </if>
+            <if test="thumbnailId != null">
+                thumbnail_id = #{thumbnailId,jdbcType=INTEGER},
+            </if>
+            <if test="normalPicId != null">
+                normal_pic_id = #{normalPicId,jdbcType=INTEGER},
+            </if>
+            <if test="normalParam != null">
+                normal_param = #{normalParam,jdbcType=VARCHAR},
+            </if>
+            <if test="textureballFileId != null">
+                textureBall_file_id = #{textureballFileId,jdbcType=INTEGER},
+            </if>
+            <if test="brandId != null">
+                brand_id = #{brandId,jdbcType=INTEGER},
+            </if>
+            <if test="textureCode != null">
+                texture_code = #{textureCode,jdbcType=VARCHAR},
+            </if>
+            <if test="modelNumber != null">
+                model_number = #{modelNumber,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="listResTexture" resultType="com.sandu.api.restexture.model.ResTexture"
+            parameterType="com.sandu.api.restexture.input.ResTextureQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from res_texture rt where rt.is_deleted = 0
+        and rt.company_id = #{companyId}
+        <if test="length != null and length !='' and length !=  0">
+            and rt.file_width = #{length}
+        </if>
+        <if test="width !=null and width !='' and width !=  0">
+            and rt.file_height = #{width}
+        </if>
+        <if test="textureName !=null and textureName !=''">
+            and rt.name like concat('%',#{textureName},'%')
+        </if>
+        <if test="textureCode !=null and textureCode !=''">
+            and rt.texture_code like concat('%',#{textureCode},'%')
+        </if>
+        <if test="texture !=null and texture !=''">
+            and rt.texture = #{texture}
+        </if>
+        <if test="textureAttr !=null and textureAttr !=''">
+            and rt.texture_attr_value = #{textureAttr}
+        </if>
+        ORDER BY id DESC
+    </select>
+
+
+    <select resultType="com.sandu.api.restexture.model.bo.TreeBO" id="textureAttrTree">
+        select
+        id,value,name as label,pid
+        from sys_dictionary where type='texture' or type='textureAttr' order by ordering asc
+    </select>
+
+
+    <select id="getMaxId" resultType="java.lang.String">
+        select max(id) from res_texture
+    </select>
+    <select id="listTextures" resultType="com.sandu.api.restexture.model.bo.TreeBO">
+        select
+        id,value,name as label
+        from sys_dictionary where type='texture'  order by ordering asc
+    </select>
+
+    <select id="getIdAndFilePathByIds" resultType="com.sandu.api.restexture.model.ResTexture">
+        select         
+        <include refid="Base_Column_List"/>
+        FROM res_texture
+        where id IN
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="getTextureCodeByIds" resultType="com.sandu.api.restexture.model.ResTexture">
+        select id, file_code
+        FROM res_texture
+        where id IN
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    
+    <select id="getDefaultTextureIdsById" resultType="java.lang.Integer">
+	     select id
+	        FROM res_texture
+	        where id IN
+	        <foreach collection="idList" item="id" open="(" separator="," close=")">
+	            #{id}
+	        </foreach>
+	         <if test="modelId!=null and modelId != ''">
+	            and init_with_model_id = #{modelId}
+	        </if>
+    </select>
+
+    <select id="queryResTexture" resultType="com.sandu.api.restexture.model.ResTexture"
+            parameterType="com.sandu.api.restexture.input.ResTextureQuery">
+        select rt.id,rt.file_code,rt.file_path,rt.name,rt.file_width,rt.file_height,rt.texture_attr_value,
+        rt.gmt_modified,rt.remark,rt.textureBall_file_id,rt.model_number
+        from res_texture rt
+        LEFT join res_model rm on rt.textureBall_file_id = rm.id
+        where rt.is_deleted = 0
+        and rt.company_id = #{companyId}
+       <if test="curModelId == null or curModelId == 0">
+            and init_with_model_id = 0
+        </if>
+        <if test="queryType == 'success'">
+            and (rt.textureBall_file_id = 0 or rm.trans_status = 'SUCCESS')
+        </if>
+        <if test="textureAttr!=null and textureAttr != ''">
+            and rt.texture_attr_value = #{textureAttr}
+        </if>
+        <if test="transStatus !=null and transStatus!=''">
+            and rm.trans_status = #{transStatus}
+        </if>
+        <if test="modelNumber != null and modelNumber != ''">
+            and rt.model_number like concat('%',#{modelNumber},'%')
+        </if>
+        <if test="modelNumber != null and modelNumber != ''">
+            and rt.texture_code like concat('%',#{modelNumber},'%')
+        </if>
+        <if test="curModelId > 0">
+            and init_with_model_id in (0,#{curModelId})
+        </if>
+        <if test="textureType !=null and textureType!=''">
+            <if test="textureType == 'texture'">
+                and rt.textureBall_file_id = 0
+            </if>
+            <if test="textureType == 'ball'">
+                and rt.textureBall_file_id > 0
+            </if>
+        </if>
+        <if test="texture !=null and texture!=''">
+            and rt.texture = #{texture}
+        </if>
+        <if test="textureName!=null and textureName != ''">
+            and rt.name like concat('%',#{textureName},'%')
+        </if>
+        <if test="textureCode!=null and textureCode != ''">
+            and rt.file_code like concat('%',#{textureCode},'%')
+        </if>
+        <if test="width!=null and width != 0">
+            and rt.file_width = #{width}
+        </if>
+        <if test="length!=null and length != 0">
+            and rt.file_height = #{length}
+        </if>
+        order by rt.id desc
+    </select>
+</mapper>

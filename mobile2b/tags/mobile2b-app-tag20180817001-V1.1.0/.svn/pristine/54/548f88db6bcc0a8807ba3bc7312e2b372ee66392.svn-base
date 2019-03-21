@@ -1,0 +1,76 @@
+package com.nork.system.service;
+
+import java.util.List;
+
+import com.nork.system.model.SysUserMessage;
+
+/**   
+ * @Title: SysUserMessageService.java 
+ * @Package com.nork.system.service
+ * @Description:系统-我的消息表Service
+ * @createAuthor pandajun 
+ * @CreateDate 2017-12-21 14:50:38
+ * @version V1.0   
+ */
+public interface SysUserMessageService {
+	/**
+	 * 新增数据
+	 *
+	 * @param sysUserMessage
+	 * @return  int 
+	 */
+	int add(SysUserMessage sysUserMessage);
+
+	/**
+	 *    更新数据
+	 *
+	 * @param sysUserMessage
+	 * @return  int 
+	 */
+	int update(SysUserMessage sysUserMessage);
+
+	/**
+	 *    删除数据
+	 *
+	 * @param id
+	 * @return  int 
+	 */
+	int delete(Integer id);
+
+	/**
+	 *    获取数据详情
+	 *
+	 * @param id
+	 * @return  SysUserMessage 
+	 */
+	SysUserMessage get(Integer id);
+
+	/**
+	 * 所有数据
+	 * 
+	 * @param  sysUserMessage
+	 * @return   List<SysUserMessage>
+	 */
+	List<SysUserMessage> getList(SysUserMessage sysUserMessage,Integer type);
+
+	/**
+	 * 清空所有数据
+	 * @param sysUserMessage
+	 * @return
+	 */
+	int removeAll(SysUserMessage sysUserMessage);
+
+	/**
+	 * 获取消息数量
+	 * @param sysUserMessage
+	 * @return
+	 */
+	int getCount(SysUserMessage sysUserMessage,Integer type);
+
+	/**
+	 * 更新用户消息为已读
+	 * @param sysUserMessage
+	 * @return
+	 */
+	int updateIsRead(SysUserMessage sysUserMessage);
+}

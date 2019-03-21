@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.base.dao.BaseMapper">
+<!--<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>-->	
+    <select id="getDataCount" resultType="int"
+		parameterType="java.util.TreeMap">
+		 SELECT count(*) FROM ${_table_or_view_}
+	    <if test="_where_ != null and  _where_ !=''  ">	 where ${_where_} </if>
+	</select>
+	<!--     其他Map等查询方式
+    <select id="getDataMap" resultType="java.util.TreeMap">
+    select 	*
+	 from(		
+	        select ROW_NUMBER() OVER(
+		<if test="orders != null and  orders !=''  ">  order by ${orders}</if>
+		<if test="orders = null  or  orders  ==''  ">  order by sf </if>
+		) AS num,p.*
+     from (select s.*,'' as sf from ${_table_or_view_} as s) p
+		 <if test="_where_ != null and  _where_ !=''  ">	 where ${_where_} </if>
+   	 ) as  d
+        <if test="start !=-1 and limit !=-1">
+		 where d.num between #{start}+1  and #{start}+1+#{limit}-1
+		 </if> 
+    </select> -->
+    <select id="getAreaZipCode" resultType="java.util.TreeMap">
+        select * from area_zip_code
+    </select>
+   <update id="updateAreaZipCode" parameterType="java.util.TreeMap">
+		update area_zip_code
+		<set>
+			<if test="flag!= null">  flag = #{flag,jdbcType=VARCHAR}</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+</mapper>

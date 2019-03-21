@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+					http://www.springframework.org/schema/beans/spring-beans.xsd
+                    http://code.alibabatech.com/schema/dubbo
+                    http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <!-- 提供方应用信息，用于计算依赖关系 -->
+    <dubbo:application name="${dubbo.application.name}"/>
+
+    <!-- 使用zookeeper注册中心暴露服务地址 -->
+    <dubbo:registry protocol="zookeeper" address="${dubbo.register.address}"/>
+
+    <!-- 设置使用的协议与端口进行暴露服务
+    <dubbo:protocol name="dubbo" port="12230"/>-->
+
+    <!-- 注册服务验证 -->
+    <dubbo:consumer check="false"/>
+    
+     <!-- test服务 -->
+    <dubbo:service interface="com.sandu.api.user.service.TestService"
+                   ref="testService" protocol="dubbo" timeout="3000" version="20.18.0"/>
+                   
+    <dubbo:service interface="com.sandu.api.user.service.biz.UserLoginService"
+                   ref="pcUserLoginService" protocol="dubbo" timeout="3000" version="20.18.0" group="pc"/>
+    
+    <dubbo:service interface="com.sandu.api.user.service.biz.UserLoginService"
+                   ref="pcHouseDrawUserLoginService" protocol="dubbo" timeout="3000" version="20.18.0" group="pcHouseDraw"/>
+    
+    <dubbo:service interface="com.sandu.api.user.service.biz.UserLoginService"
+                   ref="mobile2bUserLoginService" protocol="dubbo" timeout="3000" version="20.18.0" group="mobile2b"/>
+    
+    <dubbo:service interface="com.sandu.api.user.service.biz.UserLoginService"
+                   ref="mobile2cUserLoginService" protocol="dubbo" timeout="3000" version="20.18.0" group="mobile2c"/>
+    
+    <dubbo:service interface="com.sandu.api.user.service.biz.UserLoginService"
+                   ref="websiteUserLoginService" protocol="dubbo" timeout="3000" version="20.18.0" group="website"/>
+    
+    <dubbo:service interface="com.sandu.api.user.service.biz.UserLoginService"
+                   ref="merchantMgrUserLoginService" protocol="dubbo" timeout="3000" version="20.18.0" group="merchant"/>
+
+    <dubbo:service interface="com.sandu.api.user.service.biz.UserLoginService"
+                   ref="operationPlatformUserLoginService" protocol="dubbo" timeout="3000" version="20.18.0" group="operationPlatform"/>
+
+    <dubbo:service interface="com.sandu.api.user.service.biz.UserLoginService"
+                   ref="sanduManagerUserLoginService" protocol="dubbo" timeout="3000" version="20.18.0" group="sanduManagerNew"/>
+
+    <dubbo:service interface="com.sandu.api.user.service.biz.UserLoginService"
+                   ref="miniProgramUserLoginService" protocol="dubbo" timeout="3000" version="20.18.0" group="miniProgram"/>              
+	
+	<dubbo:service interface="com.sandu.api.user.service.biz.UserLoginService"
+                   ref="customCompanyUserLoginService" protocol="dubbo" timeout="3000" version="20.18.0" group="customCompany"/>              
+                   
+	<dubbo:service interface="com.sandu.api.user.service.biz.UserLogoutService"
+                   ref="userLogoutService" protocol="dubbo" timeout="3000" version="20.18.0"/>
+
+	<dubbo:service interface="com.sandu.api.user.service.biz.UserLoginService"
+                   ref="anonymousUserLoginService" protocol="dubbo" timeout="3000" version="20.18.0" group="anonymous"/>
+                   
+    <dubbo:service interface="com.sandu.api.user.service.SysUserService"
+                   ref="sysUserService" protocol="dubbo" timeout="3000"  version="20.18.0"/>
+
+    <dubbo:service interface="com.sandu.api.user.service.biz.UserLoginService"
+                   ref="cityUnionUserLoginService" protocol="dubbo" timeout="3000"  version="20.18.0" group="cityUnionMediation"/>
+
+    <dubbo:service interface="com.sandu.api.user.service.manage.SysUserManageService"
+                   ref="sysUserManageService" protocol="dubbo" timeout="3000"  version="20.18.1" />
+
+    <dubbo:service interface="com.sandu.api.user.service.SysRoleService"
+                   ref="sysRoleService" protocol="dubbo" timeout="3000"  version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.system.service.BaseAreaService"
+                   ref="baseAreaService" protocol="dubbo" timeout="3000"  version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.account.service.PayAccountService"
+                   ref="payAccountService" protocol="dubbo" timeout="3000"  version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.address.service.UserAddressService"
+                   ref="userAddressService" protocol="dubbo" timeout="3000"  version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.base.service.BaseCompanyService"
+                   ref="baseCompanyService" protocol="dubbo" timeout="3000"  version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.system.service.ResPicService"
+                   ref="resPicService" protocol="dubbo" timeout="3000"  version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.operatorLog.service.SysUserOperatorLogService"
+                   ref="sysUserOperatorLogService" protocol="dubbo" timeout="3000"  version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.redis.RedisService"
+                   ref="redisService" protocol="dubbo" timeout="3000"  version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.system.service.SysDictionaryService"
+                   ref="sysDictionaryService" protocol="dubbo" timeout="3000"  version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.system.service.SysVersionService"
+                   ref="sysVersionService" protocol="dubbo" timeout="3000"  version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.user.service.SysRoleGroupService"
+                   ref="sysRoleGroupService" protocol="dubbo" timeout="3000"  version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.user.service.SysRoleService"
+                   ref="sysRoleService" protocol="dubbo" timeout="3000"  version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.income.service.CompanyDesignPlanIncomeAggregatedService"
+                   ref="companyDesignPlanIncomeAggregatedService" protocol="dubbo" timeout="3000"  version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.income.service.CompanyDesignPlanIncomeService"
+                   ref="companyDesignPlanIncomeService" protocol="dubbo" timeout="3000"  version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.income.service.CompanyDesignPlanIncomeTransferRecordService"
+                   ref="companyDesignPlanIncomeTransferRecordService" protocol="dubbo" timeout="3000"  version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.income.service.CompanyDesignPlanIncomeWithdrawRecordService"
+                   ref="companyDesignPlanIncomeWithdrawRecordService" protocol="dubbo" timeout="3000"  version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.account.service.PayOrderService"
+                   ref="payOrderService2" protocol="dubbo" timeout="3000"  version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.base.service.BasePlatformService"
+                   ref="basePlatformService" protocol="dubbo" timeout="3000"  version="20.18.0" />
+                   
+    <dubbo:service interface="com.sandu.api.system.service.SysUserBankcardInfoService" ref="sysUserBankcardInfoService" 
+    	protocol="dubbo" version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.user.service.manage.UserManageService"
+                   ref="vendorUserManageService" protocol="dubbo" timeout="3000" version="20.18.0" group="vendor"/>
+
+    <dubbo:service interface="com.sandu.api.user.service.manage.UserManageService"
+                   ref="franchiserUserManageService" protocol="dubbo" timeout="3000" version="20.18.0" group="franchiser"/>
+
+    <dubbo:service interface="com.sandu.api.user.service.manage.UserManageService"
+                   ref="overAllUserManageService" protocol="dubbo" timeout="3000" version="20.18.0" group="overAll"/>
+
+    <dubbo:service interface="com.sandu.api.user.service.manage.UserManageService"
+                   ref="companyUserService" protocol="dubbo" timeout="3000" version="20.18.0" group="company"/>
+
+</beans>

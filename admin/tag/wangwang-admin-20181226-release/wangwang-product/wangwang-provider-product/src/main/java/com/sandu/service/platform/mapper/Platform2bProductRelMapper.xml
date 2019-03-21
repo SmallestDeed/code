@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.platform.dao.Platform2bProductRelDao">
+    <!-- **插入定义** -->
+    <insert id="insertSelective" parameterType="com.sandu.api.platform.model.PlatformProductRel" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into platform2b_product_rel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="platformId!= null">platform_id,</if>
+            <if test="productId!= null">product_id,</if>
+            <if test="allotState!= null">allotState,</if>
+            <if test="putawayState!= null">putaway_state,</if>
+            <if test="userId!= null">user_id,</if>
+            <if test="salePrice!= null">sale_price,</if>
+            <if test="description!= null">description,</if>
+            <if test="sysCode!= null">sys_code,</if>
+            <if test="creator!= null">creator,</if>
+            <if test="gmtCreate!= null">gmt_create,</if>
+            <if test="modifier!= null">modifier,</if>
+            <if test="gmtModified!= null">gmt_modified,</if>
+            <if test="isDeleted!= null">is_deleted,</if>
+            <if test="att1!= null">att1,</if>
+            <if test="att2!= null">att2,</if>
+            <if test="numa1!= null">numa1,</if>
+            <if test="numa2!= null">numa2,</if>
+            <if test="remark!= null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="platformId!= null">#{platformId,jdbcType=INTEGER},</if>
+            <if test="productId!= null">#{productId,jdbcType=INTEGER},</if>
+            <if test="allotState!= null">#{allotState,jdbcType=INTEGER},</if>
+            <if test="putawayState!= null">#{putawayState,jdbcType=INTEGER},</if>
+            <if test="userId!= null">#{userId,jdbcType=INTEGER},</if>
+            <if test="salePrice!= null">#{salePrice,jdbcType=INTEGER},</if>
+            <if test="description!= null">#{description,jdbcType=VARCHAR},</if>
+            <if test="sysCode!= null">#{sysCode,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">#{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">#{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER},</if>
+            <if test="att1!= null">#{att1,jdbcType=VARCHAR},</if>
+            <if test="att2!= null">#{att2,jdbcType=VARCHAR},</if>
+            <if test="numa1!= null">#{numa1,jdbcType=INTEGER},</if>
+            <if test="numa2!= null">#{numa2,jdbcType=INTEGER},</if>
+            <if test="remark!= null">#{remark,jdbcType=VARCHAR},</if>
+        </trim>
+    </insert>
+
+    <!-- **更新定义** -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.platform.model.PlatformProductRel">
+        update platform2b_product_rel
+        <set>
+            <if test="platformId!= null">platform_id = #{platformId,jdbcType=INTEGER},</if>
+            <if test="productId!= null">product_id = #{productId,jdbcType=INTEGER},</if>
+            <if test="allotState!= null">allot_State = #{allotState,jdbcType=INTEGER},</if>
+            <if test="putawayState!= null">putaway_state = #{putawayState,jdbcType=INTEGER},</if>
+            <if test="userId!= null">user_id = #{userId,jdbcType=INTEGER},</if>
+            <if test="salePrice!= null">sale_price = #{salePrice,jdbcType=INTEGER},</if>
+            <if test="description!= null">description = #{description,jdbcType=VARCHAR},</if>
+            <if test="sysCode!= null">sys_code = #{sysCode,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">creator = #{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">modifier = #{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">is_deleted = #{isDeleted,jdbcType=INTEGER},</if>
+            <if test="att1!= null">att1 = #{att1,jdbcType=VARCHAR},</if>
+            <if test="att2!= null">att2 = #{att2,jdbcType=VARCHAR},</if>
+            <if test="numa1!= null">numa1 = #{numa1,jdbcType=INTEGER},</if>
+            <if test="numa2!= null">numa2 = #{numa2,jdbcType=INTEGER},</if>
+            <if test="remark!= null">remark = #{remark,jdbcType=VARCHAR},</if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!-- **删除定义** -->
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from platform2b_product_rel
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+		id,platform_id,product_id,putaway_state,allot_State,user_id,sale_price,description,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,att1,att2,numa1,numa2,remark
+		,advice_price,style_id,pic_id,pic_ids
+	</sql>
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.sandu.api.platform.model.PlatformProductRel">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="platform_id" property="platformId" jdbcType="INTEGER"/>
+        <result column="product_id" property="productId" jdbcType="INTEGER"/>
+        <result column="putaway_state" property="putawayState" jdbcType="INTEGER"/>
+        <result column="allot_State" property="allotState" jdbcType="INTEGER"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="sale_price" property="salePrice" jdbcType="INTEGER"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="sys_code" property="sysCode" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="att1" property="att1" jdbcType="VARCHAR"/>
+        <result column="att2" property="att2" jdbcType="VARCHAR"/>
+        <result column="numa1" property="numa1" jdbcType="INTEGER"/>
+        <result column="numa2" property="numa2" jdbcType="INTEGER"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="advice_price" property="advicePrice"/>
+        <result column="style_id" property="styleId"/>
+        <result column="pic_id" property="picId"/>
+        <result column="pic_ids" property="picIds"/>
+    </resultMap>
+
+    <!-- **查询定义** -->
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="AllResultMap"
+            parameterType="java.lang.Integer">
+        select
+        <include refid="All_Column_List"/>
+        from platform2b_product_rel
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+            parameterType="com.sandu.api.platform.model.PlatformProductRel">
+        select
+        <include refid="All_Column_List"/>
+        from platform2b_product_rel
+        where 1=1
+        <if test="platformId!= null">and platform_id = #{platformId,jdbcType=INTEGER}</if>
+        <if test="productId!= null">and product_id = #{productId,jdbcType=INTEGER}</if>
+        <if test="allotState!= null">and allot_State = #{allotState,jdbcType=INTEGER}</if>
+        <if test="userId!= null">and user_id = #{userId,jdbcType=INTEGER}</if>
+        <if test="salePrice!= null">and sale_price = #{salePrice,jdbcType=INTEGER}</if>
+        <if test="description!= null">and description = #{description,jdbcType=VARCHAR}</if>
+        <if test="sysCode!= null">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="creator!= null">and creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="gmtCreate!= null">and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}</if>
+        <if test="modifier!= null">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="gmtModified!= null">and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}</if>
+        <if test="isDeleted!= null">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="att1!= null">and att1 = #{att1,jdbcType=VARCHAR}</if>
+        <if test="att2!= null">and att2 = #{att2,jdbcType=VARCHAR}</if>
+        <if test="numa1!= null">and numa1 = #{numa1,jdbcType=INTEGER}</if>
+        <if test="numa2!= null">and numa2 = #{numa2,jdbcType=INTEGER}</if>
+        <if test="remark!= null">and remark = #{remark,jdbcType=VARCHAR}</if>
+        <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderNum != null and  orderNum !='' ">
+                ${orderNum}
+            </if>
+        </if>
+        <if test="orders != null and  orders !=''  ">
+            order by ${orders}
+        </if>
+    </select>
+
+    <!-- 在一个平台发布多个产品 -->
+    <insert id="insertList" useGeneratedKeys="true">
+        INSERT into platform2b_product_rel
+        (platform_id,product_id,allot_State,sale_price,description,sys_code,creator,gmt_create,modifier,gmt_modified
+        ,style_id,advice_price,pic_id,pic_ids)
+        VALUES
+        <foreach collection="platformProductRelList" item="tmp" separator=",">
+            (#{platformId},#{tmp.productId},#{tmp.allotState},#{tmp.salePrice},#{tmp.description},#{tmp.sysCode}
+            ,#{tmp.creator},#{tmp.gmtCreate},#{tmp.modifier},#{tmp.gmtModified},
+            #{tmp.styleId},#{tmp.advicePrice},#{tmp.picId},#{tmp.picIds})
+        </foreach>
+    </insert>
+
+    <!-- 对指定的产品集合在某个平台的发布情况进行区分,返回已发布的ID -->
+    <select id="getIssueProductIdsFromIds" resultType="java.lang.Integer">
+        select DISTINCT p2bpr.product_id from platform2b_product_rel p2bpr
+        where p2bpr.platform_id = #{platformId} AND p2bpr.product_id IN
+        <foreach collection="productIds" item="productId" open="(" separator="," close=")">
+            #{productId}
+        </foreach>
+        and p2bpr.allot_State in (1,2)
+    </select>
+    <!-- 取出指定ID集中被取消发布的ids -->
+    <select id="getCancleIssueIdsFromIds" resultType="java.lang.Integer">
+        select DISTINCT p2bpr.product_id from platform2b_product_rel p2bpr
+        where p2bpr.platform_id = #{platformId} AND p2bpr.product_id IN
+        <foreach collection="notIssue" item="productId" open="(" separator="," close=")">
+            #{productId}
+        </foreach>
+        and p2bpr.allot_State = 0
+    </select>
+    <!-- 其他Map等查询方式 -->
+    <!-- 重新发布 -->
+    <update id="updatePlatformProductRels">
+        <foreach collection="list" item="item" separator=";">
+            update platform2b_product_rel
+            <set>
+                <if test="platformId!= null">#{platformId,jdbcType=INTEGER},</if>
+                <if test="productId!= null">#{productId,jdbcType=INTEGER},</if>
+                <if test="allotState!= null">#{allotState,jdbcType=INTEGER},</if>
+                <if test="putawayState!= null">#{putawayState,jdbcType=INTEGER},</if>
+                <if test="userId!= null">#{userId,jdbcType=INTEGER},</if>
+                <if test="salePrice!= null">#{salePrice,jdbcType=INTEGER},</if>
+                <if test="description!= null">#{description,jdbcType=VARCHAR},</if>
+                <if test="sysCode!= null">#{sysCode,jdbcType=VARCHAR},</if>
+                <if test="creator!= null">#{creator,jdbcType=VARCHAR},</if>
+                <if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP},</if>
+                <if test="modifier!= null">#{modifier,jdbcType=VARCHAR},</if>
+                <if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP},</if>
+                <if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER},</if>
+                <if test="att1!= null">#{att1,jdbcType=VARCHAR},</if>
+                <if test="att2!= null">#{att2,jdbcType=VARCHAR},</if>
+                <if test="numa1!= null">#{numa1,jdbcType=INTEGER},</if>
+                <if test="numa2!= null">#{numa2,jdbcType=INTEGER},</if>
+                <if test="remark!= null">#{remark,jdbcType=VARCHAR},</if>
+            </set>
+            where product_id = #{item.productId}
+            and platform_id = #{item.platformId}
+        </foreach>
+    </update>
+
+    <update id="updateByPlatformIdAndProductId" parameterType="com.sandu.api.platform.model.PlatformProductRel">
+        update platform2b_product_rel
+        <set>
+            <if test="platformId!= null">platform_id = #{platformId,jdbcType=INTEGER},</if>
+            <if test="productId!= null">product_id = #{productId,jdbcType=INTEGER},</if>
+            <if test="allotState!= null">allot_State = #{allotState,jdbcType=INTEGER},</if>
+            <if test="putawayState!= null">putaway_state = #{putawayState,jdbcType=INTEGER},</if>
+            <if test="userId!= null">user_id = #{userId,jdbcType=INTEGER},</if>
+            <if test="salePrice!= null">sale_price = #{salePrice,jdbcType=INTEGER},</if>
+            <if test="description!= null">description = #{description,jdbcType=VARCHAR},</if>
+            <if test="sysCode!= null">sys_code = #{sysCode,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">creator = #{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">modifier = #{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">is_deleted = #{isDeleted,jdbcType=INTEGER},</if>
+            <if test="att1!= null">att1 = #{att1,jdbcType=VARCHAR},</if>
+            <if test="att2!= null">att2 = #{att2,jdbcType=VARCHAR},</if>
+            <if test="numa1!= null">numa1 = #{numa1,jdbcType=INTEGER},</if>
+            <if test="numa2!= null">numa2 = #{numa2,jdbcType=INTEGER},</if>
+            <if test="remark!= null">remark = #{remark,jdbcType=VARCHAR},</if>
+            <if test="styleId!= null">style_id = #{styleId},</if>
+            <if test="advicePrice!= null">advice_price = #{advicePrice},</if>
+            <if test="picId!= null">pic_id = #{picId},</if>
+            <if test="picIds!= null">pic_ids = #{picIds},</if>
+        </set>
+        where product_id = #{productId}
+        and platform_id = #{platformId}
+    </update>
+
+    <select id="getByProductIdAndPlatform" resultMap="AllResultMap">
+        select
+        <include refid="All_Column_List"/>
+        from platform2b_product_rel
+        where product_id = #{productId} and platform_id = #{platformId} order by id limit 1;
+    </select>
+    <!-- end-->
+    <select id="getAllIssuePlatfromByProductId" resultType="java.lang.String">
+				SELECT
+			DISTINCT  bp.platform_name
+		FROM
+			platform2b_product_rel pr
+		LEFT JOIN base_platform bp ON bp.id = pr.platform_id
+		WHERE
+			pr.product_id = #{productId}
+		AND pr.`allot_State` = 1
+	</select>
+
+    <select id="getAllPutPlatfromByProductId" resultType="java.lang.String">
+				SELECT
+			DISTINCT  bp.platform_name
+		FROM
+			platform2b_product_rel pr
+		LEFT JOIN base_platform bp ON bp.id = pr.platform_id
+		WHERE
+			pr.product_id = #{productId}
+		AND pr.`allot_State` = 1 and pr.putaway_state = 1;
+	</select>
+    <!-- 校验产品是否在此平台发布 -->
+    <select id="checkProductHasIssueToPlatform" resultType="java.lang.Integer"
+            parameterType="com.sandu.api.platform.model.PlatformProductRel">
+		select count(1)
+		from platform2b_product_rel pr
+		where pr.allot_State = #{allotState}
+		and pr.product_id = #{productId}
+		and pr.platform_id = #{platformId}
+	</select>
+
+    <select id="getExistProductIds" resultType="java.lang.Integer">
+        select DISTINCT product_id
+        from platform2b_product_rel pr
+        where is_deleted = 0
+        <if test="collection!=null and collection.size > 0">
+            and product_id in
+            <foreach collection="list" open="(" separator="," close=")" item="id">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getPlatformIdByProductId" resultType="java.lang.Integer">
+		select platform_id from platform2b_product_rel
+		where product_id = #{productId}  limit 1
+	</select>
+
+    <delete id="deleteByProductIds">
+        DELETE from platform2b_product_rel
+        where product_id in
+       <foreach collection="ids" item="id" close=")" open="(" separator=",">
+            #{id}
+       </foreach>
+     </delete>
+
+    <delete id="deleteByIdsAndPlatForm">
+        DELETE from platform2b_product_rel
+        where product_id in
+       <foreach collection="ids" item="id" close=")" open="(" separator=",">
+            #{id}
+       </foreach>
+       and platform_id in
+		<foreach collection="platformIds" item="platformId" close=")" open="(" separator=",">
+			#{platformId}
+		</foreach>
+     </delete>
+
+    <insert id="insertRelList" useGeneratedKeys="true" parameterType="com.sandu.api.platform.model.PlatformProductRel">
+        INSERT into platform2b_product_rel
+        (platform_id,product_id,allot_State,putaway_state,gmt_create,remark,pic_id,pic_ids,style_id,sale_price,advice_price,description)
+        VALUES
+        <foreach collection="list" item="tmp" separator=",">
+            (#{tmp.platformId},#{tmp.productId},#{tmp.allotState},#{tmp.putawayState},#{tmp.gmtCreate},'商家后台自动上架未处理产品',
+            #{tmp.picId},#{tmp.picIds},#{tmp.styleId},#{tmp.salePrice},#{tmp.advicePrice},#{tmp.description})
+        </foreach>
+    </insert>
+    
+    <insert id="insertRelListIfNotExist">
+		replace into platform2b_product_rel
+		(platform_id,product_id,allot_State,putaway_state,sale_price,description,sys_code,creator,gmt_create,modifier,gmt_modified
+		,style_id,advice_price,pic_id,pic_ids)
+		VALUES 
+		<foreach collection="list" item="tmp" separator=",">
+			(#{tmp.platformId},#{tmp.productId},#{tmp.allotState},#{tmp.putawayState},#{tmp.salePrice},#{tmp.description},#{tmp.sysCode}
+			,#{tmp.creator},#{tmp.gmtCreate},#{tmp.modifier},#{tmp.gmtModified},
+			#{tmp.styleId},#{tmp.advicePrice},#{tmp.picId},#{tmp.picIds})
+		</foreach>
+	</insert>
+   <!--  
+    <insert id="insertRelListIfNotExist">
+		INSERT into platform2b_product_rel
+		(platform_id,product_id,allot_State,putaway_state,sale_price,description,sys_code,creator,gmt_create,modifier,gmt_modified
+		,style_id,advice_price,pic_id,pic_ids)
+		VALUES 
+		<foreach collection="list" item="tmp" separator=",">
+			(#{tmp.platformId},#{tmp.productId},#{tmp.allotState},#{tmp.putawayState},#{tmp.salePrice},#{tmp.description},#{tmp.sysCode}
+			,#{tmp.creator},#{tmp.gmtCreate},#{tmp.modifier},#{tmp.gmtModified},
+			#{tmp.styleId},#{tmp.advicePrice},#{tmp.picId},#{tmp.picIds})
+		</foreach>
+		 ON DUPLICATE KEY UPDATE  
+       gmt_modified = NOW(),gmt_create = NOW() ,allot_State = 1,putaway_state = 1
+	</insert> -->
+    
+</mapper>

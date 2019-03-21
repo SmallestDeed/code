@@ -1,0 +1,2116 @@
+package com.sandu.systemutil;
+
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.sandu.aes.util.AESFileConstant;
+import com.sandu.aes.util.FileEncrypt;
+import com.sandu.api.dictionary.model.SysDictionary;
+import com.sandu.api.user.model.LoginUser;
+import com.sandu.common.util.ConfigUtil;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.*;
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.sql.Timestamp;
+import java.text.*;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+//import com.sun.xml.internal.messaging.saaj.packaging.mime.internet.MimeUtility;
+
+public class Utils {
+	public static final String DATE = "yyyy-MM-dd";
+	public static final String DATE_TIME = "yyyy-MM-dd HH:mm:ss";
+	public static final String DATE_TIME2 = "yyyy/MM/dd HH:mm:ss";
+	public static final String DATETIME = "yyyyMMddHHmmss";
+	public static final String DATETIMESSS = "yyyyMMddHHmmssSSS";
+	private static Logger logger = Logger.getLogger(Utils.class);
+	public static final String DATE2 = "yyyyMMdd";
+	// public static final String TIMEOUTKEY="timeout_userInfo";
+	public static final int OVERTIMESETUP = 2 * 60 * 60;
+	public static final String GENERATE_STRUCTURE_PRODUCT_SMALLTYPE_VALUE = ",18,19,20,";
+
+
+	private static String[] sysFields = {"isDeleted", "gmtModified", "modifier", "gmtCreate", "creator", "sysCode"};
+
+
+	/**
+	 * 获取下个月第一天
+	 *
+	 * @param str
+	 * @return
+	 */
+	public static String newDate() {
+		SimpleDateFormat dft = new SimpleDateFormat("yyyy-MM-dd");
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.MONTH, 1);
+		calendar.set(Calendar.DAY_OF_MONTH,
+				calendar.getActualMinimum(Calendar.DAY_OF_MONTH));
+		return dft.format(calendar.getTime()) + " 00:00:00";
+	}
+
+	/**
+	 * 获取下下个月第一天的日期
+	 *
+	 * @param str
+	 * @return
+	 */
+	public static String AfterThirty() {
+		Date date = new Date();
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.add(Calendar.MONTH, 2);
+		calendar.set(Calendar.DATE, 0);
+		// 获取下一个月最后一天的日期
+		return df.format(calendar.getTime()) + " 23:59:59";
+	}
+
+	/**
+	 * 判断是不是包含中文
+	 *
+	 * @param str
+	 * @return
+	 */
+	public static boolean isChineseChar(String str) {
+		boolean temp = false;
+		Pattern p = Pattern.compile("[\u4e00-\u9fa5]");
+		Matcher m = p.matcher(str);
+		if (m.find()) {
+			temp = true;
+		}
+		return temp;
+	}
+
+	/**
+	 * 得到几天前的时间
+	 *
+	 * @param d
+	 * @param day
+	 * @return
+	 */
+	public static Date getDateBefore(Date d, int day) {
+		Calendar now = Calendar.getInstance();
+		now.setTime(d);
+		now.set(Calendar.DATE, now.get(Calendar.DATE) - day);
+		return now.getTime();
+	}
+
+	/**
+	 * 得到几天后的时间
+	 *
+	 * @param d
+	 * @param day
+	 * @return
+	 */
+	public static Date getDateAfter(Date d, int day) {
+		Calendar now = Calendar.getInstance();
+		now.setTime(d);
+		now.set(Calendar.DATE, now.get(Calendar.DATE) + day);
+		return now.getTime();
+	}
+
+	/**
+	 * 得到几年后的时间
+	 *
+	 * @param d
+	 * @param day
+	 * @return
+	 */
+	public static Date getDateAfterYear(Date d, int year) {
+		Calendar now = Calendar.getInstance();
+		now.setTime(d);
+		now.set(Calendar.YEAR, now.get(Calendar.YEAR) + year);
+		return now.getTime();
+	}
+
+	public static Date getTimeBefore(Date d, int times) {
+		Calendar now = Calendar.getInstance();
+		now.setTime(d);
+		now.set(Calendar.MINUTE, now.get(Calendar.MINUTE) - times);
+		return now.getTime();
+	}
+
+	/**
+	 * 得到几天后的时间
+	 *
+	 * @param d
+	 * @param day
+	 * @return
+	 */
+	public static Date getTimeAfter(Date d, int times) {
+		Calendar now = Calendar.getInstance();
+		now.setTime(d);
+		now.set(Calendar.MINUTE, now.get(Calendar.MINUTE) + times);
+		return now.getTime();
+	}
+
+	public static String getDateStr(Date date, String dateFormatStr) {
+		DateFormat dateFormat = new SimpleDateFormat(dateFormatStr);
+		String str = "";
+		try {
+			str = dateFormat.format(date);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return str;
+	}
+
+	/**
+	 * 中文转码为utf-8码
+	 */
+	public static String getUtf8Str(String s) {
+		String ret = null;
+		try {
+			ret = URLEncoder.encode(s, "utf-8");
+		} catch (UnsupportedEncodingException ex) {
+		}
+		return ret;
+	}
+
+	/**
+	 * utf-8码转为中文
+	 */
+	public static String getStrUtf8(String s) {
+		String ret = null;
+		try {
+			ret = java.net.URLDecoder.decode(s, "utf-8");
+		} catch (UnsupportedEncodingException ex) {
+		}
+		return ret;
+	}
+
+	public static boolean isChineseStr(String pValue) {
+		for (int i = 0; i < pValue.length(); i++) {
+			if ((int) pValue.charAt(i) > 256)
+				return true;
+		}
+		return false;
+	}
+
+	public static String getnotNullStringdis(Object s) {
+		return s == null ? "" : s.toString();
+	}
+
+	public static Integer getnotNullInt(Object s) {
+		try {
+			return s == null ? new Integer(0) : new Integer(s.toString());
+		} catch (Exception ex) {
+			return new Integer(0);
+		}
+
+	}
+
+	public static String getnoNullInt(Object s) {
+		try {
+			if (s == null)
+				return "";
+			else if (new Integer(s.toString()).intValue() == 0)
+				return "";
+			else
+				return s.toString();
+		} catch (Exception ex) {
+			return "";
+		}
+
+	}
+
+	public static int getIntValue(String v) {
+		return getIntValue(v, -1);
+	}
+
+	/***** 将给出的字符串v转换成整形值返回，如果例外则返回预给值def ************/
+	public static int getIntValue(String v, int def) {
+		try {
+			return Integer.parseInt(v);
+		} catch (Exception ex) {
+			return def;
+		}
+	}
+
+	/**
+	 * 将给出的字符串为空时范围默认值。
+	 *
+	 * @param String 要校验的字符串。
+	 * @return 如果是空，将返回def，否则返回str。
+	 */
+	public static String isStrValue(String str, String def) {
+		if ((str == null) || (str.length() <= 0)) {
+			return def;
+		}
+		return str;
+	}
+
+	public static Timestamp getTimestamp(String str) {
+		Timestamp ret = null;
+		try {
+			SimpleDateFormat dateFormat = new SimpleDateFormat(
+					"yyyy-MM-dd HH:mm:ss");
+
+			Date date = dateFormat.parse(str);
+			long datelong = date.getTime();
+			ret = new Timestamp(datelong);
+
+		} catch (Exception e) {
+		}
+		return ret;
+	}
+
+	public static Object getValue(Object obj, String type) {
+		if (obj == null || type == null)
+			return null;
+
+		if ("String".equals(type))
+			return obj.toString();
+		if ("Integer".equals(type))
+			return new Integer(obj.toString());
+		return null;
+	}
+
+	public static String getValue(String key, String defalut) {
+		String value = "";
+
+		try {
+			ResourceBundle app = ResourceBundle.getBundle("app");
+			value = app.getString(key);
+		} catch (Exception e) {
+			value = defalut;
+		}
+		return value;
+	}
+
+	public static String getAppValue(String key, String defalut) {
+		String value = "";
+
+		try {
+			ResourceBundle app = ResourceBundle.getBundle("app");
+			value = app.getString(key);
+		} catch (Exception e) {
+			// e.printStackTrace();
+			value = defalut;
+		}
+		return value;
+	}
+
+	/**
+	 * 检验一个String是否为空。
+	 *
+	 * @param String 要校验的字符串。
+	 * @return 如果是空，将返回true，否则返回false。
+	 */
+	public static boolean isEmpty(String str) {
+		if ((str == null) || (str.length() <= 0)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * 检查字符串是否是空白：<code>null</code>、空字符串<code>""</code>或只有空白字符。
+	 *
+	 * <pre>
+	 * StringUtil.isBlank(null)      = true
+	 * StringUtil.isBlank("")        = true
+	 * StringUtil.isBlank(" ")       = true
+	 * StringUtil.isBlank("bob")     = false
+	 * StringUtil.isBlank("  bob  ") = false
+	 * </pre>
+	 *
+	 * @param str 要检查的字符串
+	 * @return 如果为空白, 则返回<code>true</code>
+	 */
+	public static boolean isBlank(String str) {
+		int length;
+
+		if ((str == null) || ((length = str.length()) == 0)) {
+			return true;
+		}
+
+		for (int i = 0; i < length; i++) {
+			if (!Character.isWhitespace(str.charAt(i))) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Format Date into which format you define
+	 *
+	 * @param date   (java.util.Date)
+	 * @param format (String)
+	 * @return String example formatDate(date, "yyyy-MM-dd HH:mm:ss")
+	 */
+	public static String formatDate(Date date, String newFormat) {
+		if ((date == null) || (newFormat == null)) {
+			return null;
+		}
+
+		SimpleDateFormat formatter = new SimpleDateFormat(
+				newFormat);
+
+		return formatter.format(date);
+	}
+
+	public static String getCurrentDateTime(String _dtFormat) {
+		String currentdatetime = "";
+		try {
+			Date date = new Date(System.currentTimeMillis());
+			SimpleDateFormat dtFormat = new SimpleDateFormat(_dtFormat);
+			currentdatetime = dtFormat.format(date);
+		} catch (Exception e) {
+			//System.out.println("时间格式不正确");
+			e.printStackTrace();
+		}
+		return currentdatetime;
+	}
+
+	public static String getCurrentDateTime() {
+		return getCurrentDateTime("yyyy-MM-dd HH:mm:ss");
+	}
+
+	public static String getCurrentDateTimeSSS() {
+		return getCurrentDateTime("yyyy-MM-dd HH:mm:ss.SSS");
+	}
+
+	public static String getCurrentDate() {
+		return getCurrentDateTime("yyyy-MM-dd");
+	}
+
+	public static String getYestodayDateTime(String _dtFormat) {
+		String currentdatetime = "";
+		try {
+			Date today = new Date();
+			Date date = new Date(today.getTime() - 24 * 3600 * 1000);
+			SimpleDateFormat dtFormat = new SimpleDateFormat(_dtFormat);
+			currentdatetime = dtFormat.format(date);
+		} catch (Exception e) {
+			//System.out.println("时间格式不正确");
+			e.printStackTrace();
+		}
+		return currentdatetime;
+	}
+
+	public static String getYestodayDate() {
+		return getYestodayDateTime("yyyy-MM-dd");
+	}
+
+	public static String getTomorrow() {
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		Date today = new Date();
+		Date tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+		return format.format(tomorrow);
+	}
+
+	/**
+	 * @param strDate   时间型的字符串
+	 * @param _dtFormat 形如"yyyy-MM-dd HH:mm:ss"的字符串 把 strDate 时间字符串 转换为 _dtFormat 格式
+	 * @return
+	 */
+	public static String getCurrentDateTime(String strDate, String _dtFormat) {
+		String strDateTime;
+		Date tDate = null;
+		if (null == strDate) {
+			return getCurrentDateTime();
+		}
+		SimpleDateFormat smpDateFormat = new SimpleDateFormat(_dtFormat);
+		ParsePosition pos = new ParsePosition(0);
+		tDate = smpDateFormat.parse(strDate, pos); // 标准格式的date类型时间
+		strDateTime = smpDateFormat.format(tDate); // 标准格式的String 类型时间
+		return strDateTime;
+	}
+
+	/**
+	 * 产生指定长度的无规律数字字符串
+	 *
+	 * @param aLength 生成的随机数的长度
+	 * @return 生成的随机字符串 throws 卡号生成异常
+	 */
+	public static String generateRandomDigitString(int aLength) {
+		SecureRandom tRandom = new SecureRandom();
+		long tLong;
+		String aString = "";
+
+		tRandom.nextLong();
+		tLong = Math.abs(tRandom.nextLong());
+		aString = (String.valueOf(tLong)).trim();
+		while (aString.length() < aLength) {
+			tLong = Math.abs(tRandom.nextLong());
+			aString += (String.valueOf(tLong)).trim();
+		}
+		aString = aString.substring(0, aLength);
+
+		return aString;
+	}
+
+
+	public static Date parseDate(String date, String newFormat) {
+		if ((date == null) || (newFormat == null)) {
+			return null;
+		}
+
+		try {
+			SimpleDateFormat formatter = new SimpleDateFormat(
+					newFormat);
+			return formatter.parse(date);
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static String formatDate(String date, String newFormat) {
+		if ((date == null) || (newFormat == null)) {
+			return null;
+		}
+		SimpleDateFormat formatter = new SimpleDateFormat(
+				newFormat);
+		return formatter.format(date);
+	}
+
+	public static Date parseDate(Date date, String newFormat) {
+		return Utils.parseDate(Utils.formatDate(date, newFormat), newFormat);
+	}
+
+	/**
+	 * 格式化金额比例
+	 */
+	public static String formatRefundRate(String str) {
+		if (str == null || "".equals(str.trim()) || "0".equals(str.trim())) {
+			return "0%";
+		} else if (!str.contains(".")) {
+			return str;
+		} else {
+
+			DecimalFormat df = new DecimalFormat("#0.00");
+
+			return df.format(Double.valueOf(str.trim()) * 100) + "%";
+		}
+	}
+
+	/*
+	 * 将#str1#str2#str3#组装成列表
+	 */
+	public static List<String> getList(String strs) {
+		List<String> list = new ArrayList<String>();
+		if (StringUtils.isEmpty(strs)) {
+			return list;
+		}
+
+		String[] str = strs.split("#");
+		for (int i = 0; i < list.size(); i++) {
+			list.add(str[i]);
+		}
+		return list;
+	}
+
+	public static String getString(List<Integer> lst) {
+		StringBuffer sb = new StringBuffer();
+		for (Integer t : lst) {
+			if (t != null) {
+				sb.append(String.valueOf(t) + "_");
+			}
+		}
+		return sb.toString();
+	}
+
+	/*
+	 * 判断str2是否在#str1#str2#str3#中存在
+	 */
+	public static int check(String str, String strs) {
+		if (StringUtils.isEmpty(strs)) {
+			return -1;
+		}
+
+		if (strs.indexOf(str) == -1) {
+			return 0;
+		} else {
+			return 1;
+		}
+	}
+
+	public static String getFileName(String path, int type) {
+		if (path == null || path.trim().length() == 0)
+			return "";
+		int point = path.lastIndexOf(".");
+		int plo = path.lastIndexOf("/");
+		if (point == -1 || plo == -1) {
+			return "";
+		}
+		// 全名
+		if (type == 0) {
+			return path.substring(plo + 1, path.length());
+		}
+		// 文件名称
+		if (type == 1) {
+			return path.substring(plo + 1, point - 1);
+		}
+		// 后缀
+		if (type == 2) {
+			return path.substring(point + 1, path.length());
+		}
+
+		return "";
+	}
+
+	public static String endcodeByMD5(String saltedPass,
+									  boolean getEncodeHashAsBase64) throws NoSuchAlgorithmException,
+			UnsupportedEncodingException {
+		MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+		byte[] digest;
+		try {
+			digest = messageDigest.digest(saltedPass.getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalStateException("UTF-8 not supported!");
+		}
+		if (getEncodeHashAsBase64) {
+			return new String(Base64.encodeBase64(digest));
+		} else {
+			return new String(Hex.encodeHex(digest));
+		}
+	}
+
+	// public static String getValue(String key, String defalut) {
+	// String value = "";
+	//
+	// try {
+	// //ResourceBundle app = ResourceBundle.getBundle("app");
+	// value = app.getString(key);
+	// /*检测带有%%的情况*/
+	// /*value="%product.baseProduct.pic.upload.path%web/"*/
+	// int num=value.length()-value.replace("%", "").length();
+	// /*两个"%"*/
+	// if(num==2){
+	// int startIndex=value.indexOf("%");
+	// int endIndex=value.lastIndexOf("%");
+	// /*key="product.baseProduct.pic.upload.path"*/
+	// String appKey=value.substring(startIndex+1, endIndex);
+	// String value3=value.substring(endIndex+1,value.length());
+	// String value2=app.getString(appKey);
+	// value=value2+value3;
+	// }
+	// /*检测带有%%的情况->end*/
+	// } catch (Exception e) {
+	// // e.printStackTrace();
+	// value = defalut;
+	// }
+	// return value;
+	// }
+
+	public static String getJsonValue(JSONObject obj, String key, String defalut) {
+		String value = "";
+		try {
+			value = obj.getString(key);
+		} catch (Exception e) {
+			value = defalut;
+		}
+		return value;
+	}
+
+	public static String getDirectionKey(String code, int type) {
+		String key = "";
+		if (code == null || code.length() == 0) {
+			return "";
+		}
+
+		if ("-21".equals(code)) {
+			return type == 1 ? "leftEntrance" : "leftin";
+		}
+
+		if ("-22".equals(code)) {
+			return type == 1 ? "leftExit" : "leftout";
+		}
+
+		if ("-11".equals(code)) {
+			return type == 1 ? "rightEntrance" : "rightin";
+		}
+
+		if ("-12".equals(code)) {
+			return type == 1 ? "rightExit" : "rightout";
+		}
+
+		if ("2".equals(code)) {
+			return type == 1 ? "left" : "left";
+		}
+
+		if ("1".equals(code)) {
+			return type == 1 ? "right" : "right";
+		}
+
+		if ("1_".equals(code)) {
+			return type == 1 ? "rightOutside" : "rightfoot";
+		}
+
+		if ("2_".equals(code)) {
+			return type == 1 ? "leftOutside" : "lefttop";
+		}
+		if ("0".equals(code)) {
+			return type == 1 ? "centerMid" : "mid";
+		}
+		if ("01".equals(code)) {
+			return type == 1 ? "centerLeft" : "midin";
+		}
+		if ("02".equals(code)) {
+			return type == 1 ? "centerRight" : "midout";
+		}
+
+		return key;
+	}
+
+	/*
+	 * public static void main(String[] args) { //
+	 * //System.out.println(getDateStr(getDateBefore(new Date(), //
+	 * 0),Utils.DATE)); //String a = getTunnelCss();
+	 * //getTunnelCss2("D:\\ak.txt",a);
+	 * ////System.out.println(Utils.getTimeAfter(new Date(), -50));
+	 * ////System.out.println(Utils.getTimeAfter(new Date(), -50)); //
+	 * //System.out.println(a); String s="/sdjk/jspstyle/demo/exp/jsplist.htm";
+	 * String s1="/sdjk"; String pageStyle = ""; String temp =
+	 * s.replaceFirst(s1+"/",""); char[] sc = temp.toCharArray(); int n=0; for
+	 * (int i = 0; i < sc.length; i++) { if(sc[i]=='/'){ n = i; break; } }
+	 * pageStyle = temp.substring(0,n); //System.out.println(pageStyle);
+	 *
+	 * //System.out.println("str= " + Utils.getFirstUpperStr("exp"));
+	 * //System.out.println("str= " +
+	 * Utils.getJavaType("com.nork.demo.model.Exp")); }
+	 */
+
+	public static String getIndex(HttpServletRequest request) {
+		String url = request.getRequestURI();
+		String str1 = null;
+		String[] str = url.split("/");
+		for (int i = 0; i < str.length; i++) {
+			if ("jsp".equals(str[i])) {
+				str1 = str[i];
+				break;
+			} else if ("jspstyle".equals(str[i])) {
+				str1 = str[i];
+				break;
+			}
+		}
+		return str1;
+	}
+
+	public static String getPageUrl(HttpServletRequest request, String newurl) {
+		/*
+		 * String url = request.getRequestURI(); String path =
+		 * request.getContextPath(); String temp = url.replaceFirst(path + "/",
+		 * ""); char[] sc = temp.toCharArray(); int n = 0; for (int i = 0; i <
+		 * sc.length; i++) { if (sc[i] == '/') { n = i; break; } } String
+		 * pageStyle = temp.substring(0, n); return newurl.replaceFirst("/jsp/",
+		 * "/" + pageStyle + "/");
+		 */
+		return newurl;
+	}
+
+	public static String getFirstUpperStr(String key) {
+		String newKey = "";
+		if (key != null && !"".equals(key)) {
+			newKey = String.valueOf(Character.toUpperCase(key.charAt(0)))
+					+ key.substring(1, key.length());
+		}
+
+		return newKey;
+	}
+
+	public static Map getJavaType(String javaclass) {
+		Map map = new HashMap();
+		try {
+			Class<?> obj = Class.forName(javaclass);
+
+			Field[] f = obj.getDeclaredFields();
+			for (Field field : f) {
+				field.setAccessible(true);
+				map.put(field.getName(), field.getType().getName());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return map;
+	}
+
+
+	public static String getJsonStr(HttpServletRequest request) {
+		StringBuffer str = new StringBuffer();
+		try {
+			BufferedInputStream in = new BufferedInputStream(
+					request.getInputStream());
+			int i;
+			char c;
+			while ((i = in.read()) != -1) {
+				c = (char) i;
+				str.append(c);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return str.length() == 0 ? "" : str.toString();
+	}
+
+
+	public static Map parserToMap(String s) {
+		Map map = new HashMap();
+		JSONObject json = JSONObject.fromObject(s);
+		Iterator keys = json.keys();
+		while (keys.hasNext()) {
+			String key = (String) keys.next();
+			String value = json.get(key).toString();
+			if (value.startsWith("{") && value.endsWith("}")) {
+				map.put(key, parserToMap(value));
+			} else {
+				map.put(key, value);
+			}
+
+		}
+		return map;
+	}
+
+	/**
+	 * 设置下载文件中文件的名称
+	 *
+	 * @param filename
+	 * @param request
+	 * @return
+	 */
+	public static String encodeFilename(String filename,
+										HttpServletRequest request) {
+		/**
+		 * 获取客户端浏览器和操作系统信息 在IE浏览器中得到的是：User-Agent=Mozilla/4.0 (compatible; MSIE
+		 * 6.0; Windows NT 5.1; SV1; Maxthon; Alexa Toolbar)
+		 * 在Firefox中得到的是：User-Agent=Mozilla/5.0 (Windows; U; Windows NT 5.1;
+		 * zh-CN; rv:1.7.10) Gecko/20050717 Firefox/1.0.6
+		 */
+		String agent = request.getHeader("USER-AGENT");
+		try {
+			if ((agent != null) && (-1 != agent.indexOf("MSIE"))) {
+				String newFileName = URLEncoder.encode(filename, "UTF-8");
+				newFileName = StringUtils.replace(newFileName, "+", "%20");
+				if (newFileName.length() > 150) {
+					newFileName = new String(filename.getBytes("GB2312"),
+							"ISO8859-1");
+					newFileName = StringUtils.replace(newFileName, " ", "%20");
+				}
+				return newFileName;
+			}
+			if ((agent != null) && (-1 != agent.indexOf("Mozilla"))) {
+				// return MimeUtility.encodeText(filename, "UTF-8", "B");
+				// return URLEncoder.encode(filename, "UTF-8");
+				return new String(filename.getBytes("UTF-8"), "ISO8859-1");
+				// return filename;
+			}
+			return filename;
+		} catch (Exception ex) {
+			return filename;
+		}
+	}
+
+	public static String getSmallPath(String picPath, String mediaType) {
+		if (StringUtils.isEmpty(picPath) || StringUtils.isEmpty(mediaType)) {
+			return "";
+		}
+		// http://127.0.0.1:8080/onlineDecorate/upload/home/spaceCommon/view3dPic/small/ipad_20151203151852678.jpg
+		String pre = picPath.substring(0, picPath.lastIndexOf("/") + 1)
+				+ "small/";
+		String suff = picPath.substring(picPath.lastIndexOf("/") + 1);
+		String type = "web";
+		if ("3".equals(mediaType)) {// windows
+			type = "web";
+		} else if ("4".equals(mediaType)) {// mac
+			type = "web";
+		} else if ("5".equals(mediaType)) {// ios
+			type = "ipad";
+		} else if ("6".equals(mediaType)) {// andriod
+			type = "ipad";
+		} else if ("7".equals(mediaType)) {// ipad
+			type = "ipad";
+		} else {// web
+			type = "web";
+		}
+
+		return pre + type + "_" + suff;
+	}
+
+	// 更新文件内容
+	public static boolean replaceFile(String path, String context) {
+		if (StringUtils.isEmpty(path)) {
+			return false;
+		}
+		FileWriter fw = null;
+		try {
+			File f = new File(path);
+			if (f.exists()) {
+				f.delete();
+			}
+			f.createNewFile();
+			fw = new FileWriter(f);
+			fw.write(context);
+			fw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		} finally {
+			if (fw != null) {
+				try {
+					fw.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	public static List<String> getContextList(String path) {
+		return getContextList(path, "GBK");
+	}
+
+	public static List<String> getContextList(String path, String charsetName) {
+		List<String> lines = new ArrayList<String>();
+		BufferedReader br = null;
+		try {
+			/*
+			 * br = new BufferedReader(new InputStreamReader(new
+			 * FileInputStream( path), "UTF-8"));
+			 */
+			br = new BufferedReader(new InputStreamReader(new FileInputStream(
+					path), charsetName));
+			String line = null;
+			while ((line = br.readLine()) != null) {
+				lines.add(line);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (br != null)
+					br.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		return lines;
+	}
+
+	/**
+	 * 读取文件内容
+	 *
+	 * @param filePathAndName String 如 c:\\1.txt 绝对路径
+	 * @return boolean
+	 */
+	public static String readFile(String filePathAndName) {
+		String fileContent = "";
+		try {
+			File f = new File(filePathAndName);
+			if (f.isFile() && f.exists()) {
+				InputStreamReader read = new InputStreamReader(
+						new FileInputStream(f), "GBK");
+				BufferedReader reader = new BufferedReader(read);
+				String line;
+				while ((line = reader.readLine()) != null) {
+					fileContent += line;
+				}
+				read.close();
+			}
+		} catch (Exception e) {
+			//System.out.println("读取文件内容操作出错");
+			e.printStackTrace();
+		}
+		return fileContent;
+	}
+
+	/*
+	 * 获取 格式如: 大类:;(回车符) 小类:;(回车符) 的List格式
+	 */
+	public static List<String> getEnterList(String enterStr) {
+		List<String> list = new ArrayList<String>();
+		if (!StringUtils.isEmpty(enterStr)) {
+			String[] lines = enterStr.split("\n");
+			String data = "";
+			for (String line : lines) {
+				if (line.contains(";")) {
+					list.add(line.replace(";", ""));
+				} else {
+					data = data + line;
+				}
+				if (data.contains(";")) {
+					list.add(data.replace(";", ""));
+					data = "";
+				}
+			}
+		}
+		return list;
+	}
+
+	/*
+	 * 获取 格式如: 大类:;(回车符) 小类:;(回车符) 的Map格式
+	 */
+	public static Map<String, String> getEnterMap(String enterStr) {
+		Map<String, String> map = new LinkedHashMap<String, String>();
+		List<String> list = Utils.getEnterList(enterStr);
+		if (list != null && list.size() > 0) {
+			for (String str : list) {
+				String[] d = str.split(":");
+				map.put(d[0], d[1]);
+			}
+		}
+		return map;
+	}
+
+	public static Map<String, String> getPathMap(String type, String path) {
+		Map<String, String> map = new LinkedHashMap<String, String>();
+		// / 硬装/家具/单人沙发/品牌/20150623-1435_20150705173155475.jpg;
+		// / 省份/城市/地区/年份/平方/小区(楼盘名称)/户型图
+		if ("house".equals(type) && !StringUtils.isEmpty(path)) {
+			String[] ph = path.split("/");
+			map.put("省份", ph[1]);// 省份province
+			map.put("城市", ph[2]);// 城市city
+			map.put("地区", ph[3]);// 地区area
+			map.put("年份", ph[4]);// 年份year
+			// map.put("平方", ph[5]);
+			map.put("小区", ph[6]);// 小区living
+		}
+		if ("product".equals(type) && !StringUtils.isEmpty(path)) {
+			String[] ph = path.split("/");
+			/* map.put("硬装", ph[1]); */
+			map.put("大类", ph[2]);// 大类class
+			map.put("小类", ph[3]);// 小类subClass
+			map.put("品牌", ph[4]);// 品牌brand
+		}
+
+		return map;
+	}
+
+	public static List<Map<String, String>> getAreaList(String line) {
+		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+		if (!StringUtils.isEmpty(line) && line.contains(",")) {
+			String[] ones = line.split(",");
+			for (String str : ones) {
+				if (str.contains("X")) {
+					String[] twos = str.split("X");
+					String length = twos[0];
+					String wigth = twos[1];
+					Map<String, String> map = new LinkedHashMap<String, String>();
+					map.put("length", length);
+					map.put("wigth", wigth);
+					list.add(map);
+				}
+
+			}
+		}
+
+		return list;
+	}
+
+	/**
+	 * 调用http接口
+	 *
+	 * @param url
+	 * @param paramsMap
+	 * @return
+	 * @throws IOException
+	 * @throws ClientProtocolException
+	 */
+	@SuppressWarnings({"resource", "deprecation"})
+	public static String doPostMethod(String url, Map<String, String> paramsMap)
+			throws ClientProtocolException, IOException {
+		String result = "";
+		org.apache.http.client.HttpClient httpclient = new DefaultHttpClient();
+		HttpPost httppost = new HttpPost(url);
+		String author = "";
+		httppost.addHeader("Authorization", author); // token
+		httppost.addHeader("Content-Type", "application/json");
+		httppost.addHeader("User-Agent", "imgfornote");
+		List<NameValuePair> params = new ArrayList<>();
+		if (paramsMap != null && paramsMap.size() > 0) {
+			for (String key : paramsMap.keySet()) {
+				String value = paramsMap.get(key);
+				if (StringUtils.isNotBlank(value)) {
+					params.add(new BasicNameValuePair(key, value));
+				}
+			}
+		}
+		httppost.setEntity(new UrlEncodedFormEntity(params));
+
+		HttpResponse response;
+		response = httpclient.execute(httppost);
+		int code = response.getStatusLine().getStatusCode();
+		if (code == 200) {
+			result = EntityUtils.toString(response.getEntity());
+		}
+		return result;
+	}
+
+	/**
+	 * 字符串替换，从头到尾查询一次，替换后的字符串不检查
+	 *
+	 * @param str    源字符串
+	 * @param oldStr 目标字符串
+	 * @param newStr 替换字符串
+	 * @return 替换后的字符串
+	 */
+	static public String replaceAll(String str, String oldStr, String newStr) {
+		int i = str.indexOf(oldStr);
+		int n = 0;
+		while (i != -1) {
+			str = str.substring(0, i) + newStr
+					+ str.substring(i + oldStr.length());
+			i = str.indexOf(oldStr, i + newStr.length());
+			n++;
+		}
+		return str;
+	}
+
+	/**
+	 * 字符串替换，左边第一个。
+	 *
+	 * @param str    源字符串
+	 * @param oldStr 目标字符串
+	 * @param newStr 替换字符串
+	 * @return 替换后的字符串
+	 */
+	static public String replaceFirst(String str, String oldStr, String newStr) {
+		int i = str.indexOf(oldStr);
+		if (i == -1)
+			return str;
+		str = str.substring(0, i) + newStr + str.substring(i + oldStr.length());
+		return str;
+	}
+
+	// 根据Unicode编码完美的判断中文汉字和符号
+	private static boolean isChinese(char c) {
+		Character.UnicodeBlock ub = Character.UnicodeBlock.of(c);
+		if (ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
+				|| ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
+				|| ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
+				|| ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B
+				|| ub == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION
+				|| ub == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS
+				|| ub == Character.UnicodeBlock.GENERAL_PUNCTUATION) {
+			return true;
+		}
+		return false;
+	}
+
+	private static boolean isNotCommon(char c) {
+
+		if (c == '#' || c == '=' || c == '&' || c == ',' || c == '%'
+				|| c == '‘' || c == '’' || c == '~' || c == '-') {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 验证文件夹和文件是否包含以下字符
+	 *
+	 * @param str
+	 * @return
+	 * @author xiaoxc
+	 */
+	public static boolean strIsNotCommon(String str) {
+
+		if (str.indexOf("#") != -1 || str.indexOf("=") != -1
+				|| str.indexOf(",") != -1 || str.indexOf("%") != -1
+				|| str.indexOf("~") != -1 || str.indexOf("‘") != -1
+				|| str.indexOf(" ") != -1 || str.indexOf("@") != -1
+				|| str.indexOf("$") != -1 || str.indexOf("^") != -1
+				|| str.indexOf("&") != -1 || str.indexOf("*") != -1) {
+			return true;
+		}
+		return false;
+	}
+
+	// 完整的判断中文汉字和符号
+	public static boolean isContainChinese(String strName) {
+		char[] ch = strName.toCharArray();
+		for (int i = 0; i < ch.length; i++) {
+			char c = ch[i];
+			if (isChinese(c)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean isNotCommon(String strName) {
+		char[] ch = strName.toCharArray();
+		for (int i = 0; i < ch.length; i++) {
+			char c = ch[i];
+			if (isNotCommon(c)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+	/**
+	 * str(逗号隔开格式)转化为list
+	 *
+	 * @param str
+	 * @return
+	 * @author huangsongbo
+	 */
+	public static List<String> getListFromStr(String str) {
+		List<String> list = new ArrayList<String>();
+		if (StringUtils.isBlank(str))
+			return list;
+		String[] strs = str.split(",");
+		List<String> arrList = Arrays.asList(strs);
+		list = new ArrayList<String>(arrList);
+		return list;
+	}
+
+	public static String getPropertyName(String proName, String key, String def) {
+		String value = "";
+
+		try {
+			ResourceBundle app = ResourceBundle.getBundle(proName);
+			value = app.getString(key);
+		} catch (Exception e) {
+			// e.printStackTrace();
+			value = def;
+		}
+		return value;
+	}
+
+
+	/**
+	 * date去掉时分秒
+	 *
+	 * @param date
+	 * @return
+	 * @throws ParseException
+	 * @author huangsongbo
+	 */
+	public static Date getSqlDate(Date date) throws ParseException {
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date returnDate = simpleDateFormat.parse(simpleDateFormat.format(date));
+		return returnDate;
+	}
+
+
+	/**
+	 * 移动文件(剪切)
+	 *
+	 * @param oldFilePath (原路径,带文件名)
+	 * @param newFilePath (新路径,带文件名)
+	 * @return
+	 * @author huangsongbo
+	 */
+	public static String moveFile(String oldFilePath, String newFilePath) {
+		File oldFile = new File(oldFilePath);
+		if (!oldFile.exists()) {
+			return "path:" + oldFilePath + "->未找到";
+		} else {
+			try {
+				FileUtils.copyFile(oldFile, new File(newFilePath));
+				/*
+				 * if(oldFile.exists()) oldFile.delete();
+				 */
+			} catch (IOException e) {
+				return "文件移动失败";
+			}
+			return "true";
+		}
+	}
+
+	/**
+	 * String to Double
+	 *
+	 * @param proValue
+	 * @return
+	 * @author huangsongbo
+	 */
+	public static Double parseDouble(String proValue) {
+		try {
+			return Double.valueOf(proValue);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public static String getKeyByCachePro(String module) {
+		return ConfigUtil.getConfig("/dataSource/cache", module);
+	}
+
+	/* 读取filedesc固定格式的文本 */
+	public static Map<String, String> getMapFromStr(String fileDesc) {
+		Map<String, String> map = new HashMap<String, String>();
+		String[] strs = fileDesc.split(";");
+		for (String str : strs) {
+			if (str.split(":").length == 2) {
+				map.put(str.split(":")[0].trim(), str.split(":")[1].trim());
+			}
+		}
+		return map;
+	}
+
+	// 产品是否需要3dMax 需要为true,不需要为false
+	// 软装白模无3Dmax,产品都有，硬装白模有3dMax则产品不需要，白模没有3dMax则产品需要
+	public static boolean isNeed3dMax(SysDictionary sysdictionary) {
+		boolean flag = true;
+		if (StringUtils.equals("baimo", sysdictionary.getAtt3())) {
+			// 硬装白模
+			if (StringUtils.equals("1", sysdictionary.getAtt4())) {
+				// 背景墙、门、门框、窗框、天花 不需要3dmax
+				if (StringUtils.equals("1", sysdictionary.getAtt6())
+						|| StringUtils.equals("tianh", sysdictionary.getType())) {
+					flag = false;
+				}
+			} else {
+				// 软装白模
+				flag = false;
+			}
+		} else {
+			// 硬装产品
+			if (StringUtils.equals("1", sysdictionary.getAtt4())) {
+				if (StringUtils.equals("1", sysdictionary.getAtt6())
+						|| StringUtils.equals("tianh", sysdictionary.getType())) {
+					flag = true;
+				} else {
+					flag = false;
+				}
+			}
+		}
+		return flag;
+	}
+
+
+	/**
+	 * 不同系统对应的路径处理
+	 *
+	 * @param uploadRoot
+	 * @param valueByFileKey
+	 * @return
+	 * @author huangsongbo
+	 */
+	public static String dealWithPath(String uploadRoot, String valueByFileKey) {
+
+		// *参数验证 ->start
+		if (StringUtils.isEmpty(uploadRoot)) {
+			return null;
+		}
+		if (valueByFileKey == null) {
+			valueByFileKey = "linux";
+		}
+		// *参数验证 ->end
+
+		if (StringUtils.equals("linux", valueByFileKey.trim())) {
+			// logger.warn("------replace(\\, /)");
+			uploadRoot = uploadRoot.replace("\\", "/");
+		} else {
+			// logger.warn("------replace(/, \\)");
+			uploadRoot = uploadRoot.replace("/", "\\");
+		}
+		// logger.warn("------dealWithPath->uploadRoot(end):"+uploadRoot);
+		return uploadRoot;
+	}
+
+	/**
+	 * 删除文件或者目录
+	 *
+	 * @param file
+	 * @author huangsongbo
+	 */
+	public static void deleteFile(File file) {
+		if (file.isDirectory()) {
+			logger.warn("------删除文件/目录:url:" + file.getPath());
+			File[] files = file.listFiles();
+			if (files.length > 0) {
+				for (int i = 0; i < files.length; i++) {
+					deleteFile(files[i]);
+				}
+				file.delete();
+			} else {
+				file.delete();
+			}
+		} else if (file.exists()) {
+			logger.warn("------删除文件/目录:url:" + file.getPath());
+			file.delete();
+		}
+	}
+
+	/*
+	 * String强制取两个小数点
+	 */
+	public static String getLast2bit(String inputstr) {
+		String outputstr = "";
+		double levalue = 0.0;
+		BigDecimal amount = new BigDecimal(inputstr);
+		DecimalFormat df = new DecimalFormat("#.00");
+		levalue = new Double(df.format(amount.doubleValue()));
+		outputstr = Double.toString(levalue);
+		String[] thevalue;
+		thevalue = outputstr.split("\\.");
+		if (thevalue[1].length() < 2) {
+			outputstr = outputstr + "0";
+		}
+		return outputstr;
+	}
+
+	/**
+	 * 判断字符串是不是字母
+	 *
+	 * @param letter
+	 * @return
+	 */
+	public static Boolean isLetter(String letter) {
+		String arr[] = {"A", "B", "C", "D", "E", "F", "J", "H", "I", "J", "K",
+				"L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W",
+				"X", "Y", "Z"};
+		Set<String> set = new HashSet<String>(Arrays.asList(arr));
+		return set.contains(letter);
+	}
+
+	/**
+	 * New 一个 26个字母排序的list
+	 */
+	public static List<String> letterList() {
+		String arr[] = {"A", "B", "C", "D", "E", "F", "J", "H", "I", "J", "K",
+				"L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W",
+				"X", "Y", "Z"};
+		List<String> list = new ArrayList<String>();
+		Collections.addAll(list, arr);
+		return list;
+	}
+
+	/**
+	 * List<String>->List<Integer>
+	 *
+	 * @param listFromStr
+	 * @return
+	 * @author huangsongbo
+	 */
+	public static List<Integer> getIntegerListFromStringList(
+			List<String> listFromStr) {
+		List<Integer> returnList = new ArrayList<Integer>();
+		for (String str : listFromStr) {
+			returnList.add(Integer.valueOf(str));
+		}
+		return returnList;
+	}
+
+	public static String getStringFromList(List<Integer> ids) {
+		StringBuffer stringBuffer = new StringBuffer("");
+		if (ids == null)
+			return stringBuffer.toString();
+		for (Integer id : ids) {
+			stringBuffer.append(id + ",");
+		}
+		if (stringBuffer.length() > 0) {
+			return stringBuffer.substring(0, stringBuffer.length() - 1);
+		} else {
+			return stringBuffer.toString();
+		}
+	}
+
+
+	public static boolean ListIsIdentical(List<Integer> proCategoryIdListOld,
+										  List<Integer> proCategoryIdList) {
+		if (proCategoryIdListOld == null && proCategoryIdList == null) {
+			return true;
+		} else if (proCategoryIdListOld == null && proCategoryIdList != null) {
+			return false;
+		} else if (proCategoryIdListOld != null && proCategoryIdList == null) {
+			return false;
+		} else {
+			// 都不为null
+			Integer size1 = proCategoryIdListOld.size();
+			Integer size2 = proCategoryIdList.size();
+			if (size1.equals(size2)) {
+				if (new Integer(0).equals(size1))
+					return true;
+				Collections.sort(proCategoryIdListOld);
+				Collections.sort(proCategoryIdList);
+				for (int i = 0; i < size1; i++) {
+					if (!proCategoryIdListOld.get(i).equals(
+							proCategoryIdList.get(i)))
+						return false;
+				}
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+
+	/**
+	 * 获取i分钟之后的Date
+	 *
+	 * @param i
+	 * @return
+	 */
+	public static Date getLateTime(int i) {
+		Date now = new Date();
+		long nowTime = now.getTime();
+		nowTime += i * 60 * 1000;
+		return new Date(nowTime);
+	}
+
+
+	/**
+	 * 获取当前行数
+	 *
+	 * @return
+	 */
+	public static String getLineNumber() {
+		StackTraceElement ste = new Throwable().getStackTrace()[1];
+		return "Line:" + ste.getLineNumber() + ";";
+	}
+
+	/**
+	 * 小数转换
+	 */
+	public static String decimalConver(double value) {
+		String parten = "#.##";
+		DecimalFormat decimal = new DecimalFormat(parten);
+		String str = decimal.format(value);
+		return str;
+	}
+
+	/**
+	 * 拆分U3D旧编码
+	 */
+	/*public static String splitLetterAndNumber(String source) {
+		String result = "";
+		source += "a1";
+		char[] carr = source.toCharArray();
+		int lastLetter = 0;// 记录上上一次取字符串的位置
+		for (int i = 1; i < carr.length; i++) {
+			if (Character.isDigit(carr[i - 1]) && Character.isLetter(carr[i])) {
+				result += (source.substring(lastLetter, i));
+				lastLetter = i;
+			}
+		}
+		return result;
+	}*/
+	public static String splitLetterAndNumber(String source) {
+		String result = "";
+		source += "a1";
+		char[] carr = source.toCharArray();
+		int lastLetter = 0;// 记录上上一次取字符串的位置
+		for (int i = 1; i < carr.length; i++) {
+			if (Character.isDigit(carr[i - 1]) && Character.isLetter(carr[i])) {
+				result += (source.substring(lastLetter, i)) + "_";
+				lastLetter = i;
+			}
+		}
+		return result.substring(0, result.length() - 1);
+	}
+
+	/**
+	 * 路径中含有/[yyyy]/[MM]/[dd]/[HH]/[mm]/[ss]/
+	 *
+	 * @param filePath
+	 * @return
+	 * @author huangsongbo
+	 */
+	private static String replaceDate(String filePath, Date date) {
+		if (date == null) {
+			date = new Date();
+		}
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
+		String dateInfo = simpleDateFormat.format(date);
+		String[] dateInfoArrays = dateInfo.split("_");
+		if (filePath.indexOf("[yyyy]") != -1) {
+			filePath = filePath.replace("[yyyy]", dateInfoArrays[0]);
+		}
+		if (filePath.indexOf("[MM]") != -1) {
+			filePath = filePath.replace("[MM]", dateInfoArrays[1]);
+		}
+		if (filePath.indexOf("[dd]") != -1) {
+			filePath = filePath.replace("[dd]", dateInfoArrays[2]);
+		}
+		if (filePath.indexOf("[HH]") != -1) {
+			filePath = filePath.replace("[HH]", dateInfoArrays[3]);
+		}
+		if (filePath.indexOf("[mm]") != -1) {
+			filePath = filePath.replace("[mm]", dateInfoArrays[4]);
+		}
+		if (filePath.indexOf("[ss]") != -1) {
+			filePath = filePath.replace("[ss]", dateInfoArrays[5]);
+		}
+		return filePath;
+	}
+
+
+	public enum getcopyToPathAbsoluteReturnMapKey {
+		absolute,// 绝对路径
+		directory,// 目录
+		filePathField,//修复后的文件数据的path字段的信息
+		fileName
+	}
+
+	/**
+	 * 取得更新的文件名(变更flag,适用于前端缓存功能)
+	 *
+	 * @param oldFilePath
+	 * @return
+	 * @author huangsongbo
+	 */
+	public static String getFileNameByOldFilePath(String oldFilePath) {
+		if (StringUtils.isBlank(oldFilePath)) {
+			return null;
+		}
+		// assetbundle
+		/*String fileSuffix = oldFilePath.substring(oldFilePath.lastIndexOf(".") + 1);*/
+		/*523138_20170627140452092_1.assetbundle*/
+		String oldFileName = oldFilePath.substring(oldFilePath.lastIndexOf("/") + 1);
+		// 523138_20170627140452092_1
+		String oldFileNameRemoveSuffix = oldFileName.substring(0, oldFileName.lastIndexOf("."));
+		if (oldFileName.indexOf("_") != -1) {
+			String flag = oldFileNameRemoveSuffix.substring(oldFileName.lastIndexOf("_") + 1);
+			if (flag.matches("^[0-9]{1,11}$")) {
+				Long flagNum = Long.valueOf(flag);
+				return oldFileNameRemoveSuffix.substring(0, oldFileNameRemoveSuffix.lastIndexOf("_")) + "_" + (flagNum + 1);
+			} else {
+				return oldFileNameRemoveSuffix + "_1";
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 文件初始加密获得新的文件名
+	 * 加密的话
+	 *
+	 * @param filePath
+	 * @return
+	 */
+	public static String getFileNameByAesFirst(String filePath) {
+		if (StringUtils.isBlank(filePath)) {
+			return null;
+		}
+
+		boolean needEncrypt = FileEncrypt.needEncrypt(filePath);
+		if (needEncrypt) {
+			String ss = filePath.substring(0, filePath.lastIndexOf("/") + 1);
+			String oldFileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+			String oldFileNameRemoveSuffix = oldFileName.substring(0, oldFileName.lastIndexOf("."));
+			String suffix = oldFileName.substring(oldFileName.lastIndexOf("."));
+			return ss + oldFileNameRemoveSuffix + AESFileConstant.AES_FIRST + suffix;
+		} else {
+			return filePath;
+		}
+	}
+
+	/**
+	 * 获得文件加密路径
+	 *
+	 * @param filePath
+	 * @return
+	 */
+	public static String getFileNameByAes(String filePath) {
+		int i = 1;
+		if (StringUtils.isBlank(filePath)) {
+			return null;
+		}
+		if (i == 1) {
+			return getFileNameByAesFirst(filePath);
+		} else {
+			String ss = filePath.substring(0, filePath.lastIndexOf("/") + 1);
+			String oldFileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+			String suffix = oldFileName.substring(oldFileName.lastIndexOf("."));
+			return ss + getFileNameByOldFilePath(filePath) + suffix;
+		}
+	}
+
+	/**
+	 * String转化成List<JSONObject>
+	 *
+	 * @param str
+	 * @return
+	 */
+	public static List<JSONObject> getJSONObjectByString(String str) {
+		JSONArray encryptWayJsonArray = JSONArray.fromObject(str);
+		List<JSONObject> jsonObjectList = new ArrayList<JSONObject>();
+		if (encryptWayJsonArray != null && encryptWayJsonArray.size() > 0) {
+			for (int i = 0; i < encryptWayJsonArray.size(); i++) {
+				jsonObjectList.add(encryptWayJsonArray.getJSONObject(i));
+			}
+		}
+		return jsonObjectList;
+	}
+
+	//是否是硬装
+	public static boolean isHard(String val) {
+		String str = ",1,2,3,4,";
+		if (str.indexOf(val) != -1) {
+			return true;
+		}
+		return false;
+	}
+
+
+	/**
+	 * 根据相对路径,得到资源模块名称
+	 * 示例:
+	 * relativePath = /AA/c_basedesign/2017/07/05/19/product/baseProduct/piclist/651499_20170705192950610_6.jpg
+	 * return c_basedesign
+	 *
+	 * @param relativePath
+	 * @return
+	 * @author huangsongbo
+	 */
+	public static String getModelNameByRelativePath(String relativePath) {
+		// 统一转成linux路径格式(正斜杠)
+		relativePath = Utils.dealWithPath(relativePath, "linux");
+
+		// relativePath变成 AA/c_basedesign/2017/07/05/19/....格式
+		while (relativePath.startsWith("/")) {
+			relativePath = relativePath.substring(1);
+		}
+
+		String[] strs = relativePath.split("/");
+		if (strs.length < 2) {
+			return null;
+		}
+
+		// 模块名 eg:c_basedesign
+		return strs[1];
+	}
+
+	public enum getAbsolutePathType {
+		encrypt, noEncrypt
+	}
+
+
+	//截取字符串
+	public static String getSubStr(String str, int num) {
+		String result = "";
+		int i = 0;
+		while (i < num) {
+			int lastFirst = str.lastIndexOf('_');
+			result = str.substring(lastFirst) + result;
+			str = str.substring(0, lastFirst);
+			i++;
+		}
+		String sdes = result.substring(1).substring(result.substring(1).indexOf("=") + 1);
+		String[] strSplit = sdes.split("_");
+		if (strSplit.length != -1) {
+			return strSplit[0];
+		} else {
+			return sdes;
+		}
+	}
+
+
+	/**
+	 * 解析固定的list json格式的字符串
+	 * 格式示例:
+	 * if(StringUtils.isNotEmpty(column)) ->
+	 * [{"modelName":"d_userdesign,e_userlogs","uploadRoot":"E:\\nork\\resources_user"},{"modelName":"b_base,c_basedesign","uploadRoot":"E:\\nork\\resources_base"},{"modelName":"a_common,f_resource,g_other","uploadRoot":"E:\\nork\\resources_other"}]
+	 * else ->
+	 * {"cfg":[{"modelName":"d_userdesign,e_userlogs","uploadRoot":"E:/norkResources/resources/domain1/src"},{"modelName":"b_base,c_basedesign","uploadRoot":"E:/norkResources/resources/domain2/src"},{"modelName":"a_common,f_resource,g_other","uploadRoot":"E:/norkResources/resources/domain3/srcs"}]}
+	 * column = "cfg"
+	 * <p>
+	 * 需转化成如下Map格式
+	 * {f_resource=E:/nork/resources_other, b_base=E:/nork/resources_base, c_basedesign=E:/nork/resources_base, a_common=E:/nork/resources_other, e_userlogs=E:/nork/resources_user, d_userdesign=E:/nork/resources_user, g_other=E:/nork/resources_other}
+	 *
+	 * @param configStr
+	 * @param key
+	 * @param value
+	 * @param value
+	 * @return
+	 * @author huangsongbo
+	 */
+	public static Map<String, String> getMapFromListJsonStr(String configStr, String column, String key, String value) {
+
+		// 验证参数 ->start
+		if (StringUtils.isEmpty(configStr)) {
+			return null;
+		}
+		if (StringUtils.isEmpty(key)) {
+			return null;
+		}
+		if (StringUtils.isEmpty(value)) {
+			return null;
+		}
+		// 验证参数 ->end
+
+		Map<String, String> returnMap = new HashMap<String, String>();
+		JSONArray jsonArray = null;
+		if (StringUtils.isNotEmpty(column)) {
+			JSONObject jsonObject = JSONObject.fromObject(configStr);
+			jsonArray = jsonObject.getJSONArray(column);
+		} else {
+			jsonArray = JSONArray.fromObject(configStr);
+		}
+
+		for (int index = 0; index < jsonArray.size(); index++) {
+			JSONObject jsonObject = jsonArray.getJSONObject(index);
+
+			if (!jsonObject.containsKey(key)) {
+				return null;
+			}
+
+			String keyStr = jsonObject.getString(key);
+
+			if (!jsonObject.containsKey(value)) {
+				return null;
+			}
+
+			String valueStr = jsonObject.getString(value);
+			List<String> keyList = getListFromStr(keyStr);
+
+			for (String keyListItem : keyList) {
+				if (!returnMap.containsKey(keyListItem)) {
+					returnMap.put(keyListItem, valueStr);
+				} else {
+				}
+			}
+
+		}
+		return returnMap;
+	}
+
+	/**
+	 * 通过绝对路径,得到相对路径
+	 * 有风险的方法,为了分布式存储资源,暂时想不到更好的办法
+	 *
+	 * @param serverFilePath 绝对路径 eg:E:\norkResources\resources\domain2\AA\c_basedesign\2017\07\05\22\product\baseProduct\pic\small\ipad\web_baimo_C09_0087_dim_0010_A_15.jpg
+	 * @return
+	 * @author huangsongbo
+	 */
+	public static String getRelativeUrlByAbsolutePath(String serverFilePath) {
+
+		// *参数验证 ->start
+		if (StringUtils.isEmpty(serverFilePath)) {
+			return "";
+		}
+		// *参数验证 ->end
+
+		serverFilePath = Utils.dealWithPath(serverFilePath, "linux");
+
+		String[] modelNames = new String[]{"AA", "BB", "CC", "DD", "EE", "FF"};
+
+		List<String> modelNameList = Arrays.asList(modelNames);
+
+		int index = -1;
+		for (String modelName : modelNameList) {
+			int indexTemp = serverFilePath.indexOf("/" + modelName + "/");
+			if (indexTemp != -1) {
+				index = indexTemp;
+				break;
+			}
+		}
+
+		if (index == -1) {
+			return "";
+		}
+
+		return serverFilePath.substring(index);
+	}
+
+	public static String getPath2(String key, String defalut) {
+		String value = "";
+		try {
+			ResourceBundle res = ResourceBundle.getBundle("config/res");
+			value = res.getString(key);
+		} catch (Exception e) {
+			value = defalut;
+		}
+		return value;
+	}
+
+	/**
+	 * 判断是否含有特殊字符
+	 *
+	 * @param str
+	 * @return true为包含，false为不包含
+	 */
+	public static boolean isSpecialChar(String str) {
+		String regEx = "[`~!#$%^&*+=|{}:;'\\[\\]<>?~！#￥%……&*（）——+|{}【】‘；：”“’。，、？]|\n|\r|\t";
+		Pattern p = Pattern.compile(regEx);
+		Matcher m = p.matcher(str);
+		return m.find();
+	}
+
+
+	/**
+	 * enableRedisCache 方法描述：      是否启用redis
+	 *
+	 * @return boolean    返回类型
+	 * @Exception 异常对象
+	 * @since CodingExample　Ver(编码范例查看) 1.1
+	 */
+	public static boolean enableRedisCache() {
+		return "1".equalsIgnoreCase(Utils.getValue("redisCacheEnable", "0"));
+	}
+
+	/**
+	 * 不够位数的在前面补0，保留num的长度位数字
+	 *
+	 * @param code
+	 * @return
+	 * @author xiaozunp
+	 */
+	public static String autoGenericCode(String code, int num) {
+		String result = "";
+		// 保留num的位数
+		// 0 代表前面补充0
+		// num 代表长度
+		// d 代表参数为正数型
+		result = String.format("%0" + num + "d", Integer.parseInt(code) + 1);
+
+		return result;
+	}
+
+
+	/**
+	 * 剪切文件
+	 *
+	 * @param currentFilePath 当前文件路径
+	 * @param deletedFilePath 将删除的文件移至新的路径
+	 */
+	public static boolean shearFile(String currentFilePath, String deletedFilePath) {
+		boolean flag = false;
+
+
+		File currentFile = new File(currentFilePath);
+		File deletedFile = new File(deletedFilePath);
+		String directory = deletedFilePath.replace(deletedFile.getName(), "");
+		File deletedFileDirectory = new File(directory);
+		if (!deletedFileDirectory.exists()) {
+			deletedFileDirectory.mkdirs();
+		}
+		InputStream in = null;
+		OutputStream out = null;
+		try {
+			in = new FileInputStream(currentFile);
+			out = new FileOutputStream(deletedFile);
+			byte[] bytes = new byte[1024];
+			int len = -1;
+			while ((len = in.read(bytes)) != -1) {
+				out.write(bytes, 0, len);
+			}
+			flag = true;
+		} catch (FileNotFoundException e) {
+			logger.error(" shearFile method :" + e);
+		} catch (IOException e) {
+			logger.error(" shearFile method :" + e);
+		} finally {
+			try {
+				if (in != null) in.close();
+				if (out != null) out.close();
+				if (flag) {
+					currentFile.delete();
+				}
+				return flag;
+			} catch (Exception e) {
+				logger.error(" shearFile method :" + e);
+			}
+		}
+		return flag;
+	}
+
+	/*解析固定格式字符串*/
+	public static Map<String, String> readFileDesc(String fileDesc) {
+		Map<String, String> map = new HashMap<String, String>();
+		String[] strs = fileDesc.split(";");
+		for (String str : strs) {
+			if (str.split(":").length == 2) {
+				map.put(str.split(":")[0].trim(), str.split(":")[1].trim());
+			}
+		}
+		return map;
+	}
+
+
+	/**
+	 * 得到几个月后的时间
+	 *
+	 * @param d
+	 * @param day
+	 * @return
+	 */
+	public static Date getDateAfterMonth(Date d, int month) {
+		Calendar now = Calendar.getInstance();
+		now.setTime(d);
+		now.set(Calendar.MONTH, now.get(Calendar.MONTH) + month);
+		return now.getTime();
+	}
+
+	/**
+	 * 计算两个时间的月份差
+	 *
+	 * @param beginDate
+	 * @param endDate
+	 * @return
+	 */
+	public static Integer getDateDifferenceByMonth(Date beginDate, Date endDate) {
+		Calendar beginC = Calendar.getInstance();
+		Calendar endC = Calendar.getInstance();
+		beginC.setTime(beginDate);
+		endC.setTime(endDate);
+		int num = endC.get(Calendar.MONTH) - beginC.get(Calendar.MONTH);
+		int month = (endC.get(Calendar.YEAR) - beginC.get(Calendar.YEAR)) * 12;
+		return num + month;
+	}
+
+
+	/**
+	 * 根据request获取LoginUser
+	 *
+	 * @param request
+	 * @return
+	 * @author huangsongbo
+	 */
+	public static LoginUser getLoginUser(HttpServletRequest request) {
+		LoginUser loginUser = new LoginUser();
+		if (request.getSession() == null || request.getSession().getAttribute("loginUser") == null) {
+			loginUser.setLoginName("nologin");
+		} else {
+			loginUser = (LoginUser) request.getSession().getAttribute("loginUser");
+		}
+		return loginUser;
+	}
+
+	/**
+	 * 将String集合拼接成指定分隔符分隔的字符串
+	 *
+	 * @param ids
+	 * @param splitStr 分隔符，默认为 ","
+	 * @return
+	 */
+	public static String getStringFromStringList(List<String> ids, String splitStr) {
+		if (Utils.isEmpty(splitStr)) {
+			splitStr = ",";
+		}
+		StringBuffer stringBuffer = new StringBuffer("");
+		if (ids == null)
+			return stringBuffer.toString();
+		for (String id : ids) {
+			stringBuffer.append(id + splitStr);
+		}
+		if (stringBuffer.length() > 0) {
+			return stringBuffer.substring(0, stringBuffer.length() - 1);
+		} else {
+			return stringBuffer.toString();
+		}
+	}
+
+	/**
+	 * 将Integer集合拼接成指定分隔符分隔的字符串
+	 *
+	 * @param ids
+	 * @param splitStr 分隔符，默认为 ","
+	 * @return
+	 */
+	public static String getStringFromIntegerList(List<Integer> ids, String splitStr) {
+		if (Utils.isEmpty(splitStr)) {
+			splitStr = ",";
+		}
+		StringBuffer stringBuffer = new StringBuffer("");
+		if (ids == null)
+			return stringBuffer.toString();
+		for (Integer id : ids) {
+			stringBuffer.append(id + splitStr);
+		}
+		if (stringBuffer.length() > 0) {
+			return stringBuffer.substring(0, stringBuffer.length() - 1);
+		} else {
+			return stringBuffer.toString();
+		}
+	}
+
+	public static boolean isJson(String json) {
+		if (StringUtils.isBlank(json)) {
+			return false;
+		}
+		try {
+			new JsonParser().parse(json);
+			return true;
+		} catch (JsonParseException e) {
+			logger.error("bad json: " + json);
+			return false;
+		}
+	}
+
+	public static void sysSave(Object o, LoginUser user) {
+		if (user == null) {
+			throw new IllegalStateException("获取用户失败...");
+		}
+
+		Date now = new Date();
+
+		fetchAllFields(o.getClass())
+				.stream()
+				.filter(it -> Arrays.asList(sysFields).contains(it.getName()))
+				.forEach(it -> {
+					try {
+						it.setAccessible(true);
+						if ("gmtModified".equals(it.getName())) {
+							it.set(o, now);
+						}
+						if ("modifier".equals(it.getName())) {
+							it.set(o, user.getName());
+						}
+						if ("isDeleted".equals(it.getName())) {
+							it.set(o, 0);
+						}
+						if ("id".equals(it.getName())) {
+							if (it.get(o) != null) {
+								return;
+							}
+						}
+						if ("sysCode".equals(it.getName())) {
+							it.set(o, fetchSysCode(now));
+						}
+						if ("gmtCreate".equals(it.getName())) {
+							it.set(o, now);
+						}
+						if ("creator".equals(it.getName())) {
+							it.set(o, user.getName());
+						}
+
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				});
+	}
+
+	private static String fetchSysCode(Date now) {
+		return formatDate(now, DATETIMESSS) + "_" + RandomStringUtils.randomNumeric(6);
+	}
+
+	private static List<Field> fetchAllFields(Class<?> tempClass) {
+		List<Field> fieldList = new ArrayList<>();
+		while (tempClass != null) {
+			fieldList.addAll(Arrays.asList(tempClass.getDeclaredFields()));
+			tempClass = tempClass.getSuperclass();
+		}
+		return fieldList;
+	}
+
+
+}

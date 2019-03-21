@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.callback.dao.RecordAdClickDao">
+
+    <insert id="insert" parameterType="com.sandu.api.callback.model.RecordAdClick">
+        INSERT INTO `record_ad_click`
+        (`origin`,`device_os`,`device_main_id`,`device_vice_id`,`device_mac`,`device_imei`,`client_ip`,`report_data`)
+        VALUES
+        (#{origin},#{deviceOs},#{deviceMainId},#{deviceViceId},#{deviceMac},#{deviceImei},#{clientIp},#{reportData})
+    </insert>
+
+    <update id="update">
+        UPDATE `record_ad_click`
+        SET
+        <if test="origin != null">`origin` = #{origin},</if>
+        <if test="deviceOs != null">`device_os` = #{deviceOs},</if>
+        <if test="deviceMainId != null">`device_main_id` = #{deviceMainId},</if>
+        <if test="deviceViceId != null">`device_vice_id` = #{deviceViceId},</if>
+        <if test="deviceMac != null">`device_mac` = #{deviceMac},</if>
+        <if test="deviceImei != null">`device_imei` = #{deviceImei},</if>
+        <if test="clientIp != null">`client_ip` = #{clientIp},</if>
+        <if test="reportData != null">`report_data` = #{reportData},</if>
+        <if test="status != null">`status` = #{status},</if>
+        gmt_update = CURRENT_TIMESTAMP
+        WHERE `id` = #{id}
+    </update>
+
+    <select id="findByDeviceInfo" resultType="com.sandu.api.callback.model.RecordAdClick">
+        SELECT * FROM `record_ad_click`
+        WHERE `status`=0 AND `origin`=#{origin} AND `device_os`=#{deviceOs} AND
+        (`device_imei`=#{deviceImei} OR `device_main_id`=#{deviceMainId} OR `device_vice_id`=#{deviceViceId} OR `device_mac`=#{deviceMac})
+        ORDER BY id DESC
+        LIMIT 0,1
+    </select>
+
+</mapper>

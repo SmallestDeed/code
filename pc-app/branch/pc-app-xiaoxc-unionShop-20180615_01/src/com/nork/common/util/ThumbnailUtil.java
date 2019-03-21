@@ -1,0 +1,282 @@
+package com.nork.common.util;
+
+import com.nork.common.model.FileModel;
+import net.coobird.thumbnailator.Thumbnails;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+import java.util.ResourceBundle;
+
+
+/**
+ * @Author Gao Jun
+ * @Description
+ * @Date:Created Administrator in 上午 11:06 2018/5/30 0030
+ * @Modified By:
+ */
+public class ThumbnailUtil {
+
+    private static Logger logger = LoggerFactory.getLogger(ThumbnailUtil.class);
+    /**缩略图默认尺寸**/
+    public static final Integer PIC_WIDTH = 1080;
+    public static final Integer PIC_HIGHT = 1080;
+    /**渲染截图默认尺寸**/
+    public static final Integer NEW_PIC_WIDTH = 1980;
+    public static final Integer NEW_PIC_HIGHT = 1980;
+
+    private final static ResourceBundle res = ResourceBundle.getBundle("config/res");
+    /** 上传通用常量 **/
+    public final static String UPLOADPATHTKEY = "uploadPathKey";
+    public final static String FILE = "file";
+    public final static String DB_FILE_PATH = "dbFilePath";
+    public final static String  SERVER_FILE_PATH = "serverFilePath";
+
+    /**
+     * 生成缩略图并保存
+     * @param fileUrl
+     * @param outputFolder
+     * @param toWidth
+     * @param toHight
+     * @return
+     * @throws IOException
+     */
+    public static String createThumbnail(String fileUrl, String outputFolder,Integer toWidth,Integer toHight) throws IOException {
+        logger.error("ThumbnailUtil --- createThumbnail -- fileUrl="+fileUrl+"&outputFolder="+outputFolder);
+        float quality = 0.95f;
+        String SYSTEM_FORMAT = Utils.getValue("app.system.format", "linux").trim();
+        String folderPath="";
+        File folder=null;
+        String thumbnailName ="";
+        if("linux".equals(SYSTEM_FORMAT)){
+            outputFolder=outputFolder.replace("\\", "/");
+            folderPath=outputFolder.substring(0, outputFolder.lastIndexOf("/"));
+            folder = new File(folderPath);
+            thumbnailName=outputFolder.substring(outputFolder.lastIndexOf("/")+1, outputFolder.length());
+            fileUrl=fileUrl.replace("\\", "/");
+        }else{
+			/*windows环境*/
+            outputFolder=outputFolder.replace("/", "\\");
+            folderPath=outputFolder.substring(0, outputFolder.lastIndexOf("\\"));
+            folder = new File(folderPath);
+            thumbnailName=outputFolder.substring(outputFolder.lastIndexOf("\\")+1, outputFolder.length());
+            fileUrl=fileUrl.replace("/", "\\");
+        }
+        if (folder.exists() && folder.isDirectory()) {
+
+        }else{
+            folder.mkdirs();
+        }
+        if (null == toWidth) {
+            toWidth = PIC_WIDTH;
+        }
+        if (null == toHight) {
+            toHight = PIC_HIGHT;
+        }
+
+        File originalFile = new File(fileUrl);
+        logger.info("thumbnailUtil --- createThumbnail --- originalFile:"+originalFile);
+        File thumbnailFile = new File(folder + "/" + thumbnailName);
+        logger.info("thumbnailUtil --- createThumbnail --- thumbnailFile:"+thumbnailFile);
+        Thumbnails.of(originalFile)
+                .outputQuality(quality)
+                .size(toWidth, toHight)
+                .toFile(thumbnailFile);
+        
+        return thumbnailName;
+    }
+
+    /**
+     * 生成新截图图片并保存
+     * @param map
+     * @return
+     */
+    public static boolean createNewPic(Map map) {
+        boolean flag = false;
+        if (map == null) {
+            return flag;
+        }
+        float quality = 0.95f;
+        // 业务对应的文件存储目录key值
+        String uploadPathKey = (String) map.get(UPLOADPATHTKEY);
+        // 获取文件句柄
+        MultipartFile file = (MultipartFile) map.get(FILE);
+
+        logger.info("file=" + file);
+        if (file != null) {
+            // 获取上传文件的文件名
+            String fileName = file.getOriginalFilename();
+            if(org.apache.commons.lang3.StringUtils.isBlank(fileName)){
+                logger.debug("------识别待上传的文件名为null,默认为.png");
+                fileName = ".png";
+            }
+            String finalFlieName = "";
+            if( "nameKeep".equals(map.get("opType")) ){
+                finalFlieName = fileName.substring(0, fileName.indexOf("."))
+                        + "_" + Utils.getCurrentDateTime(Utils.DATETIMESSS)
+                        + "_" + fileName;
+            }else{
+                finalFlieName = Utils.generateRandomDigitString(6)
+                        + "_" + Utils.getCurrentDateTime(Utils.DATETIMESSS)
+                        + "_" + fileName;
+            }
+            // 获取配置的业务文件目录
+            String filePath = res.getString(uploadPathKey);
+            filePath = Utils.replaceDate(filePath);
+			/*如果有[code],替换code*/
+            if(map.containsKey("code")&& org.apache.commons.lang3.StringUtils.isNotBlank((String)map.get("code"))){
+                filePath=filePath.replace("[code]", (String)map.get("code"));
+            }
+            // 数据库存储目录
+            String dbFilePath = filePath + finalFlieName;
+            logger.debug("------dbFilePath-----------------------------"+dbFilePath);
+            // 文件服务器的存储路径
+            String realPath = Utils.dealWithPath(Utils.getAbsolutePath(dbFilePath, null), null);
+
+            File sFile = new File(realPath);
+            // 写入上传文件
+            try {
+                // 创建服务器文件存储目录
+                logger.info("sFile----------------"+sFile.getPath()+";"+!sFile.exists()+";"+!sFile.getParentFile().exists());
+                if( !sFile.exists() ){
+                    logger.info("sFile-------------------"+sFile);
+                    if( !sFile.getParentFile().exists() ){
+                        sFile.getParentFile().mkdirs();
+                    }
+                }
+
+                Thumbnails.of(file.getInputStream())
+                        .outputQuality(quality)
+                        .size(NEW_PIC_WIDTH, NEW_PIC_HIGHT)
+                        .toFile(sFile);
+
+                String fname = sFile.getName();
+                long fileSize = sFile.length();
+                String suffix = fname.substring(fname.lastIndexOf("."));
+                String filename = fileName.substring(0, fileName.lastIndexOf("."));
+                if(!org.apache.commons.lang3.StringUtils.isEmpty(uploadPathKey)){
+                    map.put(FileModel.FILE_KEY,uploadPathKey.replace(".upload.path", ""));
+                }
+                if (!StringUtils.isEmpty(filename)) {
+                    map.put(FileModel.FILE_NAME,filename);
+                }
+                String fileorgname = fname.substring(0,fname.lastIndexOf("."));
+                map.put("filePath", filePath);
+                map.put("finalFlieName", finalFlieName);
+                map.put("FileOriginalName",fileorgname);// 物理文件名称
+                map.put(FileModel.FILE_ORIGINAL_NAME,fileorgname);
+                map.put("FileSuffix",suffix);// 文件后缀
+                map.put(FileModel.FILE_SUFFIX, suffix);//文件后缀附加(防止按FileModel.FILE_SUFFIX来取属性)
+                map.put("FileSize",new Long(fileSize).toString());// 文件大小
+                map.put(FileModel.FILE_SIZE,new Long(fileSize).toString());//文件大小(防止按FileModel.FILE_SIZE来取属性)
+                if (".png".equals(suffix.toLowerCase())
+                        || ".jpg".equals(suffix.toLowerCase())
+                        || ".jpge".equals(suffix.toLowerCase())
+                        || ".jpge".equals(suffix.toLowerCase())
+                        || ".gif".equals(suffix.toLowerCase())) {
+//					BufferedImage bufferedImage=ImageIO.read(sFile);
+//					int width = bufferedImage.getWidth(); // 图片宽度
+//					int height = bufferedImage.getHeight();// 图片高度
+					/*应对CMYK模式图片上传报错的情况*/
+                    BufferedImage bufferedImage=null;
+                    try{
+                        bufferedImage = ImageIO.read(sFile);
+                    }catch(Exception e){
+                        try {
+                            ThumbnailConvert tc = new ThumbnailConvert();
+                            tc.setCMYK_COMMAND(sFile.getPath());
+                            bufferedImage = null;
+                            Image image = Toolkit.getDefaultToolkit().getImage(sFile.getPath());
+                            MediaTracker mediaTracker = new MediaTracker(new Container());
+                            mediaTracker.addImage(bufferedImage, 0);
+                            mediaTracker.waitForID(0);
+                            bufferedImage=ThumbnailConvert.toBufferedImage(image);
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+					/*应对CMYK模式图片上传报错的情况END*/
+                    int width = bufferedImage.getWidth(); // 图片宽度
+                    int height = bufferedImage.getHeight();// 图片高度
+                    String format = suffix.replace(".", "");
+                    map.put(FileModel.PIC_WEIGHT,new Integer(width).toString());
+                    map.put(FileModel.PIC_HEIGHT,new Integer(height).toString());
+                    map.put(FileModel.FORMAT,format);
+                }
+
+                map.put(SERVER_FILE_PATH, realPath);
+                map.put(DB_FILE_PATH, dbFilePath);
+
+            } catch (Exception e) {
+                flag = false;
+                logger.error(e.getMessage());
+                e.printStackTrace();
+                return false;
+            }
+            return true;
+        }
+        return flag;
+    }
+
+    /**
+     * 漫游曲线图新的算法生成
+     * @param source
+     * @param destination
+     * @return
+     */
+    public static boolean createRoamPic(InputStream source, File destination,Integer panoLevel) {
+        boolean flag = false;
+        BufferedImage bufferedImage = null;
+        panoLevel = panoLevel == null?4:panoLevel;
+        float quality = 0.95f;
+        switch (panoLevel.intValue()){
+            case 5 :
+                quality = 1.0f;
+                break;
+            case 6 :
+                quality = 0.96f;
+                break;
+            case 7 :
+                quality = 0.97f;
+                break;
+            case 8 :
+                quality = 0.95f;
+                break;
+            case 9 :
+                quality = 0.95f;
+                break;
+            case 10 :
+                quality = 1.0f;
+                break;
+        }
+        try {
+            bufferedImage = ImageIO.read(source);
+//            int height = bufferedImage.getHeight();
+//            int width = bufferedImage.getWidth();
+//            if (0 == width) {
+//                width = NEW_PIC_WIDTH;
+//            }
+//            if (0 == height) {
+//                height = NEW_PIC_HIGHT;
+//            }
+
+            Thumbnails.of(bufferedImage)
+                    .outputQuality(quality)
+                    .scale(1)
+                    .toFile(destination);
+
+            flag = true;
+        } catch (Exception e) {
+            logger.error("ThumbnailUtil-----createRoamPic----exception:"+e);
+        }
+        return flag;
+    }
+}

@@ -1,0 +1,125 @@
+<view class='upload-house'>
+  <view class='house-address'>
+    <view class='address-region common clearfix' bindtap='houseProvincialShow'>
+      <text class='fl'><text>*</text>所在地区</text>
+      <input class='fl' disabled='true' value='{{houseMainParams.region}}' placeholder='请选择省/市/区'></input>
+    </view>
+    <view class='address-livingname common clearfix'>
+      <text class='fl'><text>*</text>所在小区</text>
+      <input class='fl' data-type='houseEstate' value='{{houseMainParams.houseEstate}}' bindinput='changeInput' maxlength='20' placeholder='请输入小区名字'></input>
+    </view>
+    <view class='address-code common clearfix' bindtap='houseTypeShow'>
+      <text class='fl'><text>*</text>户型类型</text>
+      <input class='fl' disabled='true' data-type='houseName' value='{{houseMainParams.houseType}}' placeholder='请选择类型'></input>
+    </view>
+    <view class='address-area common clearfix'>
+      <text class='fl'><text>*</text>户型面积</text>
+      <input class='fl' type='number' data-type='houseArea' bindinput='changeInput' maxlength='20' placeholder='请输入户型面积（㎡）' value='{{houseMainParams.houseArea}}'></input>
+    </view>
+    <view class='address-area common clearfix'>
+      <text class='fl'>联系电话</text>
+      <input class='fl' type='number' value='{{contactNumber}}' data-type='contactNumber' bindinput='changeInput' maxlength="11" placeholder='方便我们联系您'></input>
+    </view>
+  </view>
+  <view class='house-message'>
+    <image class='message-pictrue clearfix' mode="aspectFill" src='{{uploadImage}}' bindtap='uploadHousePictrue'>
+      <!-- <view class='pictrue-text'>户型图</view> -->
+      <view class='pictrue-img' wx:if='{{hideMessage}}'>
+        <image src='{{staticImageUrl}}page_add_pic.png'></image>
+      </view>
+      <view class='pictrue-txt' wx:if='{{hideMessage}}'>添加户型图 (选填)</view>
+      <!-- 1.30 ZB 修改户型传图UI <view class='pictrue-reminder clearfix'>
+        <view class='reminder-img fl'>
+          <image src='{{staticImageUrl}}upload_msg_pic.png'></image>
+        </view>  
+        <view class='reminder-explain fl'>
+          <view class='explain-main'>*上传示例</view>
+          <view>请尽量上传<text>尺寸标注清晰、规范</text>的户型图，拍照时保持纸张平整，手机与纸张平行。</view>
+        </view>          
+      </view> -->
+    </image>
+    <image class='closeHouseMessage' wx:if='{{showDelete}}' src='{{staticImageUrl}}pic_icon_delete.png' bindtap='delete'></image>
+    <!-- 1.30 ZB 去除户型描述 
+    <view class='message-describe clearfix'> 
+        <view class='describe-text fl'>户型描述</view>
+        <view class='titles' wx:if="{{houseMainParams.houseDescribe.length<=0}}">请描述户型的具体信息（选填）</view>
+        <view class='describe-textarea fl'>
+          <textarea wx:if='{{!provincialLinkageShow}}' maxlength='400' 
+          data-type='houseDescribe'  value='{{houseMainParams.houseDescribe}}'  bindinput='changeInput' class='textarea'></textarea>
+        </view>      
+    </view> -->
+  </view>
+  <!-- 地址模块 -->
+  <view class='house-provincial' style='' wx:if='{{provincialLinkageShow}}'>
+    <view class='provincial-linkage'>
+      <view class='controller'>
+        <view class='' bindtap='provincialLinkageHide' data-type='none'>取消</view>
+        <view class='' bindtap='provincialLinkageHide' data-type='confirm'>确定</view>
+      </view>
+      <picker-view indicator-style="height: 50px;" style="width: 100%; height: 300px;" value="{{value}}" bindchange="bindChange">
+        <picker-view-column>
+          <view wx:for="{{provinceList}}" data-type='province' wx:key='index' style="line-height: 50px">{{item.areaName}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{cityList}}" data-type='city' wx:key='index' style="line-height: 50px">{{item.areaName}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{districtList}}" wx:key='index' style="line-height: 50px">{{item.areaName}}</view>
+        </picker-view-column>
+      </picker-view>
+    </view>
+  </view>
+
+  <!-- 类型模块 -->
+  <view class='house-provincial' style='' wx:if='{{modelTypeShow}}'>
+    <view class='provincial-linkage'>
+      <view class='controller'>
+        <view class='' bindtap='modelTypeShowHide' data-type='none'>取消</view>
+        <view class='' bindtap='modelTypeShowHide' data-type='confirm1'>确定</view>
+      </view>
+      <picker-view indicator-style="height: 50px;" style="width: 100%; height: 300px;" value="{{value2}}" bindchange="bindChange1">
+        <picker-view-column>
+          <view wx:for="{{bedRoomList}}" data-type='bed' wx:key='index' style="line-height: 50px">{{item.num}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{drawingRoomList}}" data-type='drawing' wx:key='index' style="line-height: 50px">{{item.num}}</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{toiletRoomList}}" wx:key='index' style="line-height: 50px">{{item.num}}</view>
+        </picker-view-column>
+      </picker-view>
+    </view>
+  </view>
+  <view class='house-title'>
+    提交后，工作人员会及时将您上传的户型更新在系统中
+  </view>
+</view>
+<!-- 快速导航模块 -->
+<!-- <import src="/component/newNav/newNav.wxml" />
+<template is="newNav" data="{{ ...newNav }}" /> -->
+  <jdNav></jdNav>
+
+<!-- rzd 户型引导，户型上传成功弹框开始 -->
+<view class='boot_sucAertbg' wx:if="{{bootAlertShow}}" catchtap='closeSucAlert'>
+
+</view>
+<view class='boot_alert' wx:if="{{bootAlertShow}}">
+  <view class='close_boot'>
+    <image src='{{staticImageUrl}}goods_icon_close@2x.png' catchtap='closeSucAlert'></image>
+  </view>
+  <image class='boot_sucicon' src='{{staticImageUrl}}pop_icon_success.png'></image>
+  <view class='boot_title'>您的户型已成功提交！</view>
+  <view class='boot_tit'>
+    我们将在2个工作日内录入，并微信通知您
+  </view>
+  <view class='boot_backbut' bindtap='backHome'>回到首页</view>
+</view>
+<!-- rzd 户型引导，户型上传成功弹框结束 -->
+
+<view class='rows' wx:if="{{!provincialLinkageShow}}">
+  <view class='house-submit'>
+    <!-- <cover-view wx:if='{{!bootAlertShow}}' class='submit-btn' bindtap='submitHouseMessage'>提交</cover-view> -->
+    <view wx:if='{{!bootAlertShow}}' class='submit-btn rzdShow' bindtap='submitHouseMessage'>提交</view>
+    <!-- <view class='submit-text'>提交后，工作人员会及时将您上传的户型更新在系统中</view>     -->
+  </view>
+</view>

@@ -1,0 +1,178 @@
+<view class="main_body wen">
+  <view class="header">
+    <view class="header_title {{headerActive == 0? 'header_active' : ''}}" data-index='0' bindtap='switchHeaderActive' ><text class="txt">产品</text></view>
+    <view class="header_xian"></view>
+    <view class="header_title {{headerActive == 1?'header_active':''}}" data-index='1' bindtap='switchHeaderActive'><text class="txt">品牌馆</text></view>
+  </view>
+
+  <!--bannber   -->
+  <view class="spppg_banner">
+    <swiper autoplay="{{true}}" 
+      wx:if="{{banners.length > 1}}"
+      indicator-dots="{{true}}" 
+      indicator-active-color="#ff6216" 
+      indicator-color="#fff">
+      <block wx:for="{{banners}}" wx:key='{{index}}'>
+        <swiper-item>
+          <image src="{{item}}" class="slide-image"  style="width:100%" />
+        </swiper-item>
+      </block>
+    </swiper>
+    <image wx:else src="{{banners[0]}}" class="single-img"></image>
+  </view>
+
+  <!--搜索-->
+  <view class="seek-icon" bindtap='routerToGoodsSearch'>
+    <image src="{{staticImageUrl}}goods_icon_search.png"></image>
+  </view>
+  <!-- <view class="spppg_dzss">
+    <view class="spppg_search" bindtap='routerToGoodsSearch' wx:if='{{headerActive == 0}}'>
+        <input placeholder="搜索你喜欢的品牌" type="text" disabled='disabled'></input>
+        <view class="search_btn">
+          <image src="{{imgURL}}ppg_search.png"></image>
+        </view> 
+        <view style="clear: both;"></view>
+    </view>
+  </view> -->
+
+
+  <!--品牌馆分类-->
+  <view class="spppg_fenlei" wx:if='{{headerActive == 0}}'>
+    <view class="fenlei_item" bindtap='toList' data-id='1000'>
+      <image src="{{staticImageUrl}}goodsIndex_jc.png"></image>
+      <text class="spppg_fenlei_text">建材</text>
+    </view>
+    <view class="fenlei_item" bindtap='toList' data-id='2000'>
+      <image src="{{staticImageUrl}}goodsIndex_jj.png"></image>
+      <text class="spppg_fenlei_text">家居</text>
+    </view>
+    <view class="fenlei_item" bindtap='toList' data-id='4000'>
+      <image src="{{staticImageUrl}}goodsIndex_dq.png"></image>
+      <text class="spppg_fenlei_text">电器</text>
+    </view>
+  </view>
+  <view class="spppg_fenlei" wx:if='{{headerActive == 1}}'>
+    <view class="fenlei_item" bindtap='toList' data-id='1000'>
+      <image src="{{staticImageUrl}}brand_icon_material.png"></image>
+      <text class="spppg_fenlei_text">建材品牌</text>
+    </view>
+    <view class="fenlei_item" bindtap='toList' data-id='2000'>
+      <image src="{{staticImageUrl}}brand_icon_sofa.png"></image>
+      <text class="spppg_fenlei_text">家居品牌</text>
+    </view>
+    <view class="fenlei_item" bindtap='toList' data-id='4000'>
+      <image src="{{staticImageUrl}}brand_icon_tv.png"></image>
+      <text class="spppg_fenlei_text">电器品牌</text>
+    </view>
+  </view>
+
+  <!-- 商品内容 -->
+  <view class='goods-search-recommend' wx:if='{{headerActive == 0}}'>
+    <view  class="search-recommend-title">
+      <text>推荐商品</text>
+    </view>
+    <view class='search-recommend-content'>
+      <view class='recommend-content-item fl' 
+        data-id='{{item.spuId}}' 
+        bindtap='routerToGoodsDetails'
+        wx:for="{{recommendGoodsList}}" 
+        wx:key='{{index}}'>
+        <view class='content-item-image'>
+          <image src='{{item.picPath?resourcePath + item.picPath:staticImageUrl+"goods_pic_no.png"}}'></image>
+        </view>
+        <view class='content-item-title ellipsis'>{{item.spuName}}</view>
+        <view class='content-item-message clearfix'>
+          <view class='item-message-price fl'><text>￥</text>{{item.price==0 || !item.price ?'暂无定价':item.price}}</view>
+          <!-- <view class='item-message-personNum fr'>{{item.sellNumber}}人购买</view>           -->
+        </view>        
+      </view>
+    </view>    
+  </view>
+
+  <!--品牌馆内容-->
+  <view class="spppg_neiro" wx:if='{{headerActive == 1}}'>
+    <!-- <view class="spppg_quanbu zxfw_quanbu">
+      <view class="am-dropdown {{isShowClassify?'am-active':''}}" data-am-dropdown >
+        <view class="am-dropdown-toggle" bindtap="toggleClassify">{{currClassify.name}}
+          <text class="arrow_down"></text>
+        </view>
+        <view class="am-dropdown-content {{isClassifySlideDown?'am-animation-slide-top':''}} {{isClassifySlideTop?'am-dropdown-animation':''}}">
+            <view wx:for="{{classifyList}}" class="zxfw_classify {{currClassify.id==item.id?'quanbu_active':''}}" data-classifyid="{{item.id}}" data-classifyname="{{item.name}}" bindtap="changeClassify">
+              {{item.name}}
+            </view>
+        </view>
+      </view>
+    </view> -->
+			
+    <!-- <view class="spppg_xiaol">
+      <view class="spppg_sxian"></view>
+      <view class="am-dropdown {{isShowSort?'am-active':''}}" >
+        <view class="am-dropdown-toggle" bindtap="toggleSort">{{currSort.name}}
+          <text class="arrow_down"></text>
+        </view>
+        <view class="am-dropdown-content {{isSortSlideDown?'am-animation-slide-top':''}} {{isSortSlideTop?'am-dropdown-animation':''}}"> 
+          <view data-sort="praiseRate" data-name="评分最高" bindtap="changeSort">评分最高</view>
+          <view data-sort="salesVolume" data-name="销量最高" bindtap="changeSort">销量最高</view>
+          <view data-sort="collectionCount" data-name="收藏最多" bindtap="changeSort">收藏最多</view>
+          <view data-sort="likeCount" data-name="点赞最多" bindtap="changeSort">点赞最多</view>
+        </view>
+			</view>
+		</view>  -->
+			
+     <!-- <view class="spppg_sxuan" bindtap="doFilter">
+      <view class="spppg_shaixuan">筛选</view>
+    </view>  -->
+    <view class='spppg-neiro-tetle'>推荐品牌</view>
+    <view class="spppg_xinxi" wx:for="{{exampleList}}" wx:key='{{index}}' wx:for-item="example" data-href="../bHStore/bHStore" bindtap="toHref" data-id='{{example.id}}'>
+      <view class="xini_img">
+        <image  src="{{example.coverResPicPathList? resourcePath + example.coverResPicPathList[0] : staticImageUrl+'goods_pic_no.png'}}" style="width: 100%;height: 100%;" mode='aspectFill'></image>
+      </view>
+      <view class="xinxi_jieshao" >
+        <view class="xinxi_logo">
+          <image src="{{resourcePath}}{{example.logoUrl}}"></image>
+        </view>
+        <view class="xinxi_right">
+          <view class="xinxi_title ellipsis">{{example.shopName}}</view>
+          <view class="xinxi_text">{{example.firstCategoryNames}}</view>
+          <view class="xinxi_neiro">经营范围：{{example.categoryNames?example.categoryNames:'暂无'}}</view>
+        </view>
+        <!-- <view class="xinxi_haop">好评{{example.praiseRatePercent}}</view> -->
+      </view>
+      
+      <!-- <view class="xinxi_pic">
+        <view class="pic_item" wx:for="{{example.lstResPic}}" wx:key='{{index}}'>
+          <image mode="widthFix" src="{{resourcePath}}{{item.picPath}}" data-imgpath="{{resourcePath}}{{item.picPath}}" ></image>
+        </view>
+      </view> -->
+    </view>
+    <!-- <view class="spppg_xinxi" >
+      <view class="xinxi_jieshao" data-href="../bHStore/bHStore" bindtap="toHref">
+        <view class="xinxi_logo">
+          <image src="{{imgURL}}ppg_logo01.jpg"></image>
+        </view>
+        <view class="xinxi_right">
+          <view class="xinxi_title">左右家私</view>
+          <view class="xinxi_text">#家居#</view>
+        </view>
+        <view class="xinxi_haop">好评100%</view>
+      </view>
+      
+      <view class="xinxi_neiro">经营范围：床，沙发，床，沙发…</view>
+      <view class="xinxi_pic">
+        <view class="pic_item">
+          <image mode="widthFix" src="{{imgURL}}ppg_pic01.jpg"></image>
+        </view>
+        <view class="pic_item">
+          <image mode="widthFix" src="{{imgURL}}ppg_pic02.jpg"></image>
+        </view>
+        <view class="pic_item">
+          <image mode="widthFix" src="{{imgURL}}ppg_pic03.jpg"></image>
+        </view>	
+      </view>
+    </view>  -->
+  </view>
+  <!-- <view class="to-top" wx:if='{{ifShowToTopLogo}}' bindtap="goTop">
+     <image src='{{staticImageUrl}}to_top.png'></image>
+  </view> -->
+
+</view>

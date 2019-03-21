@@ -1,0 +1,64 @@
+let fetch = getApp().fetch
+let myForEach = getApp().myForEach
+let $App = getApp();
+let urltType = 'system'
+Page({
+    data: {
+        staticImageUrl:getApp().staticImageUrl,
+        userpointamount: 0,
+        resourcePath: getApp().resourcePath,
+        orderlist: []
+    },
+    confirmReceive: function(e) {
+        let url = '/v1/point/order/updateOrderStatus',
+            that = this;
+        fetch(url, 'get', {
+            id: e.currentTarget.dataset.id,
+            status: 5
+        }, urltType).then((res) => {
+            if (res.code == 200) {
+                wx.showToast({
+                    title: '您已确认签收',
+                    success: res => {
+                        that.getMyOrder();
+                    },
+                })
+            }
+        })
+    },
+    getUserPoint: function() {
+        let url = '/v1/point/userPoint/getUserPoint',
+            that = this;
+        fetch(url, 'get', {}, urltType).then((res) => {
+            if (res.code == 200) {
+                that.setData({
+                    userpointamount: res.data.endPoint
+                })
+            }
+        })
+    },
+    getMyOrder: function() {
+        let url = '/v1/point/order/myOrder',
+            that = this;
+        fetch(url, 'get', {
+            uid: wx.getStorageSync('userId')
+        }, urltType).then((res) => {
+            if (res.code == 200) {
+                that.setData({
+                    orderlist: res.data
+                })
+            }
+        })
+    },
+    onLoad: function(options) {
+        var that = this;
+        
+        this.getMyOrder();
+        this.getUserPoint(); 
+    },
+    onShow: function() {
+        this.getMyOrder();
+        
+        
+    }
+})

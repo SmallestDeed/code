@@ -1,0 +1,158 @@
+import fetch from '../../utils/fetch.js';
+let bindingPhoneData = {
+  'bindingPhone.bindingPhoneShow': false,
+  'bindingPhone.bindingPhoneMobile': '',
+  'bindingPhone.bindingPhoneCode': '',
+  'bindingPhone.bindingPhoneAllow': false,
+  'bindingPhone.bindingMobileOk': false,
+  'bindingPhone.bindingPhoneGetCodeText': '获取验证码', // 倒计时
+  'bindingPhone.bindingPhoneCodeSuccess': false,
+  'bindingPhone.bindingPhoneTimer': null,
+  'bindingPhone.bindingPhoneGetCodeText': '获取验证码',
+  'bindingPhone.bindingPhoneMask': false
+}
+
+let bindingPhoneEvent = {
+  bindingPhoneShow() {
+    this.setData({
+      'bindingPhone.bindingPhoneShow': true
+    })
+  },
+  bindingPhoneHide(e) {
+    this.setData({
+      'bindingPhone.bindingPhoneShow': false,
+      'bindingPhone.bindingPhoneAllow': false,
+      'bindingPhone.bindingPhoneMobile': '',
+      'bindingPhone.bindingPhoneCode': '',
+      'bindingPhone.bindingPhoneformaTure': false,
+      'bindingPhone.bindingPhoneGetCodeText': '获取验证码'
+
+    })
+    if (this.bindgetRenderTypeShow) {
+      this.bindgetRenderTypeShow(true)
+    }
+    clearInterval(this.data.bindingPhone.bindingPhoneTimer)
+  },
+  changeMobile(e) {
+    this.setData({
+      'bindingPhone.bindingPhoneMobile': e.detail.value
+    })
+    if (this.data.bindingPhone.bindingPhoneMobile && this.data.bindingPhone.bindingPhoneCode) {
+      this.setData({
+        'bindingPhone.bindingPhoneAllow': true
+      })
+    } else {
+      this.setData({
+        'bindingPhone.bindingPhoneAllow': false
+      })
+    }
+    let regMobile = /(^1[3|4|5|6|7|8|9]\d{9}$)|(^09\d{8}$)/
+    let flag = regMobile.test(this.data.bindingPhone.bindingPhoneMobile)
+    this.setData({
+      'bindingPhone.bindingPhoneformaTure': flag
+    })
+
+  },
+  changeCode(e) {
+    this.setData({
+      'bindingPhone.bindingPhoneCode': e.detail.value
+    })
+    if (this.data.bindingPhone.bindingPhoneMobile && this.data.bindingPhone.bindingPhoneCode) {
+      this.setData({
+        'bindingPhone.bindingPhoneAllow': true
+      })
+    } else {
+      this.setData({
+        'bindingPhone.bindingPhoneAllow': false
+      })
+    }
+  },
+  beginBinding() { // 开始绑定
+    let regMobile = /(^1[3|4|5|7|8|9]\d{9}$)|(^09\d{8}$)/
+    let flag = regMobile.test(this.data.bindingPhone.bindingPhoneMobile)
+    let codeFlag = /^\d{6}\b/.test(this.data.bindingPhone.bindingPhoneCode)
+    if (!this.data.bindingPhone.bindingPhoneMobile || !this.data.bindingPhone.bindingPhoneCode) {
+      return
+    }
+    if (!flag) {
+      wx.showToast({
+        title: '请输入正确的手机号',
+        icon: 'none'
+      })
+      return
+    } else if (!codeFlag) {
+      wx.showToast({
+        title: '请输入正确的验证码',
+        icon: 'none'
+      })
+      return
+    }
+    let url = `/v2/user/center/bindUserMobile`
+    fetch(url, 'formData', {
+      mobile: this.data.bindingPhone.bindingPhoneMobile,
+      authCode: this.data.bindingPhone.bindingPhoneCode
+    }, 'user')
+      .then((res) => {
+        if (res.success) {
+          wx.showToast({
+            title: '绑定成功'
+          })
+          this.setData({
+            'bindingPhone.bindingPhoneShow': false
+          })
+
+          this.bindPhoneCallBack() // 绑定手机号回调
+        } else {
+          wx.showToast({
+            title: res.message,
+            icon: 'none'
+          })
+        }
+      })
+  },
+  getCode() { // 获取验证码
+    if (!this.data.bindingPhone.bindingPhoneformaTure || this.data.bindingPhone.bindingPhoneGetCodeText !== '获取验证码') {
+      return
+    }
+    let url = `/v1/center/getSmsCode`
+    fetch(url, 'formData', {
+      phoneNumber: this.data.bindingPhone.bindingPhoneMobile,
+      functionType: 2
+    }, 'user')
+      .then((res) => {
+        if (res.success) {
+          let count = 61, $self = this
+          this.data.bindingPhone.bindingPhoneTimer = setInterval(() => {
+            count--
+            $self.setData({
+              'bindingPhone.bindingPhoneGetCodeText': count + 's'
+            })
+            if (count <= 0) {
+              clearInterval($self.data.bindingPhone.bindingPhoneTimer)
+              $self.setData({
+                'bindingPhone.bindingPhoneGetCodeText': '获取验证码'
+              })
+            }
+          }, 1000)
+        } else {
+          this.setData({
+            'bindingPhone.bindingPhoneGetCodeText': '获取验证码'
+          })
+        }
+      })
+  }
+}
+
+// 声明实例
+function bindingPhone() {
+  let pages = getCurrentPages()
+  let curPage = pages[pages.length - 1]
+  Object.assign(curPage, bindingPhoneEvent)
+  curPage.setData(bindingPhoneData)
+  curPage.bindingPhone = this
+  return this
+}
+
+module.exports = {
+  bindingPhone
+}

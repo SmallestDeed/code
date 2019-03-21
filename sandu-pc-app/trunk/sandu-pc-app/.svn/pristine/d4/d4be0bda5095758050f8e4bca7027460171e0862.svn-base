@@ -1,0 +1,68 @@
+package com.sandu.house.service.impl;
+
+import com.sandu.common.util.StringUtils;
+import com.sandu.house.dao.BaseHouseMapper;
+import com.sandu.house.model.input.BaseHouseSearch;
+import com.sandu.house.model.output.BaseHouseVo;
+import com.sandu.house.service.BaseHouseService;
+import com.sandu.panorama.dao.DesignPlanStoreReleaseDetailsMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+@Service("baseHouseService")
+@Transactional
+@Slf4j
+public class BaseHouseServiceImpl implements BaseHouseService {
+
+    @Autowired
+    private BaseHouseMapper baseHouseMapper;
+    @Autowired
+    private DesignPlanStoreReleaseDetailsMapper designPlanStoreReleaseDetailsMapper;
+
+    /**
+     * 获取渲染过的户型
+     * @param search
+     * @return
+     */
+    @Override
+    public int getMyUsedCount(BaseHouseSearch search) {
+        List<Integer> livingIds = new ArrayList<>();
+        if( search != null && StringUtils.isNotBlank(search.getLivingName()) && search.getLivingId() == null ){
+            livingIds = baseHouseMapper.getIdsByName(search.getLivingName());
+            search.setLivingIds(livingIds);
+        }
+        return baseHouseMapper.getMyUsedCount(search);
+    }
+
+    /**
+     * 获取渲染过的户型
+     * @param search
+     * @return
+     */
+    @Override
+    public List<BaseHouseVo> getMyUsed(BaseHouseSearch search) {
+        List<Integer> livingIds = new ArrayList<>();
+        // 如果小区不确定（livingId = null）,那么则用输入的小区名称模糊查询
+        if( search != null && StringUtils.isNotBlank(search.getLivingName()) && search.getLivingId() == null ){
+            livingIds = baseHouseMapper.getIdsByName(search.getLivingName());
+            search.setLivingIds(livingIds);
+        }
+        List<BaseHouseVo> list = baseHouseMapper.getMyUsed(search);
+        if( list != null && list.size() > 0 ){
+            for( BaseHouseVo baseHouseVo : list ){
+                if( baseHouseVo.getHousePicId() == null ){
+                    // TEMP
+                    String picPath = designPlanStoreReleaseDetailsMapper.getResourcePathById(baseHouseVo.getOldHousePicId(), "res_house_pic");
+                    baseHouseVo.setPicPath(picPath);
+                }
+            }
+        }
+        return list;
+    }
+}

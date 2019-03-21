@@ -1,0 +1,22 @@
+<view 
+  class="touch-item {{item.isTouchMove ? 'touch-move-active' : ''}}" 
+  data-index="{{index}}" bindtouchstart="renderNewsTouchStart" 
+  bindtouchmove="renderNewsTouchMove" wx:for="{{contentlist}}" 
+  wx:key='{{index}}' 
+  wx:if="{{contentlist.length>0}}">
+  <view class="content">
+    <view class="title clearfix">
+      <view class="fl"><text class="point" wx:if="{{item.isRead == 0}}">●</text>{{item.title}}</view>
+      <view class="fr">{{item.gmtCreate}}</view>
+    </view>
+    <view class="info">{{item.content}}</view>
+    <!-- <view class='evaluate' bindtap='toEvaluate' data-taskid="{{item.taskId}}" data-id="{{item.id}}">立即评价</view> -->
+  </view>
+  <view class="del" catchtap="del" data-index="{{index}}" data-id="{{item.id}}">删除</view>
+</view>
+<block wx:if="{{contentlist.length < 1}}">
+<view class="empty_tip ">
+  <image class="image" src="{{staticImageUrl}}me_pic_no_02.png"></image>
+  <view class="txt">{{message}}</view>
+</view>
+</block>

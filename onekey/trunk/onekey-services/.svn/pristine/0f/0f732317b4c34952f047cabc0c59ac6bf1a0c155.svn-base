@@ -1,0 +1,400 @@
+package com.nork.onekeydesign.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.websocket.ClientEndpoint;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.nork.aes.util.FileEncrypt;
+import com.nork.common.constant.SystemCommonConstant;
+import com.nork.common.model.LoginUser;
+import com.nork.common.model.ResponseEnvelope;
+import com.nork.common.properties.ResProperties;
+import com.nork.common.util.StringUtils;
+import com.nork.onekeydesign.dao.DesignPlanRenderSceneMapper;
+import com.nork.onekeydesign.model.DesignPlanProductRenderScene;
+import com.nork.onekeydesign.model.DesignPlanRenderScene;
+import com.nork.onekeydesign.model.DesignPlanResRenderScene;
+import com.nork.onekeydesign.service.DesignPlanProductRenderSceneService;
+import com.nork.onekeydesign.service.DesignPlanRenderSceneService;
+import com.nork.onekeydesign.service.DesignTempletService;
+import com.nork.product.model.AuthorizedConfig;
+import com.nork.product.model.BaseBrand;
+import com.nork.product.service.AuthorizedConfigService;
+import com.nork.product.service.BaseBrandService;
+import com.nork.system.dao.SysUserGroupMapper;
+import com.nork.system.model.ResDesignRenderScene;
+import com.nork.system.model.ResModel;
+import com.nork.system.model.ResRenderPic;
+import com.nork.system.model.SysUserGroup;
+import com.nork.system.service.ResDesignRenderSceneService;
+import com.nork.system.service.ResModelService;
+import com.nork.system.service.ResPicService;
+import com.nork.system.service.ResRenderPicService;
+
+
+
+/**
+ * @Title: DesignPlanRenderSceneServiceImpl.java
+ * @Package com.nork.onekeydesign.service.impl
+ * @Description:设计模块-设计方案ServiceImpl
+ * @createAuthor pandajun 
+ * @CreateDate 2015-07-03 17:09:51
+ * @version V1.0   
+ */
+@Service("designPlanRenderSceneService")
+@ClientEndpoint
+public class DesignPlanRenderSceneServiceImpl implements DesignPlanRenderSceneService {
+
+	Logger logger = LoggerFactory.getLogger(DesignPlanRenderSceneServiceImpl.class);
+	
+	@Autowired
+	private DesignPlanRenderSceneMapper designPlanRenderSceneMapper;
+	
+	@Autowired
+	private SysUserGroupMapper sysUserGroupMapper;
+	
+	@Autowired
+	private ResModelService resModelService;
+	
+	@Autowired
+	private ResDesignRenderSceneService resDesignRenderSceneService;
+	
+	@Autowired
+	private DesignPlanProductRenderSceneService designPlanProductRenderSceneService;
+	
+	@Autowired
+	private ResRenderPicService resRenderPicService;
+	
+	@Autowired
+	private AuthorizedConfigService authorizedConfigService;
+	
+	@Autowired
+	private ResPicService resPicService;
+	
+	@Autowired
+	private BaseBrandService baseBrandService;
+	
+	@Autowired
+	private DesignTempletService designTempletService;
+	@Override
+	public int add(DesignPlanRenderScene designPlanEctype) {
+		designPlanRenderSceneMapper.insert(designPlanEctype);
+		return designPlanEctype.getId();
+	}
+
+	@Override
+	public void update(DesignPlanRenderScene designPlanEctype) {
+		if(designPlanEctype.getId() == null){
+			return;
+		}
+		designPlanRenderSceneMapper.update(designPlanEctype);
+	}
+
+	@Override
+	public void delete(long id) {
+		if(id < 1){
+			return;
+		}
+		designPlanRenderSceneMapper.delete(id);
+		
+		SysUserGroup sysUserGroup = new SysUserGroup(); 
+		sysUserGroup.setSceneId((int)id);
+		List<SysUserGroup> list= sysUserGroupMapper.getGidBySceneId(sysUserGroup);//查询该场景存在于分享的组bid
+		sysUserGroupMapper.deleteBySceneId(sysUserGroup);//删除分组分享里面的东西
+		
+		for(SysUserGroup group: list ) {
+		    if(StringUtils.isEmpty(group.getBid()))
+		        continue;
+		    int count = sysUserGroupMapper.countByGid(group);//看看关联组里面有没有东西，没东西的把组也删除
+		    if(count>0)
+		        continue;
+		    sysUserGroupMapper.deleteSysuserGroupByBid(group);
+		}
+	}
+
+	@Override
+	public DesignPlanResRenderScene getDesignPlanResRenderSceneById(Integer designPlanRenderSceneId) {
+
+		DesignPlanResRenderScene designPlanResRenderScene = null;
+    	
+    	// 获取设计方案信息 ->start
+    	DesignPlanRenderScene designPlanRenderScene = this.get(designPlanRenderSceneId);
+    	if(designPlanRenderScene == null){
+    		logger.error("------designPlanRenderScene is null, designPlanRenderSceneId:" + designPlanRenderSceneId);
+    		return null;
+    	}
+    	// 获取设计方案信息 ->end
+    	
+    	// 获取模型文件 ->start
+    	ResModel resModel = null;
+    	if(designPlanRenderScene.getModelId() != null){
+    		resModel = resModelService.get(designPlanRenderScene.getModelId());
+    	}
+    	
+    	if(resModel == null){
+    		logger.error("------resModel is null, resModelId:" + designPlanRenderScene.getModelId());
+    		return null;
+    	}
+    	// 获取模型文件 ->end
+    	
+    	// 获取配置文件 ->start
+    	ResDesignRenderScene resDesignRenderScene = null;
+    	if(designPlanRenderScene.getConfigFileId() != null){
+    		resDesignRenderScene = resDesignRenderSceneService.get(designPlanRenderScene.getConfigFileId());
+    	}
+    	
+    	if(resDesignRenderScene == null){
+    		logger.error("------resDesign is null, resDesignId:" + designPlanRenderScene.getConfigFileId());
+    		return null;
+    	}
+    	// 获取配置文件 ->end
+    	
+    	// 获取设计方案产品列表 ->start
+    	List<DesignPlanProductRenderScene> designPlanProductRenderSceneList = designPlanProductRenderSceneService.getListByPlanId(designPlanRenderScene.getId());
+    	if(designPlanProductRenderSceneList == null || designPlanProductRenderSceneList.size() == 0){
+    		logger.error("------designPlanProductRenderSceneList is null or size = 0, designPlanProductRenderId:" + designPlanRenderScene.getId());
+    		return null;
+    	}
+    	// 获取设计方案产品列表 ->end
+    	
+    	designPlanResRenderScene = new DesignPlanResRenderScene(designPlanRenderScene, resModel, resDesignRenderScene, designPlanProductRenderSceneList);
+    	
+        return designPlanResRenderScene;
+    }
+
+	@Override
+	public DesignPlanRenderScene get(Integer id) {
+		return designPlanRenderSceneMapper.get(id);
+	}
+	
+	@Override
+	public DesignPlanRenderScene getLatelyPlanScenByPlanId(int designPlanId) {
+		return  designPlanRenderSceneMapper.getLatelyPlanScenByPlanId(designPlanId);
+	}
+
+	@Override
+	public Integer getIdByThumbId(long thumbId) {
+		if(thumbId < 1){
+			logger.error("------function:getRenderBakScene->thumbId < 1;(thumbId = " + thumbId + ")");
+			return null;
+		}
+		
+		ResRenderPic resRenderPic = resRenderPicService.get((int)thumbId);
+		
+		if(resRenderPic == null){
+			logger.error("------function:getRenderBakScene->resRenderPic = null;(resRenderPicId = " + thumbId + ")");
+			return null;
+		}
+		
+		Long designPlanRenderSceneId = Long.valueOf(resRenderPic.getDesignSceneId());
+		
+		if(designPlanRenderSceneId == null){
+			logger.error("------function:getRenderBakScene->resRenderPic.getDesignSceneId() = null;(resRenderPicId = " + thumbId + ")");
+			return null;
+		}
+		
+		return Integer.valueOf(designPlanRenderSceneId + "");
+	}
+
+	@Override
+	public void deleteAllDataById(Integer id) {
+		
+		DesignPlanRenderScene designPlanRenderScene = this.get(id);
+		
+		if(designPlanRenderScene == null){
+			logger.error("------function:deleteAllDataById->designPlanRenderScene = null(id:" + id + ")");
+			return;
+		}
+		
+		// 删除配置文件数据及配置文件物理文件 ->start
+		Integer resDesignRenderSceneId = designPlanRenderScene.getConfigFileId();
+		
+		ResDesignRenderScene resDesignRenderScene = null;
+		if(resDesignRenderSceneId != null){
+			resDesignRenderScene = resDesignRenderSceneService.get(resDesignRenderSceneId);
+			if(resDesignRenderScene != null){
+				// 删除物理文件
+				FileEncrypt.deleteAllFile(resDesignRenderScene.getFilePath());
+				// 删除数据
+				resDesignRenderSceneService.delete(resDesignRenderSceneId);
+			}
+		}
+		// 删除配置文件数据及配置文件物理文件 ->end
+		
+		// 删除设计方案产品列表副本 ->start
+		// 删除设计方案产品列表副本 ->end
+		designPlanProductRenderSceneService.deleteByPlanId(id);
+		
+		// 删除设计方案副本 ->start
+		this.delete(id);
+		// 删除设计方案副本 ->end
+		
+	}
+
+    @Override
+    public int getDesignPlanSceneState(Integer designPlanId) {
+		return designPlanRenderSceneMapper.getDesignPlanSceneState(designPlanId);
+    }
+
+    /**
+	 * 通过厂商看到 经销商下 所有用到 该厂商品牌的设计方案
+	 * @param msgId
+	 * @param brandId
+	 * @param planName
+	 * @param loginUser
+	 * @return
+	 */
+	@Override
+	public ResponseEnvelope<DesignPlanRenderScene> vendorPlanList(String msgId, String brandId, String planName,
+			LoginUser loginUser,String limit,String start) {
+		if(StringUtils.isEmpty(msgId)){
+			return new ResponseEnvelope<DesignPlanRenderScene>(false," parame not found!",msgId);
+		}
+        if (loginUser==null) {
+            return new ResponseEnvelope<DesignPlanRenderScene>(false,SystemCommonConstant.PLEASE_LOGIN,msgId);
+        }
+		//获取 该用户为厂商的所有 授权码数据
+        List<Integer>brandIds = new ArrayList<Integer>();
+		List<AuthorizedConfig> vendorList = authorizedConfigService.vendorAuthorizedConfigList(loginUser.getId());
+		if(vendorList == null ||vendorList.size()<=0 ){
+			return new ResponseEnvelope<DesignPlanRenderScene>(false,"不是厂商，无权限",msgId);
+		}
+		for (AuthorizedConfig authorizedConfig : vendorList) {
+			if(StringUtils.isNotEmpty(authorizedConfig.getBrandIds())){
+				brandIds.add(Integer.parseInt(authorizedConfig.getBrandIds()));
+			}
+		}
+		if(brandIds.size()<=0){
+			return new ResponseEnvelope<DesignPlanRenderScene>(false,"数据错误",msgId);
+		}
+		//查询该厂商下的经销商 （只要经销商 和 厂商是同品牌，那么全是该厂商的经销商）
+		List<Integer>userIds = new ArrayList<Integer>();
+		List<AuthorizedConfig> authorizedList = authorizedConfigService.getDealersAuthorizedConfigByBrandId(brandIds);
+		if(authorizedList == null ||authorizedList.size()<=0 ){
+			return new ResponseEnvelope<DesignPlanRenderScene>(false,"暂无经销商！",msgId);
+		}
+		for (AuthorizedConfig authorizedConfig : authorizedList) {
+			if(authorizedConfig.getUserId()!=null || authorizedConfig.getUserId().intValue()>0){
+				userIds.add(authorizedConfig.getUserId());
+			}
+		}
+		if(userIds.size()<=0){
+			return new ResponseEnvelope<DesignPlanRenderScene>(false,"数据错误",msgId);
+		}
+		 
+		//如果通过品牌查询，先判断这个品牌 是否被该厂商拥有
+		DesignPlanRenderScene designPlanRenderScene  = new DesignPlanRenderScene();
+		designPlanRenderScene.setBrandIds(brandIds);
+		designPlanRenderScene.setUserIds(userIds);
+		designPlanRenderScene.setPlanName(planName);
+		designPlanRenderScene.setLimit(-1);
+    	designPlanRenderScene.setStart(-1);
+		List<DesignPlanRenderScene>list =  new  ArrayList<DesignPlanRenderScene>();;
+		if(StringUtils.isNotEmpty(brandId)){
+			int i = Integer.parseInt(brandId);
+			if(brandIds.contains(i)){
+				List<Integer>brandIdsSearch = new ArrayList<Integer>();
+				brandIdsSearch.add(i);
+				brandIds = brandIdsSearch;
+				designPlanRenderScene.setBrandIds(brandIds);
+			}else{
+				return new ResponseEnvelope<DesignPlanRenderScene>(0,list, msgId);
+			}
+		}
+		//通过产品品牌  和 授权码用户id 查询 设计方案
+		int count = this.getVendorCount(designPlanRenderScene);
+		if(count>0){
+			list =  this.getVendorList(designPlanRenderScene);
+			for (DesignPlanRenderScene designPlanRenderScene_ : list) {
+				ResRenderPic render = new ResRenderPic();
+				render.setDesignSceneId(designPlanRenderScene_.getId());
+				render.setIsDeleted(0);
+				render.setFileKey(ResProperties.DESIGNPLAN_RENDER_PIC_SMALL_FILEKEY.replace(".upload.path", ""));
+				List<ResRenderPic>renderList = resRenderPicService.getList(render);
+				if(renderList!=null && renderList.size()>0){
+					designPlanRenderScene_.setPicPath(renderList.get(0).getPicPath());
+				}
+			}
+		}
+		return new ResponseEnvelope<DesignPlanRenderScene>(count,list, msgId);
+	}
+	
+ 
+	/**解析固定格式字符串*/
+	private Map<String,String> readFileDesc(String fileDesc){
+		Map<String, String> map = new HashMap<String, String>();
+		if( StringUtils.isNotBlank(fileDesc) ){
+			String[] strs = fileDesc.split(";");
+			for (String str : strs) {
+				if (str.split(":").length == 2) {
+					map.put(str.split(":")[0].trim(), str.split(":")[1].trim());
+				}
+			}
+		}
+		return map;
+	}
+	
+	/**
+     * 通过产品品牌  和 授权码用户id 查询 设计方案
+     * @param brandIds
+     * @param userIds
+     * @return
+     */
+	public int getVendorCount(DesignPlanRenderScene designPlanRenderScene) {
+		return designPlanRenderSceneMapper.getVendorCount(designPlanRenderScene);
+	}
+	
+    /**
+     * 通过产品品牌  和 授权码用户id 查询 设计方案
+     * @param brandIds
+     * @param userIds
+     * @return
+     */
+	public List<DesignPlanRenderScene> getVendorList(DesignPlanRenderScene designPlanRenderScene) {
+		return designPlanRenderSceneMapper.getVendorList(designPlanRenderScene);
+	}
+	
+	
+	/**
+	 * 得到该厂商的所有品牌
+	 * @param msgId
+	 * @param loginUser
+	 * @return
+	 */
+	@Override
+	public ResponseEnvelope<BaseBrand> manufacturerBrandList(String msgId, LoginUser loginUser) {
+		
+		if(StringUtils.isEmpty(msgId)){
+			return new ResponseEnvelope<BaseBrand>(false," parame not found!",msgId);
+		}
+        if (loginUser.getId() < 0) {
+            return new ResponseEnvelope<BaseBrand>(false,SystemCommonConstant.PLEASE_LOGIN,msgId);
+        }
+        List<BaseBrand>list = new ArrayList<BaseBrand>();
+		//获取 该用户为厂商的所有 授权码数据
+        List<Integer>brandIds = new ArrayList<Integer>();
+		List<AuthorizedConfig> vendorList = authorizedConfigService.vendorAuthorizedConfigList(loginUser.getId());
+		if(vendorList == null ||vendorList.size()<=0 ){
+			return new ResponseEnvelope<BaseBrand>(0,list, msgId);
+		}
+		for (AuthorizedConfig authorizedConfig : vendorList) {
+			if(StringUtils.isNotEmpty(authorizedConfig.getBrandIds())){
+				brandIds.add(Integer.parseInt(authorizedConfig.getBrandIds()));
+			}
+		}
+		if(brandIds.size()<=0){
+			return new ResponseEnvelope<BaseBrand>(false,"数据错误",msgId);
+		}
+		list = baseBrandService.getListByIds(brandIds);
+		return new ResponseEnvelope<BaseBrand>(list.size(),list, msgId);
+	}
+
+}

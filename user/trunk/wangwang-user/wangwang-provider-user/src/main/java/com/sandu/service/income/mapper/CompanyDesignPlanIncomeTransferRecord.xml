@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.income.dao.CompanyDesignPlanIncomeTransferRecordDao">
+
+    <insert id="insert" parameterType="com.sandu.api.income.model.CompanyDesignPlanIncomeTransferRecord">
+        insert into company_design_plan_income_transfer_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyId!= null">company_id, </if>
+            <if test="companyName!= null">company_name, </if>
+            <if test="transferUserId!= null">transfer_user_id, </if>
+            <if test="transferUserName != null">transfer_user_name,</if>
+            <if test="transferTime!= null">transfer_time, </if>
+            <if test="transferDubi!= null">transfer_dubi, </if>
+            <if test="transferAmount!= null">transfer_amount, </if>
+            <if test="transferStatus!= null">transfer_status, </if>
+            <if test="receiveUserId!= null">receive_user_id, </if>
+            <if test="receiveUserName!= null">receive_user_name, </if>
+            <if test="receiveTime!= null">receive_time, </if>
+            <if test="isDeleted!= null">is_deleted, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="companyId != null">#{companyId}, </if>
+            <if test="companyName != null">#{companyName}, </if>
+            <if test="transferUserId != null">#{transferUserId}, </if>
+            <if test="transferUserName != null">#{transferUserName},</if>
+            <if test="transferTime != null">#{transferTime}, </if>
+            <if test="transferDubi != null">#{transferDubi}, </if>
+            <if test="transferAmount != null">#{transferAmount}, </if>
+            <if test="transferStatus != null">#{transferStatus}, </if>
+            <if test="receiveUserId != null">#{receiveUserId}, </if>
+            <if test="receiveUserName != null">#{receiveUserName}, </if>
+            <if test="receiveTime != null">#{receiveTime}, </if>
+            <if test="isDeleted != null">#{isDeleted}, </if>
+        </trim>
+    </insert>
+
+    <select id="countTransferRecordList" resultType="int">
+        SELECT
+          count(*)
+        FROM
+          company_design_plan_income_transfer_record
+        WHERE
+          company_id = #{companyId} AND
+          is_deleted = 0
+          <if test="transferUserName != null">
+             AND transfer_user_name like concat(concat('%',#{transferUserName},'%'))
+          </if>
+    </select>
+
+    <select id="selectTransferRecordList" resultType="com.sandu.api.income.model.CompanyDesignPlanIncomeTransferRecord">
+        SELECT
+          *
+        FROM
+          company_design_plan_income_transfer_record
+        WHERE
+        company_id = #{companyId} AND
+        is_deleted = 0
+        <if test="transferUserName != null">
+            AND transfer_user_name like concat(concat('%',#{transferUserName},'%'))
+        </if>
+        order by transfer_time desc
+        limit #{start},#{limit}
+    </select>
+
+</mapper>

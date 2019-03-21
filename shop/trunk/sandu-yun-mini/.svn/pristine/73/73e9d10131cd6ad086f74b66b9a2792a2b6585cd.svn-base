@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.designplan.dao.DesignPlanRecommendedDao">
+
+  <select id="findRecommendedPlanList"  resultType="com.sandu.designplan.model.vo.DesignPlanVo"
+		  parameterType="com.sandu.designplan.model.query.DesignPlanQuery">
+	  SELECT DISTINCT a.id,a.id as plan_id,a.plan_name,c.pic_path
+	  FROM  design_plan_recommended a
+	  LEFT  JOIN design_plan_brand b ON b.plan_id = a.id
+	  LEFT JOIN res_render_pic c ON c.plan_recommended_id = a.id
+	  AND rendering_type = 1 AND c.file_key ="design.designPlanRecommended.render.small.pic"
+	  <!-- 添加平台过滤查询条件 -->
+	  <if test="platformId != null">
+		  left join design_plan_2b_platform dp2p on dp2p.plan_id = a.id
+		  and dp2p.is_deleted = 0 and dp2p.allot_state = 1 and dp2p.putaway_state = 1
+	  </if>
+	   WHERE 1=1
+	  <if test="companyIds != null and companyIds.size() > 0">
+		  and (b.company_id IN
+		  <foreach item="item" collection="companyIds" separator="," open="(" close=")" index="">
+			  #{item}
+		  </foreach>
+		  or a.company_id IN
+		  <foreach item="item" collection="companyIds" separator="," open="(" close=")" index="">
+			  #{item}
+		  </foreach>
+		  )
+	  </if>
+	  <if test="platformId != null">
+		  and dp2p.platform_id = #{platformId,jdbcType=INTEGER}
+	  </if>
+	  <if test="recommendedType != null and  recommendedType == 2 ">
+		  AND a.recommended_type = 2 AND a.is_release = 1
+		  AND a.shelf_status IN ('ONEKEY,OPEN','OPEN','ONEKEY','OPEN,ONEKEY')
+	  </if>
+	  <if test="recommendedType != null and  recommendedType == 1 ">
+		  and a.recommended_type = 1 AND a.is_release = 1
+	  </if>
+	  <if test="recommendedType == null or  recommendedType == 0 ">
+		 and ((a.recommended_type = 2 and a.shelf_status IN ('ONEKEY,OPEN','OPEN','ONEKEY','OPEN,ONEKEY')) or a.recommended_type = 1) AND a.is_release = 1
+	  </if>
+	  and a.is_deleted = 0
+	  group by a.id
+	  <if test="companyId != null">
+		  ORDER by field(a.company_id,#{companyId}) DESC
+	  </if>
+	  limit #{start},#{pageSize}
+	</select>
+	
+	<select id="findFontPageList"  resultType="com.sandu.designplan.model.vo.DesignPlanVo" 
+	parameterType="com.sandu.designplan.model.query.DesignPlanQuery">
+	  SELECT DISTINCT a.id,a.id as plan_id,a.plan_name,c.pic_path
+	  FROM  design_plan_recommended a
+	  LEFT  JOIN design_plan_brand b ON b.plan_id = a.id
+	  LEFT JOIN res_render_pic c ON c.plan_recommended_id = a.id
+	  AND rendering_type = 1 AND c.file_key ="design.designPlanRecommended.render.small.pic"
+		<!-- 添加平台过滤查询条件 -->
+		<if test="platformId != null">
+			left join design_plan_2b_platform dp2p on dp2p.plan_id = a.id
+			and dp2p.is_deleted = 0 and dp2p.allot_state = 1 and dp2p.putaway_state = 1
+		</if>
+	   WHERE 1=1
+		<if test="platformId != null">
+			and dp2p.platform_id = #{platformId,jdbcType=INTEGER}
+		</if>
+		<if test="companyIds != null and companyIds.size() > 0">
+			and (b.company_id IN
+			<foreach item="item" collection="companyIds" separator="," open="(" close=")" index="">
+				#{item}
+			</foreach>
+			or a.company_id IN
+			<foreach item="item" collection="companyIds" separator="," open="(" close=")" index="">
+				#{item}
+			</foreach>
+			)
+		</if>
+	  <if test="recommendedType != null and  recommendedType != '' and recommendedType == 2">
+		  AND a.recommended_type = #{recommendedType} AND a.is_release = 1
+		  AND a.shelf_status IN ('ONEKEY,OPEN','OPEN','ONEKEY','OPEN,ONEKEY')
+	  </if>
+		<if test="recommendedType != null and  recommendedType != '' and recommendedType == 1">
+			AND a.recommended_type = #{recommendedType} AND a.is_release = 1
+		</if>
+	  and a.is_deleted = 0
+	  <if test="companyId != null">
+		  ORDER by field(a.company_id,#{companyId}) DESC
+	  </if>
+	  limit #{start},#{pageSize}
+	</select>
+	
+	<select id="findRecommendedPlanCount"  resultType="int" parameterType="com.sandu.designplan.model.query.DesignPlanQuery">
+		SELECT count(DISTINCT a.id)
+		FROM  design_plan_recommended a
+		LEFT  JOIN design_plan_brand b ON b.plan_id = a.id
+		<!-- 添加平台过滤查询条件 -->
+		<if test="platformId != null">
+			left join design_plan_2b_platform dp2p on dp2p.plan_id = a.id
+			and dp2p.is_deleted = 0 and dp2p.allot_state = 1 and dp2p.putaway_state = 1
+		</if>
+		WHERE 1=1
+		<if test="platformId != null">
+			and dp2p.platform_id = #{platformId,jdbcType=INTEGER}
+		</if>
+		<if test="userId != null and userId > 0">
+			and a.user_id =  #{userId,jdbcType=INTEGER}
+		</if>
+		<if test="companyIds != null and companyIds.size() > 0">
+			and (b.company_id IN
+			<foreach item="item" collection="companyIds" separator="," open="(" close=")" index="">
+				#{item}
+			</foreach>
+			or a.company_id IN
+			<foreach item="item" collection="companyIds" separator="," open="(" close=")" index="">
+				#{item}
+			</foreach>
+			)
+		</if>
+		<if test="recommendedType != null and  recommendedType == 2 ">
+			AND a.recommended_type = 2 AND a.is_release = 1
+			AND a.shelf_status IN ('ONEKEY,OPEN','OPEN','ONEKEY','OPEN,ONEKEY')
+		</if>
+		<if test="recommendedType != null and  recommendedType == 1 ">
+			and a.recommended_type = 1 AND a.is_release = 1
+		</if>
+		<if test="recommendedType == null or  recommendedType == 0 ">
+			and ((a.recommended_type = 2 and a.shelf_status IN ('ONEKEY,OPEN','OPEN','ONEKEY','OPEN,ONEKEY')) or a.recommended_type = 1) AND a.is_release = 1
+		</if>
+		and a.is_deleted = 0
+	</select>
+	
+	<select id="findFontCount"  resultType="long"
+	 parameterType="com.sandu.designplan.model.query.DesignPlanQuery">
+		SELECT count(DISTINCT a.id)
+		FROM  design_plan_recommended a
+		LEFT  JOIN design_plan_brand b ON b.plan_id = a.id
+		<!-- 添加平台过滤查询条件 -->
+		<if test="platformId != null">
+			left join design_plan_2b_platform dp2p on dp2p.plan_id = a.id
+			and dp2p.is_deleted = 0 and dp2p.allot_state = 1 and dp2p.putaway_state = 1
+		</if>
+		WHERE 1=1
+		<if test="companyIds != null and companyIds.size() > 0">
+			and (b.company_id IN
+			<foreach item="item" collection="companyIds" separator="," open="(" close=")" index="">
+				#{item}
+			</foreach>
+			or a.company_id IN
+			<foreach item="item" collection="companyIds" separator="," open="(" close=")" index="">
+				#{item}
+			</foreach>
+			)
+		</if>
+		<if test="platformId != null">
+			and dp2p.platform_id = #{platformId,jdbcType=INTEGER}
+		</if>
+		<if test="recommendedType != null and  recommendedType != '' and recommendedType == 2">
+			AND a.recommended_type = #{recommendedType} AND a.is_release = 1
+			AND a.shelf_status IN ('ONEKEY,OPEN','OPEN','ONEKEY','OPEN,ONEKEY')
+		</if>
+		<if test="recommendedType != null and  recommendedType != '' and recommendedType == 1">
+			AND a.recommended_type = #{recommendedType} AND a.is_release = 1
+		</if>
+		and a.is_deleted = 0
+	</select>
+
+
+	<select id="getPlatformId" resultType="java.lang.Integer" parameterType="java.lang.String">
+		select bp.id from base_platform bp
+		where
+			bp.platform_code = #{platformCode}
+		and bp.is_deleted = 0
+			limit 1
+	</select>
+
+
+	<select id="findShopPlanInfo" resultType="com.sandu.company.model.vo.ShopPlanInfo" parameterType="java.util.List">
+		<foreach collection="queryMap" index="key" item="query" open="" separator=" union all " close="">
+			select
+			#{key,jdbcType=VARCHAR} as company_ids,
+			<!--查询店铺方案数量-->
+			(SELECT count(DISTINCT a.id) FROM company_shop_design_plan csdp
+			LEFT JOIN design_plan_recommended a ON a.id = csdp.plan_id
+			LEFT  JOIN design_plan_brand b ON b.plan_id = a.id
+			<!-- 添加平台过滤查询条件 -->
+			<if test="query.platformId != null">
+				left join design_plan_2b_platform dp2p on dp2p.plan_id = a.id
+				and dp2p.is_deleted = 0 and dp2p.allot_state = 1 and dp2p.putaway_state = 1
+				left join design_plan_2c_platform dp2c on dp2c.plan_id = a.id
+				and dp2c.is_deleted = 0 and dp2c.allot_state = 1 and dp2c.putaway_state = 1
+			</if>
+			WHERE csdp.shop_id = ${query.shopId} and csdp.is_deleted = 0
+			<if test="query.platformId != null">
+				and (dp2p.platform_id = ${query.platformId} OR  dp2c.platform_id = ${query.platformId})
+			</if>
+			<if test="query.userId != null and query.userId > 0">
+				and a.user_id =  ${query.userId}
+			</if>
+			<if test="query.companyIds != null and query.companyIds.size() > 0">
+				and
+				<!--(-->
+				<!--b.company_id IN-->
+				<!--<foreach item="item" collection="query.companyIds" separator="," open="(" close=")" index="">-->
+					<!--#{item}-->
+				<!--</foreach>-->
+				<!--or -->
+				a.company_id IN
+				<foreach item="item" collection="query.companyIds" separator="," open="(" close=")" index="">
+					${item}
+				</foreach>
+			<!--)-->
+        </if>
+        and ((a.recommended_type = 2 and a.shelf_status IN ('ONEKEY,OPEN','OPEN','ONEKEY','OPEN,ONEKEY')) or a.recommended_type = 1)
+        AND a.is_release = 1
+        and a.is_deleted = 0) as plan_count,
+
+        <!--查询方案渲染缩略图 3个-->
+			(select group_concat(id,pic_path) from (SELECT DISTINCT a.id,c.pic_path
+			FROM company_shop_design_plan csdp
+			LEFT JOIN design_plan_recommended a ON a.id = csdp.plan_id
+			LEFT  JOIN design_plan_brand b ON b.plan_id = a.id
+			LEFT JOIN res_render_pic c ON c.plan_recommended_id = a.id
+			AND rendering_type = 1 AND c.file_key ="design.designPlanRecommended.render.small.pic"
+			<!-- 添加平台过滤查询条件 -->
+			<if test="query.platformId != null">
+				left join design_plan_2b_platform dp2p on dp2p.plan_id = a.id
+				and dp2p.is_deleted = 0 and dp2p.allot_state = 1 and dp2p.putaway_state = 1
+				left join design_plan_2c_platform dp2c on dp2c.plan_id = a.id
+				and dp2c.is_deleted = 0 and dp2c.allot_state = 1 and dp2c.putaway_state = 1
+			</if>
+			WHERE csdp.shop_id = ${query.shopId} and csdp.is_deleted = 0
+			<if test="query.platformId != null">
+				and (dp2p.platform_id = ${query.platformId} OR dp2c.platform_id = ${query.platformId})
+			</if>
+			<if test="query.companyIds != null and query.companyIds.size() > 0">
+				and
+				<!--(b.company_id IN-->
+				<!--<foreach item="item" collection="query.companyIds" separator="," open="(" close=")" index="">-->
+					<!--#{item}-->
+				<!--</foreach>-->
+				<!--or -->
+				a.company_id IN
+				<foreach item="item" collection="query.companyIds" separator="," open="(" close=")" index="">
+					${item}
+				</foreach>
+				<!--)-->
+			</if>
+			and ((a.recommended_type = 2 and a.shelf_status IN ('ONEKEY,OPEN','OPEN','ONEKEY','OPEN,ONEKEY')) or a.recommended_type = 1)
+			AND a.is_release = 1
+			and a.is_deleted = 0
+			group by a.id
+			<choose>
+				<when test="query.companyId != null">
+					ORDER by field(a.company_id,${query.companyId}) DESC,a.recommended_type DESC, a.release_time DESC
+				</when>
+				<otherwise>
+					order by a.recommended_type DESC, a.release_time DESC
+				</otherwise>
+			</choose>
+			limit ${query.start},${query.pageSize}) a) as picPaths
+			from company_shop
+			WHERE id = ${query.shopId}
+
+		</foreach>
+	</select>
+</mapper>

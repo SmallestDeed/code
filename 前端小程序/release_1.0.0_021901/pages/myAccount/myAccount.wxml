@@ -1,0 +1,47 @@
+<view class='my-account'>
+  <view class='header'>
+    <image class='header-img' src='/static/images/me_bg_dubi.png'></image>
+    <view class='balance-box'>
+      <view class='balance-text'>当前剩余度币</view>
+      <view class='balance'>
+        <text class='ellipsis'>{{userInfo.balanceIntegral}}</text>
+        <view class='btn' catchtap='goAddMoney'>去充值</view>
+      </view>
+    </view>
+  </view>
+  <view class='bindPhone' wx:if="{{!issBindingMobile}}">
+    还未绑定手机号?
+    <view class='bindBut' bindtap='showToast'>去绑定</view>
+  </view>
+  <view class='title'>度币明细</view>
+  <view class='list'>
+    <view class='item' wx:for='{{userInfoList}}' wx:key='{{index}}'>
+      <view class='left'>
+        <view class='message' wx:if='{{item.planName}}'>{{item.productName}}  |  {{item.planName}}</view>
+        <view class='message' wx:else >{{item.productName}}</view>
+        <view class='date'>{{item.orderDate}}</view>
+      </view>
+      <view class='right' wx:if='{{item.financeType=="Out"}}'>
+        -{{item.productType === 'render_product_pay_2C' ? item.totalFee/10 + '元' : item.totalFee + '度币' }}
+      </view>
+      <view class='right-active' wx:if='{{item.financeType=="In"}}'>
+        {{item.productType === 'render_product_pay_2C' ? item.totalFee/10 + '元' : item.totalFee + '度币' }}
+      </view>
+    </view>
+  </view>
+  <empty wx:if='{{isShowEmpty}}' marginTop='30rpx'></empty>
+  <view class='toast' wx:if="{{toastShow}}">
+    <view class='toast_box'>
+      <image class='closeImg' bindtap='closeToast' src='/static/images/goods_icon_close@2x.png'></image>
+      <view class='toast_title'>绑定手机号</view>
+      <input class='phoneInpu' maxlength='11' type='number' placeholder='请输入充值手机号' value='{{phone}}' bindinput='getPhone' ></input>
+      <view class='codeBox'>
+        <input class='codeInpu' maxlength='6' type='number' placeholder='请输入验证码' value='{{code}}' bindinput='getCodeValue' ></input>
+        <view class='codeBut' style="color:{{phoneBool?'#29cccc':''}}"  bindtap='getCode'>{{codeTit}}</view>
+      </view>
+      <view class='toast_but' bindtap='beginBinding' style="color:{{codeBool&&phoneBool?'#fff':''}}">
+        确认绑定
+      </view>
+    </view>
+  </view>
+</view>

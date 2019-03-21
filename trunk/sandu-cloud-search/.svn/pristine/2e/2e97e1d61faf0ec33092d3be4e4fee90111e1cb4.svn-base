@@ -1,0 +1,95 @@
+package com.sandu.search.storage.product;
+
+import com.sandu.search.entity.elasticsearch.po.ProductCategoryRelPo;
+import com.sandu.search.exception.MetaDataException;
+import com.sandu.search.service.metadata.MetaDataService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.*;
+
+/**
+ * 产品分类关联元数据存储
+ *
+ * @date 20171219
+ * @auth pengxuangang
+ */
+@Slf4j
+@Component
+public class ProductCategoryRelMetaDataStorage {
+
+    private final static String CLASS_LOG_PREFIX = "产品分类关联元数据存储:";
+    //产品分类map元数据<productId,List<CategoryId>>
+    private static Map<Integer, List<Integer>> productCategoryRelMap = new HashMap<>();
+    //元数据服务
+    @Autowired
+    private MetaDataService metaDataService;
+
+    /**
+     * 更新数据
+     * @param isEnforceLoad 是否强制更新
+     */
+    public void updateData(boolean isEnforceLoad) {
+
+        //若无强制更新则更新前判断是否已有数据
+        if (!isEnforceLoad) {
+            if (null != productCategoryRelMap && 0 < productCategoryRelMap.size()) {
+                return;
+            }
+        }
+
+        //产品分类关联元数据
+        List<ProductCategoryRelPo> productCategoryRelList;
+        try {
+            //获取数据
+            log.info(CLASS_LOG_PREFIX + "开始获取产品分类关联元数据....");
+            productCategoryRelList = metaDataService.queryProductCategoryRelMetaData();
+            log.info(CLASS_LOG_PREFIX + "获取产品分类关联元数据完成,总条数:{}", (null == productCategoryRelList ? 0 : productCategoryRelList.size()));
+        } catch (MetaDataException e) {
+            log.error(CLASS_LOG_PREFIX + "获取产品分类关联元数据失败: MetaDataException:{}", e);
+            throw new NullPointerException(CLASS_LOG_PREFIX + "获取产品分类关联元数据失败,List<ProductCategoryRelPo> is null.MetaDataException:" + e);
+        }
+
+        //临时对象
+        Map<Integer, List<Integer>> tempProductCategoryRelMap = new HashMap<>();
+
+        //转换为Map元数据
+        if (null != productCategoryRelList && 0 != productCategoryRelList.size()) {
+            productCategoryRelList.forEach(productCategoryRelPo -> {
+                if (tempProductCategoryRelMap.containsKey(productCategoryRelPo.getProductId())) {
+                    List<Integer> categoryList = new ArrayList<>();
+                    categoryList.addAll(tempProductCategoryRelMap.get(productCategoryRelPo.getProductId()));
+                    categoryList.add(productCategoryRelPo.getCategoryId());
+                    tempProductCategoryRelMap.put(productCategoryRelPo.getProductId(), categoryList);
+                } else {
+                    tempProductCategoryRelMap.put(productCategoryRelPo.getProductId(), Arrays.asList(productCategoryRelPo.getCategoryId()));
+                }
+            });
+        }
+
+        //装回对象
+        productCategoryRelMap = null;
+        productCategoryRelMap = tempProductCategoryRelMap;
+    }
+
+    /**
+     * 根据产品ID查询产品分类List
+     *
+     * @param productId 产品ID
+     * @return
+     */
+    public List<Integer> getCategoryListByProductId(Integer productId) {
+
+        if (null == productCategoryRelMap || 0 >= productCategoryRelMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        List<Integer> categoryList = null;
+        if (null != productId && 0 != productId && productCategoryRelMap.containsKey(productId)) {
+            categoryList = productCategoryRelMap.get(productId);
+        }
+        return categoryList;
+    }
+}

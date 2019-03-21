@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.user.dao.AuthorizedConfigDao">
+    <select id="getByUserId" resultType="com.sandu.api.user.model.AuthorizedConfig">
+        SELECT *
+        FROM authorized_config
+        WHERE state = 1 AND valid_state = 1 AND is_deleted = 0 AND user_id = #{userId}
+              AND valid_day != 0
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
+    <select id="listCompanyUserIds" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+        SELECT DISTINCT user_id
+        FROM authorized_config
+        WHERE company_id = #{companyId} AND is_deleted = 0
+    </select>
+</mapper>

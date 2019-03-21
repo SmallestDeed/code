@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:cache="http://www.springframework.org/schema/cache"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/mvc
+	http://www.springframework.org/schema/mvc/spring-mvc.xsd	
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/util
+	http://www.springframework.org/schema/util/spring-util.xsd 
+    http://www.springframework.org/schema/cache   
+    http://www.springframework.org/schema/cache/spring-cache.xsd 
+    http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+">
+<!--     
+    xmlns:cache="http://www.springframework.org/schema/cache" 
+    http://www.springframework.org/schema/cache   
+    http://www.springframework.org/schema/cache/spring-cache.xsd 
+    -->
+    <!-- 
+    xmlns:ehcache="http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring"
+    http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring  
+    http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd
+     -->
+	<context:component-scan base-package="com.nork.*.controller" />
+ 	<bean class="com.nork.common.adapter.CorsConfigurerAdapter"></bean>
+	<bean id="springContextUtil" class="com.nork.task.controller.SpringContextUtil"></bean>
+	<bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor" />
+    <bean id="springContextHolder" class="com.nork.common.util.SpringContextHolder" /> 
+    
+    
+    <bean id="customObjectMapper" class="com.nork.common.util.CustomObjectMapper"></bean> 
+    <bean id="customObjectMapper2" class="com.fasterxml.jackson.databind.ObjectMapper">
+              <!-- 处理responseBody 里面日期类型 -->  
+		     <property name="dateFormat">  
+		         <bean class="java.text.SimpleDateFormat">  
+		             <constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss" />  
+		         </bean>  
+		     </property>  
+		     <!-- 时区指定 -->  
+		     <property name="timeZone" value="GMT+8" />
+    </bean> 
+<!-- 	<bean id="mappingJacksonHttpMessageConverter"
+		       class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<list>
+				<value>text/html;charset=UTF-8</value>
+				<value>application/json;charset=UTF-8</value>
+			</list>
+		</property>
+		<property name="objectMapper" ref="customObjectMapper"></property>
+	</bean>
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="messageConverters">
+			<list>
+				<ref bean="mappingJacksonHttpMessageConverter" />
+			</list>
+		</property>
+	</bean> -->
+
+<!--     <bean id="stringHttpMessageConverter"
+        class="org.springframework.http.converter.StringHttpMessageConverter">
+        <property name="supportedMediaTypes">
+            <list>
+                <value>text/plain;charset=UTF-8</value>
+            </list>
+        </property>
+    </bean>	
+   <bean id="mappingJacksonHttpMessageConverter2"
+		       class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<list>
+				<value>application/json;charset=UTF-8</value>
+			</list>
+		</property>
+		<property name="objectMapper" ref="customObjectMapper"></property>
+	</bean> -->
+	   <bean id="mappingJacksonHttpMessageConverter"
+		       class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<list>
+			    <value>text/html;charset=UTF-8</value>
+				<value>application/json;charset=UTF-8</value>
+			</list>
+		</property>
+		<property name="objectMapper" ref="customObjectMapper2"></property>
+	</bean>
+	   <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+        <property name="messageConverters">
+            <list>
+                 <ref bean="mappingJacksonHttpMessageConverter" />
+            </list>
+        </property>
+    </bean>
+<!--    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+        <property name="messageConverters">
+            <list>
+                 <ref bean="stringHttpMessageConverter" />  
+                 <ref bean="mappingJacksonHttpMessageConverter" />
+            </list>
+        </property>
+    </bean> -->
+
+	<!-- 定义视图文件解析 -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="order" value="5"/>
+		<property name="prefix" value="/pages/" />
+		<property name="suffix" value=".jsp" />
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView">
+		</property>
+	</bean>
+	
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="UTF-8" />
+		<property name="maxUploadSize" value="104857600" />
+		<!--<property name="maxInMemorySize" value="4096" />-->
+		<property name="maxInMemorySize" value="20971520" />
+		<property name="resolveLazily" value="true" />
+	</bean>
+
+	<bean id="exceptionResolver"
+		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+			    <prop key="org.springframework.web.bind.ServletRequestBindingException">errors/error</prop> 
+			    <prop key="java.lang.IllegalArgumentException">errors/error</prop>
+			    <prop key="org.springframework.validation.BindException">errors/error</prop>
+				<prop key="java.lang.Exception">errors/error</prop>
+				<prop key="java.lang.Throwable">errors/error</prop>
+				<prop key="java.sql.SQLException">errors/error</prop>
+				<prop key="java.io.IOException">errors/error</prop>
+				<prop key="java.lang.RuntimeException">errors/error</prop>
+			</props>
+		</property>
+		<property name="statusCodes">
+			<props>
+				<prop key="errors/error">500</prop>
+				<prop key="errors/404">404</prop>
+			</props>
+		</property>
+		<property name="warnLogCategory" value="WARN"></property>
+		<property name="defaultErrorView" value="errors/error"></property>
+		<property name="defaultStatusCode" value="500"></property>
+	</bean>
+	
+	<bean id="controllerMethodInterceptor" class="com.nork.common.interceptor.ControllerMethodInterceptor"/>
+	
+	<!-- 方法拦截器（拦截Controller包中的所有被RequestMapping注解的方法） MethodInterceptor -->
+	<aop:config proxy-target-class="true">
+		<aop:pointcut id="controllerMethodPointcut" expression="execution(* com.nork.*.controller..*(..)) and
+        	@annotation(org.springframework.web.bind.annotation.RequestMapping)"/>
+		<aop:advisor advice-ref="controllerMethodInterceptor" pointcut-ref="controllerMethodPointcut" />
+	</aop:config>
+	
+	<mvc:interceptors>  
+    <!-- 使用bean定义一个Interceptor，直接定义在mvc:interceptors根下面的Interceptor将拦截所有的请求 -->  
+    <bean class="com.nork.common.interceptor.AllInterceptor"/>  
+    <mvc:interceptor>  
+    	<mvc:mapping path="/**"/> 
+        <!-- <mvc:mapping path="/*.htm"/>   -->
+         <!-- 需排除拦截的地址 -->  
+         <mvc:exclude-mapping path="/" />
+        <!-- 定义在mvc:interceptor下面的表示是对特定的请求才进行拦截的 -->  
+        <bean class="com.nork.common.interceptor.TimeInteceptor"/> 
+ <!--        <bean class="com.nork.common.interceptor.LoginInterceptor"/>  -->   
+    </mvc:interceptor>  
+</mvc:interceptors>
+
+<!--    <bean id="MyInterceptor" class="com.nork.common.interceptor.MyInterceptor"/>
+   <bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">  
+       <property name="beanNames">  
+           <list><value>*Controller</value></list>  
+       </property>  
+       <property name="interceptorNames">  
+           <list><value>MyInterceptor</value></list>  
+       </property>  
+       </bean>  -->
+	<!-- <bean id="MyHandlerInterceptor" class="com.nork.common.interceptor.MyHandlerInterceptor"/>
+	<bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping">
+	    <property name="interceptors">
+	        <list>
+	           <ref bean="MyHandlerInterceptor"/>
+	        </list>
+	    </property>
+	</bean> -->
+	<!-- cache -->
+    <!-- <cache:annotation-driven cache-manager="cacheManager" /> -->
+    <!-- Spring自己的基于java.util.concurrent.ConcurrentHashMap实现的缓存管理器(该功能是从Spring3.1开始提供的) -->
+<!-- 	<bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
+		<property name="caches">
+			<set>
+				<bean name="baseCache"
+					class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" />
+			</set>
+		</property>
+	</bean> -->
+
+	<!-- 若只想使用Spring自身提供的缓存器,则注释掉下面的两个关于Ehcache配置的bean,并启用上面的SimpleCacheManager即可 -->
+<!--    <bean id="cacheManagerFactory" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">    
+        <property name="configLocation"  value="classpath:spring/ehcache.xml"/>   
+    </bean>  
+    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">    
+        <property name="cacheManager"  ref="cacheManagerFactory"/>    
+    </bean> -->
+    
+    <!-- ehcache -->
+<!--      <ehcache:annotation-driven cache-manager="ehCacheManager" />
+     <ehcache:config cache-manager = "ehcacheManager">
+           <ehcache:evict-expired-elements
+               interval= "60" />
+      </ehcache:config >
+    <bean id="ehCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"> 
+       <property name="configLocation" value="classpath:spring/ehcache.xml" /> 
+    </bean> -->
+</beans>

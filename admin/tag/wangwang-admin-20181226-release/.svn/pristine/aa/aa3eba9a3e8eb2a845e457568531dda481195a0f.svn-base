@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration status="WARN">
+     <!--需把 appName 的 value 改成实际应用名称-->
+    <property name="appName" value="wangwang-provider-product"/>
+    <!--此项不允许修改！-->
+    <property name="rootPath" value="/data001/mfs/logs"/>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <!--RollingFile Level: Info -->
+    <appender name="appLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${rootPath}/${appName}/info-${appName}.log</file>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${rootPath}/${appName}/info-${appName}-%d{yyyyMMdd}-%i.log</fileNamePattern>
+            <maxFileSize>600MB</maxFileSize>
+            <maxHistory>5</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+    <!--RollingFile Level: Error -->
+    <appender name="appErrorLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${rootPath}/${appName}/error-${appName}.log</file>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${rootPath}/${appName}/error-${appName}-%d{yyyyMMdd}-%i.log</fileNamePattern>
+            <maxFileSize>600MB</maxFileSize>
+            <maxHistory>5</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+    <springProfile name="!online">
+        <!--可指定日志输出级别-->
+        <root level="info">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="appLog"/>
+            <appender-ref ref="appErrorLog"/>
+        </root>
+        <logger name="com.sandu" level="debug" additivity="true" />
+    </springProfile>
+    <springProfile name="online">
+        <root level="info">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="appLog"/>
+            <appender-ref ref="appErrorLog"/>
+        </root>
+        <logger name="com.sandu" level="info" additivity="true" />
+    </springProfile>
+</configuration>

@@ -1,0 +1,55 @@
+<view class="list">
+    <!-- <view class="list-iteam" bindtap='toHouseDetail' hover-class="none" wx:for="{{contentlist}}"
+     wx:key="unique"  data-item="{{item}}" >
+        <view class="product-img">
+            <image class='image' src="{{resourcePath}}/{{item.thumbnailPath}}"></image>
+            <image src="/static/image/type_icon_big_02@2x.png" class="enlargement" data-index="{{index}}" catchtap="previewImage"> 
+            </image>
+        </view>
+        <view class="product-context">
+            <!-- <view class="product-title">四期户型A栋</view> -->
+            <!-- <view class='product-context2'>
+            <view class='product-message'>{{item.houseName}}</view>
+            <view class="product-message2 ">{{item.totalArea || 0}}㎡</view>
+            </view>
+        </view>
+    </view> -->
+    <view class="list-item" wx:for="{{contentlist}}" wx:key="unique">
+      <image src="{{resourcePath}}/{{item.thumbnailPath}}" 
+        data-index="{{index}}" 
+        catchtap="previewImage"></image>
+      <view class="message-box">
+        <view class="left-box">
+          <view class="name ellipsis">{{item.houseName}}</view>
+          <view class="message ellipsis">
+          {{item.houseTypeStr + '   '}}{{item.totalArea || 0}}㎡
+            <!-- <view> {{item.houseTypeStr}}</view>
+            <view>{{item.totalArea || 0}}㎡</view> -->
+          </view>
+        </view>
+        <view class="btn" bindtap='toHouseDetail' data-type="search"  data-item="{{item}}">一键装修</view>
+      </view>
+    </view>
+</view>
+  <!-- 快速导航 -->
+  <!-- <import src="../../component/quick-navigation/quick-navigation.wxml"/>
+  <template is="quickNavigation" data="{{ ...quickNavigation }}"/> -->
+  <view class="dialog-content" wx:if='{{status==1}}'>
+    <view class="dialog-body">
+      <text class="dialog-title">提示</text>
+      <text class="dialog-msg">该方案不适合您家的户型，是否需要为您推荐合适方案</text>
+    </view>
+    <view class="dialog-footer">
+      <text class="new-plan" bindtap='planImproper' data-options='1'>暂不考虑</text>
+      <text class="replace-plan" bindtap='planImproper' data-options='2'>需要推荐</text>
+    </view>
+  </view>
+  <view class="dialog-content" wx:if='{{status==2}}'>
+    <view class="dialog-body">
+      <text class="dialog-title">提示</text>
+      <text class="dialog-msg">当前方案正在装修中，请稍后</text>
+    </view>
+    <view class="dialog-footer">
+      <text class="replace-plan2" bindtap='planImproper' data-options='1'>确定</text>
+    </view>
+  </view>

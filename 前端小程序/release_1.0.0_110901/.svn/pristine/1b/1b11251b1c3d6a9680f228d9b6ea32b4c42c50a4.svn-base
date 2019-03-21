@@ -1,0 +1,49 @@
+import request from './request.js'
+const cityServiceAPI = {
+    getBasecompanyDetail(params = {}) {
+        return request('shopUrl').get('/sandu/mini/basecompany/detail', params)
+    },
+    getSysdictionaryList(params = {}) {
+        return request('shopUrl').get('/sandu/mini/sysdictionary/list', params)
+    },
+    publishSupplyAndDemand(params = {}) { // 发布供求信息
+        return request('unionUrl').post('union/supplydemand/addallsupplydemandinfo', params)
+    },
+    editSupplyAndDemand(params = {}) { // 发布供求信息
+        return request('unionUrl').post('union/supplydemand/updatemysupplydemandinfo', params)
+    },
+    getCompanyShopactivity(params = {}) { // 未知接口
+        return request('shopUrl').post('/sandu/mini/shopactivity/list', params)
+    },
+    uploadFileIssuedImage(params = {}) { // 上传发布信息图片
+        return request('unionUrl').uploadFile('union/supplydemandpic/uploadrespic', params)
+    },
+    getStyleName(params = {}) { // 获取风格列表
+        return request('shopUrl').get('sandu/mini/companyshop/styleList', params)
+    },
+  getUserPhone(params = {}) { // 获取预约号码
+    return request('shopUrl').get('sandu/mini/proprietorInfo/getUserInfo', params)
+  },
+  getReserveSave(params = {}) { //预约接口
+    return request('shopUrl').post('sandu/mini/proprietorInfo/save', params)
+  },
+  getPlanDetail(params = {}) {
+    return request('baseUrl').get('/designplan/getRecommendedDesignPlanDetail', params)
+  },
+  getHomeList(params = {}) {  // 获取家装清单
+    return request('baseUrl').get('/designplan/products', params)
+  },
+  getSupplydemandinfoDetail(params = {}){//供求信息详情
+    return request('unionUrl').get('supplydeman/demand/getsupplydemanddetail',params)
+  },
+  getSupplydemandComment(params = {}) {//供求信息评论
+    return request('unionUrl').get('/union/userreviews/getuserreviews', params)
+  },
+  submitComment(params = {}) {//发布评论
+    return request('unionUrl').post('union/userreviews/adduserreviews', params)
+  },
+  collectPage(params = {}) {//收藏、点赞帖子
+    return request('baseUrl').get('/system/nodeInfo/setStatus', params)
+  },
+}
+export default cityServiceAPI

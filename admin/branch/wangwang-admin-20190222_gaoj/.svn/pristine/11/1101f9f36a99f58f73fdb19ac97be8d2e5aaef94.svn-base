@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.solution.dao.DesignPlanStoreReleaseDetailsMapper">
+  <resultMap id="BaseResultMap" type="com.sandu.api.solution.model.DesignPlanStoreReleaseDetails">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="store_release_id" jdbcType="INTEGER" property="storeReleaseId" />
+    <result column="design_template_id" jdbcType="INTEGER" property="designTemplateId" />
+    <result column="design_plan_id" jdbcType="INTEGER" property="designPlanId" />
+    <result column="design_plan_type" jdbcType="INTEGER" property="designPlanType" />
+    <result column="rendering_type" jdbcType="INTEGER" property="renderingType" />
+    <result column="resource_id" jdbcType="INTEGER" property="resourceId" />
+    <result column="is_main" jdbcType="INTEGER" property="isMain" />
+    <result column="sys_code" jdbcType="VARCHAR" property="sysCode" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="recommend_design_plan_id" jdbcType="INTEGER" property="recommendDesignPlanId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, store_release_id, design_template_id, design_plan_id, design_plan_type, rendering_type, 
+    resource_id, is_main, sys_code, creator, gmt_create, modifier, gmt_modified, is_deleted, 
+    remark, recommend_design_plan_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from design_plan_store_release_details
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectByStoreId" resultMap="BaseResultMap">
+    select * from design_plan_store_release_details
+    where store_release_id = #{initId}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from design_plan_store_release_details
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.solution.model.DesignPlanStoreReleaseDetails">
+    insert into design_plan_store_release_details (id, store_release_id, design_template_id, 
+      design_plan_id, design_plan_type, rendering_type, 
+      resource_id, is_main, sys_code, 
+      creator, gmt_create, modifier, 
+      gmt_modified, is_deleted, remark, 
+      recommend_design_plan_id)
+    values (#{id,jdbcType=BIGINT}, #{storeReleaseId,jdbcType=INTEGER}, #{designTemplateId,jdbcType=INTEGER}, 
+      #{designPlanId,jdbcType=INTEGER}, #{designPlanType,jdbcType=INTEGER}, #{renderingType,jdbcType=INTEGER}, 
+      #{resourceId,jdbcType=INTEGER}, #{isMain,jdbcType=INTEGER}, #{sysCode,jdbcType=VARCHAR}, 
+      #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, 
+      #{recommendDesignPlanId,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.solution.model.DesignPlanStoreReleaseDetails">
+    insert into design_plan_store_release_details
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="storeReleaseId != null">
+        store_release_id,
+      </if>
+      <if test="designTemplateId != null">
+        design_template_id,
+      </if>
+      <if test="designPlanId != null">
+        design_plan_id,
+      </if>
+      <if test="designPlanType != null">
+        design_plan_type,
+      </if>
+      <if test="renderingType != null">
+        rendering_type,
+      </if>
+      <if test="resourceId != null">
+        resource_id,
+      </if>
+      <if test="isMain != null">
+        is_main,
+      </if>
+      <if test="sysCode != null">
+        sys_code,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="recommendDesignPlanId != null">
+        recommend_design_plan_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="storeReleaseId != null">
+        #{storeReleaseId,jdbcType=INTEGER},
+      </if>
+      <if test="designTemplateId != null">
+        #{designTemplateId,jdbcType=INTEGER},
+      </if>
+      <if test="designPlanId != null">
+        #{designPlanId,jdbcType=INTEGER},
+      </if>
+      <if test="designPlanType != null">
+        #{designPlanType,jdbcType=INTEGER},
+      </if>
+      <if test="renderingType != null">
+        #{renderingType,jdbcType=INTEGER},
+      </if>
+      <if test="resourceId != null">
+        #{resourceId,jdbcType=INTEGER},
+      </if>
+      <if test="isMain != null">
+        #{isMain,jdbcType=INTEGER},
+      </if>
+      <if test="sysCode != null">
+        #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="recommendDesignPlanId != null">
+        #{recommendDesignPlanId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.solution.model.DesignPlanStoreReleaseDetails">
+    update design_plan_store_release_details
+    <set>
+      <if test="storeReleaseId != null">
+        store_release_id = #{storeReleaseId,jdbcType=INTEGER},
+      </if>
+      <if test="designTemplateId != null">
+        design_template_id = #{designTemplateId,jdbcType=INTEGER},
+      </if>
+      <if test="designPlanId != null">
+        design_plan_id = #{designPlanId,jdbcType=INTEGER},
+      </if>
+      <if test="designPlanType != null">
+        design_plan_type = #{designPlanType,jdbcType=INTEGER},
+      </if>
+      <if test="renderingType != null">
+        rendering_type = #{renderingType,jdbcType=INTEGER},
+      </if>
+      <if test="resourceId != null">
+        resource_id = #{resourceId,jdbcType=INTEGER},
+      </if>
+      <if test="isMain != null">
+        is_main = #{isMain,jdbcType=INTEGER},
+      </if>
+      <if test="sysCode != null">
+        sys_code = #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="recommendDesignPlanId != null">
+        recommend_design_plan_id = #{recommendDesignPlanId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.solution.model.DesignPlanStoreReleaseDetails">
+    update design_plan_store_release_details
+    set store_release_id = #{storeReleaseId,jdbcType=INTEGER},
+      design_template_id = #{designTemplateId,jdbcType=INTEGER},
+      design_plan_id = #{designPlanId,jdbcType=INTEGER},
+      design_plan_type = #{designPlanType,jdbcType=INTEGER},
+      rendering_type = #{renderingType,jdbcType=INTEGER},
+      resource_id = #{resourceId,jdbcType=INTEGER},
+      is_main = #{isMain,jdbcType=INTEGER},
+      sys_code = #{sysCode,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR},
+      recommend_design_plan_id = #{recommendDesignPlanId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

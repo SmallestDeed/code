@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.servicepurchase.dao.ServicesRoleRelMapper">
+    <resultMap id="BaseResultMap" type="com.sandu.api.servicepurchase.model.ServicesRoleRel">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="services_id" jdbcType="BIGINT" property="servicesId"/>
+        <result column="role_id" jdbcType="INTEGER" property="roleId"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, services_id, role_id, creator, gmt_create, modifier, gmt_modified, is_deleted
+  </sql>
+    <sql id="where_list">
+        <if test="id != null">
+            AND id = #{id,jdbcType=BIGINT}
+        </if>
+        <if test="servicesId != null">
+            AND services_id = #{servicesId,jdbcType=BIGINT}
+        </if>
+        <if test="servicesIds != null">
+            AND services_id in
+            <foreach collection="servicesIds" index="index" item="servicesId" open="(" separator="," close=")">
+                #{servicesId,jdbcType=BIGINT}
+            </foreach>
+        </if>
+        <if test="roleId != null">
+            AND role_id = #{roleId,jdbcType=INTEGER}
+        </if>
+        <if test="isDeleted != null">
+            AND is_deleted = #{isDeleted,jdbcType=INTEGER}
+        </if>
+    </sql>
+    <select id="queryByOption" resultMap="BaseResultMap"
+            parameterType="com.sandu.api.servicepurchase.input.query.ServicesRoleRelQuery">
+        select
+        <include refid="Base_Column_List"/>
+        from services_role_rel
+        <where>
+            <include refid="where_list"/>
+        </where>
+        order BY id desc
+        <if test="start != null and limit != null">
+            limit ${(start-1)*limit},${start*limit}
+        </if>
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from services_role_rel
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from services_role_rel
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insertSelective" parameterType="com.sandu.api.servicepurchase.model.ServicesRoleRel"
+            useGeneratedKeys="true" keyProperty="id">
+        insert into services_role_rel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="servicesId != null">
+                services_id,
+            </if>
+            <if test="roleId != null">
+                role_id,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="servicesId != null">
+                #{servicesId,jdbcType=BIGINT},
+            </if>
+            <if test="roleId != null">
+                #{roleId,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.servicepurchase.model.ServicesRoleRel">
+        update services_role_rel
+        <set>
+            <if test="servicesId != null">
+                services_id = #{servicesId,jdbcType=BIGINT},
+            </if>
+            <if test="roleId != null">
+                role_id = #{roleId,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="getByServiceId" resultType="com.sandu.api.servicepurchase.model.ServicesRoleRel">
+    select * from services_role_rel where services_id = #{id}
+  </select>
+    <select id="getBePurchasedServices" resultType="com.sandu.api.servicepurchase.model.bo.ServicesPurchaseListBO">
+      select sbi.id as serviceId,sbi.services_code,sbi.services_name,sbi.service_desc,
+      sp.duration,sp.give_duration,sp.price_unit,
+      sar.status,sar.account,sar.password,sar.gmt_create,sar.creator , sar.user_id as accountUserId
+          from services_base_info sbi, services_account_rel sar, services_price sp, services_purchase_record spr
+      where sar.purchase_record_id = spr.id and spr.services_price_id = sp.id and sbi.id = sar.services_id
+      and sar.company_id = #{companyId}
+      order by sar.id desc
+    </select>
+
+
+</mapper>

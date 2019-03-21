@@ -1,0 +1,599 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nork.system.dao.ResDesignOnekeyTemplateMapper">
+
+	<resultMap id="BaseResultMap" type="com.nork.system.model.ResDesignOnekeyTemplate">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="old_id" jdbcType="INTEGER" property="oldId" />
+		<result column="file_code" jdbcType="VARCHAR" property="fileCode" />
+		<result column="file_name" jdbcType="VARCHAR" property="fileName" />
+		<result column="file_original_name" jdbcType="VARCHAR"
+			property="fileOriginalName" />
+		<result column="file_type" jdbcType="VARCHAR" property="fileType" />
+		<result column="file_size" jdbcType="VARCHAR" property="fileSize" />
+		<result column="file_weight" jdbcType="VARCHAR" property="fileWeight" />
+		<result column="file_high" jdbcType="VARCHAR" property="fileHigh" />
+		<result column="file_length" jdbcType="INTEGER" property="fileLength" />
+		<result column="file_suffix" jdbcType="VARCHAR" property="fileSuffix" />
+		<result column="file_format" jdbcType="VARCHAR" property="fileFormat" />
+		<result column="file_level" jdbcType="VARCHAR" property="fileLevel" />
+		<result column="file_path" jdbcType="VARCHAR" property="filePath" />
+		<result column="file_desc" jdbcType="VARCHAR" property="fileDesc" />
+		<result column="file_ordering" jdbcType="INTEGER" property="fileOrdering" />
+		<result column="sys_code" jdbcType="VARCHAR" property="sysCode" />
+		<result column="creator" jdbcType="VARCHAR" property="creator" />
+		<result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+		<result column="modifier" jdbcType="VARCHAR" property="modifier" />
+		<result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+		<result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+		<result column="file_key" jdbcType="VARCHAR" property="fileKey" />
+		<result column="business_id" jdbcType="INTEGER" property="businessId" />
+		<result column="small_pic_info" jdbcType="VARCHAR" property="smallPicInfo" />
+		<result column="view_point" jdbcType="INTEGER" property="viewPoint" />
+		<result column="scene" jdbcType="INTEGER" property="scene" />
+		<result column="sequence" jdbcType="INTEGER" property="sequence" />
+		<result column="rendering_type" jdbcType="INTEGER" property="renderingType" />
+		<result column="pano_path" jdbcType="VARCHAR" property="panoPath" />
+		<result column="min_height" jdbcType="INTEGER" property="minHeight" />
+		<result column="is_model_share" jdbcType="INTEGER" property="isModelShare" />
+		<!-- <result column="att1" jdbcType="VARCHAR" property="att1" />
+		<result column="att2" jdbcType="VARCHAR" property="att2" />
+		<result column="att3" jdbcType="VARCHAR" property="att3" />
+		<result column="att4" jdbcType="VARCHAR" property="att4" />
+		<result column="att5" jdbcType="VARCHAR" property="att5" />
+		<result column="att6" jdbcType="VARCHAR" property="att6" />
+		<result column="numa1" jdbcType="INTEGER" property="numa1" />
+		<result column="numa2" jdbcType="INTEGER" property="numa2" />
+		<result column="numa3" jdbcType="INTEGER" property="numa3" />
+		<result column="numa4" jdbcType="INTEGER" property="numa4" />
+		<result column="numa5" jdbcType="INTEGER" property="numa5" />
+		<result column="numa6" jdbcType="INTEGER" property="numa6" /> -->
+		<result column="remark" jdbcType="VARCHAR" property="remark" />
+		<result column="source" jdbcType="VARCHAR" property="source" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		id, old_id, file_code, file_name, file_original_name, file_type,
+		file_size, file_weight,
+		file_high, file_length, file_suffix, file_format, file_level, file_path,
+		file_desc,
+		file_ordering, sys_code, creator, gmt_create, modifier, gmt_modified, is_deleted,
+		file_key, business_id, small_pic_info, view_point, scene, sequence,
+		rendering_type,
+		pano_path, min_height, is_model_share, 
+		<!-- att1, att2, att3, att4, att5, att6,
+		numa1, numa2, numa3, numa4, numa5, numa6,  -->
+		remark, source
+	</sql>
+	
+	<select id="selectByPrimaryKey" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from res_design_onekey_template
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+	
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from res_design_onekey_template
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	
+	<insert id="insert" parameterType="com.nork.system.model.ResDesignOnekeyTemplate"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into res_design_onekey_template (id, old_id, file_code,
+		file_name, file_original_name, file_type,
+		file_size, file_weight, file_high,
+		file_length, file_suffix, file_format,
+		file_level, file_path, file_desc,
+		file_ordering, sys_code, creator,
+		gmt_create, modifier, gmt_modified,
+		is_deleted, file_key, business_id,
+		small_pic_info, view_point, scene,
+		sequence, rendering_type, pano_path,
+		min_height, is_model_share, 
+		<!-- att1, att2, att3, att4, att5, att6, 
+		numa1, numa2, numa3, numa4, numa5, numa6,  -->
+		remark, source
+		)
+		values (#{id,jdbcType=BIGINT}, #{oldId,jdbcType=INTEGER},
+		#{fileCode,jdbcType=VARCHAR},
+		#{fileName,jdbcType=VARCHAR}, #{fileOriginalName,jdbcType=VARCHAR}, #{fileType,jdbcType=VARCHAR},
+		#{fileSize,jdbcType=VARCHAR}, #{fileWeight,jdbcType=VARCHAR},
+		#{fileHigh,jdbcType=VARCHAR},
+		#{fileLength,jdbcType=INTEGER}, #{fileSuffix,jdbcType=VARCHAR}, #{fileFormat,jdbcType=VARCHAR},
+		#{fileLevel,jdbcType=VARCHAR}, #{filePath,jdbcType=VARCHAR},
+		#{fileDesc,jdbcType=VARCHAR},
+		#{fileOrdering,jdbcType=INTEGER}, #{sysCode,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR},
+		#{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR},
+		#{gmtModified,jdbcType=TIMESTAMP},
+		#{isDeleted,jdbcType=INTEGER}, #{fileKey,jdbcType=VARCHAR}, #{businessId,jdbcType=INTEGER},
+		#{smallPicInfo,jdbcType=VARCHAR}, #{viewPoint,jdbcType=INTEGER},
+		#{scene,jdbcType=INTEGER},
+		#{sequence,jdbcType=INTEGER}, #{renderingType,jdbcType=INTEGER}, #{panoPath,jdbcType=VARCHAR},
+		#{minHeight,jdbcType=INTEGER}, #{isModelShare,jdbcType=INTEGER},
+		<!-- #{att1,jdbcType=VARCHAR}, #{att2,jdbcType=VARCHAR}, 
+		#{att3,jdbcType=VARCHAR}, #{att4,jdbcType=VARCHAR},
+		#{att5,jdbcType=VARCHAR}, #{att6,jdbcType=VARCHAR}, 
+		#{numa1,jdbcType=INTEGER}, #{numa2,jdbcType=INTEGER},
+		#{numa3,jdbcType=INTEGER}, #{numa4,jdbcType=INTEGER},
+		#{numa5,jdbcType=INTEGER}, #{numa6,jdbcType=INTEGER},  -->
+		#{remark,jdbcType=VARCHAR}, #{source,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<insert id="insertSelective" parameterType="com.nork.system.model.ResDesignOnekeyTemplate"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into res_design_onekey_template
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="oldId != null">
+				old_id,
+			</if>
+			<if test="fileCode != null">
+				file_code,
+			</if>
+			<if test="fileName != null">
+				file_name,
+			</if>
+			<if test="fileOriginalName != null">
+				file_original_name,
+			</if>
+			<if test="fileType != null">
+				file_type,
+			</if>
+			<if test="fileSize != null">
+				file_size,
+			</if>
+			<if test="fileWeight != null">
+				file_weight,
+			</if>
+			<if test="fileHigh != null">
+				file_high,
+			</if>
+			<if test="fileLength != null">
+				file_length,
+			</if>
+			<if test="fileSuffix != null">
+				file_suffix,
+			</if>
+			<if test="fileFormat != null">
+				file_format,
+			</if>
+			<if test="fileLevel != null">
+				file_level,
+			</if>
+			<if test="filePath != null">
+				file_path,
+			</if>
+			<if test="fileDesc != null">
+				file_desc,
+			</if>
+			<if test="fileOrdering != null">
+				file_ordering,
+			</if>
+			<if test="sysCode != null">
+				sys_code,
+			</if>
+			<if test="creator != null">
+				creator,
+			</if>
+			<if test="gmtCreate != null">
+				gmt_create,
+			</if>
+			<if test="modifier != null">
+				modifier,
+			</if>
+			<if test="gmtModified != null">
+				gmt_modified,
+			</if>
+			<if test="isDeleted != null">
+				is_deleted,
+			</if>
+			<if test="fileKey != null">
+				file_key,
+			</if>
+			<if test="businessId != null">
+				business_id,
+			</if>
+			<if test="smallPicInfo != null">
+				small_pic_info,
+			</if>
+			<if test="viewPoint != null">
+				view_point,
+			</if>
+			<if test="scene != null">
+				scene,
+			</if>
+			<if test="sequence != null">
+				sequence,
+			</if>
+			<if test="renderingType != null">
+				rendering_type,
+			</if>
+			<if test="panoPath != null">
+				pano_path,
+			</if>
+			<if test="minHeight != null">
+				min_height,
+			</if>
+			<if test="isModelShare != null">
+				is_model_share,
+			</if>
+			<!-- <if test="att1 != null">
+				att1,
+			</if>
+			<if test="att2 != null">
+				att2,
+			</if>
+			<if test="att3 != null">
+				att3,
+			</if>
+			<if test="att4 != null">
+				att4,
+			</if>
+			<if test="att5 != null">
+				att5,
+			</if>
+			<if test="att6 != null">
+				att6,
+			</if>
+			<if test="numa1 != null">
+				numa1,
+			</if>
+			<if test="numa2 != null">
+				numa2,
+			</if>
+			<if test="numa3 != null">
+				numa3,
+			</if>
+			<if test="numa4 != null">
+				numa4,
+			</if>
+			<if test="numa5 != null">
+				numa5,
+			</if>
+			<if test="numa6 != null">
+				numa6,
+			</if> -->
+			<if test="remark != null">
+				remark,
+			</if>
+			<if test="source != null">
+				source,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="oldId != null">
+				#{oldId,jdbcType=INTEGER},
+			</if>
+			<if test="fileCode != null">
+				#{fileCode,jdbcType=VARCHAR},
+			</if>
+			<if test="fileName != null">
+				#{fileName,jdbcType=VARCHAR},
+			</if>
+			<if test="fileOriginalName != null">
+				#{fileOriginalName,jdbcType=VARCHAR},
+			</if>
+			<if test="fileType != null">
+				#{fileType,jdbcType=VARCHAR},
+			</if>
+			<if test="fileSize != null">
+				#{fileSize,jdbcType=VARCHAR},
+			</if>
+			<if test="fileWeight != null">
+				#{fileWeight,jdbcType=VARCHAR},
+			</if>
+			<if test="fileHigh != null">
+				#{fileHigh,jdbcType=VARCHAR},
+			</if>
+			<if test="fileLength != null">
+				#{fileLength,jdbcType=INTEGER},
+			</if>
+			<if test="fileSuffix != null">
+				#{fileSuffix,jdbcType=VARCHAR},
+			</if>
+			<if test="fileFormat != null">
+				#{fileFormat,jdbcType=VARCHAR},
+			</if>
+			<if test="fileLevel != null">
+				#{fileLevel,jdbcType=VARCHAR},
+			</if>
+			<if test="filePath != null">
+				#{filePath,jdbcType=VARCHAR},
+			</if>
+			<if test="fileDesc != null">
+				#{fileDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="fileOrdering != null">
+				#{fileOrdering,jdbcType=INTEGER},
+			</if>
+			<if test="sysCode != null">
+				#{sysCode,jdbcType=VARCHAR},
+			</if>
+			<if test="creator != null">
+				#{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtCreate != null">
+				#{gmtCreate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifier != null">
+				#{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null">
+				#{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDeleted != null">
+				#{isDeleted,jdbcType=INTEGER},
+			</if>
+			<if test="fileKey != null">
+				#{fileKey,jdbcType=VARCHAR},
+			</if>
+			<if test="businessId != null">
+				#{businessId,jdbcType=INTEGER},
+			</if>
+			<if test="smallPicInfo != null">
+				#{smallPicInfo,jdbcType=VARCHAR},
+			</if>
+			<if test="viewPoint != null">
+				#{viewPoint,jdbcType=INTEGER},
+			</if>
+			<if test="scene != null">
+				#{scene,jdbcType=INTEGER},
+			</if>
+			<if test="sequence != null">
+				#{sequence,jdbcType=INTEGER},
+			</if>
+			<if test="renderingType != null">
+				#{renderingType,jdbcType=INTEGER},
+			</if>
+			<if test="panoPath != null">
+				#{panoPath,jdbcType=VARCHAR},
+			</if>
+			<if test="minHeight != null">
+				#{minHeight,jdbcType=INTEGER},
+			</if>
+			<if test="isModelShare != null">
+				#{isModelShare,jdbcType=INTEGER},
+			</if>
+			<!-- <if test="att1 != null">
+				#{att1,jdbcType=VARCHAR},
+			</if>
+			<if test="att2 != null">
+				#{att2,jdbcType=VARCHAR},
+			</if>
+			<if test="att3 != null">
+				#{att3,jdbcType=VARCHAR},
+			</if>
+			<if test="att4 != null">
+				#{att4,jdbcType=VARCHAR},
+			</if>
+			<if test="att5 != null">
+				#{att5,jdbcType=VARCHAR},
+			</if>
+			<if test="att6 != null">
+				#{att6,jdbcType=VARCHAR},
+			</if>
+			<if test="numa1 != null">
+				#{numa1,jdbcType=INTEGER},
+			</if>
+			<if test="numa2 != null">
+				#{numa2,jdbcType=INTEGER},
+			</if>
+			<if test="numa3 != null">
+				#{numa3,jdbcType=INTEGER},
+			</if>
+			<if test="numa4 != null">
+				#{numa4,jdbcType=INTEGER},
+			</if>
+			<if test="numa5 != null">
+				#{numa5,jdbcType=INTEGER},
+			</if>
+			<if test="numa6 != null">
+				#{numa6,jdbcType=INTEGER},
+			</if> -->
+			<if test="remark != null">
+				#{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="source != null">
+				#{source,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.nork.system.model.ResDesignOnekeyTemplate">
+		update res_design_onekey_template
+		<set>
+			<if test="oldId != null">
+				old_id = #{oldId,jdbcType=INTEGER},
+			</if>
+			<if test="fileCode != null">
+				file_code = #{fileCode,jdbcType=VARCHAR},
+			</if>
+			<if test="fileName != null">
+				file_name = #{fileName,jdbcType=VARCHAR},
+			</if>
+			<if test="fileOriginalName != null">
+				file_original_name = #{fileOriginalName,jdbcType=VARCHAR},
+			</if>
+			<if test="fileType != null">
+				file_type = #{fileType,jdbcType=VARCHAR},
+			</if>
+			<if test="fileSize != null">
+				file_size = #{fileSize,jdbcType=VARCHAR},
+			</if>
+			<if test="fileWeight != null">
+				file_weight = #{fileWeight,jdbcType=VARCHAR},
+			</if>
+			<if test="fileHigh != null">
+				file_high = #{fileHigh,jdbcType=VARCHAR},
+			</if>
+			<if test="fileLength != null">
+				file_length = #{fileLength,jdbcType=INTEGER},
+			</if>
+			<if test="fileSuffix != null">
+				file_suffix = #{fileSuffix,jdbcType=VARCHAR},
+			</if>
+			<if test="fileFormat != null">
+				file_format = #{fileFormat,jdbcType=VARCHAR},
+			</if>
+			<if test="fileLevel != null">
+				file_level = #{fileLevel,jdbcType=VARCHAR},
+			</if>
+			<if test="filePath != null">
+				file_path = #{filePath,jdbcType=VARCHAR},
+			</if>
+			<if test="fileDesc != null">
+				file_desc = #{fileDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="fileOrdering != null">
+				file_ordering = #{fileOrdering,jdbcType=INTEGER},
+			</if>
+			<if test="sysCode != null">
+				sys_code = #{sysCode,jdbcType=VARCHAR},
+			</if>
+			<if test="creator != null">
+				creator = #{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtCreate != null">
+				gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifier != null">
+				modifier = #{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null">
+				gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDeleted != null">
+				is_deleted = #{isDeleted,jdbcType=INTEGER},
+			</if>
+			<if test="fileKey != null">
+				file_key = #{fileKey,jdbcType=VARCHAR},
+			</if>
+			<if test="businessId != null">
+				business_id = #{businessId,jdbcType=INTEGER},
+			</if>
+			<if test="smallPicInfo != null">
+				small_pic_info = #{smallPicInfo,jdbcType=VARCHAR},
+			</if>
+			<if test="viewPoint != null">
+				view_point = #{viewPoint,jdbcType=INTEGER},
+			</if>
+			<if test="scene != null">
+				scene = #{scene,jdbcType=INTEGER},
+			</if>
+			<if test="sequence != null">
+				sequence = #{sequence,jdbcType=INTEGER},
+			</if>
+			<if test="renderingType != null">
+				rendering_type = #{renderingType,jdbcType=INTEGER},
+			</if>
+			<if test="panoPath != null">
+				pano_path = #{panoPath,jdbcType=VARCHAR},
+			</if>
+			<if test="minHeight != null">
+				min_height = #{minHeight,jdbcType=INTEGER},
+			</if>
+			<if test="isModelShare != null">
+				is_model_share = #{isModelShare,jdbcType=INTEGER},
+			</if>
+			<!-- <if test="att1 != null">
+				att1 = #{att1,jdbcType=VARCHAR},
+			</if>
+			<if test="att2 != null">
+				att2 = #{att2,jdbcType=VARCHAR},
+			</if>
+			<if test="att3 != null">
+				att3 = #{att3,jdbcType=VARCHAR},
+			</if>
+			<if test="att4 != null">
+				att4 = #{att4,jdbcType=VARCHAR},
+			</if>
+			<if test="att5 != null">
+				att5 = #{att5,jdbcType=VARCHAR},
+			</if>
+			<if test="att6 != null">
+				att6 = #{att6,jdbcType=VARCHAR},
+			</if>
+			<if test="numa1 != null">
+				numa1 = #{numa1,jdbcType=INTEGER},
+			</if>
+			<if test="numa2 != null">
+				numa2 = #{numa2,jdbcType=INTEGER},
+			</if>
+			<if test="numa3 != null">
+				numa3 = #{numa3,jdbcType=INTEGER},
+			</if>
+			<if test="numa4 != null">
+				numa4 = #{numa4,jdbcType=INTEGER},
+			</if>
+			<if test="numa5 != null">
+				numa5 = #{numa5,jdbcType=INTEGER},
+			</if>
+			<if test="numa6 != null">
+				numa6 = #{numa6,jdbcType=INTEGER},
+			</if> -->
+			<if test="remark != null">
+				remark = #{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="source != null">
+				source = #{source,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.nork.system.model.ResDesignOnekeyTemplate">
+		update res_design_onekey_template
+		set old_id = #{oldId,jdbcType=INTEGER},
+		file_code = #{fileCode,jdbcType=VARCHAR},
+		file_name = #{fileName,jdbcType=VARCHAR},
+		file_original_name = #{fileOriginalName,jdbcType=VARCHAR},
+		file_type = #{fileType,jdbcType=VARCHAR},
+		file_size = #{fileSize,jdbcType=VARCHAR},
+		file_weight = #{fileWeight,jdbcType=VARCHAR},
+		file_high = #{fileHigh,jdbcType=VARCHAR},
+		file_length = #{fileLength,jdbcType=INTEGER},
+		file_suffix = #{fileSuffix,jdbcType=VARCHAR},
+		file_format = #{fileFormat,jdbcType=VARCHAR},
+		file_level = #{fileLevel,jdbcType=VARCHAR},
+		file_path = #{filePath,jdbcType=VARCHAR},
+		file_desc = #{fileDesc,jdbcType=VARCHAR},
+		file_ordering = #{fileOrdering,jdbcType=INTEGER},
+		sys_code = #{sysCode,jdbcType=VARCHAR},
+		creator = #{creator,jdbcType=VARCHAR},
+		gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+		modifier = #{modifier,jdbcType=VARCHAR},
+		gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+		is_deleted = #{isDeleted,jdbcType=INTEGER},
+		file_key = #{fileKey,jdbcType=VARCHAR},
+		business_id = #{businessId,jdbcType=INTEGER},
+		small_pic_info = #{smallPicInfo,jdbcType=VARCHAR},
+		view_point = #{viewPoint,jdbcType=INTEGER},
+		scene = #{scene,jdbcType=INTEGER},
+		sequence = #{sequence,jdbcType=INTEGER},
+		rendering_type = #{renderingType,jdbcType=INTEGER},
+		pano_path = #{panoPath,jdbcType=VARCHAR},
+		min_height = #{minHeight,jdbcType=INTEGER},
+		is_model_share = #{isModelShare,jdbcType=INTEGER},
+		<!-- att1 = #{att1,jdbcType=VARCHAR},
+		att2 = #{att2,jdbcType=VARCHAR},
+		att3 = #{att3,jdbcType=VARCHAR},
+		att4 = #{att4,jdbcType=VARCHAR},
+		att5 = #{att5,jdbcType=VARCHAR},
+		att6 = #{att6,jdbcType=VARCHAR},
+		numa1 = #{numa1,jdbcType=INTEGER},
+		numa2 = #{numa2,jdbcType=INTEGER},
+		numa3 = #{numa3,jdbcType=INTEGER},
+		numa4 = #{numa4,jdbcType=INTEGER},
+		numa5 = #{numa5,jdbcType=INTEGER},
+		numa6 = #{numa6,jdbcType=INTEGER}, -->
+		remark = #{remark,jdbcType=VARCHAR},
+		source = #{source,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+</mapper>

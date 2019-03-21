@@ -1,0 +1,46 @@
+package com.sandu.designplan.service;
+
+import com.sandu.design.model.DesignPlanProduct;
+import com.sandu.design.model.DesignPlanRecommendedProduct;
+import com.sandu.design.model.ProductsCost;
+import com.sandu.design.model.ProductsCostType;
+import com.sandu.designplan.vo.RecommendedPlanProductRelatedVo;
+import com.sandu.product.model.BaseCompany;
+import com.sandu.product.model.ProductCostDetail;
+import com.sandu.user.model.LoginUser;
+
+import java.util.List;
+
+public interface DesignPlanRecommendedProductService {
+
+    int add(DesignPlanRecommendedProduct designPlanRecommendedProduct);
+
+    int costTypeListCount(DesignPlanProduct designPlanProduct);
+
+    List<ProductsCostType> costTypeList(DesignPlanProduct designPlanProduct);
+
+    List<ProductsCost> costList(ProductsCostType productsCostType);
+
+    List<ProductCostDetail> costDetail(ProductsCost cost);
+
+    int getCount(DesignPlanRecommendedProduct designPlanRecommendedProduct);
+
+    /**
+     * 查询产品相关推荐方案
+     * @param productId 产品ID
+     * @param brandList 品牌列表
+     * @param platformId 
+     * @return
+     */
+    List<RecommendedPlanProductRelatedVo> queryRecommendedPlanOfProductRelatedByProductId(Integer productId, List<Integer> brandList, Integer platformId, LoginUser loginUser);
+
+
+    /**
+     * 查询产品相关推荐方案
+     * @param productId 产品ID
+     * @param brandList 品牌列表
+     * @param platformId
+     * @return
+     */
+    List<RecommendedPlanProductRelatedVo> queryRecommendedPlanOfProductRelatedByProductId2(Integer productId, List<Integer> brandList, Integer platformId, LoginUser loginUser,String companyCode,BaseCompany baseCompany);
+}

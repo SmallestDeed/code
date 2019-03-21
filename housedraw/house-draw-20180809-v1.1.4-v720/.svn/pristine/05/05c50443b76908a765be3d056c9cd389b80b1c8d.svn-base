@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.templet.dao.DesignTempletJumpPositionRelMapper">
+  <resultMap id="BaseResultMap" type="com.sandu.api.house.model.DesignTempletJumpPositionRel">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="origin_id" jdbcType="BIGINT" property="originId" />
+    <result column="target_id" jdbcType="BIGINT" property="targetId" />
+    <result column="jump_position" jdbcType="VARCHAR" property="jumpPosition" />
+    <result column="draw_dtp_id" jdbcType="BIGINT" property="drawDtpId" />
+    <result column="is_deleted" jdbcType="SMALLINT" property="isDeleted" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, origin_id, target_id, jump_position, draw_dtp_id, is_deleted, creator, gmt_create, 
+    modifier, gmt_modified, remark
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from design_templet_jump_position_rel
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <insert id="insertSelective" parameterType="com.sandu.api.house.model.DesignTempletJumpPositionRel">
+    insert into design_templet_jump_position_rel
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="originId != null">
+        origin_id,
+      </if>
+      <if test="targetId != null">
+        target_id,
+      </if>
+      <if test="jumpPosition != null">
+        jump_position,
+      </if>
+      <if test="drawDtpId != null">
+        draw_dtp_id,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="originId != null">
+        #{originId,jdbcType=BIGINT},
+      </if>
+      <if test="targetId != null">
+        #{targetId,jdbcType=BIGINT},
+      </if>
+      <if test="jumpPosition != null">
+        #{jumpPosition,jdbcType=VARCHAR},
+      </if>
+      <if test="drawDtpId != null">
+        #{drawDtpId,jdbcType=BIGINT},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=SMALLINT},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+  <insert id="batchInsertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="list">
+    INSERT INTO design_templet_jump_position_rel
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+        origin_id,
+        target_id,
+        jump_position,
+        draw_dtp_id,
+        creator,
+        modifier,
+    </trim>
+    VALUES
+    <foreach collection="records" item="record" separator=",">
+      <trim prefix="(" suffix=")" suffixOverrides=",">
+        #{record.originId,jdbcType=BIGINT},
+        #{record.targetId,jdbcType=BIGINT},
+        #{record.jumpPosition,jdbcType=VARCHAR},
+        #{record.drawDtpId,jdbcType=BIGINT},
+        #{record.creator,jdbcType=VARCHAR},
+        #{record.modifier,jdbcType=VARCHAR},
+      </trim>
+    </foreach>
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.house.model.DesignTempletJumpPositionRel">
+    update design_templet_jump_position_rel
+    <set>
+      <if test="originId != null">
+        origin_id = #{originId,jdbcType=BIGINT},
+      </if>
+      <if test="targetId != null">
+        target_id = #{targetId,jdbcType=BIGINT},
+      </if>
+      <if test="jumpPosition != null">
+        jump_position = #{jumpPosition,jdbcType=VARCHAR},
+      </if>
+      <if test="drawDtpId != null">
+        draw_dtp_id = #{drawDtpId,jdbcType=BIGINT},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=SMALLINT},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

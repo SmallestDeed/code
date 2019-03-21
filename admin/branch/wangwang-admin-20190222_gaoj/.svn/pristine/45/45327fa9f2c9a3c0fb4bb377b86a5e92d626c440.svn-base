@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.platform.dao.Platform2cGroupRelDao">
+  <resultMap id="BaseResultMap" type="com.sandu.api.platform.model.PlatformGroupRel">
+    <id column="id" jdbcType="INTEGER" property="id"/>
+    <result column="platform_id" jdbcType="INTEGER" property="platformId"/>
+    <result column="product_group_id" jdbcType="INTEGER" property="productGroupId"/>
+    <result column="allot_State" jdbcType="INTEGER" property="allotState"/>
+    <result column="putaway_State" jdbcType="INTEGER" property="putawayState"/>
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+    <result column="gmt_modifier" jdbcType="TIMESTAMP" property="gmtModifier"/>
+    <result column="group_name" jdbcType="VARCHAR" property="groupName"/>
+    <result column="brand_id" jdbcType="INTEGER" property="brandId"/>
+    <result column="group_number" jdbcType="VARCHAR" property="groupNumber"/>
+    <result column="space_area_value" jdbcType="INTEGER" property="spaceAreaValue"/>
+    <result column="house_type_value" jdbcType="INTEGER" property="houseTypeValue"/>
+    <result column="composite_type_value" jdbcType="INTEGER" property="compositeTypeValue"/>
+    <result column="style_value" jdbcType="INTEGER" property="styleValue"/>
+    <result column="sale_price" jdbcType="DECIMAL" property="salePrice"/>
+    <result column="advice_price" jdbcType="DECIMAL" property="advicePrice"/>
+    <result column="pic_id" jdbcType="INTEGER" property="picId"/>
+    <result column="pic_ids" jdbcType="VARCHAR" property="picIds"/>
+    <result column="description" jdbcType="VARCHAR" property="description"/>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, platform_id, product_group_id, allot_State, putaway_State, gmt_create, gmt_modifier,
+    group_name, brand_id, group_number, space_area_value, house_type_value, composite_type_value,
+    style_value, sale_price, advice_price, pic_id, pic_ids, description
+  </sql>
+  <delete id="deleteByGroupIds">
+    DELETE
+    from platform2c_group_rel
+    where product_group_id in
+    <foreach collection="list" separator="," item="id" close=")" open="(">
+      #{id,jdbcType=INTEGER}
+    </foreach>
+
+  </delete>
+
+    <select id="getInfoByGroupId" resultType="com.sandu.api.groupproducct.model.GroupProduct">
+        SELECT product_group_id as id ,sale_price as groupPrice,advice_price,pic_id,pic_ids,description from platform2c_group_rel
+        where product_group_id = #{groupId} limit 1
+    </select>
+  <select id="getBeAllotGroupIds" resultType="java.lang.Integer">
+    select DISTINCT product_group_id from platform2c_group_rel
+    where 1=1 AND
+    allot_State = 1 and
+    product_group_id in
+    <foreach collection="list" item="id" open="(" close=")" separator=",">
+      #{id}
+    </foreach>
+
+  </select>
+  <insert id="insertRel" parameterType="com.sandu.api.platform.model.PlatformGroupRel">
+    insert into platform2c_group_rel
+    <trim prefix="(" suffix=") values" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="platformId != null">
+        platform_id,
+      </if>
+      <if test="productGroupId != null">
+        product_group_id,
+      </if>
+      <if test="allotState != null">
+        allot_State,
+      </if>
+      <if test="putawayState != null">
+        putaway_State,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModifier != null">
+        gmt_modifier,
+      </if>
+      <if test="groupName != null">
+        group_name,
+      </if>
+      <if test="brandId != null">
+        brand_id,
+      </if>
+      <if test="groupNumber != null">
+        group_number,
+      </if>
+      <if test="spaceAreaValue != null">
+        space_area_value,
+      </if>
+      <if test="houseTypeValue != null">
+        house_type_value,
+      </if>
+      <if test="compositeTypeValue != null">
+        composite_type_value,
+      </if>
+      <if test="styleValue != null">
+        style_value,
+      </if>
+      <if test="salePrice != null">
+        sale_price,
+      </if>
+      <if test="advicePrice != null">
+        advice_price,
+      </if>
+      <if test="picId != null">
+        pic_id,
+      </if>
+      <if test="picIds != null">
+        pic_ids,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+    </trim>
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="platformId != null">
+        #{platformId,jdbcType=INTEGER},
+      </if>
+      <if test="productGroupId != null">
+        #{productGroupId,jdbcType=INTEGER},
+      </if>
+      <if test="allotState != null">
+        #{allotState,jdbcType=INTEGER},
+      </if>
+      <if test="putawayState != null">
+        #{putawayState,jdbcType=INTEGER},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModifier != null">
+        #{gmtModifier,jdbcType=TIMESTAMP},
+      </if>
+      <if test="groupName != null">
+        #{groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="brandId != null">
+        #{brandId,jdbcType=INTEGER},
+      </if>
+      <if test="groupNumber != null">
+        #{groupNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="spaceAreaValue != null">
+        #{spaceAreaValue,jdbcType=INTEGER},
+      </if>
+      <if test="houseTypeValue != null">
+        #{houseTypeValue,jdbcType=INTEGER},
+      </if>
+      <if test="compositeTypeValue != null">
+        #{compositeTypeValue,jdbcType=INTEGER},
+      </if>
+      <if test="styleValue != null">
+        #{styleValue,jdbcType=INTEGER},
+      </if>
+      <if test="salePrice != null">
+        #{salePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="advicePrice != null">
+        #{advicePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="picId != null">
+        #{picId,jdbcType=INTEGER},
+      </if>
+      <if test="picIds != null">
+        #{picIds,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateRelWithGroupId" parameterType="com.sandu.api.platform.model.PlatformGroupRel">
+    update platform2c_group_rel
+    <set>
+      <if test="platformId != null">
+        platform_id = #{platformId,jdbcType=INTEGER},
+      </if>
+      <if test="productGroupId != null">
+        product_group_id = #{productGroupId,jdbcType=INTEGER},
+      </if>
+      <if test="allotState != null">
+        allot_State = #{allotState,jdbcType=INTEGER},
+      </if>
+      <if test="putawayState != null">
+        putaway_State = #{putawayState,jdbcType=INTEGER},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModifier != null">
+        gmt_modifier = #{gmtModifier,jdbcType=TIMESTAMP},
+      </if>
+      <if test="groupName != null">
+        group_name = #{groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="brandId != null">
+        brand_id = #{brandId,jdbcType=INTEGER},
+      </if>
+      <if test="groupNumber != null">
+        group_number = #{groupNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="spaceAreaValue != null">
+        space_area_value = #{spaceAreaValue,jdbcType=INTEGER},
+      </if>
+      <if test="houseTypeValue != null">
+        house_type_value = #{houseTypeValue,jdbcType=INTEGER},
+      </if>
+      <if test="compositeTypeValue != null">
+        composite_type_value = #{compositeTypeValue,jdbcType=INTEGER},
+      </if>
+      <if test="styleValue != null">
+        style_value = #{styleValue,jdbcType=INTEGER},
+      </if>
+      <if test="salePrice != null">
+        sale_price = #{salePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="advicePrice != null">
+        advice_price = #{advicePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="picId != null">
+        pic_id = #{picId,jdbcType=INTEGER},
+      </if>
+      <if test="picIds != null">
+        pic_ids = #{picIds,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where product_group_id = #{productGroupId,jdbcType=INTEGER}
+      <if test="platformId != null">
+         and platform_id = #{platformId,jdbcType=INTEGER}
+      </if>
+  </update>
+</mapper>

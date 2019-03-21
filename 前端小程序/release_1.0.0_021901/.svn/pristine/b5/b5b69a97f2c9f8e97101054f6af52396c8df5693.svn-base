@@ -1,0 +1,147 @@
+//app.js
+import API from '/api/api.js'
+import { state, mutations} from './store/index.js'
+import { resourcePath, basePath, wholeHouse3dUrl, sevenUrl, wholeHouseUrl, staticImageUrl } from './utils/config.js'
+import {quickNavigation} from './component/quick-navigation/quick-navigation'
+import utils from './utils/utils.js'
+import appid from './utils/appid.js'
+const io = require('./lib/socket.io.slim.js')
+console.log(appid, '11111')
+App(Object.assign({
+  quickNavigation: quickNavigation,
+  filtrationHtml: utils.filtrationHtml,
+  myFindIndex: utils.myFindIndex,
+  changeTiem: utils.changeTiem,
+  myEmoticon: utils.myEmoticon,
+  myForEach: utils.myForEach,
+  myVerifyEmpty: utils.myVerifyEmpty,
+  wholeHouse3dUrl: wholeHouse3dUrl,
+  wholeHouseUrl: wholeHouseUrl,
+  resourcePath,
+  staticImageUrl,
+  data: Object.assign({}, state),
+  wxUrl: 'https://servicewechat.com/wx6e369e0fac7d3273/devtools/page-frame.html',
+  sevenUrl,
+  webUrl: '',
+  mySocket: null,
+  webSocketStatus: false,
+  socket(params) {
+    let url = basePath.userChatUrl + '?userSessionId=' + params.userSessionId + '&appId=16'
+    return io(url)
+  },
+  API: API,
+  mySplitUrl: utils.mySplitUrl,
+  myCompoundUrl: utils.myCompoundUrl,
+  regMobile: /(^1[3|4|5|7|8|9]\d{9}$)|(^09\d{8}$)/,
+  onLaunch: function () {
+    this.userLogin()
+    this.forcedUpdating()
+  }, 
+  globalData: {
+    userInfo: null
+  }, 
+  forcedUpdating() {
+    if (wx.canIUse('getUpdateManager')) {
+      const updateManager = wx.getUpdateManager()
+      updateManager.onCheckForUpdate((res) => {
+        if (res.hasUpdate) {
+          updateManager.onUpdateReady(function () {
+            wx.showModal({
+              title: '更新提示',
+              content: '新版本已经准备好，是否重启应用？',
+              success: function (res) { res.confirm && updateManager.applyUpdate() }
+            })
+          })
+          updateManager.onUpdateFailed(() => { wx.showModal({ title: '更新提示', content: '新版本下载失败', showCancel: false }) })
+        }
+      })
+    }
+  },
+  myNavigateBack(url, options) {
+    let pages = getCurrentPages(),
+      optionUrl = '?'
+    let flag = this.myFindIndex(pages, (page) => {
+      return page.route === url
+    })
+    if (typeof options === 'object') {
+      for (let key in options) {
+        optionUrl += key + '=' + options[key] + '&'
+      }
+      optionUrl.slice(0, optionUrl.length - 1)
+    } else {
+      optionUrl = ''
+    }
+    if (flag !== -1) {
+      return getCurrentPages()[flag]
+    } else {
+      wx.navigateTo({
+        url: '/' + url + optionUrl,
+      })
+      return false
+    }
+  },
+  
+  userLogin() { // 用户登录
+    console.log(wx.getAccountInfoSync());
+    let that = this
+    wx.login({
+      success: res => {
+        // let code = '033jhAv30mscYJ18Pjx30eNev30jhAvq'
+        API.getUserOpenId({ code: res.code, appid: 'wx6e369e0fac7d3273' })
+          .then(res => {
+            if (res.success) {
+              wx.setStorageSync('openId', res.obj)
+              wx.getSetting({
+                success(res) {
+                  if (!res.authSetting['scope.userInfo']) {
+                    wx.authorize({
+                      scope: 'scope.userInfo',
+                      success() {
+                        wx.getUserInfo({
+                          success: res => {
+                            that.globalData.userInfo = res.userInfo
+                            if (that.userInfoReadyCallback) { that.userInfoReadyCallback(res) }
+                          }
+                        })
+                      }
+                    })
+                  } else {
+                    wx.getUserInfo({
+                      success: res => {
+                        that.globalData.userInfo = res.userInfo
+                        if (that.userInfoReadyCallback) {
+                          that.userInfoReadyCallback(res)
+                        }
+                      }
+                    })
+                  }
+                }
+              })
+              // 登录
+              API.setUserLogin({
+                openid: res.obj, appid: 'wx6e369e0fac7d3273' })
+                .then(res => {
+                  if (res.success) {
+                    wx.setStorageSync('token', res.obj.token)
+                    wx.setStorageSync('id', res.obj.id)
+                    this.setLoginStatus(1)
+                    wx.setStorageSync('uuid', res.obj.sessionId || '')
+                    this.mySocket = this.socket({ userSessionId: res.obj.sessionId })
+                    this.mySocket.on('connect', () => { this.webSocketStatus = true });
+                    this.mySocket.on('disconnect', function () { console.log('断开连接') });
+                  }
+                })
+
+            }
+          })
+
+      },
+      fail: (err) => {
+        wx.showToast({
+          title: '网络错误',
+          icon: 'none'
+        })
+      }
+    })
+  },
+}, mutations))

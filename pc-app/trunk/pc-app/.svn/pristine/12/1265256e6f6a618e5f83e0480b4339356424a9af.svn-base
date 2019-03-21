@@ -1,0 +1,152 @@
+package com.nork.design.dao;
+
+import java.util.List;
+
+import com.nork.design.model.*;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.nork.design.model.input.FranchiserPlanListDTO;
+import com.nork.design.model.input.PlanRecommendedListForFranchiserDTO;
+import com.nork.design.model.output.FranchiserPlanListVO;
+ 
+
+@Repository
+@Transactional
+public interface DesignPlanRecommendedMapperV2 {
+
+	 int insertSelective(DesignPlanRecommended designPlanRecommended);
+		
+	 int updateByPrimaryKeySelective(DesignPlanRecommended designPlanRecommended);
+	
+	 int deleteByPrimaryKey(Integer id);
+	
+	 DesignPlanRecommended selectByPrimaryKey(Integer id);
+	
+	 List<DesignPlanRecommended> selectList(DesignPlanRecommended designPlanRecommended);
+
+	 int selectCount(DesignPlanRecommended designPlanRecommended);
+
+	Integer getPlanRecommendedCount(DesignPlanRecommended designPlanRecommended);
+	Integer getPlanRecommendedCountMobile(DesignPlanRecommended designPlanRecommended);
+
+	List<DesignPlanRecommendedResult> getPlanRecommendedList(DesignPlanRecommended designPlanRecommended);
+	List<DesignPlanRecommendedResult> getPlanRecommendedListMobile(DesignPlanRecommended designPlanRecommended);
+
+	/**
+	 * 根据组合id 查询组合方案列表
+	 * @author chenqiang
+	 * @param groupId 组合id
+	 * @param isDeleted 是否删除
+	 * @return
+	 * @date 2018/8/13 0013 18:32
+	 */
+	List<DesignPlanRecommended> getGroupList(@Param("groupId") Integer groupId, Integer isDeleted);
+
+	/**
+	 * 
+	   
+	 * getStatusByIds 批量查询id对应的发布状态      
+	   
+	 * @param ids
+	 * @return 
+	
+	 * @return List<DesignPlanRecommended>    返回类型   
+	   
+	 * @Exception 异常对象    
+	   
+	 * @since  CodingExample　Ver(编码范例查看) 1.1
+	 */
+	public List<DesignPlanRecommended> getStatusByIds(List<Long> ids);
+	/**
+	 * 获取该方案推荐的白膜产品的数量，如果大于0那么是m+3 未装修完成的推荐（m+3 是不装修直接渲染的快捷键）
+	 * @param id
+	 * @return
+	 */
+	int recommendedDecorateState(Integer id);
+	/**
+	 *  获取方案推荐收藏夹数据量
+	 * @param designPlanRecommended
+	 * @return
+	 */
+	Integer getFavoritePlanRecommendedCount(DesignPlanRecommended designPlanRecommended);
+	/**
+	 *  获取方案推荐收藏夹列表
+	 * @param designPlanRecommended
+	 * @return
+	 */
+	List<DesignPlanRecommendedResult> getFavoritePlanRecommendedList(DesignPlanRecommended designPlanRecommended);
+
+	/**
+	 * 根据空间类型获取推荐方案ids
+	 * @author xiaoxc
+	 * @param spaceFunctionId
+	 * @return
+	 */
+	List<Integer> findRecommendedPlanIdListBySpaceFunctionId(@Param("spaceFunctionId") Integer spaceFunctionId);
+
+	/**
+	 * 根据推荐方案ID获取推荐方案产品分类keys
+	 * @author xiaoxc
+	 * @param recommendedPlanId
+	 * @return
+	 */
+	List<String> findListByRecommendedPlanId(@Param("recommendedPlanId") Integer recommendedPlanId);
+
+	int getPlanRecommendedListSizeByDTO(PlanRecommendedListForFranchiserDTO dto);
+
+	List<DesignPlanRecommendedResult> getPlanRecommendedListByDTO(PlanRecommendedListForFranchiserDTO dto);
+
+	int getFranchiserPlanListSizeByDTO(FranchiserPlanListDTO dto);
+
+	List<FranchiserPlanListVO> getFranchiserPlanListByDTO(FranchiserPlanListDTO dto);
+
+	/**
+	 * 更新浏览次数
+	 * @auth xiaoxc_2018-06-14
+	 * @param designPlanRecommended
+	 * @return
+	 */
+	int updateVisitCount(DesignPlanRecommended designPlanRecommended);
+
+	/**
+	 * 在报价表回填推荐方案id
+	 * @param planRecommendId
+	 * @param renderSceneId
+	 * @return
+	 */
+    int updatePlanDecoratePrice(@Param("planRecommendId") Integer planRecommendId,@Param("renderSceneId") Integer renderSceneId);
+
+	/**
+	 * 根据推荐组合方案id 查询组合方案列表
+	 * @author chenqiang
+	 * @param id 主方案id
+	 * @return
+	 * @date 2018/8/13 0013 14:01
+	 */
+	List<DesignRenderGroup> selectDesignPlanGroupList(@Param("id") Integer id);
+
+	/**
+	 * 根据idList/主方案id 维护组合方案关系
+	 * @author chenqiang
+	 * @param groupId 主方案id
+	 * @param idList  id集合
+	 * @return
+	 * @date 2018/8/13 0013 19:43
+	 */
+	int updateGroupDesign(@Param("groupId")Integer groupId,@Param("idList")List<Integer> idList);
+
+	/**
+	 * 根据idList/主方案id 修改组合方案成员方案状态
+	 * @author chenqiang
+	 * @param isRelease 方案状态
+	 * @param idList  id集合
+	 * @return
+	 * @date 2018/8/13 0013 19:43
+	 */
+	int updateGroupDesignRelease(@Param("isRelease")Integer isRelease,@Param("idList")List<Integer> idList);
+
+
+	Integer selectDesignPlanTargetId(Integer id);
+}

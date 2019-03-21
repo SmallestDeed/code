@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.user.dao.UserGuidePicMapper">
+	<!-- **插入定义** -->
+	<insert id="insertSelective" parameterType="com.nork.user.model.UserGuidePic"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into user_guide_pic
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="picUrl!= null">pic_url, </if>
+			<if test="sysCode!= null">sys_code, </if>
+			<if test="creator!= null">creator, </if>
+			<if test="gmtCreate!= null">gmt_create, </if>
+			<if test="modifier!= null">modifier, </if>
+			<if test="gmtModified!= null">gmt_modified, </if>
+			<if test="isDeleted!= null">is_deleted, </if>
+			<if test="sort!= null"> sort, </if>
+			<if test="ugId!= null">ug_id,</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="picUrl!= null"> #{picUrl,jdbcType=VARCHAR}, </if>
+			<if test="sysCode!= null"> #{sysCode,jdbcType=VARCHAR}, </if>
+			<if test="creator!= null"> #{creator,jdbcType=VARCHAR}, </if>
+			<if test="gmtCreate!= null"> #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifier!= null"> #{modifier,jdbcType=VARCHAR}, </if>
+			<if test="gmtModified!= null"> #{gmtModified,jdbcType=TIMESTAMP}, </if>
+			<if test="isDeleted!= null"> #{isDeleted,jdbcType=INTEGER}, </if>
+			<if test="sort!= null"> #{sort,jdbcType=INTEGER}, </if>
+			<if test="ugId!= null">#{ugId,jdbcType=INTEGER},</if>
+		</trim>
+	</insert>
+
+	<!-- **更新定义** -->
+	<update id="updateByPrimaryKeySelective" parameterType="com.nork.user.model.UserGuidePic">
+		update user_guide_pic
+		<set>
+			<if test="picUrl!= null"> pic_url = #{picUrl,jdbcType=VARCHAR}, </if>
+			<if test="sort!= null"> sort = #{sort,jdbcType=INTEGER}, </if>
+			<if test="sysCode!= null"> sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+			<if test="creator!= null"> creator = #{creator,jdbcType=VARCHAR}, </if>
+			<if test="gmtCreate!= null"> gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifier!= null"> modifier = #{modifier,jdbcType=VARCHAR}, </if>
+			<if test="isDeleted!= null"> is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<!-- **删除定义** -->
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		user_guide_pic
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+
+	<!-- **常量定义** -->
+	<sql id="All_Column_List">
+		id,pic_url,gmt_create,creator,sys_code,modifier,gmt_modified,is_deleted,sort
+	</sql>
+
+	<!-- **结果定义** -->
+	<resultMap id="AllResultMap" type="com.nork.user.model.UserGuidePic">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="pic_url" property="picUrl" jdbcType="VARCHAR" />
+		<result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="sort" property="sort" jdbcType="INTEGER" />
+	</resultMap>
+
+	<!-- **查询定义** -->
+	<!-- 按主键查询 -->
+	<select id="selectByPrimaryKey" resultMap="AllResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="All_Column_List" />
+		from user_guide_pic
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+
+	<!-- 查询所有，可排序 -->
+	<select id="selectList" resultMap="AllResultMap"
+		parameterType="com.nork.user.model.UserGuidePic">
+		select
+		<include refid="All_Column_List" />
+		from user_guide_pic
+		where 1=1
+		<if test="picUrl!= null"> and pic_url = #{picUrl,jdbcType=VARCHAR} </if>
+		<if test="gmtCreate!= null"> and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+		<if test="creator!= null"> and creator = #{creator,jdbcType=VARCHAR} </if>
+		order by sort ASC
+	<!-- 	<if test="order != null and  order !=''  ">
+			order by ${order}
+			<if test="orderNum != null and  orderNum !='' ">
+				${orderNum}
+			</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">
+			order by ${orders}
+		</if> -->
+	</select>
+
+	<!-- 分页汇总 -->
+	<select id="selectCount" resultType="int"
+		parameterType="com.nork.user.model.search.UserGuidePicSearch">
+		select count(*)
+		from user_guide_pic
+		where 1=1
+		<if test="ugId != null and ugId !=  ''   "> and ug_id = #{ugId,jdbcType=VARCHAR}</if>
+		<if test="picUrl !=  null and picUrl !=  ''   "> and pic_url = #{picUrl,jdbcType=VARCHAR} </if>
+		<if test="sch_PicUrl_ !=  null and sch_PicUrl_ !=  ''   ">
+			and pic_url like
+			CONCAT(CONCAT('%',#{sch_PicUrl_,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="sch_PicUrl !=  null and sch_PicUrl !=  ''   ">
+			and pic_url like
+			CONCAT('%',#{sch_PicUrl,jdbcType=VARCHAR})
+		</if>
+		<if test="schPicUrl_ !=  null and schPicUrl_ !=  ''   ">
+			and pic_url like
+			CONCAT(#{schPicUrl_,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="picUrlStart !=  null and picUrlEnd!= null  ">
+			and pic_url between #{picUrlStart,jdbcType=VARCHAR} and
+			#{picUrlEnd,jdbcType=VARCHAR}
+		</if>
+		<if test="gmtCreate !=  null  ">
+			and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+		</if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and gmt_create between
+			#{gmtCreateStart,jdbcType=TIMESTAMP} and
+			#{gmtCreateEnd,jdbcType=TIMESTAMP}
+		</if>
+		<if test="creator !=  null and creator !=  ''   "> and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+			and creator like
+			CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+			and creator like
+			CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+		</if>
+		<if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+			and creator like
+			CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="creatorStart !=  null and creatorEnd!= null  ">
+			and creator between #{creatorStart,jdbcType=VARCHAR} and
+			#{creatorEnd,jdbcType=VARCHAR}
+		</if>
+	</select>
+
+	<!-- 分页查询 ,可在UserGuidePicSearch中自定义查询条件 -->
+	<select id="selectPaginatedList" resultMap="AllResultMap"
+		parameterType="com.nork.user.model.search.UserGuidePicSearch">
+		select
+		<include refid="All_Column_List" />
+		from user_guide_pic
+		where 1=1
+		<if test="ugId  !=  null and ugId  !=  ''   "> and ug_id = #{ugId,jdbcType=VARCHAR}</if>
+		<if test="picUrl !=  null and picUrl !=  ''   "> and pic_url = #{picUrl,jdbcType=VARCHAR} </if>
+		<if test="sch_PicUrl_ !=  null and sch_PicUrl_ !=  ''   ">
+			and pic_url like
+			CONCAT(CONCAT('%',#{sch_PicUrl_,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="sch_PicUrl !=  null and sch_PicUrl !=  ''   ">
+			and pic_url like
+			CONCAT('%',#{sch_PicUrl,jdbcType=VARCHAR})
+		</if>
+		<if test="schPicUrl_ !=  null and schPicUrl_ !=  ''   ">
+			and pic_url like
+			CONCAT(#{schPicUrl_,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="picUrlStart !=  null and picUrlEnd!= null  ">
+			and pic_url between #{picUrlStart,jdbcType=VARCHAR} and
+			#{picUrlEnd,jdbcType=VARCHAR}
+		</if>
+		<if test="gmtCreate !=  null  ">
+			and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+		</if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and gmt_create between
+			#{gmtCreateStart,jdbcType=TIMESTAMP} and
+			#{gmtCreateEnd,jdbcType=TIMESTAMP}
+		</if>
+		<if test="creator !=  null and creator !=  ''   "> and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+			and creator like
+			CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+			and creator like
+			CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+		</if>
+		<if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+			and creator like
+			CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="creatorStart !=  null and creatorEnd!= null  ">
+			and creator between #{creatorStart,jdbcType=VARCHAR} and
+			#{creatorEnd,jdbcType=VARCHAR}
+		</if>
+		<!-- <IF TEST="ORDER != NULL AND  ORDER !=''  ">
+			ORDER BY ${ORDER}
+			<IF TEST="ORDERNUM != NULL AND  ORDERNUM !='' ">${ORDERNUM}</IF>
+		</IF> -->
+		order by sort ASC
+		<!-- <if test="orders != null and  orders !=''  "> order by #{orders}</if>
+		<if test="order == null and  orders == null "> order by id desc</if> -->
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+
+	<!-- 其他Map等查询方式 -->
+
+	<!-- end -->
+
+	<!-- 获得排序比我大的最小的一条 -->
+	<select id="getNextUserGuidePic" resultMap="AllResultMap"
+		parameterType="java.lang.Integer">
+		select * from user_guide_pic where sort=
+		(select
+		min(sort) from user_guide_pic where sort >#{sort,jdbcType=INTEGER} )
+	</select>
+	<!-- 获得排序比我小的最大的一条 -->
+	<select id="getUpUserGuidePic" resultMap="AllResultMap"
+		parameterType="java.lang.Integer">
+		select * from user_guide_pic where sort=
+		(select
+		max(sort) from user_guide_pic where sort &lt; #{sort,jdbcType=INTEGER}
+		)
+	</select>
+
+	<select id="getMaxSort" resultType="int">
+		select ifnull(max(sort),0)as
+		sort from user_guide_pic
+	</select>
+
+	<!-- 所有排序+1 -->
+	<update id="placedTop">
+		update user_guide_pic set sort=sort+1
+	</update>
+
+</mapper>

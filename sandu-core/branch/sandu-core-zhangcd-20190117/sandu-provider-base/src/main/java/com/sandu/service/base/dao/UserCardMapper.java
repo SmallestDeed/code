@@ -1,0 +1,41 @@
+package com.sandu.service.base.dao;
+
+import com.sandu.api.base.model.UserCard;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface UserCardMapper {
+    /**
+     * @mbggenerated
+     */
+    int deleteByPrimaryKey(Integer id);
+
+    /**
+     * @mbggenerated
+     */
+    int insert(UserCard record);
+
+    /**
+     * @mbggenerated
+     */
+    int insertSelective(UserCard record);
+
+    /**
+     * @mbggenerated
+     */
+    UserCard selectByPrimaryKey(Integer id);
+
+    /**
+     * @mbggenerated
+     */
+    int updateByPrimaryKeySelective(UserCard record);
+
+    /**
+     * @mbggenerated
+     */
+    int updateByPrimaryKey(UserCard record);
+
+    UserCard getUserCardByUserId(Integer userId);
+
+    int updateByUserIdSelective(UserCard record);
+}

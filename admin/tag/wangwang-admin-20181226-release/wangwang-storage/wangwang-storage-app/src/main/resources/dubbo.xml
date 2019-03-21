@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+					http://www.springframework.org/schema/beans/spring-beans.xsd
+                    http://code.alibabatech.com/schema/dubbo
+                    http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <!-- 提供方应用信息，用于计算依赖关系 -->
+    <dubbo:application name="${spring.application.name}"/>
+
+    <!-- 使用zookeeper注册中心暴露服务地址 -->
+    <dubbo:registry protocol="zookeeper" address="${dubbo.registry.address}"/>
+
+    <!-- 设置使用的协议与端口进行暴露服务 -->
+    <dubbo:protocol name="${dubbo.protocol.name}" port="${dubbo.protocol.port}"/>
+
+    <!-- 注册服务验证 -->
+    <dubbo:consumer check="false"/>
+
+    <dubbo:service timeout="10000" interface="com.sandu.api.storage.service.ResPicService" ref="resPicServiceImpl" version="20.18.0"/>
+
+    <dubbo:service timeout="10000" interface="com.sandu.api.storage.service.ResFileService" ref="resFileServiceImpl" version="20.18.0"/>
+
+    <dubbo:service timeout="10000" interface="com.sandu.api.storage.service.CacheService" ref="cacheServiceImpl" version="20.18.0"/>
+
+    <dubbo:reference interface="com.sandu.api.category.service.biz.CategoryBizService" id="categoryBizService" version="20.18.0"/>
+
+    <dubbo:reference interface="com.sandu.api.category.service.CategoryService" id="categoryService" version="20.18.0"/>
+
+</beans>

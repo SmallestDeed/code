@@ -1,0 +1,42 @@
+package com.sandu.api.base.model;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import lombok.Data;
+
+@Data
+public class InteractiveZoneMsg implements Serializable{
+	
+    private Long id;
+
+    private Long topicId;
+
+    private Long replyId;
+
+    private Integer picId;
+
+    private Integer operateType;
+
+    private Integer blockType;
+
+    private Integer businessType;
+
+    private Integer isRead;
+
+    private Integer publishUserId;
+    
+    private Integer operateUserId;
+
+    private String creator;
+
+    private Date gmtCreate;
+
+    private String modifier;
+
+    private Date gmtModified;
+
+    private Integer isDeleted;
+
+    private String content;
+}

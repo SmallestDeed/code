@@ -1,0 +1,157 @@
+<!-- <view class='type'>
+  <view class='{{id==1000?"options":"options2"}}' bindtap='changeId' data-id='1000'>建材</view>
+  <view class='{{id==2000?"options":"options2"}}'  bindtap='changeId' data-id='2000'>家居</view>
+  <view class='{{id==4000?"options":"options2"}}'  bindtap='changeId' data-id='4000'>电器</view>
+</view> -->
+<view class='garyline'></view>
+
+<view class="main_body wen">
+
+   <!-- <view class="spppg_dzss">
+    <view class="spppg_search"> -->
+      <!-- <input placeholder="搜索你喜欢的品牌" type="text" value="{{companyName}}" bindblur='setKeyword'></input> -->
+      <!-- <view class="search_btn" bindtap="doFilter">
+        <image src="{{imgURL}}ppg_search.png"></image>
+      </view>
+      <view style="clear: both;"></view>
+    </view>  -->
+    <!--没有搜索到内容 -->
+     <!-- <view style="display:{{noData?'block':'none'}}" class="search_none_text">抱歉，暂无你搜索的产品</view>
+  </view>  -->
+  <view class="saerch">
+    <view class="saerch-btn {{isShowSaerch? '' : 'saerch-btn-active'}}">
+       <image src='http://open.rjhq.cn/xz/wx/images/ppg_search.png'></image>
+       <input bindtap='goSaerch' 
+        bindinput='getValue' 
+        placeholder='搜本类品牌' 
+        bindconfirm="saerchBrand">
+      </input>
+    </view>
+    <text class="{{isShowSaerch?'search-text':'search-text-active'}}" bindtap="saerchBrand">搜索</text>
+    <!-- <view class="saerch">搜索</view> -->
+  </view>
+  <!-- 搜索历史，热门搜索 -->
+  <view class="search-record" wx:if="{{isShowSaerch}}">
+    <view class="hot-search">        
+      <view class="search-title">热门搜索</view>
+      <view class="search-list">
+        <text class="search-item" 
+            bindtap='saerchBrand'
+            data-id="{{item}}"
+            wx:for="{{hotList}}" 
+            wx:key="{{index}}">{{item}}
+        </text>
+      </view>
+    </view>
+    <view class="search-history" wx:if="{{historyList.length > 0}}">
+     <view class="search-title">
+        搜索历史
+        <image class="delete" src="{{staticImageUrl}}huxing_icon_delete.png" bindtap='historyDelete'></image>
+      </view>
+      <view class="search-list">
+        <text class="search-item" 
+            bindtap='saerchBrand'
+            data-id="{{item}}"
+            wx:for="{{historyList}}" 
+            wx:key="{{index}}">{{item}}</text>
+      </view>
+    </view>
+  </view>
+  <view class="spppg_neiro">
+    <!--没有搜索到内容则隐藏筛选条件 -->
+    <!-- <view style="display:{{noData?'none':'block'}}">
+      <view class="spppg_quanbu zxfw_quanbu">
+        <view class="am-dropdown {{isShowClassify?'am-active':''}}">
+          <view class="am-dropdown-toggle" bindtap="toggleClassify">{{currClassify.name}}
+            <text class="arrow_down"></text>
+          </view>
+          <view class="am-dropdown-content {{isClassifySlideDown?'am-animation-slide-top':''}} {{isClassifySlideTop?'am-dropdown-animation':''}}">
+            <view wx:for="{{classifyList}}" class="zxfw_classify {{currClassify.id==item.id?'quanbu_active':''}}" data-classifyid="{{item.id}}" data-classifyname="{{item.name}}" bindtap="changeClassify">
+              {{item.name}}
+            </view>
+          </view>
+        </view>
+      </view> -->
+      <!--销量 -->
+      <!-- <view class="spppg_xiaol">
+        <view class="spppg_sxian"></view>
+        <view class="am-dropdown {{isShowSort?'am-active':''}}">
+          <view class="am-dropdown-toggle" bindtap="toggleSort">{{currSort.name}}
+            <text class="arrow_down"></text>
+          </view>
+          <view class="am-dropdown-content {{isSortSlideDown?'am-animation-slide-top':''}} {{isSortSlideTop?'am-dropdown-animation':''}}">
+            <view data-sort="praiseRate" data-name="评分最高" bindtap="changeSort">评分最高</view>
+            <view data-sort="salesVolume" data-name="销量最高" bindtap="changeSort">销量最高</view>
+            <view data-sort="collectionCount" data-name="收藏最多" bindtap="changeSort">收藏最多</view>
+            <view data-sort="likeCount" data-name="点赞最多" bindtap="changeSort">点赞最多</view>
+          </view>
+        </view>
+      </view>
+      <view class="spppg_sxuan" bindtap="doFilter">
+         <view class="spppg_shaixuan">筛选</view> 
+      </view>
+    </view> -->
+
+    <!-- <view class="spppg_bianju"></view>
+    <view class="cnxh_text" style="display:{{searchResult.length>0?'none':'block'}}">
+      <view class="cnxh_text_h1">猜你喜欢</view>
+    </view> -->
+      
+    <!-- <view class="spppg_xinxi">
+      <view class="xinxi_jieshao" data-href="../bHStore/bHStore" bindtap="toHref">
+        <view class="xinxi_logo">
+          <image src="{{imgURL}}ppg_logo01.jpg"></image>
+        </view>
+        <view class="xinxi_right">
+          <view class="xinxi_title">左右家私</view>
+          <view class="xinxi_text">#家居#</view>
+        </view>
+        <view class="xinxi_haop">好评100%</view>
+      </view>
+      <view class="xinxi_neiro">经营范围：床，沙发，床，沙发…</view>
+      <view class="xinxi_pic">
+        <view class="pic_item">
+          <image mode="widthFix" src="{{imgURL}}ppg_pic01.jpg"></image>
+        </view>
+        <view class="pic_item">
+          <image mode="widthFix" src="{{imgURL}}ppg_pic02.jpg"></image>
+        </view>
+        <view class="pic_item">
+          <image mode="widthFix" src="{{imgURL}}ppg_pic03.jpg"></image>
+        </view>
+      </view>
+    </view> -->
+
+    <view class="spppg_xinxi" wx:for="{{searchResult}}" wx:key='{{index}}' wx:for-item="example" data-href="../bHStore/bHStore?id={{example.id}}" data-id="{{example.id}}" bindtap="toHref">
+      <image class="spppg_xinxi-img" src="{{example.coverResPicPathList? resourcePath + example.coverResPicPathList[0] : '{{staticImageUrl}}goods_pic_no.png'}}"></image>
+      <view class="xinxi_jieshao" >
+        <view class="xinxi_logo">
+          <image src="{{resourcePath}}{{example.logoUrl}}"></image>
+        </view>
+        <view class="xinxi_right">
+          <view class="xinxi_title ellipsis">{{example.shopName}}</view>
+          <view class="xinxi_text">{{example.firstCategoryNames}}</view>
+          <view class="xinxi_neiro">经营范围：{{example.categoryNames?example.categoryNames:'暂无'}}</view>
+        </view>
+        <!-- <view class="xinxi_haop">好评{{example.praiseRatePercent}}</view> -->
+      </view>
+      <!-- <block wx:if='{{example.categoryNames}}'>
+        <view class="xinxi_neiro">经营范围：{{example.categoryNames}}</view>
+      </block> -->
+      <view class="xinxi_pic">
+        <view class="pic_item" wx:for="{{example.lstResPic}}" wx:key='{{index}}'>
+          <image mode="widthFix" src="{{resourcePath}}{{item.picPath}}"></image>
+        </view>
+      </view>
+    </view>
+  </view>
+  <import src="../../../component/emptyTemplate/emptyTemplate.wxml"/>
+  <template is="emptyTemplate" data="{{ ...emptyTemplate }}"/>
+  <view class="to-top" wx:if='{{ifShowToTopLogo}}' bindtap="goTop">
+     <image src='{{staticImageUrl}}to_top.png'></image>
+  </view>
+</view>
+<!-- 快速导航模块 -->
+  <!-- <import src="../../../component/newNav/newNav.wxml"/>
+  <template is="newNav"  data="{{ ...newNav }}"/> -->
+  <jdNav></jdNav>

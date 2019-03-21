@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.product.dao.ProductControlDao" >
+  <resultMap id="BaseResultMap" type="com.sandu.api.product.model.ProductControl" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="product_id" property="productId" jdbcType="BIGINT" />
+    <result column="secrecy" property="secrecy" jdbcType="TINYINT" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, product_id, model_number,secrecy,
+    gmt_create, gmt_modified
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from product_control
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from product_control
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.product.model.ProductControl" >
+    insert into product_control ( product_id, secrecy,
+      gmt_create, gmt_modified,model_number
+      )
+    values ( #{productId,jdbcType=BIGINT}, #{secrecy,jdbcType=TINYINT},
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP},#{modelNumber}
+      )
+  </insert>
+  <insert id="insertList">
+    insert into product_control (product_id, secrecy, gmt_create, gmt_modified
+    )
+    values
+      <foreach collection="list" item="item" separator=",">
+          (
+         #{item.productId,jdbcType=BIGINT}, #{item.secrecy,jdbcType=TINYINT},
+        #{item.gmtCreate,jdbcType=TIMESTAMP}, #{item.gmtModified,jdbcType=TIMESTAMP}
+        )
+      </foreach>
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.product.model.ProductControl" >
+    insert into product_control
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="productId != null" >
+        product_id,
+      </if>
+      <if test="secrecy != null" >
+        secrecy,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="productId != null" >
+        #{productId,jdbcType=BIGINT},
+      </if>
+      <if test="secrecy != null" >
+        #{secrecy,jdbcType=TINYINT},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateSelectiveByProductId" parameterType="com.sandu.api.product.model.ProductControl" >
+    update product_control
+    <set >
+      <if test="secrecy != null" >
+        secrecy = #{secrecy,jdbcType=TINYINT},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modelNumber != null" >
+        model_number = #{modelNumber,},
+      </if>
+    </set>
+    where product_id = #{productId}
+  </update>
+
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.product.model.ProductControl" >
+    update product_control
+    set product_id = #{productId,jdbcType=BIGINT},
+      secrecy = #{secrecy,jdbcType=TINYINT},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <update id="batchChangeProductSecrecy">
+    update product_control set
+      secrecy = #{secrecy,jdbcType=TINYINT}
+    where
+      product_id in
+      <foreach collection="ids" item="id" open="(" separator="," close=")">
+        #{id}
+      </foreach>
+  </update>
+  <select id="getExistProductByProductId" resultType="java.lang.Integer">
+    select product_id
+    from product_control
+    where  product_id in
+    <foreach collection="list" item="productId" open="(" close=")" separator=",">
+      #{productId}
+    </foreach>
+  </select>
+  <!--根据产品ID查询产品状态-->
+  <select id="getByProductId" resultType="com.sandu.api.product.model.ProductControl">
+    select id, product_id, model_number,secrecy from product_control
+    where product_id = #{productId}
+  </select>
+</mapper>

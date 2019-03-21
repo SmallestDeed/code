@@ -1,0 +1,61 @@
+let fetch = getApp().fetch
+let myForEach = getApp().myForEach
+let $App = getApp();
+let urltType = 'system'
+Page({
+    data: {
+        hdimg: [],
+        circular: true,
+        indicatorDots: false,
+        indicatorcolor: "#000",
+        vertical: false,
+        autoplay: false,
+        duration: 100,
+        imgheights: [],
+        imgwidth: 750,
+        current: 0,
+        giftIndex: 0,
+        gift: {},
+        resourcePath: getApp().resourcePath,
+    },
+    imageLoad: function(e) {
+        //获取图片真实宽度
+        var imgwidth = e.detail.width,
+            imgheight = e.detail.height,
+            ratio = imgwidth / imgheight;
+        console.log(imgwidth, imgheight)
+
+        var viewHeight = 750 / ratio;
+        var imgheight = viewHeight
+        var imgheights = this.data.imgheights
+
+        imgheights.push(imgheight)
+
+        this.setData({
+            imgheights: imgheights,
+        })
+    },
+    bindchange: function(e) {
+        this.setData({
+            current: e.detail.current
+        })
+    },
+    gettrade: function(e) {
+        wx.navigateTo({
+            url: '../trade/trade?Index=' + this.data.gift.id,
+        })
+    },
+    onLoad: function(options) {
+        let url = '/v1/point/gift/get',
+            that = this;
+        fetch(url, 'get', {
+            id: options.Index
+        }, urltType).then((res) => {
+            if (res.code == 200) {
+                that.setData({
+                    gift: res.data
+                });
+            }
+        })
+    }
+})

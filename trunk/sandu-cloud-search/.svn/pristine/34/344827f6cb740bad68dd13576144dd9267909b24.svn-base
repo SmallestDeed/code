@@ -1,0 +1,138 @@
+package com.sandu.search.storage.system;
+
+import com.sandu.search.entity.common.AreaZone;
+import com.sandu.search.entity.elasticsearch.po.metadate.AreaPo;
+import com.sandu.search.exception.MetaDataException;
+import com.sandu.search.service.metadata.MetaDataService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 区域元数据存储
+ *
+ * @date 20180104
+ * @auth pengxuangang
+ */
+@Slf4j
+@Component
+public class SystemAreaMetaDataStorage {
+
+    private final static String CLASS_LOG_PREFIX = "区域元数据存储:";
+    //区域元数据Map<areacode,AreaZone>
+    private static Map<String, AreaZone> areaMap = new HashMap<>();
+    //元数据服务
+    @Autowired
+    private MetaDataService metaDataService;
+
+    /**
+     * 更新数据
+     * @param isEnforceLoad 是否强制更新
+     */
+    public void updateData(boolean isEnforceLoad) {
+
+        //若无强制更新则更新前判断是否已有数据
+        if (!isEnforceLoad) {
+            if (null != areaMap && 0 < areaMap.size()) {
+                return;
+            }
+        }
+
+        //区域元数据
+        List<AreaPo> areaPoList;
+        try {
+            //获取数据
+            log.info(CLASS_LOG_PREFIX + "开始获取区域元数据....");
+            areaPoList = metaDataService.queryAreaMetaData();
+            log.info(CLASS_LOG_PREFIX + "获取区域元数据完成,总条数:{}", (null == areaPoList ? 0 : areaPoList.size()));
+        } catch (MetaDataException e) {
+            log.error(CLASS_LOG_PREFIX + "获取区域元数据失败: MetaDataException:{}", e);
+            throw new NullPointerException(CLASS_LOG_PREFIX + "获取区域元数据失败,List<AreaPo> is null.MetaDataException:" + e);
+        }
+
+        //临时对象
+        Map<String, AreaZone> tempAreaMap = new HashMap<>();
+
+        //转换Map
+        if (null != areaPoList && 0 != areaPoList.size()) {
+
+            Map<String, AreaPo> areaCodeMap = new HashMap<>(areaPoList.size());
+
+            //遍历Map切换数据格式
+            areaPoList.forEach(areaPo -> areaCodeMap.put(areaPo.getAreaCode(), areaPo));
+            //遍历Map解析数据
+            for (Map.Entry<String, AreaPo> entry : areaCodeMap.entrySet()) {
+                AreaPo areaDistrictPo = entry.getValue();
+                //三级地区信息--这里可以写死
+                if (null != areaDistrictPo && 3 == areaDistrictPo.getAreaLevelId()) {
+                    AreaZone areaZone = new AreaZone();
+                    //区
+                    areaZone.setZoneDistrictId(Integer.parseInt(areaDistrictPo.getAreaCode()));
+                    areaZone.setZoneDistrictName(areaDistrictPo.getAreaName());
+
+                    //市
+                    String zoneCityId = areaDistrictPo.getAreaParentId();
+                    AreaPo areaCityPo = areaCodeMap.get(zoneCityId);
+                    areaZone.setZoneCityId(Integer.parseInt(zoneCityId));
+                    areaZone.setZoneCityName(areaCityPo.getAreaName());
+
+                    //省
+                    String zoneProvinceId = areaCityPo.getAreaParentId();
+                    AreaPo areaProvincePo = areaCodeMap.get(zoneProvinceId);
+                    if (null == areaProvincePo) {
+                        log.warn(CLASS_LOG_PREFIX + "解析省区域信息失败，未找到areacode对应区域。areacode:{}", zoneProvinceId);
+                    } else {
+                        areaZone.setZoneProvinceId(Integer.parseInt(zoneProvinceId));
+                        areaZone.setZoneProvinceName(areaProvincePo.getAreaName());
+                    }
+
+                    //邮编
+                    areaZone.setZoneZipCode(areaDistrictPo.getAreaZipCode());
+                    //区域长ID
+                    areaZone.setZoneLongId(Arrays.asList(areaZone.getZoneProvinceId() + "",
+                            areaZone.getZoneCityId() + "",
+                            areaZone.getZoneDistrictId() + ""));
+                    //区域长名
+                    areaZone.setZoneLongName(Arrays.asList(areaZone.getZoneProvinceName(),
+                            areaZone.getZoneCityName(),
+                            areaZone.getZoneDistrictName()));
+
+                    tempAreaMap.put(areaDistrictPo.getAreaCode(), areaZone);
+                }
+            }
+        }
+
+        //装回对象
+        areaMap = null;
+        areaMap = tempAreaMap;
+    }
+
+    /**
+     * 根据区域编码查询区域对象
+     *
+     * @param areaCode 区域编码
+     * @return
+     */
+    public AreaZone getAreaZoneByAreaCode(String areaCode) {
+        if (StringUtils.isEmpty(areaCode)) {
+            return null;
+        }
+
+        if (null == areaMap || 0 >= areaMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        if (areaMap.containsKey(areaCode)) {
+            return areaMap.get(areaCode);
+        }
+
+        return null;
+    }
+}

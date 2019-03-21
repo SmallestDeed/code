@@ -1,0 +1,305 @@
+package com.sandu.cart;
+
+import com.sandu.common.model.Mapper;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+/**   
+ * @Title: MallCartProductRef.java 
+ * @Package com.nork.mini.cart.model
+ * @Description:小程序-购物车产品关联表
+ * @createAuthor pandajun 
+ * @CreateDate 2018-03-28 14:07:30
+ * @version V1.0   
+ */
+public class MallCartProductRef extends Mapper implements Serializable{
+private static final long serialVersionUID = 1L;
+    private Integer id;
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+    
+	/**  购物车id  **/
+	private Integer cartId;
+	/**  产品id  **/
+	private Integer productId;
+	/**  产品编码  **/
+	private String productCode;
+	/**  产品数量  **/
+	private Integer productNumber;
+	/**  产品名称  **/
+	private String productName;
+	/**  产品单价  **/
+	private Double productPrice;
+	/**  系统编码  **/
+	private String sysCode;
+	/**  创建者  **/
+	private String creator;
+	/**  创建时间  **/
+	private Date gmtCreate;
+	/**  修改人  **/
+	private String modifier;
+	/**  修改时间  **/
+	private Date gmtModified;
+	/**  是否删除  **/
+	private Integer isDeleted;
+	/**  备注  **/
+	private String remark;
+	/**  产品款式  **/
+	private String productStyleName;
+	/**  产品颜色  **/
+	private String productColorName;
+	/**  产品图片  **/
+	private String productPicPath;
+	/**  产品id集合  **/
+	private List<Integer> cartProductIdList;
+	/**  产品规格  **/
+	private String attribute;
+
+	private String transportMoney;
+
+	private BigDecimal fixTransportExpense;
+
+	public List<Integer> getCartProductIdList() {
+		return cartProductIdList;
+	}
+
+	public void setCartProductIdList(List<Integer> cartProductIdList) {
+		this.cartProductIdList = cartProductIdList;
+	}
+
+	public String getProductPicPath() {
+		return productPicPath;
+	}
+
+	public void setProductPicPath(String productPicPath) {
+		this.productPicPath = productPicPath;
+	}
+
+	public String getProductColorName() {
+		return productColorName;
+	}
+
+	public void setProductColorName(String productColorName) {
+		this.productColorName = productColorName;
+	}
+
+	public String getProductStyleName() {
+		return productStyleName;
+	}
+
+	public void setProductStyleName(String productStyleName) {
+		this.productStyleName = productStyleName;
+	}
+
+	public  Integer getCartId() {
+		return cartId;
+	}
+	public void setCartId(Integer cartId){
+		this.cartId = cartId;
+	}
+	public  Integer getProductId() {
+		return productId;
+	}
+	public void setProductId(Integer productId){
+		this.productId = productId;
+	}
+	public  String getProductCode() {
+		return productCode;
+	}
+	public void setProductCode(String productCode){
+		this.productCode = productCode;
+	}
+	public  Integer getProductNumber() {
+		return productNumber;
+	}
+	public void setProductNumber(Integer productNumber){
+		this.productNumber = productNumber;
+	}
+	public  String getProductName() {
+		return productName;
+	}
+	public void setProductName(String productName){
+		this.productName = productName;
+	}
+	public  Double getProductPrice() {
+		return productPrice;
+	}
+	public void setProductPrice(Double productPrice){
+		this.productPrice = productPrice;
+	}
+	public  String getSysCode() {
+		return sysCode;
+	}
+	public void setSysCode(String sysCode){
+		this.sysCode = sysCode;
+	}
+	public  String getCreator() {
+		return creator;
+	}
+	public void setCreator(String creator){
+		this.creator = creator;
+	}
+	public  Date getGmtCreate() {
+		return gmtCreate;
+	}
+	public void setGmtCreate(Date gmtCreate){
+		this.gmtCreate = gmtCreate;
+	}
+	public  String getModifier() {
+		return modifier;
+	}
+	public void setModifier(String modifier){
+		this.modifier = modifier;
+	}
+	public  Date getGmtModified() {
+		return gmtModified;
+	}
+	public void setGmtModified(Date gmtModified){
+		this.gmtModified = gmtModified;
+	}
+	public  Integer getIsDeleted() {
+		return isDeleted;
+	}
+	public void setIsDeleted(Integer isDeleted){
+		this.isDeleted = isDeleted;
+	}
+	public  String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark){
+		this.remark = remark;
+	}
+
+
+   @Override
+    public boolean equals(Object that) {
+        if (this == that) {
+            return true;
+        }
+        if (that == null) {
+            return false;
+        }
+        if (getClass() != that.getClass()) {
+            return false;
+        }
+        MallCartProductRef other = (MallCartProductRef) that;
+        return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
+            && (this.getCartId() == null ? other.getCartId() == null : this.getCartId().equals(other.getCartId()))
+            && (this.getProductId() == null ? other.getProductId() == null : this.getProductId().equals(other.getProductId()))
+            && (this.getProductCode() == null ? other.getProductCode() == null : this.getProductCode().equals(other.getProductCode()))
+            && (this.getProductNumber() == null ? other.getProductNumber() == null : this.getProductNumber().equals(other.getProductNumber()))
+            && (this.getProductName() == null ? other.getProductName() == null : this.getProductName().equals(other.getProductName()))
+            && (this.getProductPrice() == null ? other.getProductPrice() == null : this.getProductPrice().equals(other.getProductPrice()))
+            && (this.getSysCode() == null ? other.getSysCode() == null : this.getSysCode().equals(other.getSysCode()))
+            && (this.getCreator() == null ? other.getCreator() == null : this.getCreator().equals(other.getCreator()))
+            && (this.getGmtCreate() == null ? other.getGmtCreate() == null : this.getGmtCreate().equals(other.getGmtCreate()))
+            && (this.getModifier() == null ? other.getModifier() == null : this.getModifier().equals(other.getModifier()))
+            && (this.getGmtModified() == null ? other.getGmtModified() == null : this.getGmtModified().equals(other.getGmtModified()))
+            && (this.getIsDeleted() == null ? other.getIsDeleted() == null : this.getIsDeleted().equals(other.getIsDeleted()))
+            && (this.getRemark() == null ? other.getRemark() == null : this.getRemark().equals(other.getRemark()))
+;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
+        result = prime * result + ((getCartId() == null) ? 0 : getCartId().hashCode());
+        result = prime * result + ((getProductId() == null) ? 0 : getProductId().hashCode());
+        result = prime * result + ((getProductCode() == null) ? 0 : getProductCode().hashCode());
+        result = prime * result + ((getProductNumber() == null) ? 0 : getProductNumber().hashCode());
+        result = prime * result + ((getProductName() == null) ? 0 : getProductName().hashCode());
+        result = prime * result + ((getProductPrice() == null) ? 0 : getProductPrice().hashCode());
+        result = prime * result + ((getSysCode() == null) ? 0 : getSysCode().hashCode());
+        result = prime * result + ((getCreator() == null) ? 0 : getCreator().hashCode());
+        result = prime * result + ((getGmtCreate() == null) ? 0 : getGmtCreate().hashCode());
+        result = prime * result + ((getModifier() == null) ? 0 : getModifier().hashCode());
+        result = prime * result + ((getGmtModified() == null) ? 0 : getGmtModified().hashCode());
+        result = prime * result + ((getIsDeleted() == null) ? 0 : getIsDeleted().hashCode());
+        result = prime * result + ((getRemark() == null) ? 0 : getRemark().hashCode());
+;
+        return result;
+    }
+    
+    /**获取对象的copy**/
+    public MallCartProductRef copy(){
+       MallCartProductRef obj =  new MallCartProductRef();
+       obj.setCartId(this.cartId);
+       obj.setProductId(this.productId);
+       obj.setProductCode(this.productCode);
+       obj.setProductNumber(this.productNumber);
+       obj.setProductName(this.productName);
+       obj.setProductPrice(this.productPrice);
+       obj.setSysCode(this.sysCode);
+       obj.setCreator(this.creator);
+       obj.setGmtCreate(this.gmtCreate);
+       obj.setModifier(this.modifier);
+       obj.setGmtModified(this.gmtModified);
+       obj.setIsDeleted(this.isDeleted);
+       obj.setRemark(this.remark);
+
+       return obj;
+    }
+    
+     /**获取对象的map**/
+    public Map toMap(){
+       Map map =  new HashMap();
+       map.put("cartId",this.cartId);
+       map.put("productId",this.productId);
+       map.put("productCode",this.productCode);
+       map.put("productNumber",this.productNumber);
+       map.put("productName",this.productName);
+       map.put("productPrice",this.productPrice);
+       map.put("sysCode",this.sysCode);
+       map.put("creator",this.creator);
+       map.put("gmtCreate",this.gmtCreate);
+       map.put("modifier",this.modifier);
+       map.put("gmtModified",this.gmtModified);
+       map.put("isDeleted",this.isDeleted);
+       map.put("remark",this.remark);
+
+       return map;
+    }
+
+	public String getAttribute()
+	{
+		return attribute;
+	}
+
+	public void setAttribute(String attribute)
+	{
+		this.attribute = attribute;
+	}
+
+	public String getTransportMoney()
+	{
+		return transportMoney;
+	}
+
+	public void setTransportMoney(String transportMoney)
+	{
+		this.transportMoney = transportMoney;
+	}
+
+	public BigDecimal getFixTransportExpense()
+	{
+		return fixTransportExpense;
+	}
+
+	public void setFixTransportExpense(BigDecimal fixTransportExpense)
+	{
+		this.fixTransportExpense = fixTransportExpense;
+	}
+}

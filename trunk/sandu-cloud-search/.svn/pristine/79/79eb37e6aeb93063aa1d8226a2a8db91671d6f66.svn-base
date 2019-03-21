@@ -1,0 +1,146 @@
+package com.sandu.search.storage.company;
+
+import com.sandu.search.entity.elasticsearch.po.UnionBrandPo;
+import com.sandu.search.exception.MetaDataException;
+import com.sandu.search.service.metadata.MetaDataService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * 联盟品牌元数据存储
+ *
+ * @date 20171218
+ * @auth pengxuangang
+ */
+@Slf4j
+@Component
+public class UnionBrandMetaDataStorage {
+
+    private final static String CLASS_LOG_PREFIX = "联盟品牌元数据存储:";
+
+    @Autowired
+    private MetaDataService metaDataService;
+
+    //联盟品牌数据<unionId, List<brandId>>
+    private static Map<Integer, List<Integer>> unionBrandMap = null;
+    //品牌联盟数据<brandId, List<unionId>>
+    private static Map<Integer, List<Integer>> brandUnionMap = null;
+
+
+    /**
+     * 更新数据
+     *
+     * @param isEnforceLoad 是否强制更新
+     */
+    public void updateData(boolean isEnforceLoad) {
+
+        //若无强制更新则更新前判断是否已有数据
+        if (!isEnforceLoad) {
+            if (null != unionBrandMap && null != brandUnionMap) {
+                return;
+            }
+        }
+
+        List<UnionBrandPo> unionBrandPoList;
+        try {
+            //获取数据
+            log.info(CLASS_LOG_PREFIX + "开始获取联盟品牌元数据....");
+            unionBrandPoList = metaDataService.queryUnionBrandMetaData();
+            log.info(CLASS_LOG_PREFIX + "获取联盟品牌元数据完成,总条数:{}", (null == unionBrandPoList ? 0 : unionBrandPoList.size()));
+        } catch (MetaDataException e) {
+            log.error(CLASS_LOG_PREFIX + "获取联盟品牌元数据失败: MetaDataException:{}", e);
+            throw new NullPointerException(CLASS_LOG_PREFIX + "获取联盟品牌元数据失败,List<UnionBrandPo> is null.MetaDataException:" + e);
+        }
+
+        //临时联盟品牌数据<unionId, List<brandId>>
+        Map<Integer, List<Integer>> tempUnionBrandMap = new HashMap<>();
+        //临时品牌联盟数据<brandId, List<unionId>>
+        Map<Integer, List<Integer>> tempBrandUnionMap = new HashMap<>();
+
+        //转换为Map元数据
+        if (null != unionBrandPoList && 0 != unionBrandPoList.size()) {
+            for (UnionBrandPo unionBrandPo : unionBrandPoList) {
+                //联盟ID
+                Integer unionId = unionBrandPo.getUnionId();
+                //品牌ID
+                Integer brandId = unionBrandPo.getBrandId();
+                //联盟品牌
+                if (tempUnionBrandMap.containsKey(unionId)) {
+                    List<Integer> brandList = new ArrayList<>();
+                    brandList.add(brandId);
+                    brandList.addAll(tempUnionBrandMap.get(unionId));
+                    tempUnionBrandMap.put(unionId, brandList);
+                } else {
+                    tempUnionBrandMap.put(unionId, Arrays.asList(brandId));
+                }
+
+                //品牌联盟
+                if (tempBrandUnionMap.containsKey(brandId)) {
+                    List<Integer> unionList = new ArrayList<>();
+                    unionList.add(unionId);
+                    unionList.addAll(tempBrandUnionMap.get(brandId));
+                    tempBrandUnionMap.put(brandId, unionList);
+                } else {
+                    tempBrandUnionMap.put(brandId, Arrays.asList(unionId));
+                }
+            }
+        }
+
+        //赋值
+        unionBrandMap = null;
+        unionBrandMap = tempUnionBrandMap;
+        brandUnionMap = null;
+        brandUnionMap = tempBrandUnionMap;
+    }
+
+    /**
+     * 根据品牌ID列表查询包含的异业联盟品牌
+     *
+     * @param brandIdList   品牌ID列表
+     * @return
+     */
+    public List<Integer> queryUnionBrandByBrandIdList(List<Integer> brandIdList) {
+
+        if (null == brandIdList || 0 >= brandIdList.size()) {
+            return null;
+        }
+
+        if (null == unionBrandMap || null == brandUnionMap) {
+            updateData(false);
+        }
+
+        //联盟列表
+        List<Integer> unionList = new ArrayList<>();
+        //联盟品牌列表
+        List<Integer> unionBrandList = new ArrayList<>();
+
+        //查询出每个品牌的联盟
+        for (Integer brandId : brandIdList) {
+            if (null != brandId && 0 < brandId && brandUnionMap.containsKey(brandId)) {
+                //加入联盟列表
+                unionList.addAll(brandUnionMap.get(brandId));
+            }
+        }
+
+        if (0 < unionList.size()) {
+            //多个品牌可能对应多个联盟
+            unionList = unionList.stream().distinct().collect(Collectors.toList());
+            unionList.forEach(unionId -> {
+                if (unionBrandMap.containsKey(unionId)) {
+                    unionBrandList.addAll(unionBrandMap.get(unionId));
+                }
+            });
+        }
+
+        if (0 < unionBrandList.size()) {
+            //多个联盟对应多个品牌
+            return unionBrandList.stream().distinct().collect(Collectors.toList());
+        }
+
+        return null;
+    }
+}

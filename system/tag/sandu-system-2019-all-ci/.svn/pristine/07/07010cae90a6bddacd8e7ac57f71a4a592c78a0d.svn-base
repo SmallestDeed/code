@@ -1,0 +1,24 @@
+package com.sandu.service.banner.dao;
+
+import com.sandu.api.banner.model.MiniProIndexDialog;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface MiniProIndexDialogMapper {
+    int insert(MiniProIndexDialog miniProIndexDialog);
+
+    List<MiniProIndexDialog> selectMiniProIndexDialogList(@Param("dialogCode") String dialogCode, @Param("page")Integer page,@Param("limit") Integer limit);
+
+    MiniProIndexDialog getEnableDialog(String dialogCode);
+
+    int update(MiniProIndexDialog log);
+
+    MiniProIndexDialog get(Integer dialogId);
+
+    int countIsEnable();
+
+    void updateAlreadyIsEnable(Integer id);
+}

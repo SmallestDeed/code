@@ -1,0 +1,32 @@
+<view class="my-assemble">
+  <view class="my-assemble-tab">
+     <view class="my-assemble-tab-item {{item.active ? 'active':''}}" bindtap='toggleTab' wx:for="{{tabList}}" data-num='{{index}}' wx:key="{{index}}">{{item.text}}</view>
+  </view>
+  <view class='my-assemble-list'>
+      <view class='my-assemble-item' wx:for="{{assembleData}}" wx:key="{{index}}">
+         <view class='my-assemble-header' catchtap='toAssembleDetail' data-num='{{index}}'>
+            <image src='{{ resourcePath+item.picPath}}' class="goods-img"></image>
+            <view class='my-assemble-text'>
+                <view class='goods-name'>{{item.spuName}}</view>
+                <text class='goods-price'>￥{{item.activityPrice}}</text> <text class="goods-num">{{item.totalNumber}}人拼团价</text>
+                <view class='goods-status' wx:if="{{item.openStatus==0}}">等待成团</view>
+            </view>
+         </view>
+         <view class="my-assemble-bottom">
+            <view class='my-assemble-img'>
+                <image src='{{imgItem.picPath}}' wx:key="{{imgIndex}}" wx:for="{{item.innerUserInfoList}}" wx:for-item="imgItem" wx:for-index="imgIndex" wx:if="{{imgIndex<=3}}"></image> 
+                <image src='{{staticImageUrl}}tuan_user_nor.png' wx:if="{{imgChildIndex<3}}"  wx:for="{{item.totalNumber-item.innerUserInfoList.length}}" wx:for-index="imgChildIndex" wx:key="{{imgChildIndex}}"></image>             
+            </view>
+            <view wx:if="{{item.totalNumber>4}}" class="more">...</view>
+            <view class='my-assemble-btn' catchtap='inviteFriend' data-listNum='{{index}}' wx:if="{{item.openStatus==0}}">邀请好友参团</view> 
+            <image src='{{staticImageUrl}}order_icon_success.png' class='icon_success' wx:elif="{{item.openStatus==1}}"></image>
+            <image src='{{staticImageUrl}}order_icon_fail.png' class='icon_success' wx:elif="{{item.openStatus==2}}"></image>
+         </view>
+      </view>
+  </view>
+  <empty-page id="emptyPage" text="什么都没有呢~"></empty-page>
+    <!-- 分享组件 -->
+  <share-way id="shareWay" bind:myevent="showPoster"></share-way>
+  <create-poster id="createPoster" shareParam='{{shareParam}}'></create-poster> 
+</view>
+<canvas canvas-id="myCanvas" class='hide'></canvas> 

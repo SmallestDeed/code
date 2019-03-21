@@ -1,0 +1,31 @@
+package com.sandu.service.springFestivalActivity.dao;
+
+import com.sandu.api.springFestivalActivity.model.WxFilmTicket;
+import com.sandu.api.user.model.SysUser;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface WxFilmTicketMapper {
+    int deleteByPrimaryKey(Long id);
+
+    int insert(WxFilmTicket record);
+
+    int insertSelective(WxFilmTicket record);
+
+    WxFilmTicket selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(WxFilmTicket record);
+
+    int updateByPrimaryKey(WxFilmTicket record);
+
+    List<WxFilmTicket> selectSelective(WxFilmTicket record);
+
+    WxFilmTicket getEmptyTicket(@Param("activityId") Long activityId);
+
+    List<WxFilmTicket> getNotEmptyTicketList(@Param("activityId") Long activityId,
+                                             @Param("start") Integer start,
+                                             @Param("limit") Integer limit);
+}

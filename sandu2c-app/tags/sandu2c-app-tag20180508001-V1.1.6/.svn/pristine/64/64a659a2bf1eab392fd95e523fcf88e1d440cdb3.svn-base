@@ -1,0 +1,54 @@
+package com.sandu.designplan.dao;
+
+import com.sandu.design.model.DesignPlanProduct;
+import com.sandu.design.model.DesignPlanRecommendedProduct;
+import com.sandu.design.model.ProductsCost;
+import com.sandu.design.model.ProductsCostType;
+import com.sandu.designplan.vo.RecommendedPlanProductRelatedVo;
+import com.sandu.product.model.ProductCostDetail;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+
+@Repository
+public interface DesignPlanRecommendedProductMapper {
+
+    int insertSelective(DesignPlanRecommendedProduct designPlanRecommendedProduct);
+
+    int costTypeListCount(DesignPlanProduct designPlanProduct);
+
+    List<ProductsCostType> costTypeList(DesignPlanProduct designPlanProduct);
+
+    List<ProductsCost> costList(ProductsCostType productsCostType);
+
+    List<ProductCostDetail> costDetail(ProductsCost cost);
+
+    int selectCount(DesignPlanRecommendedProduct designPlanRecommendedProduct);
+
+    /**
+     * 查询产品相关推荐方案
+     * @param productId 产品ID
+     * @param brandList 品牌列表
+     * @param platformId 
+     * @return
+     */
+    List<RecommendedPlanProductRelatedVo> queryRecommendedPlanOfProductRelatedByProductId(
+            @Param("productId") Integer productId, @Param("brandList") List<Integer> brandList,
+            @Param("platformId") Integer platformId, @Param("userId") Integer userId,@Param("recommendedTypes") List<Integer> recommendedTypes);
+
+	Integer getProductCount(ProductCostDetail productCostDetail);
+
+
+    /**
+     * 查询产品相关推荐方案
+     * @param productId 产品ID
+     * @param  品牌列表
+     * @param platformId
+     * @return
+     */
+    List<RecommendedPlanProductRelatedVo> queryRecommendedPlanOfProductRelatedByProductId2(
+            @Param("productId") Integer productId,
+            @Param("platformId") Integer platformId, @Param("userId") Integer userId,@Param("recommendedTypes") List<Integer> recommendedTypes,@Param("companyId") Integer companyId);
+}

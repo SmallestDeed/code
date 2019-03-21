@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.income.dao.CompanyDesignPlanIncomeDao">
+
+    <select id="countCompanyIncome" resultType="int">
+        SELECT
+        count(*)
+        FROM
+        company_design_plan_income
+        WHERE
+        plan_company_id = #{companyId}
+        <if test="platformId != null">
+            AND  platform_id = #{platformId}
+        </if>
+        <if test="planCode != null and planCode != '' ">
+            AND plan_code like concat(concat('%',#{planCode},'%'))
+        </if>
+        <if test="planCreator != null and planCreator != ''">
+            AND plan_creator like concat(concat('%',#{planCreator},'%'))
+        </if>
+    </select>
+
+    <select id="selectCompanyIncomeList" resultType="com.sandu.api.income.model.CompanyDesignPlanIncome">
+
+        SELECT
+        *
+        FROM
+        company_design_plan_income
+        WHERE
+        plan_company_id = #{companyId}
+        <if test="platformId != null">
+           AND platform_id = #{platformId}
+        </if>
+        <if test="planCode != null and planCode != ''">
+            AND plan_code like concat(concat('%',#{planCode},'%'))
+        </if>
+        <if test="planCreator != null and planCreator != ''">
+            AND plan_creator like concat(concat('%',#{planCreator},'%'))
+        </if>
+        order by pay_time desc
+        limit #{start},#{limit}
+    </select>
+
+    <select id="batchInsertIncomes">
+        INSERT INTO company_design_plan_income
+        (
+            plan_id, plan_code,plan_type, buyer_id,
+            buyer_name,platform_id,platform_name,
+            plan_company_id,use_type,buy_type,
+            pay_time,pay_dubi,is_deleted,plan_creator
+        )values
+        <foreach collection="lists" item="item" index="index"  separator="," >
+            (#{item.planId},#{item.planCode}, #{item.planType},#{item.buyerId},
+            #{item.buyerName}, #{item.platformId}, #{item.platformName},
+            #{item.planCompanyId},#{item.useType},#{item.buyType},
+            #{item.payTime},#{item.payDubi},#{item.isDeleted},#{item.planCreator}
+            )
+        </foreach>
+    </select>
+
+    <update id="updateCurrentDubiANDTotalIncomeDubi">
+        UPDATE
+          company_design_plan_income_aggregated
+        SET
+          current_dubi = current_dubi + #{planPrice},
+          total_income_dubi = total_income_dubi + #{planPrice}
+        WHERE
+          company_id = #{companyId} AND
+          is_deleted = 0
+    </update>
+
+    <insert id="insertDesignPlanIncomeAggregated" parameterType="com.sandu.api.income.model.CompanyDesignPlanIncomeAggregated">
+        INSERT INTO
+        company_design_plan_income_aggregated
+        (company_id, current_dubi, total_income_dubi, transfer_dubi, frozen_dubi,is_deleted,withdraw_dubi)
+        VALUES
+        (#{companyId},#{currentDubi},#{totalIncomeDubi},#{transferDubi},#{frozenDubi},#{isDeleted},#{withdrawDubi})
+    </insert>
+
+</mapper>

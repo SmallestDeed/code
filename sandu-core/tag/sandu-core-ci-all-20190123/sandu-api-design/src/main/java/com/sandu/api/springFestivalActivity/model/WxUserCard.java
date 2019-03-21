@@ -1,0 +1,40 @@
+package com.sandu.api.springFestivalActivity.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.Date;
+
+@Data
+@Builder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
+public class WxUserCard {
+    private Long id;
+
+    private Long activityId;
+
+    private Long userId;
+
+    private Byte businessType;
+
+    private Integer cardNumber;
+
+    private Date cardDate;
+
+    private Byte cardStatus;
+
+    private Date receiveTime;
+
+    private String creator;
+
+    private Date gmtCreate;
+
+    private String modifier;
+
+    private Date gmtModified;
+
+    private Integer isDeleted;
+}

@@ -1,0 +1,263 @@
+<!--pages/house-type/house-detail/house-detail.wxml-->
+<scroll-view scroll-y='true' scroll-with-animation='true' style='height:1100px;' scroll-into-view='{{scrollId}}'>
+<view class="decorate" id='top'>
+  <!-- 显示当前选中空间 -->
+  <view class="space-type">
+    <text class="type-label">当前选择：<text class="type-name">{{selectSpaceName}}</text></text>
+
+    <!--rzd随选网UI优化调整181121---- <form class="" bindsubmit='formToThreeD' report-submit='true'>
+      <button form-type='submit' data-type='seven' catchtap='{{true}}' class='show3d'>
+        查看效果图
+      </button>
+    </form> -->
+    <!-- <view class="show3d">查看效果图</view> -->
+  </view>
+
+  <!-- 全屋图 -->
+  <view class="panorama">
+    <view class="panorama-content">
+      <view class='triangle'></view>
+      <image class="panorama-pic" src="{{wholeHousePicData && resourcePath + wholeHousePicData.picPath}}"></image>
+      <image class="question" src="{{staticImageUrl}}huxing_icon_help.png" catchtap="showAndHideGuide"></image>
+      <image class="enlarge" src="{{staticImageUrl}}huxing_icon_enlarge.png" catchtap="showAndCloseMask"></image>
+      <!--rzd随选网UI优化调整181121---- <image wx:if="{{showWholeHouseBtn && wholeHousePicData.guideInfoList.length}}" class="whole-house" src="{{staticImageUrl}}{{wholeHouseSelectIcon.icons[0]}}" catchtap="selectWholeHouse" data-large="0"></image> -->
+      <!-- 标注空间的点 -->
+      <!-- 查看装修效果暂时隐藏2019.01.19 勿删 -->
+      <!-- <form class="show3d_box" bindsubmit='formToThreeD' report-submit='true'>
+        <button form-type='submit' data-type='seven' catchtap='{{true}}' class='show3dbtn'>
+          查看装修效果
+        </button>
+      </form> -->
+      <block wx:if="wholeHousePicData">
+        <image class="localtion-label-bg" wx:if="{{item.active}}" wx:for="{{wholeHousePicData.guideInfoList}}" wx:key="{{index}}" data-index="{{index}}" style="top: {{item.ycoordinate*100}}%;left: {{item.xcoordinate*100}}%;" src="{{staticImageUrl}}gps_01.gif"></image>
+        <image class="localtion-label" wx:for="{{wholeHousePicData.guideInfoList}}" wx:key="{{index}}" catchtap="selectSpace" data-large="0" data-index="{{index}}" style="top: {{item.ycoordinate*100}}%;left: {{item.xcoordinate*100}}%;" src="{{staticImageUrl}}{{item.renderStatus == 2 || item.renderStatus == 1 ? 'huxing_icon_gps_02.png' : 'huxing_icon_gps_03.png'}}"></image>
+      </block>
+    </view>
+  </view>
+
+  <!-- 当前空间状态模块 -->
+  <view class='currentSpace'>
+    <view class='spaceDiv'>
+      <view class='tag'>当前方案</view>
+      <view class='state' wx:if='{{currentSpace==3 || currentSpace===""}}'>
+        <image class='back'></image>
+        <view class='txt2'>该房间尚未装修，快去装修吧！</view>
+        <view class='toPutIn' bindtap='scroll'>立即装修</view>
+      </view>
+      <view class='state' wx:if='{{currentSpace===0}}'>
+        <image class='back' src='{{staticImageUrl}}/design_bg_02.jpg'></image>
+        <image class='failImg' src='{{staticImageUrl}}/design_icon_faile.png'></image>
+        <view class='txt'>非常抱歉，装修失败！</view>
+        <view class='againBtn' bindtap='scroll'>重新装修</view>
+      </view>
+      
+      <view class='state' wx:if='{{currentSpace==1}}' bindtap='formToThreeD'>
+        <image class='bindImg' src='{{staticImageUrl}}/case-logo.gif'></image>
+        <image class='back' src='{{resourcePath}}{{wholeHousePicData.guideInfoList[currentSpaceIndex].planPic}}'></image>
+      </view>
+      <view class='state' wx:if='{{currentSpace==2 && !showGuide && !showMask && !showLargePic && !operatingInstructionShow}}'>
+        <image class='back' src='{{staticImageUrl}}/design_bg_02.jpg'></image>
+        <image class='loadingImg' src='../../../static/image/720_loading.gif'></image>
+        <view class='txt3'>该房间正在装修中</view>
+        <view class='txt4'>点击未装修的房间，可继续装修</view>
+        
+         <!-- <view class="container">
+              <view class='circle'></view>
+              <canvas class="progress_canvas"   canvas-id="canvasProgress" style='display:{{showGuide || showMask?"none":"block"}}'>  </canvas> 
+              <view class="progress_text">
+                  <text class='progress_info'> {{progress_txt==null?'0':progress_txt}}%</text>
+              </view>     
+          </view> -->
+      </view>
+    </view>
+  </view>
+
+
+
+
+  <!-- 推荐方案列表及筛选条件 -->
+  <view class="recom" id='planList'>
+
+    <view class="recom-type">
+      <text class="recom-type-text {{item.active ? 'active' : ''}}" wx:for="{{recomType}}" wx:key="{{index}}" data-index="{{index}}" bindtap="switchType">{{item.name}}</text>
+    </view>
+
+    <view class="recom-condition">
+      <view class="condition-nav">
+        <view class="condition-nav-item" wx:for="{{recomConditionTab}}" wx:key="{{index}}" bindtap="showCoditionPannel" data-index="{{index}}">{{item.label}}
+          <image class="condition-nav-icon" src="{{staticImageUrl}}{{item.directionIcon[0]}}"></image>
+        </view>
+      </view>
+
+      <view class="condition-list {{showWhichKey === 'style' && showConditionContent ? 'active' : ''}}" bind:transitionend="closePannel">
+        <view class="condition-list-content">
+          <text class="condition-list-item {{item.active ? 'active' : ''}}" wx:for="{{currentSpaceInStyleList}}" wx:key="{{index}}" data-index="{{index}}" catchtap="selectConditionItem">{{item.styleName}}</text>
+        </view>
+      </view>
+
+      <view class="condition-list {{showWhichKey === 'mode' && showConditionContent ? 'active' : ''}}" bind:transitionend="closePannel">
+        <view class="condition-list-content">
+          <text class="condition-list-item {{item.active ? 'active' : ''}}" wx:for="{{modeList}}" wx:key="{{index}}" data-index="{{index}}" catchtap="selectConditionItem">{{item.name}}</text>
+        </view>
+      </view>
+
+      <view class="condition-list {{showWhichKey === 'price' && showConditionContent ? 'active' : ''}}" bind:transitionend="closePannel">
+        <view class="condition-list-content">
+          <text class="condition-list-item {{item.active ? 'active' : ''}}" wx:for="{{currentPriceList}}" wx:key="{{index}}" data-index="{{index}}" catchtap="selectConditionItem">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="recom-list">
+      <case-list navText='一键装修' isOneKeyToDecorate='{{true}}' recommendCaseList='{{planList}}' sdId="{{sdId}}" isRender='{{1}}' renderParams='{{pageParams}}' templateId='{{selectTemplateId}}'></case-list>
+    </view>
+    <view class='emptyImage' wx:if='{{!planList}}'>
+      <image src='{{staticImageUrl}}noresult.png'></image>
+      <view class='txt'>暂时没有合适的方案~</view>
+    </view>
+
+  </view>
+</view>
+</scroll-view>
+<view class="dialog {{showMask ? 'active' : ''}}" catchtouchmove="catchTouchMove">
+  <!-- 替换或者组建新方案提示 -->
+  <view class="dialog-content" wx:if="{{showReplaceConfirm&&!showPutInLoading}}">
+    <view class="dialog-body">
+      <text class="dialog-title">提示</text>
+      <text class="dialog-msg">您已经装修过这个空间，您可以替换掉原方案，或重新渲染组建一个新的方案。</text>
+    </view>
+    <view class="dialog-footer">
+      <text class="new-plan" data-type="3" catchtap="replacePlanOrMakeNewPlan">组建新方案</text>
+      <text class="replace-plan" data-type="2" catchtap="replacePlanOrMakeNewPlan">替换原方案</text>
+    </view>
+  </view>
+
+  <!-- 渲染弹框 -->
+
+  <view class="render-content" wx:if="{{showPutInLoading}}">
+    <image class="close-render" src="{{staticImageUrl}}goods_icon_close@2x.png" catchtap="keepDecorate"></image>
+    <view class="render-body">
+      <view class="render-loading">
+        <image class="loading-img" src="{{staticImageUrl}}order_pic_drawing.gif"></image>
+      </view>
+      <text class="render-tip">{{storageCaseItemHouseName}}正在装修中，预计需要30秒...</text>
+      <!--rzd 181122随选网UI优化调整修改相关文案 <text class="render-extrainfo">您可以继续装修其他空间哦</text>
+      <text class="render-btn" catchtap="keepDecorate">继续装修</text> -->
+      <view class='render_btn_box'>
+        <text class='render_btn' catchtap="goPlan">查看装修效果</text>
+        <text class='render_btn' catchtap="keepDecorate">装修其他房间</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 选择渲染空间 -->
+  <view class="select-space" wx:if="{{showSelectAreaConfirm}}">
+    <view class="space-title">请选择你要装修的空间</view>
+    <view class="space-body">
+      <image class="space-img" src="{{resourcePath + selectAreaInfo.picPath}}"></image>
+      <!-- 标注空间的点 -->
+      <block wx:if="selectAreaInfo">
+        <image class="localtion-label-bg" wx:if="{{item.active}}" wx:for="{{selectAreaInfo.guideInfoList}}" wx:key="{{index}}" data-index="{{index}}" style="top: {{item.ycoordinate*100}}%;left: {{item.xcoordinate*100}}%;" src="{{staticImageUrl}}gps_01.gif"></image>
+        <image class="localtion-label" wx:for="{{selectAreaInfo.guideInfoList}}" wx:key="{{index}}" style="top: {{item.ycoordinate*100}}%;left: {{item.xcoordinate*100}}%;" src="{{staticImageUrl}}huxing_icon_gps_03.png" catchtap="selectArea" data-index="{{index}}"></image>
+      </block>
+    </view>
+    <view class="space-footer">
+      <text class="space-cancel" catchtap="spaceCancel">取消</text>
+      <text class="space-render" catchtap="spaceRender">确定</text>
+    </view>
+  </view>
+
+  <!-- 坐标导向提示框 -->
+  <view class="coordinateDesc" wx:if="{{showGuide}}">
+    <view class="desc-title">标识说明</view>
+    <view class="desc-body">
+      <view class="desc-item">
+        <image class="desc-icon" src="{{staticImageUrl}}huxing_icon_gps_02.png"></image>
+        <text class="splite-line"></text>
+        <text class="desc-text">该空间已装修</text>
+      </view>
+      <view class="desc-item">
+        <image class="desc-icon" src="{{staticImageUrl}}huxing_icon_gps_03.png"></image>
+        <text class="splite-line"></text>
+        <text class="desc-text">该空间未装修</text>
+      </view>
+      <view class="desc-item">
+        <image class="desc-icon" src="{{staticImageUrl}}huxing_icon_gps_04.png"></image>
+        <text class="splite-line"></text>
+        <text class="desc-text">当前选择空间</text>
+      </view>
+    </view>
+    <view class="desc-footer">
+      <text class="desc-footer-btn" catchtap="showAndHideGuide">我知道了</text>
+    </view>
+  </view>
+</view>
+ <!-- wx:if="{{showLargePic}}" -->
+<view class="large-pic {{showLargePic ? 'active' : ''}}" catchtouchmove="catchTouchMove">
+  <view class="close-mask" catchtap="showAndCloseMask">
+    <image class="close-mask-img" src="{{staticImageUrl}}720_icon_back_23d.png"></image>
+    <text>返回</text>
+  </view>
+  <movable-area class="moveBg" scale-area="true">
+    <movable-view class="moveview" direction="all" out-of-bounds="true" scale="true" scale-max="2" scale-value="{{salcePicMultiple}}" bindscale="scaleValue" bindtouchstart="picTouchStart" bindtouchend="picTouchEnd">
+    <view class="large-content"> 
+        <image class="large-img" src="{{wholeHousePicData && resourcePath + wholeHousePicData.picPath}}"></image>
+        <!-- 标注空间的点 -->
+        <block wx:if="wholeHousePicData">
+          <image class="localtion-label-bg" wx:if="{{item.active}}" wx:for="{{wholeHousePicData.guideInfoList}}" wx:key="{{index}}" data-index="{{index}}" style="top: {{item.ycoordinate*100}}%;left: {{item.xcoordinate*100}}%;" src="{{staticImageUrl}}gps_01.gif"></image>
+          <image class="localtion-label" wx:for="{{wholeHousePicData.guideInfoList}}" wx:key="{{index}}" style="top: {{item.ycoordinate*100}}%;left: {{item.xcoordinate*100}}%;" src="{{staticImageUrl}}{{item.renderStatus == 2 || item.renderStatus == 1 ? 'huxing_icon_gps_02.png' : 'huxing_icon_gps_03.png'}}" catchtap="selectSpace" data-index="{{index}}" data-large="1"></image>
+        </block>
+      </view>
+    </movable-view>
+  </movable-area>
+  
+  <view class="salcePic {{showWholeHouseBtn ? '' : 'only'}}">
+    <image class="subtract" src="{{staticImageUrl}}huxing_icon_small.png" data-type="0" catchtap="clickScaleValue"></image>
+    <image class="increase" src="{{staticImageUrl}}huxing_icon_big.png" data-type="1" catchtap="clickScaleValue"></image>
+  </view>
+  <image wx:if="{{showWholeHouseBtn && wholeHousePicData.guideInfoList.length}}" class="large-whole-btn" src="{{staticImageUrl}}{{wholeHouseSelectIcon.icons[0]}}" catchtap="selectWholeHouse" data-large="1"></image>
+</view>
+<!-- 操作指南 -->
+<view class='operating-instruction' catchtouchmove='true' wx:if='{{operatingInstructionShow}}'>
+  <view class='operating-instruction-main'>
+    <image src='{{staticImageUrl}}help_pop_0{{operatingInstructionActive}}.png'></image>
+  </view>
+  <view class='operating-instruction-btn' catchtap='userKnowoperating'><image src='{{staticImageUrl}}help_btn_ok.png'></image></view>
+</view>
+<!-- 支付弹框 -->
+<view class="shade" wx-if="{{showShade}}">
+  <view class="payment-box" wx-if="{{showShade1}}">
+    <image class="close-render" src="{{staticImageUrl}}goods_icon_close@2x.png" bindtap='backpage'></image>
+    <view class="payment-price">{{planInfo.planPrice}}度币</view>
+    <view class="payment-text">此方案为付费方案</view>
+    <view class="payment-text">需要支付版权费才可使用哦~</view>
+    <view class="payment-remaining">账户余额：{{score}}度币</view>
+    <view class="payment-btn" bindtap='paymentFun'>立即支付</view>
+    <view class='payment-bind-phone' bindtap='showBIndingPhoneBox' wx:if='{{issBindingMobile}}'>绑定手机号可免费使用一次>></view>
+    <!-- <image class="payment-bind-phone"  wx:if='{{!issBindingMobile}}' bindtap='showBIndingPhoneBox' src="{{staticImageUrl}}me_pic_200.png"></image> -->
+  </view>
+  <view class="insufficient-box" wx-if="{{showShade2}}">
+    <!-- <image class="insufficient-bind-phone"  wx:if='{{!issBindingMobile}}' bindtap='showBIndingPhoneBox' src="{{staticImageUrl}}me_pic_200.png"></image> -->
+    <view class="insufficient-hint">提示</view>
+    <view class="insufficient-text">账户余额不足，去充值？</view>
+    <view class="insufficient-btn">
+      <view class="insufficient-cancel" bindtap='closeFunc'>暂不考虑</view>
+      <view class="insufficient-confirm" bindtap='toFunc'>去充值</view>
+    </view>
+  </view>
+  <view class='renderOne-box' wx:if='{{showShade3}}'>
+    <image class="close-render" src="{{staticImageUrl}}goods_icon_close@2x.png" bindtap='backpage'></image>
+    <image class='render-success-icon' src='{{staticImageUrl}}pop_icon_success.png'></image>
+    <view class='render-success-text'>绑定成功！可以免费渲染一次啦~</view>
+    <view class='render-success-btn' bindtap='paymentFun2'>立即使用</view>
+  </view>
+</view>
+
+<!-- 快速导航模块 -->
+  <!-- <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav" data="{{ ...newNav }}"/> -->
+  <jdNav></jdNav>
+  
+  <!-- 绑定手机号 -->
+  <import src="../../../component/binding-phone/binding-phone.wxml"/>
+  <template is="bindingPhone" data="{{ ...bindingPhone }}"/>

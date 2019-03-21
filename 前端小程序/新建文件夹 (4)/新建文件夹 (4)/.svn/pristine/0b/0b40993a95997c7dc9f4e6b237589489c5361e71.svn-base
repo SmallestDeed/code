@@ -1,0 +1,196 @@
+let myForEach = getApp().myForEach, $App = getApp(), API = getApp().API
+Page({
+
+  /**
+   * 页面的初始数据
+   */
+  data: {
+    resourcePath: getApp().resourcePath,
+    productListImgs: [],
+    mername: "",
+    curPage: 1,
+    pageSize: 10,
+    livingId: "",
+    contentlist: [],
+    type: '',
+    status: '',
+    houseId:''
+  },
+
+  /**
+   * 生命周期函数--监听页面加载
+   */
+  onLoad: function (options) {
+    // 注册组件
+    var that = this;
+    that.setData({
+      mername: options.name,
+      livingId: options.id,
+      type:options.type
+    })
+    wx.setNavigationBarTitle({
+      title: that.data.mername//页面标题为路由参数
+    })
+    that.getSearchResluts("加载数据中")
+
+  },
+  
+  getSearchResluts: function (message) {
+    let that = this
+    API.getbasehouselist({ livingId: that.data.livingId, pageSize: that.data.pageSize, curPage: that.data.curPage })
+      .then(res => {
+        let contentlistTem = that.data.contentlist, productImageTem = that.data.productListImgs;
+        if (res.success) {
+          that.data.curPage == 1 ? (contentlistTem = [], productImageTem = []) : ''
+          let productListImgs = [], contentlist = res.obj;
+          for (let i = 0; i < contentlist.length; i++) {
+            productListImgs.push(that.data.resourcePath + "/" + contentlist[i].largeThumbnailPath)
+          }
+          that.setData({
+            contentlist: contentlistTem.concat(contentlist),
+            productListImgs: productImageTem.concat(productListImgs),
+            hasMoreData: contentlist.length >= that.data.pageSize
+          })
+          
+          contentlist.length >= that.data.pageSize ? this.setData({ curPage: that.data.curPage + 1 }) : ''
+        } else {
+          wx.showToast({ title: res.message, icon: 'none' })
+        }
+      })
+  },
+
+  /**
+   * 生命周期函数--监听页面初次渲染完成
+   */
+  onReady: function () {
+
+  },
+
+  /**
+   * 生命周期函数--监听页面显示
+   */
+  onShow: function () {
+
+  },
+
+  /**
+   * 生命周期函数--监听页面隐藏
+   */
+  onHide: function () {
+
+  },
+
+  /**
+   * 生命周期函数--监听页面卸载
+   */
+  onUnload: function () {
+
+  },
+
+  /**
+   * 页面相关事件处理函数--监听用户下拉动作
+   */
+  onPullDownRefresh: function () {
+
+  },
+
+  /**
+   * 页面上拉触底事件的处理函数
+   */
+  onReachBottom: function () {
+
+    if (this.data.hasMoreData) {
+      this.getSearchResluts('加载更多数据')
+    } else {
+      wx.showToast({
+        title: '没有更多数据',
+        icon: 'none'
+      })
+    }
+
+  },
+
+  /**
+   * 用户点击右上角分享
+   */
+  onShareAppMessage: function (res) {
+    if (res.from === 'menu') {
+      return $App.shareAppMessageObj
+    }
+  },
+  previewImage: function (e) {
+    var that = this,
+      //获取当前图片的下表
+      index = e.currentTarget.dataset.index,
+      //数据源
+      productListImgs = this.data.productListImgs;
+    var url = productListImgs[index]
+    wx.previewImage({
+      //当前显示下表
+      current: productListImgs[index],
+      //数据源
+      urls: [url]
+    })
+  },
+  toHouseDetail(e) { // 检验是否合适
+    let item = e.currentTarget.dataset.item
+    console.log(item)
+    this.setData({
+      houseId:item.id
+    })
+    let caseItem = wx.getStorageSync('caseItem')
+    if(this.data.type=="search"){
+      wx.navigateTo({
+        url: '/pages/house-type/house-details/house-details?houseId='+item.id+'&type=search',
+      })
+    }
+    if(this.data.type=="plan"){
+      if (caseItem.spaceType == 13 || caseItem.spaceFunctionId==13) {
+        let obj = {
+          templateId: ''
+        }
+        wx.setStorageSync('matchData', obj)
+        wx.navigateTo({
+          url: '/pages/house-type/house-details/house-details?type=plan&matchState=3&houseId=' + item.id
+        })
+        return;
+      }else{
+        API.matchPlanHouse({ houseId: item.id, recommendedPlanId: caseItem.designPlanRecommendId || caseItem.planRecommendedId })
+        .then(res => {
+          
+          if (res.obj.status == 1) {
+            this.setData({
+              status: 1,
+              icon: 'none'
+            })
+          } else if (res.obj.status == 2) {
+            this.setData({
+              status: 2
+            })
+          } else {
+            wx.setStorageSync('matchData', res.obj)
+            wx.navigateTo({
+              url: '/pages/house-type/house-details/house-details?type=plan&matchState=' + res.obj.status + '&houseId=' + item.id
+            })
+          }
+        })
+        
+      }
+    }  
+      
+  },
+  planImproper(e) {
+    let item = e.currentTarget.dataset.item
+    let options = e.currentTarget.dataset.options
+    if (options == 1) {
+      this.setData({
+        status: ''
+      })
+    } else {
+      wx.navigateTo({
+        url: '/pages/house-type/house-details/house-details?type=search&houseId=' + this.data.houseId,
+      })
+    }
+  }
+  
+})

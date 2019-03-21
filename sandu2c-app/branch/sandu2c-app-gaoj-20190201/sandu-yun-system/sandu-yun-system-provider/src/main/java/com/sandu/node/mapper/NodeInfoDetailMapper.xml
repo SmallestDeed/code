@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.node.dao.NodeInfoDetailMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.node.model.NodeInfoDetail" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="uuid" property="uuid" jdbcType="VARCHAR" />
+    <result column="node_id" property="nodeId" jdbcType="INTEGER" />
+    <result column="detail_type" property="detailType" jdbcType="TINYINT" />
+    <result column="value" property="value" jdbcType="INTEGER" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="TINYINT" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, uuid, node_id, detail_type, value, creator, gmt_create, modifier, gmt_modified, 
+    is_deleted, remark
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from node_info_detail
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from node_info_detail
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.node.model.NodeInfoDetail" >
+    insert into node_info_detail (id, uuid, node_id, 
+      detail_type, value, creator, 
+      gmt_create, modifier, gmt_modified, 
+      is_deleted, remark)
+    values (#{id,jdbcType=INTEGER}, #{uuid,jdbcType=VARCHAR}, #{nodeId,jdbcType=INTEGER}, 
+      #{detailType,jdbcType=TINYINT}, #{value,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{isDeleted,jdbcType=TINYINT}, #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.node.model.NodeInfoDetail" >
+    insert into node_info_detail
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="uuid != null" >
+        uuid,
+      </if>
+      <if test="nodeId != null" >
+        node_id,
+      </if>
+      <if test="detailType != null" >
+        detail_type,
+      </if>
+      <if test="value != null" >
+        value,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="uuid != null" >
+        #{uuid,jdbcType=VARCHAR},
+      </if>
+      <if test="nodeId != null" >
+        #{nodeId,jdbcType=INTEGER},
+      </if>
+      <if test="detailType != null" >
+        #{detailType,jdbcType=TINYINT},
+      </if>
+      <if test="value != null" >
+        #{value,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=TINYINT},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.node.model.NodeInfoDetail" >
+    update node_info_detail
+    <set >
+      <if test="uuid != null" >
+        uuid = #{uuid,jdbcType=VARCHAR},
+      </if>
+      <if test="nodeId != null" >
+        node_id = #{nodeId,jdbcType=INTEGER},
+      </if>
+      <if test="detailType != null" >
+        detail_type = #{detailType,jdbcType=TINYINT},
+      </if>
+      <if test="value != null" >
+        value = #{value,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=TINYINT},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.node.model.NodeInfoDetail" >
+    update node_info_detail
+    set uuid = #{uuid,jdbcType=VARCHAR},
+      node_id = #{nodeId,jdbcType=INTEGER},
+      detail_type = #{detailType,jdbcType=TINYINT},
+      value = #{value,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=TINYINT},
+      remark = #{remark,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="getNodeInfoDetail" resultMap="BaseResultMap">
+    select
+      <include refid="Base_Column_List" />
+    from
+      node_info_detail
+    where
+      is_deleted = 0
+    <if test="start != null and size != null">
+      limit #{start},#{size}
+    </if>
+  </select>
+  <update id="updateNodeInfoDetailByUnique" parameterType="com.sandu.node.model.NodeInfoDetail">
+    update
+        node_info_detail
+    <set >
+        <if test="value != null" >
+          value = #{value,jdbcType=INTEGER},
+        </if>
+        <if test="modifier != null" >
+          modifier = #{modifier,jdbcType=VARCHAR},
+        </if>
+        <if test="gmtModified != null" >
+          gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+        </if>
+        <if test="isDeleted != null" >
+          is_deleted = #{isDeleted,jdbcType=TINYINT},
+        </if>
+        <if test="remark != null" >
+          remark = #{remark,jdbcType=VARCHAR},
+        </if>
+    </set>
+    where
+        detail_type = #{detailType,jdbcType=TINYINT}
+        and node_id = #{nodeId,jdbcType=INTEGER}
+  </update>
+  <select id="getNodeInfoDetailSelective" parameterType="com.sandu.node.model.NodeInfoDetail" resultType="com.sandu.node.model.NodeInfoDetail">
+    select
+        <include refid="Base_Column_List" />
+    from
+        node_info_detail
+    <where>
+        <if test="uuid != null" >
+            and uuid = #{uuid,jdbcType=VARCHAR}
+        </if>
+        <if test="nodeId != null" >
+            and node_id = #{nodeId,jdbcType=INTEGER}
+        </if>
+        <if test="detailType != null" >
+            and detail_type = #{detailType,jdbcType=TINYINT}
+        </if>
+        <if test="value != null" >
+            and value = #{value,jdbcType=INTEGER}
+        </if>
+        <if test="creator != null" >
+            and creator = #{creator,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtCreate != null" >
+            and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="modifier != null" >
+            and modifier = #{modifier,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtModified != null" >
+            and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+        </if>
+        <if test="isDeleted != null" >
+            and is_deleted = #{isDeleted,jdbcType=TINYINT}
+        </if>
+        <if test="remark != null" >
+            and remark = #{remark,jdbcType=VARCHAR}
+        </if>
+    </where>
+  </select>
+  <update id="increaseNodeInfoDetailByUnique">
+    update
+        node_info_detail
+    set
+        value = value + #{num}
+    where
+        node_id = #{nodeId}
+        and detail_type = #{detailType}
+  </update>
+</mapper>

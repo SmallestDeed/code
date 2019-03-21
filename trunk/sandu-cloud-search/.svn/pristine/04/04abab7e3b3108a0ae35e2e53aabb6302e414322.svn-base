@@ -1,0 +1,211 @@
+package com.sandu.search.storage.company;
+
+import com.sandu.search.common.constant.CompanyBrandNameConstant;
+import com.sandu.search.entity.elasticsearch.po.BrandPo;
+import com.sandu.search.exception.MetaDataException;
+import com.sandu.search.service.metadata.MetaDataService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 品牌元数据存储
+ *
+ * @date 20171218
+ * @auth pengxuangang
+ */
+@Slf4j
+@Component
+public class BrandMetaDataStorage {
+
+    private final static String CLASS_LOG_PREFIX = "品牌元数据存储:";
+
+    @Autowired
+    private MetaDataService metaDataService;
+
+    //品牌map元数据
+    private static Map<Integer, BrandPo> brandPoMap = new HashMap<>();
+    //'三度空间'品牌ID
+    private static Integer sanduBrandId = null;
+    //'无品牌'品牌ID
+    private static Integer noBrandId = null;
+
+    /**
+     * 更新数据
+     *
+     * @param isEnforceLoad 是否强制更新
+     */
+    public void updateData(boolean isEnforceLoad) {
+
+        //若无强制更新则更新前判断是否已有数据
+        if (!isEnforceLoad) {
+            if (null != brandPoMap && 0 < brandPoMap.size()) {
+                return;
+            }
+        }
+
+        List<BrandPo> brandPoList;
+        try {
+            //获取数据
+            log.info(CLASS_LOG_PREFIX + "开始获取品牌元数据....");
+            brandPoList = metaDataService.queryBrandMetaData();
+            log.info(CLASS_LOG_PREFIX + "获取品牌元数据完成,总条数:{}", (null == brandPoList ? 0 : brandPoList.size()));
+        } catch (MetaDataException e) {
+            log.error(CLASS_LOG_PREFIX + "获取品牌元数据失败: MetaDataException:{}", e);
+            throw new NullPointerException(CLASS_LOG_PREFIX + "获取品牌元数据失败,List<BrandPo> is null.MetaDataException:" + e);
+        }
+
+        //转换为Map元数据
+        if (null != brandPoList && 0 != brandPoList.size()) {
+            //临时对象
+            Map<Integer, BrandPo> tempBrandPoMap = new HashMap<>();
+            brandPoList.forEach(brandPo -> {
+                tempBrandPoMap.put(brandPo.getId(), brandPo);
+                //检查是否有'三度空间'公司品牌
+                if (CompanyBrandNameConstant.SANDU_BRAND_NAME.equals(brandPo.getBrandName())) {
+                    sanduBrandId = brandPo.getId();
+                } else if (CompanyBrandNameConstant.NO_BRAND_NAME.equals(brandPo.getBrandName())) {
+                    noBrandId = brandPo.getId();
+                }
+            });
+            //装回对象
+            brandPoMap = null;
+            brandPoMap = tempBrandPoMap;
+        }
+    }
+
+    /**
+     * 根据品牌ID查询品牌名
+     *
+     * @param brandId 品牌ID
+     * @return
+     */
+    public String getBrandNameById(Integer brandId) {
+        if (null == brandPoMap || 0 >= brandPoMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+        String brandName = null;
+        if (null != brandId && 0 != brandId && brandPoMap.containsKey(brandId)) {
+            brandName = brandPoMap.get(brandId).getBrandName();
+        }
+        return brandName;
+    }
+
+    /**
+     * 根据品牌ID查询公司ID
+     *
+     * @param brandId 品牌ID
+     * @return
+     */
+    public Integer getCompanyIdByBrandId(Integer brandId) {
+        if (null == brandPoMap || 0 >= brandPoMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+        Integer companyId = null;
+        if (null != brandId && 0 != brandId && brandPoMap.containsKey(brandId)) {
+            companyId = brandPoMap.get(brandId).getCompanyId();
+        }
+        return companyId;
+    }
+
+    /**
+     * 根据公司ID列表查询品牌ID列表
+     *
+     * @param companyIdList 公司ID列表
+     * @return
+     */
+    public List<Integer> queryBrandIdListByCompanyIdList(List<Integer> companyIdList) {
+
+        if (null == brandPoMap || 0 >= brandPoMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        if (null == companyIdList || 0 >= companyIdList.size()) {
+            return null;
+        }
+
+        //品牌ID列表
+        List<Integer> brandIdList = new ArrayList<>();
+        companyIdList.forEach(companyId -> {
+            if (null != companyId) {
+                for (Map.Entry<Integer, BrandPo> entry : brandPoMap.entrySet()) {
+                    BrandPo brandPo = entry.getValue();
+                    if (companyId == brandPo.getCompanyId()) {
+                        brandIdList.add(brandPo.getId());
+                    }
+                }
+            }
+        });
+
+        return brandIdList;
+    }
+
+    /**
+     * 获取'三度空间'品牌ID
+     *
+     * @return
+     */
+    public Integer getSanduBrandId() {
+
+        if (null == sanduBrandId || 0 >= sanduBrandId) {
+            //更新数据
+            updateData(false);
+        }
+
+        return sanduBrandId;
+    }
+
+    /**
+     * 获取'无品牌'品牌ID
+     *
+     * @return
+     */
+    public Integer getNoBrandId() {
+
+        if (null == noBrandId || 0 >= noBrandId) {
+            //更新数据
+            updateData(false);
+        }
+
+        return noBrandId;
+    }
+
+    /**
+     * 是否显示名称为'无品牌'的品牌
+     * (只要有一个品牌设置了不显示无品牌的，这个用户都看不到无品牌产品)
+     *
+     * @param brandIdList
+     * @return
+     */
+    public boolean isShowNoBrandByBrandList(List<Integer> brandIdList) {
+        if (null == brandIdList || 0 >= brandIdList.size()) {
+            return true;
+        }
+
+        if (null == brandPoMap || 0 >= brandPoMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        //品牌列表
+        for (Integer brandId : brandIdList) {
+            if (brandPoMap.containsKey(brandId)) {
+                BrandPo brandPo = brandPoMap.get(brandId);
+                //是否有不显示'无品牌'的品牌
+                if (null != brandPo && BrandPo.SHOW_NO_BRAND_NO == brandPo.getShowNoBrand()) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+}

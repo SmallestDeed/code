@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.task.dao.RefreshPicMapper">
+
+	<!--<select id="getOriginalSmallPic" resultType="com.nork.system.model.ResRenderPic">-->
+		<!--select id,pid,pic_path as picPath from res_render_pic where-->
+		<!--file_key = 'design.designPlanRecommended.render.small.pic' and pid is not NULL AND is_deleted = 0-->
+		<!--LIMIT #{start,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}-->
+	<!--</select>-->
+	<!---->
+	<!--<select id="getOriginalLargePic" resultType="com.nork.system.model.ResRenderPic">-->
+		<!--select id,pic_path as picPath from res_render_pic where is_deleted = 0 AND id IN-->
+		<!--<foreach collection="list" item="item" open="(" close=")" separator=",">-->
+			<!--#{item.pid}-->
+		<!--</foreach>-->
+	<!--</select>-->
+
+	<!--<select id="selectByPicId" resultType="com.nork.system.model.ResRenderPic">-->
+		<!--select id,pic_path as picPath from res_render_pic where id = #{picId}-->
+	<!--</select>-->
+
+	<!--<select id="selectByPid" resultType="com.nork.system.model.ResRenderPic">-->
+		<!--select id,pic_path as picPath from res_render_pic where pid = #{pid}-->
+	<!--</select>-->
+
+	<!--<update id="updatePicPath" parameterType="com.nork.system.model.ResRenderPic">-->
+		<!--UPDATE res_render_pic set pic_path = #{picPath} where id = #{id}-->
+	<!--</update>-->
+
+
+	<select id="getOriginalSmallPic" resultType="com.nork.system.model.ResRenderPic">
+		select id,sys_task_pic_id as sysTaskPicId,pic_path as picPath from res_render_pic where
+		file_key = 'design.designPlanRecommended.render.small.pic' and sys_task_pic_id is not NULL and sys_task_pic_id != 0 AND is_deleted = 0
+		LIMIT #{start,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+	<select id="getOriginalLargePic" resultType="com.nork.system.model.ResRenderPic">
+		select id,pic_path as picPath from res_render_pic where is_deleted = 0 AND id IN
+		<foreach collection="list" item="item" open="(" close=")" separator=",">
+			#{item.sysTaskPicId}
+		</foreach>
+	</select>
+
+	<update id="updatePicPath" parameterType="com.nork.system.model.ResRenderPic">
+		UPDATE res_render_pic set pic_path = #{picPath},modifier=#{modifier} where id = #{id}
+	</update>
+
+	<update id="updatePicPathList" parameterType="java.util.List">
+		UPDATE res_render_pic
+
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="pic_path =case" suffix="end,">
+				<foreach collection="list" item="i" index="index">
+					<if test="i.picPath!=null">
+						WHEN id=#{i.id} then #{i.picPath}
+					</if>
+				</foreach>
+			</trim>
+			<!--<trim prefix=" modifier =case" suffix="end,">-->
+				<!--<foreach collection="list" item="i" index="index">-->
+					<!--<if test="i.modifier!=null">-->
+						<!--WHEN id=#{i.id} then #{i.modifier}-->
+					<!--</if>-->
+				<!--</foreach>-->
+			<!--</trim>-->
+			<trim prefix=" remark =case" suffix="end,">
+				<foreach collection="list" item="i" index="index">
+					<if test="i.remark!=null">
+						WHEN id=#{i.id} then #{i.remark}
+					</if>
+				</foreach>
+			</trim>
+		</trim>
+		WHERE id IN
+		<foreach collection="list" separator="," item="i" index="index" open="(" close=")">
+			#{i.id}
+		</foreach>
+
+	</update>
+
+	<!--查询没有被修复的缩略图-->
+	<select id="getResidualSmallPic" resultType="com.nork.system.model.ResRenderPic">
+		select id,sys_task_pic_id as sysTaskPicId,pic_path as picPath from res_render_pic where
+		file_key = 'design.designPlanRecommended.render.small.pic'
+		and sys_task_pic_id is not NULL
+		and sys_task_pic_id != 0
+		AND is_deleted = 0
+		AND remark is NULL
+	</select>
+</mapper>

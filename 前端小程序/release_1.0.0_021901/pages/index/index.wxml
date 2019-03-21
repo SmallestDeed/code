@@ -1,0 +1,229 @@
+<!-- wxml规范 -->
+<!-- 1、必须要有一个大盒子包括，所有wxml元素都写在index里，如下 -->
+<view class='index'>
+
+  <view class='index-three' wx:if='{{indexBanner.length}}'>
+    <swiper indicator-dots="{{indicatorDots}}" autoplay="{{autoplay}}" interval="{{interval}}" duration="{{duration}}" circular="{{circular}}" style='height:400rpx'>
+
+      <block wx:for="{{indexBanner}}" wx:key='{{index}}'>
+        <swiper-item class='topBanner'>
+          <image wx:if='{{item.picPath}}' src="{{resourcePath+item.picPath}}" />
+        </swiper-item>
+      </block>
+    </swiper>
+  </view>
+  <view wx:else class='imgwidth'>
+    <image src='/static/images/wei_pc_nor.jpg'></image>
+  </view>
+
+  <view class='intro'>
+    <image src='{{infoObj.logoUrl?resourcePath+infoObj.logoUrl:"/static/images/header.png"}}' class='logo'></image>
+    <view class='intro-message'>
+      <view class='name'>{{infoObj.shopName}}</view>
+      <view class='num'>{{caseCounter}}个工程案例 · {{designerList.length}}位设计师</view>
+    </view>
+  </view>
+
+  <view class='icon-contact' bindtap='goutong'>
+    <image src='/static/images/home_icon_contact.png'></image>
+  </view>
+  <view class='icon-phone' bindtap='makePhoneCall'>
+    <image src='/static/images/home_icon_phone.png'></image>
+  </view>
+
+  <view class='serviceInfo'>
+    <view class='title'>服务信息</view>
+    <view class='serviceContent'>
+      <view class='serviceItem'>
+        <!-- <view class='Item'>
+            <view class='head'>装修报价：</view>
+            <view class='detail color'>￥200-500/㎡</view>
+          </view> -->
+
+        <view class='Item'>
+          <view class='head'>擅长风格：</view>
+          <view class='detail'>{{serviceMessage.categoryNames? serviceMessage.categoryNames : '暂无'}}</view>
+        </view>
+
+        <view class='Item'>
+          <view class='head'>装修方式：</view>
+          <view class='detail'>
+            {{infoObj.businessShopDecorationList?infoObj.businessShopDecorationList:'半包、全包'}}
+            <!-- <view wx:if='{{serviceMessage.decorationType== 0}}'>半包</view>
+                <view wx:elif='{{serviceMessage.decorationType== 1}}'>全包</view>
+                <view wx:else>暂无</view> -->
+          </view>
+        </view>
+
+        <view class='Item' wx:if='{{infoObj.serviceArea}}'>
+          <view class='head'>服务区域</view>
+          <view class='detail'>{{infoObj.serviceArea}}</view>
+        </view>
+
+        <view class='Item' wx:if='{{infoObj.serviceArea}}'>
+          <view class='head'>承接范围</view>
+          <view class='detail'>{{infoObj.serviceArea}}</view>
+        </view>
+
+        <view class='Item'>
+          <view class='head'>所在地区：</view>
+          <view class='detail'>
+            <view wx:if='{{filterProvince}}'>
+              {{filterProvince}} {{serviceMessage.areaName}} {{serviceMessage.streerName?erviceMessage.streerName:''}} {{serviceMessage.shopAddress}}
+            </view>
+            <view wx:else>暂无</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 设计师 -->
+  <view class='designTeam' wx:if='{{designerList.length}}'>
+    <view class='title'>
+      设计团队
+      <view bindtap='goTeamList' data-type='设计团队'>
+        {{designerList.length}}人
+        <image src='/static/images/me_icon_more.png'></image>
+      </view>
+    </view>
+    <scroll-view scroll-x class='scorllViewStyle'>
+      <view class='scrollViewContent'>
+        <view class='scrollItem' wx:for='{{designerList}}' wx:key='{{index}}' data-item='{{item}}' bindtap='designer'>
+          <image class='imgs' wx:if='{{item.logoUrl}}' src='{{resourcePath+item.logoUrl}}'></image>
+          <image class='imgs' wx:else src='{{defaultHeader}}'></image>
+          <view>
+            <view class='designer'>{{item.shopName}}</view>
+            <view class='designYear' wx:if='{{item.workingYears}}'>{{item.workingYears}}年设计经验</view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+  <!-- 设计师 结束 -->
+
+  <!-- 工长团队 -->
+  <view class='designTeam' wx:if='{{GongZhang.length}}'>
+    <view class='title'>
+      工长团队
+      <view bindtap='goTeamList' data-type='工长团队'>
+        {{GongZhang.length}}人
+        <image src='/static/images/me_icon_more.png'></image>
+      </view>
+    </view>
+    <scroll-view scroll-x class='scorllViewStyle'>
+      <view class='scrollViewContent'>
+
+        <view class='scrollItem' wx:for='{{GongZhang}}' wx:key="{{index}}" data-item='{{item}}' bindtap='gongZhangDetail'>
+          <image class='imgs' mode='aspectFill' wx:if='{{item.logoUrl}}' src='{{resourcePath+item.logoUrl}}'></image>
+          <image class='imgs' mode='aspectFill' wx:else src='{{defaultHeader}}'></image>
+          <view>
+            <view class='designer'>{{item.shopName}}</view>
+            <view class='designYear' wx:if='{{item.workingYears}}'>{{item.workingYears}}年施工经验</view>
+          </view>
+        </view>
+
+      </view>
+
+    </scroll-view>
+  </view>
+  <!-- 工长团队 结束 -->
+
+  <!-- 工程案例 -->
+  <view class='caseTitle' wx:if='{{caseCounter}}'>
+    <view class='title'>工程案例</view>
+    <view class='counter' bindtap='toCaseList'>
+      {{caseCounter}}个
+      <image src='/static/images/me_icon_more.png' class='arrow'></image>
+    </view>
+  </view>
+
+  <scroll-view scroll-x class='scrollV' wx:if='{{caseCounter}}'>
+    <view class='caseTeam'>
+      <view class='caseShow'>
+        <view class='caseItem' wx:for='{{projectCaseList}}' wx:key='{{index}}' data-item='{{item}}' bindtap='toDetail'>
+          <view class='caseImgs'>
+            <image class='imgs' mode='aspectFill' wx:if='{{item.picPath}}' src='{{resourcePath+item.picPath}}'></image>
+            <image class='imgs' mode='aspectFill' wx:else src='/static/images/wei_pc_nor.jpg'></image>
+            <view class='scrollTitle'>{{item.caseTitle}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+  <!-- 工程案例 -->
+
+  <!-- 博文 -->
+  <view class='bowen' wx:if='{{bowenList.length}}'>
+    <view class='title'>
+      <view class='BigTitle'>博文</view>
+      <view bindtap='toBowenList' class='counter'>
+        {{bowenCounter}}条
+        <image src='/static/images/me_icon_more.png' class='arrow'></image>
+      </view>
+    </view>
+    <view class='bowenList'>
+
+      <view class='listItem' wx:for='{{bowenList}}' wx:key='{{index}}' data-item='{{item}}' bindtap='bowenDetail'>
+
+        <image class='bowenImg' mode='aspectFill' wx:if='{{item.picPath}}' src='{{resourcePath + item.picPath}}'></image>
+        <image class='bowenImg' wx:else src='/static/images/news_pic_nor.png'></image>
+        <view class='bowenInfo'>
+          <view class='bowenTitle'>{{item.articleTitle}}</view>
+          <view class='times'>浏览 {{item.browseCount == null ? 0 :item.browseCount}} | {{item.releaseTimeStr}}发布</view>
+        </view>
+      </view>
+
+    </view>
+  </view>
+  <!-- 博文结束 -->
+  <!-- 公司介绍 -->
+  <view class='companyInfo' wx:if='{{serviceMessage.shopIntroduced}}'>
+    <view class='title'>企业介绍</view>
+    <view class='{{isPull?"detailInfo-avtive":"detailInfo"}}' id='theShow'>
+      <rich-text id='rich-text' nodes='{{serviceMessage.shopIntroduced}}'></rich-text>
+    </view>
+    <view class='expandFrame' bindtap="viewHeight" wx:if='{{contentHeight > boxHeight}}'>
+      <view wx:if='{{isPull}}'>
+        <image src='../../static/images/home_icon_up.png' class='expInfo'></image> 收起全部</view>
+      <view wx:if='{{!isPull}}'>
+        <image src='../../static/images/home_icon_down.png' class='expInfo'></image> 展开全部</view>
+    </view>
+  </view>
+  <!-- 公司介绍结束 -->
+  <!-- 企业资质 -->
+  <view class='companyzz' wx:if='{{IndexQualification.length}}'>
+    <view class='title'>企业资质</view>
+    <scroll-view scroll-x>
+      <view class='scrollArea'>
+        <view wx:key='{{index}}' wx:for='{{IndexQualification}}'>
+          <view class='scrollItems'>
+            <image bindtap="imgPreview" src='{{resourcePath+item.picPath}}' data-src='{{resourcePath+item.picPath}}' data-index="{{index}}" wx:for-item="item"></image>
+          </view>
+          <view class='name'>{{item.bannerName}}</view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 合作伙伴 -->
+  <view class='partner' wx:if='{{IndexBrand.length}}'>
+    <view class='title'>合作品牌</view>
+    <view class='partnerItem'>
+      <image class='imgs' mode='aspectFit' wx:for='{{IndexBrand}}' wx:key='{{index}}' src='{{resourcePath+item.picPath}}'>
+      </image>
+    </view>
+  </view>
+  <view class='nomore'>— 没有更多内容了 —</view>
+
+  <!-- 微信授权 -->
+  <view class='authorizationShade' wx:if='{{wxInfo}}'>
+    <view class='authorizationBox'>
+      <image class='closeBtn' bindtap='closeBtn' src='../../static/images/goods_icon_close@2x.png'></image>
+      <view class='authorizationTit'>登录后可获得更完整的体验</view>
+      <button open-type="getUserInfo" class='login-btn' lang="zh_CN" bindgetuserinfo="onGotUserInfo">
+        去授权
+      </button>
+    </view>
+  </view>
+</view>

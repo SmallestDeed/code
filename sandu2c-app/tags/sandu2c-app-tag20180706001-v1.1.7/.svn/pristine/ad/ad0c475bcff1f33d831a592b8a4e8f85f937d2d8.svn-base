@@ -1,0 +1,634 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.goods.dao.BaseGoodsSPUMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.goods.model.BaseGoodsSPU" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="spu_code" property="spuCode" jdbcType="VARCHAR" />
+    <result column="company_id" property="companyId" jdbcType="INTEGER" />
+    <result column="product_name" property="productName" jdbcType="VARCHAR" />
+    <result column="product_model_number" property="productModelNumber" jdbcType="VARCHAR" />
+    <result column="small_type_mark" property="smallTypeMark" jdbcType="VARCHAR" />
+    <result column="product_desc" property="productDesc" jdbcType="VARCHAR" />
+    <result column="spu_name" property="spuName" jdbcType="VARCHAR" />
+    <result column="purhase_limitation" property="purhaseLimitation" jdbcType="INTEGER" />
+    <result column="transport_id" property="transportId" jdbcType="INTEGER" />
+    <result column="fix_transport_expense" property="fixTransportExpense" jdbcType="DECIMAL" />
+    <result column="integral" property="integral" jdbcType="INTEGER" />
+    <result column="is_presell" property="isPresell" jdbcType="INTEGER" />
+    <result column="presell_deadline" property="presellDeadline" jdbcType="TIMESTAMP" />
+    <result column="balance_payment_starttime" property="balancePaymentStarttime" jdbcType="TIMESTAMP" />
+    <result column="balance_payment_endtime" property="balancePaymentEndtime" jdbcType="TIMESTAMP" />
+    <result column="deposit" property="deposit" jdbcType="DECIMAL" />
+    <result column="delivery_time" property="deliveryTime" jdbcType="INTEGER" />
+    <result column="pic_id" property="picId" jdbcType="INTEGER" />
+    <result column="total_inventory" property="totalInventory" jdbcType="INTEGER" />
+    <result column="get_time" property="getTime" jdbcType="TIMESTAMP" />
+    <result column="is_putaway" property="isPutaway" jdbcType="INTEGER" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    <result column="spu_introduce" property="spuIntroduce" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, spu_code, company_id, product_name, product_model_number, small_type_mark, product_desc,
+    spu_name, purhase_limitation, transport_id, fix_transport_expense, integral, is_presell, 
+    presell_deadline, balance_payment_starttime, balance_payment_endtime, deposit, delivery_time, 
+    pic_id, total_inventory, get_time, is_putaway, creator, gmt_create, modifier, gmt_modified, 
+    is_deleted, spu_introduce
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from base_goods_spu
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from base_goods_spu
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.goods.model.BaseGoodsSPU" >
+    insert into base_goods_spu (id, spu_code, company_id, product_name,
+      product_model_number, small_type_mark,
+      product_desc, spu_name, purhase_limitation, 
+      transport_id, fix_transport_expense, integral, 
+      is_presell, presell_deadline, balance_payment_starttime, 
+      balance_payment_endtime, deposit, delivery_time, 
+      pic_id, total_inventory, get_time, 
+      is_putaway, creator, gmt_create, 
+      modifier, gmt_modified, is_deleted, 
+      spu_introduce)
+    values (#{id,jdbcType=INTEGER},  #{companyId,jdbcType=INTEGER}, #{spuCode,jdbcType=VARCHAR}, #{productName,jdbcType=VARCHAR},
+      #{productModelNumber,jdbcType=VARCHAR}, #{smallTypeMark,jdbcType=VARCHAR},
+      #{productDesc,jdbcType=VARCHAR}, #{spuName,jdbcType=VARCHAR}, #{purhaseLimitation,jdbcType=INTEGER}, 
+      #{transportId,jdbcType=INTEGER}, #{fixTransportExpense,jdbcType=DECIMAL}, #{integral,jdbcType=INTEGER}, 
+      #{isPresell,jdbcType=INTEGER}, #{presellDeadline,jdbcType=TIMESTAMP}, #{balancePaymentStarttime,jdbcType=TIMESTAMP}, 
+      #{balancePaymentEndtime,jdbcType=TIMESTAMP}, #{deposit,jdbcType=DECIMAL}, #{deliveryTime,jdbcType=INTEGER}, 
+      #{picId,jdbcType=INTEGER}, #{totalInventory,jdbcType=INTEGER}, #{getTime,jdbcType=TIMESTAMP}, 
+      #{isPutaway,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, 
+      #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER}, 
+      #{spuIntroduce,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.goods.model.BaseGoodsSPU" >
+    insert into base_goods_spu
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="companyId != null">
+        company_id
+      </if>
+      <if test="spuCode != null" >
+        spu_code,
+      </if>
+      <if test="productName != null" >
+        product_name,
+      </if>
+      <if test="productModelNumber != null" >
+        product_model_number,
+      </if>
+      <if test="smallTypeMark != null" >
+        small_type_mark,
+      </if>
+      <if test="productDesc != null" >
+        product_desc,
+      </if>
+      <if test="spuName != null" >
+        spu_name,
+      </if>
+      <if test="purhaseLimitation != null" >
+        purhase_limitation,
+      </if>
+      <if test="transportId != null" >
+        transport_id,
+      </if>
+      <if test="fixTransportExpense != null" >
+        fix_transport_expense,
+      </if>
+      <if test="integral != null" >
+        integral,
+      </if>
+      <if test="isPresell != null" >
+        is_presell,
+      </if>
+      <if test="presellDeadline != null" >
+        presell_deadline,
+      </if>
+      <if test="balancePaymentStarttime != null" >
+        balance_payment_starttime,
+      </if>
+      <if test="balancePaymentEndtime != null" >
+        balance_payment_endtime,
+      </if>
+      <if test="deposit != null" >
+        deposit,
+      </if>
+      <if test="deliveryTime != null" >
+        delivery_time,
+      </if>
+      <if test="picId != null" >
+        pic_id,
+      </if>
+      <if test="totalInventory != null" >
+        total_inventory,
+      </if>
+      <if test="getTime != null" >
+        get_time,
+      </if>
+      <if test="isPutaway != null" >
+        is_putaway,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="spuIntroduce != null" >
+        spu_introduce,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="companyId != null" >
+        #{companyId,jdbcType=INTEGER},
+      </if>
+      <if test="spuCode != null" >
+        #{spuCode,jdbcType=VARCHAR},
+      </if>
+      <if test="productName != null" >
+        #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="productModelNumber != null" >
+        #{productModelNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="smallTypeMark != null" >
+        #{smallTypeMark,jdbcType=VARCHAR},
+      </if>
+      <if test="productDesc != null" >
+        #{productDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="spuName != null" >
+        #{spuName,jdbcType=VARCHAR},
+      </if>
+      <if test="purhaseLimitation != null" >
+        #{purhaseLimitation,jdbcType=INTEGER},
+      </if>
+      <if test="transportId != null" >
+        #{transportId,jdbcType=INTEGER},
+      </if>
+      <if test="fixTransportExpense != null" >
+        #{fixTransportExpense,jdbcType=DECIMAL},
+      </if>
+      <if test="integral != null" >
+        #{integral,jdbcType=INTEGER},
+      </if>
+      <if test="isPresell != null" >
+        #{isPresell,jdbcType=INTEGER},
+      </if>
+      <if test="presellDeadline != null" >
+        #{presellDeadline,jdbcType=TIMESTAMP},
+      </if>
+      <if test="balancePaymentStarttime != null" >
+        #{balancePaymentStarttime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="balancePaymentEndtime != null" >
+        #{balancePaymentEndtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deposit != null" >
+        #{deposit,jdbcType=DECIMAL},
+      </if>
+      <if test="deliveryTime != null" >
+        #{deliveryTime,jdbcType=INTEGER},
+      </if>
+      <if test="picId != null" >
+        #{picId,jdbcType=INTEGER},
+      </if>
+      <if test="totalInventory != null" >
+        #{totalInventory,jdbcType=INTEGER},
+      </if>
+      <if test="getTime != null" >
+        #{getTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isPutaway != null" >
+        #{isPutaway,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="spuIntroduce != null" >
+        #{spuIntroduce,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.goods.model.BaseGoodsSPU" >
+    update base_goods_spu
+    <set >
+      <if test="companyId != null">
+        company_id = #{companyId,jdbcType=INTEGER},
+      </if>
+      <if test="spuCode != null" >
+        spu_code = #{spuCode,jdbcType=VARCHAR},
+      </if>
+      <if test="productName != null" >
+        product_name = #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="productModelNumber != null" >
+        product_model_number = #{productModelNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="smallTypeMark != null" >
+        small_type_mark = #{smallTypeMark,jdbcType=VARCHAR},
+      </if>
+      <if test="productDesc != null" >
+        product_desc = #{productDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="spuName != null" >
+        spu_name = #{spuName,jdbcType=VARCHAR},
+      </if>
+      <if test="purhaseLimitation != null" >
+        purhase_limitation = #{purhaseLimitation,jdbcType=INTEGER},
+      </if>
+      <if test="transportId != null" >
+        transport_id = #{transportId,jdbcType=INTEGER},
+      </if>
+      <if test="fixTransportExpense != null" >
+        fix_transport_expense = #{fixTransportExpense,jdbcType=DECIMAL},
+      </if>
+      <if test="integral != null" >
+        integral = #{integral,jdbcType=INTEGER},
+      </if>
+      <if test="isPresell != null" >
+        is_presell = #{isPresell,jdbcType=INTEGER},
+      </if>
+      <if test="presellDeadline != null" >
+        presell_deadline = #{presellDeadline,jdbcType=TIMESTAMP},
+      </if>
+      <if test="balancePaymentStarttime != null" >
+        balance_payment_starttime = #{balancePaymentStarttime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="balancePaymentEndtime != null" >
+        balance_payment_endtime = #{balancePaymentEndtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deposit != null" >
+        deposit = #{deposit,jdbcType=DECIMAL},
+      </if>
+      <if test="deliveryTime != null" >
+        delivery_time = #{deliveryTime,jdbcType=INTEGER},
+      </if>
+      <if test="picId != null" >
+        pic_id = #{picId,jdbcType=INTEGER},
+      </if>
+      <if test="totalInventory != null" >
+        total_inventory = #{totalInventory,jdbcType=INTEGER},
+      </if>
+      <if test="getTime != null" >
+        get_time = #{getTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isPutaway != null" >
+        is_putaway = #{isPutaway,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="true" >
+        gmt_modified = CURRENT_TIMESTAMP ,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="spuIntroduce != null" >
+        spu_introduce = #{spuIntroduce,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.goods.model.BaseGoodsSPU" >
+    update base_goods_spu
+    set company_id = #{companyId,jdbcType=INTEGER},
+      spu_code = #{spuCode,jdbcType=VARCHAR},
+      product_name = #{productName,jdbcType=VARCHAR},
+      product_model_number = #{productModelNumber,jdbcType=VARCHAR},
+      small_type_mark = #{smallTypeMark,jdbcType=VARCHAR},
+      product_desc = #{productDesc,jdbcType=VARCHAR},
+      spu_name = #{spuName,jdbcType=VARCHAR},
+      purhase_limitation = #{purhaseLimitation,jdbcType=INTEGER},
+      transport_id = #{transportId,jdbcType=INTEGER},
+      fix_transport_expense = #{fixTransportExpense,jdbcType=DECIMAL},
+      integral = #{integral,jdbcType=INTEGER},
+      is_presell = #{isPresell,jdbcType=INTEGER},
+      presell_deadline = #{presellDeadline,jdbcType=TIMESTAMP},
+      balance_payment_starttime = #{balancePaymentStarttime,jdbcType=TIMESTAMP},
+      balance_payment_endtime = #{balancePaymentEndtime,jdbcType=TIMESTAMP},
+      deposit = #{deposit,jdbcType=DECIMAL},
+      delivery_time = #{deliveryTime,jdbcType=INTEGER},
+      pic_id = #{picId,jdbcType=INTEGER},
+      total_inventory = #{totalInventory,jdbcType=INTEGER},
+      get_time = #{getTime,jdbcType=TIMESTAMP},
+      is_putaway = #{isPutaway,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      spu_introduce = #{spuIntroduce,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="getGoodsSpuIdList" resultType="java.lang.Integer" parameterType="com.sandu.goods.model.PO.GoodsListPO" >
+    select
+      cct1.goods_spu_id
+    from
+      (select
+        ct1.goods_spu_id
+      from
+        (SELECT distinct
+          t1.id,
+          t1.product_name,
+          t1.goods_spu_id,
+          t2.NAME
+        FROM
+          base_product t1,
+          pro_category t2,
+          product_category_rel t3,
+          base_platform t4,
+          platform2c_product_rel t5
+        WHERE
+          1=1
+          <if test="companyId != null">
+            AND t1.company_id = #{companyId}
+          </if>
+          <if test="brandIdList != null and brandIdList.size > 0">
+            AND t1.brand_id in
+            <foreach collection="brandIdList" item="brandId" index="index" open="(" separator="," close=")">
+              #{brandId}
+            </foreach>
+          </if>
+          AND t1.is_deleted = 0
+          AND t1.id = t3.product_id
+          AND t2.id = t3.category_id
+          AND t5.product_id = t1.id
+          AND t4.id = t5.platform_id
+          AND t4.platform_code = 'miniProgram'
+          AND t5.putaway_state = 1
+          AND t5.allot_state = 1
+          AND t2.is_deleted = 0
+          AND t3.is_deleted = 0
+          <if test="goodsType != null">
+            AND t2.long_code like #{goodsType}
+          </if>
+          <if test="codeListSize != null and codeListSize > 0">
+            AND t2.code IN
+            <foreach collection="codeList" item="code" index="index" open="(" separator="," close=")">
+                #{code}
+            </foreach>
+          </if>
+        )ct1
+    group by
+      ct1.id
+    <if test="codeListSize != null and codeListSize > 0">
+      having count(1) = #{codeListSize}
+    </if>
+      )cct1
+      ,base_goods_spu spu
+    where
+      spu.id = cct1.goods_spu_id
+      AND spu.is_putaway = 1
+    group by
+      cct1.goods_spu_id
+    order by cct1.goods_spu_id DESC
+      <if test="start != null and limit != null">
+        limit #{start},#{limit}
+      </if>
+  </select>
+
+  <resultMap id="getGoodsSpuListResultMap" type="com.sandu.goods.model.BO.GoodsBO">
+    <id column="id" property="id" jdbcType="INTEGER"></id>
+    <result column="pic_path" property="pic" jdbcType="VARCHAR"></result>
+    <result column="spu_name" property="goodsName" jdbcType="VARCHAR"></result>
+    <result column="prices" property="prices" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <select id="getGoodsSpuList" resultMap="getGoodsSpuListResultMap" parameterType="java.util.List" >
+    SELECT
+        t1.id,
+        t1.spu_name,
+        group_concat(t2.price) prices,
+        t4.pic_path
+    FROM
+        base_goods_spu t1
+        left join
+            (select
+                sku.spu_id
+                ,sku.price
+            from
+                base_goods_sku sku
+                ,platform2c_product_rel plat
+            where
+                sku.product_id = plat.product_id
+                and plat.putaway_state = 1
+                and plat.platform_id = 14
+                and sku.spu_id in
+                <foreach collection="list" item="id" index="index" open="(" separator="," close=")">
+                  #{id}
+                </foreach>
+        )t2 on t2.spu_id = t1.id
+        left join res_pic t4 on t4.id = t1.pic_id
+    WHERE
+        t1.id in
+          <foreach collection="list" item="id" index="index" open="(" separator="," close=")">
+            #{id}
+          </foreach>
+        and t1.is_putaway = 1
+        AND t1.is_deleted = 0
+    group by
+        t1.id
+  </select>
+
+  <resultMap id="getGoodsDetailResultMap" type="com.sandu.goods.model.BO.GoodsDetailBO">
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="pic_ids" property="picIds" jdbcType="VARCHAR" />
+    <result column="pic_id" property="mainPicId" jdbcType="INTEGER" />
+    <result column="spu_name" property="spuName" jdbcType="VARCHAR" />
+    <result column="product_desc" property="productDesc" jdbcType="VARCHAR" />
+    <result column="delivery_presell" property="deliveryPresell" jdbcType="INTEGER" />
+    <result column="delivery_day" property="deliveryDay" jdbcType="INTEGER" />
+    <result column="delivery_date" property="deliveryDate" jdbcType="TIMESTAMP" />
+    <result column="purhase_limitation" property="limitation" jdbcType="INTEGER" />
+    <result column="prices" property="prices" jdbcType="DECIMAL" />
+    <result column="sale_prices" property="salePrices" jdbcType="INTEGER" />
+    <result column="fix_transport_expense" property="transportPay" jdbcType="DECIMAL" />
+  </resultMap>
+
+  <select id="getGoodsDetail" resultMap="getGoodsDetailResultMap" parameterType="java.lang.Integer" >
+    SELECT
+        t1.id
+        ,t1.pic_ids
+        ,t1.pic_id
+        ,t1.spu_name
+        ,group_concat(t5.price) prices
+        ,group_concat(t6.sale_price) sale_prices
+        ,t1.product_desc
+        ,t7.delivery_presell
+        ,t7.delivery_day
+        ,t7.delivery_date
+        ,t7.purhase_limitation
+        ,t7.fix_transport_expense
+    FROM
+        base_goods_spu t1
+        left join base_goods_sku t5 on t5.spu_id = t1.id
+        left join platform2c_product_rel t6 on t6.product_id = t5.product_id and t6.platform_id = 14 and t6.putaway_state = 1
+        left join spu_sale_info t7 on t7.spu_id = t1.id
+    WHERE
+        t1.id = #{id}
+    group by
+        t1.id
+  </select>
+
+  <resultMap id="getSpuAttrListResultMap" type="com.sandu.goods.model.BO.SpuAttributeBO">
+    <result column="attribute_id" property="attrId" jdbcType="INTEGER"></result>
+    <result column="attribute_value_id" property="attrValueId" jdbcType="INTEGER"></result>
+    <result column="attribute_name" property="attrName" jdbcType="VARCHAR"></result>
+    <result column="attribute_value_name" property="attrValueName" jdbcType="VARCHAR"></result>
+  </resultMap>
+
+  <select id="getSpuAttrList" resultMap="getSpuAttrListResultMap" parameterType="java.lang.Integer" >
+    SELECT distinct
+        t3.attribute_id,
+        t3.attribute_value_id,
+        t3.attribute_name,
+        t3.attribute_value_name
+    FROM
+        base_goods_spu t1,
+        base_product t2,
+        product_attribute t3,
+        platform2c_product_rel t4
+    WHERE
+        t1.id = #{id}
+        AND t2.company_id = t1.company_id
+        AND t2.goods_spu_id = t1.id
+        AND t3.product_id = t2.id
+        AND t4.product_id = t2.id
+        AND t4.putaway_state = 1
+        AND t4.platform_id = 14
+  </select>
+
+
+
+
+  <resultMap id="getGoodsInfoToOrderResultMap" type="com.sandu.goods.model.BO.GoodsInfoToOrderBO">
+    <result column="id" property="skuId" jdbcType="INTEGER" />
+    <result column="product_id" property="productId" jdbcType="INTEGER"></result>
+    <result column="product_name" property="productName" jdbcType="VARCHAR"></result>
+    <result column="fix_transport_expense" property="transportationExpenses" jdbcType="DECIMAL"></result>
+    <result column="price" property="price" jdbcType="DECIMAL"></result>
+    <result column="attribute" property="attribute" jdbcType="VARCHAR"></result>
+    <result column="pic_path" property="picPath" jdbcType="VARCHAR"></result>
+    <result column="inventory" property="inventory" jdbcType="INTEGER"></result>
+  </resultMap>
+
+  <select id="getGoodsInfoToOrder" resultMap="getGoodsInfoToOrderResultMap" parameterType="java.lang.Integer" >
+    SELECT
+        t1.id,
+        t1.product_id,
+        t5.product_name,
+        t6.fix_transport_expense,
+        t1.price,
+        group_concat( t4.attribute_value_name ) attribute,
+        t3.pic_path,
+        t1.inventory
+    FROM
+        base_goods_sku t1
+        left join spu_sale_info t6 on t6.spu_id = t1.spu_id
+        left join res_pic t3 on t3.id = t1.specification_pic_id
+        left join product_attribute t4 on t4.product_id = t1.product_id
+        left join base_product t5 on t5.id = t1.product_id
+    WHERE
+        t1.product_id = #{productId}
+    GROUP BY
+        t1.product_id
+  </select>
+
+  <update id="updateTotalInventoryBySkuId" >
+    update
+        base_goods_spu
+    set
+        total_inventory = (total_inventory + #{num})
+    where
+        id = (select spu_id from base_goods_sku where id = #{id})
+  </update>
+
+  <select id="getSpecialSaleGoods" resultType="com.sandu.goods.output.GoodsDetailVO">
+    select
+    distinct spu.id as id,
+    spu.spu_name as productName,
+    spu.pic_id as picId,
+    rp.pic_path as picPath,
+    sku.price,
+    ppr.sale_price as salePrice
+    from
+    base_goods_spu spu
+    left join base_goods_sku sku on spu.id = sku.spu_id
+    left join platform2c_product_rel ppr on ppr.product_id = sku.product_id
+    left join res_pic rp on spu.pic_id = rp.id
+    where
+    sku.is_deleted = 0
+    and spu.is_deleted = 0
+    and ppr.is_deleted = 0
+    and spu.id in
+    <foreach collection="list" item="id" open="(" close=")" index="index" separator=",">
+      #{id}
+    </foreach>
+  </select>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

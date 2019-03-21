@@ -1,0 +1,156 @@
+package com.nork.task.service.impl;
+
+import com.nork.common.util.FileUploadUtils;
+import com.nork.common.util.ThumbnailUtil;
+import com.nork.common.util.Tools;
+import com.nork.common.util.Utils;
+import com.nork.system.model.ResRenderPic;
+import com.nork.task.dao.RefreshPicMapper;
+import com.nork.task.service.RefreshPicService;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @Author Gao Jun
+ * @Description
+ * @Date:Created Administrator in 下午 4:37 2018/6/14 0014
+ * @Modified By:
+ */
+@Service("refreshPicService")
+public class RefreshPicServiceImpl implements RefreshPicService {
+
+    private static final Logger logger = LoggerFactory.getLogger(RefreshPicServiceImpl.class);
+    public final static String RESOURCE_URL = Utils.getValue("app.resources.url", "https://show.sanduspace.com").trim();
+
+    @Autowired
+    private RefreshPicMapper refreshPicMapper;
+
+    @Override
+    public Boolean refreshSmallPic(Integer start, Integer limit) {
+
+        List<ResRenderPic> smallPicList = null;
+        List<ResRenderPic> largePicList = null;
+        try {
+            smallPicList = refreshPicMapper.getOriginalSmallPic(start, limit);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("RefreshSmallPic ==========> exception:{},start={}", e, start);
+            return false;
+        }
+        try {
+            largePicList = refreshPicMapper.getOriginalLargePic(smallPicList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("RefreshSmallPic ==========> exception:{},start={}", e, start);
+            return false;
+        }
+        //批量修改数据库的集合 100个同步一次
+        List<ResRenderPic> updateList = new ArrayList<>();
+        //遍历压缩图片
+        for (ResRenderPic smallPic : smallPicList) {
+            for (ResRenderPic largePic : largePicList) {
+
+                //参数校验
+                if (largePic == null || smallPic == null) {
+                    logger.error(" ---- pic have null !!! largePic=" + largePic + ", smallPic=" + smallPic);
+                    continue;
+                }
+                //获取id并参数校验
+                Integer largePicId = largePic.getId();
+                Integer smallPicPid = smallPic.getPid();
+                if (largePicId == null || smallPicPid == null) {
+                    logger.error(" ---- picId have null !!! largePicId=" + largePicId + ", smallPicPid=" + smallPicPid,
+                            "largePic=" + largePic + ", smallPic=" + smallPic);
+                    continue;
+                }
+                if (largePicId.equals(smallPicPid)) {
+                    long startTime = System.currentTimeMillis();
+                    //获取路径
+                    String largePicPath = largePic.getPicPath();
+                    String smallPicPath = smallPic.getPicPath();
+                    //参数判断
+                    if (StringUtils.isEmpty(largePicPath) || StringUtils.isEmpty(smallPicPath)) {
+                        logger.error(" ---- picPath have null !!! " +
+                                "largePicId=" + largePicId + ", largePicPath=" + largePicPath + ", smallPicPid=" + smallPicPid + ", smallPicPath=" + smallPicPath);
+                        continue;
+                    }
+                    largePicPath = RESOURCE_URL + largePicPath;
+
+                    //获取新缩略图存储路径
+                    String storePath = Utils
+                            .getPropertyName("config/res", "auto.design.designPlan.render.upload.path", "/auto/design/designPlan/render/")
+                            .trim();
+                    /* 渲染图存放绝对路径 */
+                    storePath = ("linux".equals(FileUploadUtils.SYSTEM_FORMAT) ? storePath : storePath.replace("/", "\\"));
+                    String uploadRoot = Tools.getRootPath(storePath, "");
+                    String storeRealPath = uploadRoot + storePath;
+                    String smallFileName = smallPicPath.substring(smallPicPath.lastIndexOf("/") + 1);
+                    String targetSmallFilePath = Utils.replaceDate(storeRealPath) + "small/" + smallFileName;
+
+
+                    try {
+                        URL fileUrl = new URL(largePicPath);
+
+                        ThumbnailUtil.refreshPicData(fileUrl, targetSmallFilePath);
+                        logger.info("refreshPic success!!!  largePicId=" + largePicId);
+                    } catch (Exception e) {
+                        logger.error("RefreshSmallPic ==========> exception:" + e +
+                                "------- largePicId=" + largePicId + ", largePicPath=" + largePicPath + ", smallPicPid=" + smallPicPid + ", smallPicPath=" + smallPicPath);
+                        continue;
+                    }
+
+                    File smallFile = new File(targetSmallFilePath);
+                    String dbFilePath = Utils.getRelativeUrlByAbsolutePath(smallFile.getAbsolutePath());
+                    ResRenderPic smallRenderPic = new ResRenderPic();
+                    smallRenderPic.setPicPath(dbFilePath);
+                    smallRenderPic.setId(smallPic.getId());
+//                    smallRenderPic.setModifier("refreshPic");
+                    smallRenderPic.setRemark("刷缩略图数据success");
+
+                    updateList.add(smallRenderPic);
+
+                    if (updateList.size()>=100) {
+                        try {
+//                            refreshPicMapper.updatePicPath(smallRenderPic);
+                            long startUpdate = System.currentTimeMillis();
+                            refreshPicMapper.updatePicPathList(updateList);
+                            long endUpdate = System.currentTimeMillis();
+                            logger.info("RefreshSmallPic update list success!!! update use time {}ms",endUpdate-startUpdate);
+                        } catch (Exception e) {
+                            logger.error("RefreshSmallPic ==========> exception:{}", e);
+
+                        }
+                        updateList.clear();
+                    }
+
+                    long endTime = System.currentTimeMillis();
+                    long useTime = (endTime - startTime);
+                    logger.error("RefreshSmallPic finish!!! ======> useTime = {}ms", useTime);
+                }
+            }
+        }
+
+        if (updateList.size()>0) {
+            try {
+                refreshPicMapper.updatePicPathList(updateList);
+                logger.info("RefreshSmallPic update list success!!!");
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.error("RefreshSmallPic ==========> exception:{}", e);
+            }
+        }
+
+        return true;
+    }
+
+
+}

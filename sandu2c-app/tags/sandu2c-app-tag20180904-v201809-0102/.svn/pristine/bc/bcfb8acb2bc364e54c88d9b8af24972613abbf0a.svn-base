@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.user.dao.UserInviteMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.user.model.UserInvite" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="invite_id" property="inviteId" jdbcType="INTEGER" />
+    <result column="fid" property="fid" jdbcType="INTEGER" />
+
+    <result column="share_sign" property="shareSign" jdbcType="VARCHAR" />
+    <result column="share_type" property="shareType" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="invite_time" property="inviteTime" jdbcType="TIMESTAMP" />
+    <result column="register_time" property="registerTime" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, invite_id, fid,  share_sign, share_type, status, invite_time,
+    register_time,is_deleted, remark
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select
+    <include refid="Base_Column_List" />
+    from user_invite
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from user_invite
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.user.model.UserInvite" >
+    insert into user_invite (id, invite_id, fid,
+     share_sign, share_type,
+    status, invite_time, register_time,
+     is_deleted, remark
+    )
+    values (#{id,jdbcType=INTEGER}, #{inviteId,jdbcType=INTEGER}, #{fid,jdbcType=INTEGER},
+     #{shareSign,jdbcType=VARCHAR}, #{shareType,jdbcType=INTEGER},
+    #{status,jdbcType=INTEGER}, #{inviteTime,jdbcType=TIMESTAMP}, #{registerTime,jdbcType=TIMESTAMP},
+    #{isDeleted,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}
+    )
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.user.model.UserInvite" useGeneratedKeys="true" keyProperty="id" >
+    insert into user_invite
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="inviteId != null" >
+        invite_id,
+      </if>
+      <if test="fid != null" >
+        fid,
+      </if>
+      <if test="shareSign != null" >
+        share_sign,
+      </if>
+      <if test="shareType != null" >
+        share_type,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="inviteTime != null" >
+        invite_time,
+      </if>
+      <if test="registerTime != null" >
+        register_time,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="inviteId != null" >
+        #{inviteId,jdbcType=INTEGER},
+      </if>
+      <if test="fid != null" >
+        #{fid,jdbcType=INTEGER},
+      </if>
+      <if test="shareSign != null" >
+        #{shareSign,jdbcType=VARCHAR},
+      </if>
+      <if test="shareType != null" >
+        #{shareType,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="inviteTime != null" >
+        #{inviteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="registerTime != null" >
+        #{registerTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.user.model.UserInvite" >
+    update user_invite
+    <set >
+      <if test="inviteId != null" >
+        invite_id = #{inviteId,jdbcType=INTEGER},
+      </if>
+      <if test="fid != null" >
+        fid = #{fid,jdbcType=INTEGER},
+      </if>
+      <if test="shareSign != null" >
+        share_sign = #{shareSign,jdbcType=VARCHAR},
+      </if>
+      <if test="shareType != null" >
+        share_type = #{shareType,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="inviteTime != null" >
+        invite_time = #{inviteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="registerTime != null" >
+        register_time = #{registerTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.user.model.UserInvite" >
+    update user_invite
+    set invite_id = #{inviteId,jdbcType=INTEGER},
+    fid = #{fid,jdbcType=INTEGER},
+    share_sign = #{shareSign,jdbcType=VARCHAR},
+    share_type = #{shareType,jdbcType=INTEGER},
+    status = #{status,jdbcType=INTEGER},
+    invite_time = #{inviteTime,jdbcType=TIMESTAMP},
+    register_time = #{registerTime,jdbcType=TIMESTAMP},
+    is_deleted = #{isDeleted,jdbcType=INTEGER},
+    remark = #{remark,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+  <select id="selectAllInviteList" resultType="com.sandu.user.model.view.UserInviteTopListVo" parameterType="com.sandu.user.model.input.UserInviteAdd" >
+    select
+    count(u.id) AS inviteCount,
+		u.invite_id AS inviteId,
+		s.nick_name userName,
+		r.pic_path userIcon,
+		d.name userTypeStr
+    from user_invite u
+    LEFT JOIN sys_user s on s.id = u.invite_id
+    left join res_pic r on r.id = s.pic_id
+    left join sys_dictionary d on d.type = 'userType' and d.value = s.user_type
+        where u.is_deleted = 0
+        and u.status = 1
+    GROUP BY u.invite_id
+    ORDER BY count(u.id) DESC
+    <if test="start != null and start != -1"> LIMIT #{start}, #{limit}</if>
+  </select>
+
+
+  <select id="selectAllInviteCount" resultType="java.lang.Integer"  >
+    select
+	count(DISTINCT u.invite_id)
+    from user_invite u
+    where u.is_deleted = 0
+    and u.status = 1
+  </select>
+
+
+  <select id="selectUserInviteInfoByFid" parameterType="java.lang.Integer" resultType="com.sandu.user.model.UserInvite">
+    select
+    *
+    from user_invite
+    where is_deleted = 0
+    and status = 1
+    and fid = #{fid,jdbcType=INTEGER}
+  </select>
+
+
+
+  <select id="selectUserInviteInfoByInviteId" parameterType="com.sandu.user.model.input.UserInviteAdd" resultType="com.sandu.user.model.view.UserInviteInfoVo">
+    select
+    u.fid AS fid,
+	s.nick_name AS userName,
+	r.pic_path userIcon,
+	u.register_time registerTime,
+    d.name userTypeStr
+    from user_invite u
+    LEFT JOIN sys_user s on s.id = u.fid
+    left join res_pic r on r.id = s.pic_id
+    left join sys_dictionary d on d.type = 'userType' and d.value = s.user_type
+    where u.is_deleted = 0
+    and u.status = 1
+    and invite_id = #{inviteId,jdbcType=INTEGER}
+    <if test="start != null and start != -1"> LIMIT #{start}, #{limit}</if>
+  </select>
+
+
+  <select id="selectUserInviteInfoCountByInviteId" resultType="java.lang.Integer" parameterType="com.sandu.user.model.input.UserInviteAdd" >
+     select
+    count(u.id)
+    from user_invite u
+    where u.is_deleted = 0
+    and u.status = 1
+    and invite_id = #{inviteId,jdbcType=INTEGER}
+  </select>
+
+
+  <update id="updateUserInviteByRemark" parameterType="java.lang.String"  useGeneratedKeys="true" keyProperty="id">
+    update user_invite
+    set
+    is_deleted = 1
+    where remark = #{remark,jdbcType=VARCHAR}
+    and is_deleted = 0
+  </update>
+
+
+
+
+</mapper>

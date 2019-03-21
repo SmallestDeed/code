@@ -1,0 +1,104 @@
+package com.sandu.supplydemand.output;
+
+import com.sandu.supplydemand.model.SupplyDemandPic;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+
+
+/**
+ * @author Administrator
+ */
+@Data
+public class BaseSupplyDemandVo implements Serializable{
+
+    private static final long serialVersionUID = -2211050104712188740L;
+
+    private String provinceAddress;
+
+    private String province;
+
+    private String city;
+
+    private String district;
+
+    private String street;
+
+    private String cityAddress;
+
+    private String districtAddress;
+
+    private String streetAddress;
+
+    private String title;
+
+    private Date gmtModified;
+
+    private String typeName;
+
+    private Integer pushStatus;
+
+    private String coverPicPath;
+
+    private String supplyDemandCategoryPicPath;
+    //供求信息所有图片路径集合
+    private List<String> supplyDemandPicPath;
+
+    private Integer viewNum;
+
+    private String description;
+
+    private String publisher;
+
+    private String userPicPath;
+
+    private Integer supplyDemandId;
+
+    private String contact;
+
+    private String phone;
+
+    private String address;
+    //供求信息大类id
+    private Integer supplyDemandCategoryId;
+    //供求信息大类名称
+    private String supplyDemandCategoryName;
+    //供求信息小类id
+    private Integer supplyDemandSmallCategoryId;
+    //供求信息小类名称
+    private String supplyDemandSmallCategoryName;
+    //供求信息图片信息
+    private List<SupplyDemandPic> supplyDemandPicList;
+    //供求信息默认图片信息
+    private SupplyDemandPic supplyDemandCoverPic;
+    //装修公司是否可见(0:否，1:是)
+    private Integer decorationCompany;
+    //设计师是否可见(0:否，1:是)
+    private Integer designer;
+    //建材门店是否可见(0:否，1:是)
+    private Integer materialShop;
+    //业主是否可见(0:否，1:是)
+    private Integer proprietor;
+    //施工单位是否可见(0:否，1:是)
+    private Integer builder;
+
+    private String userName;
+
+    private Integer userId;
+
+    private String userHeadPic;
+
+    private String sessionId;
+
+    private List<String> picPathList;
+
+    private Long recommendedTime;
+
+    private Integer reviewsCount;
+
+    private Integer commentNum;
+    /**供求信息内容（可文字图片按格式存版）**/
+    private String content;
+}

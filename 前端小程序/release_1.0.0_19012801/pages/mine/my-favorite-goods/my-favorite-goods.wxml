@@ -1,0 +1,31 @@
+<view class="list">
+    
+    <view  class="list-iteam" bindtap='toGoods' wx:for="{{goodsList}}" wx:key="unique" data-id='{{item.spuId}}'>
+        <view class="product-img">
+            <image src="{{resourcePath + item.picPath}}" class='img'></image>
+        </view>
+        <view class="product-context">
+            <view class="product-title">{{item.productName}}</view>
+            <block wx:if='{{item.salePrice=="0" || item.salePrice =="0.0"}}'>
+            <view class="product-message">暂无定价</view>
+            </block>
+            <block wx:if='{{item.salePrice!="0" && item.salePrice !="0.0"}}'>
+              <view class="product-message">￥{{item.salePrice}}</view>
+            </block>
+        </view>
+    </view>
+</view>
+
+<empty-page emptyPageObj="{{emptyPageObj}}" wx:if="{{!goodsList.length>0}}"></empty-page>
+ <!-- <block wx:if="{{!goodsList.length>0}}">
+<view class="empty_tip ">
+  <image class="image" src="{{staticImageUrl}}me_pic_no_02.png"></image>
+  <view class="txt">暂无收藏产品</view>
+  <button class='goRenderBtn' bindtap='toshoptype'>去逛逛</button>
+</view>
+</block> -->
+
+<!-- 快速导航模块 -->
+  <!-- <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav" data="{{ ...newNav }}"/> -->
+  <jdNav></jdNav>

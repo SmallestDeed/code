@@ -1,0 +1,55 @@
+package com.sandu.design.dao;
+
+import com.sandu.design.model.input.DesignPlanRecommendedSearch;
+import com.sandu.design.model.output.DesignPlanRecommendedVo;
+import com.sandu.design.model.output.DesignPlanStyleVo;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface DesignPlanRecommendedMapper {
+
+    /**
+     * 查询方案数量
+     * @param designPlanRecommendedSearch
+     * @return
+     */
+    Integer selectCount(DesignPlanRecommendedSearch designPlanRecommendedSearch);
+
+    /**
+     * 查询方案列表
+     * @param designPlanRecommendedSearch
+     * @return
+     */
+    List<DesignPlanRecommendedVo> selectList(DesignPlanRecommendedSearch designPlanRecommendedSearch);
+
+    /**
+     * 获取方案缩略图 TEMP
+     * @param planId
+     * @return
+     */
+    String getCoverPicPath(@Param("planId") Integer planId);
+
+    /**
+     * 通过方案类型获取对应的方案风格 TEMP
+     * @param designPlanType
+     * @return
+     */
+    List<DesignPlanStyleVo> getPlanStyleList(@Param("designPlanType") Integer designPlanType);
+
+    /**
+     * 获取推荐方案最新的单点渲染图路径 TEMP
+     * @param planRecommendedId
+     * @return
+     */
+    String getPlanRecommendedRenderPath(@Param("planRecommendedId") Integer planRecommendedId);
+
+    /**
+     * 通过方案ID获取方案类型 TEMP
+     * @param planRecommendedId
+     * @return
+     */
+    String getFunctionName(@Param("planRecommendedId") Integer planRecommendedId, @Param("tabName") String tabName);
+}

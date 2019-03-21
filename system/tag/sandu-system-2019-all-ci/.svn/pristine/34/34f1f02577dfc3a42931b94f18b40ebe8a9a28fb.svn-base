@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.act3.dao.LuckyWheelMapper">
+	<select id="selectById" parameterType="java.lang.String"
+		resultType="com.sandu.api.act3.model.LuckyWheel">
+		select
+		*
+		from wx_act_lucky_wheel
+		where id = #{id,jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectList" resultType="com.sandu.api.act3.model.LuckyWheel">
+		select
+		*
+		from wx_act_lucky_wheel
+		where is_deleted=0
+		<if test="id != null">
+			and id = #{id,jdbcType=VARCHAR}
+		</if>
+		<if test="name != null">
+			and name like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="beginTime != null">
+			and begin_time = #{beginTime,jdbcType=TIMESTAMP}
+		</if>
+		<if test="endTime != null">
+			and end_time = #{endTime,jdbcType=TIMESTAMP}
+		</if>
+		<if test="configItem != null">
+			and config_item = #{configItem,jdbcType=INTEGER}
+		</if>
+		<if test="lotteryNumPerDayDefalut != null">
+			and lottery_num_per_day_defalut = #{lotteryNumPerDayDefalut,jdbcType=INTEGER}
+		</if>
+		<if test="lotteryNumPerDayMax != null">
+			and lottery_num_per_day_max = #{lotteryNumPerDayMax,jdbcType=INTEGER}
+		</if>
+		<if test="lotteryNumDefalut != null">
+			and lottery_num_defalut = #{lotteryNumDefalut,jdbcType=INTEGER}
+		</if>
+		<if test="lotteryNumMax != null">
+			and lottery_num_max = #{lotteryNumMax,jdbcType=INTEGER}
+		</if>
+		<if test="lotteryTotalCount != null">
+			and lottery_total_count = #{lotteryTotalCount,jdbcType=INTEGER}
+		</if>
+		<if test="regCount != null">
+			and reg_count = #{regCount,jdbcType=INTEGER}
+		</if>
+		<if test="awardsTotalCount != null">
+			and awards_total_count = #{awardsTotalCount,jdbcType=INTEGER}
+		</if>
+		<if test="isEnable != null">
+			and is_enable = #{isEnable,jdbcType=INTEGER}
+		</if>
+		<if test="userId != null">
+			and user_id = #{userId,jdbcType=BIGINT}
+		</if>
+		<if test="appId != null">
+			and app_id = #{appId,jdbcType=VARCHAR}
+		</if>
+		<if test="appName != null">
+			and app_name = #{appName,jdbcType=VARCHAR}
+		</if>
+		<if test="companyId != null">
+			and company_id = #{companyId,jdbcType=BIGINT}
+		</if>
+		<if test="companyName != null">
+			and company_name = #{companyName,jdbcType=VARCHAR}
+		</if>
+		<if test="creator != null">
+			and creator = #{creator,jdbcType=VARCHAR}
+		</if>
+		<if test="gmtCreate != null">
+			and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+		</if>
+		<if test="modifier != null">
+			and modifier = #{modifier,jdbcType=VARCHAR}
+		</if>
+		<if test="gmtModified != null">
+			and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+		</if>
+		<if test="rule != null">
+			and rule = #{rule,jdbcType=LONGVARCHAR}
+		</if>
+
+		<if test="statusCode != null and statusCode == 0 ">
+			and now() &lt; begin_time and is_enable=1
+		</if>
+		<if test="statusCode != null and statusCode == 10 ">
+			and begin_time &lt; now() and now() &lt; end_time and is_enable=1
+		</if>
+		<if test="statusCode != null and statusCode == 20 ">
+			and  (end_time &lt; now() or is_enable=0)
+		</if>
+		order by gmt_create desc
+	</select>
+
+
+	<insert id="insert" parameterType="com.sandu.api.act3.model.LuckyWheel">
+		insert into wx_act_lucky_wheel
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="name != null">
+				name,
+			</if>
+			<if test="beginTime != null">
+				begin_time,
+			</if>
+			<if test="endTime != null">
+				end_time,
+			</if>
+			<if test="configItem != null">
+				config_item,
+			</if>
+			<if test="lotteryNumPerDayDefalut != null">
+				lottery_num_per_day_defalut,
+			</if>
+			<if test="lotteryNumPerDayMax != null">
+				lottery_num_per_day_max,
+			</if>
+			<if test="lotteryNumDefalut != null">
+				lottery_num_defalut,
+			</if>
+			<if test="lotteryNumMax != null">
+				lottery_num_max,
+			</if>
+			
+			<if test="lotteryTotalCount != null">
+				lottery_total_count,
+			</if>
+			<if test="regCount != null">
+				reg_count,
+			</if>
+			<if test="awardsTotalCount != null">
+				awards_total_count,
+			</if>
+			<if test="isEnable != null">
+				is_enable,
+			</if>
+			<if test="userId != null">
+				user_id,
+			</if>
+			<if test="appId != null">
+				app_id,
+			</if>
+			<if test="appName != null">
+				app_name,
+			</if>
+			<if test="companyId != null">
+				company_id,
+			</if>
+			<if test="companyName != null">
+				company_name,
+			</if>
+			<if test="creator != null">
+				creator,
+			</if>
+			<if test="gmtCreate != null">
+				gmt_create,
+			</if>
+			<if test="modifier != null">
+				modifier,
+			</if>
+			<if test="gmtModified != null">
+				gmt_modified,
+			</if>
+			<if test="isDeleted != null">
+				is_deleted,
+			</if>
+			<if test="rule != null">
+				rule,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="beginTime != null">
+				#{beginTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="endTime != null">
+				#{endTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="configItem != null">
+				#{configItem,jdbcType=INTEGER},
+			</if>
+			<if test="lotteryNumPerDayDefalut != null">
+				#{lotteryNumPerDayDefalut,jdbcType=INTEGER},
+			</if>
+			<if test="lotteryNumPerDayMax != null">
+				#{lotteryNumPerDayMax,jdbcType=INTEGER},
+			</if>
+			<if test="lotteryNumDefalut != null">
+				#{lotteryNumDefalut,jdbcType=INTEGER},
+			</if>
+			<if test="lotteryNumMax != null">
+				#{lotteryNumMax,jdbcType=INTEGER},
+			</if>
+			<if test="lotteryTotalCount != null">
+				#{lotteryTotalCount,jdbcType=INTEGER},
+			</if>
+			<if test="regCount != null">
+				#{regCount,jdbcType=INTEGER},
+			</if>
+			<if test="awardsTotalCount != null">
+				#{awardsTotalCount,jdbcType=INTEGER},
+			</if>
+			<if test="isEnable != null">
+				#{isEnable,jdbcType=INTEGER},
+			</if>
+			<if test="userId != null">
+				#{userId,jdbcType=BIGINT},
+			</if>
+			<if test="appId != null">
+				#{appId,jdbcType=VARCHAR},
+			</if>
+			<if test="appName != null">
+				#{appName,jdbcType=VARCHAR},
+			</if>
+			<if test="companyId != null">
+				#{companyId,jdbcType=BIGINT},
+			</if>
+			<if test="companyName != null">
+				#{companyName,jdbcType=VARCHAR},
+			</if>
+			<if test="creator != null">
+				#{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtCreate != null">
+				#{gmtCreate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifier != null">
+				#{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null">
+				#{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDeleted != null">
+				#{isDeleted,jdbcType=INTEGER},
+			</if>
+			<if test="rule != null">
+				#{rule,jdbcType=LONGVARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateById" parameterType="com.sandu.api.act3.model.LuckyWheel">
+		update wx_act_lucky_wheel
+		<set>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="beginTime != null">
+				begin_time = #{beginTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="endTime != null">
+				end_time = #{endTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="configItem != null">
+				config_item = #{configItem,jdbcType=INTEGER},
+			</if>
+			<if test="lotteryNumPerDayDefalut != null">
+				lottery_num_per_day_defalut = #{lotteryNumPerDayDefalut,jdbcType=INTEGER},
+			</if>
+			<if test="lotteryNumPerDayMax != null">
+				lottery_num_per_day_max = #{lotteryNumPerDayMax,jdbcType=INTEGER},
+			</if>
+			<if test="lotteryNumDefalut != null">
+				lottery_num_defalut = #{lotteryNumDefalut,jdbcType=INTEGER},
+			</if>
+			<if test="lotteryNumMax != null">
+				lottery_num_max = #{lotteryNumMax,jdbcType=INTEGER},
+			</if>
+			
+			<if test="lotteryTotalCount != null">
+				lottery_total_count = #{lotteryTotalCount,jdbcType=INTEGER},
+			</if>
+			<if test="regCount != null">
+				reg_count = #{regCount,jdbcType=INTEGER},
+			</if>
+			<if test="awardsTotalCount != null">
+				awards_total_count = #{awardsTotalCount,jdbcType=INTEGER},
+			</if>
+			<if test="isEnable != null">
+				is_enable = #{isEnable,jdbcType=TINYINT},
+			</if>
+			<if test="userId != null">
+				user_id = #{userId,jdbcType=BIGINT},
+			</if>
+			<if test="appId != null">
+				app_id = #{appId,jdbcType=VARCHAR},
+			</if>
+			<if test="appName != null">
+				app_name = #{appName,jdbcType=VARCHAR},
+			</if>
+			<if test="companyId != null">
+				company_id = #{companyId,jdbcType=BIGINT},
+			</if>
+			<if test="companyName != null">
+				company_name = #{companyName,jdbcType=VARCHAR},
+			</if>
+			<if test="creator != null">
+				creator = #{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtCreate != null">
+				gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifier != null">
+				modifier = #{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null">
+				gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDeleted != null">
+				is_deleted = #{isDeleted,jdbcType=INTEGER},
+			</if>
+			<if test="rule != null">
+				rule = #{rule,jdbcType=LONGVARCHAR}
+			</if>
+		</set>
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+	
+	<update id="updateToIncreaseLotteryAndRegCount" >
+        update wx_act_lucky_wheel 
+        	set 
+        		<if test="isFirstLotter == true">
+        			reg_count = reg_count+1,
+        		</if>
+        		<if test="isAward == true">
+        			awards_total_count = awards_total_count+1,
+        		</if>
+        		lottery_total_count = lottery_total_count+1
+        where id = #{actId} and is_deleted=0
+    </update>
+
+	<select id="selectAllActivePerDayConfigActList" resultType="com.sandu.api.act3.model.LuckyWheel">
+		select
+		*
+		from wx_act_lucky_wheel
+		where is_deleted=0
+		and is_enable=1
+		and now() &gt;=begin_time
+		and now() &lt;=end_time
+		and config_item=1
+	</select>
+
+	<update id="delete" parameterType="java.lang.String">
+		update wx_act_lucky_wheel
+		set
+		is_deleted=1
+		where id = #{actId}
+	</update>
+</mapper>

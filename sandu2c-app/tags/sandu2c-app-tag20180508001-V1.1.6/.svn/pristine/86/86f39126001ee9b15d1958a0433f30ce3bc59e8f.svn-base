@@ -1,0 +1,68 @@
+package com.sandu.supplydemand.service.impl;/**
+ * @ Author     ：weisheng.
+ * @ Date       ：Created in AM 10:11 2018/5/7 0007
+ * @ Description：${description}
+ * @ Modified By：
+ * @Version: $version$
+ */
+
+import com.sandu.supplydemand.dao.SupplyDemandCategoryMapper;
+import com.sandu.supplydemand.model.SupplyDemandCategory;
+import com.sandu.supplydemand.output.SupplyDemandCategoryVo;
+import com.sandu.supplydemand.service.SupplyDemandCategoryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @author weisheng
+ * @Title: 供求信息分类
+ * @Package
+ * @Description:
+ * @date 2018/5/7 0007AM 10:11
+ */
+@Service("supplyDemandCategoryService")
+public class SupplyDemandCategoryServiceImpl implements SupplyDemandCategoryService {
+
+    @Autowired
+    private SupplyDemandCategoryMapper supplyDemandCategoryMapper;
+
+    @Override
+    public List<SupplyDemandCategoryVo> getAllSupplyDemandCategory(SupplyDemandCategory supplyDemandCategory) {
+        List<SupplyDemandCategoryVo> supplyDemandCategoryList = supplyDemandCategoryMapper.selectAllCategory(supplyDemandCategory);
+        if(supplyDemandCategoryList==null||supplyDemandCategoryList.size()==0){
+            return null;
+        }
+
+        if(supplyDemandCategory.getPid()!=null &&supplyDemandCategory.getPid()>0){
+            return supplyDemandCategoryList;
+        }
+
+        List<SupplyDemandCategoryVo> newSupplyDemandCategoryList = new ArrayList<>();
+        for (SupplyDemandCategoryVo supplyDemandCategoryVo : supplyDemandCategoryList) {
+            if (supplyDemandCategoryVo.getLevel() == 0) {
+                List<SupplyDemandCategoryVo> twoCategoryList = new ArrayList<>();
+                for(SupplyDemandCategoryVo twoCategoryVo : supplyDemandCategoryList){
+                    if(twoCategoryVo.getLevel()==1&&twoCategoryVo.getPid().intValue()==supplyDemandCategoryVo.getId().intValue()){
+                        List<SupplyDemandCategoryVo> threeCategoryList = new ArrayList<>();
+                        for(SupplyDemandCategoryVo threeCategoryVo : supplyDemandCategoryList){
+                            if(threeCategoryVo.getLevel() == 2&&threeCategoryVo.getPid().intValue()==twoCategoryVo.getId().intValue()){
+                                threeCategoryList.add(threeCategoryVo);
+                            }
+                        }
+                        twoCategoryVo.setSupplyDemandCategoryVos(threeCategoryList);
+                        twoCategoryList.add(twoCategoryVo);
+                    }
+
+                }
+                supplyDemandCategoryVo.setSupplyDemandCategoryVos(twoCategoryList);
+                newSupplyDemandCategoryList.add(supplyDemandCategoryVo);
+            }
+        }
+
+        return newSupplyDemandCategoryList;
+
+    }
+}

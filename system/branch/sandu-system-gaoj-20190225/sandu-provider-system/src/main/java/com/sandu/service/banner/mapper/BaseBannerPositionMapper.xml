@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.banner.dao.BaseBannerPositionMapper">
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+        id, code, name, remark, type, sys_code, creator, gmt_create, modifier, gmt_modified,is_deleted
+    </sql>
+
+    <!--查询位置是否存在-->
+    <select id="getPositionIsExist" parameterType="com.sandu.api.banner.input.BaseBannerPositionIsExist" 
+            resultType="com.sandu.api.banner.model.BaseBannerPosition">
+        SELECT
+            *
+        FROM base_banner_position
+        WHERE 1=1 AND is_deleted=0
+            <if test="code != null and code!=''">
+                AND  code = #{code,jdbcType=VARCHAR}
+            </if>
+            <if test="type != null ">
+                AND  type = #{type,jdbcType=INTEGER}
+            </if>
+    </select>
+
+    <!--添加 广告位置-->
+    <insert id="insertBannerPosition" parameterType="com.sandu.api.banner.model.BaseBannerPosition" useGeneratedKeys="true" keyProperty="id" >
+        insert into base_banner_position
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="code != null">
+                code,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="sysCode != null">
+                sys_code,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="code != null">
+                #{code,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=INTEGER},
+            </if>
+            <if test="sysCode != null">
+                #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+    <!--通过Id查询位置信息-->
+    <select id="getPositionById" resultType="com.sandu.api.banner.model.BaseBannerPosition">
+        SELECT
+            <include refid="All_Column_List"/>
+        FROM
+            base_banner_position
+        WHERE
+            id=#{positionId,jdbcType=INTEGER}
+            AND is_deleted=0
+    </select>
+
+    <!--通过位置类型获取位置信息集合-->
+    <select id="getPositionListByType" resultType="com.sandu.api.banner.model.BaseBannerPosition">
+        SELECT
+            <include refid="All_Column_List"/>
+        FROM
+            base_banner_position
+        WHERE 1=1
+            AND is_deleted = 0
+        <if test="type != null ">
+            AND  type = #{type,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <!--删除位置信息-->
+    <update id="deletePosition" parameterType="com.sandu.api.banner.model.BaseBannerPosition" >
+        UPDATE
+            base_banner_position
+        SET
+            is_deleted= 1,modifier = #{modifier,jdbcType=VARCHAR},
+            gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+        WHERE
+            id=#{id,javaType=INTEGER}
+    </update>
+
+    <!--修改位置信息-->
+    <update id="updateBannerPosition" parameterType="com.sandu.api.banner.model.BaseBannerPosition">
+        UPDATE
+            base_banner_position
+        <set>
+            <if test="code != null">
+                code = #{code,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=INTEGER},
+            </if>
+            <if test="sysCode != null">
+                sys_code = #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        WHERE
+            id=#{id,javaType=INTEGER}
+    </update>
+
+
+</mapper>

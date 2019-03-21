@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.company.dao.CompanyShopArticleDao">
+
+    <!--获取博文详情-->
+    <select id="get" resultType="com.sandu.company.model.vo.CompanyShopArticleDetailVO" parameterType="java.lang.Long">
+        SELECT
+            t1.id as articleId ,
+            t1.title as articleTitle,
+            t1.content as content,
+            t1.browse_count as browseCount,
+            t3.pic_path as shopLogo,
+            t1.release_time as releaseTime,
+            t2.shop_name as shopName,
+            t2.id as shopId,
+            t1.sid as sid
+        FROM company_shop_article t1
+        INNER JOIN company_shop t2 ON t2.id = t1.shop_id and t2.is_deleted = 0
+        LEFT JOIN res_pic t3 on t3.id = t2.logo_pic_id and t3.is_deleted = 0
+        WHERE t1.is_deleted = 0
+        AND t2.is_deleted = 0
+        AND t1.release_status = 1
+        AND t1.id = #{articleId}
+    </select>
+
+    <!--获取博文列表-->
+    <select id="getList" resultType="com.sandu.company.model.vo.CompanyShopArticleListVO"
+            parameterType="com.sandu.company.model.query.ShopArticleQuery">
+        SELECT
+        t1.id as articleId ,t1.title as articleTitle,t1.content as content,t1.browse_count as browseCount,
+        t1.pic_ids as picIds,t1.release_time as releaseTime
+        FROM company_shop_article t1
+        INNER JOIN company_shop t2 ON t2.id = t1.shop_id and t2.is_deleted = 0
+        WHERE t1.is_deleted = 0
+        AND t2.is_deleted = 0
+        AND t1.release_status = 1
+        <if test="companyId != null">
+            AND t2.company_id = #{companyId}
+        </if>
+        <if test="shopId != null">
+            AND t2.id = #{shopId}
+        </if>
+        ORDER BY
+            t1.gmt_modified DESC,
+            t1.release_time DESC
+        <if test=" start!=null and limit !=null">
+            LIMIT #{start}, #{limit}
+        </if>
+    </select>
+
+
+    <select id="getCount" parameterType="com.sandu.company.model.query.ShopArticleQuery" resultType="java.lang.Integer">
+        SELECT
+        COUNT(t1.id)
+        FROM company_shop_article t1
+        INNER JOIN company_shop t2 ON t2.id = t1.shop_id and t2.is_deleted = 0
+        WHERE t1.is_deleted = 0
+        AND t2.is_deleted = 0
+        AND t1.release_status = 1
+        <if test="companyId != null">
+            AND t2.company_id = #{companyId}
+        </if>
+        <if test="shopId != null">
+            AND t2.id = #{shopId}
+        </if>
+    </select>
+
+    <!--修改浏览数量-->
+    <update id="updateBrowseCount" parameterType="com.sandu.company.model.CompanyShopArticle">
+        UPDATE company_shop_article SET
+        browse_count = #{browseCount}
+        WHERE id = #{id}
+    </update>
+
+    <select id="getDetail" resultType="com.sandu.company.model.vo.CompanyShopArticleDetailVO" parameterType="java.lang.Long">
+        SELECT
+            t1.id as articleId ,
+            t1.title as articleTitle,
+            t1.content as content,
+            t1.browse_count as browseCount,
+            t3.pic_path as shopLogo,
+            t1.release_time as releaseTime,
+            t2.shop_name as shopName,
+            t2.id as shopId,
+            t1.sid as sid
+        FROM
+            company_shop_article t1
+            INNER JOIN company_shop t2 ON t2.id = t1.shop_id and t2.is_deleted = 0
+            LEFT JOIN res_pic t3 on t3.id = t2.logo_pic_id and t3.is_deleted = 0
+            INNER JOIN sys_user t4 on t4.id = t2.user_id and t4.is_deleted = 0
+        WHERE
+            t1.is_deleted = 0
+            AND t2.is_deleted = 0
+            AND t1.id = #{articleId}
+            AND t1.release_status = 1
+    </select>
+</mapper>

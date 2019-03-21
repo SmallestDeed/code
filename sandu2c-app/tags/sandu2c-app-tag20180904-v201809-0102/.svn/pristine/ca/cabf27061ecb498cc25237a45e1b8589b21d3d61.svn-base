@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.user.dao.UserCommisionMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.user.model.UserCommision" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="commision" property="commision" jdbcType="DECIMAL" />
+    <result column="business_id" property="businessId" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id, commision, business_id, create_time, gmt_modified, creator, modifier, 
+    is_deleted, remark
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from user_commision
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from user_commision
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.user.model.UserCommision" useGeneratedKeys="true" keyProperty="id">
+    insert into user_commision (id, user_id, commision, 
+      business_id, create_time, gmt_modified, 
+      creator, modifier, is_deleted, 
+      remark)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{commision,jdbcType=DECIMAL}, 
+      #{businessId,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR}, #{isDeleted,jdbcType=INTEGER}, 
+      #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.user.model.UserCommision" useGeneratedKeys="true" keyProperty="id">
+    insert into user_commision
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="commision != null" >
+        commision,
+      </if>
+      <if test="businessId != null" >
+        business_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="commision != null" >
+        #{commision,jdbcType=DECIMAL},
+      </if>
+      <if test="businessId != null" >
+        #{businessId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.user.model.UserCommision" >
+    update user_commision
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="commision != null" >
+        commision = #{commision,jdbcType=DECIMAL},
+      </if>
+      <if test="businessId != null" >
+        business_id = #{businessId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.user.model.UserCommision" >
+    update user_commision
+    set user_id = #{userId,jdbcType=INTEGER},
+      commision = #{commision,jdbcType=DECIMAL},
+      business_id = #{businessId,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      creator = #{creator,jdbcType=VARCHAR},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+  <!--获取当前登录用户佣金详情-->
+  <select id="selectUserCommissionInfoByUserId" resultType="com.sandu.user.model.view.UserCommissionInfoDTO" parameterType="java.lang.Integer" >
+    SELECT
+        user_id AS userId,
+        SUM(commision) AS commisionCount
+    FROM
+        user_commision
+    WHERE
+        user_id = #{userId,jdbcType=INTEGER}
+    AND is_deleted = 0
+  </select>
+
+
+  <!--获取最新佣金信息详情根据时间倒叙-->
+  <select id="selectNewestcommissioninfo" resultType="com.sandu.user.model.view.NewestcommissioninfoDTO" parameterType="com.sandu.common.model.PageModel" >
+    SELECT
+        uc.commision AS record,
+        uc.user_id AS userId,
+        su1.user_name AS nickName,
+        uc.create_time AS createTime,
+        'commision' as sign
+    FROM
+        user_commision uc
+    LEFT JOIN sys_user su1 ON su1.id = uc.user_id
+    WHERE
+        uc.is_deleted = 0
+    UNION ALL
+        SELECT
+            1 AS record,
+            ui.invite_id AS userId,
+            su2.user_name AS nickName,
+            register_time AS createTime,
+            'invite' as sign
+        FROM
+            user_invite ui
+        LEFT JOIN sys_user su2 ON su2.id = ui.invite_id
+        WHERE
+            ui.is_deleted = 0
+    ORDER BY createTime desc
+    LIMIT #{start}, #{limit}
+  </select>
+
+
+
+  <!--获取排行前十的收入排行榜-->
+  <select id="selectCommissionTop" resultType="com.sandu.user.model.view.CommissionTopDTO" parameterType="com.sandu.user.model.input.UserCommisionTopAdd" >
+       SELECT
+        u.commision as commisionCount,
+        su.id as userId,
+        su.user_name as nickName,
+        rp.pic_path as userHeadPicPath,
+        sd.name as userTypeName,
+        CONVERT(IF(ISNULL(i.inviteIdCount ),0,i.inviteIdCount ),SIGNED) AS userInviteCount,
+        su.sex as sex
+    FROM
+        sys_user as su
+    left join sys_dictionary sd on sd.type='userType' and sd.value = su.user_type and sd.is_deleted = 0
+    left join res_pic rp on rp.id = su.pic_id and rp.is_deleted = 0
+    LEFT JOIN (SELECT count(ui.id) as inviteIdCount, ui.invite_id ,ui.is_deleted  from user_invite ui where ui.is_deleted = 0
+      <if test="year != null and  year !=0" >
+          AND date_format(ui.register_time,'%Y') = #{year}
+      </if>
+      <if test="month != null and  month !=0" >
+          AND date_format(ui.register_time,'%m') = #{month}
+      </if>
+      GROUP BY ui.invite_id) i on i.invite_id = su.id
+    LEFT JOIN (
+        SELECT
+            uc.user_id,
+            sum(uc.commision) AS commision,
+            uc.is_deleted
+        FROM
+            user_commision uc
+        left join sys_user s on s.id = uc.user_id and uc.is_deleted = 0
+        WHERE
+            uc.is_deleted = 0
+        and s.user_type = 11
+        <if test="year != null and  year !=0" >
+          AND date_format(uc.create_time,'%Y') = #{year}
+        </if>
+        <if test="month != null and  month !=0" >
+          AND date_format(uc.create_time,'%m') = #{month}
+        </if>
+        GROUP BY
+            uc.user_id
+        ORDER BY
+        sum(uc.commision) DESC
+        LIMIT #{start}, #{limit}
+    ) as u ON u.user_id = su.id
+    WHERE
+        su.is_deleted = 0
+    and u.is_deleted =0
+  </select>
+
+
+</mapper>

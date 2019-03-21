@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.pay.user.dao.UserFinanceMapper">
+
+    <!--查询用户可用户型数-->
+    <select id="queryUserValidHouseCount" parameterType="int" resultType="int">
+        SELECT
+            U.usable_house_number-COUNT(DISTINCT house_id)
+        FROM
+            sys_user U,
+            pay_order P
+        WHERE
+            U.id = #{userId}
+        AND
+            P.biz_type = "Buy"
+        AND
+            P.is_deleted = 0
+        AND
+            P.house_id &lt;&gt; 0
+        AND
+            P.user_id = #{userId}
+    </select>
+
+    <!-- 查询用户已购买户型数 -->
+    <select id="queryUserAlreadyBoughtHouseCount" parameterType="int" resultType="int">
+        SELECT
+            usable_house_number
+        FROM
+            sys_user
+        WHERE
+            id = #{userId}
+    </select>
+
+    <!-- 查询用户已使用户型数 -->
+    <select id="queryUserUsedHouseCount" parameterType="int" resultType="int">
+        SELECT
+            COUNT(DISTINCT house_id)
+        FROM
+            pay_order
+        WHERE
+            biz_type = "Buy"
+        AND
+            is_deleted = 0
+        AND
+            house_id &lt;&gt; 0
+        AND
+            user_id = #{userId}
+    </select>
+
+    <!-- 查询用户已使用户型ID -->
+    <select id="queryUserUsedHouseId" parameterType="int" resultType="int">
+        SELECT
+            DISTINCT house_id
+        FROM
+            pay_order
+        WHERE
+            pay_state = "SUCCESS"
+        AND
+            biz_type = "Buy"
+        AND
+            is_deleted = 0
+        AND
+            house_id &lt;&gt; 0
+        AND
+            user_id = #{userId}
+    </select>
+
+    <!-- 查询用户已使用户型列表 -->
+    <select id="queryUserUsedHouseDetailList" parameterType="com.sandu.home.model.BaseHouse" resultType="com.sandu.home.model.BaseHouse">
+
+		SELECT DISTINCT
+			bh.*, bl.living_name,
+			ba.long_code AS areaLongCode
+		FROM
+			base_house bh
+		LEFT JOIN base_living bl ON bl.id = bh.living_id
+		LEFT JOIN base_area ba ON ba.area_code = bl.area_id
+		LEFT JOIN pay_order po ON po.house_id = bh.id
+		WHERE
+			bh.id IN (
+				SELECT DISTINCT
+					house_id
+				FROM
+					pay_order
+				WHERE
+				pay_state = "SUCCESS"
+				AND biz_type = "Buy"
+				AND is_deleted = 0
+		        AND
+		            house_id &lt;&gt; 0
+		        AND
+		            user_id = #{userId}
+			)
+		ORDER BY
+			po.gmt_create DESC       
+       <if test="start !=-1 and limit !=-1">LIMIT #{start}, #{limit}</if>
+    </select>
+
+    <!-- 检查用户户型是否可用(已购买的户型不算入户型数计算) -->
+    <select id="checkUserHouseIsAbleUse" parameterType="int" resultType="boolean">
+        SELECT
+            alearyCount > 0
+              OR
+            U.usable_house_number - COUNT(DISTINCT house_id) > 0
+        FROM
+            sys_user U,
+            pay_order P,
+            (
+                SELECT
+                  COUNT(1) AS alearyCount
+                FROM
+                  pay_order
+                WHERE
+                biz_type = "Buy"
+                AND is_deleted = 0
+                AND house_id &lt;&gt; 0
+                AND user_id = #{userId}
+                AND house_id = #{houseId}
+            ) AS C
+        WHERE
+        U.id = #{userId}
+        AND P.biz_type = "Buy"
+        AND P.is_deleted = 0
+        AND P.house_id &lt;&gt; 0
+        AND P.user_id = #{userId}
+
+    </select>
+
+</mapper>

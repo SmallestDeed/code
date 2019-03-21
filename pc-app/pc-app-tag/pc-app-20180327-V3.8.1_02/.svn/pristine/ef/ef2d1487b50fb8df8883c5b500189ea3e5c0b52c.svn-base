@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.home.dao.DrawBaseHouseMapper">
+	<resultMap type="com.nork.home.model.DrawBaseHouse" id="resultMap">
+		<result column="id" property="id" />
+		<result column="house_name" property="houseName" />
+		<result column="area_long_code" property="areaLongCode" />
+		<result column="living_name" property="livingName" />
+		<result column="last_update_time" property="lastUpdateTime" />
+		<result column="pic_path" property="picPath" />
+		<result column="deal_status" property="dealStatus" />
+	</resultMap>
+	
+	<select id="listDrawHouse" resultMap="resultMap">
+		SELECT 
+		  h.id,
+		  h.house_common_code AS house_name,
+		  h.area_long_code,
+		  l.living_name,
+		  dh.gmt_modified AS last_update_time,
+		  p.pic_path,
+		  h.deal_status 
+		FROM
+		  base_house h 
+		  LEFT JOIN draw_base_house dh 
+		    ON h.id = dh.base_house_id 
+		  LEFT JOIN base_living l 
+		    ON h.living_id = l.id 
+		  LEFT JOIN res_house_pic p 
+		    ON h.snap_pic_id = p.id 
+		WHERE 1 = 1 
+		  AND h.is_deleted = 0 
+		  AND dh.is_deleted = 0 
+		  AND h.deal_status IN (4, 5)
+		  AND dh.user_id = #{userId} 
+		  <if test="keyword != null and keyword != ''">
+		    AND CONCAT(l.living_name, h.house_common_code) LIKE CONCAT('%', #{keyword}, '%')
+		  </if>
+		ORDER BY dh.gmt_modified DESC 
+		LIMIT #{start}, #{limit}
+	</select>
+	
+	<select id="countDrawHouse" resultType="long">
+		SELECT 
+		  COUNT(*)
+		FROM
+		  base_house h 
+		  LEFT JOIN draw_base_house dh 
+		    ON h.id = dh.base_house_id 
+		  LEFT JOIN base_living l 
+		    ON h.living_id = l.id 
+		  LEFT JOIN res_house_pic p 
+		    ON h.snap_pic_id = p.id 
+		WHERE 1 = 1 
+		  AND h.is_deleted = 0 
+		  AND dh.is_deleted = 0 
+		  AND h.deal_status IN (4, 5)
+		  AND dh.user_id = #{userId} 
+		  <if test="keyword != null and keyword != ''">
+		    AND CONCAT(l.living_name, h.house_common_code) LIKE CONCAT('%', #{keyword}, '%')
+		  </if>
+	</select>
+	
+	<update id="deleteDrawHouse">
+		UPDATE 
+		  base_house 
+		SET
+		  is_deleted = #{isDeleted},
+		  is_public = #{isPublic},
+		  modifier = #{modifier}, 
+		  gmt_modified = #{gmtModified}
+		WHERE id = #{id}
+	</update>
+	
+	<select id="getDealSpaceByHouseId" resultType="int">
+		SELECT 
+		  COUNT(*) 
+		FROM
+		  draw_bake_task t,
+		  draw_bake_task_detail td 
+		WHERE t.id = td.task_id 
+		  AND td.status = 3 
+		  AND t.house_id = 
+		  (SELECT 
+		    h.id 
+		  FROM
+		    draw_base_house h 
+		  WHERE h.is_deleted = 0 
+		    AND h.base_house_id = #{houseId})
+	</select>
+</mapper>

@@ -1,0 +1,54 @@
+package com.nork.task.controller;
+
+import com.nork.common.model.ResponseEnvelope;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+/**
+ * @Author Gao Jun
+ * @Description
+ * @Date:Created Administrator in 下午 4:08 2018/6/5 0005
+ * @Modified By:
+ */
+@Controller
+@RequestMapping("/{style}/refreshpic")
+public class RefreshPicController {
+
+    private static Logger logger = LoggerFactory.getLogger(RefreshPicController.class);
+
+    @RequestMapping("/refreshpicdata")
+    @ResponseBody
+    public ResponseEnvelope refreshPicData(HttpServletRequest request) {
+//        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+//        if (loginUser == null) {
+//            return new ResponseEnvelope(false, "请登录");
+//        }
+        logger.info("我进来controller了！！！---------------");
+
+        ExecutorService pool = Executors.newCachedThreadPool();
+
+        RefreshPicThread refreshPicThread1 = new RefreshPicThread(0, 10000);
+        RefreshPicThread refreshPicThread2 = new RefreshPicThread(10000, 10000);
+        RefreshPicThread refreshPicThread3 = new RefreshPicThread(20000, 10000);
+        RefreshPicThread refreshPicThread4 = new RefreshPicThread(30000, 10000);
+        RefreshPicThread refreshPicThread5 = new RefreshPicThread(40000, 10000);
+        RefreshPicThread refreshPicThread6 = new RefreshPicThread(50000, 10000);
+
+        pool.submit(refreshPicThread1);
+        pool.submit(refreshPicThread2);
+        pool.submit(refreshPicThread3);
+        pool.submit(refreshPicThread4);
+        pool.submit(refreshPicThread5);
+        pool.submit(refreshPicThread6);
+
+        logger.info("我准备返回了！！！---------------------------------------");
+        return new ResponseEnvelope(true, "已完成");
+    }
+}

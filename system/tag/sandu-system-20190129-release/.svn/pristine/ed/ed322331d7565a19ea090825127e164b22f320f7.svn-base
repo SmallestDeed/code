@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.grouppurchase.dao.GroupPurchaseOpenMapper">
+    <resultMap id="BaseResultMap" type="com.sandu.api.grouppurchase.model.GroupPurchaseOpen">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="purchase_activity_id" property="purchaseActivityId" jdbcType="BIGINT"/>
+        <result column="spu_id" property="spuId" jdbcType="BIGINT"/>
+        <result column="telephone" property="telephone" jdbcType="VARCHAR"/>
+        <result column="total_number" property="totalNumber" jdbcType="INTEGER"/>
+        <result column="join_number" property="joinNumber" jdbcType="INTEGER"/>
+        <result column="unjoin_number" property="unjoinNumber" jdbcType="INTEGER"/>
+        <result column="open_status" property="openStatus" jdbcType="TINYINT"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="MODIFIER" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="open_date" property="openDate" jdbcType="TIMESTAMP"/>
+        <result column="expire_date" property="expireDate" jdbcType="TIMESTAMP"/>
+
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, user_id, purchase_activity_id, spu_id, telephone, total_number,
+    join_number, unjoin_number, open_status, creator, gmt_create, MODIFIER, gmt_modified, expire_date,open_date,
+    is_deleted
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from group_purchase_open
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <select id="query" resultType="com.sandu.api.grouppurchase.model.GroupPurchaseOpen">
+        select * from group_purchase_open
+        where is_deleted = 0 and open_status != 3 and open_status != 4
+        <if test="purchaseOpenId != null and purchaseOpenId != ''">
+            and purchase_activity_id = #{purchaseOpenId}
+        </if>
+    </select>
+    <select id="listExpirePurchaseOpenWithActivityIds"
+            resultType="com.sandu.api.grouppurchase.model.GroupPurchaseOpen">
+        select o.* from
+        group_purchase_open o
+        where (o.expire_date &lt; now() and o.open_status = 0)
+        <if test="collect != null and collect.size > 0">
+            or (o.purchase_activity_id in
+            <foreach collection="collect" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+            and o.open_status = 0
+            )
+        </if>
+
+
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    update  group_purchase_open set is_deleted = 1
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.sandu.api.grouppurchase.model.GroupPurchaseOpen">
+    insert into group_purchase_open (id, user_id, purchase_activity_id, 
+      spu_id, telephone,
+      total_number, join_number, unjoin_number, 
+      open_status, creator, gmt_create, 
+      MODIFIER, gmt_modified, is_deleted,expire_date,open_date
+      )
+    values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{purchaseActivityId,jdbcType=BIGINT}, 
+       #{spuId,jdbcType=BIGINT}, #{telephone,jdbcType=VARCHAR},
+      #{totalNumber,jdbcType=INTEGER}, #{joinNumber,jdbcType=INTEGER}, #{unjoinNumber,jdbcType=INTEGER}, 
+      #{openStatus,jdbcType=TINYINT}, #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, 
+      #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER}
+      ,#{expireDate},#{openDate}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.sandu.api.grouppurchase.model.GroupPurchaseOpen" useGeneratedKeys="true"
+        keyColumn="id" keyProperty="id"
+    >
+        insert into group_purchase_open
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="purchaseActivityId != null">
+                purchase_activity_id,
+            </if>
+
+            <if test="spuId != null">
+                spu_id,
+            </if>
+            <if test="telephone != null">
+                telephone,
+            </if>
+            <if test="totalNumber != null">
+                total_number,
+            </if>
+            <if test="joinNumber != null">
+                join_number,
+            </if>
+            <if test="unjoinNumber != null">
+                unjoin_number,
+            </if>
+            <if test="openStatus != null">
+                open_status,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                MODIFIER,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="expireDate != null">
+                expire_date,
+            </if>
+             <if test="openDate != null">
+                open_Date,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="purchaseActivityId != null">
+                #{purchaseActivityId,jdbcType=BIGINT},
+            </if>
+
+            <if test="spuId != null">
+                #{spuId,jdbcType=BIGINT},
+            </if>
+            <if test="telephone != null">
+                #{telephone,jdbcType=VARCHAR},
+            </if>
+            <if test="totalNumber != null">
+                #{totalNumber,jdbcType=INTEGER},
+            </if>
+            <if test="joinNumber != null">
+                #{joinNumber,jdbcType=INTEGER},
+            </if>
+            <if test="unjoinNumber != null">
+                #{unjoinNumber,jdbcType=INTEGER},
+            </if>
+            <if test="openStatus != null">
+                #{openStatus,jdbcType=TINYINT},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="expireDate != null">
+                #{expireDate},
+            </if>
+             <if test="openDate != null">
+                 #{openDate},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.grouppurchase.model.GroupPurchaseOpen">
+        update group_purchase_open
+        <set>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="purchaseActivityId != null">
+                purchase_activity_id = #{purchaseActivityId,jdbcType=BIGINT},
+            </if>
+            <if test="spuId != null">
+                spu_id = #{spuId,jdbcType=BIGINT},
+            </if>
+            <if test="telephone != null">
+                telephone = #{telephone,jdbcType=VARCHAR},
+            </if>
+            <if test="totalNumber != null">
+                total_number = #{totalNumber,jdbcType=INTEGER},
+            </if>
+            <if test="joinNumber != null">
+                join_number = #{joinNumber,jdbcType=INTEGER},
+            </if>
+            <if test="unjoinNumber != null">
+                unjoin_number = #{unjoinNumber,jdbcType=INTEGER},
+            </if>
+            <if test="openStatus != null">
+                open_status = #{openStatus,jdbcType=TINYINT},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                MODIFIER = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="expireDate != null">
+                expire_Date = #{expireDate},
+            </if>
+             <if test="openDate != null">
+                open_Date =  #{openDate},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.sandu.api.grouppurchase.model.GroupPurchaseOpen">
+    update group_purchase_open
+    set user_id = #{userId,jdbcType=BIGINT},
+      purchase_activity_id = #{purchaseActivityId,jdbcType=BIGINT},
+      spu_id = #{spuId,jdbcType=BIGINT},
+      telephone = #{telephone,jdbcType=VARCHAR},
+      total_number = #{totalNumber,jdbcType=INTEGER},
+      join_number = #{joinNumber,jdbcType=INTEGER},
+      unjoin_number = #{unjoinNumber,jdbcType=INTEGER},
+      open_status = #{openStatus,jdbcType=TINYINT},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      MODIFIER = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      expire_date = #{expireDate,jdbcType=TIMESTAMP},
+      open_Date =  #{openDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

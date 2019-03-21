@@ -1,0 +1,83 @@
+package com.sandu.fullhouse.service;
+
+import com.sandu.designplan.model.DesignPlanRecommended;
+import com.sandu.designplan.model.DesignPlanRecommendedResult;
+import com.sandu.designplan.model.PlanRecommendedListModel;
+import com.sandu.designplan.vo.PlanDecoratePriceBO;
+import com.sandu.fullhouse.model.FullHouseDesignPlan;
+import com.sandu.product.model.BaseCompany;
+
+import java.util.List;
+
+public interface FullHouseDesignPlanService {
+    int deleteByPrimaryKey(Integer id);
+
+    int insert(FullHouseDesignPlan record);
+
+    int insertSelective(FullHouseDesignPlan record);
+
+    FullHouseDesignPlan selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(FullHouseDesignPlan record);
+
+    int updateByPrimaryKey(FullHouseDesignPlan record);
+
+    /**
+     * created by zhangchengda
+     * 2018/8/29 16:59
+     * 查询小程序方案列表的全屋方案
+     *
+     * @param planRecommendedListModel
+     * @return
+     */
+    List<DesignPlanRecommendedResult> selectFullHouseDesignPlanList(PlanRecommendedListModel planRecommendedListModel, String companyCode, BaseCompany baseCompany);
+
+    /**
+     * created by zhangchengda
+     * 2018/8/29 18:41
+     * 查询符合条件的全屋方案总数
+     *
+     * @param planRecommendedListModel
+     * @return
+     */
+    Integer selectFullHouseDesignPlanCount(PlanRecommendedListModel planRecommendedListModel, String companyCode, BaseCompany baseCompany);
+
+    /**
+     * 获取全屋方案装修报价信息
+     * @param fullHousePlanId
+     * @return
+     */
+    List<PlanDecoratePriceBO> getPlanDecoratePriceByFullHouseId(Integer fullHousePlanId);
+
+    /**
+     * created by zhangchengda
+     * 2018/9/4 12:49
+     * 查询全屋方案详情
+     *
+     * @param planRecommendedListModel
+     * @param companyCode
+     * @param baseCompany
+     * @return
+     */
+    List<DesignPlanRecommendedResult> selectFullHouseDesignPlanDetail(PlanRecommendedListModel planRecommendedListModel, String companyCode, BaseCompany baseCompany);
+
+    /**
+     * created by zhangchengda
+     * 2018/9/10 15:24
+     * 查询收藏的全屋方案数量
+     *
+     * @param designPlanRecommended
+     * @return
+     */
+    Integer getFavoriteFullHousePlanCount(DesignPlanRecommended designPlanRecommended);
+
+    /**
+     * created by zhangcheng
+     * 2018/9/10 18:31
+     * 查询收藏的全屋方案
+     *
+     * @param designPlanRecommended
+     * @return
+     */
+    List<DesignPlanRecommendedResult> getFavoriteFullHousePlan(DesignPlanRecommended designPlanRecommended);
+}

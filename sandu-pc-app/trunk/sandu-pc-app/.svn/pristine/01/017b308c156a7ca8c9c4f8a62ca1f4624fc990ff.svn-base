@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.design.dao.DesignPlanRenderSceneMapper">
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+        id,store_release_id,design_plan_id,design_plan_type,rendering_type,is_main,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,remark
+    </sql>
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.sandu.design.model.output.DesignPlanRenderSceneVo">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="cover_pic_id" property="coverPicId" jdbcType="INTEGER"/>
+        <result column="design_style_id" property="designStyleId" jdbcType="INTEGER"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="plan_name" property="planName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 获取效果图方案总数 -->
+    <select id="selectCount" resultType="java.lang.Integer"
+            parameterType="com.sandu.design.model.input.DesignPlanRenderSceneSearch">
+        select count(T.id) from (
+            select dprs.id,dprs.plan_name,dprs.design_style_id,dprs.gmt_modified,dprs.cover_pic_id ,
+            (select count(id) from res_render_pic where is_deleted = 0 and design_scene_id = dprs.id and rendering_type = 4 and file_key = 'design.designPlan.render.pic' ) panoramaCount,
+            (select count(id) from res_render_pic where is_deleted = 0 and design_scene_id = dprs.id and rendering_type = 8 and file_key = 'design.designPlan.render.pic' ) roamCount
+            from design_plan_render_scene dprs
+            left join design_templet dt on dt.id = dprs.design_template_id
+            left join space_common sc on sc.id = dt.space_common_id
+            where 1=1
+            <if test="userId != null">
+                and dprs.user_id = #{userId,jdbcType=INTEGER}
+            </if>
+            <if test="spaceCommonId != null">
+                and sc.id  = #{spaceCommonId,jdbcType=INTEGER}
+            </if>
+            <if test="designTemplateId != null">
+                and dprs.design_template_id = #{designTemplateId,jdbcType=INTEGER}
+            </if>
+            <if test="planName != null and planName != ''">
+                and dprs.plan_name like concat("%", #{planName,jdbcType=VARCHAR}, "%")
+            </if>
+        ) T
+        where 1=1
+        <!-- 如果是全户型分享，方案必须要有单点或多点的渲染图 -->
+        <if test="shareType != null and shareType = 1">
+            and (T.panoramaCount > 0 or T.roamCount > 0)
+        </if>
+    </select>
+
+    <!-- 获取效果图方案列表 -->
+    <select id="selectList" resultMap="AllResultMap"
+            parameterType="com.sandu.design.model.input.DesignPlanRenderSceneSearch">
+        select * from (
+            select dprs.id,dprs.plan_name,dprs.design_style_id,dprs.gmt_modified,dprs.cover_pic_id ,
+            (select count(id) from res_render_pic where is_deleted = 0 and design_scene_id = dprs.id and rendering_type = 4 and file_key = 'design.designPlan.render.pic' ) panoramaCount,
+            (select count(id) from res_render_pic where is_deleted = 0 and design_scene_id = dprs.id and rendering_type = 8 and file_key = 'design.designPlan.render.pic' ) roamCount
+            from design_plan_render_scene dprs
+            left join design_templet dt on dt.id = dprs.design_template_id
+            left join space_common sc on sc.id = dt.space_common_id
+            where 1=1
+            <if test="userId != null">
+                and dprs.user_id = #{userId,jdbcType=INTEGER}
+            </if>
+            <if test="spaceCommonId != null">
+                and sc.id  = #{spaceCommonId,jdbcType=INTEGER}
+            </if>
+            <if test="designTemplateId != null">
+                and dprs.design_template_id = #{designTemplateId,jdbcType=INTEGER}
+            </if>
+            <if test="planName != null and planName != ''">
+                and dprs.plan_name like concat("%", #{planName,jdbcType=VARCHAR}, "%")
+            </if>
+        ) T
+        where 1=1
+        <!-- 如果是全户型分享，方案必须要有单点或多点的渲染图 -->
+        <if test="shareType != null and shareType = 1">
+            and (T.panoramaCount > 0 or T.roamCount > 0)
+        </if>
+        order by T.id desc
+        <if test="start != null and limit != null">
+            LIMIT #{start}, #{limit}
+        </if>
+    </select>
+
+    <!-- 获取方案的设计风格 TEMP -->
+    <select id="getDesignStyle" resultType="java.lang.String"
+            parameterType="java.lang.Integer">
+        select `name` from sys_dictionary where `type` = 'productStyle' and `value` = #{designStyleId,jdbcType=INTEGER}
+    </select>
+
+    <!-- 根据渲染类型和效果图方案ID获取最新渲染资源ID TEMP -->
+    <select id="getRenderResourceId" resultType="java.lang.Integer">
+        select id from res_render_pic where design_scene_id = #{designPlanRenderSceneId,jdbcType=INTEGER}
+        and file_key = #{fileKey,jdbcType=VARCHAR} and rendering_type = #{renderingType,jdbcType=INTEGER}
+        order by id desc limit 1;
+    </select>
+
+    <!-- 通过视频封面获取视频资源地址 TEMP -->
+    <select id="getVideoResourceId" resultType="java.lang.Integer"
+            parameterType="java.lang.Integer">
+        select video_path from res_render_video where sys_task_pic_id = #{designPlanRenderSceneId,jdbcType=INTEGER}
+    </select>
+</mapper>

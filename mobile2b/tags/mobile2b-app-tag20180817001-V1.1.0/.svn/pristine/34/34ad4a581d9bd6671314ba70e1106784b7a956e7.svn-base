@@ -1,0 +1,604 @@
+package com.nork.design.service.impl;
+
+import com.google.gson.Gson;
+import com.nork.common.constant.AutoRenderTaskConstant;
+import com.nork.common.model.LoginUser;
+import com.nork.common.model.ResponseEnvelope;
+import com.nork.common.util.Utils;
+import com.nork.design.common.DesignPlanConstants;
+import com.nork.design.dao.DesignPlanAutoRenderMapper;
+import com.nork.design.dao.DesignPlanRecommendedMapperV2;
+import com.nork.design.dao.DesignPlanRenderSceneMapper;
+import com.nork.design.model.*;
+import com.nork.design.service.*;
+import com.nork.mobile.service.MobileAutoRenderAndOneKeyCopyService;
+import com.nork.pay.service.PayOrderService;
+import com.nork.render.model.RenderTypeCode;
+import com.nork.system.common.SysUserMessageConstants;
+import com.nork.system.model.SysUser;
+import com.nork.system.model.SysUserMessage;
+import com.nork.system.service.SysUserMessageService;
+import com.nork.system.service.SysUserService;
+import com.nork.task.model.SysTask;
+import com.nork.task.model.SysTaskStatus;
+import com.nork.task.service.SysTaskService;
+import com.nork.threadpool.RenderJobType;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.*;
+
+@Service("saveRenderPicService")
+public class SaveRenderPicServiceImpl implements SaveRenderPicService {
+	private static Logger logger = Logger.getLogger(SaveRenderPicServiceImpl.class);
+	public static final String SYSTEM_DOMAIN_NAME = Utils.getPropertyName("app","app.system.url","https://system.sanduspace.com");
+	public static final String CORE_DOMAIN_NAME = Utils.getPropertyName("app","app.core.url","https://core.sanduspace.com");
+	private final Gson GSON = new Gson();
+	@Autowired
+	private DesignPlanService designPlanService;
+	@Autowired
+	private PayOrderService payOrderService;
+	@Autowired
+	private SysTaskService sysTaskService;
+	@Autowired
+	private MobileAutoRenderAndOneKeyCopyService mobileAutoRenderAndOneKeyCopyService;
+	@Autowired
+	private DesignPlanAutoRenderMapper designPlanAutoRenderMapper;
+	@Autowired
+	DesignPlanAutoRenderResouceService designPlanAutoRenderResouceService;
+	@Autowired
+	private SysUserService sysUserService;
+	@Autowired
+	private DesignPlanRenderSceneService designPlanRenderSceneService;
+	@Autowired
+	private DesignPlanAutoRenderService designPlanAutoRenderService;
+	@Autowired
+	private DesignPlanRenderSceneMapper designPlanRenderSceneMapper;
+	@Autowired
+	private SysUserMessageService sysUserMessageService;
+	@Autowired
+    private DesignPlanRecommendedMapperV2 designPlanRecommendedMapperV2;
+
+	@Override
+	public boolean saveRenderPicOf720(RenderPicVO renderPic) {
+
+		DesignPlan designPlan = renderPic.getDesignPlan();
+		Map<String, MultipartFile> fileMap = renderPic.getFileMap();
+		Integer viewPoint = renderPic.getViewPoint();
+		Integer scene = renderPic.getScene();
+		Integer isTurnOn = renderPic.getIsTurnOn();
+		Integer renderingType = renderPic.getRenderingType();
+		LoginUser loginUser = renderPic.getLoginUser();
+		Integer taskId = renderPic.getTaskId();
+		Integer panoLevel = renderPic.getPanoLevel();
+		String roamJson = renderPic.getRoamJson();
+		Integer needShear = renderPic.getNeedShear();
+		String jobType = RenderJobType.RENDER_JOB_720;
+		if (RenderTypeCode.ROAM_720_LEVEL == renderingType) {
+			jobType = RenderJobType.RENDER_JOB_N720;
+		}
+		renderPic.setJobType(jobType);
+		Integer sourcePlanId = renderPic.getSourcePlanId();
+		Integer templateId = renderPic.getTemplateId();
+
+		Integer resPicId = 0;
+		if (renderPic.getOpType().intValue() == 0) {
+			resPicId = designPlanAutoRenderResouceService.saveRenderPicOf720(designPlan, fileMap, viewPoint, scene,
+					isTurnOn, renderingType, loginUser, taskId, panoLevel, roamJson, sourcePlanId, templateId, needShear);
+		} else {
+			resPicId = designPlanService.saveRenderPicOf720(designPlan, fileMap, viewPoint, scene, isTurnOn,
+					renderingType, loginUser, taskId, panoLevel, roamJson, sourcePlanId, templateId, needShear);
+		}
+		// Integer resPicId =
+		// designPlanService.saveRenderPicOf720(designPlan,fileMap,viewPoint,scene,isTurnOn,renderingType,loginUser,taskId);
+		// Integer resPicId =
+		// designPlanService.saveRenderPicOf720(designPlan,fileMap,viewPoint,scene,isTurnOn,renderingType,loginUser,taskId,panoLevel,roamJson,sourcePlanId,templateId);
+		String successMsg = "图片保存状态：保存成功";
+		String renderErroMsg = "异步保存720渲染视频过程失败，已退款至余额";
+		boolean flag = uploadPicFileCallBack(resPicId, renderPic, successMsg, renderErroMsg);
+		return flag;
+	}
+
+	public boolean saveRenderPicOfPhoto(RenderPicVO renderPic) {
+		DesignPlan designPlan = renderPic.getDesignPlan();
+		Map<String, MultipartFile> fileMap = renderPic.getFileMap();
+		Integer viewPoint = renderPic.getViewPoint();
+		Integer scene = renderPic.getScene();
+		Integer isTurnOn = renderPic.getIsTurnOn();
+		Integer renderingType = renderPic.getRenderingType();
+		String level = renderPic.getLevel();
+		Integer taskId = renderPic.getTaskId();
+		LoginUser loginUser = renderPic.getLoginUser();
+		Integer sourcePlanId = renderPic.getSourcePlanId();
+		Integer templateId = renderPic.getTemplateId();
+		Integer picId = 0;
+		if (renderPic.getOpType().intValue() == 0) {
+			picId = designPlanAutoRenderResouceService.saveRenderPicOfPhoto(designPlan, fileMap, viewPoint, scene,
+					isTurnOn, renderingType, level, loginUser, taskId, sourcePlanId, templateId);
+		} else {
+			picId = designPlanService.saveRenderPicOfPhoto(designPlan, fileMap, viewPoint, scene, isTurnOn,
+					renderingType, level, loginUser, taskId, sourcePlanId, templateId);
+		}
+		// Integer picId =
+		// designPlanService.saveRenderPicOfPhoto(designPlan,fileMap,viewPoint,scene,isTurnOn,renderingType,level,loginUser,taskId,sourcePlanId,templateId);
+
+		logger.info("picId=" + picId);
+		String successMsg = "图片保存状态：保存成功";
+		String renderErroMsg = "异步保存照片级渲染图片过程失败，已退款至余额";
+		renderPic.setJobType(RenderJobType.RENDER_JOB_PHOTO);
+		boolean flag = uploadPicFileCallBack(picId, renderPic, successMsg, renderErroMsg);
+		return flag;
+	}
+
+	/**
+	 * 保存720渲染视频 add by yangzhun
+	 * 
+	 * @param renderPic
+	 * @return
+	 */
+	@Override
+	public boolean saveRenderPicOfVideo(RenderPicVO renderPic) {
+		boolean flag = false;
+		DesignPlan designPlan = renderPic.getDesignPlan();
+		Map<String, MultipartFile> fileMap = renderPic.getFileMap();
+		Integer viewPoint = renderPic.getViewPoint();
+		Integer scene = renderPic.getScene();
+		Integer isTurnOn = renderPic.getIsTurnOn();
+		Integer renderingType = renderPic.getRenderingType();
+		LoginUser loginUser = renderPic.getLoginUser();
+		Integer taskId = renderPic.getTaskId();
+		Integer sourcePlanId = renderPic.getSourcePlanId();
+		Integer templateId = renderPic.getTemplateId();
+
+		// Integer resVideoId =
+		// designPlanService.saveRenderPicOfVideo(designPlan,fileMap,renderingType,loginUser,taskId,sourcePlanId,templateId);
+		Integer resVideoId = 0;
+		if (renderPic.getOpType().intValue() == 0) {
+			resVideoId = designPlanAutoRenderResouceService.saveRenderPicOfVideo(designPlan, fileMap, renderingType,
+					loginUser, taskId, sourcePlanId, templateId);
+		} else {
+			resVideoId = designPlanService.saveRenderPicOfVideo(designPlan, fileMap, renderingType, loginUser, taskId,
+					sourcePlanId, templateId);
+		}
+		String msg = "渲染视频保存状态：保存成功";
+		String renderErroMsg = "异步保存720渲染视频过程失败，已退款至余额";
+		// renderPic.setOpType(1);
+		renderPic.setJobType(RenderJobType.RENDER_JOB_VIDEO);
+		flag = uploadPicFileCallBack(resVideoId, renderPic, msg, renderErroMsg);
+		return flag;
+	}
+
+	/**
+	 * 更新任务状态 add by yanghz
+	 */
+	private void updateTaskState(SysTask sysTask, String msg, Integer status) {
+		if (SysTaskStatus.RENDER_FAILD.equals(sysTask.getState())
+				|| SysTaskStatus.END_OF_RENDER.equals(sysTask.getState())) {
+			logger.debug("local render task id=" + sysTask.getId() + " state=" + sysTask.getState()
+					+ ", forbid to change the task state!");
+		} else {
+			SysTask task = new SysTask();
+			task.setId(sysTask.getId());
+			task.setGmtModified(new Date());
+			if (org.apache.commons.lang3.StringUtils.isNotBlank(sysTask.getRemark())) {
+				task.setRemark(sysTask.getRemark() + "," + msg);
+			} else {
+				task.setRemark(msg);
+			}
+			task.setState(status);
+			sysTaskService.update(task);
+		}
+	}
+
+	/**
+	 * 渲染更新任务状态
+	 * 
+	 */
+	private boolean updateTaskStateByTaskId(RenderPicVO renderPic) {
+		boolean flag = true;
+		try {
+
+			Integer taskId = renderPic.getTaskId();
+			AutoRenderTask art = designPlanAutoRenderMapper.getRenderTaskById(taskId);
+			Integer platformId = art.getPlatformId();
+			SysUser sysUser = sysUserService.get(art.getOperationUserId());
+			LoginUser loginUser = sysUser.toLoginUser();
+			logger.error("renderPic.getJobType()  ====>    " + renderPic.getJobType());
+			DesignPlan designPlan = renderPic.getDesignPlan();
+			Integer planId = designPlan.getId();
+			Integer designPlanSceneId = null;
+			AutoRenderTaskState taskState = new AutoRenderTaskState();
+			taskState.setState(DesignPlanConstants.TASKSTATE.SUCCESS.getValue());
+			if (RenderJobType.RENDER_JOB_720.equals(renderPic.getJobType())) {
+				taskState.setRender720(DesignPlanConstants.RENDER_SUCCESS);
+			} else if (RenderJobType.RENDER_JOB_N720.equals(renderPic.getJobType())) {
+				taskState.setRenderN720(DesignPlanConstants.RENDER_SUCCESS);
+			} else if (RenderJobType.RENDER_JOB_PHOTO.equals(renderPic.getJobType())) {
+				taskState.setRenderPic(DesignPlanConstants.RENDER_SUCCESS);
+			} else if (RenderJobType.RENDER_JOB_VIDEO.equals(renderPic.getJobType())) {
+				taskState.setRenderVideo(DesignPlanConstants.RENDER_SUCCESS);
+			}
+			taskState.setTaskId(taskId);
+			if (art.getTaskType() == 0) {
+				designPlanSceneId = mobileAutoRenderAndOneKeyCopyService.transformAndCopyPlan(planId, loginUser,platformId,renderPic);
+				logger.error("designPlanSceneId====>" + designPlanSceneId);
+				taskState.setBusinessId(designPlanSceneId);
+				AutoRenderTaskState autoRenderTaskState = designPlanAutoRenderService.getStateByTaskId(taskId);
+				logger.error("autoRenderTaskState  ====>    " + autoRenderTaskState.getId());
+				long startTime = autoRenderTaskState.getGmtCreate().getTime();
+				long endTime = System.currentTimeMillis();
+				long spendTimeLong = endTime -startTime;
+				int secondTotal=(int) (spendTimeLong/1000);
+				int min=secondTotal/60;
+				int second=secondTotal%60;
+				taskState.setRenderTimeConsuming(min+"分"+second+"秒");
+				logger.error("taskState 11111111111111 ====>    " + taskState.getBusinessId());
+				DesignPlanRenderScene designPlanRenderScene = designPlanRenderSceneService.get(designPlanSceneId);
+				taskState.setNewDesignCode(designPlanRenderScene.getPlanCode());
+			}
+			designPlanAutoRenderMapper.updateTaskStateByTaskId(taskState);
+			logger.error("taskState  ====>    " + taskState.getBusinessId());
+
+		} catch (Exception e) {
+			logger.error("SaveRenderPicServiceImpl  updateTaskStateByTaskId =====> exception:"+e);
+			flag = false;
+		}
+
+		return flag;
+
+	}
+
+
+	private boolean uploadPicFileCallBack(Integer resPicId, RenderPicVO renderPic, String successMsg, String failMsg) {
+		boolean flag = true;
+		Integer taskId = renderPic.getTaskId();
+		logger.error("uploadPicFileCallBack==>" + taskId + "optype=" + renderPic.getOpType().intValue());
+		if (renderPic.getIsAuto().intValue() == 1) {//taskId != null && taskId > 0
+			flag = updateTaskStateByTaskId(renderPic);
+		} else {
+			flag = updateTheStateForUserRender(resPicId, renderPic, successMsg, failMsg);
+		}
+
+		return flag;
+	}
+
+	private boolean updateTheStateForUserRender(Integer resPicId, RenderPicVO renderPic, String successMsg,
+			String failMsg) {
+
+		boolean flag = false;
+		if (resPicId != null && resPicId > 0) {
+			flag = true;
+			// 推送保存成功消息
+			if (renderPic.getTaskId() != null) {
+				SysTask sysTask = sysTaskService.get(renderPic.getTaskId());
+				if (sysTask != null) {
+					// 更新任务状态为：渲染结束
+					updateTaskState(sysTask, successMsg, SysTaskStatus.END_OF_RENDER);
+					try {
+						Integer messageid = designPlanService.sendRenderMessage(sysTask, 2, resPicId);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} else {
+					logger.debug("taskId=" + sysTask.getId() + "find nothing or already deleted");
+				}
+			}
+		} else {
+			flag = false;
+			if (renderPic.getTaskId() != null) {
+				SysTask sysTask = sysTaskService.get(renderPic.getTaskId());
+				if (sysTask != null) {
+					// 退款
+					payOrderService.renderRefund(sysTask, failMsg);
+					// 更新任务状态
+					updateTaskState(sysTask, failMsg, SysTaskStatus.RENDER_FAILD);
+					// 推送保存失败消息
+					try {
+						logger.debug("推送保存失败消息");
+						Integer messageid = designPlanService.sendRenderMessage(sysTask, 1, null);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} else {
+					logger.debug("taskId=" + sysTask.getId() + "find nothing or already deleted");
+				}
+			}
+
+		}
+		logger.info("flag=" + resPicId);
+		return flag;
+
+	}
+
+	//
+	private boolean updateTheStateForAutoRender(RenderPicVO renderPic) {
+		boolean flag = true;
+		Integer planId = renderPic.getDesignPlan().getId();
+		Integer templateId = renderPic.getTemplateId();
+		Integer sourcePlanId = renderPic.getSourcePlanId();
+		AutoRenderTaskState taskState = new AutoRenderTaskState();
+		taskState = designPlanAutoRenderMapper.getTaskStateByPlanIdAndTemplateId(sourcePlanId, templateId);
+		String jobType = renderPic.getJobType();
+		taskState.setBusinessId(planId);
+		switch (jobType) {
+		case RenderJobType.RENDER_JOB_PHOTO:
+			if (2 == taskState.getRenderVideo() && 2 == taskState.getRender720() && 2 == taskState.getRenderN720()) {
+				taskState.setState(DesignPlanConstants.TASKSTATE.SUCCESS.getValue());// 成功
+			}
+			taskState.setRenderPic(DesignPlanConstants.RENDER_SUCCESS);
+			break;
+		case RenderJobType.RENDER_JOB_720:
+			if (2 == taskState.getRenderVideo() && 2 == taskState.getRenderPic() && 2 == taskState.getRenderN720()) {
+				taskState.setState(DesignPlanConstants.TASKSTATE.SUCCESS.getValue());
+			}
+			taskState.setRender720(DesignPlanConstants.RENDER_SUCCESS);
+			break;
+		case RenderJobType.RENDER_JOB_N720:
+			if (2 == taskState.getRenderVideo() && 2 == taskState.getRenderPic() && 2 == taskState.getRender720()) {
+				taskState.setState(DesignPlanConstants.TASKSTATE.SUCCESS.getValue());
+			}
+			taskState.setRenderN720(DesignPlanConstants.RENDER_SUCCESS);
+			break;
+		case RenderJobType.RENDER_JOB_VIDEO:
+			if (2 == taskState.getRenderN720() && 2 == taskState.getRenderPic() && 2 == taskState.getRender720()) {
+				taskState.setState(DesignPlanConstants.TASKSTATE.SUCCESS.getValue());
+			}
+			taskState.setRenderVideo(DesignPlanConstants.RENDER_SUCCESS);
+			break;
+		}
+		taskState.setRenderPic(DesignPlanConstants.RENDER_SUCCESS);
+		taskState.setRender720(DesignPlanConstants.RENDER_SUCCESS);
+		taskState.setRenderN720(DesignPlanConstants.RENDER_SUCCESS);
+		taskState.setRenderVideo(DesignPlanConstants.RENDER_SUCCESS);
+		designPlanAutoRenderMapper.updateAutoRenderTaskState(taskState);
+		return flag;
+	}
+
+	@Override
+	public void saveTaskBussinessId(AutoRenderTaskState taskState) {
+		designPlanAutoRenderMapper.updateTaskStateByTaskId(taskState);
+	}
+
+	@Override
+	public AutoRenderTaskState getStateByTaskId(Integer taskId) {
+		// TODO Auto-generated method stub
+		return designPlanAutoRenderMapper.getStateByTaskId(taskId);
+	}
+
+	@Override
+	public DesignPlanRenderScene getDesignPlanRenderScene(Integer businessId) {
+		// TODO Auto-generated method stub
+		return designPlanRenderSceneMapper.get(businessId);
+	}
+
+	@Override
+	public void handleSuccessfulRender(Integer taskId) {
+		//获取渲染成功的任务
+		AutoRenderTaskState taskState = designPlanAutoRenderMapper.getStateByTaskId(taskId);
+
+		if (AutoRenderTaskConstant.PLAN_FULL_HOUSE_TYPE.equals(taskState.getPlanHouseType())) {
+			//如果是全屋方案，判断子任务数量：
+			// 			子任务不为最后一个则不生成消息，改变主任务中的子任务数量
+			// 			子任务为最有一个，则改变主任务状态为完成，插入渲染成功的消息，并回调生成主方案及子方案
+			this.handleFullHousePlanTask(taskState);
+			//改变taskState为主任务
+			taskState = designPlanAutoRenderMapper.getStateByTaskId(taskState.getMainTaskId());
+		} else {
+			//如果是单空间方案，就生成消息
+			this.createRenderSuccessMessage(taskState);
+		}
+
+		//渲染成功后小程序发送消息模板
+		try {
+			miniprogramMessageTemplate(taskState);
+		} catch (Exception e) {
+			logger.error("小程序发送模板消息 ===>exception："+e);
+		}
+
+	}
+
+	/**
+	 * 处理全屋方案任务
+	 * @param taskState
+	 */
+	private synchronized void handleFullHousePlanTask(AutoRenderTaskState taskState) {
+		//通过子任务获取主任务，判断主任务中的子任务数量字段:
+		// 		子任务不为最后一个则不生成消息，改变主任务中的子任务数量
+		// 		子任务为最后一个则改变主任务状态为完成，插入渲染成功的消息，并回调生成主方案及子方案
+		logger.error("处理全屋方案任务 --------- taskState.getMainTaskId()="+taskState.getMainTaskId());
+		AutoRenderTaskState mainTaskState = designPlanAutoRenderMapper.getStateByTaskId(taskState.getMainTaskId());
+		logger.error("处理全屋方案任务 --------- mainTaskState="+mainTaskState);
+		Integer subtaskCount = mainTaskState.getSubtaskCount();
+		logger.error("处理全屋方案任务 --------- subtaskCount="+subtaskCount);
+		Integer mainTaskId = mainTaskState.getTaskId();
+		logger.error("处理全屋方案任务 --------- mainTaskId="+mainTaskId);
+		//创建update对象
+		AutoRenderTaskState autoRenderTaskState = new AutoRenderTaskState();
+		autoRenderTaskState.setTaskId(mainTaskId);
+		if (subtaskCount > 1) {
+			//子任务不为最后一个，只改变主任务的子任务数量字段
+			logger.error("处理全屋方案任务 --------- subtaskCount-1:"+(subtaskCount-1));
+			autoRenderTaskState.setSubtaskCount(subtaskCount-1);
+			logger.error("处理全屋方案任务 --------- 子任务不是最后一个，改变子任务数量为："+autoRenderTaskState.getSubtaskCount());
+			designPlanAutoRenderMapper.updateTaskStateByTaskId(autoRenderTaskState);
+		} else {
+			//子任务为最后一个，调用生成全屋主方案及子方案
+			Integer newFullHousePlanId = this.createFullHousePlan(mainTaskState);
+			logger.error("处理全屋方案任务 --------- newFullHousePlanId="+newFullHousePlanId);
+
+			//改变主任务的状态为渲染成功，并把新的全屋方案id存起来
+			autoRenderTaskState.setNewFullHousePlanId(newFullHousePlanId);
+			autoRenderTaskState.setBusinessId(mainTaskState.getBusinessId());
+			autoRenderTaskState.setState(DesignPlanConstants.TASKSTATE.SUCCESS.getValue());
+			autoRenderTaskState.setRender720(DesignPlanConstants.RENDER_SUCCESS);
+			long startTime = mainTaskState.getGmtCreate().getTime();
+			long endTime = System.currentTimeMillis();
+			long spendTimeLong = endTime - startTime;
+			int secondTotal = (int)spendTimeLong/1000;
+			int minute = secondTotal / 60;
+			int second = secondTotal % 60;
+			autoRenderTaskState.setRenderTimeConsuming(minute+"分"+second+"秒");
+			logger.error("处理全屋方案任务 --------- 回填主任务相关信息：autoRenderTaskState="+autoRenderTaskState);
+			designPlanAutoRenderMapper.updateTaskStateByTaskId(autoRenderTaskState);
+
+			mainTaskState = designPlanAutoRenderMapper.getStateByTaskId(mainTaskId);
+			logger.error("处理全屋方案任务 --------- 最终的主任务 mainTaskState："+mainTaskState);
+			//插入主任务渲染成功的消息
+			this.createRenderSuccessMessage(mainTaskState);
+		}
+
+	}
+
+	/**
+	 * 调用生成全屋方案
+	 * @param mainTaskState
+	 * @return
+	 */
+	private Integer createFullHousePlan(AutoRenderTaskState mainTaskState) {
+		//构造insert的对象
+		FullHouseDesignPlanAdd fullHouseDesignPlanAdd = new FullHouseDesignPlanAdd();
+		fullHouseDesignPlanAdd.setDesignPlanName(mainTaskState.getDesignName());
+		fullHouseDesignPlanAdd.setDesignPlanStyleId(0);
+		fullHouseDesignPlanAdd.setUserId(mainTaskState.getOperationUserId());
+		fullHouseDesignPlanAdd.setFullHousePlanSourceId(mainTaskState.getFullHousePlanId());
+		//通过主任务id获取所有的子任务集合
+		List<AutoRenderTaskState> subTaskStateList =
+				designPlanAutoRenderMapper.getSubTaskListByMainTaskId(mainTaskState.getTaskId());
+		//在主任务回填第一个子任务的businessId，便于获取封面图之类的
+		mainTaskState.setBusinessId(subTaskStateList.get(0).getBusinessId());
+		//构造效果图方案id集合
+		List<Integer> renderSceneIdList;
+		for (AutoRenderTaskState subTaskState : subTaskStateList) {
+			renderSceneIdList = new ArrayList<>();
+			renderSceneIdList.add(subTaskState.getBusinessId());
+			//封装全屋方案insert对象所需的各种户型对应的效果图id
+			switch (subTaskState.getSpaceFunctionId()) {
+				case AutoRenderTaskConstant.SPACE_TYPE_LIVING_DINING_ROOM :
+					fullHouseDesignPlanAdd.setLivingDiningRoom(renderSceneIdList);
+					break;
+				case AutoRenderTaskConstant.SPACE_TYPE_BEDROOM :
+					fullHouseDesignPlanAdd.setBedroom(renderSceneIdList);
+					break;
+				case AutoRenderTaskConstant.SPACE_TYPE_KITCHEN :
+					fullHouseDesignPlanAdd.setKitchen(renderSceneIdList);
+					break;
+				case AutoRenderTaskConstant.SPACE_TYPE_TOILET :
+					fullHouseDesignPlanAdd.setToilet(renderSceneIdList);
+					break;
+				case AutoRenderTaskConstant.SPACE_TYPE_SCHOOLROOM :
+					fullHouseDesignPlanAdd.setSchoolroom(renderSceneIdList);
+					break;
+			}
+		}
+		String url = CORE_DOMAIN_NAME+"/v1/core/fullHouse/addFullHouseDesignPlan";
+		logger.error("远程调用生成全屋方案 ---------- url="+url);
+		logger.error("远程调用生成全屋方案 ---------- fullHouseDesignPlanAdd="+fullHouseDesignPlanAdd);
+		String result = Utils.doPost(url, fullHouseDesignPlanAdd);
+		logger.error("远程调用生成全屋方案 ---------- result="+result);
+		if (StringUtils.isBlank(result)) {
+			return null;
+		}
+		ResponseEnvelope responseEnvelope = GSON.fromJson(result, ResponseEnvelope.class);
+		logger.error("远程调用生成全屋方案 ---------- responseEnvelope="+responseEnvelope);
+		if (responseEnvelope.getObj() != null) {
+			Double obj = (Double) responseEnvelope.getObj();
+			return  obj.intValue();
+		}
+		return null;
+	}
+
+
+	/**
+	 * 生成渲染成功的消息
+	 * @param taskState
+	 */
+	private void createRenderSuccessMessage(AutoRenderTaskState taskState) {
+		//生成一条渲染成功的消息记录-----start
+		logger.error("生成我的消息开始-----------------------");
+		SysUserMessage sysUserMessage = new SysUserMessage();
+		if ("1".equals(taskState.getRenderTypesStr())) {
+			sysUserMessage.setTitle("照片级渲染成功");
+		} else if ("2".equals(taskState.getRenderTypesStr())) {
+			sysUserMessage.setTitle("720°渲染成功");
+		} else if ("3".equals(taskState.getRenderTypesStr())) {
+			sysUserMessage.setTitle("720°多点渲染成功");
+		} else if ("4".equals(taskState.getRenderTypesStr())) {
+			sysUserMessage.setTitle("漫游视频渲染成功");
+		}
+		sysUserMessage.setTaskId(taskState.getTaskId());
+		if (0 == taskState.getTaskType().intValue()) {
+			sysUserMessage.setContent("装进我家 | " + taskState.getDesignName());
+		} else if (1 == taskState.getTaskType().intValue()) {
+			sysUserMessage.setContent("替换渲染 | " + taskState.getDesignName());
+		}
+		sysUserMessage.setCreator(taskState.getCreator());
+		sysUserMessage.setModifier(taskState.getModifier());
+		sysUserMessage.setMessageType(SysUserMessageConstants.RENDER_TASK_NEWS);
+		sysUserMessage.setStatus(SysUserMessageConstants.SUCCESS);
+		sysUserMessage.setUserId(taskState.getOperationUserId());
+		sysUserMessage.setPlatformId(taskState.getPlatformId());
+		//生成一条渲染成功的消息记录--end
+		//插入消息记录到我的消息表
+		int id = sysUserMessageService.add(sysUserMessage);
+		logger.error("insert a success taskMessage into sys_user_message---->id：" + id);
+	}
+
+	/**
+	 * 小程序发送消息模板调用
+	 * @param platformId
+	 * @param taskState
+	 */
+	private void miniprogramMessageTemplate( AutoRenderTaskState taskState) {
+
+		Integer miniProgramId = getPlatformIdByCode("miniProgram");
+		if (miniProgramId != null && miniProgramId.equals(taskState.getPlatformId())) {
+			String url = SYSTEM_DOMAIN_NAME + "/v1/notify/wx/sendRenderTemplateMsg";
+			Map<String, String> map = new HashMap<>();
+			map.put("userId", taskState.getOperationUserId().toString());
+			map.put("designPlanId", taskState.getPlanId().toString());
+			switch (taskState.getOperationSource()) {
+				case 0 :
+					DesignPlanRenderScene designPlanRenderScene = designPlanRenderSceneMapper.get(taskState.getPlanId());
+					map.put("designPlanName", designPlanRenderScene.getPlanName());
+					break;
+				case 1 :
+					DesignPlanRecommended designPlanRecommended = designPlanRecommendedMapperV2.selectByPrimaryKey(taskState.getPlanId());
+					map.put("designPlanName", designPlanRecommended.getPlanName());
+			}
+			map.put("renderResult", "渲染成功");
+			map.put("renderType", taskState.getTaskType().toString());
+			switch (taskState.getRenderTypesStr()) {
+				case "1" :
+					map.put("renderLevel", "1");
+					break;
+				case "2" :
+					map.put("renderLevel", "4");
+					break;
+				case "3" :
+					map.put("renderLevel", "8");
+					break;
+				case "4" :
+					map.put("renderLevel", "6");
+					break;
+			}
+			logger.error("小程序发送模板消息 ===> url="+url+" ,map="+map);
+			String result = Utils.doPostMethodForm(url,map);
+			logger.error("小程序发送模板消息 ===> result : "+result);
+		}
+
+	}
+
+	/**
+	 * 根据平台编码获取平台id
+	 * @param platformCode
+	 * @return
+	 */
+	public Integer getPlatformIdByCode(String platformCode) {
+		return designPlanRenderSceneMapper.getPlatformIdByCode(platformCode);
+	}
+
+}

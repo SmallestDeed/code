@@ -1,0 +1,1065 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.templet.dao.DrawDesignTempletMapper">
+  <resultMap id="BaseResultMap" type="com.sandu.api.house.model.DrawDesignTemplet">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="design_code" jdbcType="VARCHAR" property="designCode" />
+    <result column="design_name" jdbcType="VARCHAR" property="designName" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="design_source_type" jdbcType="VARCHAR" property="designSourceType" />
+    <result column="design_style_id" jdbcType="INTEGER" property="designStyleId" />
+    <result column="pic_id" jdbcType="INTEGER" property="picId" />
+    <result column="config_file_id" jdbcType="INTEGER" property="configFileId" />
+    <result column="model_id" jdbcType="INTEGER" property="modelId" />
+    <result column="model_3d_id" jdbcType="INTEGER" property="model3dId" />
+    <result column="model_u3d_id" jdbcType="INTEGER" property="modelU3dId" />
+    <result column="space_common_id" jdbcType="INTEGER" property="spaceCommonId" />
+    <result column="is_recommend" jdbcType="INTEGER" property="isRecommend" />
+    <result column="sys_code" jdbcType="VARCHAR" property="sysCode" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="render_pic_ids" jdbcType="VARCHAR" property="renderPicIds" />
+    <result column="effect_pic" jdbcType="VARCHAR" property="effectPic" />
+    <result column="ipad_model_u3d_id" jdbcType="INTEGER" property="ipadModelU3dId" />
+    <result column="ios_model_u3d_id" jdbcType="INTEGER" property="iosModelU3dId" />
+    <result column="android_model_u3d_id" jdbcType="INTEGER" property="androidModelU3dId" />
+    <result column="macBookpc_model_u3d_id" jdbcType="INTEGER" property="macbookpcModelU3dId" />
+    <result column="pc_model_u3d_id" jdbcType="INTEGER" property="pcModelU3dId" />
+    <result column="web_model_u3d_id" jdbcType="INTEGER" property="webModelU3dId" />
+    <result column="evening_file_id" jdbcType="INTEGER" property="eveningFileId" />
+    <result column="dawn_file_id" jdbcType="INTEGER" property="dawnFileId" />
+    <result column="night_file_id" jdbcType="INTEGER" property="nightFileId" />
+    <result column="putaway_state" jdbcType="INTEGER" property="putawayState" />
+    <result column="cad_pic_id" jdbcType="INTEGER" property="cadPicId" />
+    <result column="effect_plan_ids" jdbcType="VARCHAR" property="effectPlanIds" />
+    <result column="sync_status" jdbcType="VARCHAR" property="syncStatus" />
+    <result column="putaway_modified" jdbcType="TIMESTAMP" property="putawayModified" />
+    <result column="testing_modified" jdbcType="TIMESTAMP" property="testingModified" />
+    <result column="fbx_texture" jdbcType="VARCHAR" property="fbxTexture" />
+    <result column="fbx_file_id" jdbcType="INTEGER" property="fbxFileId" />
+    <result column="fbx_state" jdbcType="INTEGER" property="fbxState" />
+    <result column="config_id" jdbcType="INTEGER" property="configId" />
+    <result column="gmt_first_putaway" jdbcType="TIMESTAMP" property="gmtFirstPutaway" />
+    <result column="gmt_first_testing" jdbcType="TIMESTAMP" property="gmtFirstTesting" />
+    <result column="smallpox_identify" jdbcType="INTEGER" property="smallpoxIdentify" />
+    <result column="ground_identify" jdbcType="INTEGER" property="groundIdentify" />
+    <result column="smallpox_identify_str" jdbcType="VARCHAR" property="smallpoxIdentifyStr" />
+    <result column="ground_identify_str" jdbcType="VARCHAR" property="groundIdentifyStr" />
+    <result column="space_layout_type" jdbcType="VARCHAR" property="spaceLayoutType" />
+    <result column="public_product_info" jdbcType="VARCHAR" property="publicProductInfo" />
+    <result column="is_regional_ceiling" jdbcType="INTEGER" property="isRegionalCeiling" />
+    <result column="fix_type" jdbcType="TINYINT" property="fixType" />
+  </resultMap>
+  
+  <sql id="Base_Column_List">
+    id, design_code, design_name, user_id, design_source_type, design_style_id, pic_id, 
+    config_file_id, model_id, model_3d_id, model_u3d_id, space_common_id, is_recommend, 
+    sys_code, creator, gmt_create, modifier, gmt_modified, is_deleted, remark, render_pic_ids, 
+    effect_pic, ipad_model_u3d_id, ios_model_u3d_id, android_model_u3d_id, macBookpc_model_u3d_id, 
+    pc_model_u3d_id, web_model_u3d_id, evening_file_id, dawn_file_id, night_file_id, putaway_state, 
+    cad_pic_id, effect_plan_ids, sync_status, putaway_modified, testing_modified, fbx_texture, fbx_file_id, 
+    fbx_state, config_id, gmt_first_putaway, gmt_first_testing, smallpox_identify,  ground_identify, fix_type,
+    smallpox_identify_str, ground_identify_str, space_layout_type, public_product_info, data_type, is_regional_ceiling
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from draw_design_templet
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from draw_design_templet
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.house.model.DrawDesignTemplet">
+    insert into draw_design_templet (id, design_code, design_name, 
+      user_id, design_source_type, design_style_id, 
+      pic_id, config_file_id, model_id, 
+      model_3d_id, model_u3d_id, space_common_id, 
+      is_recommend, sys_code, creator, 
+      gmt_create, modifier, gmt_modified, 
+      is_deleted, remark, render_pic_ids, 
+      effect_pic, ipad_model_u3d_id, ios_model_u3d_id, 
+      android_model_u3d_id, macBookpc_model_u3d_id, 
+      pc_model_u3d_id, web_model_u3d_id, evening_file_id, 
+      dawn_file_id, night_file_id, putaway_state, 
+      cad_pic_id, effect_plan_ids, sync_status, 
+      putaway_modified, testing_modified, fbx_texture, 
+      fbx_file_id, fbx_state, config_id, 
+      gmt_first_putaway, gmt_first_testing, smallpox_identify, 
+      ground_identify, smallpox_identify_str, ground_identify_str, 
+      space_layout_type)
+    values (#{id,jdbcType=BIGINT}, #{designCode,jdbcType=VARCHAR}, #{designName,jdbcType=VARCHAR}, 
+      #{userId,jdbcType=INTEGER}, #{designSourceType,jdbcType=VARCHAR}, #{designStyleId,jdbcType=INTEGER}, 
+      #{picId,jdbcType=INTEGER}, #{configFileId,jdbcType=INTEGER}, #{modelId,jdbcType=INTEGER}, 
+      #{model3dId,jdbcType=INTEGER}, #{modelU3dId,jdbcType=INTEGER}, #{spaceCommonId,jdbcType=INTEGER}, 
+      #{isRecommend,jdbcType=INTEGER}, #{sysCode,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{isDeleted,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{renderPicIds,jdbcType=VARCHAR}, 
+      #{effectPic,jdbcType=VARCHAR}, #{ipadModelU3dId,jdbcType=INTEGER}, #{iosModelU3dId,jdbcType=INTEGER}, 
+      #{androidModelU3dId,jdbcType=INTEGER}, #{macbookpcModelU3dId,jdbcType=INTEGER}, 
+      #{pcModelU3dId,jdbcType=INTEGER}, #{webModelU3dId,jdbcType=INTEGER}, #{eveningFileId,jdbcType=INTEGER}, 
+      #{dawnFileId,jdbcType=INTEGER}, #{nightFileId,jdbcType=INTEGER}, #{putawayState,jdbcType=INTEGER}, 
+      #{cadPicId,jdbcType=INTEGER}, #{effectPlanIds,jdbcType=VARCHAR}, #{syncStatus,jdbcType=VARCHAR}, 
+      #{putawayModified,jdbcType=TIMESTAMP}, #{testingModified,jdbcType=TIMESTAMP}, #{fbxTexture,jdbcType=VARCHAR}, 
+      #{fbxFileId,jdbcType=INTEGER}, #{fbxState,jdbcType=INTEGER}, #{configId,jdbcType=INTEGER}, 
+      #{gmtFirstPutaway,jdbcType=TIMESTAMP}, #{gmtFirstTesting,jdbcType=TIMESTAMP}, #{smallpoxIdentify,jdbcType=INTEGER}, 
+      #{groundIdentify,jdbcType=INTEGER}, #{smallpoxIdentifyStr,jdbcType=VARCHAR}, #{groundIdentifyStr,jdbcType=VARCHAR}, 
+      #{spaceLayoutType,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.house.model.DrawDesignTemplet" useGeneratedKeys="true" keyProperty="id">
+    insert into draw_design_templet
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="designCode != null">
+        design_code,
+      </if>
+      <if test="designName != null">
+        design_name,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="designSourceType != null">
+        design_source_type,
+      </if>
+      <if test="designStyleId != null">
+        design_style_id,
+      </if>
+      <if test="picId != null">
+        pic_id,
+      </if>
+      <if test="configFileId != null">
+        config_file_id,
+      </if>
+      <if test="modelId != null">
+        model_id,
+      </if>
+      <if test="model3dId != null">
+        model_3d_id,
+      </if>
+      <if test="modelU3dId != null">
+        model_u3d_id,
+      </if>
+      <if test="spaceCommonId != null">
+        space_common_id,
+      </if>
+      <if test="isRecommend != null">
+        is_recommend,
+      </if>
+      <if test="sysCode != null">
+        sys_code,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="renderPicIds != null">
+        render_pic_ids,
+      </if>
+      <if test="effectPic != null">
+        effect_pic,
+      </if>
+      <if test="ipadModelU3dId != null">
+        ipad_model_u3d_id,
+      </if>
+      <if test="iosModelU3dId != null">
+        ios_model_u3d_id,
+      </if>
+      <if test="androidModelU3dId != null">
+        android_model_u3d_id,
+      </if>
+      <if test="macbookpcModelU3dId != null">
+        macBookpc_model_u3d_id,
+      </if>
+      <if test="pcModelU3dId != null">
+        pc_model_u3d_id,
+      </if>
+      <if test="webModelU3dId != null">
+        web_model_u3d_id,
+      </if>
+      <if test="eveningFileId != null">
+        evening_file_id,
+      </if>
+      <if test="dawnFileId != null">
+        dawn_file_id,
+      </if>
+      <if test="nightFileId != null">
+        night_file_id,
+      </if>
+      <if test="putawayState != null">
+        putaway_state,
+      </if>
+      <if test="cadPicId != null">
+        cad_pic_id,
+      </if>
+      <if test="effectPlanIds != null">
+        effect_plan_ids,
+      </if>
+      <if test="syncStatus != null">
+        sync_status,
+      </if>
+      <if test="putawayModified != null">
+        putaway_modified,
+      </if>
+      <if test="testingModified != null">
+        testing_modified,
+      </if>
+      <if test="fbxTexture != null">
+        fbx_texture,
+      </if>
+      <if test="fbxFileId != null">
+        fbx_file_id,
+      </if>
+      <if test="fbxState != null">
+        fbx_state,
+      </if>
+      <if test="configId != null">
+        config_id,
+      </if>
+      <if test="gmtFirstPutaway != null">
+        gmt_first_putaway,
+      </if>
+      <if test="gmtFirstTesting != null">
+        gmt_first_testing,
+      </if>
+      <if test="smallpoxIdentify != null">
+        smallpox_identify,
+      </if>
+      <if test="groundIdentify != null">
+        ground_identify,
+      </if>
+      <if test="smallpoxIdentifyStr != null">
+        smallpox_identify_str,
+      </if>
+      <if test="groundIdentifyStr != null">
+        ground_identify_str,
+      </if>
+      <if test="spaceLayoutType != null">
+        space_layout_type,
+      </if>
+      <if test="publicProductInfo != null">
+        public_product_info,
+      </if>
+      <if test="dataType != null">
+        data_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="designCode != null">
+        #{designCode,jdbcType=VARCHAR},
+      </if>
+      <if test="designName != null">
+        #{designName,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="designSourceType != null">
+        #{designSourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="designStyleId != null">
+        #{designStyleId,jdbcType=INTEGER},
+      </if>
+      <if test="picId != null">
+        #{picId,jdbcType=INTEGER},
+      </if>
+      <if test="configFileId != null">
+        #{configFileId,jdbcType=INTEGER},
+      </if>
+      <if test="modelId != null">
+        #{modelId,jdbcType=INTEGER},
+      </if>
+      <if test="model3dId != null">
+        #{model3dId,jdbcType=INTEGER},
+      </if>
+      <if test="modelU3dId != null">
+        #{modelU3dId,jdbcType=INTEGER},
+      </if>
+      <if test="spaceCommonId != null">
+        #{spaceCommonId,jdbcType=INTEGER},
+      </if>
+      <if test="isRecommend != null">
+        #{isRecommend,jdbcType=INTEGER},
+      </if>
+      <if test="sysCode != null">
+        #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="renderPicIds != null">
+        #{renderPicIds,jdbcType=VARCHAR},
+      </if>
+      <if test="effectPic != null">
+        #{effectPic,jdbcType=VARCHAR},
+      </if>
+      <if test="ipadModelU3dId != null">
+        #{ipadModelU3dId,jdbcType=INTEGER},
+      </if>
+      <if test="iosModelU3dId != null">
+        #{iosModelU3dId,jdbcType=INTEGER},
+      </if>
+      <if test="androidModelU3dId != null">
+        #{androidModelU3dId,jdbcType=INTEGER},
+      </if>
+      <if test="macbookpcModelU3dId != null">
+        #{macbookpcModelU3dId,jdbcType=INTEGER},
+      </if>
+      <if test="pcModelU3dId != null">
+        #{pcModelU3dId,jdbcType=INTEGER},
+      </if>
+      <if test="webModelU3dId != null">
+        #{webModelU3dId,jdbcType=INTEGER},
+      </if>
+      <if test="eveningFileId != null">
+        #{eveningFileId,jdbcType=INTEGER},
+      </if>
+      <if test="dawnFileId != null">
+        #{dawnFileId,jdbcType=INTEGER},
+      </if>
+      <if test="nightFileId != null">
+        #{nightFileId,jdbcType=INTEGER},
+      </if>
+      <if test="putawayState != null">
+        #{putawayState,jdbcType=INTEGER},
+      </if>
+      <if test="cadPicId != null">
+        #{cadPicId,jdbcType=INTEGER},
+      </if>
+      <if test="effectPlanIds != null">
+        #{effectPlanIds,jdbcType=VARCHAR},
+      </if>
+      <if test="syncStatus != null">
+        #{syncStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="putawayModified != null">
+        #{putawayModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="testingModified != null">
+        #{testingModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="fbxTexture != null">
+        #{fbxTexture,jdbcType=VARCHAR},
+      </if>
+      <if test="fbxFileId != null">
+        #{fbxFileId,jdbcType=INTEGER},
+      </if>
+      <if test="fbxState != null">
+        #{fbxState,jdbcType=INTEGER},
+      </if>
+      <if test="configId != null">
+        #{configId,jdbcType=INTEGER},
+      </if>
+      <if test="gmtFirstPutaway != null">
+        #{gmtFirstPutaway,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtFirstTesting != null">
+        #{gmtFirstTesting,jdbcType=TIMESTAMP},
+      </if>
+      <if test="smallpoxIdentify != null">
+        #{smallpoxIdentify,jdbcType=INTEGER},
+      </if>
+      <if test="groundIdentify != null">
+        #{groundIdentify,jdbcType=INTEGER},
+      </if>
+      <if test="smallpoxIdentifyStr != null">
+        #{smallpoxIdentifyStr,jdbcType=VARCHAR},
+      </if>
+      <if test="groundIdentifyStr != null">
+        #{groundIdentifyStr,jdbcType=VARCHAR},
+      </if>
+      <if test="spaceLayoutType != null">
+        #{spaceLayoutType,jdbcType=VARCHAR},
+      </if>
+      <if test="publicProductInfo != null">
+        #{publicProductInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="dataType != null">
+        #{dataType},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.house.model.DrawDesignTemplet">
+    update draw_design_templet
+    <set>
+      <if test="designCode != null">
+        design_code = #{designCode,jdbcType=VARCHAR},
+      </if>
+      <if test="designName != null">
+        design_name = #{designName,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="designSourceType != null">
+        design_source_type = #{designSourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="designStyleId != null">
+        design_style_id = #{designStyleId,jdbcType=INTEGER},
+      </if>
+      <if test="picId != null">
+        pic_id = #{picId,jdbcType=INTEGER},
+      </if>
+      <if test="configFileId != null and configFileId != 0">
+        config_file_id = #{configFileId,jdbcType=INTEGER},
+      </if>
+      <if test="modelId != null">
+        model_id = #{modelId,jdbcType=INTEGER},
+      </if>
+      <if test="model3dId != null">
+        model_3d_id = #{model3dId,jdbcType=INTEGER},
+      </if>
+      <if test="modelU3dId != null">
+        model_u3d_id = #{modelU3dId,jdbcType=INTEGER},
+      </if>
+      <if test="spaceCommonId != null">
+        space_common_id = #{spaceCommonId,jdbcType=INTEGER},
+      </if>
+      <if test="isRecommend != null">
+        is_recommend = #{isRecommend,jdbcType=INTEGER},
+      </if>
+      <if test="sysCode != null">
+        sys_code = #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="renderPicIds != null">
+        render_pic_ids = #{renderPicIds,jdbcType=VARCHAR},
+      </if>
+      <if test="effectPic != null">
+        effect_pic = #{effectPic,jdbcType=VARCHAR},
+      </if>
+      <if test="ipadModelU3dId != null">
+        ipad_model_u3d_id = #{ipadModelU3dId,jdbcType=INTEGER},
+      </if>
+      <if test="iosModelU3dId != null">
+        ios_model_u3d_id = #{iosModelU3dId,jdbcType=INTEGER},
+      </if>
+      <if test="androidModelU3dId != null">
+        android_model_u3d_id = #{androidModelU3dId,jdbcType=INTEGER},
+      </if>
+      <if test="macbookpcModelU3dId != null">
+        macBookpc_model_u3d_id = #{macbookpcModelU3dId,jdbcType=INTEGER},
+      </if>
+      <if test="pcModelU3dId != null">
+        pc_model_u3d_id = #{pcModelU3dId,jdbcType=INTEGER},
+      </if>
+      <if test="webModelU3dId != null">
+        web_model_u3d_id = #{webModelU3dId,jdbcType=INTEGER},
+      </if>
+      <if test="eveningFileId != null">
+        evening_file_id = #{eveningFileId,jdbcType=INTEGER},
+      </if>
+      <if test="dawnFileId != null">
+        dawn_file_id = #{dawnFileId,jdbcType=INTEGER},
+      </if>
+      <if test="nightFileId != null">
+        night_file_id = #{nightFileId,jdbcType=INTEGER},
+      </if>
+      <if test="putawayState != null">
+        putaway_state = #{putawayState,jdbcType=INTEGER},
+      </if>
+      <if test="cadPicId != null">
+        cad_pic_id = #{cadPicId,jdbcType=INTEGER},
+      </if>
+      <if test="effectPlanIds != null">
+        effect_plan_ids = #{effectPlanIds,jdbcType=VARCHAR},
+      </if>
+      <if test="syncStatus != null">
+        sync_status = #{syncStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="putawayModified != null">
+        putaway_modified = #{putawayModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="testingModified != null">
+        testing_modified = #{testingModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="fbxTexture != null">
+        fbx_texture = #{fbxTexture,jdbcType=VARCHAR},
+      </if>
+      <if test="fbxFileId != null">
+        fbx_file_id = #{fbxFileId,jdbcType=INTEGER},
+      </if>
+      <if test="fbxState != null">
+        fbx_state = #{fbxState,jdbcType=INTEGER},
+      </if>
+      <if test="configId != null">
+        config_id = #{configId,jdbcType=INTEGER},
+      </if>
+      <if test="gmtFirstPutaway != null">
+        gmt_first_putaway = #{gmtFirstPutaway,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtFirstTesting != null">
+        gmt_first_testing = #{gmtFirstTesting,jdbcType=TIMESTAMP},
+      </if>
+      <if test="smallpoxIdentify != null">
+        smallpox_identify = #{smallpoxIdentify,jdbcType=INTEGER},
+      </if>
+      <if test="groundIdentify != null">
+        ground_identify = #{groundIdentify,jdbcType=INTEGER},
+      </if>
+      <if test="smallpoxIdentifyStr != null">
+        smallpox_identify_str = #{smallpoxIdentifyStr,jdbcType=VARCHAR},
+      </if>
+      <if test="groundIdentifyStr != null">
+        ground_identify_str = #{groundIdentifyStr,jdbcType=VARCHAR},
+      </if>
+      <if test="spaceLayoutType != null">
+        space_layout_type = #{spaceLayoutType,jdbcType=VARCHAR},
+      </if>
+      <if test="designTempletId != null">
+        design_templet_id = #{designTempletId,jdbcType=BIGINT},
+      </if>
+      <if test="publicProductInfo != null">
+        public_product_info = #{publicProductInfo,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.house.model.DrawDesignTemplet">
+    update draw_design_templet
+    set design_code = #{designCode,jdbcType=VARCHAR},
+      design_name = #{designName,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=INTEGER},
+      design_source_type = #{designSourceType,jdbcType=VARCHAR},
+      design_style_id = #{designStyleId,jdbcType=INTEGER},
+      pic_id = #{picId,jdbcType=INTEGER},
+      config_file_id = #{configFileId,jdbcType=INTEGER},
+      model_id = #{modelId,jdbcType=INTEGER},
+      model_3d_id = #{model3dId,jdbcType=INTEGER},
+      model_u3d_id = #{modelU3dId,jdbcType=INTEGER},
+      space_common_id = #{spaceCommonId,jdbcType=INTEGER},
+      is_recommend = #{isRecommend,jdbcType=INTEGER},
+      sys_code = #{sysCode,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR},
+      render_pic_ids = #{renderPicIds,jdbcType=VARCHAR},
+      effect_pic = #{effectPic,jdbcType=VARCHAR},
+      ipad_model_u3d_id = #{ipadModelU3dId,jdbcType=INTEGER},
+      ios_model_u3d_id = #{iosModelU3dId,jdbcType=INTEGER},
+      android_model_u3d_id = #{androidModelU3dId,jdbcType=INTEGER},
+      macBookpc_model_u3d_id = #{macbookpcModelU3dId,jdbcType=INTEGER},
+      pc_model_u3d_id = #{pcModelU3dId,jdbcType=INTEGER},
+      web_model_u3d_id = #{webModelU3dId,jdbcType=INTEGER},
+      evening_file_id = #{eveningFileId,jdbcType=INTEGER},
+      dawn_file_id = #{dawnFileId,jdbcType=INTEGER},
+      night_file_id = #{nightFileId,jdbcType=INTEGER},
+      putaway_state = #{putawayState,jdbcType=INTEGER},
+      cad_pic_id = #{cadPicId,jdbcType=INTEGER},
+      effect_plan_ids = #{effectPlanIds,jdbcType=VARCHAR},
+      sync_status = #{syncStatus,jdbcType=VARCHAR},
+      putaway_modified = #{putawayModified,jdbcType=TIMESTAMP},
+      testing_modified = #{testingModified,jdbcType=TIMESTAMP},
+      fbx_texture = #{fbxTexture,jdbcType=VARCHAR},
+      fbx_file_id = #{fbxFileId,jdbcType=INTEGER},
+      fbx_state = #{fbxState,jdbcType=INTEGER},
+      config_id = #{configId,jdbcType=INTEGER},
+      gmt_first_putaway = #{gmtFirstPutaway,jdbcType=TIMESTAMP},
+      gmt_first_testing = #{gmtFirstTesting,jdbcType=TIMESTAMP},
+      smallpox_identify = #{smallpoxIdentify,jdbcType=INTEGER},
+      ground_identify = #{groundIdentify,jdbcType=INTEGER},
+      smallpox_identify_str = #{smallpoxIdentifyStr,jdbcType=VARCHAR},
+      ground_identify_str = #{groundIdentifyStr,jdbcType=VARCHAR},
+      space_layout_type = #{spaceLayoutType,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <!-- findAllBySpaceCommonId -->
+  <select id="findAllBySpaceCommonId" resultMap="BaseResultMap">
+  	select 
+    <include refid="Base_Column_List" />
+    from draw_design_templet
+    where is_deleted = 0 
+      and space_common_id = #{drawSpaceCommonId, jdbcType=BIGINT}
+  </select>
+
+  <select id="findAllBySpaceCommonId2" resultMap="BaseResultMap">
+    select
+      <include refid="Base_Column_List" />
+    from
+      draw_design_templet
+    where space_common_id = #{drawSpaceCommonId, jdbcType=BIGINT}
+  </select>
+  
+  	<!-- transformToDesignTemplet -->
+	<insert id="transformToDesignTemplet" parameterType="com.sandu.api.house.model.DrawDesignTemplet" useGeneratedKeys="true" keyProperty="designTempletId">
+		insert into design_templet
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="designCode != null">
+				design_code,
+			</if>
+			<if test="designName != null">
+				design_name,
+			</if>
+			<if test="userId != null">
+				user_id,
+			</if>
+			<if test="designSourceType != null">
+				design_source_type,
+			</if>
+			<if test="designStyleId != null">
+				design_style_id,
+			</if>
+			<if test="picId != null">
+				pic_id,
+			</if>
+			<if test="configFileId != null">
+				config_file_id,
+			</if>
+			<if test="modelId != null">
+				model_id,
+			</if>
+			<if test="model3dId != null">
+				model_3d_id,
+			</if>
+			<if test="modelU3dId != null">
+				model_u3d_id,
+			</if>
+			<if test="spaceCommonId != null">
+				space_common_id,
+			</if>
+			<if test="isRecommend != null">
+				is_recommend,
+			</if>
+			<if test="sysCode != null">
+				sys_code,
+			</if>
+			<if test="creator != null">
+				creator,
+			</if>
+			<if test="gmtCreate != null">
+				gmt_create,
+			</if>
+			<if test="modifier != null">
+				modifier,
+			</if>
+			<if test="gmtModified != null">
+				gmt_modified,
+			</if>
+			<if test="isDeleted != null">
+				is_deleted,
+			</if>
+			<if test="remark != null">
+				remark,
+			</if>
+			<if test="renderPicIds != null">
+				render_pic_ids,
+			</if>
+			<if test="effectPic != null">
+				effect_pic,
+			</if>
+			<if test="ipadModelU3dId != null">
+				ipad_model_u3d_id,
+			</if>
+			<if test="iosModelU3dId != null">
+				ios_model_u3d_id,
+			</if>
+			<if test="androidModelU3dId != null">
+				android_model_u3d_id,
+			</if>
+			<if test="macbookpcModelU3dId != null">
+				macBookpc_model_u3d_id,
+			</if>
+			<if test="pcModelU3dId != null">
+				pc_model_u3d_id,
+			</if>
+			<if test="webModelU3dId != null">
+				web_model_u3d_id,
+			</if>
+			<if test="eveningFileId != null">
+				evening_file_id,
+			</if>
+			<if test="dawnFileId != null">
+				dawn_file_id,
+			</if>
+			<if test="nightFileId != null">
+				night_file_id,
+			</if>
+			<if test="putawayState != null">
+				putaway_state,
+			</if>
+			<if test="cadPicId != null">
+				cad_pic_id,
+			</if>
+			<if test="effectPlanIds != null">
+				effect_plan_ids,
+			</if>
+			<if test="syncStatus != null">
+				sync_status,
+			</if>
+			<if test="putawayModified != null">
+				putaway_modified,
+			</if>
+			<if test="testingModified != null">
+				testing_modified,
+			</if>
+			<if test="fbxTexture != null">
+				fbx_texture,
+			</if>
+			<if test="fbxFileId != null">
+				fbx_file_id,
+			</if>
+			<if test="fbxState != null">
+				fbx_state,
+			</if>
+			<if test="configId != null">
+				config_id,
+			</if>
+			<if test="gmtFirstPutaway != null">
+				gmt_first_putaway,
+			</if>
+			<if test="gmtFirstTesting != null">
+				gmt_first_testing,
+			</if>
+			<if test="smallpoxIdentify != null">
+				smallpox_identify,
+			</if>
+			<if test="groundIdentify != null">
+				ground_identify,
+			</if>
+			<if test="smallpoxIdentifyStr != null">
+				smallpox_identify_str,
+			</if>
+			<if test="groundIdentifyStr != null">
+				ground_identify_str,
+			</if>
+			<if test="spaceLayoutType != null">
+				space_layout_type,
+			</if>
+			<if test="relDrawId != null">
+				rel_draw_id,
+			</if>
+			<if test="dataType != null">
+				data_type,
+			</if>
+			<if test="origin != null">
+				origin,
+			</if>
+            <if test="isRegionalCeiling != null">
+                is_regional_ceiling,
+            </if>
+            <if test="fixType != null">
+              fix_type,
+            </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="designCode != null">
+				#{designCode,jdbcType=VARCHAR},
+			</if>
+			<if test="designName != null">
+				#{designName,jdbcType=VARCHAR},
+			</if>
+			<if test="userId != null">
+				#{userId,jdbcType=INTEGER},
+			</if>
+			<if test="designSourceType != null">
+				#{designSourceType,jdbcType=VARCHAR},
+			</if>
+			<if test="designStyleId != null">
+				#{designStyleId,jdbcType=INTEGER},
+			</if>
+			<if test="picId != null">
+				#{picId,jdbcType=INTEGER},
+			</if>
+			<if test="configFileId != null">
+				#{configFileId,jdbcType=INTEGER},
+			</if>
+			<if test="modelId != null">
+				#{modelId,jdbcType=INTEGER},
+			</if>
+			<if test="model3dId != null">
+				#{model3dId,jdbcType=INTEGER},
+			</if>
+			<if test="modelU3dId != null">
+				#{modelU3dId,jdbcType=INTEGER},
+			</if>
+			<if test="spaceCommonId != null">
+				#{spaceCommonId,jdbcType=INTEGER},
+			</if>
+			<if test="isRecommend != null">
+				#{isRecommend,jdbcType=INTEGER},
+			</if>
+			<if test="sysCode != null">
+				#{sysCode,jdbcType=VARCHAR},
+			</if>
+			<if test="creator != null">
+				#{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtCreate != null">
+				#{gmtCreate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifier != null">
+				#{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null">
+				#{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDeleted != null">
+				#{isDeleted,jdbcType=INTEGER},
+			</if>
+			<if test="remark != null">
+				#{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="renderPicIds != null">
+				#{renderPicIds,jdbcType=VARCHAR},
+			</if>
+			<if test="effectPic != null">
+				#{effectPic,jdbcType=VARCHAR},
+			</if>
+			<if test="ipadModelU3dId != null">
+				#{ipadModelU3dId,jdbcType=INTEGER},
+			</if>
+			<if test="iosModelU3dId != null">
+				#{iosModelU3dId,jdbcType=INTEGER},
+			</if>
+			<if test="androidModelU3dId != null">
+				#{androidModelU3dId,jdbcType=INTEGER},
+			</if>
+			<if test="macbookpcModelU3dId != null">
+				#{macbookpcModelU3dId,jdbcType=INTEGER},
+			</if>
+			<if test="pcModelU3dId != null">
+				#{pcModelU3dId,jdbcType=INTEGER},
+			</if>
+			<if test="webModelU3dId != null">
+				#{webModelU3dId,jdbcType=INTEGER},
+			</if>
+			<if test="eveningFileId != null">
+				#{eveningFileId,jdbcType=INTEGER},
+			</if>
+			<if test="dawnFileId != null">
+				#{dawnFileId,jdbcType=INTEGER},
+			</if>
+			<if test="nightFileId != null">
+				#{nightFileId,jdbcType=INTEGER},
+			</if>
+			<if test="putawayState != null">
+				#{putawayState,jdbcType=INTEGER},
+			</if>
+			<if test="cadPicId != null">
+				#{cadPicId,jdbcType=INTEGER},
+			</if>
+			<if test="effectPlanIds != null">
+				#{effectPlanIds,jdbcType=VARCHAR},
+			</if>
+			<if test="syncStatus != null">
+				#{syncStatus,jdbcType=VARCHAR},
+			</if>
+			<if test="putawayModified != null">
+				#{putawayModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="testingModified != null">
+				#{testingModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="fbxTexture != null">
+				#{fbxTexture,jdbcType=VARCHAR},
+			</if>
+			<if test="fbxFileId != null">
+				#{fbxFileId,jdbcType=INTEGER},
+			</if>
+			<if test="fbxState != null">
+				#{fbxState,jdbcType=INTEGER},
+			</if>
+			<if test="configId != null">
+				#{configId,jdbcType=INTEGER},
+			</if>
+			<if test="gmtFirstPutaway != null">
+				#{gmtFirstPutaway,jdbcType=TIMESTAMP},
+			</if>
+			<if test="gmtFirstTesting != null">
+				#{gmtFirstTesting,jdbcType=TIMESTAMP},
+			</if>
+			<if test="smallpoxIdentify != null">
+				#{smallpoxIdentify,jdbcType=INTEGER},
+			</if>
+			<if test="groundIdentify != null">
+				#{groundIdentify,jdbcType=INTEGER},
+			</if>
+			<if test="smallpoxIdentifyStr != null">
+				#{smallpoxIdentifyStr,jdbcType=VARCHAR},
+			</if>
+			<if test="groundIdentifyStr != null">
+				#{groundIdentifyStr,jdbcType=VARCHAR},
+			</if>
+			<if test="spaceLayoutType != null">
+				#{spaceLayoutType,jdbcType=VARCHAR},
+			</if>
+			<if test="relDrawId != null">
+				#{relDrawId,jdbcType=BIGINT},
+			</if>
+			<if test="dataType != null">
+				#{dataType},
+			</if>
+			<if test="origin != null">
+				#{origin},
+			</if>
+            <if test="isRegionalCeiling != null">
+                #{isRegionalCeiling},
+            </if>
+            <if test="fixType != null">
+                #{fixType},
+            </if>
+		</trim>
+	</insert>
+
+  <insert id="batchSaveDrawDesignTemplet" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO draw_design_templet
+      <trim prefix="(" suffix=")" suffixOverrides=",">
+        design_code, design_name, user_id,
+        pic_id, space_common_id, is_recommend,
+        sys_code, creator, gmt_create,
+        MODIFIER, gmt_modified, is_deleted,
+        effect_pic, putaway_state, effect_plan_ids,
+        sync_status, data_type, space_layout_type,
+        is_regional_ceiling, public_product_info, fix_type,
+      </trim>
+      VALUES
+      <foreach collection="list" item="item" separator=",">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          #{item.designCode}, #{item.designName}, #{item.userId},
+          #{item.picId}, #{item.spaceCommonId}, #{item.isRecommend},
+          #{item.sysCode}, #{item.creator}, #{item.gmtCreate},
+          #{item.modifier}, #{item.gmtModified}, #{item.isDeleted},
+          #{item.effectPic}, #{item.putawayState}, #{item.effectPlanIds},
+          #{item.syncStatus}, #{item.dataType}, #{item.spaceLayoutType},
+          #{item.isRegionalCeiling}, #{item.publicProductInfo}, #{item.fixType},
+        </trim>
+      </foreach>
+  </insert>
+
+  <update id="deleteDrawDesignTemplet">
+		UPDATE 
+		  draw_design_templet dt 
+		SET
+		  dt.is_deleted = #{status}
+		WHERE dt.is_deleted = 0 
+		  AND dt.space_common_id IN 
+		  <foreach collection="emptySpaces" item="item" open="(" separator="," close=")">
+			#{item}
+		  </foreach>		
+  	</update>
+  	
+  	<update id="deleteDesignTemplet">
+		UPDATE 
+		  design_templet dt 
+		SET
+		  dt.is_deleted = #{status}
+		WHERE dt.is_deleted = 0 
+		  AND dt.space_common_id IN 
+		  <foreach collection="emptySpaces" item="item" open="(" separator="," close=")">
+			#{item}
+		  </foreach>		
+  	</update>
+  	
+  	<update id="emptyDesignTemplet">
+		UPDATE 
+		  design_templet dt 
+		SET
+		  dt.is_deleted = #{status}
+		WHERE dt.is_deleted = 0 
+		  AND dt.space_common_id IN 
+		  <foreach collection="emptySpaces" item="item" open="(" separator="," close=")">
+			#{item}
+		  </foreach>		
+  	</update>
+  	
+  	<select id="getDeleteDesignTemplet" resultType="java.lang.Long">
+  	  SELECT 
+	    dt.id 
+	  FROM
+	    design_templet dt 
+	  WHERE dt.is_deleted = 1 
+	    AND dt.space_common_id IN 
+	    <foreach collection="args" item="item" open="(" separator="," close=")">
+		  #{item}
+	    </foreach>
+  	</select>
+  	
+  	<select id="getEmptyDesignTemplet" resultType="java.lang.Long">
+  	  SELECT 
+	    dt.id 
+	  FROM
+	    design_templet dt 
+	  WHERE dt.is_deleted = 0
+        AND dt.origin = 1
+	    AND dt.space_common_id IN 
+	    <foreach collection="emptySpaces" item="item" open="(" separator="," close=")">
+		  #{item}
+	    </foreach>
+  	</select>
+
+    <select id="getEmptyDrawDesignTemplet" resultType="java.lang.Long">
+      SELECT
+        dt.id
+      FROM
+        draw_design_templet dt
+      WHERE dt.space_common_id IN
+      <foreach collection="emptySpaces" item="item" open="(" separator="," close=")">
+        #{item}
+      </foreach>
+    </select>
+
+    <select id="getDrawDesignTempletBySpaceCommonId" resultMap="BaseResultMap">
+      SELECT
+        <include refid="Base_Column_List" />
+      FROM
+        draw_design_templet
+      WHERE is_deleted = 0
+        AND space_common_id = #{drawSpaceCommonId, jdbcType=BIGINT}
+      LIMIT 1
+    </select>
+</mapper>

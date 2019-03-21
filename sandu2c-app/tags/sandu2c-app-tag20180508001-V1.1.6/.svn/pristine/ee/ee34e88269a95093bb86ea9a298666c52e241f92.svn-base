@@ -1,0 +1,318 @@
+package com.sandu.web.supplydemand;
+
+
+import com.nork.common.model.LoginUser;
+import com.sandu.common.LoginContext;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.common.util.StringUtils;
+import com.sandu.common.util.Utils;
+import com.sandu.product.model.BaseCompany;
+import com.sandu.supplydemand.convert.BaseSupplyDemandConvert;
+import com.sandu.supplydemand.input.BaseSupplyDemandAdd;
+import com.sandu.supplydemand.model.BaseSupplyDemand;
+import com.sandu.supplydemand.model.SupplyDemandPic;
+import com.sandu.supplydemand.model.SupplyDemandUserTypeContants;
+import com.sandu.supplydemand.output.BaseSupplyDemandVo;
+import com.sandu.supplydemand.output.SupplyDemandCategoryVo;
+import com.sandu.supplydemand.service.SupplyDemandService;
+import com.sandu.user.model.SysUser;
+import com.sandu.user.model.UserRoleContants;
+import com.sandu.user.model.UserVo;
+import com.sandu.user.service.SysUserService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author weisheng
+ * @Title:
+ * @Package
+ * @Description:
+ * @date 2018/4/27 0027PM 5:37
+ */
+@Slf4j
+@RestController
+@RequestMapping("/v1/union/supplydemand")
+public class SupplyDemandController {
+    private final static String CLASS_LOG_PREFIX = "[供求基础服务]";
+
+    private static Map<Integer,Long> validMap = new HashMap<>();
+
+    @Autowired
+    private SupplyDemandService supplyDemandService;
+    @Autowired
+    private SysUserService sysUserService;
+
+    /**
+     * @Title: 供求信息列表
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/getallsupplydemandinfo",method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEnvelope getAllSupplyDemandInfo(@RequestBody BaseSupplyDemandAdd baseSupplyDemandAdd, HttpServletRequest request) {
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if(loginUser==null){
+            return new ResponseEnvelope(false,"请先登录");
+        }
+        baseSupplyDemandAdd.setCreatorId(loginUser.getId());
+
+        if(StringUtils.isEmpty(baseSupplyDemandAdd.getMark())){
+            //根据登录用户的角色对查询的供求信息范围进行过滤
+            SysUser sysUser = sysUserService.get(loginUser.getId());
+            switch (sysUser.getUserType().intValue()) {
+                //门店角色
+                case UserRoleContants.DEALERS:
+                    baseSupplyDemandAdd.setMaterialShop(1);
+
+                    break;
+
+                //设计师
+                case UserRoleContants.DESIGNER:
+                    baseSupplyDemandAdd.setDesigner(1);
+                    break;
+
+                //装修公司
+                case UserRoleContants.DECORATE_COMPANY:
+                    baseSupplyDemandAdd.setDecorationCompany(1);
+                    break;
+
+                //设计公司
+                case UserRoleContants.DESIGNER_COMPANY:
+                    baseSupplyDemandAdd.setDesigner(1);
+                    break;
+
+                //业主
+                case UserRoleContants.PROPRIETOR:
+                    baseSupplyDemandAdd.setProprietor(1);
+                    break;
+
+                //施工单位
+                case UserRoleContants.FOREMAN:
+                    baseSupplyDemandAdd.setBuilder(1);
+                    break;
+
+                //中介
+                case UserRoleContants.MEDIATION:
+                    baseSupplyDemandAdd.setMediation(1);
+                    break;
+
+                default:
+                    return new ResponseEnvelope(false,"该用户角色无法查看供求信息");
+
+            }
+
+
+        }
+
+            if(StringUtils.isNotEmpty(baseSupplyDemandAdd.getPublisherType())){
+            List<Integer> creatorTypes = Utils.getIntegerListFromStringList(baseSupplyDemandAdd.getPublisherType(),",");
+            baseSupplyDemandAdd.setCreatorTypes(creatorTypes);
+        }
+
+     //查询所有供求信息总数
+        int total = supplyDemandService.getAllSupplyDemandCount(baseSupplyDemandAdd);
+        if(total==0){
+            return new ResponseEnvelope(false,"没有查询到供求信息");
+        }
+        //查询所有供求信息详情
+        List<BaseSupplyDemand> baseSupplyDemandList = supplyDemandService.getAllSupplyDemandInfo(baseSupplyDemandAdd);
+
+       return new ResponseEnvelope(true,"", BaseSupplyDemandConvert.parseToBaseSupplyDemandVoList(baseSupplyDemandList),
+               total);
+
+    }
+
+
+    /**
+     * @Title: 发布供求信息
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/addallsupplydemandinfo",method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEnvelope addSupplyDemandInfo(@Valid @RequestBody BaseSupplyDemand baseSupplyDemand, HttpServletRequest request, BindingResult bindingResult) {
+       LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if(loginUser==null){
+            return new ResponseEnvelope(false,"请先登录");
+        }
+        //校验该用户是否重复提交(一分钟同一个用户只能发布一条)
+        Integer userId = loginUser.getId();
+        if( userId >0 && validMap.containsKey(userId)){
+            if (System.currentTimeMillis()-validMap.get(userId)-60*1000 <=0) {
+               return new ResponseEnvelope(false,"同一用户一分钟只能发布一条供求信息");
+            }
+        }
+
+        if(bindingResult.hasErrors()){
+            return new ResponseEnvelope(false,bindingResult.getFieldError().getDefaultMessage());
+        }
+
+        if(baseSupplyDemand.getDecorationCompany()==0 && baseSupplyDemand.getDesigner()==0 &&
+                baseSupplyDemand.getMaterialShop()==0 && baseSupplyDemand.getProprietor()==0 && baseSupplyDemand.getBuilder()==0){
+            return new ResponseEnvelope(false,"必须选择一个发布范围");
+        }
+
+
+        baseSupplyDemand.setCreator(loginUser.getName());
+        baseSupplyDemand.setCreatorId(loginUser.getId());
+        baseSupplyDemand.setModifier(loginUser.getName());
+        baseSupplyDemand.setCreatorTypeValue(loginUser.getUserType());
+        int supplyDemandId = supplyDemandService.addSupplyDemandInfo(baseSupplyDemand);
+        if(supplyDemandId==0){
+            return new ResponseEnvelope(false,"新增供求信息失败");
+        }
+        //将用户发布信息的时间存入静态变量中.
+        if(userId>0){
+            validMap.put(loginUser.getId(),System.currentTimeMillis());
+        }
+
+        return new ResponseEnvelope(true,"新增供求信息成功",supplyDemandId);
+
+
+    }
+
+
+    /**
+     * @Title: 编辑供求信息
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/updatemysupplydemandinfo",method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEnvelope updateMySupplyDemandInfo(@RequestBody BaseSupplyDemand baseSupplyDemand, HttpServletRequest request) {
+      LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if(loginUser==null){
+            return new ResponseEnvelope(false,"请先登录");
+        }
+        if(null==baseSupplyDemand.getId()||baseSupplyDemand.getId()==0){
+            return new ResponseEnvelope(false,"缺少参数供求信息ID");
+        }
+        int supplyDemandId = supplyDemandService.updateSupplyDemandInfo(baseSupplyDemand);
+        if(supplyDemandId==0){
+            return new ResponseEnvelope(false,"供求信息修改失败");
+        }
+        return new ResponseEnvelope(true,"供求信息修改成功",supplyDemandId);
+    }
+
+
+
+    /**
+     * @Title: 供求信息上下架
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/updatemysupplydemandstatus",method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEnvelope updateMySupplyDemandStatus(@RequestBody BaseSupplyDemandAdd baseSupplyDemandAdd, HttpServletRequest request) {
+      /* LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if(loginUser==null){
+            return new ResponseEnvelope(false,"请先登录");
+        }*/
+        baseSupplyDemandAdd.setCreatorId(/*loginUser.getId()*/5790);
+        if(baseSupplyDemandAdd.getSupplyDemandId()==null||baseSupplyDemandAdd.getSupplyDemandId()==0){
+            return new ResponseEnvelope(false,"缺失参数SupplyDemandId");
+        }
+        //(0:上架中,1:已下架)
+        if(baseSupplyDemandAdd.getPushStatus()==null){
+            return new ResponseEnvelope(false,"缺失参数pushStatus");
+        }
+        BaseSupplyDemand supplyDemandInfo = supplyDemandService.getSupplyDemandInfo(baseSupplyDemandAdd.getSupplyDemandId());
+        if(supplyDemandInfo==null){
+            return new ResponseEnvelope(false,"未知的供求信息");
+
+        }
+        String statusStr = baseSupplyDemandAdd.getPushStatus() == 0 ? "上架" : "下架";
+        if(supplyDemandInfo.getPushStatus().intValue()==baseSupplyDemandAdd.getPushStatus().intValue()){
+            return new ResponseEnvelope(false,"这条供求信息已经"+statusStr);
+        }
+        //修改供求信息数据
+        Integer statusId = supplyDemandService.updateMySupplyDemandStatus(baseSupplyDemandAdd);
+        if(statusId==0){
+            return new ResponseEnvelope(false,statusStr);
+        }
+
+        return new ResponseEnvelope(true,statusStr);
+
+    }
+
+
+
+    /**
+     * @Title: 记录供求信息浏览次数
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/addsupplydemandviewnum",method = RequestMethod.POST)
+    @ResponseBody
+    @ApiOperation(value = "供求信息浏览", response = ResponseEnvelope.class)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "供求信息ID", required = true, paramType = "query", dataType = "int")
+    })
+    public ResponseEnvelope addSupplyDemandViewNum(@RequestBody BaseSupplyDemand baseSupplyDemand, HttpServletRequest request) {
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if(loginUser==null){
+            return new ResponseEnvelope(false,"请先登录");
+        }
+       if(baseSupplyDemand.getId()==null||baseSupplyDemand.getId()==0){
+           return new ResponseEnvelope(false,"缺失参数Id");
+       }
+        BaseSupplyDemand  supplyDemandInfo = supplyDemandService.getSupplyDemandInfo(baseSupplyDemand.getId());
+       if(supplyDemandInfo==null){
+           return new ResponseEnvelope(false,"未查询到改供求信息");
+       }
+        Integer viewNum = supplyDemandInfo.getViewNum();
+        viewNum++;
+        BaseSupplyDemand newBaseSupplyDemand = new BaseSupplyDemand();
+        newBaseSupplyDemand.setId(supplyDemandInfo.getId());
+        newBaseSupplyDemand.setViewNum(viewNum);
+        Integer supplyDemandId = supplyDemandService.updateSupplyDemandInfo(newBaseSupplyDemand);
+        if(supplyDemandId==0){
+            new ResponseEnvelope(false,"浏览失败");
+        }
+        return new ResponseEnvelope(true,"浏览成功",viewNum);
+    }
+
+    /**
+     * @Title: 通过供求信息ID查询详情
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+
+    @RequestMapping(value = "/getsupplydemandinfo",method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEnvelope getSupplyDemandInfo(@RequestParam(required = true )Integer supplyDemandId, HttpServletRequest request) {
+        BaseSupplyDemand baseSupplyDemand = supplyDemandService.getSupplyDemandInfo(supplyDemandId);
+
+        if(baseSupplyDemand==null){
+            return new ResponseEnvelope(false,"没有获取到该供求信息");
+        }
+
+
+        return new ResponseEnvelope(true,"", BaseSupplyDemandConvert.parseToBaseSupplyDemandVo(baseSupplyDemand));
+    }
+
+}

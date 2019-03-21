@@ -1,0 +1,26 @@
+package com.nork.design.dao;
+
+import com.nork.design.model.DesignPlanRenderScene;
+import com.nork.design.model.FullHouseDesignPlan;
+import com.nork.design.model.ThumbData;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface FullHouseDesignPlanMapper {
+
+    int updateByPrimaryKey(FullHouseDesignPlan fullHouseDesignPlan);
+
+    Integer getFullHousePlanCountByUserId(@Param("userId") Integer userId);
+
+    /**
+     * 根据用户id获取全屋方案集合（返回参数为我的任务的参数）
+     * @param designPlanRenderScene
+     * @return
+     */
+    List<ThumbData> getFullHousePlanListByUserId(DesignPlanRenderScene designPlanRenderScene);
+
+    FullHouseDesignPlan getFullHousePlanById(Integer fullHousePlanId);
+}

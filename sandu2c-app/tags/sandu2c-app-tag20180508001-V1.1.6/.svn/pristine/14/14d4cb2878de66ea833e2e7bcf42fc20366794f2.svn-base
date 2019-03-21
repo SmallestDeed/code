@@ -1,0 +1,98 @@
+package com.sandu.supplydemand.service.impl;/**
+ * @ Author     ：weisheng.
+ * @ Date       ：Created in PM 6:02 2018/4/27 0027
+ * @ Description：${description}
+ * @ Modified By：
+ * @Version: $version$
+ */
+
+import com.sandu.common.util.Utils;
+import com.sandu.supplydemand.dao.BaseSupplyDemandMapper;
+import com.sandu.supplydemand.dao.SupplyDemandCategoryMapper;
+import com.sandu.supplydemand.input.BaseSupplyDemandAdd;
+import com.sandu.supplydemand.model.BaseSupplyDemand;
+import com.sandu.supplydemand.model.SupplyDemandCategory;
+import com.sandu.supplydemand.service.SupplyDemandService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * @Title: 供求信息接口实现类
+ * @Package 供求信息接口实现类
+ * @Description:
+ * @author weisheng
+ * @date 2018/4/27 0027PM 6:02
+ */
+@Slf4j
+@Service("supplyDemandService")
+public class SupplyDemandServiceImpl implements SupplyDemandService {
+    @Autowired
+    private BaseSupplyDemandMapper baseSupplyDemandMapper;
+    @Autowired
+    private SupplyDemandCategoryMapper supplyDemandCategoryMapper;
+
+
+    @Override
+    public List<BaseSupplyDemand> getAllSupplyDemandInfo(BaseSupplyDemandAdd baseSupplyDemandAdd) {
+        List<BaseSupplyDemand> baseSupplyDemandList = baseSupplyDemandMapper.selectList(baseSupplyDemandAdd);
+        if(baseSupplyDemandList==null||baseSupplyDemandList.size()==0){
+            return null;
+        }
+        //查询分类,封面图片,描述图片信息
+        List<Integer> categoryIdList = new ArrayList<>();
+
+
+        return baseSupplyDemandList;
+    }
+
+    @Override
+    public Integer getAllSupplyDemandCount(BaseSupplyDemandAdd baseSupplyDemandAdd) {
+        return baseSupplyDemandMapper.selectListCount(baseSupplyDemandAdd);
+    }
+
+    @Override
+    @Transactional
+    public Integer updateMySupplyDemandStatus(BaseSupplyDemandAdd baseSupplyDemandAdd) {
+        BaseSupplyDemand baseSupplyDemand = new BaseSupplyDemand();
+        baseSupplyDemand.setPushStatus(baseSupplyDemandAdd.getPushStatus());
+        baseSupplyDemand.setId(baseSupplyDemandAdd.getSupplyDemandId());
+        Date date = new Date();
+        baseSupplyDemand.setGmtModified(date);
+        baseSupplyDemand.setGmtPublish(date);
+        return baseSupplyDemandMapper.updateByPrimaryKeySelective(baseSupplyDemand);
+    }
+
+    @Override
+    public BaseSupplyDemand getSupplyDemandInfo(Integer supplyDemandId) {
+        return baseSupplyDemandMapper.selectByPrimaryKey(supplyDemandId);
+    }
+
+    @Override
+    public Integer updateSupplyDemandInfo(BaseSupplyDemand baseSupplyDemand) {
+        Date date = new Date();
+        baseSupplyDemand.setGmtModified(date);
+        baseSupplyDemand.setGmtPublish(date);
+        baseSupplyDemandMapper.updateByPrimaryKeySelective(baseSupplyDemand);
+        return baseSupplyDemand.getId();
+    }
+
+    @Override
+    public Integer addSupplyDemandInfo(BaseSupplyDemand baseSupplyDemand) {
+        Date date = new Date();
+        baseSupplyDemand.setPushStatus(0);
+        baseSupplyDemand.setGmtCreate(date);
+        baseSupplyDemand.setSysCode(Utils.getCurrentDateTime(Utils.DATETIMESSS) +"_"+ Utils.generateRandomDigitString(6));
+        baseSupplyDemand.setGmtModified(date);
+        baseSupplyDemand.setGmtPublish(date);
+        baseSupplyDemandMapper.insertSelective(baseSupplyDemand);
+        return baseSupplyDemand.getId();
+    }
+
+
+}

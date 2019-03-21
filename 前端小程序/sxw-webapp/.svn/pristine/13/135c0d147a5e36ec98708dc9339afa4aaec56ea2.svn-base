@@ -1,0 +1,110 @@
+  <!-- <view class='ybf_img_box'>
+      <image bindtap='goYuandan' class='ybf_img' src='{{staticImageUrl}}hongbao@2x(1).png'></image>
+  </view> -->
+<view class='navTop' wx:if='{{spaceList.length>0}}'>
+  <scroll-view class="scroll-view_H" scroll-x scroll-left="{{scroolLeft}}" scroll-with-animation='{{true}}'>
+    <view class='items {{selectIndex==-1?"active":""}}'
+      data-ty="" data-n="0" data-i="-1" data-id='' catchtap='topSwitch'>
+      全部方案
+    </view> 
+    <view class='items {{selectIndex==index?"active":""}}' 
+      wx:for='{{spaceList}}' 
+      data-i="{{index}}"
+      data-n="{{index+1}}"
+      data-item='{{item}}'
+      data-id='{{item.id}}'
+      wx:key='{{index}}'
+      catchtap='topSwitch'>
+      {{item.livingName}}{{item.houseName==null?'':item.houseName}}
+    </view>
+  </scroll-view>
+</view>
+<view class='houseInfo' wx:if='{{isShowhouseInfo}}'>
+  <view class='houseImgBox'>
+    <image bindtap='previewImage' data-src='{{resourcePath+houseItem.thumbnailPath}}' class='houseImg' src='{{resourcePath+houseItem.thumbnailPath}}'></image>
+  </view>
+  <view class='houseDetails'>
+    <text class='title'>户型信息</text>
+    <image class='closeBtn' bindtap='showDeleteHouseDialog' src='{{staticImageUrl}}me_icon_eval (8).png'></image>
+    <text class='houseArea' decode="{{true}}">{{houseItem.houseTypeStr}}&nbsp;&nbsp;&nbsp;{{houseItem.totalArea}}m²</text>
+    <view class='houseSite'>{{houseItem.livingAddress}}</view>
+  </view>
+</view>
+
+<!-- 删除户型弹窗 B -->
+<view class='deleteHouseDialog' wx:if='{{isShowDeleteHouseDialog}}'>
+  <view class='deleteHouseBox'>
+    <view class='deleteBoxTop'>
+      <view class='deleteBoxTitle'>提示</view>
+      <view class='deleteBoxHouseInfo'>确认要删除 {{houseItem.livingName}}{{houseItem.houseName}} 吗？</view>
+      <view class='deleteBoxRedTxt'>删除后，该户型下的所有方案也会被删除！</view>
+    </view>
+    <view class='deleteBoxBottom'>
+      <view class='cancelButton' bindtap='closeDialog'>取消</view>
+      <view class='confirmButton' bindtap='sureDelete'>确定</view>
+    </view>
+  </view>
+</view>  
+<!-- 删除户型弹窗 E -->
+
+<view class="list {{isShowhouseInfo?'':'listTop'}}" wx:if="{{contentlist.length>0}}">
+  <view class="list-item" wx:for="{{contentlist}}" wx:key='{{index}}' bindtap='cancelFlag' data-key='{{listIndex}}' data-item='{{item}}'>
+    <view class="item-img" >
+      <view class='item-img-log' bindtap='toThreeD' data-type='seven' data-item='{{item}}' wx:if='{{item.planRenderType==1?(item.isSuccess==2 || item.state==1):(item.vrResourceUuid)}}'>
+        <image src='{{staticImageUrl}}case-logo.gif'></image>
+      </view>
+      <!-- <image class="btn" src="/static/image/me_icon_720.png" bindtap='toThreeD' data-type='seven' data-item='{{item}}' wx:if='{{item.planRenderType==1?(item.isSuccess==2 || item.state==1):(item.vrResourceUuid)}}'></image> -->
+      <image src="{{item.isSuccess==2? resourcePath + item.planPicPath : staticImageUrl+'design_def.png'}}"></image>
+
+      <!-- <view class='taskType'>{{item.taskType==0?'由装修我家生成':'由产品替换生成'}}</view> -->
+      <!-- <view class='renderState' wx:if='{{(item.planHouseType!=3&&item.state!=1) || (item.planHouseType==3 && (item.isSuccess==1 || item.isSuccess==0))}}'>正在渲染中...</view> -->
+      <view class='renderState' wx:if='{{item.isSuccess==0 ||item.isSuccess==1}}'>正在渲染中...</view>
+      <view class='renderState' wx:if='{{ item.isSuccess==3}}'>渲染失败</view>
+      <view class='notDecorated' wx:if='{{item.planHouseType==3 && item.houseId!=null && (item.spaceCount-item.decoratedSpaceCount > 0)}}'>
+        <image class='notDecoratedImg' src='{{staticImageUrl}}me_bg_msg.png'></image>
+        <text class='notDecoratedTxt'>还有<text class='notDecoratedNum'>{{item.spaceCount-item.decoratedSpaceCount}}</text>个房间未装修哦</text>
+      </view>
+      <view class='background'></view>
+      <view class="continue-btn" wx:if='{{item.planHouseType==3 && item.houseId!=null}}' bindtap='toHouseDeatil' data-item='{{item}}'>继续装修</view> 
+      <button class="shareBtn" open-type='{{item.isSuccess==2?"share":""}}' bindtap='onShareAppMessage' data-item='{{item}}' data-type='seven'>
+        <image class='shareImg' src='{{staticImageUrl}}me_icon_share.png'></image>
+      </button>
+      <view class='delete' catchtap='delete' data-item='{{item}}'>
+        <image src='{{staticImageUrl}}me_icon_delete3.png'></image>
+      </view>
+      <view class='house-Name-Area' wx:if='{{item.livingName!=null}}'>{{item.livingName }}  {{ item.totalArea}}m²</view>
+    </view>
+    <view class="bottom-box">
+      <view class="left">
+        <view class="name ellipsis fl">{{item.designName}}</view>
+        <view class='rename' catchtap='goRechristen' data-item="{{item}}">
+          <image src='{{staticImageUrl}}me_icon_edit.png'></image>
+        </view>
+        <view class="date ellipsis fr">{{item.gmtCreate}}</view>
+      </view>
+      <view class='bottomBtn'>
+        <view class="price-btn" bindtap='{{item.isSuccess == 2?"toChoose":"noTo"}}' data-type='5' data-item='{{item}}' data-i='{{index}}' data-skiptype='askDesign'>咨询设计
+          <text class='bottomRedDot' wx:if='{{item.askDesign==0}}'></text></view>
+        <view class="price-btn" bindtap='{{item.isSuccess == 2?"toChoose":"noTo"}}' data-type='6' data-item='{{item}}' data-i='{{index}}' data-skiptype='askQuotation'>免费报价
+          <text class='bottomRedDot' wx:if='{{item.askQuotation==0}}'></text></view>
+        <!-- <view class="continue-btn"  bindtap='toHouseDeatil' data-item='{{item}}' data-type='seven' >分享</view> -->
+        <view class='goPublishNews' catchtap='goPublishNews' data-item='{{item}}'>{{(item.supplyDemandId==null || item.supplyDemandId==0)?'发布互动区':'回复互动区'}}</view>
+      </view>
+    </view>
+  </view>
+</view>
+<view class="rechristen" wx:if="{{isShowRechristen}}" catchtouchmove='true'>
+  <view class="rechristen-box">
+    <view class="title">方案重命名</view>
+    <input placeholder-style='color: #999999;' placeholder='不超过15个字' bindinput='getRename' maxlength='15'></input>
+    <view class="btn-box">
+      <view class="cancel" bindtap='cancel'>取消</view>
+      <view class="confirm" bindtap='rename'>确定</view>
+    </view>
+  </view>
+</view>
+<empty-page emptyPageObj="{{emptyPageObj}}" wx:if="{{!contentlist.length>0}}"></empty-page>
+
+<!-- 快速导航模块 -->
+<import src="/component/newNav/newNav.wxml" />
+<template is="newNav" data="{{ ...newNav }}" />

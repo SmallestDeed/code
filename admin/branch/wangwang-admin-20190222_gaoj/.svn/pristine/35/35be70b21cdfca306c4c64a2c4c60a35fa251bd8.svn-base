@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.dictionary.dao.DictionaryDao">
+    <!--  //回收策略为先进先出 FIFO  //自动刷新时间60s  //最多缓存512个引用对象 //只读-->
+    <!--    <cache eviction="LRU"  flushInterval="60000" size="512" readOnly="true"/>  -->
+    <!--     <cache type="org.mybatis.caches.ehcache.EhcacheCache"  eviction="LRU"  flushInterval="60000" size="512" readOnly="true"/> -->
+    <!--mybatis ehcache缓存配置 -->
+    <!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 -->
+    <!--  <cache type="org.mybatis.caches.ehcache.LoggingEhcache" >
+         <property name="timeToIdleSeconds" value="3600"/>1 hour
+         <property name="timeToLiveSeconds" value="3600"/>1 hour
+         <property name="maxEntriesLocalHeap" value="1000"/>
+         <property name="maxEntriesLocalDisk" value="10000000"/>
+         <property name="memoryStoreEvictionPolicy" value="LRU"/>
+     </cache> -->
+    <!--<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>-->
+    <!--   <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>  -->
+    <!-- **插入定义** -->
+    <insert id="insertSelective" parameterType="com.sandu.api.dictionary.model.Dictionary" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into sys_dictionary
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sysCode!= null">sys_code,</if>
+            <if test="creator!= null">creator,</if>
+            <if test="gmtCreate!= null">gmt_create,</if>
+            <if test="modifier!= null">modifier,</if>
+            <if test="gmtModified!= null">gmt_modified,</if>
+            <if test="isDeleted!= null">is_deleted,</if>
+            <if test="type!= null">type,</if>
+            <if test="valuekey!= null">valuekey,</if>
+            <if test="value!= null">value,</if>
+            <if test="name!= null">name,</if>
+            <if test="ordering!= null">ordering,</if>
+            <if test="att1!= null">att1,</if>
+            <if test="att2!= null">att2,</if>
+            <if test="att3!= null">att3,</if>
+            <if test="att4!= null">att4,</if>
+            <if test="att5!= null">att5,</if>
+            <if test="att6!= null">att6,</if>
+            <if test="att7!= null">att7,</if>
+            <if test="att1Info!= null">att1_info,</if>
+            <if test="att2Info!= null">att2_info,</if>
+            <if test="att3Info!= null">att3_info,</if>
+            <if test="att4Info!= null">att4_info,</if>
+            <if test="att5Info!= null">att5_info,</if>
+            <if test="att6Info!= null">att6_info,</if>
+            <if test="att7Info!= null">att7_info,</if>
+            <if test="dateAtt1!= null">date_att1,</if>
+            <if test="dateAtt2!= null">date_att2,</if>
+            <if test="numAtt1!= null">num_att1,</if>
+            <if test="picId!= null">pic_id,</if>
+            <if test="numAtt3!= null">num_att3,</if>
+            <if test="numAtt4!= null">num_att4,</if>
+            <if test="remark!= null">remark,</if>
+            <if test="showU3dModel!= null">show_u3d_model,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sysCode!= null">#{sysCode,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">#{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">#{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER},</if>
+            <if test="type!= null">#{type,jdbcType=VARCHAR},</if>
+            <if test="valuekey!= null">#{valuekey,jdbcType=VARCHAR},</if>
+            <if test="value!= null">#{value,jdbcType=INTEGER},</if>
+            <if test="name!= null">#{name,jdbcType=VARCHAR},</if>
+            <if test="ordering!= null">#{ordering,jdbcType=INTEGER},</if>
+            <if test="att1!= null">#{att1,jdbcType=VARCHAR},</if>
+            <if test="att2!= null">#{att2,jdbcType=VARCHAR},</if>
+            <if test="att3!= null">#{att3,jdbcType=VARCHAR},</if>
+            <if test="att4!= null">#{att4,jdbcType=VARCHAR},</if>
+            <if test="att5!= null">#{att5,jdbcType=VARCHAR},</if>
+            <if test="att6!= null">#{att6,jdbcType=VARCHAR},</if>
+            <if test="att7!= null">#{att7,jdbcType=VARCHAR},</if>
+            <if test="att1Info!= null">#{att1Info,jdbcType=VARCHAR},</if>
+            <if test="att2Info!= null">#{att2Info,jdbcType=VARCHAR},</if>
+            <if test="att3Info!= null">#{att3Info,jdbcType=VARCHAR},</if>
+            <if test="att4Info!= null">#{att4Info,jdbcType=VARCHAR},</if>
+            <if test="att5Info!= null">#{att5Info,jdbcType=VARCHAR},</if>
+            <if test="att6Info!= null">#{att6Info,jdbcType=VARCHAR},</if>
+            <if test="att7Info!= null">#{att7Info,jdbcType=VARCHAR},</if>
+            <if test="dateAtt1!= null">#{dateAtt1,jdbcType=TIMESTAMP},</if>
+            <if test="dateAtt2!= null">#{dateAtt2,jdbcType=TIMESTAMP},</if>
+            <if test="numAtt1!= null">#{numAtt1,jdbcType=INTEGER},</if>
+            <if test="picId!= null">#{picId,jdbcType=INTEGER},</if>
+            <if test="numAtt3!= null">#{numAtt3,jdbcType=DOUBLE},</if>
+            <if test="numAtt4!= null">#{numAtt4,jdbcType=DOUBLE},</if>
+            <if test="remark!= null">#{remark,jdbcType=VARCHAR},</if>
+            <if test="showU3dModel!= null">#{showU3dModel,jdbcType=INTEGER},</if>
+        </trim>
+    </insert>
+
+    <!-- **更新定义** -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.dictionary.model.Dictionary">
+        update sys_dictionary
+        <set>
+            gmt_modified = now(),
+            <if test="sysCode!= null">sys_code = #{sysCode,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">creator = #{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">modifier = #{modifier,jdbcType=VARCHAR},</if>
+            <if test="isDeleted!= null">is_deleted = #{isDeleted,jdbcType=INTEGER},</if>
+            <if test="type!= null">type = #{type,jdbcType=VARCHAR},</if>
+            <if test="valuekey!= null">valuekey = #{valuekey,jdbcType=VARCHAR},</if>
+            <if test="value!= null">value = #{value,jdbcType=INTEGER},</if>
+            <if test="name!= null">name = #{name,jdbcType=VARCHAR},</if>
+            <if test="ordering!= null">ordering = #{ordering,jdbcType=INTEGER},</if>
+            <if test="att1!= null">att1 = #{att1,jdbcType=VARCHAR},</if>
+            <if test="att2!= null">att2 = #{att2,jdbcType=VARCHAR},</if>
+            <if test="att3!= null">att3 = #{att3,jdbcType=VARCHAR},</if>
+            <if test="att4!= null">att4 = #{att4,jdbcType=VARCHAR},</if>
+            <if test="att5!= null">att5 = #{att5,jdbcType=VARCHAR},</if>
+            <if test="att6!= null">att6 = #{att6,jdbcType=VARCHAR},</if>
+            <if test="att7!= null">att7 = #{att7,jdbcType=VARCHAR},</if>
+            <if test="att1Info!= null">att1_info = #{att1Info,jdbcType=VARCHAR},</if>
+            <if test="att2Info!= null">att2_info = #{att2Info,jdbcType=VARCHAR},</if>
+            <if test="att3Info!= null">att3_info = #{att3Info,jdbcType=VARCHAR},</if>
+            <if test="att4Info!= null">att4_info = #{att4Info,jdbcType=VARCHAR},</if>
+            <if test="att5Info!= null">att5_info = #{att5Info,jdbcType=VARCHAR},</if>
+            <if test="att6Info!= null">att6_info = #{att6Info,jdbcType=VARCHAR},</if>
+            <if test="att7Info!= null">att7_info = #{att7Info,jdbcType=VARCHAR},</if>
+            <if test="dateAtt1!= null">date_att1 = #{dateAtt1,jdbcType=TIMESTAMP},</if>
+            <if test="dateAtt2!= null">date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},</if>
+            <if test="numAtt1!= null">num_att1 = #{numAtt1,jdbcType=INTEGER},</if>
+            <if test="picId!= null">pic_id = #{picId,jdbcType=INTEGER},</if>
+            <if test="numAtt3!= null">num_att3 = #{numAtt3,jdbcType=DOUBLE},</if>
+            <if test="numAtt4!= null">num_att4 = #{numAtt4,jdbcType=DOUBLE},</if>
+            <if test="remark!= null">remark = #{remark,jdbcType=VARCHAR},</if>
+            <if test="showU3dModel!= null">show_u3d_model = #{showU3dModel,jdbcType=INTEGER},</if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!-- **删除定义** -->
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from sys_dictionary
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+		id,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,type,valuekey,value,name,
+		ordering,att1,att2,att3,att4,att5,att6,att7,att1_info,att2_info,att3_info,att4_info,att5_info,
+		att6_info,att7_info,date_att1,date_att2,num_att1,pic_id,num_att3,num_att4,remark,show_u3d_model
+	</sql>
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.sandu.api.dictionary.model.Dictionary">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="sys_code" property="sysCode" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="type" property="type" jdbcType="VARCHAR"/>
+        <result column="valuekey" property="valuekey" jdbcType="VARCHAR"/>
+        <result column="value" property="value" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="ordering" property="ordering" jdbcType="INTEGER"/>
+        <result column="att1" property="att1" jdbcType="VARCHAR"/>
+        <result column="att2" property="att2" jdbcType="VARCHAR"/>
+        <result column="att3" property="att3" jdbcType="VARCHAR"/>
+        <result column="att4" property="att4" jdbcType="VARCHAR"/>
+        <result column="att5" property="att5" jdbcType="VARCHAR"/>
+        <result column="att6" property="att6" jdbcType="VARCHAR"/>
+        <result column="att7" property="att7" jdbcType="VARCHAR"/>
+        <result column="att1_info" property="att1Info" jdbcType="VARCHAR"/>
+        <result column="att2_info" property="att2Info" jdbcType="VARCHAR"/>
+        <result column="att3_info" property="att3Info" jdbcType="VARCHAR"/>
+        <result column="att4_info" property="att4Info" jdbcType="VARCHAR"/>
+        <result column="att5_info" property="att5Info" jdbcType="VARCHAR"/>
+        <result column="att6_info" property="att6Info" jdbcType="VARCHAR"/>
+        <result column="att7_info" property="att7Info" jdbcType="VARCHAR"/>
+        <result column="date_att1" property="dateAtt1" jdbcType="TIMESTAMP"/>
+        <result column="date_att2" property="dateAtt2" jdbcType="TIMESTAMP"/>
+        <result column="num_att1" property="numAtt1" jdbcType="INTEGER"/>
+        <result column="pic_id" property="picId" jdbcType="INTEGER"/>
+        <result column="num_att3" property="numAtt3" jdbcType="DOUBLE"/>
+        <result column="num_att4" property="numAtt4" jdbcType="DOUBLE"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="show_u3d_model" property="showU3dModel" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!-- **查询定义** -->
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="AllResultMap"
+            parameterType="java.lang.Integer">
+        select
+        <include refid="All_Column_List"/>
+        from sys_dictionary
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+            parameterType="com.sandu.api.dictionary.model.Dictionary">
+        select
+        <include refid="All_Column_List"/>
+        from sys_dictionary
+        where 1=1 and is_deleted = 0
+        <if test="sysCode!= null">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="creator!= null">and creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="gmtCreate!= null">and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}</if>
+        <if test="modifier!= null">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="gmtModified!= null">and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}</if>
+        <if test="isDeleted!= null">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="type!= null">and type = #{type,jdbcType=VARCHAR}</if>
+        <if test="valuekey!= null">and valuekey = #{valuekey,jdbcType=VARCHAR}</if>
+        <if test="value!= null">and value = #{value,jdbcType=INTEGER}</if>
+        <if test="name!= null">and name = #{name,jdbcType=VARCHAR}</if>
+        <if test="ordering!= null">and ordering = #{ordering,jdbcType=INTEGER}</if>
+        <if test="att1!= null">and att1 = #{att1,jdbcType=VARCHAR}</if>
+        <if test="att2!= null">and att2 = #{att2,jdbcType=VARCHAR}</if>
+        <if test="att3!= null">and att3 = #{att3,jdbcType=VARCHAR}</if>
+        <if test="att4!= null">and att4 = #{att4,jdbcType=VARCHAR}</if>
+        <if test="att5!= null">and att5 = #{att5,jdbcType=VARCHAR}</if>
+        <if test="att6!= null">and att6 = #{att6,jdbcType=VARCHAR}</if>
+        <if test="att7!= null">and att7 = #{att7,jdbcType=VARCHAR}</if>
+        <if test="att1Info!= null">and att1_info = #{att1Info,jdbcType=VARCHAR}</if>
+        <if test="att2Info!= null">and att2_info = #{att2Info,jdbcType=VARCHAR}</if>
+        <if test="att3Info!= null">and att3_info = #{att3Info,jdbcType=VARCHAR}</if>
+        <if test="att4Info!= null">and att4_info = #{att4Info,jdbcType=VARCHAR}</if>
+        <if test="att5Info!= null">and att5_info = #{att5Info,jdbcType=VARCHAR}</if>
+        <if test="att6Info!= null">and att6_info = #{att6Info,jdbcType=VARCHAR}</if>
+        <if test="att7Info!= null">and att7_info = #{att7Info,jdbcType=VARCHAR}</if>
+        <if test="dateAtt1!= null">and date_att1 = #{dateAtt1,jdbcType=TIMESTAMP}</if>
+        <if test="dateAtt2!= null">and date_att2 = #{dateAtt2,jdbcType=TIMESTAMP}</if>
+        <if test="numAtt1!= null">and num_att1 = #{numAtt1,jdbcType=INTEGER}</if>
+        <if test="picId!= null">and pic_id = #{picId,jdbcType=INTEGER}</if>
+        <if test="numAtt3!= null">and num_att3 = #{numAtt3,jdbcType=DOUBLE}</if>
+        <if test="numAtt4!= null">and num_att4 = #{numAtt4,jdbcType=DOUBLE}</if>
+        <if test="remark!= null">and remark = #{remark,jdbcType=VARCHAR}</if>
+        <if test="showU3dModel!= null">show_u3d_model = #{showU3dModel,jdbcType=INTEGER}</if>
+        <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderNum != null and  orderNum !='' ">
+                ${orderNum}
+            </if>
+        </if>
+        <if test="orders != null and  orders !=''  ">
+            order by ${orders}
+        </if>
+    </select>
+
+    <select id="commonCode" resultMap="AllResultMap"
+            parameterType="com.sandu.api.dictionary.model.Dictionary">
+        select
+        <include refid="All_Column_List"/>
+        from sys_dictionary
+        where 1=1
+        <if test="sysCode!= null">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="creator!= null">and creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="gmtCreate!= null">and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}</if>
+        <if test="modifier!= null">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="gmtModified!= null">and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}</if>
+        <if test="isDeleted!= null">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="type!= null">and type = #{type,jdbcType=VARCHAR}</if>
+        <if test="valuekey!= null">and valuekey = #{valuekey,jdbcType=VARCHAR}</if>
+        <if test="value!= null">and value = #{value,jdbcType=INTEGER}</if>
+        <if test="name!= null">and name = #{name,jdbcType=VARCHAR}</if>
+        <if test="ordering!= null">and ordering = #{ordering,jdbcType=INTEGER}</if>
+        <if test="att1!= null">and att1 = #{att1,jdbcType=VARCHAR}</if>
+        <if test="att2!= null">and att2 = #{att2,jdbcType=VARCHAR}</if>
+        <if test="att3!= null">and att3 = #{att3,jdbcType=VARCHAR}</if>
+        <if test="att4!= null">and att4 = #{att4,jdbcType=VARCHAR}</if>
+        <if test="att5!= null">and att5 = #{att5,jdbcType=VARCHAR}</if>
+        <if test="att6!= null">and att6 = #{att6,jdbcType=VARCHAR}</if>
+        <if test="att7!= null">and att7 = #{att7,jdbcType=VARCHAR}</if>
+        <if test="att1Info!= null">and att1_info = #{att1Info,jdbcType=VARCHAR}</if>
+        <if test="att2Info!= null">and att2_info = #{att2Info,jdbcType=VARCHAR}</if>
+        <if test="att3Info!= null">and att3_info = #{att3Info,jdbcType=VARCHAR}</if>
+        <if test="att4Info!= null">and att4_info = #{att4Info,jdbcType=VARCHAR}</if>
+        <if test="att5Info!= null">and att5_info = #{att5Info,jdbcType=VARCHAR}</if>
+        <if test="att6Info!= null">and att6_info = #{att6Info,jdbcType=VARCHAR}</if>
+        <if test="att7Info!= null">and att7_info = #{att7Info,jdbcType=VARCHAR}</if>
+        <if test="dateAtt1!= null">and date_att1 = #{dateAtt1,jdbcType=TIMESTAMP}</if>
+        <if test="dateAtt2!= null">and date_att2 = #{dateAtt2,jdbcType=TIMESTAMP}</if>
+        <if test="numAtt1!= null">and num_att1 = #{numAtt1,jdbcType=INTEGER}</if>
+        <if test="picId!= null">and pic_id = #{picId,jdbcType=INTEGER}</if>
+        <if test="numAtt3!= null">and num_att3 = #{numAtt3,jdbcType=DOUBLE}</if>
+        <if test="numAtt4!= null">and num_att4 = #{numAtt4,jdbcType=DOUBLE}</if>
+        <if test="remark!= null">and remark = #{remark,jdbcType=VARCHAR}</if>
+        <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderNum != null and  orderNum !='' ">
+                ${orderNum}
+            </if>
+        </if>
+        <if test="orders != null and  orders !=''  ">
+            order by ${orders}
+        </if>
+    </select>
+
+    <select id="listByType" resultType="com.sandu.api.dictionary.model.Dictionary">
+        select id,type,name,VALUE,valuekey,att1,att1_info,ordering,num_att3
+        from sys_dictionary where is_deleted = 0 and valuekey not like 'basic_%'
+        and type in
+        <foreach collection="types" item="type" separator="," open="(" close=")">
+            #{type}
+        </foreach>
+    </select>
+
+    <select id="getByTypeAndValue" resultMap="AllResultMap">
+		select id,type,name,VALUE,valuekey,att1_info,att1,att2,att3,num_att3,num_att1
+		from sys_dictionary where type = #{type} and is_deleted = 0 and value = #{value}
+	</select>
+
+
+    <select id="getProductTypeValueAndSmallBySmallValueKey" resultType="com.sandu.api.dictionary.model.Dictionary">
+		SELECT
+			t1.id,t1.value,t1.valuekey,t1.type,t1.att1_info,t1.name
+
+
+		FROM
+			sys_dictionary t1
+		LEFT JOIN sys_dictionary t2 ON t2.type = t1.valuekey
+		WHERE
+			t2.valuekey = #{valueKey}
+UNION
+  SELECT
+			t2.id,t2.value,t2.valuekey,t2.type,t2.att1_info,t2.name
+		FROM
+			sys_dictionary t1
+		LEFT JOIN sys_dictionary t2 ON t2.type = t1.valuekey
+		WHERE
+			t2.valuekey = #{valueKey}
+    </select>
+    <select id="getByValueKey" resultType="com.sandu.api.dictionary.model.Dictionary">
+		select  * from sys_dictionary where valuekey = #{smallTypeCode}
+	</select>
+    <select id="getByValueKeys" resultType="com.sandu.api.dictionary.model.Dictionary">
+        select * from sys_dictionary where valuekey in
+        <foreach collection="list" open="(" close=")" separator="," item="key">
+            #{key}
+        </foreach>
+        order by id;
+    </select>
+    <select id="getByTypeAndName" resultType="com.sandu.api.dictionary.model.Dictionary">
+        select * from sys_dictionary where type = #{type} and is_deleted = 0
+        <if test="name != null and name != ''">
+            and name like concat ('%',#{name},'%')
+        </if>
+    </select>
+    <select id="listByAloneType" resultType="com.sandu.api.dictionary.model.Dictionary">
+        select id,type,name,VALUE,valuekey,att1,att1_info,ordering
+        from sys_dictionary where is_deleted = 0
+        and type = #{type}
+    </select>
+    <select id="selectListByTypeOrValues" resultType="com.sandu.api.dictionary.output.DictionaryTypeListVO">
+        SELECT
+        value,
+        name,
+        att2
+        FROM
+        sys_dictionary
+        WHERE type = #{industry,jdbcType=VARCHAR}
+        AND value IN
+        <foreach item="item" collection="integerList" separator="," open="(" close=")" index="">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

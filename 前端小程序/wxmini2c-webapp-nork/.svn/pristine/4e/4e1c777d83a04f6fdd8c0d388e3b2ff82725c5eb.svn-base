@@ -1,0 +1,86 @@
+<!--pages/mine/couponList/couponList.wxml-->
+<view class="yhq_main_body">
+
+    <view class="yhq_header">
+			<view class="yhq_header_title {{currTab==0?'yhq_header_active':''}}" data-tab="0" bindtap="changeTab">未使用</view>
+			<view class="yhq_header_title {{currTab==1?'yhq_header_active':''}}" data-tab="1" bindtap="changeTab">已使用</view>
+			<view class="yhq_header_title {{currTab==2?'yhq_header_active':''}}" data-tab="2" bindtap="changeTab">已过期</view>
+		</view>
+
+    <view wx:if="{{currTab==0}}">
+      <view class="yhq_liebiao" wx:for="{{tabContList.unUse}}" wx:for-item="couponItem">
+			  <view class="yhq_liebiao_left">
+				  <view class="liebiao_left_xrzx" wx:if="{{couponItem.couponType==1}}">新人专享</view>
+				  <view class="liebiao_left_title" wx:if="{{couponItem.discountMode==1}}"><text class="unit">￥</text>{{couponItem.discountAmount}}</view>
+          <view class="liebiao_left_title" wx:if="{{couponItem.discountMode==2}}">{{couponItem.rebateFactor}}<text class="rebate">折</text></view>
+          <view class="liebiao_left_text" >{{couponItem.orderAmount==0?"无门槛":"满"+couponItem.orderAmount+"元立减"}}</view> 
+			  </view>
+			  <view class="yhq_liebiao_right">
+				  <view class="liebiao_right_title">使用范围：{{couponItem.scopeDesc}}</view>
+          <view class="liebiao_right_text" >使用期限：{{couponItem.useDuration}}</view> 
+				  <view class="liebiao_button02" bindtap='goUrls'>立即使用</view>
+			  </view>
+         <view class="yhq_coupons_label">
+          <image src="{{imgURL}}coupons_label_01.png"></image>
+        </view>
+  
+		  </view>
+      <view  wx:if="{{hasMore.unUse==false && pageNoList.unUse==1}}" class="coupon-noData">
+         <image  src="{{imgURL}}me_pic_no_02.png"></image> 
+        <view class="noData-tip">空空如也~</view>
+      </view>
+      <!-- <view class="nomore" wx:if="{{hasMore.unUse==false}}">暂无更多数据</view>  -->
+    </view>
+		
+
+    <view wx:if="{{currTab==1}}">
+      <view class="yhq_liebiao yhq_ysy" wx:for="{{tabContList.used}}" wx:for-item="couponItem">
+			  <view class="yhq_liebiao_left">
+				  <view class="liebiao_left_xrzx" wx:if="{{couponItem.couponType==1}}">新人专享</view>
+				  <view class="liebiao_left_title" wx:if="{{couponItem.discountMode==1}}"><text class="unit">￥</text>{{couponItem.discountAmount}}</view>
+          <view class="liebiao_left_title" wx:if="{{couponItem.discountMode==2}}">{{couponItem.rebateFactor}}<text class="rebate">折</text></view>
+          <view class="liebiao_left_text" >{{couponItem.orderAmount==0?"无门槛":"满"+couponItem.orderAmount+"元立减"}}</view> 
+			  </view>
+			  <view class="yhq_liebiao_right">
+				  <view class="liebiao_right_title">使用范围：{{couponItem.scopeDesc}}</view>
+          <view class="liebiao_right_text" >使用期限：{{couponItem.useDuration}}</view> 
+			  </view>
+         <view class="yhq_coupons_label">
+          <image src="{{imgURL}}coupons_label_02.png"></image>
+        </view>
+		  </view>
+      <view  wx:if="{{hasMore.used==false && pageNoList.used==1}}" class="coupon-noData">
+        <image  src="{{imgURL}}me_pic_no_02.png"></image>
+        <view class="noData-tip">空空如也~</view>
+      </view>
+      <!-- <view class="nomore" wx:if="{{hasMore.used==false}}">暂无更多数据</view>  -->
+    </view>
+    <view wx:if="{{currTab==2}}">
+      <view class="yhq_liebiao yhq_ysy" wx:for="{{tabContList.timeout}}" wx:for-item="couponItem">
+			  <view class="yhq_liebiao_left">
+				  <view class="liebiao_left_xrzx" wx:if="{{couponItem.couponType==1}}">新人专享</view>
+				  <view class="liebiao_left_title" wx:if="{{couponItem.discountMode==1}}"><text class="unit">￥</text>{{couponItem.discountAmount}}</view>
+          <view class="liebiao_left_title" wx:if="{{couponItem.discountMode==2}}">{{couponItem.rebateFactor}}<text class="rebate">折</text></view>
+          <view class="liebiao_left_text" >{{couponItem.orderAmount==0?"无门槛":"满"+couponItem.orderAmount+"元立减"}}</view> 
+			  </view>
+			  <view class="yhq_liebiao_right">
+				  <view class="liebiao_right_title">使用范围：{{couponItem.scopeDesc}}</view>
+          <view class="liebiao_right_text" >使用期限：{{couponItem.useDuration}}</view> 
+			  </view>
+         <view class="yhq_coupons_label">
+          <image src="{{imgURL}}coupons_label_03.png"></image>
+        </view>
+		  </view>
+      <view  wx:if="{{hasMore.timeout==false && pageNoList.timeout==1}}" class="coupon-noData">
+        <image  src="{{imgURL}}me_pic_no_02.png"></image>
+        <view class="noData-tip">空空如也~</view>
+      </view>
+      <!-- <view class="nomore" wx:if="{{hasMore.timeout==false}}">暂无更多数据</view>  -->
+    </view>
+    
+
+    <view class="yhq_wdkq" wx:if = "{{showType}}" >
+      <view class="foot-link" data-href="/pages/storeCoupon/storeCoupon?from=personal" bindtap="toHref">领取更多优惠券</view>
+    </view>
+	</view>
+

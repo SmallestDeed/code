@@ -1,0 +1,399 @@
+package com.nork.system.service.impl;
+
+import java.util.List;
+
+import com.nork.common.model.LoginUser;
+import com.nork.common.util.Utils;
+import com.nork.onekeydesign.dao.DesignPlanMapper;
+import com.nork.onekeydesign.model.*;
+import com.nork.render.model.RenderTypeCode;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.nork.common.util.Constants;
+import com.nork.onekeydesign.service.DesignPlanRecommendedService;
+import com.nork.home.dao.SpaceCommonMapper;
+import com.nork.home.model.SpaceCommon;
+import com.nork.system.dao.ResRenderPicMapper;
+import com.nork.system.dao.SysDictionaryMapper;
+import com.nork.system.model.ResRenderPic;
+import com.nork.system.model.ResRenderVideo;
+import com.nork.system.model.SysDictionary;
+import com.nork.system.model.search.ResRenderPicSearch;
+import com.nork.system.service.ResRenderPicService;
+import com.nork.system.service.ResRenderVideoService;
+
+/**   
+ * @Title: ResRenderPicServiceImpl.java 
+ * @Package com.nork.system.service.impl
+ * @Description:渲染图片资源库-渲染图片资源库ServiceImpl
+ * @createAuthor pandajun 
+ * @CreateDate 2017-03-22 14:39:08
+ * @version V1.0   
+ */
+@Service("resRenderPicService")
+public class ResRenderPicServiceImpl implements ResRenderPicService {
+    private static Logger logger = Logger.getLogger(ResRenderPicServiceImpl.class);
+	private ResRenderPicMapper resRenderPicMapper;
+	@Autowired
+	private DesignPlanMapper designPlanMapper;
+	@Autowired
+	private SpaceCommonMapper spaceCommonMapper;
+	@Autowired
+	private SysDictionaryMapper sysDictionaryMapper;
+	 
+	@Autowired
+	public void setResRenderPicMapper(
+			ResRenderPicMapper resRenderPicMapper) {
+		this.resRenderPicMapper = resRenderPicMapper;
+	}
+	@Autowired
+    DesignPlanRecommendedService designPlanRecommendedServiceV2;
+	
+	@Autowired
+	ResRenderVideoService resRenderVideoService;
+	
+	/**
+	 * 新增数据
+	 *
+	 * @param resRenderPic
+	 * @return  int 
+	 */
+	@Override
+	public int add(ResRenderPic resRenderPic) {
+	    if(null == resRenderPic || null == resRenderPic.getBusinessId() || resRenderPic.getBusinessId().intValue()<=0)
+	        return 0;
+	    DesignPlan   designPlan=designPlanMapper.selectByPrimaryKey(resRenderPic.getBusinessId());
+	    if(designPlan == null){
+	        logger.info("do not find object for id="+resRenderPic.getBusinessId());
+	        return 0;
+	    }
+	    
+	    resRenderPic.setDesignSceneId(designPlan.getDesignSceneId());
+	    resRenderPic.setDesignPlanName(designPlan.getPlanName());
+	    SpaceCommon spaceCommon = spaceCommonMapper.selectByPrimaryKey(designPlan.getSpaceCommonId());
+	    logger.info("spaceCommon="+(spaceCommon==null));
+	    
+	    if(spaceCommon!=null){
+	        resRenderPic.setArea(spaceCommon.getSpaceAreas());//空间面积大小
+	        SysDictionary query = new SysDictionary();
+	        query.setType(Constants.SYS_DICTIONARY_TYPE_HOUSETYPE);
+	        query.setValue(spaceCommon.getSpaceFunctionId());
+	        SysDictionary sysDictionary = sysDictionaryMapper.getNameByType(query);
+	        logger.info("sysDictionary="+(sysDictionary!=null ));
+            if(sysDictionary!=null )
+                resRenderPic.setSpaceType(sysDictionary.getName());//设置房屋空间类型
+	    }
+	    logger.info(designPlan.getDesignSceneId()+"_getSpaceType="+(resRenderPic.getSpaceType()));
+	    resRenderPic.setCreateUserId(designPlan.getUserId());
+		resRenderPicMapper.insertSelective(resRenderPic);
+		logger.info(designPlan.getDesignSceneId()+"_resRenderPic.getId()="+resRenderPic.getId());
+		return resRenderPic.getId();
+	}
+
+	
+	/**
+	 * 新增数据
+	 *
+	 * @param resRenderPic
+	 * @return  int 
+	 */
+	@Override
+	public int addNew(ResRenderPic resRenderPic) {
+	    if(null == resRenderPic || null == resRenderPic.getPlanRecommendedId() || resRenderPic.getPlanRecommendedId().intValue()<=0)
+	        return 0;
+	    DesignPlanRecommended   designPlanRecommended = designPlanRecommendedServiceV2.get(resRenderPic.getPlanRecommendedId());
+	    if(designPlanRecommended == null){
+	        logger.info("do not find object for id="+resRenderPic.getPlanRecommendedId());
+	        return 0;
+	    }
+//	    DesignPlan designPlan = designPlanMapper.selectByPrimaryKey(resRenderPic.getBusinessId());
+//	    if(designPlan!= null){
+//	        resRenderPic.setDesignSceneId(designPlan.getDesignSceneId());
+//        }
+	    resRenderPic.setDesignPlanName(designPlanRecommended.getPlanName());
+	    SpaceCommon spaceCommon = spaceCommonMapper.selectByPrimaryKey(designPlanRecommended.getSpaceCommonId());
+	    logger.info("spaceCommon="+(spaceCommon==null));
+	    
+	    if(spaceCommon!=null){
+	        resRenderPic.setArea(spaceCommon.getSpaceAreas());//空间面积大小
+	        SysDictionary query = new SysDictionary();
+	        query.setType(Constants.SYS_DICTIONARY_TYPE_HOUSETYPE);
+	        query.setValue(spaceCommon.getSpaceFunctionId());
+	        SysDictionary sysDictionary = sysDictionaryMapper.getNameByType(query);
+	        logger.info("sysDictionary="+(sysDictionary!=null ));
+            if(sysDictionary!=null )
+                resRenderPic.setSpaceType(sysDictionary.getName());//设置房屋空间类型
+	    }
+	    logger.info("getSpaceType="+(resRenderPic.getSpaceType()));
+	    resRenderPic.setCreateUserId(designPlanRecommended.getUserId());
+		resRenderPicMapper.insertSelective(resRenderPic);
+		logger.info("resRenderPic.getId()="+resRenderPic.getId());
+		return resRenderPic.getId();
+	}
+	/**
+	 *    更新数据
+	 *
+	 * @param resRenderPic
+	 * @return  int 
+	 */
+	@Override
+	public int update(ResRenderPic resRenderPic) {
+		return resRenderPicMapper
+				.updateByPrimaryKeySelective(resRenderPic);
+	}
+	
+	/**
+	 *    删除数据
+	 *
+	 * @param id
+	 * @return  int 
+	 */
+	@Override
+	public int delete(Integer id) {
+		return resRenderPicMapper.deleteByPrimaryKey(id);
+	}
+
+	/**
+	 *    获取数据详情
+	 *
+	 * @param id
+	 * @return  ResRenderPic 
+	 */
+	@Override
+	public ResRenderPic get(Integer id) {
+		return resRenderPicMapper.selectByPrimaryKey(id);
+	}
+
+	/**
+	 * 所有数据
+	 * 
+	 * @param  resRenderPic
+	 * @return   List<ResRenderPic>
+	 */
+	@Override
+	public List<ResRenderPic> getList(ResRenderPic resRenderPic) {
+	    return resRenderPicMapper.selectList(resRenderPic);
+	}
+	
+	/**
+	 *    获取数据数量
+	 *
+	 * @param  resRenderPic
+	 * @return   int
+	 */
+	@Override
+	public int getCount(ResRenderPicSearch resRenderPicSearch){
+		return  resRenderPicMapper.selectCount(resRenderPicSearch);	
+    }
+	
+
+	/**
+	 *    分页获取数据
+	 *
+	 * @param  resRenderPic
+	 * @return   List<ResRenderPic>
+	 */
+	@Override
+	public List<ResRenderPic> getPaginatedList(
+			ResRenderPicSearch resRenderPicSearch) {
+		return resRenderPicMapper.selectPaginatedList(resRenderPicSearch);
+	}
+
+	
+
+	/**
+	 * 其他
+	 * 
+	 */
+	
+     /**
+      * 根据推荐方案Id和渲染类型获得最新渲染原图
+      */
+	@Override
+	public ResRenderPic getResRenderPicByPlanRecommended(Integer planRecommendedId,Integer renderingType){
+	if(planRecommendedId!=null){
+		List<ResRenderPic> renderPics=null;
+		renderPics=resRenderPicMapper.getResRenderPicByPlanRecommended(planRecommendedId,renderingType);
+		if(renderPics!=null&&renderPics.size()>0){
+			ResRenderPic renderPic=renderPics.get(0);
+			return renderPic;
+		}else{
+			return new ResRenderPic();
+		}
+	}
+		return new ResRenderPic();
+	}
+
+	/**
+	 * 为了渲染列表查询所有的缩略图和封面图
+	 */
+	@Override
+	public List<ResRenderPic> selectListByFileKeys(ResRenderPicQO resRenderPicQO) {
+		return resRenderPicMapper.selectListByFileKeys(resRenderPicQO);
+	}
+
+    @Override
+    public int getLatestSmallPic(ResRenderPic renderPic) {
+//		if (renderPic == null || StringUtils.isEmpty(renderPic.getFileKey()) || renderPic.getBusinessId() == null  || renderPic.getBusinessId() == null){
+//			return 0;
+//		}
+		if (renderPic == null || renderPic.getFileKeyList() == null  || renderPic.getFileKeyList().size() <= 0 || renderPic.getBusinessId() == null  || renderPic.getBusinessId() == null){
+			return 0;
+		}
+		return resRenderPicMapper.getLatestSmallPicByBusi(renderPic);
+    }
+
+	@Override
+	public List<ResRenderPic> getRenderResourceListByopInfo(Integer sourcePlanId, Integer templateId,
+			Integer renderType) {
+		return resRenderPicMapper.getRenderResourceListByopInfo(sourcePlanId, templateId, renderType);
+	}
+
+	/**
+	 * 通过pid获取缩略图
+	 * @param pid
+	 * @return
+	 */
+	@Override
+	public ResRenderPic selectOneByPid(Integer pid){
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void deletePicBySceneId(Integer sceneId) {
+		if(sceneId == null || sceneId < 1){
+			logger.error("------function:deletePicBySceneId(Integer sceneId)->sceneId == null || sceneId < 1");
+			return;
+		}
+		resRenderPicMapper.deletePicBySceneId(sceneId);
+	}
+
+    @Override
+    public void updateOrigPicBySmallPicId(ResRenderPic render) {
+	resRenderPicMapper.updateOrigPicBySmallPicId(render);
+    }
+
+	@Override
+	public int getTaskIdBySmallId(int smallId) {
+		return resRenderPicMapper.getTaskIdBySmallId(smallId);
+	}
+
+	@Override
+	public void updateSceneIdByTaskId(int sceneId, int taskId) {
+		resRenderPicMapper.updateSceneIdByTaskId(sceneId, taskId);
+	}
+
+	@Override
+	public String getQRCodeInfo(ResRenderPic resPic, LoginUser loginUser) {
+//		resPic.setCreateUserId(loginUser.getId());
+
+		String picPath="";
+		String code = "";
+		if(resPic.getRenderingType() != null){
+			if( RenderTypeCode.COMMON_720_LEVEL == resPic.getRenderingType() || RenderTypeCode.HD_720_LEVEL == resPic.getRenderingType() ){// 普通单图720
+				ResRenderPic singleCode = resRenderPicMapper.get720SingleCode(resPic);//得到720单点分享需要的code
+				if(singleCode != null && StringUtils.isNotEmpty(singleCode.getSysCode())){
+					code = singleCode.getSysCode();
+				}else{
+					logger.error("ResRenderPic is null ,res_render_pic_id="+resPic.getId());
+					return null;
+				}
+				picPath = "pages/vr720/vr720Single.htm?code="+code;
+			}else if( RenderTypeCode.ROAM_720_LEVEL == resPic.getRenderingType() ){// 720漫游
+				// 获取720漫游组信息，传过来的pid问截图ID。渲染图列表接口返回了缩略图列表和对应的截图ID
+				DesignRenderRoam romanCode = resRenderPicMapper.get720RomanCode(resPic);
+				if(romanCode != null && StringUtils.isNotEmpty(romanCode.getUuid())){
+					code = romanCode.getUuid();
+					picPath = "pages/vr720/vr720Roam.htm?code="+code;
+				}else{
+					logger.error("DesignRenderRoam is null ,res_render_pic_id="+resPic.getId());
+					return null;
+				}
+			} else if(RenderTypeCode.COMMON_VIDEO == resPic.getRenderingType() || RenderTypeCode.HD_VIDEO == resPic.getRenderingType()){//普通视频
+				ResRenderVideo resRenderVideo = new ResRenderVideo();
+				resRenderVideo.setIsDeleted(0);
+				resRenderVideo.setSysTaskPicId(resPic.getId());
+				List<ResRenderVideo>videoList = resRenderVideoService.getList(resRenderVideo);
+				if(videoList == null || videoList.size()<=0 ){
+					return null;
+				}else if(videoList != null && videoList.size() == 1 ){
+					picPath = videoList.get(0).getVideoPath();
+				}else{
+					return null;
+				}
+			}else{
+				picPath=resPic.getPicPath();
+			}
+		}else{
+			/*取普通渲染图路径*/
+			picPath=resPic.getPicPath();
+		}
+		return picPath;
+	}
+
+	@Override
+	public String getQRpicPath(ResRenderPic resPic, LoginUser loginUser){
+		int renderingType = resPic.getRenderingType().intValue();
+		String picPath = getQRCodeInfo(resPic, loginUser);
+		if(resPic.getRenderingType() != null){
+			if( RenderTypeCode.COMMON_720_LEVEL == renderingType || RenderTypeCode.HD_720_LEVEL == renderingType ){// 普通单图720
+				picPath = Utils.getPropertyName("app","app.server.url","")
+						+ Utils.getPropertyName("app","app.server.siteName","") + picPath;
+//				picPath = Utils.getPropertyName("app","app.resources.url","")  + picPath;
+			}else if( RenderTypeCode.ROAM_720_LEVEL == renderingType ){// 720漫游
+					picPath = Utils.getPropertyName("app","app.server.url","")
+							+ Utils.getPropertyName("app","app.server.siteName","") + picPath;
+//					picPath = Utils.getPropertyName("app","app.resources.url","")  + picPath;
+			} else if(RenderTypeCode.COMMON_VIDEO == renderingType){//普通视频
+				picPath = Utils.getPropertyName("app","app.resources.url","")  + picPath;
+			}else if(RenderTypeCode.HD_VIDEO == renderingType){//高清视频
+				picPath = Utils.getPropertyName("app","app.resources.url","")  + picPath;
+			}else{
+				picPath=Utils.getValue("app.resources.url", "")+picPath;
+			}
+		}else{
+			/*取普通渲染图路径*/
+			picPath=Utils.getValue("app.resources.url", "")+picPath;
+		}
+		return picPath;
+	}
+
+	/**
+	 * 通过推荐id 渲染图
+	 * @param planRecommendedId
+	 */
+	@Override
+	public void deletedByPlanRecommendedId(int planRecommendedId) {
+		resRenderPicMapper.deletedByPlanRecommendedId(planRecommendedId);
+	}
+	
+	@Override
+    public List<ThumbData> getRenderPicIdsBySceneId(long sceneId) {
+		if(sceneId < 1){
+			logger.error("params error, 'sceneId' <1");
+			return null;
+		}
+
+		List<ThumbData> screenIds = resRenderPicMapper.getRenderPicIdsBySceneId(sceneId);
+        return screenIds;
+    }
+
+
+	@Override
+	public int countRoamByFileKey(ResRenderPicSearch resRenderPicSearch) {
+		return resRenderPicMapper.countRoamByFileKey(resRenderPicSearch);
+	}
+
+
+	@Override
+	public int insertSelective(ResRenderPic resRenderPic) {
+		resRenderPicMapper.insertSelective(resRenderPic);
+		logger.error("resRenderPic.getId()="+resRenderPic.getId());
+		return resRenderPic.getId();
+	}
+}

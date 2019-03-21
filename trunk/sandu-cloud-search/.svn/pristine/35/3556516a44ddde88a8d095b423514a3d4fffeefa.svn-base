@@ -1,0 +1,58 @@
+package com.sandu.search.interceptor;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * 通用版本msgId拦截器
+ *
+ * @date 20171223
+ * @auth pengxuangang
+ */
+@Slf4j
+public class UniversalMsgIdInterceptor implements HandlerInterceptor {
+
+    private final static String CLASS_LOG_PREFIX = "[通用版本msgId拦截器]:";
+
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+        log.info(CLASS_LOG_PREFIX + "已拦截请求:url:{}", request.getRequestURL());
+
+        //待返回的消息 ID
+        String msgId = null;
+
+        //根据请求类型做不同处理
+        switch (request.getMethod()) {
+            case "GET":
+                msgId = request.getParameter("msgId");
+                break;
+            case "POST":
+                msgId = request.getParameter("msgId");
+                break;
+            default:
+                log.warn(CLASS_LOG_PREFIX + "获取MsgId失败，未知请求类型:{}", request.getMethod());
+        }
+
+        //返回至数据头部
+        if (!StringUtils.isEmpty(msgId)) {
+            //response.setHeader("msgId", msgId);
+        }
+
+        return true;
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+    }
+}

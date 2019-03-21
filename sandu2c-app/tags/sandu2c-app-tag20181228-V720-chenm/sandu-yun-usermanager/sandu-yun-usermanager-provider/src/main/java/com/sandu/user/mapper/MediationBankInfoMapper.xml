@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.user.dao.MediationBankInfoMapper" >
+
+    <!--通过银行卡号查询绑定银行卡信息-->
+    <select id="selectMediationBankInfoByBankNumber" parameterType="java.lang.String" resultType="com.sandu.user.model.MediationBankInfo">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM
+            mediation_bank_info
+        WHERE
+            is_deleted = 0
+        AND bank_number = #{bankNumber} and is_unbind = 0
+    </select>
+
+
+    <!--通过用户ID查询绑定银行卡信息-->
+    <select id="selectMediationBankInfoByUserId" parameterType="java.lang.Integer" resultType="com.sandu.user.model.MediationBankInfo">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM
+        mediation_bank_info
+        WHERE
+        is_deleted = 0 and is_unbind = 0
+        AND user_id = #{userId}
+    </select>
+
+
+    <insert id="insertMediationBankInfo" parameterType="com.sandu.user.model.MediationBankInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into mediation_bank_info (id, user_id, bank_number,
+        bank_name, bank_name_info, pre_mobile,
+        card_number, card_name, is_unbind,
+        creator, gmt_create, modifier,
+        gmt_modified, is_deleted, remark
+        )
+        values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{bankNumber,jdbcType=VARCHAR},
+        #{bankName,jdbcType=VARCHAR}, #{bankNameInfo,jdbcType=VARCHAR}, #{preMobile,jdbcType=VARCHAR},
+        #{cardNumber,jdbcType=VARCHAR}, #{cardName,jdbcType=VARCHAR}, #{isUnbind,jdbcType=INTEGER},
+        #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR},
+        #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}
+        )
+    </insert>
+
+
+    <select id="selectMediationBankInfoById" resultType="com.sandu.user.model.MediationBankInfo" parameterType="java.lang.Integer" >
+        select
+        <include refid="Base_Column_List" />
+        from mediation_bank_info
+        where id = #{id,jdbcType=INTEGER}
+        and is_deleted = 0
+    </select>
+
+    <update id="updateMediationBankInfoById" parameterType="com.sandu.user.model.MediationBankInfo" >
+    update mediation_bank_info
+    <set >
+        <if test="userId != null" >
+            user_id = #{userId,jdbcType=INTEGER},
+        </if>
+        <if test="bankNumber != null" >
+            bank_number = #{bankNumber,jdbcType=VARCHAR},
+        </if>
+        <if test="bankName != null" >
+            bank_name = #{bankName,jdbcType=VARCHAR},
+        </if>
+        <if test="bankNameInfo != null" >
+            bank_name_info = #{bankNameInfo,jdbcType=VARCHAR},
+        </if>
+        <if test="preMobile != null" >
+            pre_mobile = #{preMobile,jdbcType=VARCHAR},
+        </if>
+        <if test="cardNumber != null" >
+            card_number = #{cardNumber,jdbcType=VARCHAR},
+        </if>
+        <if test="cardName != null" >
+            card_name = #{cardName,jdbcType=VARCHAR},
+        </if>
+        <if test="isUnbind != null" >
+            is_unbind = #{isUnbind,jdbcType=INTEGER},
+        </if>
+        <if test="creator != null" >
+            creator = #{creator,jdbcType=VARCHAR},
+        </if>
+        <if test="gmtCreate != null" >
+            gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+        </if>
+        <if test="modifier != null" >
+            modifier = #{modifier,jdbcType=VARCHAR},
+        </if>
+        <if test="gmtModified != null" >
+            gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+        </if>
+        <if test="isDeleted != null" >
+            is_deleted = #{isDeleted,jdbcType=INTEGER},
+        </if>
+        <if test="remark != null" >
+            remark = #{remark,jdbcType=VARCHAR},
+        </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER} and is_deleted = 0 and is_unbind = 0
+    </update>
+
+
+    <select id="selectMediationBankInfoListByUserId" resultType="com.sandu.user.model.view.MediationBankInfoListVo" parameterType="java.lang.Integer" >
+        select
+        bank_number AS bankNumber,
+        bank_name AS bankName,
+        id AS id
+        from mediation_bank_info
+        where user_id = #{id,jdbcType=INTEGER}
+        and is_deleted = 0 and is_unbind = 0
+    </select>
+
+
+    <select id="selectMediationBankHistoryByUserId" resultType="com.sandu.user.model.MediationBankInfo" parameterType="java.lang.Integer" >
+        select
+        <include refid="Base_Column_List" />
+        from mediation_bank_info
+        where user_id = #{id,jdbcType=INTEGER}
+        and is_deleted = 0
+    </select>
+
+
+
+
+    <sql id="Base_Column_List" >
+        id, user_id, bank_number, bank_name, bank_name_info, pre_mobile, card_number, card_name,
+        is_unbind, creator, gmt_create, modifier, gmt_modified, is_deleted, remark
+    </sql>
+
+
+</mapper>

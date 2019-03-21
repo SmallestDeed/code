@@ -1,0 +1,25 @@
+package com.sandu.api.springFestivalActivity.service;
+
+import com.sandu.api.springFestivalActivity.model.WxRedPacketSummary;
+
+import java.util.Date;
+
+public interface WxRedPacketSummaryService {
+    /**
+     * 功能描述: 判断当天是否有红包记录
+     *
+     * @param activityId
+     * @param signInDate
+     * @return com.sandu.api.springFestivalActivity.model.WxRedPacketSummary
+     * @throws
+     * @author gaoj
+     * @date 2019/1/21 13:44
+     */
+    WxRedPacketSummary getBySignInDate(Long activityId, Date signInDate);
+
+    int insert(WxRedPacketSummary wxRedPacketSummary);
+
+    int update(WxRedPacketSummary wxRedPacketSummary);
+
+    int updateByRedPacketRemainNum(WxRedPacketSummary wxRedPacketSummary);
+}

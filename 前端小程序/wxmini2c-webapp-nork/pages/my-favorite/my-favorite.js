@@ -1,0 +1,59 @@
+//logs.js
+const util = require('../../utils/util.js')
+let fetch = getApp().fetch
+let $App = getApp()
+Page({
+    data: {
+        staticImageUrl:getApp().staticImageUrl,
+        logs: [],
+        planNum: 0,
+        goodsList: [],
+    },
+    /**
+     * 用户点击右上角分享
+     */
+    onShareAppMessage: function(res) {
+        if (res.from === 'menu') {
+            return $App.shareAppMessageFn(true);
+        }
+    },
+    onLoad: function() {
+        new $App.quickNavigation() // 注册组件quickNavigation
+        this.setData({
+            logs: (wx.getStorageSync('logs') || []).map(log => {
+                return util.formatTime(new Date(log))
+            })
+        })
+    },
+    onShow: function() {
+        this.getPlan();
+        this.getGoods();
+    },
+    getPlan: function() {
+        let url = 'fullsearch-app/collect/recommendationplan/search/count'
+        let data = { }
+        var that = this;
+        fetch(url, 'post', data,'fullsearch' )
+            .then((res) => {
+                that.setData({
+                    planNum: res.totalCount||0
+                })
+            })
+    },
+    getGoods: function() {
+        var that = this
+        let url = "/product/productfavorite/spuCollectionList?isSort=0"
+        var that = this;
+        fetch(url, 'get', ).then((res) => {
+            that.setData({
+                goodsList: res.obj
+            })
+        })
+    },
+    toMyGoods: function(e) {
+        var that = this
+        wx.navigateTo({
+            url: '/pages/my-favorite-goods/my-favorite-goods?goodslist=' + that.data.goodsList,
+        })
+    }
+})

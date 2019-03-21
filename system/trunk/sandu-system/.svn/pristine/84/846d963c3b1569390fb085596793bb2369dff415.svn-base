@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.applyHouse.dao.BaseHouseApplyDao" >
+
+    <select id="selectByPrimaryKey" resultType="com.sandu.api.applyHouse.model.BaseHouseApply">
+        SELECT
+           *
+        FROM
+           base_house_apply
+        WHERE
+           id = #{applyHouseId} AND
+           is_deleted = 0
+    </select>
+
+    <select id="selectApplyHouseOverSixHour" resultType="com.sandu.api.applyHouse.model.BaseHouseApply">
+        SELECT
+           *
+        FROM
+           base_house_apply
+        WHERE
+           is_deleted = 0 AND
+           entering_advice_msg_flag = 1 AND
+           DATE_ADD(gmt_create,interval 30 minute) <![CDATA[<= ]]> NOW()
+    </select>
+
+    <update id="updateEnteringAdviceMsgFlag">
+        UPDATE
+          base_house_apply
+          SET
+          entering_advice_msg_flag = 0,
+          gmt_modified = now()
+          WHERE
+          is_deleted = 0 AND
+          id = #{id}
+    </update>
+
+    <update id="batchUpdateEnteringAdviceMsgFlag">
+         UPDATE
+          base_house_apply
+          SET
+          entering_advice_msg_flag = 0,
+          gmt_modified = now()
+          WHERE
+          is_deleted = 0 AND
+          id in
+          <foreach collection="houseIds" item="id" open="(" separator="," close=")">
+              #{id}
+          </foreach>
+    </update>
+
+</mapper>

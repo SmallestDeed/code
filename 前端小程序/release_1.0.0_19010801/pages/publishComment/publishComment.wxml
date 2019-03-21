@@ -1,0 +1,77 @@
+<view class='publish-message'>
+  <view class='message-form'>
+    <textarea id='textareawrap' class='text'
+      bindinput='textBlur'
+      value='{{text}}'
+      maxlength='2000' 
+      style='height:{{height}}'
+      placeholder='请简要描述一下你要发布的内容'>
+    </textarea>
+    <!-- <view class='text'>{{text}}</view> -->
+  </view>
+  <view class='add-message'>            
+    <view class='add-btn-box'>
+      <view class='add-btn img' bindtap='addImg'>+添加图片</view>
+      <view class='add-btn project' bindtap='addProject'>+添加方案</view>
+      <view class='add-btn house' bindtap='addHouse'>+添加户型</view>
+    </view>
+    <view class='planNHouse' wx:if='{{addPlanId || addHouseId}}'>
+      <view wx:if='{{addPlanId}}'>
+        <view class='icon project' >方案</view>
+        <image src='{{staticImageUrl}}pic_icon_delete.png' 
+              data-type='方案'
+              bindtap='delete' 
+              class='delete'>
+            </image>
+        <image src='{{resourcePath + addPlanImg}}' mode='aspectFill' class='item-img'></image>
+      </view>
+      <view wx:if='{{addHouseId}}'>
+        <view class='icon house' >户型</view>
+        <image src='{{staticImageUrl}}pic_icon_delete.png' 
+              data-type='户型'
+              bindtap='delete' 
+              class='delete'>
+            </image>
+        <image src='{{resourcePath + addHouseImg}}' mode='aspectFill' class='item-img2'></image>
+      </view>
+    </view>
+    <view class='scroll-box'>
+      <scroll-view class="scroll" scroll-x scroll-left="0" scroll-with-animation>
+        <view class='scroll-item'  
+          wx:for='{{addImg}}'
+          wx:key='{{index}}'
+          wx:if='{{addImg.length > 0}}'>
+          <view class='icon img'>图片</view>
+          <image src='{{staticImageUrl}}pic_icon_delete.png' 
+            data-type='图片'
+            data-index='{{index}}'
+            bindtap='delete' 
+            class='delete'>
+          </image>
+          <image src='{{resourcePath + item}}' mode='aspectFill' class='item-img'></image>
+        </view>
+        <!-- <view class='scroll-item' wx:if='{{addPlanId}}'>
+          <view class='icon project'>方案</view>
+          <image src='{{staticImageUrl}}pic_icon_delete.png' 
+            data-type='方案'
+            bindtap='delete' 
+            class='delete'>
+          </image>
+          <image src='{{resourcePath + addPlanImg}}' mode='aspectFill' class='item-img'></image>
+        </view>
+        <view class='scroll-item' wx:if='{{addHouseId}}'>
+          <view class='icon house'>户型</view>
+          <image src='{{staticImageUrl}}pic_icon_delete.png' 
+            data-type='户型'
+            bindtap='delete' 
+            class='delete'>
+          </image>
+          <image src='{{resourcePath + addHouseImg}}' mode='aspectFill' class='item-img'></image>
+        </view> -->
+      </scroll-view>
+    </view>
+  </view>
+  <view class='btn-box'>
+      <view class='btn' bindtap='goPublish'>发布</view>
+    </view>
+</view>

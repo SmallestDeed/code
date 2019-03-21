@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.gateway.pay.trade.dao.PayTradeRecordMapper">
+	<insert id="insertSelective" parameterType="com.sandu.gateway.pay.trade.model.PayTradeRecord" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO pay_trade_record 
+			(
+				pay_trade_no, 
+				intenal_trade_no,
+				extenal_trade_no,
+				trade_desc, 
+				total_fee, 
+				trade_date, 
+				trade_type, 
+				pay_method, 
+				notify_url, 
+				sign, 
+				status, 
+				platform_code, 
+				source, 
+				operator, 
+				sys_code, 
+				creator, 
+				gmt_create, 
+				modifier, 
+				gmt_modified, 
+				is_deleted, 
+				remark
+			) 
+		VALUES 
+			(
+				#{payTradeNo}, 
+				#{intenalTradeNo}, 
+				#{extenalTradeNo}, 
+				#{tradeDesc}, 
+				#{totalFee}, 
+				#{tradeDate}, 
+				#{tradeType}, 
+				#{payMethod}, 
+				#{notifyUrl}, 
+				#{sign}, 
+				#{status},
+				#{platformCode}, 
+				#{source},
+				#{operator},
+				#{sysCode},
+				#{creator},
+				#{gmtCreate},
+				#{modifier},
+				#{gmtModified},
+				#{isDeleted},
+				#{remark}
+			);
+	</insert>
+	
+	<update id="updateExtenalTradeNoAndStatusById">
+		update 
+			pay_trade_record
+		set
+			status=#{status},
+			extenal_trade_no = #{extenalTradeNo},
+			modifier = 'system',
+        	gmt_modified = now()
+		where
+		    id = #{id}
+		    and is_deleted = 0;
+	</update>
+	
+	<update id="updateNotifyResultById">
+		update 
+			pay_trade_record
+		set
+			notify_result=#{notifyResult},
+			modifier = 'system',
+        	gmt_modified = now()
+		where
+		    id = #{id}
+		    and is_deleted = 0;
+	</update>
+	
+	<select id="getByTradeNos" resultType="com.sandu.gateway.pay.trade.model.PayTradeRecord">
+		SELECT
+		    *
+		FROM
+		    pay_trade_record
+		WHERE
+		    pay_trade_no = #{payTradeNo}
+		    and is_deleted = 0 limit 1;
+	</select>
+	
+	<update id="updateToProcessStatus">
+		update 
+			pay_trade_record
+		set
+			status=20,
+			modifier = 'system',
+        	gmt_modified = now()
+		where
+		    pay_trade_no = #{payTradeNo}
+		    and status = 10
+		    and is_deleted = 0;
+	</update>
+	
+	<select id="selectList" resultType="com.sandu.gateway.pay.trade.model.PayTradeRecord">
+		SELECT
+		    *
+		FROM
+		    pay_trade_record
+		WHERE is_deleted=0
+		<if test="intenalTradeNo!= null">  and intenal_trade_no = #{intenalTradeNo,jdbcType=VARCHAR} </if>
+		<if test="payTradeNo != null">  and pay_trade_no = #{payTradeNo,jdbcType=VARCHAR} </if>
+		
+	</select>
+	
+
+	
+</mapper>

@@ -1,0 +1,22 @@
+package com.sandu.goods.model.PO;
+
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.List;
+
+@Data
+public class GoodsListPO implements Serializable
+{
+    private Integer companyId;
+
+    private String goodsType;
+    // 分类Code集合
+    private List<String> codeList;
+
+    private Integer codeListSize;
+
+    private Integer start = 0;
+
+    private Integer limit = 10;
+}

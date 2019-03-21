@@ -1,0 +1,79 @@
+package com.sandu.panorama.service;
+
+import com.sandu.cityunion.model.UnionContact;
+import com.sandu.common.model.LoginUser;
+import com.sandu.panorama.model.input.UnionContactAdd;
+import com.sandu.panorama.model.input.UnionContactSearch;
+import com.sandu.panorama.model.input.UnionContactUpdate;
+import com.sandu.panorama.model.output.UnionContactVo;
+import com.sandu.panorama.service.exception.PanorameException;
+
+import java.util.List;
+
+public interface UnionContactService {
+
+    /**
+     * 新增
+     * @param contact
+     * @return
+     */
+    int add(UnionContact contact);
+
+    /**
+     * 更新数据
+     * @param contact
+     * @return  int
+     */
+    int update(UnionContact contact);
+
+    /**
+     * 删除
+     * @param id    主键ID
+     * @return
+     */
+    int delete(Integer id);
+
+    /**
+     * 根据主键ID查询
+     * @param id    主键ID
+     * @return
+     */
+    UnionContact get(Integer id);
+
+    /**
+     * 根据主键ID查询
+     * @param id    主键ID
+     * @return
+     */
+    UnionContactVo getContact(Integer id);
+
+    /**
+     * 保存联系人
+     * @param unionContactAdd
+     * @param loginUser
+     * @return
+     */
+    int addContact(UnionContactAdd unionContactAdd, LoginUser loginUser) throws PanorameException;
+
+    /**
+     * 修改联系人
+     * @param unionContactUpdate
+     * @param loginUser
+     * @return
+     */
+    int updateContact(UnionContactUpdate unionContactUpdate, LoginUser loginUser) throws PanorameException;
+
+    /**
+     * 查询联系人数量
+     * @param unionContactSearch
+     * @return
+     */
+    int getCount(UnionContactSearch unionContactSearch);
+
+    /**
+     * 查询联系人列表
+     * @param unionContactSearch
+     * @return
+     */
+    List<UnionContactVo> list(UnionContactSearch unionContactSearch);
+}

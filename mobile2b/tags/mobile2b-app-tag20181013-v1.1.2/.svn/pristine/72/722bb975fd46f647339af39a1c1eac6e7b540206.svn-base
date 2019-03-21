@@ -1,0 +1,30 @@
+package com.nork.home.service.impl;
+
+import com.nork.home.dao.DrawBaseHouseMapper;
+import com.nork.home.model.MyHouseVO;
+import com.nork.home.model.search.MyHouseSearch;
+import com.nork.home.service.DrawBaseHouseService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class DrawBaseHouseServiceImpl implements DrawBaseHouseService
+{
+    @Autowired
+    private DrawBaseHouseMapper drawBaseHouseMapper;
+
+    @Override
+    public List<MyHouseVO> getMyDrawHouseList(MyHouseSearch myHouseSearch)
+    {
+        return drawBaseHouseMapper.getMyDrawHouseList(myHouseSearch);
+    }
+
+    @Override
+    public Integer getMyDrawHouseCount(MyHouseSearch myHouseSearch)
+    {
+        return drawBaseHouseMapper.getMyDrawHouseCount(myHouseSearch);
+    }
+
+}

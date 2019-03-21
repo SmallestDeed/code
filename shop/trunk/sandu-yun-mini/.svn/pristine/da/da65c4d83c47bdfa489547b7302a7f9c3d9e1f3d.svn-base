@@ -1,0 +1,77 @@
+package com.sandu.company.service;
+
+import com.sandu.company.model.query.CompanyShopQuery;
+import com.sandu.company.model.query.ProjectCaseQuery;
+import com.sandu.company.model.query.ShopStyleQuery;
+import com.sandu.company.model.vo.*;
+import com.sandu.matadata.Page;
+
+import java.util.List;
+
+/***
+ * 店铺服务
+ * @author Administrator
+ *
+ */
+public interface CompanyShopService {
+   /***
+    * 获取单个门店的详情
+    * @param shopId
+    * @return
+    */
+   CompanyShopDetailVo get(long shopId);
+   /***
+    * 条件分页查询店铺信息
+    * @param query
+    * @return
+    */
+   Page<CompanyShopVo> list(CompanyShopQuery query);
+
+   /***
+    * 动态店铺列表
+    * @param query
+    * @return
+    */
+   Page<CompanyShopVo> dynamicShopList(CompanyShopQuery query);
+
+   /**
+    * 查询店铺人气列表
+    * @param query
+    * @return
+    */
+   Page<ShopPopularityListVo> findShopPopularityList(CompanyShopQuery query);
+   
+   /***
+    * 获取店铺推荐列表
+    * @return
+    */
+   List<CompanyShopVo> getRecommendList();
+   
+   /**
+    * 更新店铺浏览次数
+    * @param shopId
+    */
+   boolean updateVisitCount(long shopId);
+
+   /**
+    * 店铺工程案例列表
+    * @param query
+    * @return
+    */
+   List<ProjectCaseVo> getShopProjectCaseList(ProjectCaseQuery query);
+
+   /**
+    * 修改案例浏览数量
+    * @param caseId 案例Id
+    * @param browseCount 数量
+    * @return int 操作结果
+    */
+   int updateBrowseCount(Long caseId,Integer browseCount);
+
+   /**
+    * 获取企业店铺风格列表
+    * @param query 查询入参
+    * @return list 返回结果
+    */
+   List<CompanyShopStyleListVO> getShopStyleList(ShopStyleQuery query);
+}

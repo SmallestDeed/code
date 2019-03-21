@@ -1,0 +1,455 @@
+package com.sandu.service.designplan.impl;
+
+import com.google.gson.Gson;
+import com.sandu.api.base.common.LoginUser;
+import com.sandu.api.base.common.ResponseEnvelope;
+import com.sandu.api.base.common.Utils;
+import com.sandu.api.designplan.input.PlanInput;
+import com.sandu.api.designplan.input.PlanRenderSceneInput;
+import com.sandu.api.designplan.model.DesignPlan;
+import com.sandu.api.designplan.model.DesignPlanRenderScene;
+import com.sandu.api.designplan.model.DesignPlanRes;
+import com.sandu.api.designplan.model.DesignPlanResListJson;
+import com.sandu.api.designplan.output.DesignPlanRenderSceneVo;
+import com.sandu.api.designplan.output.SingleDesignPlanVo;
+import com.sandu.api.designplan.output.SinglePlanRenderSceneVo;
+import com.sandu.api.designplan.service.DesignPlanRenderSceneService;
+import com.sandu.api.fullhouse.common.exception.BizException;
+import com.sandu.api.fullhouse.input.FullHouseDesignPlanAdd;
+import com.sandu.api.fullhouse.service.biz.FullHouseDesignPlanBizService;
+import com.sandu.api.task.model.AutoRenderTask;
+import com.sandu.api.task.model.AutoRenderTaskState;
+import com.sandu.api.task.service.AutoRenderTaskService;
+import com.sandu.api.task.service.AutoRenderTaskStateService;
+import com.sandu.design.model.DesignPlanProduct;
+import com.sandu.service.designplan.dao.DesignPlanRenderSceneMapper;
+import com.sandu.service.fullhouse.dao.FullHouseDesignPlanMapper;
+import com.sandu.system.model.ResDesign;
+import com.sandu.system.model.ResModel;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+@Slf4j
+@Service("designPlanRenderSceneService")
+public class DesignPlanRenderSceneServiceImpl implements DesignPlanRenderSceneService {
+    @Autowired
+    private DesignPlanRenderSceneMapper designPlanRenderSceneMapper;
+
+    @Value("${yun.domain.name}")
+    private String YUN_DOMAIN_NAME;
+    
+    @Autowired
+    private FullHouseDesignPlanBizService fullHouseDesignPlanBizService;
+
+    @Autowired
+    private FullHouseDesignPlanMapper fullHouseDesignPlanMapper;
+
+    @Autowired
+    private AutoRenderTaskService autoRenderTaskService;
+
+    @Autowired
+    private AutoRenderTaskStateService autoRenderTaskStateService;
+
+    @Override
+    public int deleteByPrimaryKey(Long id) {
+        return designPlanRenderSceneMapper.deleteByPrimaryKey(id);
+    }
+
+    @Override
+    public int insert(DesignPlanRenderScene record) {
+        return designPlanRenderSceneMapper.insert(record);
+    }
+
+    @Override
+    public int insertSelective(DesignPlanRenderScene record) {
+        return designPlanRenderSceneMapper.insertSelective(record);
+    }
+
+    @Override
+    public DesignPlanRenderScene selectByPrimaryKey(Long id) {
+        return designPlanRenderSceneMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public int updateByPrimaryKeySelective(DesignPlanRenderScene record) {
+        return designPlanRenderSceneMapper.updateByPrimaryKeySelective(record);
+    }
+
+    @Override
+    public int updateByPrimaryKey(DesignPlanRenderScene record) {
+        return designPlanRenderSceneMapper.updateByPrimaryKey(record);
+    }
+
+    @Override
+    public DesignPlanRenderSceneVo getDesignPlanRenderSceneList(Integer fullHousePlanId, Integer designTemplateId) {
+        return designPlanRenderSceneMapper.selectDesignPlanRenderSceneListByfullHousePlanId(fullHousePlanId, designTemplateId);
+    }
+
+    @Override
+    public List<SingleDesignPlanVo> getDesignPlanList(Integer demandId, Integer userId) {
+        List<SingleDesignPlanVo> singleDesignPlanVoList = designPlanRenderSceneMapper.selectDesignPlanListByDemandId(demandId, userId);
+
+        //移除未做720渲染的草图方案
+       if(null != singleDesignPlanVoList && singleDesignPlanVoList.size() > 0){
+           List<SingleDesignPlanVo> renderPlanList = new ArrayList<>();
+           List<Integer> businessIds = designPlanRenderSceneMapper.selectRender720ResourceByPlanId(singleDesignPlanVoList);
+           if(null != businessIds && businessIds.size() >0 ){
+               for(SingleDesignPlanVo singleDesignPlanVo : singleDesignPlanVoList){
+                   for(Integer businessId : businessIds){
+                       if(singleDesignPlanVo.getDesignPlanId().intValue() == businessId.intValue()){
+                          renderPlanList.add(singleDesignPlanVo);
+                       }
+                   }
+
+               }
+               return renderPlanList;
+           }
+
+           return null;
+        }
+
+
+
+        return singleDesignPlanVoList;
+    }
+
+    @Override
+    public SinglePlanRenderSceneVo creatNewFullHousePlan(List<PlanRenderSceneInput> planRenderSceneInputList, List<PlanInput> planInputList, LoginUser loginUser, String planName, Integer planId, Integer houseId, String authorization) {
+        //草图方案生成效果图方案
+        log.info("开始输出效果图");
+        CreaDesignPlanRenderScene creaDesignPlanRenderScene = new CreaDesignPlanRenderScene(planRenderSceneInputList, planInputList,loginUser,authorization).invoke();
+        if (creaDesignPlanRenderScene.is()){
+            return null;
+        }
+        log.info("输出效果图完成");
+        log.info("开始组装全屋方案");
+        planRenderSceneInputList = creaDesignPlanRenderScene.getPlanRenderSceneInputList();
+        if(planRenderSceneInputList==null || planRenderSceneInputList.size() ==0){
+            return null;
+        }
+
+        //组装全屋方案数据
+        FullHouseDesignPlanAdd fullHouseDesignPlanAdd = new FullHouseDesignPlanAdd();
+        if(null == planId || planId == 0){
+            fullHouseDesignPlanAdd.setFullHousePlanSourceId(0);
+        }else {
+            fullHouseDesignPlanAdd.setFullHousePlanSourceId(planId);
+        }
+
+        fullHouseDesignPlanAdd.setDesignPlanName(planName);
+        fullHouseDesignPlanAdd.setHouseId(houseId);
+        fullHouseDesignPlanAdd.setDesignPlanStyleId(planRenderSceneInputList.get(0).getDesignPlanStyleId());
+        fullHouseDesignPlanAdd.setUserId(loginUser.getId());
+        List<Integer> livingDiningRoom = new ArrayList<>(); //客餐厅
+        List<Integer> bedroom = new ArrayList<>(); //卧室
+        List<Integer> kitchen = new ArrayList<>(); //厨房
+        List<Integer> toilet = new ArrayList<>(); //卫生间
+        List<Integer> schoolroom = new ArrayList<>(); //书房
+        for(PlanRenderSceneInput planRenderSceneInput : planRenderSceneInputList){
+            switch (planRenderSceneInput.getSpaceType()){
+                case 3:
+                    livingDiningRoom.add(planRenderSceneInput.getDesignRenderSceneId());
+                    break;
+                case 4:
+                    bedroom.add(planRenderSceneInput.getDesignRenderSceneId());
+                    break;
+                case 5:
+                    kitchen.add(planRenderSceneInput.getDesignRenderSceneId());
+                    break;
+                case 6:
+                    toilet.add(planRenderSceneInput.getDesignRenderSceneId());
+                    break;
+                case 7:
+                    schoolroom.add(planRenderSceneInput.getDesignRenderSceneId());
+                    break;
+            }
+        }
+        Integer businessId = -1;
+        if( livingDiningRoom != null  &&  livingDiningRoom.size() > 0){
+            fullHouseDesignPlanAdd.setLivingDiningRoom(livingDiningRoom);
+            businessId = livingDiningRoom.get(0);
+        }
+        if( bedroom != null  &&  bedroom.size() > 0){
+            fullHouseDesignPlanAdd.setBedroom(bedroom);
+            businessId = bedroom.get(0);
+        }
+        if( kitchen != null  &&  kitchen.size() > 0){
+            fullHouseDesignPlanAdd.setKitchen(kitchen);
+            businessId = kitchen.get(0);
+        }
+        if( toilet != null  &&  toilet.size() > 0){
+            fullHouseDesignPlanAdd.setToilet(toilet);
+            businessId = toilet.get(0);
+        }
+        if( schoolroom != null  &&  schoolroom.size() > 0){
+            fullHouseDesignPlanAdd.setSchoolroom(schoolroom);
+            businessId = schoolroom.get(0);
+        }
+
+        //生成全屋方案 返回ID和UUID用逗号分割
+        String idAndUuid="";
+        try {
+           idAndUuid = fullHouseDesignPlanBizService.addFullHouseDesignPlanScene(fullHouseDesignPlanAdd);
+        } catch (BizException e) {
+            log.error("生成全屋方案数据异常",e);
+        }
+        if(StringUtils.isBlank(idAndUuid)){
+            log.error("生成全屋方案失败，idAndUuid={}",idAndUuid);
+            return null;
+        }
+        String[] ids = idAndUuid.split(",");
+        int fullHousePlanId = Integer.parseInt(ids[0]);
+        log.info("组装全屋完成");
+        log.info("开始创建任务");
+        //自动创建一条虚拟任务使数据与随选网保持一致
+        creatAutoRenderTask(loginUser, planName, houseId, businessId, fullHousePlanId);
+        log.info("创建任务完成");
+        //返回数据
+        if(fullHousePlanId>0){
+            SinglePlanRenderSceneVo singlePlanRenderSceneVo = fullHouseDesignPlanMapper.selectDesignPlanRenderScene(fullHousePlanId);
+            return singlePlanRenderSceneVo;
+        }
+        return null;
+    }
+
+    private void creatAutoRenderTask(LoginUser loginUser, String planName, Integer houseId, Integer businessId, int fullHousePlanId) {
+        AutoRenderTask autoRenderTask = new AutoRenderTask();
+        autoRenderTask.setPlanId(businessId);
+        autoRenderTask.setTemplateId(-1);
+        autoRenderTask.setRender720(0);
+        autoRenderTask.setIsDeleted(1);
+        Date date = new Date();
+        autoRenderTask.setGmtCreate(date);
+        autoRenderTask.setGmtModified(date);
+        autoRenderTask.setCreator(loginUser.getId()+"");
+        autoRenderTask.setModifier(loginUser.getId()+"");
+        autoRenderTask.setOperationSource(0);
+        autoRenderTask.setOperationUserId(loginUser.getId());
+        autoRenderTask.setTaskType(0);
+        autoRenderTask.setRenderTypesStr(2+"");
+        autoRenderTask.setDesignName(planName);
+        autoRenderTask.setTaskSource(0);
+        autoRenderTask.setPlatformId(2);
+        autoRenderTask.setFullHousePlanId(fullHousePlanId);
+        autoRenderTask.setPlanHouseType(3);
+        autoRenderTask.setHouseId(houseId);
+        autoRenderTask.setNewFullHousePlanId(fullHousePlanId);
+        Integer mainTaskId = autoRenderTaskService.insertSelective(autoRenderTask);
+        log.info("生成主任务完成，id为：{}", mainTaskId);
+
+        AutoRenderTaskState autoRenderTaskState = new AutoRenderTaskState();
+        autoRenderTaskState.setPlanId(businessId);
+        autoRenderTaskState.setTemplateId(-1);
+        autoRenderTaskState.setRender720(0);
+        autoRenderTaskState.setState(1);
+        autoRenderTaskState.setIsDeleted(0);
+        autoRenderTaskState.setGmtCreate(date);
+        autoRenderTaskState.setGmtModified(date);
+        autoRenderTaskState.setCreator(loginUser.getId()+"");
+        autoRenderTaskState.setModifier(loginUser.getId()+"");
+        autoRenderTaskState.setBusinessId(businessId);
+        autoRenderTaskState.setTaskId(mainTaskId);
+        autoRenderTaskState.setOperationUserId(loginUser.getId());
+        autoRenderTaskState.setTaskType(0);
+        autoRenderTaskState.setRenderTypesStr(2+"");
+        autoRenderTaskState.setDesignName(planName);
+        autoRenderTaskState.setTaskSource(0);
+        autoRenderTaskState.setIsValid(1);
+        autoRenderTaskState.setPlatformId(2);
+        autoRenderTaskState.setFullHousePlanId(fullHousePlanId);
+        autoRenderTaskState.setPlanHouseType(3);
+        autoRenderTaskState.setMainTaskId(mainTaskId);
+        autoRenderTaskState.setHouseId(houseId);
+        autoRenderTaskState.setNewFullHousePlanId(fullHousePlanId);
+        autoRenderTaskStateService.insertSelective(autoRenderTaskState);
+        log.info("生成主任务状态完成：mainTaskId={}", mainTaskId);
+    }
+
+    @Override
+    public DesignPlanRenderSceneVo getDesignPlanRenderSceneList(Integer planId) {
+        return designPlanRenderSceneMapper.selectDesignPlanRenderSceneList(planId);
+    }
+
+    @Override
+    public SinglePlanRenderSceneVo creatNewDesignPlan(List<PlanRenderSceneInput> planRenderSceneInputList, List<PlanInput> planInputList, LoginUser loginUser,String authorization) {
+        //草图方案生成效果图方案
+        CreaDesignPlanRenderScene creaDesignPlanRenderScene = new CreaDesignPlanRenderScene(planRenderSceneInputList, planInputList, loginUser, authorization).invoke();
+        if (creaDesignPlanRenderScene.is()){
+            return null;
+        }
+        planRenderSceneInputList = creaDesignPlanRenderScene.getPlanRenderSceneInputList();
+        if(planRenderSceneInputList != null && planRenderSceneInputList.size() > 0){
+            PlanRenderSceneInput planRenderSceneInput = planRenderSceneInputList.get(0);
+            if( null != planRenderSceneInput){
+                SinglePlanRenderSceneVo singlePlanRenderSceneVo = new SinglePlanRenderSceneVo();
+                singlePlanRenderSceneVo.setHouseId(planRenderSceneInput.getHouseId());
+                singlePlanRenderSceneVo.setDesignPlanRenderSceneId(planRenderSceneInput.getDesignRenderSceneId());
+                singlePlanRenderSceneVo.setPlanResourcPicPath(planRenderSceneInput.getPlanResourcPicPath());
+                singlePlanRenderSceneVo.setPlanName(planRenderSceneInput.getFullHousePlanName());
+                singlePlanRenderSceneVo.setSpaceName(planRenderSceneInput.getSpaceName());
+                singlePlanRenderSceneVo.setSpaceAreas(planRenderSceneInput.getSpaceAreas());
+                singlePlanRenderSceneVo.setDesignPlanStyleName(planRenderSceneInput.getDesignPlanStyleName());
+                return singlePlanRenderSceneVo;
+            }
+
+        }
+        return null;
+    }
+
+
+    private class CreaDesignPlanRenderScene {
+        private boolean myResult;
+        private List<PlanRenderSceneInput> planRenderSceneInputList;
+        private List<PlanInput> planInputList;
+        private LoginUser loginUser;
+
+        private String authorization;
+
+        public CreaDesignPlanRenderScene(List<PlanRenderSceneInput> planRenderSceneInputList, List<PlanInput> planInputList, LoginUser loginUser, String authorization) {
+            this.planRenderSceneInputList = planRenderSceneInputList;
+            this.planInputList = planInputList;
+            this.loginUser = loginUser;
+            this.authorization = authorization;
+
+        }
+
+        boolean is() {
+            return myResult;
+        }
+
+        public List<PlanRenderSceneInput> getPlanRenderSceneInputList() {
+            return planRenderSceneInputList;
+        }
+
+        public CreaDesignPlanRenderScene invoke() {
+            //查询该草图方案是否存在
+            List<DesignPlanRes> designPlanResList = new ArrayList<>();
+            if(planInputList != null && planInputList.size() > 0){
+                List<DesignPlan> designplanList = designPlanRenderSceneMapper.getDesignPlan(planInputList);
+                if (null == designplanList || 0 == designplanList.size() || planInputList.size() != designplanList.size()) {
+                    log.error("输出为效果图方案,草图方案不存在");
+                    myResult = true;
+                    return this;
+                }
+
+                //获取模型文件信息
+                List<ResModel> resModelList = designPlanRenderSceneMapper.getResModelByPlanModelId(designplanList);
+                if (null == resModelList || resModelList.size() == 0 || resModelList.size() < designplanList.size()) {
+                    log.error("输出为效果图方案,缺失模型文件");
+                    myResult = true;
+                    return this;
+                }
+
+                // 获取配置文件信息
+                List<ResDesign> resDesignlist = designPlanRenderSceneMapper.getResDesignByConfigFileId(designplanList);
+                if (null == resDesignlist || resDesignlist.size() == 0 || resDesignlist.size() < designplanList.size()) {
+                    log.error("输出为效果图方案,缺失配置文件信息");
+                    myResult = true;
+                    return this;
+                }
+
+                // 获取设计方案产品列表
+                List<DesignPlanProduct> designPlanProductList = designPlanRenderSceneMapper.getDesignPlanProductByPlanId(designplanList);
+                if (null == designPlanProductList || designPlanProductList.size() == 0 || designPlanProductList.size() < designplanList.size()) {
+                    log.error("输出为效果图方案,缺失设计方案产品列表");
+                    myResult = true;
+                    return this;
+                }
+
+                //组装数据
+                for (DesignPlan designPlan : designplanList) {
+                    DesignPlanRes designPlanRes = new DesignPlanRes();
+                    if(designPlan.getRenderType() ==null ){
+                        designPlan.setRenderType(4);
+                    }
+                    if(designPlan.getDesignStyleId()==null){
+                        designPlan.setDesignStyleId(8);
+                    }
+                    designPlanRes.setDesignPlan(designPlan);
+                    for (ResModel resModel : resModelList) {
+                        if (designPlan.getModelId().intValue() == resModel.getId().intValue()) {
+                            designPlanRes.setResModel(resModel);
+                        }
+                    }
+                    for (ResDesign resDesign : resDesignlist) {
+                        if (designPlan.getConfigFileId().intValue() == resDesign.getId().intValue()) {
+                            designPlanRes.setResDesign(resDesign);
+                        }
+                    }
+                    List<DesignPlanProduct> designPlanProducts = new ArrayList<>();
+                    for (DesignPlanProduct designPlanProduct : designPlanProductList) {
+                        if (designPlanProduct.getPlanId().intValue() == designPlan.getId().intValue()) {
+                            designPlanProducts.add(designPlanProduct);
+                        }
+                    }
+                    designPlanRes.setDesignPlanProductList(designPlanProducts);
+                    if (null == designPlanRes.getDesignPlan() || null == designPlanRes.getResModel()
+                            || null == designPlanRes.getResDesign() || null == designPlanRes.getDesignPlanProductList()
+                            || 0 == designPlanRes.getDesignPlanProductList().size()) {
+                        log.error("草图方案数据组装失败");
+                        myResult = true;
+                        return this;
+                    }
+                    designPlanResList.add(designPlanRes);
+                }
+                if(null == designPlanResList || designPlanResList.size()==0 ){
+                    log.error("草图方案数据详情缺少");
+                    myResult = true;
+                    return this;
+                }
+                //远程调用生成效果图方案
+                String json ="";
+                String url = YUN_DOMAIN_NAME+"/pc/web/design/designPlan/autocreateDesignPlanRenderScene.htm";
+                String designPlanResListJson = new Gson().toJson(designPlanResList);
+                log.info("远程调用生成效果图方案:"+url);
+                DesignPlanResListJson designPlanResListJson1 = new DesignPlanResListJson();
+                designPlanResListJson1.setDesignPlanResList(designPlanResListJson);
+                designPlanResListJson1.setUserId(loginUser.getId());
+                String result;
+                try {
+                    result = Utils.doPost(url, designPlanResListJson1,authorization);
+                }catch (Exception e){
+                    log.error("远程调用生成效果图方案失败1----- result="+e);
+                    myResult = true;
+                    return this;
+                }
+                if (StringUtils.isBlank(result)) {
+                    log.error("远程调用生成效果图方案失败2----- result="+result);
+                    myResult = true;
+                    return this;
+                }
+                ResponseEnvelope responseEnvelope = new Gson().fromJson(result, ResponseEnvelope.class);
+                log.info("远程调用生成效果图方案 3------ responseEnvelope="+responseEnvelope);
+                if (responseEnvelope.getObj() != null && responseEnvelope.isSuccess()) {
+                    json = responseEnvelope.getObj().toString();
+                }else {
+                    log.error("远程调用生成效果图方案失败3----- result="+result);
+                    myResult = true;
+                    return this;
+                }
+                log.info("效果图方案ID:"+json);
+                List<Integer> renderSceneIds = new Gson().fromJson(json,List.class);
+                if( null != renderSceneIds && renderSceneIds.size() >0){
+                    List<PlanRenderSceneInput> renderSceneInputs = designPlanRenderSceneMapper.selectDesignPlanRenderSceneListByIds(renderSceneIds);
+                    if(renderSceneInputs != null && renderSceneInputs.size() > 0){
+                        if(planRenderSceneInputList ==null && planRenderSceneInputList.size() == 0){
+                            planRenderSceneInputList = new ArrayList<>();
+                        }
+                        for(PlanRenderSceneInput renderSceneInput :renderSceneInputs){
+                            planRenderSceneInputList.add(renderSceneInput);
+                        }
+                    }
+                    log.info("草图方案批量生成效果图方案完成"+new Gson().toJson(renderSceneInputs));
+                }
+            }
+            myResult = false;
+            return this;
+
+        }
+    }
+}

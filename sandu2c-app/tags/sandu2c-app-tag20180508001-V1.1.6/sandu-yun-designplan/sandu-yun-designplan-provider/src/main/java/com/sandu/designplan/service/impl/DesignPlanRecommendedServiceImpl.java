@@ -1,0 +1,1069 @@
+package com.sandu.designplan.service.impl;
+
+import com.google.gson.Gson;
+import com.sandu.common.model.PageModel;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.common.properties.ResProperties;
+import com.sandu.common.util.Constants;
+import com.sandu.common.util.Utils;
+import com.sandu.constant.ResponseEnum;
+import com.sandu.design.model.DesignPlanRecommendedProduct;
+import com.sandu.design.model.RecommendedPublicState;
+import com.sandu.designplan.dao.DesignPlanRecommendedMapper;
+import com.sandu.designplan.model.*;
+import com.sandu.designplan.service.DesignPlanLikeService;
+import com.sandu.designplan.service.DesignPlanRecommendedProductService;
+import com.sandu.designplan.service.DesignPlanRecommendedService;
+import com.sandu.designplan.service.DesignPlanSummaryInfoService;
+import com.sandu.exception.AppException;
+import com.sandu.exception.GlobalExceptionResolver;
+import com.sandu.home.model.SpaceCommon;
+import com.sandu.home.service.SpaceCommonService;
+import com.sandu.product.model.BaseCompany;
+import com.sandu.product.service.BaseProductStyleService;
+import com.sandu.render.model.RenderTypeCode;
+import com.sandu.render.model.ResRenderData;
+import com.sandu.system.model.ResRenderVideo;
+import com.sandu.system.model.SysDictionary;
+import com.sandu.system.model.SysDictionaryConstant;
+import com.sandu.system.service.ResRenderPicService;
+import com.sandu.system.service.ResRenderVideoService;
+import com.sandu.system.service.SysDictionaryService;
+import com.sandu.user.model.*;
+import com.sandu.user.service.SysRoleService;
+import com.sandu.user.service.SysUserRoleService;
+import com.sandu.user.service.SysUserService;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+
+/**
+ * @desc:设计方案服务
+ * @auth：pengxuangang
+ * @date：20170920
+ */
+
+@Service("designPlanRecommendedService")
+public class DesignPlanRecommendedServiceImpl implements DesignPlanRecommendedService {
+
+    @Value("${app.onekey.url}")
+    private String appOnekeyUrl;
+    //Json转换类
+    private final static Gson GSON = new Gson();
+    private final static String CLASS_LOG_PREFIX = "[方案推荐服务]:";
+    private static Logger logger = LoggerFactory.getLogger(DesignPlanRecommendedServiceImpl.class);
+    @Autowired
+    private SysUserService sysUserService;
+    @Autowired
+    private ResRenderVideoService resRenderVideoService;
+    @Autowired
+    private SpaceCommonService spaceCommonService;
+    @Autowired
+    private SysDictionaryService sysDictionaryService;
+    @Autowired
+    private SysRoleService sysRoleService;
+    @Autowired
+    private SysUserRoleService sysUserRoleService;
+    @Autowired
+    private DesignPlanRecommendedMapper designPlanRecommendedMapper;
+    @Autowired
+    private ResRenderPicService resRenderPicService;
+    @Autowired
+    private DesignPlanRecommendedProductService designPlanRecommendedProductService;
+    @Autowired
+    private BaseProductStyleService baseProductStyleService;
+
+    @Autowired
+    private DesignPlanLikeService designPlanLikeService;
+
+    
+    @Override
+    public int delete(Integer id) {
+        return designPlanRecommendedMapper.deleteByPrimaryKey(id);
+    }
+
+    @Override
+    public DesignPlanRecommended get(Integer id) {
+        return designPlanRecommendedMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public List<DesignPlanRecommended> getList(DesignPlanRecommended designPlanRecommended) {
+        return designPlanRecommendedMapper.selectList(designPlanRecommended);
+    }
+
+    @Override
+    public int add(DesignPlanRecommended designPlanRecommended) {
+        designPlanRecommendedMapper.insertSelective(designPlanRecommended);
+        return designPlanRecommended.getId();
+    }
+
+    @Override
+    public int update(DesignPlanRecommended designPlanRecommended) {
+        return designPlanRecommendedMapper.updateByPrimaryKeySelective(designPlanRecommended);
+    }
+
+    @Override
+    public int getCount(DesignPlanRecommended designPlanRecommended) {
+        return designPlanRecommendedMapper.selectCount(designPlanRecommended);
+    }
+
+    /**
+     * 方案推荐数据
+     *
+     * @return
+     */
+    @Override
+    public List<DesignPlanRecommendedResult> getPlanRecommendedList(DesignPlanRecommended designPlanRecommended) {
+        if (designPlanRecommended == null) {
+            return null;
+        }
+        /*是方案管理员 必须要传空间类型*/
+        if ("yes".equals(designPlanRecommended.getCheckAdministrator())) {
+            if (designPlanRecommended.getSpaceFunctionIds() == null || designPlanRecommended.getSpaceFunctionIds().size() <= 0) {
+                return null;
+            }
+
+        }
+        return designPlanRecommendedMapper.getPlanRecommendedList(designPlanRecommended);
+    }
+
+    /**
+     * 方案推荐列表数据
+     *
+     * @param model
+     */
+    @Override
+    public ResponseEnvelope getPlanRecommendedList(PlanRecommendedListModel model) {
+
+        logger.info(CLASS_LOG_PREFIX + "获取方案推荐列表数据:PlanRecommendedListModel:{}", null == model ? null : model.toString());
+
+        if (null == model) {
+            logger.warn(CLASS_LOG_PREFIX + "获取方案推荐列表数据失败,PlanRecommendedListModel is null!");
+            return new ResponseEnvelope(false, "获取方案推荐列表数据失败,PlanRecommendedListModel is null!");
+        }
+
+        DesignPlanRecommended designPlanRecommended = new DesignPlanRecommended();
+
+        String houseType = model.getHouseType();
+        String livingName = model.getLivingName();
+        String areaValue = model.getAreaValue();
+        String designRecommendedStyleId = model.getDesignRecommendedStyleId();
+        String displayType = model.getDisplayType();
+        String creator = model.getCreator();//搜索条件：创建者
+        String brandName = model.getBrandName();//搜索条件：品牌
+        LoginUser loginUser = model.getLoginUser();
+        Integer limit = model.getLimit();
+        Integer start = model.getStart();
+        Integer isSortByReleaseTime = model.getIsSortByReleaseTime();
+        Integer isSortByRenderCount = model.getIsSortByRenderCount();
+        Integer companyId = model.getCompanyId();
+
+        //检查用户是否登录
+        if (null == loginUser) {
+            loginUser = new LoginUser();
+            loginUser.setId(0);
+            loginUser.setUserType(UserTypeCode.USER_TYPE_OUTER_B2C);
+        }
+
+        designPlanRecommended.setCompanyId(companyId);
+		/* 装着品牌id的list，没有授权码的用户也能看到 ，选择“推荐所有”的设计方案，推荐所有的设计方案品牌ID = -1 ,三度空间*/
+
+        /* 查询 */
+        designPlanRecommended.setDisplayType(displayType);
+        if ("decorate".equals(displayType)) {/* 1代表祝列表。其他代表一键装修处的小列表。小列表只能查询支持一件装修的数据 */
+            designPlanRecommended.setRecommendedType(DesignPlanConstants.RECOMMENDED_TYPE_DECORATE);
+            designPlanRecommended.setIsRelease(RecommendedDecorateState.IS_RELEASEING);
+        } else if ("dragDecorate".equals(displayType)) {
+            //运营网站用户仅能看到已发布推荐方案
+            designPlanRecommended.setRecommendedType(DesignPlanConstants.RECOMMENDED_TYPE_DECORATE);
+            designPlanRecommended.setIsRelease(RecommendedDecorateState.IS_RELEASEING);
+        } else if ("test".equals(displayType)) {
+            designPlanRecommended.setRecommendedType(DesignPlanConstants.RECOMMENDED_TYPE_DECORATE);
+            designPlanRecommended.setIsRelease(RecommendedDecorateState.IS_TEST_RELEASE);
+        } else if ("check".equals(displayType)) {
+            designPlanRecommended.setRecommendedType(DesignPlanConstants.RECOMMENDED_TYPE_DECORATE);
+            designPlanRecommended.setIsRelease(RecommendedDecorateState.WAITING_CHECK_RELEASE);
+            /*判断用户是什么类型管理员*/
+            List<Integer> spaceFunctionIds = null;
+            spaceFunctionIds = this.designPlanRecommendedCheckType(loginUser.getId());
+            if (spaceFunctionIds == null || spaceFunctionIds.size() <= 0) {
+                return new ResponseEnvelope(false, "无权限！");
+            }
+            designPlanRecommended.setSpaceFunctionIds(spaceFunctionIds);
+            designPlanRecommended.setCheckAdministrator("yes");/*是方案审核管理员*/
+        } else if ("public".equals(displayType) || StringUtils.isEmpty(displayType)) {
+            designPlanRecommended.setRecommendedType(DesignPlanConstants.RECOMMENDED_TYPE_SHARE);
+            designPlanRecommended.setIsRelease(RecommendedPublicState.IS_OPEN);
+        } else if ("mobile".equals(displayType)) {
+            designPlanRecommended.setIsRelease(RecommendedPublicState.IS_OPEN);
+        }
+        //根据时间排序
+        if(null!=isSortByReleaseTime&&null==isSortByRenderCount) {
+        	designPlanRecommended.setIsSortByReleaseTime(isSortByReleaseTime);
+        }
+        //根据渲染次数排序
+        if(null==isSortByReleaseTime&&null!=isSortByRenderCount) {
+        	designPlanRecommended.setIsSortByRenderCount(isSortByRenderCount);
+        }
+        //根据平台过滤
+         if(model.getPlatformId()!=null&&model.getPlatformId()>0) {
+        	 designPlanRecommended.setPlatformId(model.getPlatformId());
+        }
+
+        if (StringUtils.isNotEmpty(brandName)) { /*品牌名*/
+            designPlanRecommended.setBrandName(brandName.trim());
+        }
+        if (StringUtils.isNotEmpty(creator)) { /*创建者*/
+            designPlanRecommended.setCreator(creator.trim());
+        }
+        if (StringUtils.isNotEmpty(houseType) && (!"null".equals(houseType))) { /*空间功能类型 */
+            designPlanRecommended.setSpaceFunctionId(Integer.parseInt(houseType));
+        }
+        if (StringUtils.isNotEmpty(areaValue)) {
+            designPlanRecommended.setAreaValue(areaValue);
+        }
+        if (StringUtils.isNotEmpty(livingName)) { /* 小区名称 */
+            designPlanRecommended.setLivingName(livingName);
+        }
+        if (StringUtils.isNotEmpty(designRecommendedStyleId)) { /* 推荐方案风格 */
+            designPlanRecommended.setDesignRecommendedStyleId(Integer.parseInt(designRecommendedStyleId));
+        }
+
+        //空间形状
+        if (null != model.getSpaceShape()) { /* 小区名称 */
+            designPlanRecommended.setSpaceShape(model.getSpaceShape());
+        }
+
+        if (limit != null) {
+            designPlanRecommended.setLimit(limit);
+        }
+        if (start != null) {
+            designPlanRecommended.setStart(start);
+        }
+        designPlanRecommended.setUserId(loginUser.getId());
+        Integer total = 0;
+        List<DesignPlanRecommendedResult> list = null;
+
+        total = this.getPlanRecommendedCount(designPlanRecommended);
+        if (total != null && total.intValue() > 0) {
+            list = this.getPlanRecommendedList(designPlanRecommended);
+            if (list != null && list.size() > 0) {
+                for (DesignPlanRecommendedResult result : list) {
+                        logger.info(CLASS_LOG_PREFIX + "获取方案推荐列表数据:根据推荐方案Id和渲染类型获得最新渲染原图:PlanRecommendedId:{}, renderingType:1.", result.getPlanRecommendedId());
+                      ResRenderData res = resRenderPicService.getResRenderPicByPlanRecommended(result.getPlanRecommendedId(), 1);// 得到最新一张照片渲染原图地址
+                        logger.info(CLASS_LOG_PREFIX + "获取方案推荐列表数据:根据推荐方案Id和渲染类型获得最新渲染原图完成:ResRenderPic:{}.", null == res ? null : res.toString());
+                        if (res != null) {
+                            result.setResRenderPicPath(res.getPicPath());
+                        }
+                    //添加图片资源HOST拼接
+                    result.setCoverPath(result.getCoverPath());
+//                    if (StringUtils.isEmpty(result.getBid())) {
+//                        result.setBid("0");
+//                    }
+
+                    //从缓存中获取方案点赞收藏数量信息、
+                    //从缓存中获取用户对方案是否点赞，是否收藏
+                    DesignPlanSummaryInfo summaryInfo =
+                            designPlanLikeService.getPlanInfoOfCache(loginUser.getId(), result.getPlanRecommendedId());
+                    if (null != summaryInfo) {
+                        if (null != summaryInfo.getLikeNum()) {
+                            result.setLikeNum(summaryInfo.getLikeNum());
+                        }
+                        if (null != summaryInfo.getCollectNum()) {
+                            result.setCollectNum(summaryInfo.getCollectNum());
+                        }
+                        if (null != summaryInfo.getIsLike()) {
+                            result.setIsLike(summaryInfo.getIsLike());
+                        }
+                        if (null != summaryInfo.getIsFavorite()) {
+                            result.setIsFavorite(summaryInfo.getIsFavorite());
+                        }
+                    }
+                }
+            }
+        }
+
+//        logger.info(CLASS_LOG_PREFIX + "获取方案推荐列表数据完成:total:{}, list:{}.", total, GSON.toJson(list));
+        return new ResponseEnvelope(true, "", list, null == total ? 0 : total);
+    }
+
+    /**
+     * 方案推荐列表数据
+     *
+     * @param model
+     */
+    @Override
+    public ResponseEnvelope getPlanRecommendedList2(PlanRecommendedListModel model,String companyCode, BaseCompany baseCompany) {
+
+        logger.info(CLASS_LOG_PREFIX + "获取方案推荐列表数据:PlanRecommendedListModel:{}", null == model ? null : model.toString());
+
+        if (null == model) {
+            logger.warn(CLASS_LOG_PREFIX + "获取方案推荐列表数据失败,PlanRecommendedListModel is null!");
+            return new ResponseEnvelope(false, "获取方案推荐列表数据失败,PlanRecommendedListModel is null!");
+        }
+
+        DesignPlanRecommended designPlanRecommended = new DesignPlanRecommended();
+
+        String houseType = model.getHouseType();
+        String livingName = model.getLivingName();
+        String areaValue = model.getAreaValue();
+        String designRecommendedStyleId = model.getDesignRecommendedStyleId();
+        String displayType = model.getDisplayType();
+        String creator = model.getCreator();//搜索条件：创建者
+        String brandName = model.getBrandName();//搜索条件：品牌
+        LoginUser loginUser = model.getLoginUser();
+        Integer limit = model.getLimit();
+        Integer start = model.getStart();
+        Integer isSortByReleaseTime = model.getIsSortByReleaseTime();
+        Integer isSortByRenderCount = model.getIsSortByRenderCount();
+        Integer companyId = model.getCompanyId();
+
+
+        //检查用户是否登录
+        if (null == loginUser) {
+            loginUser = new LoginUser();
+            loginUser.setId(0);
+            loginUser.setUserType(UserTypeCode.USER_TYPE_OUTER_B2C);
+        }
+
+        designPlanRecommended.setCompanyId(companyId);
+
+        /* 查询 */
+        designPlanRecommended.setDisplayType(displayType);
+        if ("decorate".equals(displayType)) {/* 1代表祝列表。其他代表一键装修处的小列表。小列表只能查询支持一件装修的数据 */
+            designPlanRecommended.setRecommendedType(DesignPlanConstants.RECOMMENDED_TYPE_DECORATE);
+            designPlanRecommended.setIsRelease(RecommendedDecorateState.IS_RELEASEING);
+        } else if ("dragDecorate".equals(displayType)) {
+            //运营网站用户仅能看到已发布推荐方案
+            designPlanRecommended.setRecommendedType(DesignPlanConstants.RECOMMENDED_TYPE_DECORATE);
+            designPlanRecommended.setIsRelease(RecommendedDecorateState.IS_RELEASEING);
+        } else if ("test".equals(displayType)) {
+            designPlanRecommended.setRecommendedType(DesignPlanConstants.RECOMMENDED_TYPE_DECORATE);
+            designPlanRecommended.setIsRelease(RecommendedDecorateState.IS_TEST_RELEASE);
+        } else if ("check".equals(displayType)) {
+            designPlanRecommended.setRecommendedType(DesignPlanConstants.RECOMMENDED_TYPE_DECORATE);
+            designPlanRecommended.setIsRelease(RecommendedDecorateState.WAITING_CHECK_RELEASE);
+            /*判断用户是什么类型管理员*/
+            List<Integer> spaceFunctionIds = null;
+            spaceFunctionIds = this.designPlanRecommendedCheckType(loginUser.getId());
+            if (spaceFunctionIds == null || spaceFunctionIds.size() <= 0) {
+                return new ResponseEnvelope(false, "无权限！");
+            }
+            designPlanRecommended.setSpaceFunctionIds(spaceFunctionIds);
+            designPlanRecommended.setCheckAdministrator("yes");/*是方案审核管理员*/
+        } else if ("public".equals(displayType) || StringUtils.isEmpty(displayType)) {
+            designPlanRecommended.setRecommendedType(DesignPlanConstants.RECOMMENDED_TYPE_SHARE);
+            designPlanRecommended.setIsRelease(RecommendedPublicState.IS_OPEN);
+        } else if ("mobile".equals(displayType)) {
+            designPlanRecommended.setIsRelease(RecommendedPublicState.IS_OPEN);
+        }
+        //根据时间排序
+        if(null!=isSortByReleaseTime&&null==isSortByRenderCount) {
+            designPlanRecommended.setIsSortByReleaseTime(isSortByReleaseTime);
+        }
+        //根据渲染次数排序
+        if(null==isSortByReleaseTime&&null!=isSortByRenderCount) {
+            designPlanRecommended.setIsSortByRenderCount(isSortByRenderCount);
+        }
+        //根据平台过滤
+        if(model.getPlatformId()!=null&&model.getPlatformId()>0) {
+            designPlanRecommended.setPlatformId(model.getPlatformId());
+        }
+
+        if (StringUtils.isNotEmpty(brandName)) { /*品牌名*/
+            designPlanRecommended.setBrandName(brandName.trim());
+        }
+        if (StringUtils.isNotEmpty(creator)) { /*创建者*/
+            designPlanRecommended.setCreator(creator.trim());
+        }
+        if (StringUtils.isNotEmpty(houseType) && (!"null".equals(houseType))) { /*空间功能类型 */
+            designPlanRecommended.setSpaceFunctionId(Integer.parseInt(houseType));
+        }
+        if (StringUtils.isNotEmpty(areaValue)) {
+            designPlanRecommended.setAreaValue(areaValue);
+        }
+        if (StringUtils.isNotEmpty(livingName)) { /* 小区名称 */
+            designPlanRecommended.setLivingName(livingName);
+        }
+        if (StringUtils.isNotEmpty(designRecommendedStyleId)) { /* 推荐方案风格 */
+            designPlanRecommended.setDesignRecommendedStyleId(Integer.parseInt(designRecommendedStyleId));
+        }
+
+        //空间形状
+        if (null != model.getSpaceShape()) { /* 小区名称 */
+            designPlanRecommended.setSpaceShape(model.getSpaceShape());
+        }
+
+        if (limit != null) {
+            designPlanRecommended.setLimit(limit);
+        }
+        if (start != null) {
+            designPlanRecommended.setStart(start);
+        }
+        designPlanRecommended.setUserId(loginUser.getId());
+        Integer total = 0;
+        List<DesignPlanRecommendedResult> list = null;
+        /*公司为三度云享家展示平台所有已发布的一键方案+公开方案*/
+        if(companyCode.equals(baseCompany.getCompanyCode())){
+            designPlanRecommended.setBrandIds(null);
+            designPlanRecommended.setCompanyId(null);
+            designPlanRecommended.setPlatformId(null);
+//            designPlanRecommended.setRecommendedType(null);
+            List<Integer> types = new ArrayList<>();
+//            types.add(DesignPlanConstants.RECOMMENDED_TYPE_DECORATE);
+//            types.add(DesignPlanConstants.RECOMMENDED_TYPE_SHARE);
+//            designPlanRecommended.setRecommendedTypes(types);
+            designPlanRecommended.setOnlyInternalPlan(Constants.ONLY_SEARCH_INTERNAL_PLAN);//Add by steve, only search internal plan if the company is sandu
+            designPlanRecommended.setIsRelease(RecommendedDecorateState.IS_RELEASEING);
+        }
+
+
+        total = this.getPlanRecommendedCount(designPlanRecommended);
+        if (total != null && total.intValue() > 0) {
+            list = this.getPlanRecommendedList(designPlanRecommended);
+            List <Integer> recommendedIds = new ArrayList <Integer>();
+            for (DesignPlanRecommendedResult result : list) {
+                recommendedIds.add(result.getPlanRecommendedId());
+            }
+            List<ResRenderPic> resPicList = resRenderPicService.getResRenderPicListByRecommendedIds(recommendedIds);
+                for (DesignPlanRecommendedResult result : list) {
+                    for(ResRenderPic res : resPicList){
+                        if(res!=null && res.getPlanRecommendedId().intValue() == result.getPlanRecommendedId().intValue()){
+                            result.setResRenderPicPath(res.getPicPath());
+                        }
+                    }
+                    //从缓存中获取方案点赞收藏数量信息、
+                    //从缓存中获取用户对方案是否点赞，是否收藏
+                    DesignPlanSummaryInfo summaryInfo =
+                            designPlanLikeService.getPlanInfoOfCache(loginUser.getId(), result.getPlanRecommendedId());
+                    if (null != summaryInfo) {
+                        if (null != summaryInfo.getLikeNum()) {
+                            result.setLikeNum(summaryInfo.getLikeNum());
+                        }
+                        if (null != summaryInfo.getCollectNum()) {
+                            result.setCollectNum(summaryInfo.getCollectNum());
+                        }
+                        if (null != summaryInfo.getIsLike()) {
+                            result.setIsLike(summaryInfo.getIsLike());
+                        }
+                        if (null != summaryInfo.getIsFavorite()) {
+                            result.setIsFavorite(summaryInfo.getIsFavorite());
+                        }
+                    }
+                }
+        }
+
+//        logger.info(CLASS_LOG_PREFIX + "获取方案推荐列表数据完成:total:{}, list:{}.", total, GSON.toJson(list));
+        return new ResponseEnvelope(true, "", list, null == total ? 0 : total);
+    }
+
+    /**
+     * 判断该审核管理员能审核多少种空间类型
+     *
+     * @param userId
+     * @return
+     */
+    public List<Integer> designPlanRecommendedCheckType(Integer userId) {
+        List<Integer> spaceFunctionIds;
+
+        if (userId == null) {
+            return null;
+        }
+        List<SysUserRole> sysUserRoleList = null;
+        SysUserRole sysUserRole = new SysUserRole();
+        sysUserRole.setUserId(userId);
+        sysUserRole.setIsDeleted(0);
+        sysUserRoleList = sysUserRoleService.getList(sysUserRole);
+
+        List<SysRole> roleList = null;
+        SysRoleSearch sysRoletSearch = new SysRoleSearch();
+        sysRoletSearch.setLimit(-1);
+        sysRoletSearch.setIsDeleted(0);
+        sysRoletSearch.setSch_Code_("RECOMMENDEDCHECK_");
+        roleList = sysRoleService.getPaginatedList(sysRoletSearch);
+
+        List<String> spaceTypeList = new ArrayList<String>();
+        for (SysUserRole sysUserRole_ : sysUserRoleList) {
+            int roleId = sysUserRole_.getRoleId().intValue();
+            for (SysRole sysRole : roleList) {
+                if (roleId == sysRole.getId().intValue()) {
+                    String code = sysRole.getCode();
+                    if (StringUtils.isNotEmpty(code) && code.indexOf("_") > -1) {
+                        String spaceType = code.substring(code.lastIndexOf("_"));
+                        spaceTypeList.add(spaceType.toLowerCase().replace("_", ""));
+                    }
+                }
+            }
+        }
+        if (spaceTypeList.size() <= 0) {
+            return null;
+        }
+		/*通过ValueKeys  和 type  查列表*/
+        List<SysDictionary> syslist = sysDictionaryService.getListByValueKeys(SysDictionaryConstant.DESIGNPLAN_SPACE_TYPE, spaceTypeList);
+        if (syslist == null || syslist.size() <= 0) {
+            return null;
+        }
+        spaceFunctionIds = new ArrayList<>();
+        for (SysDictionary sysDictionary : syslist) {
+            spaceFunctionIds.add(sysDictionary.getValue());
+        }
+        return spaceFunctionIds;
+    }
+
+
+    /**
+     * 方案推荐总条数
+     *
+     * @return
+     */
+    @Override
+    public Integer getPlanRecommendedCount(DesignPlanRecommended designPlanRecommended) {
+        if (designPlanRecommended == null) {
+            return 0;
+        }
+		/*是方案管理员 必须要传空间类型*/
+        if ("yes".equals(designPlanRecommended.getCheckAdministrator())) {
+            if (designPlanRecommended.getSpaceFunctionIds() == null || designPlanRecommended.getSpaceFunctionIds().size() <= 0) {
+                return 0;
+            }
+		/*非方案管理员 必须要传品牌id*/
+        }
+
+        return designPlanRecommendedMapper.getPlanRecommendedCount(designPlanRecommended);
+    }
+
+    /**
+     * 方案推荐详情
+     *
+     * @param planRecommendedId
+     * @return
+     */
+    @Override
+    public DesignPlanRecommended designPlanRecommendedDetails(String planRecommendedId) {
+        DesignPlanRecommended designPlanRecommended = this.get(Integer.parseInt(planRecommendedId));
+        if (designPlanRecommended == null) {
+            return designPlanRecommended;
+        }
+        //通过推荐方案风格ID查询推荐方案风格名称
+        Integer styleId = designPlanRecommended.getDesignRecommendedStyleId();
+        if (styleId != null) {
+            String styleName = baseProductStyleService.getNameById(styleId);
+            designPlanRecommended.setDesignRecommendedStyleName(styleName);
+        }
+        SysUser user = sysUserService.get(designPlanRecommended.getUserId());
+        designPlanRecommended.setPlanRecommendedUserName(user == null ? "无" : user.getUserName() == null ? "无" : user.getUserName());
+        if (designPlanRecommended.getSpaceCommonId() != null) {
+            SpaceCommon spaceCommon = spaceCommonService.get(designPlanRecommended.getSpaceCommonId());
+            if (spaceCommon != null) {
+                designPlanRecommended.setSpaceCode(spaceCommon.getSpaceCode());
+                designPlanRecommended.setSpaceName(spaceCommon.getSpaceName());
+                designPlanRecommended.setSpaceAreas(spaceCommon.getSpaceAreas());
+            }
+        }
+        if (StringUtils.isEmpty(designPlanRecommended.getRemark())) {
+            designPlanRecommended.setRemark("无");
+        }
+        //获取该方案推荐的白膜产品的数量，如果大于0那么是m+3 未装修完成的推荐（m+3 是不装修直接渲染的快捷键）
+        int recommendedDecorateState = designPlanRecommendedMapper.getRecommendedDecorateState(designPlanRecommended.getId());
+        if (recommendedDecorateState > 0) {      // '是否装修完成状态 (1.未装修完成 2.已装修完成)'
+            designPlanRecommended.setRecommendedDecorateState(1);
+        } else {
+            designPlanRecommended.setRecommendedDecorateState(2);
+        }
+        //获取渲染图片
+        designPlanRecommended = this.getRenderPicFromDesignPlanRecommend(designPlanRecommended);
+        //获取渲染视频
+        designPlanRecommended = this.getRenderVideoFromDesignPlanRecommend(designPlanRecommended);
+
+        DesignPlanRecommendedProduct dprp = new DesignPlanRecommendedProduct();
+        dprp.setIsDeleted(0);
+        dprp.setPlanRecommendedId(designPlanRecommended.getId());
+        int count = designPlanRecommendedProductService.getCount(dprp);
+        designPlanRecommended.setPlanRecommendedProductCount(count);
+        return designPlanRecommended;
+    }
+
+    /**
+     * 获取渲染视频
+     *
+     * @param designPlanRecommended
+     */
+    @Override
+    public DesignPlanRecommended getRenderVideoFromDesignPlanRecommend(DesignPlanRecommended designPlanRecommended) {
+
+        ResRenderVideo resRenderVideo = new ResRenderVideo();
+        resRenderVideo.setBusinessId(designPlanRecommended.getId());
+        //渲染视频
+        logger.info(CLASS_LOG_PREFIX + "获取渲染视频:BusinessId:{}", designPlanRecommended.getId());
+        List<ResRenderVideo> resRenderVideoList = resRenderVideoService.getList(resRenderVideo);
+        logger.info(CLASS_LOG_PREFIX + "获取渲染视频完成:JSON[List<ResRenderVideo>]:{}", GSON.toJson(resRenderVideoList));
+
+        //资源地址
+        List<String> videoPathList = new ArrayList<>(null == resRenderVideoList ? 10 : resRenderVideoList.size());
+        if (null != resRenderVideoList && resRenderVideoList.size() > 0) {
+            //拼接服务器Host
+            resRenderVideoList.forEach(renderVideo -> videoPathList.add(Utils.getPropertyName("app", "app.server.siteName", "") + renderVideo.getVideoPath()));
+            logger.info(CLASS_LOG_PREFIX + "获取渲染视频---获取资源地址完成:VideoPathList:{}", GSON.toJson(videoPathList));
+        }
+
+        if (null != videoPathList && videoPathList.size() > 0) {
+            Map<Integer, List<String>> renderMap = designPlanRecommended.getRenderMap();
+
+            if (null != renderMap) {
+                renderMap.put(RenderTypeCode.COMMON_VIDEO, videoPathList);
+            }
+        }
+
+        return designPlanRecommended;
+    }
+
+    /**
+     * 获取渲染图片
+     *
+     * @param designPlanRecommended
+     */
+    @Override
+    public DesignPlanRecommended getRenderPicFromDesignPlanRecommend(DesignPlanRecommended designPlanRecommended) {
+        ResRenderPic resRenderPic = new ResRenderPic();
+        resRenderPic.setPlanRecommendedId(designPlanRecommended.getId());
+        resRenderPic.setIsDeleted(0);
+        resRenderPic.setLimit(-1);
+        resRenderPic.setOrder(" gmt_create desc ");
+        List<String> fileKeys = new ArrayList<String>();
+        fileKeys.add(ResProperties.DESIGNPLANRECOMMENDED_RENDER_PIC_FILEKEY);
+        fileKeys.add(ResProperties.DESIGNPLANRECOMMENDED_VIDEO_FILEKEY);
+        resRenderPic.setFileKeyList(fileKeys);
+        List<ResRenderPic> picList = resRenderPicService.getList(resRenderPic);
+        if (picList == null || picList.size() <= 0) {  //兼容老数据，老数据filekey 可能还用的 designPlan
+            fileKeys.add(ResProperties.DESIGNPLAN_RENDER_PIC_FILEKEY);
+            fileKeys.add(ResProperties.DESIGNPLAN_RENDER_VIDEO_COVER);
+            picList = resRenderPicService.getList(resRenderPic);
+        }
+        List<RenderPicInfo> renderPicList = new ArrayList<RenderPicInfo>();
+		/*封面摆在图片列表的第一位*/
+        Integer coverPicId = designPlanRecommended.getCoverPicId();
+        if (coverPicId != null && coverPicId.intValue() > 0) {
+            ResRenderPic coverPic = resRenderPicService.get(coverPicId);
+            if (coverPic != null && coverPic.getIsDeleted().intValue() == 0) {
+                //封面图片拼接URL
+                renderPicList.add(new RenderPicInfo(coverPic.getPicPath(), coverPic.getRenderingType(), coverPic.getId(), ""));
+            }
+        }
+
+		/*有渲染图则优先取渲染原图，无渲染图则取俯瞰图*/
+        if (picList != null && picList.size() > 0) {/*取渲染原图*/
+            for (ResRenderPic tempPic : picList) {
+                //封面摆在图片列表的第一位，所以下面不需要重复设置
+                if (coverPicId != null && coverPicId.intValue() > 0) {
+                    if (tempPic.getId().intValue() == coverPicId.intValue()) {
+                        continue;
+                    }
+                }
+                //资源基本数据
+                ResRenderPic tempResRenderPic;
+                //数据详情URL
+                String dateDetailUrl;
+                if (null != tempPic.getSysTaskPicId() && tempPic.getSysTaskPicId() > 0) {
+                    //获取资源基本数据
+                    tempResRenderPic = resRenderPicService.get(tempPic.getSysTaskPicId());
+                                       //获取资源详情数据----查看大图
+                    dateDetailUrl = resRenderPicService.getQRCodeInfo(tempResRenderPic);
+
+
+                } else {
+                    continue;
+                }
+
+                //设置图片类型
+                designPlanRecommended.setPicType(1);
+                RenderPicInfo renderPicInfo = new RenderPicInfo();
+
+                //PicPath参数增加路径拼接
+                renderPicInfo.setPicPath(tempPic.getPicPath());
+
+                //渲染类型
+                if (tempPic.getRenderingType() != null) {
+                    //根据渲染类型遍历不同数据
+                    switch (tempPic.getRenderingType()) {
+                        case RenderTypeCode.COMMON_720_LEVEL:
+                            //720度普通
+                        case RenderTypeCode.HD_720_LEVEL:
+                            //720度高清---构造基本数据
+                            if (!"".equals(tempResRenderPic.getPicPath())) {
+                                renderPicInfo.setRenderingType(tempPic.getRenderingType());
+                                renderPicInfo.setOriginalPicId(tempPic.getId());
+                            }
+                            break;
+                        default:
+                            renderPicInfo.setRenderingType(tempPic.getRenderingType());
+                            renderPicInfo.setOriginalPicId(tempPic.getId());
+                            break;
+                    }
+                } else {
+                    renderPicInfo.setRenderingType(tempPic.getRenderingType());
+                    renderPicInfo.setOriginalPicId(tempPic.getId());
+                }
+
+                //默认普通地址
+                renderPicInfo.setDateDetailUrl(dateDetailUrl);
+
+                //拼接URL
+                if (RenderTypeCode.COMMON_PICTURE_LEVEL == tempResRenderPic.getRenderingType().intValue()) {
+                    //普通照片需拼接PC端URL
+                    renderPicInfo.setPicPath(tempPic.getPicPath());
+                } else if (RenderTypeCode.COMMON_720_LEVEL == tempResRenderPic.getRenderingType().intValue()) {
+                    //720度普通需拼接PC端URL
+                    renderPicInfo.setDateDetailUrl(tempPic.getPicCode());
+                } else if (RenderTypeCode.ROAM_720_LEVEL == tempResRenderPic.getRenderingType().intValue()) {
+                    //720度漫游需拼接PC端URL
+                    renderPicInfo.setDateDetailUrl(dateDetailUrl);
+                }
+
+                //加入数据
+                renderPicList.add(renderPicInfo);
+            }
+
+            //将数据转换为Map数据，便于前端使用---根据不同渲染类型组建不同List
+            if (null != renderPicList && renderPicList.size() != 0) {
+                //初始化4个空间分别对应1,4,6,8,四种渲染类型
+                Map<Integer, List<String>> renderMap = new HashMap<>();
+                renderPicList.forEach(renderPic -> {
+                    List<String> renderList = new ArrayList<>();
+                    //检查是否存在数组
+                    if (renderMap.containsKey(renderPic.getRenderingType())) {
+                        renderList = renderMap.get(renderPic.getRenderingType());
+                        if (null != renderList && renderList.size() > 0) {
+                            //照片级普通从PicPath参数取值，其他类型从DateDetailUrl取值
+                            List<String> stringList = new ArrayList<>(renderList.size() + 1);
+                            stringList.add((RenderTypeCode.COMMON_PICTURE_LEVEL == renderPic.getRenderingType().intValue()) ? renderPic.getPicPath() : renderPic.getDateDetailUrl());
+                            renderList.forEach(str -> stringList.add(str));
+                            renderList = stringList;
+                        } else {
+                            renderList = Arrays.asList((RenderTypeCode.COMMON_PICTURE_LEVEL == renderPic.getRenderingType().intValue()) ? renderPic.getPicPath() : renderPic.getDateDetailUrl());
+                        }
+                    } else {
+                        logger.debug(CLASS_LOG_PREFIX+"------------获取渲染图片:"+renderPic);
+                        renderList = Arrays.asList((RenderTypeCode.COMMON_PICTURE_LEVEL == renderPic.getRenderingType().intValue()) ? renderPic.getPicPath() : renderPic.getDateDetailUrl());
+                    }
+
+                    //装入Map
+                    renderMap.put(renderPic.getRenderingType(), renderList);
+                });
+
+                //装入对象
+                designPlanRecommended.setRenderMap(renderMap);
+            }
+
+            designPlanRecommended.setPicList(renderPicList);
+        }
+
+        return designPlanRecommended;
+    }
+
+
+    @Override
+    public Integer getFavoritePlanRecommendedCount(DesignPlanRecommended designPlanRecommended) {
+        if (designPlanRecommended == null) {
+            return 0;
+        }
+//        if (designPlanRecommended.getBrandIds() == null || designPlanRecommended.getBrandIds().size() <= 0) {
+//            return 0;
+//        }
+        return designPlanRecommendedMapper.getFavoritePlanRecommendedCount(designPlanRecommended);
+    }
+
+    @Override
+    public List<DesignPlanRecommendedResult> getFavoritePlanRecommendedList(DesignPlanRecommended designPlanRecommended) {
+        List<DesignPlanRecommendedResult> resList = new ArrayList<DesignPlanRecommendedResult>();
+        if (designPlanRecommended == null) {
+            return resList;
+        }
+//        if (designPlanRecommended.getBrandIds() == null || designPlanRecommended.getBrandIds().size() <= 0) {
+//            return resList;
+//        }
+        resList = designPlanRecommendedMapper.getFavoritePlanRecommendedList(designPlanRecommended);
+        return resList;
+    }
+
+    @Override
+    public DesignPlanRecommended getAllRenderFromDesignPlanRecommend(Integer designPlanRecommendedId, Integer designPlanRecommendedCoverPicId) {
+        DesignPlanRecommended designPlanRecommended = new DesignPlanRecommended();
+        designPlanRecommended.setId(designPlanRecommendedId);
+        designPlanRecommended.setCoverPicId(designPlanRecommendedCoverPicId);
+        this.getRenderPicFromDesignPlanRecommend(designPlanRecommended);
+        this.getRenderVideoFromDesignPlanRecommend(designPlanRecommended);
+        return designPlanRecommended;
+    }
+
+	@Override
+	public List<DesignPlanRecommended> getStatusByIds(List<Long> ids) {
+
+		return designPlanRecommendedMapper.getStatusByIds(ids);
+	}
+	
+	
+	/**
+	 * 选装网 方案列表 1.一键方案 2.样板方案
+	 * 
+	 * */
+	@Override
+	public List<DesignPlanRecommendedResult> designPlanRecommendList(DesignPlanRecommenInput designPlanRecommenInput,Integer userId) {
+		
+		PlanRecommendedListQuery pq = new PlanRecommendedListQuery();
+		//1.校验参数
+		this.checkDesignPlanRecommended(designPlanRecommenInput);
+		//2.封装查询数据
+		pq = this.packagingDate(designPlanRecommenInput,userId);
+		//3.搜索
+		pq = this.designPlanRecommendSearch(designPlanRecommenInput,pq);
+		//4.查询方案列表数据
+		List<DesignPlanRecommendedResult> list = this.designPlanRecommendList(pq);
+		
+		return list;
+	}
+	
+	/**
+	 * 选装网 1.公开方案
+	 * 
+	 * */
+	@Override
+	public List<DesignPlanRecommendedResult> designPlanRecommendOpenList(DesignPlanRecommenInput designPlanRecommenInput,Integer userId) {
+		
+		PlanRecommendedListQuery pq = new PlanRecommendedListQuery();
+		//1.校验参数
+	//	this.checkDesignPlanRecommended(designPlanRecommenInput);
+		//2.封装查询数据
+		pq = this.packagingDate(designPlanRecommenInput,userId);
+		//3.搜索
+		pq = this.designPlanRecommendOpenSearch(designPlanRecommenInput,pq);
+		//4.查询方案列表数据
+		List<DesignPlanRecommendedResult> list = this.getPlanRecommendedOpenList(pq);
+		
+		return list;
+	}
+	
+	GlobalExceptionResolver a = new GlobalExceptionResolver();
+	
+	public void checkDesignPlanRecommended(DesignPlanRecommenInput input){
+		//显示类型  默认 一键方案(decorate)
+		/*if(null == input.getDisplayType()){
+			throw new AppException(ResponseEnum.PARAM_ERROR, "显示类型不能为空!");
+		}*/
+		//空间类型    默认  客餐厅 
+		if(null == input.getSpaceType()){
+			throw new AppException(ResponseEnum.PARAM_ERROR, "空间类型不能为空!");
+		}
+	}
+	
+	/**
+	 * 选装网 方案列表  封装数据
+	 * 
+	 * */
+	public PlanRecommendedListQuery packagingDate(DesignPlanRecommenInput designPlanRecommenInput,Integer userId){
+		PlanRecommendedListQuery pq = new PlanRecommendedListQuery();
+		pq.setLimit((0 == designPlanRecommenInput.getPageSize()) ? PageModel.DEFAULT_PAGE_PAGESIZE : designPlanRecommenInput.getPageSize());
+		pq.setStart(designPlanRecommenInput.getCurPage());
+		
+		//空间类型    如：客餐厅  卧室 卫生间等
+		if (null != designPlanRecommenInput.getSpaceType()) {
+			pq.setSpaceFunctionId(designPlanRecommenInput.getSpaceType() + "");
+		}
+		//空间面积
+		 if (StringUtils.isNotEmpty(designPlanRecommenInput.getSpaceArea())) {
+			 pq.setAreaValue(designPlanRecommenInput.getSpaceArea());
+		 }
+		 //设计方案风格ID
+		 if (StringUtils.isNotEmpty(designPlanRecommenInput.getDesignPlanStyleId())) { 
+			 pq.setDesignRecommendedStyleId(designPlanRecommenInput.getDesignPlanStyleId());
+		 }
+		 //显示类型
+		 if(StringUtils.isNotEmpty(designPlanRecommenInput.getDisplayType())){
+			 pq.setDisplayType(designPlanRecommenInput.getDisplayType());
+		 }
+		 //用户信息
+		 if(null != userId){
+			 pq.setUserId(userId);
+			 pq.setUserType(UserTypeCode.USER_TYPE_OUTER_B2C);
+		 }
+		 //一键方案
+		 /*if ("decorate".equals(designPlanRecommenInput.getDisplayType())) {
+			 pq.setRecommendedType(DesignPlanConstants.RECOMMENDED_TYPE_DECORATE);
+			 pq.setIsRelease(RecommendedDecorateState.IS_RELEASEING);
+	     }
+		 else */
+			//样板方案
+		 if ("public".equals(designPlanRecommenInput.getDisplayType())) {
+	    	 pq.setRecommendedType(DesignPlanConstants.RECOMMENDED_TYPE_SHARE);
+	    	 pq.setIsRelease(RecommendedPublicState.IS_OPEN);
+	     }//默认一键方案
+		 else{
+			 pq.setRecommendedType(DesignPlanConstants.RECOMMENDED_TYPE_DECORATE);
+			 pq.setIsRelease(RecommendedDecorateState.IS_RELEASEING);
+	     }
+		 //排序
+		 if(StringUtils.isNotEmpty(designPlanRecommenInput.getSort())){
+			 pq.setSort(designPlanRecommenInput.getSort().trim());
+		 }//默认排序方式为最热
+		 else{
+			 pq.setSort("hot".trim());
+		 }
+		logger.info(CLASS_LOG_PREFIX + "获取方案推荐列表数据,获取列表数据->PlanRecommendedListModel:{}", pq.toString());
+		return pq;
+	}
+	
+	//搜索条件 1.公开方案
+	public PlanRecommendedListQuery designPlanRecommendOpenSearch(DesignPlanRecommenInput designPlanRecommenInput,PlanRecommendedListQuery pq){
+		if(null != designPlanRecommenInput && null != designPlanRecommenInput.getPlanName()){
+			pq.setPlanName(designPlanRecommenInput.getPlanName());
+		}
+		return pq;
+	}
+	//搜索条件   1.一键方案 2.样板方案
+	public PlanRecommendedListQuery designPlanRecommendSearch(DesignPlanRecommenInput designPlanRecommenInput,PlanRecommendedListQuery pq){
+		if(null != designPlanRecommenInput && null != designPlanRecommenInput.getLivingName()){
+			//样板方案
+			if ("public".equals(designPlanRecommenInput.getDisplayType())){
+				//小区名称
+				pq.setLivingName(designPlanRecommenInput.getLivingName());
+			}//一键方案
+			else if("decorate".equals(designPlanRecommenInput.getDisplayType())){
+				//小区名称
+				pq.setLivingName(designPlanRecommenInput.getLivingName());
+				//品牌名称
+				pq.setBrandName(designPlanRecommenInput.getLivingName());
+				//创建人
+				pq.setCreator(designPlanRecommenInput.getLivingName());
+			}//默认一键方案
+			else{
+				//小区名称
+				pq.setLivingName(designPlanRecommenInput.getLivingName());
+				//品牌名称
+				pq.setBrandName(designPlanRecommenInput.getLivingName());
+				//创建人
+				pq.setCreator(designPlanRecommenInput.getLivingName());
+			}
+			
+		}
+		return pq;
+	}
+	/**
+	 * 选装网 方案列表 1.一键方案 2.样板方案
+	 * 
+	 * */
+	public List<DesignPlanRecommendedResult> designPlanRecommendList(PlanRecommendedListQuery pq){
+		Integer count = designPlanRecommendedMapper.getPlanRecommendCount(pq);
+		List<DesignPlanRecommendedResult> list = null;
+		if(count>0){
+			list = designPlanRecommendedMapper.getPlanRecommendList(pq);
+			if (list != null && list.size() > 0) {
+                for (DesignPlanRecommendedResult result : list) {
+                        logger.info(CLASS_LOG_PREFIX + "获取方案推荐列表数据:根据推荐方案Id和渲染类型获得最新渲染原图:PlanRecommendedId:{}, renderingType:1.", result.getPlanRecommendedId());
+                        ResRenderData res = resRenderPicService.getResRenderPicByPlanRecommended(result.getPlanRecommendedId(), 1);// 得到最新一张照片渲染原图地址
+                        logger.info(CLASS_LOG_PREFIX + "获取方案推荐列表数据:根据推荐方案Id和渲染类型获得最新渲染原图完成:ResRenderPic:{}.", null == res ? null : res.toString());
+                        if (res != null) {
+                            result.setResRenderPicPath(res.getPicPath());
+                        }
+                    //添加图片资源HOST拼接
+                    result.setCoverPath(result.getCoverPath());
+
+                    //从缓存中获取方案点赞收藏数量信息、
+                    //从缓存中获取用户对方案是否点赞，是否收藏
+                    DesignPlanSummaryInfo summaryInfo =  designPlanLikeService.getPlanInfoOfCache(pq.getUserId(), result.getPlanRecommendedId());
+                    if (null != summaryInfo) {
+                        if (null != summaryInfo.getLikeNum()) {
+                            result.setLikeNum(summaryInfo.getLikeNum());
+                        }
+                        if (null != summaryInfo.getCollectNum()) {
+                            result.setCollectNum(summaryInfo.getCollectNum());
+                        }
+                        if (null != summaryInfo.getIsLike()) {
+                            result.setIsLike(summaryInfo.getIsLike());
+                        }
+                        if (null != summaryInfo.getIsFavorite()) {
+                            result.setIsFavorite(summaryInfo.getIsFavorite());
+                        }
+                    }
+                }
+			}
+		}
+		/*if(null == list){
+			logger.warn(CLASS_LOG_PREFIX + "获取方案推荐列表数据,获取列表数据完成->未查询到有效数据:planRecommendedListModel{}", pq.toString());
+			throw new ServiceException( ResponseEnum.NOT_CONTENT,"获取方案推荐列表数据,获取列表数据完成->未查询到有效数据!");
+		}*/
+		return list;
+	}
+	/**
+	 * 选装网 方案列表  封装查询数据 1.公开方案
+	 * 
+	 * */
+	public List<DesignPlanRecommendedResult> getPlanRecommendedOpenList(PlanRecommendedListQuery pq){
+		Integer count = designPlanRecommendedMapper.getPlanRecommendOpenCount(pq);
+		List<DesignPlanRecommendedResult> list = null;
+		if(count>0){
+			list = designPlanRecommendedMapper.getPlanRecommendOpenList(pq);
+		}
+		return list;
+	}
+
+    /**
+     * 获取最适合样板房的推荐方案
+     * @param designPlanRecommendedVo
+     * @return
+     */
+    @Override
+    public DesignPlanRecommendedResult getMatchPlan(DesignPlanRecommendedVo designPlanRecommendedVo) {
+        Integer planRecommendedId = designPlanRecommendedVo.getDesignPlanRecommendId();
+        Integer templateId = designPlanRecommendedVo.getTemplateId();
+
+        String result = getMatchPlanResult(planRecommendedId, templateId);
+        logger.error("getMatchPlan -------- onekey result = {}", result);
+        if (result == null || "".equals(result)) {
+            return null;
+        }
+        ResponseEnvelope responseEnvelope = GSON.fromJson(result, ResponseEnvelope.class);
+        if (!responseEnvelope.isSuccess()) {
+            return null;
+        }
+        if (responseEnvelope.getObj() == null) {
+            return null;
+        }
+        planRecommendedId = ((Double) responseEnvelope.getObj()).intValue();
+        logger.error("getMatchPlan -------- get the bast match plan id = {}", planRecommendedId);
+        if (null == planRecommendedId || planRecommendedId.intValue() == 0) {
+            return null;
+        }
+//        planRecommendedId = Integer.parseInt(obj.toString());
+        List<DesignPlanRecommendedResult> designPlanRecommendedList = designPlanRecommendedMapper.selectAllById(planRecommendedId);
+        if (null != designPlanRecommendedList && designPlanRecommendedList.size() > 0) {
+            return designPlanRecommendedList.get(0);
+        }
+        return null;
+    }
+
+    /**
+     * 调用http请求
+     *
+     * @param planRecommendedId
+     * @param templateId
+     * @return
+     */
+    private String getMatchPlanResult(Integer planRecommendedId, Integer templateId) {
+//        String domainName = Utils.getPropertyName("app", "app.onekey.url", "");
+        String url = appOnekeyUrl + "/online/web/design/intelligenceDecoration/getBestMatchInPlanGroup.htm?designTemplateId=" + templateId + "&recommendedPlanId=" + planRecommendedId;
+        logger.error("getMatchPlan----------- url : {}", url);
+//        HashMap<String, Integer> params = new HashMap<>();
+//        params.put("designTemplateId",templateId);
+//        params.put("recommendedPlanId",planRecommendedId);
+
+//        return Utils.doPostMethod(url, params);
+        return Utils.doGetMethod(url);
+    }
+	
+}

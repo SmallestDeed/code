@@ -1,0 +1,425 @@
+// pages/allshop/allshop.js
+import fetch from '../../utils/fetch.js'
+let $App = getApp()
+var { shareTitle } = require('../../utils/config.js');
+var shareTitle = { shareTitle }.shareTitle;
+Page({
+
+    /**
+     * 页面的初始数据
+     */
+    data: {
+        searchicon: './image/search.png',
+        resourcePath: getApp().resourcePath,
+        shopList: [],
+        companyId: '',
+        shopName: '',
+        totalCount: '',
+        pageSize: 10,
+        flag: false,
+        triangleicon: '../mini-offcial-web/image/wei_icon_down.png',
+        cityData: [],
+        provinces: [],
+        isNk:false,
+        province: "",
+        citys: [],
+        city: '全部',
+        countys: [],
+        county: '',
+        value: [0, 0, 0],
+        threeLevelValue: [0, 0, 0],
+        condition: false,
+        cityCode: "",
+        showMore: false,
+        userLocation: {},
+        userMessage: {},
+    },
+
+    /**
+     * 生命周期函数--监听页面加载
+     */
+
+    onLoad: function() {
+        this.getCityData();
+        new $App.quickNavigation()
+        if (shareTitle == '诺克照明') {
+
+            this.getUserLocation();
+            this.setData({
+                isNk: true,
+            })
+        }
+    },
+    goLocation: function(e) {
+        let latitude = parseFloat(e.currentTarget.dataset.latitude),
+            longitude = parseFloat(e.currentTarget.dataset.longitude),
+            name = e.currentTarget.dataset.name,
+            address = e.currentTarget.dataset.address;
+        wx.openLocation({
+            latitude: latitude,
+            longitude: longitude,
+            name: name,
+            address: address
+        })
+    },
+    getUserLocation: function() {
+        let that = this;
+        wx.getStorage({
+            key: 'userLocation',
+            success: function(res) {
+                that.setData({
+                    userLocation: res.data,
+                })
+            },
+            fail: function(res) {
+                wx.showModal({
+                    title: '获取地理位置',
+                    content: '是否允许获取您的地理位置？',
+                    success(res) {
+                        if (res.confirm) {
+                            that.getCityMessage();
+                        }
+                    }
+                })
+            }
+        })
+        wx.getStorage({
+            key: 'userMessage',
+            success: function(res) {
+                that.setData({
+                    userMessage: res.data,
+                })
+                for (let i = 0; i < that.data.cityData.length; i++) {
+                    if (res.data.province == that.data.cityData[i].areaName) {
+                        for (let j = 0; j < that.data.cityData[i].baseAreaVos.length; j++) {
+                            if (res.data.city == that.data.cityData[i].baseAreaVos[j].areaName) {
+                                that.setData({
+                                    citys: that.data.cityData[i].baseAreaVos,
+                                    city: res.data.city,
+                                    cityCode: that.data.cityData[i].baseAreaVos[j].areaCode,
+                                    countys: that.data.cityData[i].baseAreaVos[j].baseAreaVos,
+                                    threeLevelValue: [i, j, 0],
+                                    value: [i, j, 0],
+                                })
+                            }
+                        }
+                    }
+                }
+            }
+        })
+        //
+    },
+    getCityMessage: function() {
+        let cityMessage = null,
+            $self = this
+        // 获取所处的地理位置
+        let BMap = new bmap.BMapWX({
+            ak: 'fKNgchMcIyhzxZDfPpdkEHPAHNVNBN62'
+        });
+
+        BMap.regeocoding({
+            success(data) { // 成功之后调用接口进行保存
+                cityMessage = data.originalData.result.addressComponent // 这就是我们需要的东西
+                if (cityMessage) {
+                    let url = '/user/sysuser/updateAddress'
+                    let data = {
+                        province: cityMessage.province,
+                        city: cityMessage.city,
+                        area: cityMessage.district,
+                        street: cityMessage.street,
+                        address: cityMessage.province + cityMessage.city + cityMessage.district + cityMessage.street + cityMessage.street_number
+                    }
+                    fetch(url, 'post', data).then((res) => {
+                        if (res.status) {
+                            wx.showToast({
+                                title: '储存位置成功',
+                                icon: 'success'
+                            })
+                            $self.getUserLocation();
+                            $self.getCompanyId();
+                            wx.setStorage({
+                                key: "userMessage",
+                                data: true
+                            })
+                        }
+                    })
+                }
+            },
+            fail(e) {
+                wx.showModal({
+                    title: '获取地理位置',
+                    content: '您已取消获取位置，再次获取还是继续取消？',
+                    success(res) {
+                        if (res.confirm) {
+                            wx.openSetting({
+                                success(res) {
+                                    if (!res.authSetting["scope.userInfo"] || !res.authSetting["scope.userLocation"]) {
+                                        $self.getCityMessage()
+                                    } else {
+                                        wx.showToast({
+                                            title: '获取地理位置失败',
+                                            icon: 'none'
+                                        })
+                                    }
+                                }
+                            })
+                        } else if (res.cancel) {
+                            wx.showToast({
+                                title: '获取地理位置失败',
+                                icon: 'none'
+                            })
+                        }
+                    },
+                    fail() {
+                        wx.showToast({
+                            title: '获取地理位置失败',
+                            icon: 'none'
+                        })
+                    }
+                })
+            }
+        });
+    },
+    getCompanyId() {
+        let url = '/product/baseCompany/getCompanyId',
+            data = {}
+        fetch(url, 'get')
+            .then((res) => {
+                if (res.obj) {
+                    this.setData({
+                        companyId: res.obj
+                    })
+                    this.getList()
+                }
+            })
+    },
+    getList() { //请求列表
+        this.setData({
+            flag: true
+        })
+        let url = '/v1/sandu/mini/companyshop/list',
+            pageSize = this.data.pageSize,
+            pageNo = 1,
+            companyId = this.data.companyId || wx.getStorageSync('companyId');
+        var data = {
+            companyId: companyId,
+            pageSize: pageSize,
+            pageNo: pageNo,
+            businessType: 2,
+            platformType: 1,
+            shopName: this.data.shopName,
+            cityCode: this.data.cityCode,
+            longitude: this.data.userLocation.longitude ? this.data.userLocation.longitude : '',
+            latitude: this.data.userLocation.latitude ? this.data.userLocation.latitude : '',
+        }
+        fetch(url, 'get', data, 'shop')
+            .then((res) => {
+
+                if (res.code == 200) {
+                    for (let i = 0; i < res.data.list.length; i++) {
+                        res.data.list[i].logoUrl = this.data.resourcePath + res.data.list[i].logoUrl
+                    }
+                    this.setData({
+                        shopList: res.data.list,
+                        totalCount: res.data.count,
+                        showMore: true
+                    })
+                }
+                if (res.code == 400) {
+                    this.setData({
+                        shopList: [],
+                        totalCount: 0
+                    })
+                }
+                if (res.data.list.length < 10) {
+                    this.setData({
+                        showMore: false
+                    })
+                }
+            })
+    },
+    /**
+     * 生命周期函数--监听页面初次渲染完成
+     */
+    onReady: function() {
+
+    },
+
+    /**
+     * 生命周期函数--监听页面显示
+     */
+    onShow: function() {
+
+    },
+
+    /**
+     * 生命周期函数--监听页面隐藏
+     */
+    onHide: function() {
+
+    },
+
+    /**
+     * 生命周期函数--监听页面卸载
+     */
+    onUnload: function() {
+
+    },
+
+    /**
+     * 页面相关事件处理函数--监听用户下拉动作
+     */
+    onPullDownRefresh: function() {
+
+    },
+
+    /**
+     * 页面上拉触底事件的处理函数
+     */
+    onReachBottom: function() {
+        if (this.data.pageSize <= this.data.totalCount) {
+            let pagenum = this.data.pageSize + 10
+            this.setData({
+                pageSize: pagenum
+            })
+            this.getList();
+        } else {
+            wx.showToast({
+                title: '暂无更多数据',
+                icon: 'none'
+            })
+            return
+        }
+    },
+
+    /**
+     * 用户点击右上角分享
+     */
+    onShareAppMessage: function(res) {
+        if (res.from === 'menu') {
+            return $App.shareAppMessageFn(true);
+        }
+    },
+    searchValue(e) {
+        this.setData({
+            shopName: e.detail.value
+        })
+        if (this.data.shopName == '') {
+            this.getList()
+        }
+    },
+    search() {
+        this.getList()
+    },
+    todetail(e) {
+        let id = e.currentTarget.dataset.id,
+            city = e.currentTarget.dataset.city,
+            name = e.currentTarget.dataset.name,
+            longitude = e.currentTarget.dataset.longitude,
+            latitude = e.currentTarget.dataset.latitude,
+            distance = e.currentTarget.dataset.distance,
+            data = '?id=' + id + '&city=' + city + '&name=' + name + '&longitude=' + longitude + '&latitude=' + latitude + '&distance=' + distance;
+        wx.navigateTo({
+            url: '/pages/web-detail-complicated/web-detail-complicated' + data,
+        })
+    },
+    errorFunction: function(e) {
+        var _errImg = e.target.dataset.img
+        var _errObj = {}
+        _errObj[_errImg] = "../mini-offcial-web/image/wei_pic_nor.png"
+        this.setData(_errObj) //注意这里的赋值方式,只是将数据列表中的此项图片路径值替换掉  
+    },
+    bindChange: function(e) {
+
+        const val = e.detail.value
+
+        const temp = this.data.threeLevelValue
+        if (temp[0] !== val[0]) {
+            this.setData({
+                value: [val[0], 0, 0]
+            })
+            val[1] = 0
+        } else if (temp[1] !== val[1]) {
+            this.setData({
+                value: [val[0], val[1], 0]
+            })
+            val[2] = 0
+        }
+        this.setData({
+            citys: this.data.cityData[val[0]].baseAreaVos,
+            cityCode: this.data.cityData[val[0]].baseAreaVos[val[1]].areaCode,
+            countys: this.data.cityData[val[0]].baseAreaVos[val[1]].baseAreaVos,
+            threeLevelValue: val
+        })
+
+    },
+    provincialLinkageHide(e) { // 确认地址接口
+        let flag = e.currentTarget.dataset.flag,
+            val = this.data.threeLevelValue
+        this.setData({
+            condition: false
+        })
+        if (flag) {
+            this.setData({
+                province: this.data.cityData[val[0]].areaName,
+                city: this.data.cityData[val[0]].baseAreaVos[val[1]].areaName,
+                cityCode: this.data.cityData[val[0]].baseAreaVos[val[1]].areaCode,
+                value: this.data.threeLevelValue
+            })
+            this.getList();
+        }
+
+    },
+    getCityData() {
+        let cityData = $App.cityDataFilter(wx.getStorageSync('cityData'))
+        let provinces = []
+        cityData[34] = {
+            areaCode: '',
+            areaName: '全部',
+            baseAreaVos: [{
+                areaCode: '',
+                areaName: '全部',
+                baseAreaVos: [{
+                    areaCode: '',
+                    areaName: '全部',
+                    baseAreaVos: null,
+                    id: null,
+                    leveId: 3,
+                    pid: ''
+                }],
+                id: 9999,
+                levelId: 2,
+                pid: '0000000'
+            }],
+            id: '00000',
+            levelId: 1,
+            pid: 0,
+        }
+        let j = cityData[34]
+        for (let i = 34; i > 0; i--) {
+            cityData[i] = cityData[i - 1]
+        }
+        cityData[0] = j
+        $App.myForEach(cityData, (value) => {
+            provinces.push({
+                areaCode: value.areaCode,
+                areaName: value.areaName,
+                id: value.id,
+                levelId: value.levelId,
+                pid: value.pid
+            })
+        })
+        this.setData({
+            provinces: provinces,
+            citys: cityData[0].baseAreaVos,
+            countys: cityData[0].baseAreaVos[0].baseAreaVos
+        })
+        this.data.cityData = cityData
+    },
+
+    changeCtiy: function(e) {
+        this.setData({
+            condition: true
+        })
+    },
+})

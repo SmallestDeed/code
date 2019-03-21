@@ -1,0 +1,57 @@
+package com.sandu.design.cache.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.common.cache.CacheManager;
+import com.sandu.common.cache.util.KeyGenerator;
+import com.sandu.common.metadata.ModuleType;
+import com.sandu.common.util.collections.CustomerListUtils;
+import com.sandu.design.cache.service.DesignRulesCacheService;
+import com.sandu.design.model.DesignRules;
+import com.sandu.design.service.DesignRulesService;
+
+@Service("designRulesCacheService")
+public class DesignRulesCacheServiceImpl implements DesignRulesCacheService {
+
+	@Autowired
+	private DesignRulesService designRulesService;
+	
+	@Override
+	public List<DesignRules> selectList(DesignRules designRules){
+		/*List<DesignRules> lstRules=Lists.newArrayList();*/
+		List<DesignRules> lstRules = new ArrayList<DesignRules>();
+		Map<String,String> map=new HashMap<String,String>(); 
+		if(StringUtils.isNotBlank(designRules.getRulesType())){
+			map.put("rulesType", designRules.getRulesType());
+		}
+		if(StringUtils.isNotBlank(designRules.getRulesLevel())){
+			map.put("rulesLevel", designRules.getRulesLevel());
+		}
+		if(StringUtils.isNotBlank(designRules.getRulesBusiness())){
+			map.put("rulesBusiness", designRules.getRulesBusiness());
+		}
+		if(StringUtils.isNoneBlank(designRules.getRulesMainValue())){
+			map.put("rulesMainValue", designRules.getRulesMainValue());
+		}
+		if(StringUtils.isNoneBlank(designRules.getRulesMainObj())){
+			map.put("rulesMainObj", designRules.getRulesMainObj());
+		}
+		String key=KeyGenerator.getAllListKeyWithMap(ModuleType.DesignRules, map);
+		lstRules=CacheManager.getInstance().getCacher().getList(DesignRules.class, key);
+		if(CustomerListUtils.isEmpty(lstRules)){
+			lstRules=designRulesService.selectList(designRules);
+			if(CustomerListUtils.isNotEmpty(lstRules)){
+				CacheManager.getInstance().getCacher().setObject(key, lstRules, 0);
+			}
+		}
+		return lstRules;
+	}
+	
+}

@@ -1,0 +1,104 @@
+<!--pages/search-houseType/search-houseType.wxml-->
+<!-- rzd 户型引导开始 -->
+<view class='BootpageBox' catchtouchmove="true" wx:if="{{isFirstShow&&type=='search'}}">
+  <image class='boot_img' src='{{staticImageUrl+"/cover_03.png"}}'></image>
+  <image class='boot_but' src='{{staticImageUrl}}help_btn_ok.png' bindtap='closeBoot'></image> 
+</view>
+
+<view class='BootpageBox_plan' catchtouchmove="true" wx:if="{{isFirstShow&&type!='search'}}">
+  <image class='boot_img' src='{{staticImageUrl+"/cover_03.png"}}'></image>
+  <image class='boot_but_plan' src='{{staticImageUrl}}help_btn_ok.png' bindtap='closeBoot'></image> 
+</view>
+
+<view class='choosePlan' wx:if='{{type!="search"&&coverPath}}'>
+  <image src='{{resourcePath+coverPath}}'></image>
+  <view class='choosePlan_tit'>已选方案</view>
+</view>
+<!-- rzd 户型引导结束 -->
+<view class='title'>搜索户型</view>
+<view class="ppg_search" bindtap="toHouseType">
+   <view class="input">搜索你要装修的户型</view>
+   <image src="{{staticImageUrl}}huxing_icon_search.png"></image>
+</view>
+<view class='title2' >
+  <view class='left'>我的户型</view>
+  <view class='right'>
+  <view class='black'>{{usedCount>0?num:"0"}}</view>
+  <view class='gary'>/{{usedCount>0?usedCount:"0"}}</view>
+  </view>
+</view>
+<view class='emptyImage' wx:if='{{usedCount<=0 && usedCount != -1}}'>
+  <image src='{{staticImageUrl}}plan_pic_no2.png'></image>
+  <view class='txt'>今天雾太大了，还没有找到你家的户型</view>
+  <view class='txt'>赶紧去搜索一下吧~</view>
+</view>
+<swiper bindchange='scroll' wx:if='{{usedCount>0}}'>
+  <swiper-item class='list' wx:for='{{useList}}'>
+    <view class='top'>
+      <image src='{{resourcePath+item.thumbnailPath}}' bindtap='previewImage' data-src='{{resourcePath+item.thumbnailPath}}'></image>
+    </view>
+    <view class='bottom'>
+      <view class='left'>
+        <view class='tit'>{{item.livingName}}{{item.houseName==null?'':item.houseName}}</view>
+        <view class='area'>{{item.houseTypeStr}}  {{item.totalArea}}</view>
+      </view>
+      <view class='right'>
+        <button class='toHouseDetail' data-item='{{item}}' open-type='share'>分享</button>
+        <view class='toHouseDetail' data-item='{{item}}' bindtap='match' data-type='house' style='margin-left:10rpx'>一键装修</view>
+      </view>
+    </view>
+  </swiper-item>
+</swiper>
+<view class='title2' wx:if='{{myPlanFlag}}'>
+  <view class='left'>我的方案</view>
+  <view class='right'>
+  <view class='black'>{{planCount>0?num2:"0"}}</view>
+  <view class='gary'>/{{planCount>0?planCount:"0"}}</view>
+  </view>
+</view>
+<view class='emptyImage' wx:if='{{myPlanFlag&&planCount<=0}}'>
+  <image src='{{staticImageUrl}}plan_pic_no2.png'></image>
+  <view class='txt'>你还没有装修过哦~</view>
+  <view class='txt'>赶紧去搜索户型装修吧~</view>
+</view>
+<swiper bindchange='scroll2' wx:if='{{planList.length>0 && myPlanFlag}}'>
+  <swiper-item class='list' wx:for='{{planList}}'>
+    <view class='top2'>
+      <image src='{{resourcePath+item.planPicPath}}' bindtap='previewImage' data-src='{{resourcePath+item.planPicPath}}'></image>
+    </view>
+    <view class='bottom'>
+      <view class='left'>
+        <view class='tit'>{{item.designName}}</view>
+        <view class='area'>{{item.gmtCreate}}</view>
+      </view>
+      <view class='right'>
+        <view class='toHouseDetail' data-item='{{item}}' bindtap='match' data-type='plan'>一键替换</view>
+      </view>
+    </view>
+  </swiper-item>
+</swiper>   
+  
+  <view class="dialog-content" wx:if='{{status==1}}'>
+    <view class="dialog-body">
+      <text class="dialog-title">提示</text>
+      <text class="dialog-msg">该方案不适合您家的户型，请选择其他方案</text>
+    </view>
+    <view class="dialog-footer">
+      <text class="new-plan" bindtap='planImproper' data-options='1'>暂不考虑</text>
+      <text class="replace-plan" bindtap='planImproper' data-options='2'>选择其他方案</text>
+    </view>
+  </view>
+  <view class="dialog-content" wx:if='{{status==2}}'>
+    <view class="dialog-body">
+      <text class="dialog-title">提示</text>
+      <text class="dialog-msg">当前方案正在装修中，请稍后</text>
+    </view>
+    <view class="dialog-footer">
+      <text class="replace-plan2" bindtap='planImproper' data-options='1'>确定</text>
+    </view>
+  </view>
+
+<!-- 快速导航模块 -->
+  <!-- <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav" data="{{ ...newNav }}"/> -->
+  <jdNav></jdNav>

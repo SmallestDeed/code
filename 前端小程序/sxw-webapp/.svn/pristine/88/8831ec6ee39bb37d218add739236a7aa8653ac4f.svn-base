@@ -1,0 +1,95 @@
+<view class='padding'>
+<empty-page emptyPageObj="{{emptyPageObj}}" wx:if="{{contentlist.length == 0}}"></empty-page>
+<!-- <view class="title" wx:if="{{contentlist.length>0}}">
+  <view class="flex-iteam iteam-fl">已使用：
+    <text class="big">{{userAlreadyBoughtHouseCount}}</text> 套</view>
+  <view class="iteam-mid"></view>
+  <view class="flex-iteam iteam-fr">
+    剩余：
+    <text class="big">{{userValidHouseCount}}</text> 套
+    <text class="bayBtn" bindtap='routerTopurchaseHouse' data-type='buy'>购买</text>
+  </view>
+</view> -->
+
+<view class='my-house-list'>
+  <view class="type-iteam" wx:if="{{contentlist.length>0}}" wx:for='{{contentlist}}' wx:key='{{index}}'>
+    <view class="type-iteam-left">
+      <image src="{{resourcePath+item.thumbnailPath}}" bindtap='examineImg' data-index="{{index}}"></image>
+    </view>
+    <view class="type-iteam-mid">
+      <view class='type-item-mid-info'>
+        <view class="type-iteam-mid-top">{{item.houseCommonCode}}</view>
+        <block wx:if='{{item.totalArea!=null}}'>
+          <view class="type-iteam-mid-mid">{{item.houseTypeStr}} {{item.totalArea}}㎡ </view>
+        </block>
+        <block wx:if='{{item.totalArea==null}}'>
+          <view class="type-iteam-mid-mid">{{item.houseTypeStr}} 0㎡ </view>
+        </block>
+        <!-- <view>{{item.livingName}}</view> -->
+        <view class="type-iteam-right" data-item='{{item}}' bindtap='routerToFitment'>
+          <view class="min-btn">一键装修</view>
+        </view>
+      </view>
+      <view class='type-item-mid-link'>
+        <view class='type-iteam-mid-share' bindtap='shareHouse'>
+          <button class='share-button' open-type='share' data-item='{{item}}'>
+            <image class='share-logo' src='{{staticImageUrl}}page_icon_share.png'></image>分享
+          </button>
+        </view>
+        <view class='type-iteam-mid-publish-news' data-item='{{item}}' bindtap='goToNews'>
+          <image class='publish-news-logo' src='{{staticImageUrl}}page_icon_fabu.png'></image>发布互动区
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- <view class='my-house-list uncontentlist' wx:if="{{userValidHouseCount!=''&&userValidHouseCount>0}}">
+  <view class="type-iteam" wx:key='{{index}}'>
+    <view class="type-iteam-left fl">
+      <image src='{{staticImageUrl}}huxing_pic_no.png'></image>
+    </view>
+    <view class="type-iteam-no-mid fl">
+      <view class="type-iteam-no-mid-top">您还有{{userValidHouseCount}}套户型未使用</view>
+      <view class="type-iteam-no-right">
+        <view class="min-btn no-btn" bindtap='routerTopurchaseHouse' data-type='use'>去使用</view>
+      </view>
+    </view>
+  </view>
+</view> -->
+
+<!-- <view class='buy-house-btn' wx:if='{{contentlist.length>0}}'>
+<block wx:if='{{userValidHouseCount>0}}'>      
+    <view class='house-btn' bindtap='routerTopurchaseHouse' data-type='use'>
+    去使用
+    </view>
+</block>
+<block wx:if='{{userValidHouseCount<=0}}'>
+    <view class='house-btn' bindtap='routerTopurchaseHouse' data-type='buy'>
+    购买户型
+    </view>
+</block>
+</view> -->
+<!-- 
+ <block wx:if="{{!contentlist.length>0}}">
+<view class="empty_tip ">
+  <image class="image" src="{{staticImageUrl}}me_pic_no_02.png"></image>
+  <view class="txt">你还没有使用过户型</view>
+  <view class='systemInfo-btn' bindtap='routerTopurchaseHouse'>
+      购买户型
+  </view>
+</view>
+
+</block> -->
+
+<!-- 快速导航 -->
+<!-- <import src="../../component/quick-navigation/quick-navigation.wxml"/>
+  <template is="quickNavigation" data="{{ ...quickNavigation }}"/> -->
+
+
+
+
+
+
+<!--<view class="btn">购买更多户型</view>-->
+</view>

@@ -1,0 +1,35 @@
+package com.sandu.service.springFestivalActivity.impl;
+
+import com.sandu.api.springFestivalActivity.model.WxUserTask;
+import com.sandu.api.springFestivalActivity.service.WxUserTaskService;
+import com.sandu.service.springFestivalActivity.dao.WxUserTaskMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service("wxUserTaskService")
+public class WxUserTaskServiceImpl implements WxUserTaskService {
+    @Autowired
+    private WxUserTaskMapper wxUserTaskMapper;
+
+    @Override
+    public List<WxUserTask> selectSelective(WxUserTask wxUserTask) {
+        return wxUserTaskMapper.selectSelective(wxUserTask);
+    }
+
+    @Override
+    public int insertSelective(WxUserTask record) {
+        return wxUserTaskMapper.insertSelective(record);
+    }
+
+    @Override
+    public WxUserTask selectByPrimaryKey(Long id) {
+        return wxUserTaskMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public int updateByPrimaryKeySelective(WxUserTask record) {
+        return wxUserTaskMapper.updateByPrimaryKeySelective(record);
+    }
+}

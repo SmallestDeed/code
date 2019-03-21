@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.customer.dao.CustomerAlotZoneMapper">
+  <resultMap id="BaseResultMap" type="com.sandu.api.customer.model.CustomerAlotZone">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="company_id" jdbcType="INTEGER" property="companyId" />
+    <result column="channel_company_id" jdbcType="INTEGER" property="channelCompanyId" />
+    <result column="province_code" jdbcType="VARCHAR" property="provinceCode" />
+    <result column="city_code" jdbcType="VARCHAR" property="cityCode" />
+    <result column="area_code" jdbcType="VARCHAR" property="areaCode" />
+    <result column="long_code" jdbcType="VARCHAR" property="longCode" />
+    <result column="source_type" jdbcType="TINYINT" property="sourceType" />
+    <result column="allot_count" jdbcType="INTEGER" property="allotCount" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, company_id, channel_company_id, province_code, city_code, area_code,long_code, source_type,allot_count,
+    creator, gmt_create, modifier, gmt_modified, is_deleted
+  </sql>
+
+  <sql id="where_list_param">
+    <if test="companyId != null">
+      AND company_id =#{companyId,jdbcType=INTEGER}
+    </if>
+    <if test="channelCompanyId != null">
+      AND channel_company_id =#{channelCompanyId,jdbcType=INTEGER}
+    </if>
+    <if test="provinceCode != null">
+      AND province_code =#{provinceCode,jdbcType=VARCHAR}
+    </if>
+    <if test="cityCode != null">
+      AND city_code =#{cityCode,jdbcType=VARCHAR}
+    </if>
+    <if test="areaCode != null">
+      AND area_code =#{areaCode,jdbcType=VARCHAR}
+    </if>
+    <if test="longCode != null">
+      AND long_code = #{longCode,jdbcType=VARCHAR}
+    </if>
+    <if test="sourceType != null">
+      AND source_type =#{sourceType,jdbcType=TINYINT}
+    </if>
+    <if test="allotCount != null">
+      AND allot_count = #{allotCount,jdbcType=Integer}
+    </if>
+  </sql>
+  <sql id="where_list">
+    <if test="id != null">
+      AND id =#{id,jdbcType=INTEGER}
+    </if>
+    <if test="creator != null">
+      AND creator =#{creator,jdbcType=VARCHAR}
+    </if>
+    <if test="gmtCreate != null">
+      AND gmt_create =#{gmtCreate,jdbcType=TIMESTAMP}
+    </if>
+    <if test="modifier != null">
+      AND modifier =#{modifier,jdbcType=VARCHAR}
+    </if>
+    <if test="gmtModified != null">
+      AND gmt_modified =#{gmtModified,jdbcType=TIMESTAMP}
+    </if>
+    <if test="isDeleted != null">
+      AND is_deleted =#{isDeleted,jdbcType=INTEGER}
+    </if>
+  </sql>
+    <update id="deleteByCompanyId">
+        update customer_alot_zone
+        set is_deleted = 1,del_type = 2
+        where channel_company_id = #{companyId}
+    </update>
+
+
+  <select id="selectByOption" resultMap="BaseResultMap" parameterType="com.sandu.api.customer.input.query.CustomerAlotZoneQuery">
+    select
+    <include refid="Base_Column_List"/>
+    from customer_alot_zone
+    <where>
+      <include refid="where_list"/>
+      <include refid="where_list_param"/>
+    </where>
+    order BY id desc
+    <if test="start != null and limit != null">
+      limit ${(start-1)*limit},#{limit}
+    </if>
+  </select>
+
+  <select id="countByOption" resultType="java.lang.Integer" parameterType="com.sandu.api.customer.input.query.CustomerAlotZoneQuery">
+    select
+    count(distinct channel_company_id)
+    from customer_alot_zone
+    <where>
+      <include refid="where_list"/>
+      <include refid="where_list_param"/>
+    </where>
+    order BY id desc
+  </select>
+
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from customer_alot_zone
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="queryDistributorByInfo" resultType="com.sandu.api.company.model.Company">
+    select id
+    from customer_alot_zone
+    where channel_company_id = #{id}
+    and is_deleted = 0
+    and province_code = #{provinceCode}
+    and city_code = #{cityCode}
+    and area_code = #{areaCode}
+  </select>
+  <select id="getDistributorByType" resultType="com.sandu.api.company.model.Company">
+    select id from customer_alot_zone
+    where source_type = #{type}
+    and channel_company_id = #{channelId}
+  </select>
+  <select id="queryDistributorByCompanyId" resultType="com.sandu.api.customer.model.CustomerAlotZone">
+    select * from customer_alot_zone
+    where channel_company_id = #{companyId}
+    and is_deleted = 0
+  </select>
+  <select id="queryCustomerByCode" resultType="com.sandu.api.customer.model.CustomerAlotZone">
+    select id,channel_company_id from customer_alot_zone
+    where is_deleted = 0
+    and company_id = #{companyId}
+    and city_code = #{cityCode}
+    and province_code = #{provinceCode}
+    <if test="areaCode != 1 and areaCode != null and areaCode != ''">
+      and area_code = #{areaCode}
+    </if>
+    <if test="areaCode == null or areaCode == ''">
+      and (area_code = '' or area_code is null)
+    </if>
+    order by allot_count,id
+  </select>
+  <select id="queryAlotZone" resultType="com.sandu.api.customer.model.CustomerAlotZone">
+    select * from customer_alot_zone where is_deleted = 0
+  </select>
+  <select id="queryAlotZoneGourpByDistributorId" resultType="java.lang.Integer">
+    select channel_company_id from customer_alot_zone
+    <where>
+      <include refid="where_list"/>
+      <include refid="where_list_param"/>
+    </where>
+    group by channel_company_id
+    <if test="start != null and limit != null">
+      limit ${(start-1)*limit},#{limit}
+    </if>
+  </select>
+  <select id="queryAlotZoneByDistributorIds" resultType="com.sandu.api.customer.model.CustomerAlotZone">
+    select
+    <include refid="Base_Column_List"/>
+    from customer_alot_zone
+    where is_deleted = 0
+    <if test="ids != null">
+      and channel_company_id in
+      <foreach collection="ids" item="id" separator="," open="(" close=")">
+        #{id}
+      </foreach>
+    </if>
+  </select>
+  <select id="queryAlotZoneByDistributorId" resultType="com.sandu.api.customer.model.CustomerAlotZone">
+    select * from customer_alot_zone
+    where channel_company_id = #{distributorId}
+    and is_deleted = 0
+  </select>
+
+  <update id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    update customer_alot_zone
+    set is_deleted = 1
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <insert id="insertSelective" parameterType="com.sandu.api.customer.model.CustomerAlotZone">
+    insert into customer_alot_zone
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="companyId != null">
+        company_id,
+      </if>
+      <if test="channelCompanyId != null">
+        channel_company_id,
+      </if>
+      <if test="provinceCode != null">
+        province_code,
+      </if>
+      <if test="cityCode != null">
+        city_code,
+      </if>
+      <if test="areaCode != null">
+        area_code,
+      </if>
+      <if test="longCode != null">
+       long_code,
+      </if>
+      <if test="sourceType != null">
+        source_type,
+      </if>
+      <if test="allotCount != null">
+        allot_count,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="companyId != null">
+        #{companyId,jdbcType=INTEGER},
+      </if>
+      <if test="channelCompanyId != null">
+        #{channelCompanyId,jdbcType=INTEGER},
+      </if>
+      <if test="provinceCode != null">
+        #{provinceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="cityCode != null">
+        #{cityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="areaCode != null">
+        #{areaCode,jdbcType=VARCHAR},
+      </if>
+      <if test="longCode != null">
+        #{longCode,jdbcType=VARCHAR},
+      </if>
+      <if test="sourceType != null">
+        #{sourceType,jdbcType=TINYINT},
+      </if>
+      <if test="allotCount != null">
+        #{allotCount,jdbcType=Integer},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.customer.model.CustomerAlotZone">
+    update customer_alot_zone
+    <set>
+      <if test="companyId != null">
+        company_id = #{companyId,jdbcType=INTEGER},
+      </if>
+      <if test="channelCompanyId != null">
+        channel_company_id = #{channelCompanyId,jdbcType=INTEGER},
+      </if>
+      <if test="provinceCode != null">
+        province_code = #{provinceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="cityCode != null">
+        city_code = #{cityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="areaCode != null">
+        area_code = #{areaCode,jdbcType=VARCHAR},
+      </if>
+      <if test="longCode != null">
+        long_code = #{longCode,jdbcType=VARCHAR},
+      </if>
+      <if test="sourceType != null">
+        source_type = #{sourceType,jdbcType=TINYINT},
+      </if>
+      <if test="allotCount != null">
+        allot_count = #{allotCount,jdbcType=Integer},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateAllotCountById">
+    update customer_alot_zone
+    set allot_count = allot_count + 1
+    where id = #{alotZoneId}
+  </update>
+</mapper>

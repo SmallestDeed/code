@@ -1,0 +1,337 @@
+<!--pages/interaction/interactiveArea/interactiveArea.wxml-->
+<!--bannber  -->
+<view class="zxfw_banner">
+  <view class='viewRows'>
+  <!-- 原选择城市 -->
+    <!-- <view class="search">
+      <view class="am-dropdown {{isShowCitys?'am-active':''}}" bindtap="toggleCitys">
+        <view class="am-dropdown-toggle" data-am-dropdown-toggle>{{cityItem.areaName||"全部"}}
+          <image src='{{staticImageUrl}}selD.png'></image>
+        </view>
+      </view>
+    </view> -->
+    <!-- 消息icon -->
+    <!-- <image wx:if="{{type == 'information'}}" 
+          src="{{staticImageUrl}}service_icon_otice.png" 
+          class="message"></image> -->
+    <!-- 消息icon -->
+    <!-- 原搜索按钮 -->
+    <!-- <image wx:if="{{type == 'information'}}" bindtap='goSeek' src="{{staticImageUrl}}service_icon_search.png" class="seek"></image> -->
+    
+    <!-- rzd搜索输入框 start -->
+     <view class='seek_box'>
+        <view class='seek_inpu' bindtap='goSeek'>
+          <image src='{{staticImageUrl+"input_icon_search.png"}}'></image>
+          <text>搜索你想要的信息</text>          
+        </view>
+        <!-- <view class='newsMessage'>
+          <image src='{{staticImageUrl+"service_icon_otice1.png"}}'></image>
+          <text class='newsMessageDot'></text>
+        </view> -->
+     </view>
+    <!-- rzd搜索输入框 end -->
+
+    <!-- <view class='newsView' wx:if="{{!showNews}}" bindtap='toNew' data-href="/pages/my-news/my-news">
+      <image src='{{staticImageUrl}}home-news.png'></image>
+      <view wx:if='{{systemNewObj.isRead == 0 || unreadMsg == 1 || renderMessageIsRead === 1}}' class='render-logo-hint'></view>
+    </view> -->
+  </view>
+  <!-- <view class="filter_icon" bindtap='toHref' data-href="/pages/personal-center/personal-center">
+        <image src="{{imgURL}}zxfw_xiaoxi.png"></image>
+      </view> -->
+  <!-- <swiper autoplay="{{true}}">
+    <swiper-item>
+      <!-- <image wx:if="{{type == 'service'}}" src='{{staticImageUrl+"serviceBanner.jpg"}}'  style="width:100%; height:400rpx;" /> 
+      <image src='{{staticImageUrl+"service_banner_02.png"}}' style="width:100%; height:400rpx;" />
+    </swiper-item>
+  </swiper> -->
+</view>
+  <!-- banner和搜索
+    <view class="zxfw_banner">
+    <view class="search">
+      <view class="am-dropdown {{isShowCitys?'am-active':''}}" bindtap="toggleCitys">
+        <view class="am-dropdown-toggle" data-am-dropdown-toggle>{{currCity.areaName}}<text  class="arrow_down"></text></view>
+        <view class="am-dropdown-content {{isCitySlideDown?'am-animation-slide-top':''}} {{isCitySlideTop?'am-dropdown-animation':''}}">
+          <view wx:for="{{serviceCitys}}" data-cityid="{{item.id}}" bindtap="changeCity">{{item.areaName}}</view>
+        </view>
+      </view>
+      <view class="search_xian"></view>
+      <view class="zxfw_search">
+        <input placeholder="找设计师，施工单位" type="text" bindblur="setKeyword"></input>
+        <view class="search_btn" bindtap="searchList"><image src="{{imgURL}}zxfw_search.png"></image></view>
+        <view style="clear: both;"></view>
+      </view>
+    </view>
+    <view class="filter_icon">
+      <image src="{{imgURL}}zxfw_xiaoxi.png"></image>
+    </view>
+    <swiper autoplay="{{true}}" indicator-dots="{{true}}" >
+      <block wx:for="{{banners}}">
+        <swiper-item>
+          <image src="{{item}}" class="slide-image" mode="widthFix" style="width:100%" />
+        </swiper-item>
+      </block>
+    </swiper>
+  </view> -->
+  <!--icon-->
+
+  <!--rzd_start <view class='iconTitle'>
+    <view class='redLine'></view>
+    <view class='text'>装修服务</view>
+  </view> 
+    <view class='element' wx:for="{{fitmentList}}" wx:key="{{index}}" bindtap='toDeatil' data-id='{{item.pid+","+item.id}}' data-title="{{item.name}}">
+      <image class='icon' src='{{fitmentIconList[index]}}'></image>
+      <view class='title'>{{item.name}}</view>
+    </view>
+    --rzd_end-->
+
+    <!-- <view class='element' bindtap='toDeatil' data-id='2,5' data-title="装修报价">
+            <image class='icon' src='{{staticImageUrl}}supply_bj.png'></image>
+            <view class='title'>装修报价</view>
+        </view>
+        <view class='element' bindtap='toDeatil' data-id='2,6' data-title="房屋测绘">
+            <image class='icon' src='{{staticImageUrl}}supply_ch.png'></image>
+            <view class='title'>房屋测绘</view>
+        </view>
+        <view class='element' bindtap='toDeatil' data-id='2,7' data-title="房屋改造">
+            <image class='icon' src='{{staticImageUrl}}supply_gz.png'></image>
+            <view class='title'>房屋改造</view>
+        </view>
+        <view class='element' bindtap='toDeatil' data-id='2,8' data-title="精装房还原">
+            <image class='icon' src='{{staticImageUrl}}supply_hy.png'></image>
+            <view class='title'>精装房还原</view>
+        </view>
+        <view class='element' bindtap='toDeatil' data-id='2,9' data-title="施工监理">
+            <image class='icon' src='{{staticImageUrl}}supply_jl.png'></image>
+            <view class='title'>施工监理</view>
+        </view> -->
+  <!--rzd_start
+  </view>
+  <view class='iconTitle'>
+    <view class='redLine'></view>
+    <view class='text'>建材家居</view>
+  </view>
+  <view class='option'>
+    <view class='element' wx:for="{{buildingList}}" wx:key="{{index}}" bindtap='toDeatil' data-id='{{item.pid+","+item.id}}' data-title="{{item.name}}">
+      <image class='icon' src='{{buildingIconList[index]}}'></image>
+      <view class='title'>{{item.name}}</view>
+    </view>
+    --rzd_end-->
+    <!-- <view class='element' bindtap='toDeatil' data-id='3,11' data-title="建材">
+            <image class='icon' src='{{staticImageUrl}}jiancai.png'></image>
+            <view class='title'>建材</view>
+        </view>
+        <view class='element' bindtap='toDeatil' data-id='3,12' data-title="家居">
+            <image class='icon' src='{{staticImageUrl}}jiaju.png'></image>
+            <view class='title'>家居</view>
+        </view>
+        <view class='element' bindtap='toDeatil' data-id='3,13' data-title="电器">
+            <image class='icon' src='{{staticImageUrl}}dianqi.png'></image>
+            <view class='title'>电器</view>
+        </view> -->
+  <!--rzd_start
+  </view>
+  <view class='iconTitle'>
+    <view class='redLine'></view>
+    <view class='text'>人力服务</view>
+  </view>
+  <view class='option'>
+    <view class='element' wx:for="{{manpowerList}}" wx:key="{{index}}" bindtap='toDeatil' data-id='{{item.pid+","+item.id}}' data-title="{{item.name}}">
+      <image class='icon' src='{{manpowerIconList[index]}}'></image>
+      <view class='title'>{{item.name}}</view>
+    </view>
+    --rzd_end-->
+    <!-- <view class='element' bindtap='toDeatil' data-id='4,14' data-title="工长">
+            <image class='icon' src='{{staticImageUrl}}supply_gz.png'></image>
+            <view class='title'>工长</view>
+        </view>
+        <view class='element' bindtap='toDeatil' data-id='4,15' data-title="施工人员">
+            <image class='icon' src='{{staticImageUrl}}supply_sgry.png'></image>
+            <view class='title'>施工人员</view>
+        </view> -->
+  <!--rzd_start
+  </view>
+  <view class='white'></view>
+  <view class='gary'></view>
+  --rzd_end-->
+  <!--筛选条件-->
+   <!--rzd_start
+  <view class='term' wx:if="{{supplyList.length > 0}}">
+    <view class="term-title">供求服务</view>
+    <view class="filtrate-box">
+      <view class='{{supType=="new"?"txtselect":"text"}}' data-suptype='new' bindtap='changeSupType'>最新</view>
+      <view class='{{supType=="hot"?"txtselect":"text"}}' data-suptype='hot' bindtap='changeSupType'>最热</view>
+    </view>
+  </view>
+  --rzd_end-->
+  <!--信息列表-->
+  <!--rzd_start
+  <view class='list' wx:for='{{supplyList}}' wx:key='{{index}}' bindtap='toDetail' data-id='{{item.supplyDemandId}}' data-type="供求">
+    <view class='imagelist'>
+      <block wx:if='{{item.onePicture}}'>
+        <image class='diagram' src='{{resourcePath+item.onePicture}}' mode="aspectFill"></image>
+      </block>
+    </view>
+    <view class='information'>
+     --rzd_end-->
+      <!-- <view class='title'>
+                <image class='icon' src='{{item.typeName=="供应"?supplyIcon:demandIcon}}'></image>
+                <view class='text'>{{item.title}}</view>
+            </view> -->
+      <!--rzd_start
+      <view class="title">
+        {{item.title}}
+        <image class="title-icon" src="{{staticImageUrl}}service_icon_{{item.typeName == '需求'?'qiu':'gong'}}.png"></image>
+      </view>
+      <view class='detail'>
+        {{item.provinceAddress}}{{item.cityAddress}}{{item.districtAddress}}{{item.address}}
+        --rzd_end-->
+        <!-- {{item.gmtModified}} -->
+        <!--rzd_start
+      </view>
+      <view class='adress'>
+        <view>浏览 {{item.viewNum}}</view>
+        <view style="margin: 0 15rpx;">|</view>
+        <view>{{item.gmtModified}}发布</view>
+        --rzd_end-->
+        <!-- <view class='left'>
+                    <image class='icon' src='{{staticImageUrl}}home_icon_position.png'></image>
+                    <view class='ads'>{{item.provinceAddress}}{{item.cityAddress}}{{item.districtAddress}}                      </view>
+                    <!--<view class='distance'>2.0km</view>
+                </view> -->
+      <!--rzd_start
+      </view>
+    </view>
+  </view>
+  <view class='gary'>
+  </view>
+  --rzd_end-->
+  <view class='publish' bindtap='toPublish' wx:if='{{supply==0}}'>
+    发布
+  </view>
+
+  <!-- 20181109 rzd_supply_start -->
+  <view class='supply_main'>
+    <view class='{{supplyTopFlag?"supply_main_head_top":"supply_main_head"}}'>
+      <view class='head_tab'>
+        <view class="head_tab_item {{selSort=='new'? 'active_tab': ''}}" data-supply='0' bindtap='setSelSort' data-setsort='new'>
+          最新
+         <text class='line' wx:if="{{selSort=='new'}}"></text>
+        </view>
+        <view class="head_tab_item {{selSort=='hot'? 'active_tab': ''}}" data-supply='1' bindtap='setSelSort' data-setsort='hot'>
+          最热
+         <text class='line' wx:if="{{selSort=='hot'}}"></text>
+        </view>
+      </view>
+      <!-- <view class='head_typeSel' bindtap='changeRzdSort'>
+        <text>{{sortTit}}</text>
+        <image wx:if='{{!rzd_sort}}' src='{{staticImageUrl+"720_icon_down.png"}}'></image>
+        <image wx:if='{{rzd_sort}}' src='{{staticImageUrl+"720_icon_up.png"}}'></image>
+      </view> -->
+    </view>
+    <!-- <view class='{{supplyTopFlag?"sel_sort2":"sel_sort"}}' wx:if="{{sel_sortShow}}" catchtap='closeSelSort'>
+        <view class='sel_sort_item' style='{{selSort=="hot"?"color:#29cccc": ""}}' catchtap='setSelSort' data-setsort='hot'> 最热</view>
+        <view class='sel_sort_item' style='{{selSort=="new"?"color:#29cccc": ""}}' catchtap='setSelSort' data-setsort='new'> 最新</view>
+    </view> -->
+    <!-- <view class='supply_list' wx:if='{{false}}'>
+      <view class='supply_item' wx:for="{{supplyList}}" wx:key="{{index}}" bindtap='toDetail' data-id='{{item.supplyDemandId}}' data-type="供求">
+        <image class='supply_itemImg' mode='aspectFill' src='{{item.onePicture?(resourcePath+item.onePicture):sDDefaultImg}}'></image>
+        <view class='supply_itemInfo'>
+          <view class='itemInfo_title'>{{item.title}}</view>
+          <view class='itemInfo_tit'>
+            浏览 {{item.viewNum}}  | {{item.gmtModified}}发布
+          </view>
+          <view class='itemInfo_creater'>
+            <image class='creater_port' src='{{resourcePath+item.userHeadPic}}'></image>
+            <text>{{item.userName?item.userName:'匿名用户'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view> -->
+  </view>
+  <!-- 新UI布局改动 -->
+  <view class='supply-list'>
+    <view class='supply-item' 
+        wx:for="{{supplyList}}" 
+        wx:key="{{index}}"
+        bindtap='toDetail' 
+        data-id='{{item.supplyDemandId}}' 
+        data-type="供求">
+      <view class='title-box'>
+        <view class='title-icon' wx:if='{{item.recommendedTime > 0}}'>置顶</view>
+        <view class='title-text {{item.recommendedTime > 0 ? "title-text-indent" : ""}}'>{{item.title}}</view>
+      </view>
+      <image class='supply-img' 
+        wx:if='{{item.onePicture}}'
+        src='{{item.onePicture?(resourcePath+item.onePicture):sDDefaultImg}}' mode="aspectFill"></image>
+      <view class='message-box'>
+        <view class='message-name'>
+          <image src='{{resourcePath+item.userHeadPic}}'></image>
+          <text class='ellipsis'>{{item.userName?item.userName:'匿名用户'}}</text>
+        </view>
+        <view class='message-data'>
+          {{item.reviewsCount?item.reviewsCount:'0'}} 评论 · {{item.gmtModified}}发布
+        </view>
+      </view>
+    </view>
+  </view>
+  <!-- 新UI布局改动 -->
+  <!-- <view class='supply_topMain' wx:if="{{ifShowToTopLogo}}">
+    <view class='supply_main_head supply_main_Head'>
+      <view class='head_tab'>
+        <view class="head_tab_item {{supply==0? 'active_tab': ''}}" data-supply='0' bindtap='changeSupply'>
+          需求
+         <text class='line' wx:if="{{supply==0}}"></text>
+        </view>
+        <view class="head_tab_item {{supply==1? 'active_tab': ''}}" data-supply='1' bindtap='changeSupply'>
+          供应
+         <text class='line' wx:if="{{supply==1}}"></text>
+        </view>
+      </view>
+      <view class='head_typeSel head_typeSel_Head' bindtap='changeRzdSort'>
+        <text>{{sortTit}}</text>
+        <image wx-if='{{!rzd_sort}}' src='{{staticImageUrl+"choose_icon_down@2x.png"}}'></image>
+        <image wx-if='{{rzd_sort}}' src='{{staticImageUrl+"choose_icon_up@2x.png"}}'></image>
+      </view>
+    </view>
+    <view class='sel_sort sel_sort_head' wx:if="{{sel_sortShow&&ifShowToTopLogo}}" catchtap='closeSelSort'>
+        <view class='sel_sort_item' style='{{selSort=="hot"?"color:#29cccc": ""}}' catchtap='setSelSort' data-setsort='hot'> 最热</view>
+        <view class='sel_sort_item' style='{{selSort=="new"?"color:#29cccc": ""}}' catchtap='setSelSort' data-setsort='new'> 最新</view>
+    </view>
+    
+    <view class='supply_list' style='margin-left:30rpx;'>
+      <view class='supply_item' wx:for="{{supplyList}}" wx:key="{{index}}">
+        <image class='supply_itemImg' src='{{resourcePath+item.onePicture}}'></image>
+        <view class='supply_itemInfo'>
+          <view class='itemInfo_title'>{{item.title}}</view>
+          <view class='itemInfo_tit'>
+            浏览 {{item.viewNum}}  |  {{item.gmtModified}}发布
+          </view>
+          <view class='itemInfo_creater'>
+            <image class='creater_port' src='{{resourcePath+item.userHeadPic}}'></image>
+            <text>{{item.userName}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view> -->
+  <!-- 20181109 rzd_supply_end -->
+
+<view wx:if="{{condition}}" class="citypicker" wx:key='{{index}}'>
+  <view class="cityheader">
+    <view bindtap='provincialLinkageHide' data-flag="{{false}}" class="city-cancel">取消</view>
+    <view bindtap='provincialLinkageHide' data-flag="{{true}}" class="city-true">确定</view>
+  </view>
+  <picker-view indicator-style="height: 50px;" style="width: 100%; height: 250px;" value="{{value}}" bindchange="bindChange" class="citybody">
+    <picker-view-column>
+      <view wx:for="{{provinces}}" wx:key="item">{{item.areaName}}</view>
+    </picker-view-column>
+    <picker-view-column>
+      <view wx:for="{{citys}}" wx:key="item">{{item.areaName}}</view>
+    </picker-view-column>
+  </picker-view>
+</view>
+<!-- <view class='to-top' wx:if='{{ifShowToTopLogo}}' bindtap='goToTop'>
+  <image src='{{staticImageUrl}}to_top.png'></image>
+</view> -->

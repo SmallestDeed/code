@@ -1,0 +1,200 @@
+package com.sandu.service.system.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.api.house.bo.SystemDictionaryBO;
+import com.sandu.api.house.input.SystemDictionarySearch;
+import com.sandu.api.house.model.SystemDictionary;
+import com.sandu.api.house.service.SystemDictionaryService;
+import com.sandu.common.constant.house.ProductType;
+import com.sandu.service.system.dao.SystemDictionaryMapper;
+import com.sandu.util.Utils;
+
+/**
+ * Description: 数据字典逻辑类
+ * 
+ * @author 何文
+ * @version 1.0 Company:Sandu Copyright:Copyright(c)2017
+ * @date 2017/12/29
+ */
+@Service
+public class SystemDictionaryServiceImpl implements SystemDictionaryService {
+	
+	public static final String _DOORFRAME_TYPE = "basic_mengk";
+
+	@Autowired
+	private SystemDictionaryMapper systemDictionaryMapper;
+
+	@Override
+	public List<SystemDictionary> listSysDictionary(SystemDictionarySearch search) {
+		return systemDictionaryMapper.listSysDictionaryByType(search);
+	}
+
+	@Override
+	public List<SystemDictionary> listHardBaimoType(SystemDictionarySearch search) {
+		return systemDictionaryMapper.listHardBaimoType(search);
+	}
+
+	@Override
+	public List<SystemDictionary> listHardBaimoSamllType(SystemDictionarySearch search) {
+		return systemDictionaryMapper.listHardBaimoSamllType(search);
+	}
+
+	@Override
+	public List<SystemDictionaryBO> listSoftBiamoType(SystemDictionarySearch search) {
+		// 
+		List<SystemDictionaryBO> softType = systemDictionaryMapper.listSoftBiamoType(search);
+		Map<String, List<SystemDictionaryBO>> map = new HashMap<>();
+		
+		// 合并处理
+		this.handlerMergeType(map, softType);
+		
+		if (!map.isEmpty()) {
+			final StringBuilder valBuf = new StringBuilder();
+			final StringBuilder keyBuf = new StringBuilder();
+			for (String key : map.keySet()) {
+				map.get(key).forEach(dict -> {
+					// value
+					valBuf.append(",").append(Objects.toString(dict.getValue(), Utils.VOID_VALUE));
+					
+					// valuekey
+					keyBuf.append(",").append(Objects.toString(dict.getValuekey(), Utils.VOID_VALUE));
+				});
+				
+				SystemDictionaryBO proType = new SystemDictionaryBO();
+				proType.setName(key);
+				proType.setValue(valBuf.toString().replaceFirst(",", ""));
+				proType.setValuekey(keyBuf.toString().replaceFirst(",", ""));
+				softType.add(proType);
+				
+				valBuf.setLength(0);
+				keyBuf.setLength(0);
+			}
+			
+			// TODO 墙面 => 门框_原门框
+			// 门框 Fuck Door
+//			SystemDictionary _door = systemDictionaryMapper.findOneByValueKey(_DOORFRAME_TYPE);
+			SystemDictionaryBO _doorframe = new SystemDictionaryBO();
+			_doorframe.setName(ProductType._DOOR.getName());
+			_doorframe.setValue("-19");
+			_doorframe.setValuekey(ProductType._DOOR.getValuekey());
+			softType.add(_doorframe);
+		}
+		
+		return softType;
+	}	
+	
+	/**
+	 * 沙发、几类、桌、椅、灯具、家纺
+	 * 床  => 床架、床品、床垫
+	 * 饰品 =>  摆件
+	 * 卫浴 => 浴室配件
+	 * 柜类 ==> 柜子、厨房地柜、厨房吊柜
+	 * 厨房 => 厨房（柜）、厨房配件
+	 * 电器 => 小家电、大家电、厨房电器
+	 * @param map
+	 * @param softType
+	 */
+	private void handlerMergeType(Map<String, List<SystemDictionaryBO>> map, List<SystemDictionaryBO> softType) {
+		if (softType != null && !softType.isEmpty()) {
+			Iterator<SystemDictionaryBO> itr = softType.iterator();
+			while (itr.hasNext()) {
+				SystemDictionaryBO t = itr.next();
+				// 床  => 床架、床品、床垫
+				if (t.getValuekey().equals(ProductType.BD.getValuekey()) 
+						|| t.getValuekey().equals(ProductType.BD2.getValuekey()) 
+						|| t.getValuekey().equals(ProductType.BD3.getValuekey())) {
+					handleType(t, ProductType.BED.getName(), map);
+					// remove
+					itr.remove();
+					continue;
+				}
+				
+				// 饰品 => 饰品 、 摆件
+				if (t.getValuekey().equals(ProductType.PE.getValuekey()) 
+						|| t.getValuekey().equals(ProductType.BK.getValuekey())) {
+					handleType(t, ProductType.PE.getName(), map);
+					// remove
+					itr.remove();
+					continue;
+				}
+				
+				// 卫浴 => 卫浴 、浴室配件
+				if (t.getValuekey().equals(ProductType.BA.getValuekey()) 
+						|| t.getValuekey().equals(ProductType.BP.getValuekey())) {
+					handleType(t, ProductType.BA.getName(), map);
+					// remove
+					itr.remove();
+					continue;
+				}
+				
+				// 柜类 => 柜子、厨房地柜、厨房吊柜
+				if (t.getValuekey().equals(ProductType.CA.getValuekey()) 
+						|| t.getValuekey().equals(ProductType.CUKI.getValuekey())
+						|| t.getValuekey().equals(ProductType.DGKI.getValuekey())) {
+					handleType(t, ProductType.FORCER.getName(), map);
+					// remove
+					itr.remove();
+					continue;
+				}
+				
+				// 厨房 => 厨房（柜）、厨房配件
+				if (t.getValuekey().equals(ProductType.KI.getValuekey()) 
+						|| t.getValuekey().equals(ProductType.KP.getValuekey())) {
+					handleType(t, ProductType.KITCHEN.getName(), map);
+					// remove
+					itr.remove();
+					continue;
+				}
+				
+				// 电器 => 电器、小家电、大家电、厨房电器
+				if (t.getValuekey().equals(ProductType.SE.getValuekey()) 
+						|| t.getValuekey().equals(ProductType.EL.getValuekey())
+						|| t.getValuekey().equals(ProductType.KIEL.getValuekey())) {
+					handleType(t, ProductType.EL.getName(), map);
+					// remove
+					itr.remove();
+				}
+			}
+		}
+	}
+	
+	private void handleType(SystemDictionaryBO t, String key, Map<String, List<SystemDictionaryBO>> map) {
+		if (map.containsKey(key)) {
+			map.get(key).add(t);
+		} else {
+			ArrayList<SystemDictionaryBO> list = new ArrayList<>();
+			list.add(t);
+			map.put(key, list);
+		}
+	}
+	@Override
+	public SystemDictionary findOneByValueKey(String valuekey) {
+		// 参数验证 ->start
+		if (StringUtils.isEmpty(valuekey)) {
+			return null;
+		}
+		// 参数验证 ->end
+		return systemDictionaryMapper.findOneByValueKey(valuekey);
+	}
+
+	@Override
+	public SystemDictionary findOneByTypeAndArea(String type, Double area) {
+		if (StringUtils.isEmpty(type)) {
+			return null;
+		}
+		if (area == null) {
+			return null;
+		}
+		return systemDictionaryMapper.findOneByTypeAndArea(type, area);
+	}
+}

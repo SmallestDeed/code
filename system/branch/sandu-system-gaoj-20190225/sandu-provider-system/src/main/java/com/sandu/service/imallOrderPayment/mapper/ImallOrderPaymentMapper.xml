@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.imallOrderPayment.dao.ImallOrderPaymentDao">
+
+    <!--保存付款单-->
+    <insert id="insertOrderPayment" parameterType="com.sandu.api.imallOrderPayment.model.ImallOrderPayment" keyProperty="id" useGeneratedKeys="true">
+        insert into imall_order_payment
+        (payment_no,platform_type,order_id,order_no,buyer_id,buyer_nick_name,seller_id,seller_nick_name,point_paid,pay_time,status,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted)
+        values(#{paymentNo},#{platformType},#{orderId},#{orderNo},#{buyerId},#{buyerNickName},#{sellerId},#{sellerNickName},#{pointPaid},#{payTime},#{status},#{sysCode},#{creator},CURRENT_TIMESTAMP,#{modifier},CURRENT_TIMESTAMP,#{isDeleted})
+    </insert>
+
+    <!--通过id获取付款单信息-->
+    <select id="getImallOrderPayment" resultType="com.sandu.api.imallOrderPayment.model.ImallOrderPayment">
+      select id,payment_no,platform_type,order_id,order_no,buyer_id,buyer_nick_name,seller_id,seller_nick_name,point_paid,pay_time,status,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted
+      from imall_order_payment
+      where id=#{id}
+    </select>
+
+    <!--通过order_id获取付款单列表-->
+    <select id="getImallOrderPaymentList" resultType="com.sandu.api.imallOrderPayment.model.ImallOrderPayment">
+      select id,payment_no,platform_type,order_id,order_no,buyer_id,buyer_nick_name,seller_id,seller_nick_name,point_paid,pay_time,status,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted
+      from imall_order_payment
+      where order_id=#{order_id}
+    </select>
+
+</mapper>

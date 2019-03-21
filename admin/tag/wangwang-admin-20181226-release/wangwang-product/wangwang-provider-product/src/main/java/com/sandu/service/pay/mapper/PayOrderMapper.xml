@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.pay.dao.PayOrderMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.api.pay.model.PayOrder" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="product_type" property="productType" jdbcType="VARCHAR" />
+    <result column="product_id" property="productId" jdbcType="INTEGER" />
+    <result column="product_name" property="productName" jdbcType="VARCHAR" />
+    <result column="product_desc" property="productDesc" jdbcType="VARCHAR" />
+    <result column="order_no" property="orderNo" jdbcType="VARCHAR" />
+    <result column="total_fee" property="totalFee" jdbcType="INTEGER" />
+    <result column="pay_type" property="payType" jdbcType="VARCHAR" />
+    <result column="pay_state" property="payState" jdbcType="VARCHAR" />
+    <result column="prepay_id" property="prepayId" jdbcType="VARCHAR" />
+    <result column="code_url" property="codeUrl" jdbcType="VARCHAR" />
+    <result column="ref_id" property="refId" jdbcType="VARCHAR" />
+    <result column="open_id" property="openId" jdbcType="VARCHAR" />
+    <result column="order_date" property="orderDate" jdbcType="TIMESTAMP" />
+    <result column="trade_type" property="tradeType" jdbcType="VARCHAR" />
+    <result column="finance_type" property="financeType" jdbcType="VARCHAR" />
+    <result column="biz_type" property="bizType" jdbcType="VARCHAR" />
+    <result column="adjust_fee" property="adjustFee" jdbcType="INTEGER" />
+    <result column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    <result column="att1" property="att1" jdbcType="VARCHAR" />
+    <result column="att2" property="att2" jdbcType="VARCHAR" />
+    <result column="numa1" property="numa1" jdbcType="INTEGER" />
+    <result column="numa2" property="numa2" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="task_id" property="taskId" jdbcType="INTEGER" />
+    <result column="plan_id" property="planId" jdbcType="INTEGER" />
+    <result column="house_id" property="houseId" jdbcType="INTEGER" />
+    <result column="current_integral" property="currentIntegral" jdbcType="INTEGER" />
+    <result column="platform_id" property="platformId" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id, product_type, product_id, product_name, product_desc, order_no, total_fee, 
+    pay_type, pay_state, prepay_id, code_url, ref_id, open_id, order_date, trade_type, 
+    finance_type, biz_type, adjust_fee, sys_code, creator, gmt_create, modifier, gmt_modified, 
+    is_deleted, att1, att2, numa1, numa2, remark, task_id, plan_id, house_id, current_integral, 
+    platform_id
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from pay_order
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from pay_order
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.pay.model.PayOrder" >
+    insert into pay_order (id, user_id, product_type, 
+      product_id, product_name, product_desc, 
+      order_no, total_fee, pay_type, 
+      pay_state, prepay_id, code_url, 
+      ref_id, open_id, order_date, 
+      trade_type, finance_type, biz_type, 
+      adjust_fee, sys_code, creator, 
+      gmt_create, modifier, gmt_modified, 
+      is_deleted, att1, att2, 
+      numa1, numa2, remark, 
+      task_id, plan_id, house_id, 
+      current_integral, platform_id)
+    values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=INTEGER}, #{productType,jdbcType=VARCHAR}, 
+      #{productId,jdbcType=INTEGER}, #{productName,jdbcType=VARCHAR}, #{productDesc,jdbcType=VARCHAR}, 
+      #{orderNo,jdbcType=VARCHAR}, #{totalFee,jdbcType=INTEGER}, #{payType,jdbcType=VARCHAR}, 
+      #{payState,jdbcType=VARCHAR}, #{prepayId,jdbcType=VARCHAR}, #{codeUrl,jdbcType=VARCHAR}, 
+      #{refId,jdbcType=VARCHAR}, #{openId,jdbcType=VARCHAR}, #{orderDate,jdbcType=TIMESTAMP}, 
+      #{tradeType,jdbcType=VARCHAR}, #{financeType,jdbcType=VARCHAR}, #{bizType,jdbcType=VARCHAR}, 
+      #{adjustFee,jdbcType=INTEGER}, #{sysCode,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{isDeleted,jdbcType=INTEGER}, #{att1,jdbcType=VARCHAR}, #{att2,jdbcType=VARCHAR}, 
+      #{numa1,jdbcType=INTEGER}, #{numa2,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, 
+      #{taskId,jdbcType=INTEGER}, #{planId,jdbcType=INTEGER}, #{houseId,jdbcType=INTEGER}, 
+      #{currentIntegral,jdbcType=INTEGER}, #{platformId,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.pay.model.PayOrder" useGeneratedKeys="true" keyColumn="id"
+          keyProperty="id">
+    insert into pay_order
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="productType != null" >
+        product_type,
+      </if>
+      <if test="productId != null" >
+        product_id,
+      </if>
+      <if test="productName != null" >
+        product_name,
+      </if>
+      <if test="productDesc != null" >
+        product_desc,
+      </if>
+      <if test="orderNo != null" >
+        order_no,
+      </if>
+      <if test="totalFee != null" >
+        total_fee,
+      </if>
+      <if test="payType != null" >
+        pay_type,
+      </if>
+      <if test="payState != null" >
+        pay_state,
+      </if>
+      <if test="prepayId != null" >
+        prepay_id,
+      </if>
+      <if test="codeUrl != null" >
+        code_url,
+      </if>
+      <if test="refId != null" >
+        ref_id,
+      </if>
+      <if test="openId != null" >
+        open_id,
+      </if>
+      <if test="orderDate != null" >
+        order_date,
+      </if>
+      <if test="tradeType != null" >
+        trade_type,
+      </if>
+      <if test="financeType != null" >
+        finance_type,
+      </if>
+      <if test="bizType != null" >
+        biz_type,
+      </if>
+      <if test="adjustFee != null" >
+        adjust_fee,
+      </if>
+      <if test="sysCode != null" >
+        sys_code,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="att1 != null" >
+        att1,
+      </if>
+      <if test="att2 != null" >
+        att2,
+      </if>
+      <if test="numa1 != null" >
+        numa1,
+      </if>
+      <if test="numa2 != null" >
+        numa2,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="taskId != null" >
+        task_id,
+      </if>
+      <if test="planId != null" >
+        plan_id,
+      </if>
+      <if test="houseId != null" >
+        house_id,
+      </if>
+      <if test="currentIntegral != null" >
+        current_integral,
+      </if>
+      <if test="platformId != null" >
+        platform_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="productType != null" >
+        #{productType,jdbcType=VARCHAR},
+      </if>
+      <if test="productId != null" >
+        #{productId,jdbcType=INTEGER},
+      </if>
+      <if test="productName != null" >
+        #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="productDesc != null" >
+        #{productDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNo != null" >
+        #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="totalFee != null" >
+        #{totalFee,jdbcType=INTEGER},
+      </if>
+      <if test="payType != null" >
+        #{payType,jdbcType=VARCHAR},
+      </if>
+      <if test="payState != null" >
+        #{payState,jdbcType=VARCHAR},
+      </if>
+      <if test="prepayId != null" >
+        #{prepayId,jdbcType=VARCHAR},
+      </if>
+      <if test="codeUrl != null" >
+        #{codeUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null" >
+        #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="openId != null" >
+        #{openId,jdbcType=VARCHAR},
+      </if>
+      <if test="orderDate != null" >
+        #{orderDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tradeType != null" >
+        #{tradeType,jdbcType=VARCHAR},
+      </if>
+      <if test="financeType != null" >
+        #{financeType,jdbcType=VARCHAR},
+      </if>
+      <if test="bizType != null" >
+        #{bizType,jdbcType=VARCHAR},
+      </if>
+      <if test="adjustFee != null" >
+        #{adjustFee,jdbcType=INTEGER},
+      </if>
+      <if test="sysCode != null" >
+        #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="att1 != null" >
+        #{att1,jdbcType=VARCHAR},
+      </if>
+      <if test="att2 != null" >
+        #{att2,jdbcType=VARCHAR},
+      </if>
+      <if test="numa1 != null" >
+        #{numa1,jdbcType=INTEGER},
+      </if>
+      <if test="numa2 != null" >
+        #{numa2,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null" >
+        #{taskId,jdbcType=INTEGER},
+      </if>
+      <if test="planId != null" >
+        #{planId,jdbcType=INTEGER},
+      </if>
+      <if test="houseId != null" >
+        #{houseId,jdbcType=INTEGER},
+      </if>
+      <if test="currentIntegral != null" >
+        #{currentIntegral,jdbcType=INTEGER},
+      </if>
+      <if test="platformId != null" >
+        #{platformId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.pay.model.PayOrder" >
+    update pay_order
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="productType != null" >
+        product_type = #{productType,jdbcType=VARCHAR},
+      </if>
+      <if test="productId != null" >
+        product_id = #{productId,jdbcType=INTEGER},
+      </if>
+      <if test="productName != null" >
+        product_name = #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="productDesc != null" >
+        product_desc = #{productDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNo != null" >
+        order_no = #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="totalFee != null" >
+        total_fee = #{totalFee,jdbcType=INTEGER},
+      </if>
+      <if test="payType != null" >
+        pay_type = #{payType,jdbcType=VARCHAR},
+      </if>
+      <if test="payState != null" >
+        pay_state = #{payState,jdbcType=VARCHAR},
+      </if>
+      <if test="prepayId != null" >
+        prepay_id = #{prepayId,jdbcType=VARCHAR},
+      </if>
+      <if test="codeUrl != null" >
+        code_url = #{codeUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null" >
+        ref_id = #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="openId != null" >
+        open_id = #{openId,jdbcType=VARCHAR},
+      </if>
+      <if test="orderDate != null" >
+        order_date = #{orderDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tradeType != null" >
+        trade_type = #{tradeType,jdbcType=VARCHAR},
+      </if>
+      <if test="financeType != null" >
+        finance_type = #{financeType,jdbcType=VARCHAR},
+      </if>
+      <if test="bizType != null" >
+        biz_type = #{bizType,jdbcType=VARCHAR},
+      </if>
+      <if test="adjustFee != null" >
+        adjust_fee = #{adjustFee,jdbcType=INTEGER},
+      </if>
+      <if test="sysCode != null" >
+        sys_code = #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="att1 != null" >
+        att1 = #{att1,jdbcType=VARCHAR},
+      </if>
+      <if test="att2 != null" >
+        att2 = #{att2,jdbcType=VARCHAR},
+      </if>
+      <if test="numa1 != null" >
+        numa1 = #{numa1,jdbcType=INTEGER},
+      </if>
+      <if test="numa2 != null" >
+        numa2 = #{numa2,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null" >
+        task_id = #{taskId,jdbcType=INTEGER},
+      </if>
+      <if test="planId != null" >
+        plan_id = #{planId,jdbcType=INTEGER},
+      </if>
+      <if test="houseId != null" >
+        house_id = #{houseId,jdbcType=INTEGER},
+      </if>
+      <if test="currentIntegral != null" >
+        current_integral = #{currentIntegral,jdbcType=INTEGER},
+      </if>
+      <if test="platformId != null" >
+        platform_id = #{platformId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.pay.model.PayOrder" >
+    update pay_order
+    set user_id = #{userId,jdbcType=INTEGER},
+      product_type = #{productType,jdbcType=VARCHAR},
+      product_id = #{productId,jdbcType=INTEGER},
+      product_name = #{productName,jdbcType=VARCHAR},
+      product_desc = #{productDesc,jdbcType=VARCHAR},
+      order_no = #{orderNo,jdbcType=VARCHAR},
+      total_fee = #{totalFee,jdbcType=INTEGER},
+      pay_type = #{payType,jdbcType=VARCHAR},
+      pay_state = #{payState,jdbcType=VARCHAR},
+      prepay_id = #{prepayId,jdbcType=VARCHAR},
+      code_url = #{codeUrl,jdbcType=VARCHAR},
+      ref_id = #{refId,jdbcType=VARCHAR},
+      open_id = #{openId,jdbcType=VARCHAR},
+      order_date = #{orderDate,jdbcType=TIMESTAMP},
+      trade_type = #{tradeType,jdbcType=VARCHAR},
+      finance_type = #{financeType,jdbcType=VARCHAR},
+      biz_type = #{bizType,jdbcType=VARCHAR},
+      adjust_fee = #{adjustFee,jdbcType=INTEGER},
+      sys_code = #{sysCode,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      att1 = #{att1,jdbcType=VARCHAR},
+      att2 = #{att2,jdbcType=VARCHAR},
+      numa1 = #{numa1,jdbcType=INTEGER},
+      numa2 = #{numa2,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR},
+      task_id = #{taskId,jdbcType=INTEGER},
+      plan_id = #{planId,jdbcType=INTEGER},
+      house_id = #{houseId,jdbcType=INTEGER},
+      current_integral = #{currentIntegral,jdbcType=INTEGER},
+      platform_id = #{platformId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

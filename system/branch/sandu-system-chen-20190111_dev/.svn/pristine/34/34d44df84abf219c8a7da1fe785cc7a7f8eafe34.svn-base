@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.llt.trade.dao.LltRechargeLogMapper">
+ 
+  <select id="selectById" parameterType="java.lang.String" resultType="com.sandu.api.llt.trade.model.LltRechargeLog">
+    select 
+    *
+    from llt_recharge_log
+    where id = #{id,jdbcType=VARCHAR} and is_deleted=0
+  </select>
+  
+  <select id="selectList" resultType="com.sandu.api.llt.trade.model.LltRechargeLog">
+	select
+	*
+	from llt_recharge_log
+	where is_deleted=0
+	<if test="id != null">
+		and id = #{id,jdbcType=VARCHAR}
+	</if>
+	<if test="bizId != null">
+		and biz_id = #{bizId,jdbcType=VARCHAR}
+	</if>
+	<if test="bizType != null">
+		and biz_type = #{bizType,jdbcType=TINYINT}
+	</if>
+	<if test="fluxpackage != null">
+		and fluxpackage = #{fluxpackage,jdbcType=VARCHAR}
+	</if>
+	<if test="mobile != null">
+		and mobile = #{mobile,jdbcType=VARCHAR}
+	</if>
+	<if test="rechargeAmount != null">
+		and recharge_amount = #{rechargeAmount}
+	</if>
+	<if test="rechargeTime != null">
+		and recharge_time = #{rechargeTime,jdbcType=TIMESTAMP}
+	</if>
+	<if test="retCode != null">
+		and ret_code = #{retCode,jdbcType=VARCHAR}
+	</if>
+	<if test="retMsg != null">
+		and ret_msg = #{retMsg,jdbcType=VARCHAR}
+	</if>
+	<if test="retOrderId != null">
+		and ret_order_id = #{retOrderId,jdbcType=VARCHAR}
+	</if>
+	<if test="pushTime != null">
+		and push_time = #{pushTime,jdbcType=VARCHAR}
+	</if>
+	<if test="pushOrderStatus != null">
+		and push_order_status = #{pushOrderStatus}
+	</if>
+	<if test="pushOrderDesc != null">
+		and push_order_desc = #{pushOrderDesc,jdbcType=VARCHAR}
+	</if>
+	<if test="request != null">
+		and request = #{request,jdbcType=VARCHAR}
+	</if>
+	<if test="response != null">
+		and response = #{response,jdbcType=VARCHAR}
+	</if>
+	<if test="gmtCreate != null">
+		and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+	</if>
+</select>
+
+  <insert id="insert" parameterType="com.sandu.api.llt.trade.model.LltRechargeLog">
+    insert into llt_recharge_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="bizId != null">
+        biz_id,
+      </if>
+      <if test="bizType != null">
+        biz_type,
+      </if>
+      <if test="fluxpackage != null">
+        fluxpackage,
+      </if>
+      <if test="mobile != null">
+        mobile,
+      </if>
+      <if test="rechargeAmount != null">
+        recharge_amount,
+      </if>
+      <if test="rechargeTime != null">
+        recharge_time,
+      </if>
+      <if test="retCode != null">
+        ret_code,
+      </if>
+      <if test="retMsg != null">
+        ret_msg,
+      </if>
+      <if test="retOrderId != null">
+        ret_order_id,
+      </if>
+      <if test="pushTime != null">
+        push_time,
+      </if>
+      <if test="pushOrderStatus != null">
+        push_order_status,
+      </if>
+      <if test="pushOrderDesc != null">
+        push_order_desc,
+      </if>
+      <if test="request != null">
+        request,
+      </if>
+      <if test="response != null">
+        response,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="bizId != null">
+        #{bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="bizType != null">
+        #{bizType,jdbcType=TINYINT},
+      </if>
+      <if test="fluxpackage != null">
+        #{fluxpackage,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null">
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="rechargeAmount != null">
+        #{rechargeAmount},
+      </if>
+      <if test="rechargeTime != null">
+        #{rechargeTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="retCode != null">
+        #{retCode,jdbcType=VARCHAR},
+      </if>
+      <if test="retMsg != null">
+        #{retMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="retOrderId != null">
+        #{retOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="pushTime != null">
+        #{pushTime,jdbcType=VARCHAR},
+      </if>
+      <if test="pushOrderStatus != null">
+        #{pushOrderStatus},
+      </if>
+      <if test="pushOrderDesc != null">
+        #{pushOrderDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="request != null">
+        #{request,jdbcType=VARCHAR},
+      </if>
+      <if test="response != null">
+        #{response,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateById" parameterType="com.sandu.api.llt.trade.model.LltRechargeLog">
+    update llt_recharge_log
+    <set>
+      <if test="bizId != null">
+        biz_id = #{bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="bizType != null">
+        biz_type = #{bizType,jdbcType=TINYINT},
+      </if>
+      <if test="fluxpackage != null">
+        fluxpackage = #{fluxpackage,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null">
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="rechargeAmount != null">
+        recharge_amount = #{rechargeAmount},
+      </if>
+      <if test="rechargeTime != null">
+        recharge_time = #{rechargeTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="retCode != null">
+        ret_code = #{retCode,jdbcType=VARCHAR},
+      </if>
+      <if test="retMsg != null">
+        ret_msg = #{retMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="retOrderId != null">
+        ret_order_id = #{retOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="pushTime != null">
+        push_time = #{pushTime,jdbcType=VARCHAR},
+      </if>
+      <if test="pushOrderStatus != null">
+        push_order_status = #{pushOrderStatus},
+      </if>
+      <if test="pushOrderDesc != null">
+        push_order_desc = #{pushOrderDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="request != null">
+        request = #{request,jdbcType=VARCHAR},
+      </if>
+      <if test="response != null">
+        response = #{response,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+  <update id="updateByOrderId" parameterType="com.sandu.api.llt.trade.model.LltRechargeLog">
+    update llt_recharge_log
+    <set>
+      <if test="bizId != null">
+        biz_id = #{bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="bizType != null">
+        biz_type = #{bizType,jdbcType=TINYINT},
+      </if>
+      <if test="fluxpackage != null">
+        fluxpackage = #{fluxpackage,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null">
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="rechargeAmount != null">
+        recharge_amount = #{rechargeAmount},
+      </if>
+      <if test="rechargeTime != null">
+        recharge_time = #{rechargeTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="retCode != null">
+        ret_code = #{retCode,jdbcType=VARCHAR},
+      </if>
+      <if test="retMsg != null">
+        ret_msg = #{retMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="retOrderId != null">
+        ret_order_id = #{retOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="pushTime != null">
+        push_time = #{pushTime,jdbcType=VARCHAR},
+      </if>
+      <if test="pushOrderStatus != null">
+        push_order_status = #{pushOrderStatus},
+      </if>
+      <if test="pushOrderDesc != null">
+        push_order_desc = #{pushOrderDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="request != null">
+        request = #{request,jdbcType=VARCHAR},
+      </if>
+      <if test="response != null">
+        response = #{response,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=TINYINT},
+      </if>
+    </set>
+    where ret_order_id = #{retOrderId,jdbcType=VARCHAR}
+  </update>
+ 
+</mapper>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+    <bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		 <property name="corePoolSize" value="10" />
+		 <property name="maxPoolSize" value="100" />
+		 <property name="queueCapacity" value="500" />
+    </bean>
+
+	<bean id="synchronizeNodeInfoJob"  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject"><bean class="com.sandu.job.NodeInfoJob"/></property>
+		<property name="targetMethod" value="syncToDatabase" />
+		<property name="concurrent" value="false" /> 
+   </bean> 
+	<bean id="synchronizeNodeInfoTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="synchronizeNodeInfoJob" />
+		<property name="cronExpression" value="0 0 * * * ?" />
+	</bean>
+
+	<bean id="jobScheduler" lazy-init="false" autowire="no"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+					<ref bean="synchronizeNodeInfoTrigger"/>
+			</list>
+		</property>
+	</bean>
+
+
+
+</beans>

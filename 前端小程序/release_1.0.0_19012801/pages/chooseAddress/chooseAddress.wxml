@@ -1,0 +1,60 @@
+<!--pages/chooseAddress/chooseAddress.wxml-->
+<!-- 
+<view class='recently'>定位/最近访问</view>
+<view class='cityList'>
+  <view class='cityOts'>{{locationCity}}</view>
+</view>
+<view class='hotCity'>热门城市</view>
+<view class='cityList'>
+  <view class='cityOts'>北京</view>
+  <view class='cityOts'>上海</view>
+  <view class='cityOts'>广州</view>
+  <view class='cityOts'>深圳</view>
+  <view class='cityOts'>成都</view>
+  <view class='cityOts'>南京</view>
+  <view class='cityOts'>苏州</view>
+  <view class='cityOts'>杭州</view>
+</view>
+<view class='garyLine'></view>
+<view wx:for='{{cityList}}'>
+  <view class='word'>{{item.key}}</view>
+  <view wx:for='{{item.val}}' >
+    <view class='city'>{{item.areaName}}</view>
+  </view>
+</view>
+ -->
+
+  <view class='location'>
+  <view class='garytxt'>当前位置:</view>
+  <view class='locationCity'>{{cityItem.areaName?cityItem.areaName:"全部"}}</view>
+</view>
+<scroll-view scroll-y='true'  scroll-with-animation='true' style='height:1150rpx;' scroll-into-view='{{ListId}}'>
+<view wx:for='{{cityList}}' wx:key='{{index}}' wx:for-item="cityitem" wx:for-index='in'>
+  <view class='word' id='{{cityitem.key}}'>{{cityitem.key=='rm' || cityitem.key=='zj'?cityitem.show:cityitem.key}}</view>
+  <view class='{{cityitem.key=="rm" || cityitem.key=="zj"?"cityList":""}}'>
+    
+    <block wx:if='{{cityitem.key=="zj"}}'>
+      <view class='{{index==0?"cityOts2":"cityOts"}}' wx:for='{{cityitem.val}}' wx:key='{{index}}' wx:for-item="item" bindtap='chooseCity' data-city='{{item?item:""}}'>
+          <image class='Icon' wx:if='{{index==0}}' src='{{staticImageUrl}}addIcon.png'></image>
+          {{item.areaName||"全部"}}
+      </view>
+    </block>
+    <block wx:if='{{cityitem.key=="rm"}}'>
+        
+      <view class='cityOts' wx:for='{{cityitem.val}}' wx:key='{{index}}' wx:for-item="item" bindtap='chooseCity' data-city='{{item}}'>{{item.areaName}}</view>
+      <view class='cityOts' bindtap='chooseCity' data-city=''>全部</view>
+    </block>
+    
+    <block wx:if='{{cityitem.key!="zj" && cityitem.key!="rm"}}'>
+      <view class='city' wx:for='{{cityitem.val}}' wx:key='{{index}}' wx:for-item="item" bindtap='chooseCity' data-city='{{item}}'>{{item.areaName}}</view>
+    </block>
+    
+  </view>
+</view>
+</scroll-view>  
+
+<view class='brandRight'>
+    <text class='letter_item' wx:for='{{cityList}}' wx:key='{{index}}' catchtap='toWord' data-item='{{item.key}}'>{{item.key=='zj'||item.key=='rm'?item.keyshow:item.key}}</text>
+</view>
+
+

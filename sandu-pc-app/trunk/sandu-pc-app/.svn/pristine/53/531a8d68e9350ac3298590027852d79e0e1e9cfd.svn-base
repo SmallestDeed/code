@@ -1,0 +1,94 @@
+package com.sandu.panorama.service;
+
+import com.sandu.common.model.LoginUser;
+import com.sandu.panorama.model.DesignPlanStoreRelease;
+import com.sandu.panorama.model.input.DesignPlanStoreReleaseAdd;
+import com.sandu.panorama.model.input.DesignPlanStoreReleaseSearch;
+import com.sandu.panorama.model.output.DesignPlanStoreReleaseVo;
+import com.sandu.panorama.model.output.UnionGroupVo;
+import com.sandu.system.model.ResPic;
+
+import java.util.List;
+
+public interface DesignPlanStoreReleaseService {
+
+    /**
+     * 新增
+     * @param designPlanStoreRelease
+     * @return
+     */
+    int add(DesignPlanStoreRelease designPlanStoreRelease);
+
+    /**
+     * 更新数据
+     * @param designPlanStoreRelease
+     * @return  int
+     */
+    int update(DesignPlanStoreRelease designPlanStoreRelease);
+
+    /**
+     * 删除
+     * @param id    主键ID
+     * @return
+     */
+    int delete(Integer id);
+
+    /**
+     * 根据主键ID查询
+     * @param id    主键ID
+     * @return
+     */
+    DesignPlanStoreRelease get(Integer id);
+
+    /**
+     * 720制作
+     * @param designPlanStoreReleaseAdd
+     * @param loginUser
+     * @return
+     */
+    String makePanorama(DesignPlanStoreReleaseAdd designPlanStoreReleaseAdd, LoginUser loginUser);
+
+    /**
+     * 获取720分享
+     * @param uuid
+     * @return
+     */
+    DesignPlanStoreReleaseVo getPanorama(String uuid);
+
+    /**
+     * 更新浏览量
+     * @param uuid
+     * @return
+     */
+    int updatePv(String uuid);
+
+    /**
+     * 通过用户ID获取分享总数
+     * @param search
+     * @return
+     */
+    int getCountByUserId(DesignPlanStoreReleaseSearch search);
+
+    /**
+     * 通过用户ID获取分享列表
+     * @param search
+     * @return
+     */
+    List<DesignPlanStoreReleaseVo> getListByUserId(DesignPlanStoreReleaseSearch search);
+
+    /**
+     * 删除我的分享
+     * @param id
+     * @param userId
+     * @return
+     */
+    Boolean delStoreRelease(Integer id, Integer userId);
+
+    /**
+     * TEMP
+     * @param resPic
+     * @return
+     */
+    public int createResPic(ResPic resPic);
+
+}

@@ -1,0 +1,64 @@
+<!--pages/confirm-order/confirm-order.wxml-->
+<wxs src="../../../utils/public.wxs" module="toSpilt" />
+<view class='confirm-order'>
+    <view class='order-address'>
+        <view class='add-address' wx:if='{{!defaultAddress.consignee}}' bindtap='toAddAddress'>
+            <view class='add-icon fl'>
+                <image src='{{staticImageUrl}}list_icon_add.png'></image>
+            </view>
+            <view class='add-text fl'>添加收货地址</view>
+        </view>
+        <view class='choose-address' bindtap='toAddressList' wx:if='{{defaultAddress.consignee}}'>
+            <view class='address-icon'>
+                <image src='{{staticImageUrl}}list_icon_adress.png'></image>
+            </view>
+            <view class='user-mes'>{{defaultAddress.consignee}} {{defaultAddress.mobile}}</view>
+            <view class='address-mes'>
+                {{defaultAddress.provinceName === defaultAddress.cityName? defaultAddress.provinceName + defaultAddress.districtName + defaultAddress.address: defaultAddress.provinceName + defaultAddress.cityName + defaultAddress.districtName + defaultAddress.address}}
+            </view>
+            <view class='address-arrow'>
+                <image src='{{staticImageUrl}}list_icon_more.png'></image>
+            </view>
+            <image class='botBg' src='{{staticImageUrl}}order_address_msg.png'></image>
+        </view>
+    </view>
+    <view class='order-details clearfix'>
+        <view class='details-image fl'>
+            <image src='{{gift.filenames[0]?(resourcePath + gift.filenames[0]):staticImageUrl+"goods_pic_no.png"}}'></image>
+        </view>
+        <view class='details-text fl'>
+            <view class='text-name'>{{gift.name}}</view>
+            <view class='text-model'  wx:if="{{gift.price}}">原价：
+                    <text>￥{{gift.price}}</text>
+            </view>
+            <view class='text-price clearfix'>
+                <view class='fl'>{{gift.point}}积分
+                </view>
+                <view class='fr count'>× 1</view>        
+            </view>
+        </view>
+    </view>
+
+    <view class='order-price'>
+        <view class='goods-price clearfix'>
+            <view class='text fl'>积分总计</view>
+            <view class='price fr'>{{gift.point}} 积分</view>
+        </view>
+        <view class='logistics-price clearfix' wx:if="{{gift.expressFee!=0}}">
+            <view class='text fl'>物流运费</view>
+            <view class='price fr'>到付 </view>
+        </view>
+    </view>
+
+    <view class='rows'>
+        <view class='text'>备注信息 </view>
+        <view class='message'>
+            <input maxlength='20' bindinput='inputRemask' placeholder-class='input-box' placeholder='选填：20字以内'></input>
+        </view>
+    </view>
+
+    <view class='order-footer clearfix'>
+        <view class='footer-price fl'>可用积分：{{userpointamount}}</view>
+        <view class='footer-payment fl' bindtap='immediatePayment'> 立即兑换</view>
+    </view>
+</view>

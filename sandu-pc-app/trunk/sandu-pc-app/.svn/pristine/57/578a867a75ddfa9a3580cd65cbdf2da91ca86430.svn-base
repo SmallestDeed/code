@@ -1,0 +1,39 @@
+package com.sandu.design.cache.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.common.cache.CacheManager;
+import com.sandu.common.cache.util.KeyGenerator;
+import com.sandu.common.metadata.ModuleType;
+import com.sandu.design.cache.service.DesignTempletCacheService;
+import com.sandu.design.model.DesignTemplet;
+import com.sandu.design.service.DesignTempletService;
+
+@Service("designTempletCacheService")
+public class DesignTempletCacheServiceImpl implements DesignTempletCacheService {
+
+	@Autowired
+	private DesignTempletService designTempletService;
+	
+	/**
+	 * 获取单个设计方案样板房详情
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@Override
+	public DesignTemplet get(Integer id) {
+		DesignTemplet templet = null;
+		String key = KeyGenerator.getIdKey(ModuleType.DesignTemplet, id);
+		templet = (DesignTemplet) CacheManager.getInstance().getCacher().getObject(key);
+		if (templet == null) {
+			templet = designTempletService.get(id);
+			if (templet != null) {
+				CacheManager.getInstance().getCacher().setObject(key, templet, 0);
+			}
+		}
+		return templet;
+	}
+	
+}

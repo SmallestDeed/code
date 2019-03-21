@@ -1,0 +1,100 @@
+package com.sandu.designplan.service;
+
+
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.designplan.model.DesignPlanRecommended;
+import com.sandu.designplan.model.DesignPlanRecommendedResult;
+import com.sandu.designplan.model.PlanRecommendedListModel;
+
+import java.util.List;
+
+/**
+ * @desc:设计方案推荐服务
+ * @auth：pengxuangang
+ * @date：20170920
+ */
+public interface DesignPlanRecommendedService {
+
+    int add(DesignPlanRecommended designPlanRecommended);
+
+    int update(DesignPlanRecommended designPlanRecommended);
+
+    int delete(Integer id);
+
+    DesignPlanRecommended get(Integer id);
+
+    List<DesignPlanRecommended> getList(DesignPlanRecommended designPlanRecommended);
+
+    int getCount(DesignPlanRecommended designPlanRecommended);
+
+    /**
+     * 方案推荐数据
+     *
+     * @return
+     */
+    List<DesignPlanRecommendedResult> getPlanRecommendedList(DesignPlanRecommended designPlanRecommended);
+
+
+    /**
+     * 方案推荐列表数据
+     *
+     * @param model
+     * @return
+     */
+    ResponseEnvelope getPlanRecommendedList(PlanRecommendedListModel model);
+
+    /**
+     * 方案推荐总条数
+     *
+     * @return
+     */
+    Integer getPlanRecommendedCount(DesignPlanRecommended designPlanRecommended);
+
+    /**
+     * 方案推荐详情
+     *
+     * @param planRecommendedId
+     * @return
+     */
+    DesignPlanRecommended designPlanRecommendedDetails(String planRecommendedId);
+    
+    /**
+     * 获取方案推荐收藏夹数据量
+     *
+     * @param designPlanRecommended
+     * @return
+     */
+    Integer getFavoritePlanRecommendedCount(DesignPlanRecommended designPlanRecommended);
+
+    /**
+     * 获取方案推荐收藏夹列表
+     *
+     * @param designPlanRecommended
+     * @return
+     */
+    List<DesignPlanRecommendedResult> getFavoritePlanRecommendedList(DesignPlanRecommended designPlanRecommended);
+
+    /**
+     * 获取推荐方案中的渲染图片数据
+     * @param designPlanRecommended
+     * @return
+     */
+    DesignPlanRecommended getRenderPicFromDesignPlanRecommend(DesignPlanRecommended designPlanRecommended);
+
+    /**
+     * 获取推荐方案中的渲染视频数据
+     * @param designPlanRecommended
+     * @return
+     */
+    DesignPlanRecommended getRenderVideoFromDesignPlanRecommend(DesignPlanRecommended designPlanRecommended);
+
+    /**
+     * 获取推荐方案中的渲染图片和渲染视频数据---此接口包含(getRenderPicFromDesignPlanRecommend和getRenderVideoFromDesignPlanRecommend)
+     * @param designPlanRecommendedId           推荐方案ID
+     * @param designPlanRecommendedCoverPicId   推荐方案图片ID
+     * @return
+     */
+    DesignPlanRecommended getAllRenderFromDesignPlanRecommend(Integer designPlanRecommendedId, Integer designPlanRecommendedCoverPicId);
+
+	List<DesignPlanRecommended> getStatusByIds(List<Long> ids);
+}

@@ -1,0 +1,413 @@
+package com.sandu.designplan.service.impl;
+
+import com.google.gson.Gson;
+import com.sandu.cache.service.RedisService;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.common.util.Utils;
+import com.sandu.designplan.dao.DesignPlanRecommendFavoriteMapper;
+import com.sandu.designplan.model.*;
+import com.sandu.designplan.service.DesignPlanLikeService;
+import com.sandu.designplan.service.DesignPlanRecommendFavoriteService;
+import com.sandu.designplan.service.DesignPlanRecommendedService;
+import com.sandu.designplan.service.DesignPlanSummaryInfoService;
+import com.sandu.job.DesignPlanInfoJob;
+import com.sandu.product.model.AuthorizedConfig;
+import com.sandu.product.service.AuthorizedConfigService;
+import com.sandu.system.model.SysDictionary;
+import com.sandu.system.service.SysDictionaryService;
+import com.sandu.user.model.LoginUser;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import static com.sandu.cache.RedisKeyConstans.*;
+
+/**
+ * 项目名称：timeSpace
+ * 类名称：DesignPlanRecommendFavoriteServiceImpl
+ * 类描述：
+ * 创建人：Timy.Liu
+ * 创建时间：2017-7-7 上午11:09:06
+ * 修改人：Timy.Liu
+ * 修改时间：2017-7-7 上午11:09:06
+ * 修改备注：
+ */
+@Service("designPlanRecommendFavoriteService")
+public class DesignPlanRecommendFavoriteServiceImpl implements DesignPlanRecommendFavoriteService {
+
+    private final static Gson GSON = new Gson();
+    private static Logger logger = LoggerFactory.getLogger(DesignPlanRecommendFavoriteServiceImpl.class);
+    @Autowired
+    private DesignPlanRecommendFavoriteMapper designPlanRecommendFavoriteMapper;
+    @Autowired
+    private DesignPlanRecommendedService designPlanRecommendedService;
+    @Autowired
+    private AuthorizedConfigService authorizedConfigService;
+    @Autowired
+    private SysDictionaryService sysDictionaryService;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private DesignPlanSummaryInfoService designPlanSummaryInfoService;
+    @Autowired
+    private DesignPlanLikeService designPlanLikeService;
+    @Autowired
+    private DesignPlanInfoJob designPlanInfoJob;
+
+    /* (non-Javadoc)
+     * @see com.sandu.design.service.DesignPlanFavoriteService#addFavorite(com.sandu.design.model.Favorite)
+     */
+    @Override
+    public String addFavorite(Favorite favorite) {
+        if (favorite == null) {
+            return "";
+        }
+
+        if (StringUtils.isEmpty(favorite.getName()) || favorite.getUserId() <= 0) {
+            return "";
+        }
+
+        List list = designPlanRecommendFavoriteMapper.listFavorites(favorite);
+        if (list != null && list.size() > 0)//同名存在，认为创建成功
+        {
+            return ((Favorite) list.get(0)).getBid();
+        }
+
+        if (favorite.getName().trim().length() > 16) {
+            favorite.setName(favorite.getName().substring(0, 16));
+        }
+
+        favorite.setBid(UUID.randomUUID().toString().replaceAll("-", ""));
+        designPlanRecommendFavoriteMapper.addFavorite(favorite);
+        return favorite.getBid();
+    }
+
+    /* (non-Javadoc)
+     * @see com.sandu.design.service.DesignPlanFavoriteService#moveInFavorite(com.sandu.design.model.DesignPlanRecommendFavoriteRef)
+     */
+    @Override
+    public boolean moveInFavorite(DesignPlanRecommendFavoriteRef recommendFavoriteRef) {
+        if (null == recommendFavoriteRef || null == recommendFavoriteRef.getUserId() || 0 == recommendFavoriteRef.getRecommendId()) {
+            return false;
+        }
+
+        //检查用户是否有收藏夹---构造数据
+        Favorite favorite = new Favorite();
+        favorite.setUserId(recommendFavoriteRef.getUserId());
+        //查询用户收藏夹
+        List<Favorite> favoriteList = designPlanRecommendFavoriteMapper.listFavorites(favorite);
+        if (null == favoriteList || favoriteList.size() == 0) {
+            //若收藏夹为空则新建默认收藏夹
+            favorite.setName("运营网站默认设计方案收藏夹");
+            this.addFavorite(favorite);
+            //重装收藏夹ID
+            recommendFavoriteRef.setFid(favorite.getBid());
+        } else {
+            //默认第一个收藏夹为默认收藏夹
+            recommendFavoriteRef.setFid(favoriteList.get(0).getBid());
+        }
+
+        //查询推荐方案是否存在
+        DesignPlanRecommended designPlanRecommended = designPlanRecommendedService.get(recommendFavoriteRef.getRecommendId());
+        if (null == designPlanRecommended) {
+            logger.error(recommendFavoriteRef.getRecommendId() + "_do_not_exist");
+            return false;
+        }
+
+        //收藏推荐方案
+        recommendFavoriteRef.setBid(UUID.randomUUID().toString().replaceAll("-", ""));
+        designPlanRecommendFavoriteMapper.moveInFavorite(recommendFavoriteRef);
+        return true;
+    }
+
+    /* (non-Javadoc)
+     * @see com.sandu.design.service.DesignPlanFavoriteService#moveOutFavorite(com.sandu.design.model.DesignPlanRecommendFavoriteRef)
+     */
+    @Override
+    public boolean moveOutFavorite(DesignPlanRecommendFavoriteRef recommendFavoriteRef) {
+        if (recommendFavoriteRef == null) {
+            return false;
+        }
+
+        if (StringUtils.isEmpty(recommendFavoriteRef.getBid())) {
+            return false;
+        }
+
+        designPlanRecommendFavoriteMapper.moveOutFavorite(recommendFavoriteRef);
+        return true;
+    }
+
+    /**
+     * 获取方案推荐收藏夹列表
+     *
+     * @param model
+     * @return
+     */
+    @Override
+    public ResponseEnvelope favoritePlanRecommendedList(FavoriteRecommendedModel model) {
+
+        Integer total = 0;
+        List<DesignPlanRecommendedResult> list = null;
+
+        String houseType = model.getHouseType();//空间类型
+        String livingName = model.getLivingName();//小区名称
+        String areaValue = model.getAreaValue();//面积
+        String designRecommendedStyleId = model.getDesignRecommendedStyleId();//风格id
+        Integer userId = model.getUserId();//用户id
+        Integer userType = model.getUserType();//用户类型
+        String limit = model.getLimit();
+        String start = model.getStart();
+        String favoriteBid = model.getFavoriteBid();  //方案推荐收藏夹id
+        String isSort = model.getIsSort();
+        if (userId == null || userId.intValue() == -1 || userId.intValue() == 0) {
+            return new ResponseEnvelope(false, "请重新登录！");
+        }
+
+        //因为缓存和数据库存在数据偏差，所以查询的时候先手动同步一下缓存数据到数据库
+        try {
+            designPlanInfoJob.synchronizeDesignPlanCache();
+        } catch (Exception e) {
+            logger.error("推荐方案点赞收藏同步数据-----" + e);
+        }
+
+        //装着品牌id的list，没有授权码的用户也能看到 ，选择“推荐所有”的设计方案，推荐所有的设计方案品牌ID = -1
+//        List<Integer> brandIds = new ArrayList<Integer>();
+//        brandIds.add(-1);
+//        /* 查询该用户的授权码品牌 -------运营网站取消用户授权码品牌*/
+//        AuthorizedConfig authorizedConfig = new AuthorizedConfig();
+//        authorizedConfig.setIsDeleted(0);
+//        authorizedConfig.setState(1);
+//        //authorizedConfig.setUserId(userId);
+//        List<AuthorizedConfig> authorizedConfigList = authorizedConfigService.selectList(authorizedConfig);
+//        if (authorizedConfigList != null && authorizedConfigList.size() > 0) {
+//            for (AuthorizedConfig authorizedConfig_ : authorizedConfigList) {
+//                String brandId = authorizedConfig_.getBrandIds();
+//                if (StringUtils.isNotEmpty(brandId)) {
+//                    brandIds.add(Integer.parseInt(brandId));
+//                }
+//            }
+//        }
+        DesignPlanRecommended designPlanRecommended = new DesignPlanRecommended();
+//        designPlanRecommended.setBrandIds(brandIds);
+        String sysVersionType = Utils.getPropertyName("app", "sys.version.type", "1").trim();/* 1为外网 2 为内网 */
+        if ("2".equals(sysVersionType) && userType != null && userType.intValue() == 1) { /*内网内部用户的能看到测试发布中的*/
+            designPlanRecommended.setIsInternalUser("yes");
+        }
+        if (StringUtils.isNotEmpty(favoriteBid)) { /*空间功能类型 */
+            designPlanRecommended.setFavoriteBid(favoriteBid);
+        }
+        if (StringUtils.isNotEmpty(houseType)) { /*空间功能类型 */
+            designPlanRecommended.setSpaceFunctionId(Integer.parseInt(houseType));
+        }
+        if (StringUtils.isNotEmpty(areaValue)) {
+            designPlanRecommended.setAreaValue(areaValue);
+        }
+        if (StringUtils.isNotEmpty(livingName)) { /* 小区名称 */
+            designPlanRecommended.setLivingName(livingName);
+        }
+        if (StringUtils.isNotEmpty(designRecommendedStyleId)) { /* 推荐方案风格 */
+            designPlanRecommended.setDesignRecommendedStyleId(Integer.parseInt(designRecommendedStyleId));
+        }
+        if (StringUtils.isNotEmpty(limit)) {
+            designPlanRecommended.setLimit(Integer.parseInt(limit));
+        } else {
+            designPlanRecommended.setLimit(-1);
+        }
+        if (StringUtils.isNotEmpty(start)) {
+            int curPage = Integer.parseInt(start);
+            designPlanRecommended.setStart((curPage - 1) * (Integer.parseInt(limit)));
+        } else {
+            designPlanRecommended.setStart(-1);
+        }
+        if (isSort != null) {
+            designPlanRecommended.setIsSort(Integer.parseInt(isSort));
+        }
+        designPlanRecommended.setUserId(userId);
+        total = designPlanRecommendedService.getFavoritePlanRecommendedCount(designPlanRecommended);
+        if (total > 0) {
+            list = designPlanRecommendedService.getFavoritePlanRecommendedList(designPlanRecommended);
+            if (list != null && list.size() > 0) {
+                for (DesignPlanRecommendedResult result : list) {
+                    SysDictionary sysDictionary = sysDictionaryService.getSysDictionaryByValue("houseType", result.getSpaceFunctionId());
+                    if (sysDictionary != null) {
+                        result.setHouseTypeName(sysDictionary.getName());
+                    }
+                }
+            }
+        }
+        return new ResponseEnvelope(true, "", list, total);
+    }
+
+    /**
+     * 通过bid 查询收藏夹
+     *
+     * @param businessId
+     * @return
+     */
+    @Override
+    public Favorite getFavoritesByBid(String businessId) {
+        return designPlanRecommendFavoriteMapper.getFavoritesByBid(businessId);
+    }
+
+    @Override
+    public boolean existInFavoriteNew(DesignPlanRecommendFavoriteRef favoriteRef) {
+        if (favoriteRef == null || favoriteRef.getRecommendId() < 1 || favoriteRef.getUserId() == null || favoriteRef.getUserId().intValue() < 1) {
+            return false;
+        }
+
+        //检查用户是否有收藏夹---构造数据
+        Favorite favorite = new Favorite();
+        favorite.setUserId(favoriteRef.getUserId());
+        //查询用户收藏夹
+        List<Favorite> favoriteList = designPlanRecommendFavoriteMapper.listFavorites(favorite);
+        if (null == favoriteList || favoriteList.size() == 0) {
+            //若收藏夹为空则新建默认收藏夹
+            favorite.setName("运营网站默认设计方案收藏夹");
+            this.addFavorite(favorite);
+            //重装收藏夹ID
+            favoriteRef.setFid(favorite.getBid());
+        } else {
+            //默认第一个收藏夹为默认收藏夹---系统查询数据排序为最后一个
+            favoriteRef.setFid(favoriteList.get(0).getBid());
+        }
+
+        //检查收藏方案是否已存在
+        int count = designPlanRecommendFavoriteMapper.existInFavoriteNew(favoriteRef);
+        return count <= 0;
+    }
+
+    /**
+     * 移动端C端收藏和取消收藏
+     *
+     * @param loginUser
+     * @param favoriteRef
+     * @return
+     */
+    @Override
+    public long setFavoriteOrUnfavorite(LoginUser loginUser, DesignPlanRecommendFavoriteRef favoriteRef) {
+
+        Integer recommendId = favoriteRef.getRecommendId();
+
+        //从缓存中获取方案收藏总数,获取不到从数据库查找,再存入缓存
+        String designPlanFavoriteNum = redisService.getMap(DESIGN_PLAN_FAVORITE_NUM_MAP, recommendId + "");
+        long favoriteNum = 0;
+        if (StringUtils.isEmpty(designPlanFavoriteNum)) {
+            DesignPlanSummaryInfo summaryInfo = designPlanSummaryInfoService.get(recommendId);
+            if (null != summaryInfo) {
+                favoriteNum = (long) summaryInfo.getCollectNum();
+            }
+            redisService.addMap(DESIGN_PLAN_FAVORITE_NUM_MAP, recommendId + "", favoriteNum + "");
+        }
+
+        //未登录，收藏数改变返回
+        if (loginUser == null || loginUser.getId() == null || loginUser.getId() == 0) {
+            return favoriteNum;
+        }
+
+        Integer userId = loginUser.getId();
+        Integer status = favoriteRef.getStatus();
+
+        logger.info("------用户 " + userId + " 操作前,方案 " + recommendId + " 的收藏数为：" + favoriteNum);
+        //根据前台传过来的点赞状态对收藏总数进行修改
+        if (status == 0) {
+            favoriteNum = redisService.mapIncrby(DESIGN_PLAN_FAVORITE_NUM_MAP, recommendId + "", -1L);
+        } else {
+            favoriteNum = redisService.mapIncrby(DESIGN_PLAN_FAVORITE_NUM_MAP, recommendId + "", 1L);
+        }
+        //把收藏总数存到同步的缓存中
+        redisService.addMap(DESIGN_PLAN_FAVORITE_NUM_SYNCHRONIZE_MAP, recommendId + "", favoriteNum + "");
+        logger.info("------用户 " + userId + " 操作后,方案 " + recommendId + " 的收藏数为：" + favoriteNum);
+
+        //从缓存中获取用户对方案的收藏信息
+        String userLikeAndFavoritePlanInfo = redisService.getMap(USER_DESIGN_PLAN_INFO_MAP, userId + ":" + recommendId);
+        Integer likeStatus;
+        //缓存中没有，数据库查点赞状态；有，获取索引为0的就是点赞状态
+        if (StringUtils.isEmpty(userLikeAndFavoritePlanInfo)) {
+            //查询用户点赞状态,已经处理过,肯定会返回整数的
+            likeStatus = designPlanLikeService.getStatus(userId, recommendId);
+        } else {
+            String[] userLikeAndFavoritePlanInfoSplit = userLikeAndFavoritePlanInfo.split(":");
+            likeStatus = Integer.parseInt(userLikeAndFavoritePlanInfoSplit[0]);
+        }
+
+        //把用户对方案的点赞信息存入缓存
+        redisService.addMap(USER_DESIGN_PLAN_INFO_MAP, userId + ":" + recommendId, likeStatus + ":" + status);
+        //存到记录的map里，方便同步数据库，不用每次都同步所有的数据
+        redisService.addMap(USER_DESIGN_PLAN_INFO_SYNCHRONIZE_MAP, userId + ":" + recommendId, likeStatus + ":" + status);
+
+        return favoriteNum;
+
+    }
+
+    @Override
+    public int saveOrUpdate(DesignPlanRecommendFavoriteRef favoriteRef) {
+        if (null == favoriteRef || null == favoriteRef.getUserId() || 0 == favoriteRef.getRecommendId()) {
+            return 0;
+        }
+
+        //检查用户是否有收藏夹---构造数据
+        Favorite favorite = new Favorite();
+        favorite.setUserId(favoriteRef.getUserId());
+        //查询用户收藏夹
+        List<Favorite> favoriteList = designPlanRecommendFavoriteMapper.listFavorites(favorite);
+        if (null == favoriteList || favoriteList.size() == 0) {
+            //若收藏夹为空则新建默认收藏夹
+            favorite.setName("运营网站默认设计方案收藏夹");
+            this.addFavorite(favorite);
+            //重装收藏夹ID
+            favoriteRef.setFid(favorite.getBid());
+        } else {
+            //默认第一个收藏夹为默认收藏夹
+            favoriteRef.setFid(favoriteList.get(0).getBid());
+        }
+
+        //查询推荐方案是否存在
+        DesignPlanRecommended designPlanRecommended = designPlanRecommendedService.get(favoriteRef.getRecommendId());
+        if (null == designPlanRecommended) {
+            logger.error(favoriteRef.getRecommendId() + "_do_not_exist");
+            return -1;
+        }
+        favoriteRef.setBid(UUID.randomUUID().toString().replaceAll("-", ""));
+        return designPlanRecommendFavoriteMapper.saveOrUpdate(favoriteRef);
+    }
+
+    /**
+     * 获取用户是否收藏方案
+     *
+     * @param favoriteRef
+     * @return
+     */
+    @Override
+    public int getPlanFavoriteStatusOfUser(DesignPlanRecommendFavoriteRef favoriteRef) {
+        if (favoriteRef == null || favoriteRef.getRecommendId() < 1 || favoriteRef.getUserId() == null || favoriteRef.getUserId().intValue() < 1) {
+            return 0;
+        }
+        //检查用户是否有收藏夹---构造数据
+        Favorite favorite = new Favorite();
+        favorite.setUserId(favoriteRef.getUserId());
+        //查询用户收藏夹
+        List<Favorite> favoriteList = designPlanRecommendFavoriteMapper.listFavorites(favorite);
+        if (null == favoriteList || favoriteList.size() == 0) {
+            //若收藏夹为空则新建默认收藏夹
+            favorite.setName("运营网站默认设计方案收藏夹");
+            this.addFavorite(favorite);
+            //重装收藏夹ID
+            favoriteRef.setFid(favorite.getBid());
+        } else {
+            //默认第一个收藏夹为默认收藏夹---系统查询数据排序为最后一个
+            favoriteRef.setFid(favoriteList.get(0).getBid());
+        }
+        Integer status = designPlanRecommendFavoriteMapper.getPlanFavoriteStatusOfUser(favoriteRef);
+        if (null == status) {
+            status = 0;
+        }
+        return status;
+    }
+
+}

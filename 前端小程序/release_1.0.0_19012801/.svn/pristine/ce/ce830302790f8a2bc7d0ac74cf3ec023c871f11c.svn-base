@@ -1,0 +1,175 @@
+
+<!-- 选择弹框 -->
+<view class="photograph-choose" wx:if="{{isShowPhotograph}}">
+  <view class="{{isShowPhotograph?'photograph-box':'photograph-box-avtive'}}">
+    <view class="photograph" bindtap='photograph' data-type="camera">拍照</view>
+    <view class="photograph" bindtap='photograph' data-type="album" >从手机相册选择</view>
+    <view class="cancel" bindtap='photograph' data-type="取消">取消</view>
+  </view>
+</view>
+
+  <view wx:if="{{condition}}" class="citypicker" wx:key='{{index}}' catchtouchmove='{{true}}'>
+        <picker-view indicator-style="height: 50px;" style="width: 100%; height: 620rpx;" value="{{value}}" bindchange="bindChange" class="citybody">
+            <view class="cityheader">
+                <view  bindtap='provincialLinkageHide' data-flag="{{false}}" class="city-cancel">取消</view>
+                 <view class="name">区域</view>
+                <view  bindtap='provincialLinkageHide' data-flag="{{true}}" class="city-true">确定</view>
+            </view>
+            <picker-view-column>
+                <view wx:for="{{provinces}}" wx:key="item" style="line-height: 50px;padding-left:10px;text-align:center">{{item.areaName}}</view>
+            </picker-view-column>
+            <picker-view-column>
+                <view wx:for="{{citys}}" wx:key="item" style="line-height: 50px;padding-left:10px;text-align:center">{{item.areaName}}</view>
+            </picker-view-column>
+            <picker-view-column>
+                <view wx:for="{{countys}}" wx:key="item" style="line-height: 50px;padding-left:10px;text-align:center">{{item.areaName}}</view>
+            </picker-view-column>
+        </picker-view>
+    </view>
+   
+      <view wx:if="{{classifyFlag}}" class="citypicker" wx:key='{{index}}'>
+    <picker-view indicator-style="height: 50px;" style="width: 100%; height: 680rpx;text-align:center;line-height:50px" value="{{classifyValue}}" bindchange="classifyChange" class="citybody">
+    <view class="cityheader">
+         <view  bindtap='classifyCommit' data-flag="{{false}}" class="city-cancel">取消</view>
+         <view class="name">类别</view>
+         <view  bindtap='classifyCommit' data-flag="{{true}}" class="city-true">确定</view>
+      </view>
+      <picker-view-column>
+         <view wx:for="{{arr.supplyDemandCategoryVos}}" wx:key="item">{{item.name}}</view>
+      </picker-view-column>
+    </picker-view>  
+    </view>
+    <!-- 选择弹框 -->
+
+<view style="overflow: hidden;{{(isShowPhotograph || condition || classifyFlag)?'height: 100%':''}}">
+  <view class="describe">
+    <view class="title">
+      <input placeholder-style="color:#999999" 
+        placeholder='请输入标题' 
+        bindinput="getTitle" 
+        value='{{title}}'></input>
+    </view>
+    <view class="content">
+      <view class="content-text" wx:if="{{isShowPhotograph || condition || classifyFlag}}">
+          {{content?content:'请简要描述一下你要发布的内容'}}
+        </view>
+        <textarea  placeholder-style="color:#999999" 
+          wx:else
+          value='{{content}}'
+          placeholder="{{(isShowPhotograph || condition || classifyFlag)?'':'请简要描述一下你要发布的内容'}}" 
+          bindinput="getContent">
+        </textarea>
+      <!-- <textarea  placeholder-style="color:#999999" 
+        placeholder='请简要描述一下你要发布的内容' 
+        bindinput="getContent" 
+        value='{{content}}'></textarea> -->
+    </view>
+    <view class="img-list">
+      <view class="add-img" bindtap='uploadPictrue'>
+        <image src="{{staticImageUrl}}add_img.png"></image>
+        <text>添加图片</text>
+      </view>
+      <view class="img-item" wx:for='{{imgarr}}' wx:key='{{index}}'>
+        <image class="img" src="{{item}}"></image>
+        <image class="img-item-delete" 
+          src="{{staticImageUrl}}delete.png" 
+          bindtap='deleteImg' 
+          data-index='{{index}}'></image>
+      </view>
+    </view>
+  </view>
+
+  <view class="need-type">
+    <view class="title">需求类型</view>
+    <view class="options-box">
+      <view class="options" bindtap='changType' data-type='1'>
+        <image src='{{supplyType==1?checkedIcon:checkIcon}}'></image>
+        <view class="options-text">需求方</view>
+      </view>
+      <view class="options" bindtap='changType' data-type='2'>
+        <image src='{{supplyType==2?checkedIcon:checkIcon}}'></image>
+        <view class="options-text">供应方</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="info">
+    <view class="title">基本信息</view>
+    <view class="info-item" bindtap='classify'>
+      <view class="left">类别</view>
+      <view class="right" 
+        wx:if="{{arr.supplyDemandCategoryVos[classifyValue].name}}">
+        {{arr.supplyDemandCategoryVos[classifyValue].name}}
+      </view>
+      <view wx:else class="right-active">请选择类别</view>
+      <image src="{{staticImageUrl}}next.png"></image>
+    </view>
+    <view class="info-item" bindtap='selectCity'>
+      <view class="left">区域</view>
+      <view class="{{region==''?'right-active':'right'}}" >{{region==''?'请选择区域':region}}</view>
+      <image src="{{staticImageUrl}}next.png"></image>
+    </view>
+    <view class="info-item top">
+      <view class="left">详细地址</view>
+      <input class="right" 
+        value='{{address}}'
+        bindinput='getAddress' 
+        placeholder='请输入详细地址' 
+        placeholder-style="color: #999999"></input>
+    </view>
+    <view class="info-item top">
+      <view class="left">联系人</view>
+      <input class="right" 
+        value='{{user}}'
+        bindinput='getUser' 
+        placeholder='请输入姓名' 
+        placeholder-style="color: #999999"></input>
+    </view>
+    <view class="info-item top">
+      <view class="left">手机号</view>
+      <input class="right" 
+        bindinput='getPhone'
+        value='{{phone}}'
+        type='number'
+        placeholder='请输入手机号' 
+        placeholder-style="color: #999999"></input>
+    </view>
+  </view>
+
+  <view class="scope">
+    <view class="title">范围</view>
+    <view class="check-box">
+      <view class='check' data-id='1' bindtap='changerange'>
+        <image class='icon' src='{{decorationCompany==1?checkedIcon:checkIcon}}'></image>
+        <view class='txt'>装修公司</view>
+      </view>
+      <view class='check' data-id='2' bindtap='changerange'>
+        <image class='icon' src='{{designer==1?checkedIcon:checkIcon}}'></image>
+        <view class='txt'>设计师</view>
+      </view>
+      <view class='check' data-id='3' bindtap='changerange'>
+        <image class='icon' src='{{proprietor==1?checkedIcon:checkIcon}}'></image>
+        <view class='txt'>业主</view>
+      </view>
+      <view class='check' data-id='4' bindtap='changerange'>
+        <image class='icon' src='{{builder==1?checkedIcon:checkIcon}}'></image>
+        <view class='txt'>施工单位</view>
+      </view>
+      <view class='check' data-id='5' bindtap='changerange'>
+        <image class='icon' src='{{materialShop==1?checkedIcon:checkIcon}}'></image>
+        <view class='txt'>家居建材门店</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="accomplish">填写已完毕 </view>
+
+  <view class="btn-box">
+    <view class="btn" bindtap='submit'>发布</view>
+  </view>
+</view>
+
+<!-- 快速导航模块 -->
+  <!-- <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav" data="{{ ...newNav }}"/> -->
+  <jdNav></jdNav>

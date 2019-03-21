@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.company.dao.CompanyShopArticleDao">
+
+    <!--获取博文详情-->
+    <select id="get" resultType="com.sandu.company.model.vo.CompanyShopArticleDetailVO" parameterType="java.lang.Long">
+        SELECT
+        id as articleId ,title as articleTitle,content as content,browse_count as browseCount,release_time as releaseTime
+        FROM company_shop_article
+        WHERE is_deleted = 0
+        AND release_status = 1
+        AND id = #{articleId}
+    </select>
+
+    <!--获取博文列表-->
+    <select id="getList" resultType="com.sandu.company.model.vo.CompanyShopArticleListVO"
+            parameterType="com.sandu.company.model.query.ShopArticleQuery">
+        SELECT
+        id as articleId ,title as articleTitle,content as content,browse_count as browseCount,
+        pic_ids as picIds,release_time as releaseTime
+        FROM company_shop_article
+        WHERE is_deleted = 0
+        AND release_status = 1
+        AND shop_id = #{shopId}
+        <if test=" start!=null and limit !=null">
+            LIMIT #{start}, #{limit}
+        </if>
+    </select>
+
+
+    <select id="getCount" parameterType="com.sandu.company.model.query.ShopArticleQuery" resultType="java.lang.Integer">
+        SELECT
+        COUNT(id)
+        FROM company_shop_article
+        WHERE is_deleted = 0
+        AND release_status = 1
+        AND shop_id = #{shopId}
+    </select>
+
+    <!--修改浏览数量-->
+    <update id="updateBrowseCount" parameterType="com.sandu.company.model.CompanyShopArticle">
+        UPDATE company_shop_article SET
+        browse_count = #{browseCount}
+        WHERE id = #{id}
+    </update>
+
+</mapper>

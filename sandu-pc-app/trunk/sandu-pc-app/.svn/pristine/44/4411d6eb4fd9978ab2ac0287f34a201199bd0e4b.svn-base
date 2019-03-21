@@ -1,0 +1,24 @@
+package com.sandu.product.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import com.sandu.product.model.ProductProps;
+
+@Repository
+public interface ProductPropsMapper {
+
+	int insertSelective(ProductProps record);
+
+    int updateByPrimaryKeySelective(ProductProps record);
+  
+    int deleteByPrimaryKey(Integer id);
+        
+    ProductProps selectByPrimaryKey(Integer id);
+    
+    List<String> getStructureProductPropCodeByProductId(@Param("productId") Integer productId, @Param("productAttrCode") String productAttrCode);
+    
+    List<String> getStructureProductPropValueByProductId(@Param("productId") Integer productId, @Param("productAttrCode") String productAttrCode);
+}

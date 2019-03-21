@@ -1,0 +1,383 @@
+package com.sandu.panorama.service.impl;
+
+
+import com.sandu.cityunion.model.UnionGroup;
+import com.sandu.cityunion.model.UnionGroupDetails;
+import com.sandu.common.model.BaseModel;
+import com.sandu.common.model.LoginUser;
+import com.sandu.common.util.Utils;
+import com.sandu.common.util.collections.CustomerListUtils;
+import com.sandu.panorama.dao.DesignPlanStoreReleaseMapper;
+import com.sandu.panorama.dao.UnionGroupDetailsMapper;
+import com.sandu.panorama.dao.UnionGroupMapper;
+import com.sandu.panorama.model.input.UnionGroupAdd;
+import com.sandu.panorama.model.input.UnionGroupSearch;
+import com.sandu.panorama.model.input.UnionGroupUpdate;
+import com.sandu.panorama.model.output.DesignPlanStoreReleaseVo;
+import com.sandu.panorama.service.exception.PanorameException;
+import com.sandu.product.dao.BaseCompanyMapper;
+import com.sandu.product.model.BaseCompany;
+import com.sandu.product.model.input.BaseCompanySearch;
+import com.sandu.product.model.output.BaseCompanyVo;
+import com.sandu.panorama.model.output.UnionGroupVo;
+import com.sandu.panorama.service.UnionGroupService;
+import jdk.nashorn.internal.ir.ContinueNode;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.omg.CORBA.INTERNAL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+
+
+/**
+ * @Title: UnionGroupServiceImpl.java 
+ * @Package
+ * @Description:720制作-联盟分组表ServiceImpl
+ */
+@Service("unionGroupService")
+@Slf4j
+@Transactional
+public class UnionGroupServiceImpl implements UnionGroupService {
+	
+	private static Logger logger = LoggerFactory.getLogger(UnionGroup.class);
+	@Autowired
+	private UnionGroupMapper unionGroupMapper;
+	@Autowired
+	private UnionGroupDetailsMapper unionGroupDetailsMapper;
+	@Autowired
+	private DesignPlanStoreReleaseMapper designPlanStoreReleaseMapper;
+	@Autowired
+	private BaseCompanyMapper baseCompanyMapper;
+
+
+
+	@Override
+	public int add(UnionGroup unionGroup) {
+		return unionGroupMapper.insertSelective(unionGroup);
+	}
+
+	@Override
+	public int update(UnionGroup unionGroup) {
+		return unionGroupMapper.updateByPrimaryKeySelective(unionGroup);
+	}
+
+	@Override
+	public int deleteById(Integer id) {
+		return unionGroupMapper.deleteById(id);
+	}
+
+	@Override
+	public int delete(Integer id) {
+		return unionGroupMapper.deleteByPrimaryKey(id);
+	}
+
+	@Override
+	public UnionGroup get(Integer id) {
+		return unionGroupMapper.selectByPrimaryKey(id);
+	}
+
+	@Override
+	public List<UnionGroup> getList(UnionGroup unionGroup) {
+		return unionGroupMapper.selectList(unionGroup);
+	}
+
+	@Override
+	public List<UnionGroup> getListByUserId(Integer userId) {
+		return unionGroupMapper.getListByUserId(userId);
+	}
+
+	@Override
+	public int getCount(UnionGroupSearch unionGroupSearch) {
+		return unionGroupMapper.selectCount(unionGroupSearch);
+	}
+
+	/*@Override
+	public List<UnionGroup> getPaginatedList(UnionGroupSearch unionGrouptSearch) {
+		return unionGroupMapper.selectPaginatedList(unionGrouptSearch);
+	}*/
+
+	@Override
+	public List<UnionGroupVo> getUnionGroupVoList(UnionGroupSearch unionGroupSearch) {
+		List<UnionGroupVo> unionGroupVoList = new ArrayList<UnionGroupVo>();
+		Integer unionGroupId = null;//720制作关联联盟分组Id
+		//在列表第一页置顶720制作关联的联盟分组
+		if(StringUtils.isNotBlank(unionGroupSearch.getUuid()) && unionGroupSearch.getStart() != null && unionGroupSearch.getStart() == 0){
+			DesignPlanStoreReleaseVo planStoreReleaseVo = new DesignPlanStoreReleaseVo();
+			planStoreReleaseVo = designPlanStoreReleaseMapper.getDesignPlanStoreRelease(unionGroupSearch.getUuid());
+			if(planStoreReleaseVo != null && planStoreReleaseVo.getUnionContactId() != null){
+				unionGroupId = planStoreReleaseVo.getUnionGroupId();
+			}
+			unionGroupSearch.setUnionGroupId(unionGroupId);
+		}
+		List<UnionGroupVo> list = unionGroupMapper.selectUnionGroupVoListBySearch(unionGroupSearch);
+		if(list == null || list.size() < 1){
+			return null;
+		}
+		for(UnionGroupVo unionGroupVo : list){
+			//获取企业信息
+			List<BaseCompanyVo> baseCompanyVos = this.getCompanyVoByGroupId(unionGroupVo.getId());
+			if(baseCompanyVos != null){
+				unionGroupVo.setCompanyList(baseCompanyVos);
+			}
+			unionGroupVoList.add(unionGroupVo);
+		}
+		return unionGroupVoList;
+	}
+
+	@Override
+	public UnionGroupVo getUnionGroupVo(Integer id) {
+		UnionGroup unionGroup = this.get(id);
+		UnionGroupVo unionGroupVo = new UnionGroupVo();
+		if(unionGroup != null && unionGroup.getId() != null){
+			unionGroupVo.setId(unionGroup.getId());
+			unionGroupVo.setGroupName(unionGroup.getGroupName());
+			//获取关联企业信息
+			List<BaseCompanyVo> baseCompanyVos = this.getCompanyVoByGroupId(unionGroup.getId());
+			unionGroupVo.setCompanyList(baseCompanyVos);
+		}
+		return unionGroupVo;
+	}
+
+	/**
+	 * 根据联盟分组Id获取关联企业信息
+	 * @param groupId
+	 * @return
+	 */
+	private List<BaseCompanyVo> getCompanyVoByGroupId(Integer groupId){
+		if(groupId == null){
+			return null;
+		}
+		List<BaseCompanyVo> baseCompanyVos = new ArrayList<BaseCompanyVo>();
+
+		//获取联盟分组详情
+		List<UnionGroupDetails> unionGroupDetailslist = new ArrayList<UnionGroupDetails>();
+		unionGroupDetailslist = unionGroupDetailsMapper.getListByGroupId(groupId);
+		if(unionGroupDetailslist.size() < 1){
+			return null;
+		}
+		List<Integer> companyIdList = new ArrayList<Integer>();
+		unionGroupDetailslist.forEach(unionGroupDetails -> {
+			if(unionGroupDetails.getCompanyId() != null){
+				companyIdList.add(unionGroupDetails.getCompanyId());
+			}
+		});
+
+		//获取公司信息
+		if(companyIdList.size() > 0) {
+
+			BaseCompanySearch companySearch = new BaseCompanySearch();
+			companySearch.setIsDeleted(0);
+			companySearch.setIdList(companyIdList);
+			baseCompanyVos = baseCompanyMapper.selectBaseCompanyVoList(companySearch);
+		}
+		return baseCompanyVos;
+	}
+
+	@Override
+	public int addUnionGroup(UnionGroupAdd unionGroupAdd, LoginUser loginUser) throws PanorameException {
+		if(unionGroupAdd == null){
+			return 0;
+		}
+		UnionGroup unionGroup = new UnionGroup();
+		unionGroup.setGroupName(unionGroupAdd.getGroupName());
+		unionGroup.setUserId(loginUser.getId());
+		BaseModel.sysSave(unionGroup,loginUser);
+		int ret;
+		try {
+			ret = this.add(unionGroup);
+		} catch (Exception e){
+			e.printStackTrace();
+			logger.error("新增联盟门店时出现异常",e);
+			throw new PanorameException("新增联盟门店时出现异常，新增失败！");
+		}
+		if(ret < 1){
+			throw new PanorameException("新增联盟门店失败!");
+		}
+		//批量新增联盟门店详细表记录
+		if(StringUtils.isNotBlank(unionGroupAdd.getCompanyIds())){
+			List<Integer> companyIdList = Utils.getIntegerListFromStringList(unionGroupAdd.getCompanyIds());
+			if(companyIdList != null && companyIdList.size() > 0){
+				this.batchAddUnionGroupDetail(companyIdList,unionGroup.getId(),loginUser);
+			}
+		}
+		return 1;
+	}
+
+	@Override
+	public int updateUnionGroup(UnionGroupUpdate unionGroupUpdate, LoginUser loginUser) throws PanorameException {
+		if(unionGroupUpdate == null || unionGroupUpdate.getId() == null){
+			return 0;
+		}
+		//修改联盟门店
+		UnionGroup unionGroup = new UnionGroup();
+		unionGroup = this.get(unionGroupUpdate.getId());
+		if(unionGroup == null){
+			throw new PanorameException("此联盟门店不存在！id:"+unionGroupUpdate.getId());
+		}
+		unionGroup.setGroupName(unionGroupUpdate.getGroupName());
+		BaseModel.sysSave(unionGroup,loginUser);
+		int ret = 0 ;
+		try {
+			ret = this.update(unionGroup);
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("修改联盟门店信息时出现异常:",e);
+			throw new PanorameException("修改联盟门店信息时出现异常，修改失败");
+		}
+		if(ret < 1){
+			throw new PanorameException("修改联盟门店信息失败！");
+		}
+		//处理联盟分组关联详情信息
+		List<UnionGroupDetails> unionGroupDetailsList = new ArrayList<UnionGroupDetails>();//关联详情信息
+		List<Integer> detailCompanyIdList = new ArrayList<Integer>();//此联盟分组关联企业Id集合
+		List<Integer> companyIdList = new ArrayList<Integer>();//用户选择的联盟分组关联企业
+		Map<Integer,Integer> detailCompanyMap = new HashMap<Integer,Integer>();
+
+		unionGroupDetailsList = unionGroupDetailsMapper.getListByGroupId(unionGroup.getId());
+		//获取联盟分组关联企业Id集合
+		if(unionGroupDetailsList.size() > 0){
+			detailCompanyIdList = new ArrayList<Integer>(unionGroupDetailsList.size());
+			for (UnionGroupDetails details : unionGroupDetailsList){
+				if(details.getCompanyId() != null){
+					detailCompanyIdList.add(details.getCompanyId());
+					detailCompanyMap.put(details.getCompanyId(),details.getId());
+				}
+			}
+		}
+		//处理用户选择的联盟分组关联企业信息
+		if(StringUtils.isNotBlank(unionGroupUpdate.getCompanyIds())){
+			companyIdList = Utils.getIntegerListFromStringList(unionGroupUpdate.getCompanyIds());
+		}
+		//对比信息得出需删除关联企业和需增加关联企业 TODO:优化逻辑
+		List<Integer> addCompanyIdList = new ArrayList<Integer>(companyIdList.size());
+		List<Integer> removeCompanyIdList = new ArrayList<Integer>(detailCompanyIdList.size());
+		addCompanyIdList.addAll(companyIdList);
+		addCompanyIdList.removeAll(detailCompanyIdList);
+
+		removeCompanyIdList.addAll(detailCompanyIdList);
+		removeCompanyIdList.removeAll(companyIdList);
+
+		//批量删除关联详情
+		List<Integer> removeDetailIdList = new ArrayList<Integer>(removeCompanyIdList.size());
+		for (Integer id : removeCompanyIdList){
+			if(detailCompanyMap.containsKey(id)){
+				Integer detailId = detailCompanyMap.get(id);
+				removeDetailIdList.add(detailId);
+			}
+		}
+		try {
+			if(CustomerListUtils.isNotEmpty(removeDetailIdList)){
+				unionGroupDetailsMapper.deletedByIdList(removeDetailIdList);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("批量删除联盟门店详细信息时发生异常:",e);
+			throw new PanorameException("删除联盟门店明细时出现异常,修改失败！");
+		}
+		//批量新增联盟门店明细
+		try {
+			if(CustomerListUtils.isNotEmpty(addCompanyIdList)) {
+				this.batchAddUnionGroupDetail(addCompanyIdList, unionGroup.getId(), loginUser);
+			}
+		} catch (PanorameException e) {
+			throw  new PanorameException(e.getMessage());
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error("批量新增联盟门店明细事出现异常:",e);
+			throw new PanorameException("批量新增联盟门店明细事出现异常，修改失败！");
+		}
+
+		return 1;
+	}
+
+	@Override
+	public int deleteUnionGroupAndDetails(Integer id) throws PanorameException {
+		if(id == null || id == 0){
+			return -1;
+		}
+		//删除关联详情信息
+		try {
+			unionGroupDetailsMapper.deleteByGroupId(id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("删除联盟门店关联信息时出现异常:"+e);
+			throw new PanorameException("删除联盟门店关联信息时出现异常，删除失败！");
+		}
+		//删除联盟管理分组
+		try {
+			this.deleteById(id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("删除联盟门店时出现异常:"+e);
+			throw new PanorameException("删除联盟门店时出现异常，删除失败！");
+		}
+		return 1;
+	}
+
+	/**
+	 * 批量处理新增联盟分组明细信息
+	 * @param companyIdList
+	 * @param groupId
+	 * @param loginUser
+	 * @return
+	 */
+	private int batchAddUnionGroupDetail(List<Integer> companyIdList,Integer groupId,LoginUser loginUser) throws PanorameException {
+		if(companyIdList == null || companyIdList.size() < 1 || groupId == null){
+			return 0;
+		}
+		List<UnionGroupDetails> unionGroupDetailList = new ArrayList<UnionGroupDetails>(companyIdList.size());
+		for (Integer companyId : companyIdList){
+			if(companyId == null){
+				continue;
+			}
+			BaseCompany company = baseCompanyMapper.selectByPrimaryKey(companyId);
+			if(company == null || company.getId() == null || company.getIsDeleted() == 1){
+				continue;
+			}
+			//拼装联盟分组详情信息
+			UnionGroupDetails unionGroupDetails = new UnionGroupDetails();
+			unionGroupDetails.setGroupId(groupId);
+			unionGroupDetails.setCompanyId(companyId);
+			unionGroupDetails.setName(company.getCompanyName());//联盟分组明细的的店名
+			unionGroupDetails.setPhone(company.getPhone());
+			unionGroupDetails.setAddress(company.getCompanyAddress());
+			unionGroupDetails.setContact(company.getContactName());
+			unionGroupDetails.setUserId(loginUser.getId());
+			BaseModel.sysSave(unionGroupDetails,loginUser);
+			unionGroupDetailList.add(unionGroupDetails);
+		}
+		//批量新增联盟分组详情
+		try {
+			unionGroupDetailsMapper.batchInsertDataList(unionGroupDetailList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("批量新增联盟分组时出现异常:",e);
+			throw new PanorameException("批量新增联盟分组时出现异常,保存失败！");
+		}
+		return 1;
+	}
+
+	@Override
+	public UnionGroupVo getUnionGroupInfoByUUID(String uuid) {
+		if(StringUtils.isBlank(uuid)){
+			return null;
+		}
+		//获取720分享主体信息
+		DesignPlanStoreReleaseVo designPlanStoreReleaseVo = designPlanStoreReleaseMapper.getDesignPlanStoreRelease(uuid);
+		if( designPlanStoreReleaseVo == null ){
+			return null;
+		}
+		Integer unionGroupId = designPlanStoreReleaseVo.getUnionGroupId();
+		if(unionGroupId == null || unionGroupId < 1){
+			return null;
+		}
+		UnionGroupVo unionGroupVo = this.getUnionGroupVo(unionGroupId);
+		return unionGroupVo;
+	}
+}

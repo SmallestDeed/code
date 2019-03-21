@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.category.dao.CategoryDao">
+    <!--<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>-->
+    <!-- **插入定义** -->
+    <insert id="saveCategory" parameterType="com.sandu.api.category.model.Category" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into pro_category
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sysCode!= null">sys_code,</if>
+            <if test="creator!= null">creator,</if>
+            <if test="gmtCreate!= null">gmt_create,</if>
+            <if test="modifier!= null">modifier,</if>
+            <if test="gmtModified!= null">gmt_modified,</if>
+            <if test="isDeleted!= null">is_deleted,</if>
+            <if test="code!= null">code,</if>
+            <if test="longCode!= null">long_code,</if>
+            <if test="attributeKey!= null">attribute_key,</if>
+            <if test="pid!= null">pid,</if>
+            <if test="name!= null">name,</if>
+            <if test="isLeaf!= null">is_leaf,</if>
+            <if test="level!= null">level,</if>
+            <if test="ordering!= null">ordering,</if>
+            <if test="state!= null">state,</if>
+            <if test="att2!= null">att2,</if>
+            <if test="att3!= null">att3,</if>
+            <if test="att4!= null">att4,</if>
+            <if test="att5!= null">att5,</if>
+            <if test="att6!= null">att6,</if>
+            <if test="dateAtt1!= null">date_att1,</if>
+            <if test="dateAtt2!= null">date_att2,</if>
+            <if test="numAtt1!= null">num_att1,</if>
+            <if test="numAtt2!= null">num_att2,</if>
+            <if test="numAtt3!= null">num_att3,</if>
+            <if test="numAtt4!= null">num_att4,</if>
+            <if test="remark!= null">remark,</if>
+            <if test="attributeType!= null">attribute_type,</if>
+            <if test="nameFirstLetter!= null">name_first_letter,</if>
+            <if test="firstStageCode!= null">first_stage_code,</if>
+            <if test="secondStageCode!= null">second_stage_code,</if>
+            <if test="thirdStageCode!= null">third_stage_code,</if>
+            <if test="fourthStageCode!= null">fourth_stage_code,</if>
+            <if test="fifthStageCode!= null">fifth_stage_code,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sysCode!= null">#{sysCode,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">#{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">#{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER},</if>
+            <if test="code!= null">#{code,jdbcType=VARCHAR},</if>
+            <if test="longCode!= null">#{longCode,jdbcType=VARCHAR},</if>
+            <if test="attributeKey!= null">#{attributeKey,jdbcType=VARCHAR},</if>
+            <if test="pid!= null">#{pid,jdbcType=INTEGER},</if>
+            <if test="name!= null">#{name,jdbcType=VARCHAR},</if>
+            <if test="isLeaf!= null">#{isLeaf,jdbcType=INTEGER},</if>
+            <if test="level!= null">#{level,jdbcType=INTEGER},</if>
+            <if test="ordering!= null">#{ordering,jdbcType=INTEGER},</if>
+            <if test="state!= null">#{state,jdbcType=VARCHAR},</if>
+            <if test="att2!= null">#{att2,jdbcType=VARCHAR},</if>
+            <if test="att3!= null">#{att3,jdbcType=VARCHAR},</if>
+            <if test="att4!= null">#{att4,jdbcType=VARCHAR},</if>
+            <if test="att5!= null">#{att5,jdbcType=VARCHAR},</if>
+            <if test="att6!= null">#{att6,jdbcType=VARCHAR},</if>
+            <if test="dateAtt1!= null">#{dateAtt1,jdbcType=TIMESTAMP},</if>
+            <if test="dateAtt2!= null">#{dateAtt2,jdbcType=TIMESTAMP},</if>
+            <if test="numAtt1!= null">#{numAtt1,jdbcType=INTEGER},</if>
+            <if test="numAtt2!= null">#{numAtt2,jdbcType=INTEGER},</if>
+            <if test="numAtt3!= null">#{numAtt3,jdbcType=DOUBLE},</if>
+            <if test="numAtt4!= null">#{numAtt4,jdbcType=DOUBLE},</if>
+            <if test="remark!= null">#{remark,jdbcType=VARCHAR},</if>
+            <if test="attributeType!= null">#{attributeType,jdbcType=VARCHAR},</if>
+            <if test="nameFirstLetter!= null">#{nameFirstLetter,jdbcType=VARCHAR},</if>
+            <if test="firstStageCode!= null">#{firstStageCode,jdbcType=VARCHAR},</if>
+            <if test="secondStageCode!= null">#{secondStageCode,jdbcType=VARCHAR},</if>
+            <if test="thirdStageCode!= null">#{thirdStageCode,jdbcType=VARCHAR},</if>
+            <if test="fourthStageCode!= null">#{fourthStageCode,jdbcType=VARCHAR},</if>
+            <if test="fifthStageCode!= null">#{fifthStageCode,jdbcType=VARCHAR},</if>
+        </trim>
+    </insert>
+
+    <!-- **更新定义** -->
+    <update id="updateCategory">
+        update pro_category
+        <set>
+            gmt_modified = now(),
+            <if test="sysCode!= null">sys_code = #{sysCode,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">creator = #{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">modifier = #{modifier,jdbcType=VARCHAR},</if>
+            <if test="isDeleted!= null">is_deleted = #{isDeleted,jdbcType=INTEGER},</if>
+            <if test="code!= null">code = #{code,jdbcType=VARCHAR},</if>
+            <if test="longCode!= null">long_code = #{longCode,jdbcType=VARCHAR},</if>
+            <if test="attributeKey!= null">attribute_key = #{attributeKey,jdbcType=VARCHAR},</if>
+            <if test="pid!= null">pid = #{pid,jdbcType=INTEGER},</if>
+            <if test="name!= null">name = #{name,jdbcType=VARCHAR},</if>
+            <if test="isLeaf!= null">is_leaf = #{isLeaf,jdbcType=INTEGER},</if>
+            <if test="level!= null">level = #{level,jdbcType=INTEGER},</if>
+            <if test="ordering!= null">ordering = #{ordering,jdbcType=INTEGER},</if>
+            <if test="state!= null">state = #{state,jdbcType=VARCHAR},</if>
+            <if test="att2!= null">att2 = #{att2,jdbcType=VARCHAR},</if>
+            <if test="att3!= null">att3 = #{att3,jdbcType=VARCHAR},</if>
+            <if test="att4!= null">att4 = #{att4,jdbcType=VARCHAR},</if>
+            <if test="att5!= null">att5 = #{att5,jdbcType=VARCHAR},</if>
+            <if test="att6!= null">att6 = #{att6,jdbcType=VARCHAR},</if>
+            <if test="dateAtt1!= null">date_att1 = #{dateAtt1,jdbcType=TIMESTAMP},</if>
+            <if test="dateAtt2!= null">date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},</if>
+            <if test="numAtt1!= null">num_att1 = #{numAtt1,jdbcType=INTEGER},</if>
+            <if test="numAtt2!= null">num_att2 = #{numAtt2,jdbcType=INTEGER},</if>
+            <if test="numAtt3!= null">num_att3 = #{numAtt3,jdbcType=DOUBLE},</if>
+            <if test="numAtt4!= null">num_att4 = #{numAtt4,jdbcType=DOUBLE},</if>
+            <if test="remark!= null">remark = #{remark,jdbcType=VARCHAR},</if>
+            <if test="attributeType!= null">attribute_type = #{attributeType,jdbcType=VARCHAR},</if>
+            <if test="nameFirstLetter!= null">name_first_letter= #{nameFirstLetter,jdbcType=VARCHAR},</if>
+            <if test="firstStageCode!= null">first_stage_code= #{firstStageCode,jdbcType=VARCHAR},</if>
+            <if test="secondStageCode!= null">second_stage_code= #{secondStageCode,jdbcType=VARCHAR},</if>
+            <if test="thirdStageCode!= null">third_stage_code= #{thirdStageCode,jdbcType=VARCHAR},</if>
+            <if test="fourthStageCode!= null">fourth_stage_code= #{fourthStageCode,jdbcType=VARCHAR},</if>
+            <if test="fifthStageCode!= null">fifth_stage_code= #{fifthStageCode,jdbcType=VARCHAR},</if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!-- **删除定义** -->
+    <delete id="deleteCategoryById">
+		delete from pro_category
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+
+    <!-- 常量定义 -->
+    <sql id="All_Column_List">
+		id,name_first_letter,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,code,long_code,attribute_key,pid,name,is_leaf,level,ordering,state,att2,att3,att4,att5,att6,date_att1,date_att2,num_att1,num_att2,num_att3,num_att4,remark,attribute_type,first_stage_code,second_stage_code,third_stage_code,fourth_stage_code
+	</sql>
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.sandu.api.category.model.Category">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="sys_code" property="sysCode" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="long_code" property="longCode" jdbcType="VARCHAR"/>
+        <result column="attribute_key" property="attributeKey" jdbcType="VARCHAR"/>
+        <result column="pid" property="pid" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="is_leaf" property="isLeaf" jdbcType="INTEGER"/>
+        <result column="level" property="level" jdbcType="INTEGER"/>
+        <result column="ordering" property="ordering" jdbcType="INTEGER"/>
+        <result column="state" property="state" jdbcType="VARCHAR"/>
+        <result column="att2" property="att2" jdbcType="VARCHAR"/>
+        <result column="att3" property="att3" jdbcType="VARCHAR"/>
+        <result column="att4" property="att4" jdbcType="VARCHAR"/>
+        <result column="att5" property="att5" jdbcType="VARCHAR"/>
+        <result column="att6" property="att6" jdbcType="VARCHAR"/>
+        <result column="date_att1" property="dateAtt1" jdbcType="TIMESTAMP"/>
+        <result column="date_att2" property="dateAtt2" jdbcType="TIMESTAMP"/>
+        <result column="num_att1" property="numAtt1" jdbcType="INTEGER"/>
+        <result column="num_att2" property="numAtt2" jdbcType="INTEGER"/>
+        <result column="num_att3" property="numAtt3" jdbcType="DOUBLE"/>
+        <result column="num_att4" property="numAtt4" jdbcType="DOUBLE"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="attribute_type" property="attributeType" jdbcType="VARCHAR"/>
+        <result column="name_first_letter" property="nameFirstLetter" jdbcType="VARCHAR"/>
+        <result column="third_stage_code" property="thirdStageCode" jdbcType="VARCHAR"/>
+        <result column="fourth_stage_code" property="fourthStageCode" jdbcType="VARCHAR"/>
+        <!-- 		<result  column="state" property="state" jdbcType="VARCHAR" /> -->
+    </resultMap>
+
+    <!-- **查询定义** -->
+    <!-- 按主键查询 -->
+    <select id="getCategoryInfoById" resultMap="AllResultMap">
+        select
+        <include refid="All_Column_List"/>
+        from pro_category
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <!-- 根据code查询 -->
+    <select id="getCategoryByCode" resultMap="AllResultMap">
+        SELECT
+        <include refid="All_Column_List"/>
+        from
+        pro_category
+        where code = #{code}
+    </select>
+    <!-- 根据code集合查询id集合 -->
+    <select id="getCategoryIdsByCategoryCodes" resultType="java.lang.Integer">
+        SELECT
+        id
+        from pro_category
+        where code IN
+        <foreach collection="codes" item="code" open="(" close=")" separator=",">
+            #{code}
+        </foreach>
+    </select>
+    <!-- 查询其下最高级子节点 -->
+    <select id="getChildCategoryIdByCategory" resultType="java.lang.Integer">
+        SELECT
+        id
+        from pro_category
+        where 1 = 1 and
+        <if test="firstStageCode!= null">first_stage_code = #{firstStageCode,jdbcType=VARCHAR}</if>
+        <if test="secondStageCode!= null">second_stage_code = #{secondStageCode,jdbcType=VARCHAR}</if>
+        <if test="thirdStageCode!= null">third_stage_code = #{thirdStageCode,jdbcType=VARCHAR}</if>
+        <if test="fourthStageCode!= null">fourth_stage_code = #{fourthStageCode,jdbcType=VARCHAR}</if>
+        <if test="fifthStageCode!= null">fifth_stage_code = #{fifthStageCode,jdbcType=VARCHAR}</if>
+    </select>
+    <!-- 查询子节点,用于加载树形菜单 -->
+    <select id="getCategoryByPid" resultMap="AllResultMap">
+		select
+		id, pid, name, is_leaf, attribute_key
+		from pro_category
+        where  pid  = #{pid,jdbcType=INTEGER}
+	</select>
+
+    <!-- 根据name和code和pid查询子节点-->
+    <select id="queryCategoryByCodeOrName" resultMap="AllResultMap">
+        select
+        <include refid="All_Column_List"/>
+        from pro_category
+        where 1=1
+        <if test="pid !=  null  ">and pid = #{pid,jdbcType=INTEGER}</if>
+        <if test="code !=  null and code !=  ''   ">and code = #{code,jdbcType=VARCHAR}</if>
+        <if test="name !=  null and name !=  ''   ">and name = #{name,jdbcType=VARCHAR}</if>
+        <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderNum != null and  orderNum !='' ">${orderNum}</if>
+        </if>
+        <if test="orders != null and  orders !=''  ">order by ${orders}</if>
+        <if test="order == null and  orders == null ">order by id desc</if>
+    </select>
+
+    <!-- 查询企业下的类目 -->
+    <select id="getCategoryByCompanyId" resultMap="AllResultMap">
+		SELECT
+		pc.id as id,
+		 pc.pid as pid,
+		 pc.name as name,
+		 pc.is_leaf as is_leaf,
+		 pc.attribute_key as attribute_key
+		from pro_category pc
+		LEFT join company_category_rel ccr on pc.id = ccr.category_id
+		where ccr.company_id = #{companyId}
+	</select>
+
+    <select id="listCategoryNodesByLevel" resultType="com.sandu.api.category.model.Category">
+		select
+		 pc.id as id,
+		 pc.code as code,
+		 pc.pid as pid,
+		 pc.name as name,
+		 pc.level as level,
+		 pc.num_att2 as numAtt2
+		from
+		pro_category pc
+		where pc.is_deleted = 0 and
+		pc.level &gt;= #{startLevel} and pc.level &lt;= #{endLevel}
+	</select>
+
+    <select id="getCategorysByCodes" resultMap="AllResultMap">
+        select
+        pc.id as id,
+        pc.code as code,
+        pc.name as name
+        from
+        pro_category pc
+        where pc.code in
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        order by level ASC
+    </select>
+
+    <select id="getCategoryByIds" resultMap="AllResultMap">
+        select id,name,code,pid,level
+        from pro_category
+        where id in
+        <foreach item="item" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getCategoryNameAndParentNameByIds" resultType="java.util.Map">
+        select
+        p1.id as id,
+        CONCAT(p2.name ,'/',p3.name,'/',p4.name) as names
+        from pro_category p1
+        left join pro_category p2 on p1.second_stage_code = p2.code
+        left join pro_category p3 on p1.third_stage_code = p3.code
+        left join pro_category p4 on p1.fourth_stage_code = p4.code
+        where 1 = 1
+        <if test="list != null and list.size > 0">
+            and p1.id in
+            <foreach item="item" collection="list" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+    </select>
+
+    <select id="getTreeLevelNodeByCategoryIds" resultMap="AllResultMap">
+        select t.code , t.name
+        from pro_category t
+        where t.id in
+        <foreach item="item" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and t.level = 3
+        and is_deleted = 0
+    </select>
+    <select id="listCategoryInfoByParentCode" resultType="com.sandu.api.category.model.Category">
+		select p2.id,p2.name,p2.code,p2.pid from pro_category p1
+		 LEFT JOIN  pro_category p2 on p1.id = p2.pid
+		 where p1.code = #{code}
+	</select>
+    <!--============================================================================================-->
+
+</mapper>

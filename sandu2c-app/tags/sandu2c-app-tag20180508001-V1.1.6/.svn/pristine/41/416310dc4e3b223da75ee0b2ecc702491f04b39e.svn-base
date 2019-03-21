@@ -1,0 +1,165 @@
+package com.sandu.supplydemand.model;
+
+import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
+
+import javax.annotation.RegEx;
+import javax.validation.constraints.*;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+
+
+/**
+ * @author Administrator
+ */
+@Data
+public class BaseSupplyDemand implements Serializable{
+    private static final long serialVersionUID = 842010556872720252L;
+
+    private Integer id;
+
+
+    @NotNull(message = "信息类型名称不能为空")
+    @Max(value=2,message = "信息类型名称最大为2")
+    @Min(value=1,message = "信息类型名称最小为1")
+    private Integer type;
+
+    private Integer creatorId;
+
+    private Integer creatorTypeValue;
+
+    @NotNull(message = "信息分类不能为空")
+    private String supplyDemandCategoryId;
+
+
+    @NotNull(message = "省份不能为空")
+    @Size(min=1, max=32, message = "省份名字长度必须在1和32之间")
+    private String province;
+
+    @NotNull(message = "城市不能为空")
+    @Size(min=1, max=32, message = "城市名字长度必须在1和32之间")
+    private String city;
+
+    @NotNull(message = "地区不能为空")
+    @Size(min=1, max=32, message = "地区名字长度必须在1和32之间")
+    private String district;
+
+    @NotNull(message = "街道不能为空")
+    @Size(min=1, max=32, message = "街道名字长度必须在1和32之间")
+    private String street;
+
+    @NotNull(message = "详细地址不能为空")
+    @Size(min=1, max=32, message = "详细地址名字长度必须在1和32之间")
+    private String address;
+
+    @NotNull(message = "图片ID不能为空")
+    private String coverPicId;
+
+    @NotNull(message = "标题不能为空")
+    @Size(min=1, max=50, message = "标题长度必须在1和50之间")
+    private String title;
+
+    @NotNull(message = "描述不能为空")
+    @Size(min=1, max=2000, message = "描述长度必须在1和50之间")
+    private String description;
+
+
+    private String descriptionPicId;
+
+
+    @NotNull(message = "装修公司是否可见不能为空")
+    @Max(value=1,message = "装修公司是否可见最大为1")
+    @Min(value=0,message = "装修公司是否可见最小为0")
+    private Integer decorationCompany;
+
+    @NotNull(message = "设计师是否可见不能为空")
+    @Max(value=1,message = "设计师是否可见最大为1")
+    @Min(value=0,message = "设计师是否可见最小为0")
+    private Integer designer;
+
+    @NotNull(message = "建材门店是否可见不能为空")
+    @Max(value=1,message = "建材门店是否可见最大为1")
+    @Min(value=0,message = "建材门店是否可见最小为0")
+    private Integer materialShop;
+
+    @NotNull(message = "业主是否可见不能为空")
+    @Max(value=1,message = "业主是否可见最大为1")
+    @Min(value=0,message = "业主是否可见最小为0")
+    private Integer proprietor;
+
+    @NotNull(message = "施工单位是否可见不能为空")
+    @Max(value=1,message = "施工单位是否可见最大为1")
+    @Min(value=0,message = "施工单位是否可见最小为0")
+    private Integer builder;
+
+    private Integer pushStatus;
+
+    private Integer businessStatus;
+
+    private Date gmtPublish;
+
+    private String sysCode;
+
+    private String creator;
+
+    private Date gmtCreate;
+
+    private String modifier;
+
+    private Date gmtModified;
+
+    private Integer isDeleted;
+
+    private String remark;
+
+    private String provinceAddress;
+
+    private String cityAddress;
+
+    private String districtAddress;
+
+    private String streetName;
+
+    private String contact;
+
+    @Pattern(regexp = "^((13[0-9])|(14[5,7,9])|(15[^4])|(18[0-9])|(17[0,1,3,5,6,7,8]))\\d{8}$",message = "手机号不正确")
+    private String phone;
+
+    private String typeName;
+
+    private String supplyDemandCategoryName;
+
+    private Integer viewNum;
+
+    private String contractFile;
+
+    private String quotationFile;
+
+    private String picPath;
+
+    private String provinceName;
+
+    private String cityName;
+
+    private String districtName;
+
+    private String supplyDemandCategoryPicPath;
+    //供求信息所有图片路径集合
+    private List<String> supplyDemandPicPath;
+
+    private String publisher;
+
+
+    //供求信息小类名称
+    private String supplyDemandSmallCategoryName;
+    //供求信息图片信息
+    private List<SupplyDemandPic> supplyDemandPicList;
+    //供求信息默认图片信息
+    private SupplyDemandPic supplyDemandCoverPic;
+
+    private String nickName;
+
+    private String userPicPath;
+
+}

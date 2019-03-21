@@ -1,0 +1,584 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.decorateorder.dao.DecorateOrderMapper">
+    <resultMap id="BaseResultMap" type="com.sandu.api.decorateorder.model.DecorateOrder">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="customer_id" jdbcType="INTEGER" property="customerId"/>
+        <result column="company_id" jdbcType="INTEGER" property="companyId"/>
+        <result column="proprietor_info_id" jdbcType="INTEGER" property="proprietorInfoId"/>
+        <result column="order_type" jdbcType="TINYINT" property="orderType"/>
+        <result column="order_status" jdbcType="TINYINT" property="orderStatus"/>
+        <result column="decorate_price_id" jdbcType="INTEGER" property="decoratePriceId"/>
+        <result column="decorate_seckill_order_id" jdbcType="INTEGER" property="decorateSeckillOrderId"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="order_timeout" jdbcType="TIMESTAMP" property="orderTimeout"/>
+        <result column="pay_time" jdbcType="TIMESTAMP" property="payTime"/>
+        <result column="contract_status" jdbcType="TINYINT" property="contractStatus"/>
+        <result column="contract_id" jdbcType="INTEGER" property="contractId"/>
+        <result column="contract_fee" jdbcType="VARCHAR" property="contractFee"/>
+        <result column="service_fee" jdbcType="VARCHAR" property="serviceFee"/>
+        <result column="price" jdbcType="VARCHAR" property="price"/>
+        <result column="contract_approve_time" jdbcType="TIMESTAMP" property="contractApproveTime"/>
+        <result column="contract_approve_user_id" jdbcType="INTEGER" property="contractApproveUserId"/>
+        <result column="contract_reject_time" jdbcType="TIMESTAMP" property="contractRejectTime"/>
+        <result column="contract_reject_reason" jdbcType="VARCHAR" property="contractRejectReason"/>
+        <result column="contract_reject_user_id" jdbcType="INTEGER" property="contractRejectUserId"/>
+        <result column="finance_receipts_status" jdbcType="TINYINT" property="financeReceiptsStatus"/>
+        <result column="finance_receipts_user_id" jdbcType="INTEGER" property="financeReceiptsUserId"/>
+        <result column="finance_receipts_time" jdbcType="TIMESTAMP" property="financeReceiptsTime"/>
+        <result column="refund_type" jdbcType="TINYINT" property="refundType"/>
+        <result column="refund_status" jdbcType="TINYINT" property="refundStatus"/>
+        <result column="refund_apply_time" jdbcType="TIMESTAMP" property="refundApplyTime"/>
+        <result column="refund_reason" jdbcType="VARCHAR" property="refundReason"/>
+        <result column="refund_reject_time" jdbcType="TIMESTAMP" property="refundRejectTime"/>
+        <result column="refund_reject_reason" jdbcType="VARCHAR" property="refundRejectReason"/>
+        <result column="refund_reject_user_id" jdbcType="INTEGER" property="refundRejectUserId"/>
+        <result column="refund_approve_time" jdbcType="TIMESTAMP" property="refundApproveTime"/>
+        <result column="refund_approve_user_id" jdbcType="INTEGER" property="refundApproveUserId"/>
+        <result column="remark1" jdbcType="VARCHAR" property="remark1"/>
+        <result column="remark2" jdbcType="VARCHAR" property="remark2"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="contract_upload_time" jdbcType="TIMESTAMP" property="contractUploadTime"/>
+        <result column="contract_upload_user_id" jdbcType="INTEGER" property="contractUploadUserId"/>
+        <result column="refundStatusStr" jdbcType="VARCHAR" property="refundStatusStr"/>
+        <result column="financeReceiptsStatusStr" jdbcType="VARCHAR" property="financeReceiptsStatusStr"/>
+        <result column="contractStatusStr" jdbcType="VARCHAR" property="contractStatusStr"/>
+        <result column="cityName" jdbcType="VARCHAR" property="cityName"/>
+        <result column="userName" jdbcType="VARCHAR" property="userName"/>
+        <result column="mobile" jdbcType="VARCHAR" property="mobile"/>
+        <result column="companyName" jdbcType="VARCHAR" property="companyName"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        a.id,customer_id,a.company_id,a.proprietor_info_id,a.order_type,a.order_status,a.decorate_price_id,a.decorate_seckill_order_id,a.user_id,
+        a.order_timeout,a.pay_time,a.contract_status,a.contract_id,a.contract_fee,a.service_fee,a.price,a.contract_approve_time,a.contract_approve_user_id,
+        a.contract_reject_time,a.contract_reject_reason,a.contract_reject_user_id,a.finance_receipts_status,a.finance_receipts_user_id,a.finance_receipts_time,
+        a.refund_type,a.refund_status,refund_apply_time,refund_reason,refund_reject_time,refund_reject_reason,refund_reject_user_id,a.refund_approve_time,
+        a.refund_approve_user_id,a.remark1,a.remark2,a.creator,a.gmt_create,a.modifier,a.gmt_modified,a.is_deleted,a.contract_upload_time,a.contract_upload_user_id
+    </sql>
+
+    <insert id="insert" keyProperty="id" keyColumn="id" useGeneratedKeys="true"
+            parameterType="com.sandu.api.decorateorder.model.DecorateOrder">
+        insert into decorate_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="customerId != null">
+                customer_id,
+            </if>
+            <if test="companyId != null">
+                company_id,
+            </if>
+            <if test="proprietorInfoId != null">
+                proprietor_info_id,
+            </if>
+            <if test="orderType != null">
+                order_type,
+            </if>
+            <if test="orderStatus != null">
+                order_status,
+            </if>
+            <if test="decoratePriceId != null">
+                decorate_price_id,
+            </if>
+            <if test="decorateSeckillOrderId != null">
+                decorate_seckill_order_id,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="orderTimeout != null">
+                order_timeout,
+            </if>
+            <if test="payTime != null">
+                pay_time,
+            </if>
+            <if test="contractStatus != null">
+                contract_status,
+            </if>
+            <if test="contractId != null">
+                contract_id,
+            </if>
+            <if test="contractFee != null">
+                contract_fee,
+            </if>
+            <if test="serviceFee != null">
+                service_fee,
+            </if>
+            <if test="price != null">
+                price,
+            </if>
+            <if test="contractApproveTime != null">
+                contract_approve_time,
+            </if>
+            <if test="contractApproveUserId != null">
+                contract_approve_user_id,
+            </if>
+            <if test="contractRejectTime != null">
+                contract_reject_time,
+            </if>
+            <if test="contractRejectReason != null">
+                contract_reject_reason,
+            </if>
+            <if test="contractRejectUserId != null">
+                contract_reject_user_id,
+            </if>
+            <if test="financeReceiptsStatus != null">
+                finance_receipts_status,
+            </if>
+            <if test="financeReceiptsUserId != null">
+                finance_receipts_user_id,
+            </if>
+            <if test="financeReceiptsTime != null">
+                finance_receipts_time,
+            </if>
+            <if test="refundType != null">
+                refund_type,
+            </if>
+            <if test="refundStatus != null">
+                refund_status,
+            </if>
+            <if test="refundApplyTime != null">
+                refund_apply_time,
+            </if>
+            <if test="refundReason != null">
+                refund_reason,
+            </if>
+            <if test="refundRejectTime != null">
+                refund_reject_time,
+            </if>
+            <if test="refundRejectReason != null">
+                refund_reject_reason,
+            </if>
+            <if test="refundRejectUserId != null">
+                refund_reject_user_id,
+            </if>
+            <if test="refundApproveTime != null">
+                refund_approve_time,
+            </if>
+            <if test="refundApproveUserId != null">
+                refund_approve_user_id,
+            </if>
+            <if test="remark1 != null">
+                remark1,
+            </if>
+            <if test="remark2 != null">
+                remark2,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="customerId != null">
+                #{customerId,jdbcType=INTEGER},
+            </if>
+            <if test="companyId != null">
+                #{companyId,jdbcType=INTEGER},
+            </if>
+            <if test="proprietorInfoId != null">
+                #{proprietorInfoId,jdbcType=INTEGER},
+            </if>
+            <if test="orderType != null">
+                #{orderType,jdbcType=TINYINT},
+            </if>
+            <if test="orderStatus != null">
+                #{orderStatus,jdbcType=TINYINT},
+            </if>
+            <if test="decoratePriceId != null">
+                #{decoratePriceId,jdbcType=INTEGER},
+            </if>
+            <if test="decorateSeckillOrderId != null">
+                #{decorateSeckillOrderId,jdbcType=INTEGER},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="orderTimeout != null">
+                #{orderTimeout,jdbcType=TIMESTAMP},
+            </if>
+            <if test="payTime != null">
+                #{payTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="contractStatus != null">
+                #{contractStatus,jdbcType=TINYINT},
+            </if>
+            <if test="contractId != null">
+                #{contractId,jdbcType=INTEGER},
+            </if>
+            <if test="contractFee != null">
+                #{contractFee,jdbcType=VARCHAR},
+            </if>
+            <if test="serviceFee != null">
+                #{serviceFee,jdbcType=VARCHAR},
+            </if>
+            <if test="price != null">
+                #{price,jdbcType=VARCHAR},
+            </if>
+            <if test="contractApproveTime != null">
+                #{contractApproveTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="contractApproveUserId != null">
+                #{contractApproveUserId,jdbcType=INTEGER},
+            </if>
+            <if test="contractRejectTime != null">
+                #{contractRejectTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="contractRejectReason != null">
+                #{contractRejectReason,jdbcType=VARCHAR},
+            </if>
+            <if test="contractRejectUserId != null">
+                #{contractRejectUserId,jdbcType=INTEGER},
+            </if>
+            <if test="financeReceiptsStatus != null">
+                #{financeReceiptsStatus,jdbcType=TINYINT},
+            </if>
+            <if test="financeReceiptsUserId != null">
+                #{financeReceiptsUserId,jdbcType=INTEGER},
+            </if>
+            <if test="financeReceiptsTime != null">
+                #{financeReceiptsTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="refundType != null">
+                #{refundType,jdbcType=TINYINT},
+            </if>
+            <if test="refundStatus != null">
+                #{refundStatus,jdbcType=TINYINT},
+            </if>
+            <if test="refundApplyTime != null">
+                #{refundApplyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="refundReason != null">
+                #{refundReason,jdbcType=VARCHAR},
+            </if>
+            <if test="refundRejectTime != null">
+                #{refundRejectTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="refundRejectReason != null">
+                #{refundRejectReason,jdbcType=VARCHAR},
+            </if>
+            <if test="refundRejectUserId != null">
+                #{refundRejectUserId,jdbcType=INTEGER},
+            </if>
+            <if test="refundApproveTime != null">
+                #{refundApproveTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="refundApproveUserId != null">
+                #{refundApproveUserId,jdbcType=INTEGER},
+            </if>
+            <if test="remark1 != null">
+                #{remark1,jdbcType=VARCHAR},
+            </if>
+            <if test="remark2 != null">
+                #{remark2,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKey" parameterType="com.sandu.api.decorateorder.model.DecorateOrder">
+        update decorate_order
+        <set>
+            <if test="id != null">
+                id = #{id,jdbcType=INTEGER},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId,jdbcType=INTEGER},
+            </if>
+            <if test="companyId != null">
+                company_id = #{companyId,jdbcType=INTEGER},
+            </if>
+            <if test="proprietorInfoId != null">
+                proprietor_info_id = #{proprietorInfoId,jdbcType=INTEGER},
+            </if>
+            <if test="orderType != null">
+                order_type = #{orderType,jdbcType=TINYINT},
+            </if>
+            <if test="orderStatus != null">
+                order_status = #{orderStatus,jdbcType=TINYINT},
+            </if>
+            <if test="decoratePriceId != null">
+                decorate_price_id = #{decoratePriceId,jdbcType=INTEGER},
+            </if>
+            <if test="decorateSeckillOrderId != null">
+                decorate_seckill_order_id = #{decorateSeckillOrderId,jdbcType=INTEGER},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="orderTimeout != null">
+                order_timeout = #{orderTimeout,jdbcType=TIMESTAMP},
+            </if>
+            <if test="payTime != null">
+                pay_time = #{payTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="contractStatus != null">
+                contract_status = #{contractStatus,jdbcType=TINYINT},
+            </if>
+            <if test="contractId != null">
+                contract_id = #{contractId,jdbcType=INTEGER},
+            </if>
+            <if test="contractFee != null">
+                contract_fee = #{contractFee,jdbcType=VARCHAR},
+            </if>
+            <if test="serviceFee != null">
+                service_fee = #{serviceFee,jdbcType=VARCHAR},
+            </if>
+            <if test="price != null">
+                price = #{price,jdbcType=VARCHAR},
+            </if>
+            <if test="contractApproveTime != null">
+                contract_approve_time = #{contractApproveTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="contractApproveUserId != null">
+                contract_approve_user_id = #{contractApproveUserId,jdbcType=INTEGER},
+            </if>
+            <if test="contractRejectTime != null">
+                contract_reject_time = #{contractRejectTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="contractRejectReason != null">
+                contract_reject_reason = #{contractRejectReason,jdbcType=VARCHAR},
+            </if>
+            <if test="contractRejectUserId != null">
+                contract_reject_user_id = #{contractRejectUserId,jdbcType=INTEGER},
+            </if>
+            <if test="financeReceiptsStatus != null">
+                finance_receipts_status = #{financeReceiptsStatus,jdbcType=TINYINT},
+            </if>
+            <if test="financeReceiptsUserId != null">
+                finance_receipts_user_id = #{financeReceiptsUserId,jdbcType=INTEGER},
+            </if>
+            <if test="financeReceiptsTime != null">
+                finance_receipts_time = #{financeReceiptsTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="refundType != null">
+                refund_type = #{refundType,jdbcType=TINYINT},
+            </if>
+            <if test="refundStatus != null">
+                refund_status = #{refundStatus,jdbcType=TINYINT},
+            </if>
+            <if test="refundApplyTime != null">
+                refund_apply_time = #{refundApplyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="refundReason != null">
+                refund_reason = #{refundReason,jdbcType=VARCHAR},
+            </if>
+            <if test="refundRejectTime != null">
+                refund_reject_time = #{refundRejectTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="refundRejectReason != null">
+                refund_reject_reason = #{refundRejectReason,jdbcType=VARCHAR},
+            </if>
+            <if test="refundRejectUserId != null">
+                refund_reject_user_id = #{refundRejectUserId,jdbcType=INTEGER},
+            </if>
+            <if test="refundApproveTime != null">
+                refund_approve_time = #{refundApproveTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="refundApproveUserId != null">
+                refund_approve_user_id = #{refundApproveUserId,jdbcType=INTEGER},
+            </if>
+            <if test="remark1 != null">
+                remark1 = #{remark1,jdbcType=VARCHAR},
+            </if>
+            <if test="remark2 != null">
+                remark2 = #{remark2,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+             <if test="contractUploadTime != null">
+                contract_upload_time = #{contractUploadTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="contractUploadUserId != null">
+                contract_upload_user_id = #{contractUploadUserId,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        update decorate_order set is_deleted = 1
+        where id IN
+        <foreach separator="," open="(" close=")" collection="decorate_orderIds" item="decorate_orderId">
+            #{decorate_orderId}
+        </foreach>
+    </update>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from decorate_order a
+        where a.id = #{id,jdbcType=INTEGER}
+    </select>
+    
+    <!-- 查询已签约客户列表 -->
+    <select id="selectContractOrderList" resultMap="BaseResultMap" parameterType="com.sandu.api.decorateorder.input.DecorateOrderQuery">
+	    SELECT 
+		   p.user_name AS userName,
+		   p.mobile,
+		   CONCAT(a.area_name,b.area_name) AS cityName,
+		   c.company_name AS companyName,
+		   d.`contract_fee`,
+		   d.service_fee,
+		   CASE d.`contract_status` WHEN 0 THEN '待上传' WHEN 1 THEN '待审核' WHEN 2 THEN '审核通过' ELSE '无' END AS contractStatusStr,
+		   CASE d.finance_receipts_status WHEN 0 THEN '待收款' WHEN 1 THEN '已收款' ELSE '' END AS financeReceiptsStatusStr
+		FROM
+		  decorate_order d 
+		  LEFT JOIN proprietor_info p 
+		    ON d.`proprietor_info_id` = p.id 
+		  LEFT JOIN base_area a 
+		    ON p.province_code = a.area_code 
+		  LEFT JOIN base_area b 
+		    ON p.city_code = b.area_code 
+		  LEFT JOIN base_company  c
+		    ON d.company_id = c.id
+		  where d.is_deleted=0 and order_status = 5  
+		  <if test="contractStatus!=null">
+		  	and contract_status = #{contractStatus}
+		  </if>
+		  <if test="financeReceiptsStatus != null">
+		  	and finance_receipts_Status = #{financeReceiptsStatus}
+		  </if>
+    </select>
+    
+    <!-- 查询已退款列表 -->
+    <select id="selectRefundOrderList" resultMap="BaseResultMap" parameterType="com.sandu.api.decorateorder.input.DecorateOrderQuery">
+		 SELECT 
+		   p.user_name AS userName,
+		   p.mobile,
+		   CONCAT(a.area_name,b.area_name) AS cityName,
+		   c.company_name AS companyName,
+		   d.refund_reason
+		   d.refund_reject_reason
+		   CASE d.refund_status WHEN 0 THEN '待审核' WHEN 1 THEN '审核通过' WHEN 2 THEN '已驳回' ELSE '无' END AS refundStatusStr
+		FROM
+		  decorate_order d 
+		  LEFT JOIN proprietor_info p 
+		    ON d.`proprietor_info_id` = p.id 
+		  LEFT JOIN base_area a 
+		    ON p.province_code = a.area_code 
+		  LEFT JOIN base_area b 
+		    ON p.city_code = b.area_code 
+		  LEFT JOIN base_company  c
+		    ON d.company_id = c.id
+		  WHERE d.is_deleted=0 and refund_status IN(0,1,2)      
+		  <if test="refundStatus !=null">
+		  	and refund_status = #{refundStatus}
+		  </if>
+    </select>
+
+    <select id="findAll" resultMap="BaseResultMap" parameterType="com.sandu.api.decorateorder.input.DecorateOrderQuery">
+        select
+        <include refid="Base_Column_List"/>
+        from decorate_order a
+        where a.is_deleted=0
+       	<choose>
+       		<!-- 查询已签约订单 -->
+       		<when test="businessType == 0">
+       			and order_status &gt;= 5
+       		</when>
+       		<!-- 查询已退款订单 -->
+       		<when test="businessType == 1">
+       			and refund_status in(0,1,2)
+       		</when>
+       	</choose>
+        <if test="contractStatus !=null">
+        	 and contract_status = #{contractStatus}
+        </if>
+        <if test="financeReceiptsStatus !=null">
+        	 and finance_receipts_status = #{financeReceiptsStatus}
+        </if>
+        <if test="refundStatus !=null">
+        	 and refund_status = #{refundStatus}
+        </if>
+        <if test="companyName !=null and companyName!=''">
+        	 and exists(
+        	 	select 1 from base_company b where b.id = a.company_id and b.company_name like concat('%',#{companyName},'%')
+        	 )
+        </if>
+        <if test="userName !=null or mobile!=null">
+            and exists(
+            select 1 from proprietor_info pi where pi.id = a.proprietor_info_id
+            <if test="userName != null">
+                and pi.user_name like concat('%',#{userName},'%')
+            </if>
+            <if test="mobile != null">
+                and pi.mobile like concat('%',#{mobile},'%')
+            </if>
+            )
+        </if>
+        order by a.id desc
+    </select>
+    <select id="listOrderByCompanyId" resultType="com.sandu.api.decorateorder.model.DecorateOrder">
+        select * from decorate_order where
+        is_deleted = 0
+        and company_id = #{companyId}
+    </select>
+    <select id="listOrderScoreByCompanyId" resultType="com.sandu.api.decorateorder.model.DecorateOrderScore">
+        select * from decorate_order_score
+        where is_deleted = 0 and company_id IN
+        <foreach separator="," open="(" close=")" collection="ids" item="id">
+            #{id}
+        </foreach>
+    </select>
+    <select id="listOrderByCustomerId" resultType="com.sandu.api.decorateorder.model.DecorateOrder">
+        select * from decorate_order
+        where is_deleted = 0
+        and customer_id = #{id}
+    </select>
+    <select id="findOrderByPriceId" resultType="com.sandu.api.decorateorder.model.DecorateOrder">
+        select * from decorate_order
+        where is_deleted = 0
+        and decorate_price_id = #{id}
+        limit 1
+    </select>
+</mapper>

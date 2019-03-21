@@ -1,0 +1,77 @@
+package com.sandu.product.dao;
+
+import com.sandu.product.model.*;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.ResultType;
+import org.apache.ibatis.annotations.Select;
+import org.springframework.stereotype.Repository;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+/**
+ * @version V1.0
+ * @Title: BaseProductMapper.java
+ * @Package com.sandu.product.dao
+ * @Description:产品模块-产品库Mapper
+ * @createAuthor pandajun
+ * @CreateDate 2015-06-15 17:01:37
+ */
+@Repository
+public interface BaseProductMapper {
+    int insertSelective(BaseProduct record);
+
+    int updateByPrimaryKeySelective(BaseProduct record);
+
+    int deleteByPrimaryKey(Integer id);
+
+    BaseProduct selectByPrimaryKey(Integer id);
+
+	List<ProCategoryPo> selectAllProductCategory(@Param("companyId")Integer companyId);
+
+	List<ProCategory> selectAllProductCategoryByPid(Integer id);
+
+	ProducDetail selectProductDetail(BaseProduct baseProduct);
+
+	List<ProCategory> selectAllChildNodesByPid(List<String> strs);
+
+	List<ProCategoryPo> selectAllProductCategoryByRoot(String string);
+
+	List<ProductListVo> selectAllProductByIds(@Param("ids")List<Integer> ids,@Param("start")Integer start,@Param("limit")Integer limit);
+
+	Integer selectAllProductCountByIds(List<Integer> ids);
+
+	List<ProCategoryPo> selectAllProductCategoryByids(List<Integer> pids);
+
+
+	@Select("select bc.id from base_product bp left join base_brand bb on" +
+			" bp.brand_id = bb.id left join base_company bc on bc.id  = bb.company_id where bp.id=#{productId} ")
+	@ResultType(Integer.class)
+	Integer getProductCompanyId(@Param("productId")Integer productId);
+
+
+	@Select("select bc.company_domain_name  from base_product bp left join base_brand bb on bp.brand_id = bb.id" +
+			" left join base_company bc on bc.id  = bb.company_id where bp.id=#{productId}")
+	@ResultType(String.class)
+    String getProductCompanyDomainName(@Param("productId") Integer productId);
+
+
+	String selectAllCompanyMainCategory(Integer companyId);
+
+    List<BaseProduct> selectAllSameTypeProduct(Integer parentId);
+
+	/**
+	 * 根据可见范围查询到所有可见的分类编码
+	 * @param visibilityRangeIdList
+	 * @return
+	 */
+	List<String> getCodeListByIdList(@Param("visibilityRangeIdList") List<Integer> visibilityRangeIdList);
+
+    List<ProCategoryPo> selectExactProductCategory(Integer pid);
+
+    BigDecimal selectProductExpense(Integer goodsSpuId);
+
+    Integer selectProductPlatformPrice(Integer productId);
+
+    List<ProCategoryPo> selectAllProductCategoryByids2(@Param("ids") List<Integer> ids, @Param("companyId")Integer companyId);
+}

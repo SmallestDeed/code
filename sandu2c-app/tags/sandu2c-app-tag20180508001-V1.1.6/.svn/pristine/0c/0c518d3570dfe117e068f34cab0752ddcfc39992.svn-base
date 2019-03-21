@@ -1,0 +1,56 @@
+package com.sandu.supplydemand.convert;/**
+ * @ Author     ：weisheng.
+ * @ Date       ：Created in PM 4:42 2018/5/2 0002
+ * @ Description：${description}
+ * @ Modified By：
+ * @Version: $version$
+ */
+
+
+import com.sandu.supplydemand.model.BaseSupplyDemand;
+import com.sandu.supplydemand.output.BaseSupplyDemandVo;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @Title: 供求信息封装
+ * @Package 供求信息封装
+ * @Description: 供求信息封装
+ * @author weisheng
+ * @date 2018/5/2 0002PM 4:42
+ */
+public class BaseSupplyDemandConvert {
+
+    public static List<BaseSupplyDemandVo> parseToBaseSupplyDemandVoList(List<BaseSupplyDemand> baseSupplyDemandList){
+        List<BaseSupplyDemandVo> baseSupplyDemandVoList = new ArrayList<>();
+        if(baseSupplyDemandList!=null && baseSupplyDemandList.size()>0){
+            for (BaseSupplyDemand baseSupplyDemand : baseSupplyDemandList){
+                BaseSupplyDemandVo baseSupplyDemandVo = new BaseSupplyDemandVo();
+                baseSupplyDemandVo.setTitle(baseSupplyDemand.getTitle());
+                baseSupplyDemandVo.setProvinceAddress(baseSupplyDemand.getProvinceName());
+                baseSupplyDemandVo.setCityAddress(baseSupplyDemand.getCityName());
+                baseSupplyDemandVo.setDistrictAddress(baseSupplyDemand.getDistrictName());
+                baseSupplyDemandVo.setStreetAddress(baseSupplyDemand.getStreetName());
+                baseSupplyDemandVo.setGmtModified(baseSupplyDemand.getGmtModified());
+                baseSupplyDemandVo.setSupplyDemandCategoryName(baseSupplyDemand.getSupplyDemandCategoryName());
+                baseSupplyDemandVo.setTypeName(baseSupplyDemand.getType()==1?"供应":"需求");
+                baseSupplyDemandVo.setPushStatus(baseSupplyDemand.getPushStatus()==0?"上架":"下架");
+                baseSupplyDemandVo.setViewNum(baseSupplyDemand.getViewNum());
+                baseSupplyDemandVo.setCoverPicPath(baseSupplyDemand.getPicPath());
+                baseSupplyDemandVo.setCoverPicPath(baseSupplyDemand.getSupplyDemandPCoverPicPath());
+                baseSupplyDemandVo.setSupplyDemandPicPath(baseSupplyDemand.getSupplyDemandPicPath());
+                baseSupplyDemandVo.setSupplyDemandCategoryPicPath(baseSupplyDemand.getSupplyDemandCategoryPicPath());
+                baseSupplyDemandVo.setDescription(baseSupplyDemand.getDescription());
+                baseSupplyDemandVo.setPublisher(baseSupplyDemand.getPublisher());
+                baseSupplyDemandVo.setPublisherPicPath(baseSupplyDemand.getPublisherPicPath());
+                baseSupplyDemandVo.setSupplyDemandId(baseSupplyDemand.getId());
+                baseSupplyDemandVoList.add(baseSupplyDemandVo);
+            }
+
+        }
+
+        return baseSupplyDemandVoList;
+    }
+
+}

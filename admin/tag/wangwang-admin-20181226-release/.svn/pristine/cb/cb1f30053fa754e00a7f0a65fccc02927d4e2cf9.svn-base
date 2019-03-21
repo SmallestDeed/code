@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.product.dao.BaseSeriesDao" >
+  <resultMap id="BaseResultMap" type="com.sandu.api.product.model.BaseSeries" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="code" property="code" jdbcType="VARCHAR" />
+    <result column="long_code" property="longCode" jdbcType="VARCHAR" />
+    <result column="pid" property="pid" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="is_leaf" property="isLeaf" jdbcType="INTEGER" />
+    <result column="level" property="level" jdbcType="INTEGER" />
+    <result column="ordering" property="ordering" jdbcType="INTEGER" />
+    <result column="pic_id" property="picId" jdbcType="INTEGER" />
+    <result column="display_status" property="displayStatus" jdbcType="INTEGER" />
+    <result column="first_stage_code" property="firstStageCode" jdbcType="VARCHAR" />
+    <result column="second_stage_code" property="secondStageCode" jdbcType="VARCHAR" />
+    <result column="third_stage_code" property="thirdStageCode" jdbcType="VARCHAR" />
+    <result column="fourth_stage_code" property="fourthStageCode" jdbcType="VARCHAR" />
+    <result column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    <result column="att1" property="att1" jdbcType="VARCHAR" />
+    <result column="att2" property="att2" jdbcType="VARCHAR" />
+    <result column="numa1" property="numa1" jdbcType="INTEGER" />
+    <result column="numa2" property="numa2" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, code, long_code, pid, name, is_leaf, level, ordering, pic_id, display_status,
+    first_stage_code, second_stage_code, third_stage_code, fourth_stage_code, sys_code,
+    creator, gmt_create, modifier, gmt_modified, is_deleted, att1, att2, numa1, numa2,
+    remark
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" />
+    from base_series
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from base_series
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.product.model.BaseSeries" >
+    insert into base_series (code, long_code,
+      pid, name, is_leaf,
+      level, ordering, pic_id,
+      display_status, first_stage_code, second_stage_code,
+      third_stage_code, fourth_stage_code, sys_code,
+      creator, gmt_create, modifier,
+      gmt_modified, is_deleted, att1,
+      att2, numa1, numa2,
+      remark)
+    values (#{code,jdbcType=VARCHAR}, #{longCode,jdbcType=VARCHAR},
+      #{pid,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{isLeaf,jdbcType=INTEGER},
+      #{level,jdbcType=INTEGER}, #{ordering,jdbcType=INTEGER}, #{picId,jdbcType=INTEGER},
+      #{displayStatus,jdbcType=INTEGER}, #{firstStageCode,jdbcType=VARCHAR}, #{secondStageCode,jdbcType=VARCHAR},
+      #{thirdStageCode,jdbcType=VARCHAR}, #{fourthStageCode,jdbcType=VARCHAR}, #{sysCode,jdbcType=VARCHAR},
+      #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR},
+      #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER}, #{att1,jdbcType=VARCHAR},
+      #{att2,jdbcType=VARCHAR}, #{numa1,jdbcType=INTEGER}, #{numa2,jdbcType=INTEGER},
+      #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.product.model.BaseSeries" >
+    insert into base_series
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="code != null" >
+        code,
+      </if>
+      <if test="longCode != null" >
+        long_code,
+      </if>
+      <if test="pid != null" >
+        pid,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="isLeaf != null" >
+        is_leaf,
+      </if>
+      <if test="level != null" >
+        level,
+      </if>
+      <if test="ordering != null" >
+        ordering,
+      </if>
+      <if test="picId != null" >
+        pic_id,
+      </if>
+      <if test="displayStatus != null" >
+        display_status,
+      </if>
+      <if test="firstStageCode != null" >
+        first_stage_code,
+      </if>
+      <if test="secondStageCode != null" >
+        second_stage_code,
+      </if>
+      <if test="thirdStageCode != null" >
+        third_stage_code,
+      </if>
+      <if test="fourthStageCode != null" >
+        fourth_stage_code,
+      </if>
+      <if test="sysCode != null" >
+        sys_code,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="att1 != null" >
+        att1,
+      </if>
+      <if test="att2 != null" >
+        att2,
+      </if>
+      <if test="numa1 != null" >
+        numa1,
+      </if>
+      <if test="numa2 != null" >
+        numa2,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="code != null" >
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="longCode != null" >
+        #{longCode,jdbcType=VARCHAR},
+      </if>
+      <if test="pid != null" >
+        #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="isLeaf != null" >
+        #{isLeaf,jdbcType=INTEGER},
+      </if>
+      <if test="level != null" >
+        #{level,jdbcType=INTEGER},
+      </if>
+      <if test="ordering != null" >
+        #{ordering,jdbcType=INTEGER},
+      </if>
+      <if test="picId != null" >
+        #{picId,jdbcType=INTEGER},
+      </if>
+      <if test="displayStatus != null" >
+        #{displayStatus,jdbcType=INTEGER},
+      </if>
+      <if test="firstStageCode != null" >
+        #{firstStageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="secondStageCode != null" >
+        #{secondStageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdStageCode != null" >
+        #{thirdStageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="fourthStageCode != null" >
+        #{fourthStageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="sysCode != null" >
+        #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="att1 != null" >
+        #{att1,jdbcType=VARCHAR},
+      </if>
+      <if test="att2 != null" >
+        #{att2,jdbcType=VARCHAR},
+      </if>
+      <if test="numa1 != null" >
+        #{numa1,jdbcType=INTEGER},
+      </if>
+      <if test="numa2 != null" >
+        #{numa2,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.product.model.BaseSeries" >
+    update base_series
+    <set >
+      <if test="code != null" >
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="longCode != null" >
+        long_code = #{longCode,jdbcType=VARCHAR},
+      </if>
+      <if test="pid != null" >
+        pid = #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="isLeaf != null" >
+        is_leaf = #{isLeaf,jdbcType=INTEGER},
+      </if>
+      <if test="level != null" >
+        level = #{level,jdbcType=INTEGER},
+      </if>
+      <if test="ordering != null" >
+        ordering = #{ordering,jdbcType=INTEGER},
+      </if>
+      <if test="picId != null" >
+        pic_id = #{picId,jdbcType=INTEGER},
+      </if>
+      <if test="displayStatus != null" >
+        display_status = #{displayStatus,jdbcType=INTEGER},
+      </if>
+      <if test="firstStageCode != null" >
+        first_stage_code = #{firstStageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="secondStageCode != null" >
+        second_stage_code = #{secondStageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdStageCode != null" >
+        third_stage_code = #{thirdStageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="fourthStageCode != null" >
+        fourth_stage_code = #{fourthStageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="sysCode != null" >
+        sys_code = #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="att1 != null" >
+        att1 = #{att1,jdbcType=VARCHAR},
+      </if>
+      <if test="att2 != null" >
+        att2 = #{att2,jdbcType=VARCHAR},
+      </if>
+      <if test="numa1 != null" >
+        numa1 = #{numa1,jdbcType=INTEGER},
+      </if>
+      <if test="numa2 != null" >
+        numa2 = #{numa2,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.product.model.BaseSeries" >
+    update base_series
+    set code = #{code,jdbcType=VARCHAR},
+      long_code = #{longCode,jdbcType=VARCHAR},
+      pid = #{pid,jdbcType=INTEGER},
+      name = #{name,jdbcType=VARCHAR},
+      is_leaf = #{isLeaf,jdbcType=INTEGER},
+      level = #{level,jdbcType=INTEGER},
+      ordering = #{ordering,jdbcType=INTEGER},
+      pic_id = #{picId,jdbcType=INTEGER},
+      display_status = #{displayStatus,jdbcType=INTEGER},
+      first_stage_code = #{firstStageCode,jdbcType=VARCHAR},
+      second_stage_code = #{secondStageCode,jdbcType=VARCHAR},
+      third_stage_code = #{thirdStageCode,jdbcType=VARCHAR},
+      fourth_stage_code = #{fourthStageCode,jdbcType=VARCHAR},
+      sys_code = #{sysCode,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      att1 = #{att1,jdbcType=VARCHAR},
+      att2 = #{att2,jdbcType=VARCHAR},
+      numa1 = #{numa1,jdbcType=INTEGER},
+      numa2 = #{numa2,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="listAllIdAndName" resultMap="BaseResultMap">
+    select id,name
+    from base_series where is_leaf = 0 AND is_deleted = 0 
+  </select>
+</mapper>

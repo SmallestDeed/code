@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.onekeydesign.dao.BaseWaterjetTemplateMapper">
+	<resultMap id="AllResultMap" type="com.nork.onekeydesign.model.BaseWaterjetTemplate">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="template_code" property="templateCode" jdbcType="VARCHAR" />
+		<result column="template_name" property="templateName" jdbcType="VARCHAR" />
+		<result column="brand_id" property="brandId" jdbcType="INTEGER" />
+		<result column="template_length" property="templateLength" jdbcType="INTEGER" />
+		<result column="template_width" property="templateWidth" jdbcType="INTEGER" />
+		<result column="template_file_id" property="templateFileId" jdbcType="INTEGER" />
+		<result column="template_pic_id" property="templatePicId" jdbcType="INTEGER" />
+		<result column="template_shape_value" property="templateShapeValue" jdbcType="INTEGER" />
+		<result column="cad_source_file_id" property="cadSourceFileId" jdbcType="INTEGER" />
+		<result column="template_describe" property="templateDescribe" jdbcType="VARCHAR" />
+		<result column="template_status" property="templateStatus" jdbcType="INTEGER" />
+		<result column="user_id" property="userId" jdbcType="INTEGER" />
+		<result column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result column="creator" property="creator" jdbcType="VARCHAR" />
+		<result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result column="att1" property="att1" jdbcType="VARCHAR" />
+		<result column="att2" property="att2" jdbcType="VARCHAR" />
+		<result column="numa1" property="numa1" jdbcType="INTEGER" />
+		<result column="numa2" property="numa2" jdbcType="INTEGER" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="template_file_url" property="templateFileUrl" jdbcType="VARCHAR" />
+		<result column="cadSourceFilePath" property="cadSourceFilePath" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="All_Column_List" >
+		id, template_code, template_name, brand_id, template_length, template_width, template_file_id,
+		template_pic_id, template_shape_value, cad_source_file_id, template_describe, template_status,
+		user_id, sys_code, creator, gmt_create, modifier, gmt_modified, is_deleted, att1,
+		att2, numa1, numa2, remark
+	</sql>
+
+	<select id="getMoreInfoById" resultMap="AllResultMap">
+		SELECT
+			bwt.id,
+			bwt.template_length,
+			bwt.template_width,
+			bwt.template_name,
+			bwt.template_file_id,
+			bwt.template_pic_id,
+			bwt.is_deleted,
+			rm.model_path AS template_file_url,
+			rf.file_path AS cadSourceFilePath
+		FROM
+			base_waterjet_template bwt
+			LEFT JOIN res_model rm ON rm.id = bwt.template_file_id
+			LEFT JOIN res_file rf ON rf.id = bwt.cad_source_file_id
+		WHERE
+			bwt.id = #{id,jdbcType=INTEGER}
+	</select>
+
+</mapper>

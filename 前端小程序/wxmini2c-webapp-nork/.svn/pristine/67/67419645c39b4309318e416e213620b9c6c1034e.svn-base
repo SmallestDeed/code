@@ -1,0 +1,115 @@
+<!--pages/web-detail-complicated/web-detail-complicated.wxml-->
+<wxs module="public" src="../../utils/public.wxs"></wxs>
+<import src="../../utils/wxParse/wxParse.wxml" />
+<view class='white'>
+    <swiper wx:if="{{List.coverResList.length>0}}" wx:key="{{index}}" class='toparea' indicator-dots="{{List.coverResList.length>=2?true:false}}" autoplay='true' interval='5000' indicator-active-color="#ff6419" circular='true'>
+        <block wx:for="{{List.coverResList}}">
+            <swiper-item>
+                <image src="{{resourcePath+item}}" mode='aspectFill' class="toparea" />
+            </swiper-item>
+        </block>
+    </swiper>
+    <view class='toparea' wx:if="{{List.coverResList.length<=0||!List.coverResList}}" >
+        <image src="{{staticImageUrl+'wei_pc_nor.jpg'}}" mode='aspectFill' class="toparea" />
+    </view>
+    <view class='mainTop'>
+        <image mode='aspectFill'  src='{{List.logoUrl?(resourcePath+List.logoUrl):staticImageUrl+"qiye_logo_nor.png"}}' ></image>{{List.shopName}}
+    </view>
+    <view class='mainTit' wx:if="{{List.contactPhone}}">服务信息</view>
+    <view class='information'  style="margin-bottom:{{caseList.length>0?'86rpx;':'40rpx'}}">
+        <view class='items as' wx:if="{{List.contactPhone}}">
+            <view class='txts'>联系电话:</view>
+            {{List.contactPhone}}
+            <image bindtap='call' data-phone='{{List.contactPhone}}' src='{{staticImageUrl}}wei_icon_phone_02.png' mode='aspectFill'></image>
+        </view>
+        <view class='items' wx:if="{{List.provinceName}}">
+            <view class='txts'>所在地区:</view>
+            {{List.provinceName+List.cityName+List.areaName+List.shopAddress}}
+            <image wx:if='{{showFlag}}' src='{{staticImageUrl}}wei_icon_gps.png' catchtap='goLocation'></image>
+        </view>
+    </view>
+</view>
+<view class='planIndex' wx:if='{{planList.length>0}}'>
+  <view class='mainTit' bindtap='toPlanList' >
+    一键方案
+    <view class='nums'>{{planCount}}个</view>
+    <image src='{{staticImageUrl}}home_icon_more.png'></image>
+</view>
+  <view class='content' >
+    <swiper bindchange='scroll' class='planSwiper'>
+    <swiper-item class='Planlist' wx:for='{{planList}}'>   <!-- wx:for='{{recommendCaseList}}' -->
+        <view class='topImg'>
+          <image class='image' src='{{resourcePath+item.coverPath}}' 
+                bindtap='routerToCaseDetails'
+                data-id='{{item.designPlanRecommendId || item.planRecommendedId}}' 
+                data-type='{{item.planTableType}}'></image>
+          <view class='Renovation-house' catchtap='putInMyhouse' data-item='{{item}}'> 
+          装进我家 <image class='arrow' src='{{staticImageUrl}}page_icon_more_white@2x.png'></image>
+          </view>     
+          <form bindsubmit='formToThreeD' report-submit='true'>
+          <view class='seven-two-ico clearfix'>
+          <view class='video identical-class' wx:if='{{item.planTableType !== 2}}'>
+            <image src='{{staticImageUrl}}place_icon_vedio@2x.png' data-item='{{item}}' data-type='video' catchtap='toThreeD'></image>
+          </view>  
+          <button form-type='submit' data-item='{{item}}' catchtap='{{true}}' data-type='720' class='identical-class'>
+            <view class='single-point'>
+              <image src='{{staticImageUrl}}place_icon_720@2x.png'></image>
+            </view>
+          </button>
+          <button form-type='submit' wx:if='{{item.planTableType !== 2}}' data-item='{{item}}' catchtap='{{true}}' data-type='roam' class='identical-class'>
+            <view class='multi-point'>
+              <image src='{{staticImageUrl}}place_icon_morepoint@2x.png'></image>
+            </view>
+          </button>
+        </view> 
+        </form>
+        </view>
+        <view class='bottom'>
+          <view class='left'>
+            <view class='tit'>{{item.planName}}</view>
+            <view class='nameArea'>{{item.styleName}}  {{item.spaceAreas?item.spaceAreas+"m²" : ""}}</view>
+          </view>
+          <view class='right'>
+            <view class='collet' data-index='{{index}}' catchtap='collectCase' data-item='{{item}}'>
+                <image 
+                src='{{item.isFavorite!=1?staticImageUrl+"page_icon_collect_nor@2x.png":staticImageUrl+"page_icon_collect_sct@2x.png"}}'>
+                </image> 
+              <text>{{item.collectNum || 0}}</text>
+            </view>
+            <view class='thumbs-up' data-index='{{index}}'  data-item='{{item}}' catchtap='likeCase'>
+                <image 
+                src='{{item.isLike != 1?staticImageUrl+"page_icon_like_nor@2x.png":staticImageUrl+"page_icon_like_sct@2x.png"}}'>
+                </image> 
+              <text>{{item.likeNum || 0}}</text>
+            </view>    
+          </view>
+        </view>
+      </swiper-item>
+    </swiper>
+  </view>
+</view>
+<view class='white2'></view>
+<view class='mainTit' wx:if="{{caseList.length>0&&showFlag}}" bindtap='toList' >
+    真实案例
+    <view class='nums'>{{caseList.length}}个</view>
+    <image src='{{staticImageUrl}}home_icon_more.png'></image>
+</view>
+<scroll-view scroll-x='true' class='bck' wx:if="{{caseList.length>0&&showFlag}}">
+    <view class='cases' wx:for='{{caseList}}' wx:key="{{index}}" bindtap='toWorkCase' data-id='{{item.caseId}}'>
+        <image src='{{item.picPath?(resourcePath+item.picPath):(staticImageUrl+"wei_pc_nor.jpg")}}' class='img' mode='aspectFill'></image>
+        <view class='content'>{{item.caseTitle}}</view>
+    </view>
+</scroll-view>
+<view class='mainTit' wx:if="{{richtxt}}">门店介绍</view>
+<view class='shopcase' wx:if="{{richtxt}}">
+    <template is="wxParse" data="{{wxParseData:article.nodes}}" />
+</view>
+<view class='noson'></view>
+<view class='contactview'>
+    <view class='contact' bindtap='call' data-phone='{{List.contactPhone}}'>
+        立即沟通
+    </view>
+</view>
+
+<import src="../../component/quick-navigation/quick-navigation.wxml" />
+<template is="quickNavigation" data="{{ ...quickNavigation }}" />

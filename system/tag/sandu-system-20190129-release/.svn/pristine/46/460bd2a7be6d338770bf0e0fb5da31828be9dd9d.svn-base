@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.pointmall.dao.OrderDao">
+    <select id="getOrderGiftDetailVoList" resultType="com.sandu.api.pointmall.model.vo.OrderGiftDetailVo">
+        SELECT io.id,io.order_no orderNo,ioi.item_name giftName,ioi.item_original_price itemOriginalPrice,ioi.item_point itemPoint,
+            ioi.item_count itemCount,io.gmt_create createTime,io.`status`,igi.filename,io.remark,io.express_fee
+        FROM imall_order io
+        LEFT JOIN imall_order_item ioi ON ioi.order_id = io.id
+        LEFT JOIN imall_gift_image igi ON igi.gift_id = ioi.item_id
+        WHERE 1=1
+        AND io.buyer_id = #{uid}
+        AND igi.small = 1
+        AND igi.is_deleted = 0
+        AND io.is_deleted = 0
+        ORDER  BY io.gmt_create DESC
+    </select>
+
+    <update id="updateOrderStatus">
+        UPDATE imall_order SET `status` = #{status} WHERE id = #{id};
+    </update>
+
+    <select id="selectOrderId" resultType="com.sandu.api.pointmall.model.ImallOrder">
+        SELECT * FROM imall_order WHERE order_no = #{orderNo}
+    </select>
+
+    <insert id="insertSelective" >
+        insert into imall_order
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                id,
+            </if>
+            <if test="orderNo != null" >
+                order_no,
+            </if>
+            <if test="totalPoint != null" >
+                total_point,
+            </if>
+            <if test="totalCount != null" >
+                total_count,
+            </if>
+            <if test="buyerNickName != null" >
+                buyer_nick_name,
+            </if>
+            <if test="buyerId != null" >
+                buyer_id,
+            </if>
+            <if test="status != null" >
+                status,
+            </if>
+            <if test="paymentStatus != null" >
+                payment_status,
+            </if>
+            <if test="paymentPoint != null" >
+                payment_point,
+            </if>
+            <if test="paymentDate != null" >
+                payment_date,
+            </if>
+            <if test="shipmentStatus != null" >
+                shipment_status,
+            </if>
+            <if test="refundmentStatus != null" >
+                refundment_status,
+            </if>
+            <if test="expressFee != null" >
+                express_fee,
+            </if>
+            <if test="expressNo != null" >
+                express_no,
+            </if>
+            <if test="expressCompay != null" >
+                express_compay,
+            </if>
+            <if test="remark != null" >
+                remark,
+            </if>
+            <if test="sysCode != null" >
+                sys_code,
+            </if>
+            <if test="creator != null" >
+                creator,
+            </if>
+            <if test="gmtCreate != null" >
+                gmt_create,
+            </if>
+            <if test="modifier != null" >
+                modifier,
+            </if>
+            <if test="gmtModified != null" >
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null" >
+                is_deleted,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                #{id},
+            </if>
+            <if test="orderNo != null" >
+                #{orderNo},
+            </if>
+            <if test="totalPoint != null" >
+                #{totalPoint},
+            </if>
+            <if test="totalCount != null" >
+                #{totalCount},
+            </if>
+            <if test="buyerNickName != null" >
+                #{buyerNickName},
+            </if>
+            <if test="buyerId != null" >
+                #{buyerId},
+            </if>
+            <if test="status != null" >
+                #{status},
+            </if>
+            <if test="paymentStatus != null" >
+                #{paymentStatus},
+            </if>
+            <if test="paymentPoint != null" >
+                #{paymentPoint},
+            </if>
+            <if test="paymentDate != null" >
+                #{paymentDate},
+            </if>
+            <if test="shipmentStatus != null" >
+                #{shipmentStatus},
+            </if>
+            <if test="refundmentStatus != null" >
+                #{refundmentStatus},
+            </if>
+            <if test="expressFee != null" >
+                #{expressFee},
+            </if>
+            <if test="expressNo != null" >
+                #{expressNo},
+            </if>
+            <if test="expressCompay != null" >
+                #{expressCompay},
+            </if>
+            <if test="remark != null" >
+                #{remark},
+            </if>
+            <if test="sysCode != null" >
+                #{sysCode},
+            </if>
+            <if test="creator != null" >
+                #{creator},
+            </if>
+            <if test="gmtCreate != null" >
+                #{gmtCreate},
+            </if>
+            <if test="modifier != null" >
+                #{modifier},
+            </if>
+            <if test="gmtModified != null" >
+                #{gmtModified},
+            </if>
+            <if test="isDeleted != null" >
+                #{isDeleted},
+            </if>
+        </trim>
+    </insert>
+</mapper>

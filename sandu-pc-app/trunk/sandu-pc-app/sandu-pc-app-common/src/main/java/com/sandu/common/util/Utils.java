@@ -1,0 +1,1030 @@
+package com.sandu.common.util;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.SecureRandom;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import com.sandu.aes.util.FileEncrypt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sandu.common.model.constant.SystemCommonConstant;
+import com.sandu.common.properties.AppProperties;
+import com.sandu.common.properties.ResProperties;
+import com.sandu.common.util.collections.Lists;
+import com.sandu.product.model.ProductPropsSimple;
+import com.sandu.system.model.BeijingTypePriorityBean;
+import com.sandu.system.model.ResPic;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+public class Utils {
+	
+	private static Logger logger = LoggerFactory.getLogger(Utils.class);
+	
+	public static final String DATETIMESSS = "yyyyMMddHHmmssSSS";
+	public static final String DATE = "yyyy-MM-dd";
+
+	/**
+	 * 墙体方位配置缓存
+	 */
+	private static Map<String, String> beijingTypePriorityConfMap = null;
+	
+	/**
+	 * 墙体方位配置缓存
+	 */
+	private static List<BeijingTypePriorityBean> beijingTypePriorityBeanList = null;
+	
+	/**
+	 * 背景墙匹配备用方案配置
+	 */
+	private static Map<String, List<String>> standbyConfMap = null;
+	
+	public enum getAbsolutePathType {
+		 encrypt, noEncrypt
+	}
+	
+	public static String getPropertyName(String proName, String key, String def) {
+		String value = "";
+		try {
+			ResourceBundle app = ResourceBundle.getBundle(proName);
+			value = app.getString(key);
+			if (StringUtils.isBlank(value)) {
+				value = def;
+			}
+		} catch (Exception e) {
+			value = def;
+		}
+		return value;
+	}
+
+	/**
+	 * 作用: 根据相对路径得到绝对路径 实现逻辑: 根据分布式存储路径配置,获取绝对路径
+	 * 
+	 * @author huangsongbo
+	 * @param relativePath
+	 *            相对路径
+	 *            格式:/AA/c_basedesign/2017/07/05/19/product/baseProduct/piclist/651499_20170705192950610_6.jpg
+	 * @return
+	 */
+	public static String getAbsolutePath(String relativePath, getAbsolutePathType type) {
+
+		// *验证参数/参数处理 ->start
+		if (StringUtils.isEmpty(relativePath)) {
+			logger.error("------StringUtils.isEmpty(relativePath) = true");
+			return null;
+		}
+		if (type == null) {
+			type = Utils.getAbsolutePathType.encrypt;
+		}
+		// *验证参数/参数处理 ->end
+
+		// 按系统转换成正斜杠或者反斜杠
+		return Utils.dealWithPath(Utils.getDomain(relativePath, type) + relativePath,
+				Utils.getValueByFileKey(AppProperties.APP, AppProperties.SYSTEM_FORMAT_FILEKEY, "linux"));
+	}
+	
+	/**
+	 * 获取根节点(资源上传路径根节点)
+	 * 
+	 * @author huangsongbo
+	 * @param relativePath
+	 * @param type
+	 * @return
+	 */
+	public static String getDomain(String relativePath, getAbsolutePathType type) {
+
+		// *验证参数/参数处理 ->start
+		if (StringUtils.isEmpty(relativePath)) {
+			logger.error("------StringUtils.isEmpty(relativePath) = true");
+			return null;
+		}
+		if (type == null) {
+			type = Utils.getAbsolutePathType.encrypt;
+		}
+		// *验证参数/参数处理 ->end
+
+		String modelName = getModelNameByRelativePath(relativePath);
+
+		if (StringUtils.isEmpty(modelName)) {
+			logger.error("------传入的relativePath有问题;(relativePath:" + relativePath + ")");
+			return null;
+		}
+
+		String domain = null;
+
+		// 取文件根节点 ->start
+		Map<String, String> domainConfigMap = null;
+		if (getAbsolutePathType.encrypt.equals(type)) {
+			domainConfigMap = ResDistributeUtils.encryptDistributeMap;
+		} else if (getAbsolutePathType.noEncrypt.equals(type)) {
+			domainConfigMap = ResDistributeUtils.noEncryptDistributeMap;
+		} else {
+			logger.error("------WTF!type只支持encrypt,noEncrypt两种;(type = " + type + ")");
+			return null;
+		}
+
+		if (domainConfigMap == null) {
+			logger.error("------domainConfigMap(根节点配置) = null");
+			return null;
+		}
+
+		if (domainConfigMap.containsKey(modelName)) {
+			domain = domainConfigMap.get(modelName);
+		} else {
+			// 根节点取默认值
+			domain = FileEncrypt.defaultUploadRoot;
+		}
+		// 取文件根节点 ->end
+
+		if (StringUtils.isEmpty(domain)) {
+			logger.error("------domain = null:根目录没有获取到");
+			return null;
+		}
+
+		return domain;
+	}
+	
+	public static String getValueByFileKey(ResourceBundle configUtil, String key, String defalut) {
+		String returnStr = getValueByFileKeyOriginal(configUtil, key, defalut);
+		return replaceDate(returnStr);
+	}
+	
+	/**
+	 * 配置文件取值
+	 * 
+	 * @author huangsongbo
+	 * @param configUtil
+	 *            配置文件类别
+	 * @param key
+	 *            key
+	 * @param defalut
+	 *            默认值
+	 * @return
+	 */
+	// public static String getValueByFileKey(ConfigUtil configUtil, String key,
+	// String defalut) {
+	public static String getValueByFileKeyOriginal(ResourceBundle configUtil, String key, String defalut) {
+		String value = "";
+		try {
+			/* 如果配置文件为res.properties,key值应该加上.upload.path */
+			if (configUtil.equals(ResProperties.RES)) {
+				if (StringUtils.equals("product.groupProduct.file.location.path", key)) {
+					key = "product.groupProduct.file.location";
+				}
+				key = key.replace(".upload.path", "");
+				key += ".upload.path";
+			}
+			// value=configUtil.getValue(key);
+			value = configUtil.getString(key);
+			/* 检测带有%%的情况 */
+			/* value="%product.baseProduct.pic.upload.path%web/" */
+			int num = value.length() - value.replace("%", "").length();
+			/* 两个"%" */
+			if (num == 2) {
+				int startIndex = value.indexOf("%");
+				int endIndex = value.lastIndexOf("%");
+				/* key="product.baseProduct.pic.upload.path" */
+				String appKey = value.substring(startIndex + 1, endIndex);
+				String value3 = value.substring(endIndex + 1, value.length());
+				// String value2=configUtil.getValue(appKey);
+				String value2 = configUtil.getString(appKey);
+				value = value2 + value3;
+			}
+			/* 检测带有%%的情况->end */
+
+			// 处理时间 ->start
+			/* value = Utils.replaceDate(value); */
+			// 处理时间 ->end
+
+		} catch (Exception e) {
+			// e.printStackTrace();
+			value = defalut;
+		}
+		return value;
+	}
+	
+	/**
+	 * 路径中含有/[yyyy]/[MM]/[dd]/[HH]/[mm]/[ss]/
+	 * 
+	 * @author huangsongbo
+	 * @param filePath
+	 * @return
+	 */
+	public static String replaceDate(String filePath) {
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
+		String dateInfo = simpleDateFormat.format(new Date());
+		String[] dateInfoArrays = dateInfo.split("_");
+		if (StringUtils.isBlank(filePath)) {
+			return filePath;
+		}
+		if (filePath.indexOf("[yyyy]") != -1 || filePath.indexOf("[YYYY]") != -1) {
+			filePath = filePath.replace("[yyyy]", dateInfoArrays[0]);
+			filePath = filePath.replace("[YYYY]", dateInfoArrays[0]);
+		}
+		if (filePath.indexOf("[MM]") != -1) {
+			filePath = filePath.replace("[MM]", dateInfoArrays[1]);
+		}
+		if (filePath.indexOf("[dd]") != -1) {
+			filePath = filePath.replace("[dd]", dateInfoArrays[2]);
+		}
+		if (filePath.indexOf("[HH]") != -1) {
+			filePath = filePath.replace("[HH]", dateInfoArrays[3]);
+		}
+		if (filePath.indexOf("[mm]") != -1) {
+			filePath = filePath.replace("[mm]", dateInfoArrays[4]);
+		}
+		if (filePath.indexOf("[ss]") != -1) {
+			filePath = filePath.replace("[ss]", dateInfoArrays[5]);
+		}
+		return filePath;
+	}
+	
+	/**
+	 * 不同系统对应的路径处理
+	 * 
+	 * @author huangsongbo
+	 * @param uploadRoot
+	 * @param valueByFileKey
+	 * @return
+	 */
+	public static String dealWithPath(String uploadRoot, String valueByFileKey) {
+		if (StringUtils.isEmpty(valueByFileKey)) {
+			valueByFileKey = Utils.getValueByFileKey(AppProperties.APP, AppProperties.SYSTEM_FORMAT_FILEKEY, "linux");
+		}
+
+		if (StringUtils.equals("linux", valueByFileKey)) {
+			uploadRoot = uploadRoot.replace("\\", "/");
+		} else {
+			uploadRoot = uploadRoot.replace("/", "\\");
+		}
+		return uploadRoot;
+	}
+	
+	/**
+	 * 根据相对路径,得到资源模块名称 示例: relativePath =
+	 * /AA/c_basedesign/2017/07/05/19/product/baseProduct/piclist/651499_20170705192950610_6.jpg
+	 * return c_basedesign
+	 * 
+	 * @author huangsongbo
+	 * @param relativePath
+	 * @return
+	 */
+	public static String getModelNameByRelativePath(String relativePath) {
+		// 统一转成linux路径格式(正斜杠)
+		relativePath = Utils.dealWithPath(relativePath, "linux");
+
+		// relativePath变成 AA/c_basedesign/2017/07/05/19/....格式
+		while (relativePath.startsWith("/")) {
+			relativePath = relativePath.substring(1);
+		}
+
+		String[] strs = relativePath.split("/");
+		if (strs.length < 2) {
+			logger.error("------relativePath:" + relativePath + ")");
+			return null;
+		}
+
+		// 模块名 eg:c_basedesign
+		return strs[1];
+	}
+	
+	public static String getValue(String key, String defalut) {
+		String value = "";
+
+		try {
+			ResourceBundle app = ResourceBundle.getBundle("app");
+			value = app.getString(key);
+		} catch (Exception e) {
+			// e.printStackTrace();
+			value = defalut;
+		}
+		return value;
+	}
+	
+	public static String getCurrentDateTime(String _dtFormat) {
+		String currentdatetime = "";
+		try {
+			Date date = new Date(System.currentTimeMillis());
+			SimpleDateFormat dtFormat = new SimpleDateFormat(_dtFormat);
+			currentdatetime = dtFormat.format(date);
+		} catch (Exception e) {
+			////// System.out.println("时间格式不正确");
+			e.printStackTrace();
+		}
+		return currentdatetime;
+	}
+	
+	/**
+	 * 产生指定长度的无规律数字字符串
+	 * 
+	 * @param aLength
+	 *            生成的随机数的长度
+	 * @return 生成的随机字符串 throws 卡号生成异常
+	 */
+	public static String generateRandomDigitString(int aLength) {
+		SecureRandom tRandom = new SecureRandom();
+		long tLong;
+		String aString = "";
+
+		tRandom.nextLong();
+		tLong = Math.abs(tRandom.nextLong());
+		aString = (String.valueOf(tLong)).trim();
+		while (aString.length() < aLength) {
+			tLong = Math.abs(tRandom.nextLong());
+			aString += (String.valueOf(tLong)).trim();
+		}
+		aString = aString.substring(0, aLength);
+
+		return aString;
+	}
+	
+	public static int getIntValue(String v) {
+		return getIntValue(v, -1);
+	}
+
+	/***** 将给出的字符串v转换成整形值返回，如果例外则返回预给值def ************/
+	public static int getIntValue(String v, int def) {
+		try {
+			return Integer.parseInt(v);
+		} catch (Exception ex) {
+			return def;
+		}
+	}
+	
+	/**
+	 * String转化成List<JSONObject>
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static List<JSONObject> getJSONObjectByString(String str) {
+		JSONArray encryptWayJsonArray = JSONArray.fromObject(str);
+		List<JSONObject> jsonObjectList = new ArrayList<JSONObject>();
+		if (encryptWayJsonArray != null && encryptWayJsonArray.size() > 0) {
+			for (int i = 0; i < encryptWayJsonArray.size(); i++) {
+				jsonObjectList.add(encryptWayJsonArray.getJSONObject(i));
+			}
+		}
+		return jsonObjectList;
+	}
+	
+	/**
+	 * str(逗号隔开格式)转化为list
+	 * 
+	 * @author huangsongbo
+	 * @return
+	 */
+	public static List<String> getListFromStr(String str) {
+		List<String> list = new ArrayList<String>();
+		if (StringUtils.isBlank(str))
+			return list;
+		if (str.startsWith(",")) {
+			str = str.substring(1, str.length());
+		}
+		if (str.endsWith(",")) {
+			str = str.substring(0, str.length() - 1);
+		}
+		String[] strs = str.split(",");
+		list = Arrays.asList(strs);
+		return list;
+	}
+	
+	/**
+	 * 将删除的物理文件 转移到 指定目录，30天后自动清理
+	 * 
+	 * @param relativePath
+	 *            相对路径
+	 * @param absolutePath
+	 *            绝对路径
+	 */
+	public static Map<String, String> transferDeletedFile(String relativePath, String absolutePath) {
+		Map<String, String> resMap = new HashMap<String, String>();
+		if (StringUtils.isEmpty(relativePath) || StringUtils.isEmpty(absolutePath)) {
+			logger.error(" transferDeletedFile method : lack  parame ");
+			resMap.put("success", "false");
+			resMap.put("data", "缺少参数");
+			return resMap;
+		}
+		if (relativePath.indexOf("\\") > -1) {
+			relativePath = relativePath.replace("\\", "/");
+		}
+		if (absolutePath.indexOf("\\") > -1) {
+			absolutePath = absolutePath.replace("\\", "/");
+		}
+		if (absolutePath.indexOf(relativePath) <= -1) {
+			logger.error(" transferDeletedFile method : relative path and absolute path   Don't match ");
+			resMap.put("success", "false");
+			resMap.put("data", "绝对路径 与 相对路径 不匹配");
+			return resMap;
+		}
+		String delPath = Utils.getValueByFileKey(AppProperties.APP, AppProperties.DEL_RESOURCE_BAK, "");
+
+		if (StringUtils.isEmpty(delPath)) {
+			logger.error(" transferDeletedFile method : app.properties not found " + AppProperties.DEL_RESOURCE_BAK);
+			resMap.put("success", "false");
+			resMap.put("data", "缺少配置" + AppProperties.DEL_RESOURCE_BAK);
+			return resMap;
+		}
+
+		File file = new File(absolutePath);// 判断物理文件是否存在
+		if (!file.exists()) {
+			logger.info
+
+			(" transferDeletedFile method : not found filePath " + absolutePath);
+			resMap.put("success", "false");
+			resMap.put("data", "物理文件不存在" + absolutePath);
+			return resMap;
+		}
+
+		File delFile = new File(delPath);// 删除的文件节点
+		if (!delFile.exists()) {
+			delFile.mkdirs();
+		}
+
+		String deletedFilePath = delPath + relativePath;
+		boolean flag = shearFile(absolutePath, deletedFilePath);// 开始剪切文件
+		if (flag) {
+			resMap.put("success", "true");
+		} else {
+			resMap.put("success", "false");
+			resMap.put("data", "文件剪切至 删除目录 失败");
+		}
+		return resMap;
+	}
+	
+	/**
+	 * 剪切文件
+	 * 
+	 * @param currentFilePath
+	 *            当前文件路径
+	 * @param deletedFilePath
+	 *            将删除的文件移至新的路径
+	 */
+	public static boolean shearFile(String currentFilePath, String deletedFilePath) {
+		boolean flag = false;
+
+		File currentFile = new File(currentFilePath);
+		File deletedFile = new File(deletedFilePath);
+		String directory = deletedFilePath.replace(deletedFile.getName(), "");
+		File deletedFileDirectory = new File(directory);
+		if (!deletedFileDirectory.exists()) {
+			deletedFileDirectory.mkdirs();
+		}
+		InputStream in = null;
+		OutputStream out = null;
+		try {
+			in = new FileInputStream(currentFile);
+			out = new FileOutputStream(deletedFile);
+			byte[] bytes = new byte[1024];
+			int len = -1;
+			while ((len = in.read(bytes)) != -1) {
+				out.write(bytes, 0, len);
+			}
+			flag = true;
+		} catch (FileNotFoundException e) {
+			logger.error(" shearFile method :" + e);
+		} catch (IOException e) {
+			logger.error(" shearFile method :" + e);
+		} finally {
+			try {
+				if (in != null)
+					in.close();
+				if (out != null)
+					out.close();
+				if (flag) {
+					currentFile.delete();
+				}
+				return flag;
+			} catch (Exception e) {
+				logger.error(" shearFile method :" + e);
+			}
+		}
+		return flag;
+	}
+	
+	/**
+	 * 通过绝对路径,得到相对路径 有风险的方法,为了分布式存储资源,暂时想不到更好的办法
+	 * 
+	 * @author huangsongbo
+	 * @param serverFilePath
+	 *            绝对路径
+	 *            eg:E:\norkResources\resources\domain2\AA\c_basedesign\2017\07\05\22\product\baseProduct\pic\small\ipad\web_baimo_C09_0087_dim_0010_A_15.jpg
+	 * @return
+	 */
+	public static String getRelativeUrlByAbsolutePath(String serverFilePath) {
+
+		// *参数验证 ->start
+		if (StringUtils.isEmpty(serverFilePath)) {
+			logger.error("------ -> StringUtils.isEmpty(serverFilePath) = true");
+			return "";
+		}
+		// *参数验证 ->end
+
+		serverFilePath = Utils.dealWithPath(serverFilePath, "linux");
+
+		String[] modelNames = new String[] { "AA", "BB", "CC", "DD", "EE", "FF" };
+
+		List<String> modelNameList = Arrays.asList(modelNames);
+
+		int index = -1;
+		for (String modelName : modelNameList) {
+			int indexTemp = serverFilePath.indexOf("/" + modelName + "/");
+			if (indexTemp != -1) {
+				index = indexTemp;
+				break;
+			}
+		}
+
+		if (index == -1) {
+			logger.error("------ ->无法得到相对路径,serverFilePath:" + serverFilePath);
+			return "";
+		}
+
+		return serverFilePath.substring(index);
+	}
+	
+	/**
+	 * 作用: 通过相对路径,得到完整路径(页面上可以访问的路径) 逻辑: 根据分布式域名配置,拼完整路径
+	 * 
+	 * @author huangsongbo
+	 * @param relativePath
+	 * @return
+	 */
+	public static String getAbsoluteUrlByRelativeUrl(String relativePath) {
+		if (StringUtils.isEmpty(relativePath)) {
+			logger.error("------StringUtils.isEmpty(relativePath) = true");
+			return null;
+		}
+
+		String modelName = getModelNameByRelativePath(relativePath);
+
+		if (StringUtils.isEmpty(modelName)) {
+			logger.error("------传入的relativePath有问题;(relativePath:" + relativePath + ")");
+			return null;
+		}
+
+		Map<String, String> domainConfigMap = ResDistributeUtils.urlDistributeMap;
+
+		String domain = null;
+
+		if (domainConfigMap.containsKey(modelName)) {
+			domain = domainConfigMap.get(modelName);
+		} else {
+			// 根节点取默认值
+			domain = FileEncrypt.resourceUrl;
+		}
+
+		return Utils.dealWithPath(domain + relativePath, "linux");
+	}
+	
+	/**
+	 * 解析固定的list json格式的字符串 格式示例: if(StringUtils.isNotEmpty(column)) ->
+	 * [{"modelName":"d_userdesign,e_userlogs","uploadRoot":"E:\\nork\\resources_user"},{"modelName":"b_base,c_basedesign","uploadRoot":"E:\\nork\\resources_base"},{"modelName":"a_common,f_resource,g_other","uploadRoot":"E:\\nork\\resources_other"}]
+	 * else ->
+	 * {"cfg":[{"modelName":"d_userdesign,e_userlogs","uploadRoot":"E:/norkResources/resources/domain1/src"},{"modelName":"b_base,c_basedesign","uploadRoot":"E:/norkResources/resources/domain2/src"},{"modelName":"a_common,f_resource,g_other","uploadRoot":"E:/norkResources/resources/domain3/srcs"}]}
+	 * column = "cfg"
+	 * 
+	 * 需转化成如下Map格式 {f_resource=E:/nork/resources_other,
+	 * b_base=E:/nork/resources_base, c_basedesign=E:/nork/resources_base,
+	 * a_common=E:/nork/resources_other, e_userlogs=E:/nork/resources_user,
+	 * d_userdesign=E:/nork/resources_user, g_other=E:/nork/resources_other}
+	 * 
+	 * @author huangsongbo
+	 * @param configStr
+	 * @param key
+	 * @param value
+	 * @param value
+	 * @return
+	 */
+	public static Map<String, String> getMapFromListJsonStr(String configStr, String column, String key, String value) {
+
+		// 验证参数 ->start
+		if (StringUtils.isEmpty(configStr)) {
+			logger.error("------StringUtils.isEmpty(configStr) = true");
+			return null;
+		}
+		if (StringUtils.isEmpty(key)) {
+			logger.error("------StringUtils.isEmpty(key) = true");
+			return null;
+		}
+		if (StringUtils.isEmpty(value)) {
+			logger.error("------StringUtils.isEmpty(value) = true");
+			return null;
+		}
+		// 验证参数 ->end
+		configStr = configStr.replace("\\","\\\\");
+
+		//Format the str
+		configStr = configStr.replaceAll("\\\\", "\\\\\\\\");
+
+		Map<String, String> returnMap = new HashMap<String, String>();
+		JSONArray jsonArray = null;
+		if (StringUtils.isNotEmpty(column)) {
+			JSONObject jsonObject = JSONObject.fromObject(configStr);
+			jsonArray = jsonObject.getJSONArray(column);
+		} else {
+			jsonArray = JSONArray.fromObject(configStr);
+		}
+
+		for (int index = 0; index < jsonArray.size(); index++) {
+			JSONObject jsonObject = jsonArray.getJSONObject(index);
+
+			if (!jsonObject.containsKey(key)) {
+				logger.error("------jsonObject.containsKey(key) = false;\n" + "jsonObject:" + jsonObject + "\n" + "key:"
+						+ key);
+				return null;
+			}
+
+			String keyStr = jsonObject.getString(key);
+
+			if (!jsonObject.containsKey(value)) {
+				logger.error("------jsonObject.containsKey(value) = false;\n" + "jsonObject:" + jsonObject + "\n"
+						+ "value:" + value);
+				return null;
+			}
+
+			String valueStr = jsonObject.getString(value);
+			List<String> keyList = getListFromStr(keyStr);
+
+			for (String keyListItem : keyList) {
+				if (!returnMap.containsKey(keyListItem)) {
+					returnMap.put(keyListItem, valueStr);
+				} else {
+				}
+			}
+
+		}
+		return returnMap;
+	}
+
+	/**
+	 * 生成随机数
+	 * @return
+	 */
+	public static Integer getRandomInt(){
+		Random random = new Random();
+		return random.nextInt(50);
+	}
+
+	/**
+	 * 生成UUID
+	 *
+	 * @return
+	 */
+	public static String getUUID() {
+		String uuid = UUID.randomUUID().toString();
+		return uuid.replaceAll("-", "");
+	}
+	/**
+	 * 判断是否符合过滤属性规则
+	 * @param productFilterPropList
+	 * @param productFilterPropList2
+	 * @return
+	 */
+	public static boolean isMatched(List<ProductPropsSimple> productFilterPropList,
+			List<ProductPropsSimple> productFilterPropList2) {
+		// 参数验证/处理 ->start
+		if(Lists.isEmpty(productFilterPropList)) {
+			return true;
+		}else {
+			if(Lists.isEmpty(productFilterPropList2)) {
+				return false;
+			}
+		}
+		// 参数验证/处理 ->end
+		
+		boolean flag = true;
+		Map<String, Integer> map = getScoreMap(productFilterPropList);
+		Map<String, Integer> map2 = getScoreMap(productFilterPropList2);
+		for(String mapKey : map.keySet()){
+			if(!map2.containsKey(mapKey)){
+				flag = false;
+				break;
+			}
+		}
+		return flag;
+	}
+	
+	/**
+	 * 得到分数map(key+"/"+value:分数)
+	 * @author huangsongbo
+	 * @param productOrderPropList
+	 * @return
+	 */
+	public static Map<String, Integer> getScoreMap(List<ProductPropsSimple> productOrderPropList) {
+		Map<String, Integer> map = new HashMap<String, Integer>();
+		// 排序(根据sortValue)
+		Comparator<ProductPropsSimple> comparator = new Comparator<ProductPropsSimple>() {
+			public int compare(ProductPropsSimple productPropsSimple1, ProductPropsSimple productPropsSimple2) {
+				return productPropsSimple2.getSortValue() - productPropsSimple1.getSortValue();
+			}
+		};
+		Collections.sort(productOrderPropList, comparator);
+		Integer i = new Integer(1);
+		for(ProductPropsSimple productPropsSimple : productOrderPropList){
+			map.put(productPropsSimple.getKey() + "/" + productPropsSimple.getValue(), i);
+			i *= 10;
+		}
+		return map;
+	}
+	
+	/**
+	 * 白膜小类valuekey处理成产品小类valuekey
+	 * 
+	 * @author huangsongbo
+	 * @param baimoSmallTypeValuekey
+	 * @return
+	 */
+	public static String baimoSmallTypeKeyToSmallTypeKey(String baimoSmallTypeValuekey) {
+		if(StringUtils.isEmpty(baimoSmallTypeValuekey)) {
+			return null;
+		}
+		String smallTypeValueKey = baimoSmallTypeValuekey.replace("basic_", "");
+		if(StringUtils.equals("beij", smallTypeValueKey)) {
+			smallTypeValueKey = "beijing";
+		}
+		return smallTypeValueKey;
+	}
+	
+	/**
+	 * 获取墙体方位对应key值的map
+	 * eg:A->1;B->1;C->2.意思是A,B墙体分类是一大类,C是单独的一大类
+	 * 
+	 * @author huangsongbo
+	 * @return
+	 */
+	public static Map<String, String> getBeijingTypePriorityConfMap() {
+		if(beijingTypePriorityConfMap != null) {
+			return beijingTypePriorityConfMap;
+		}else {
+			List<BeijingTypePriorityBean> beijingTypePriorityBeanList = Utils.getBeijingTypePriorityBeanList();
+			Map<String, String> returnMap = new HashMap<String, String>();
+			for (int index = 0; index < beijingTypePriorityBeanList.size(); index++) {
+				BeijingTypePriorityBean beijingTypePriorityBean = beijingTypePriorityBeanList.get(index);
+				List<String> wallTypeList = beijingTypePriorityBean.getWallTypePriority();
+				for(String wallType : wallTypeList) {
+					returnMap.put(wallType, index + "");
+				}
+			}
+			beijingTypePriorityConfMap = returnMap;
+			return returnMap;
+		}
+	}
+	
+	/**
+	 * 解析配置 onekeydesign.product.beijingType.priority(墙体方位优先级配置)
+	 * @return
+	 */
+	public static List<BeijingTypePriorityBean> getBeijingTypePriorityBeanList() {
+		if(beijingTypePriorityBeanList != null) {
+			return beijingTypePriorityBeanList;
+		}else {
+			String beijingTypePriorityStr = Utils.getValueByFileKey(AppProperties.APP, AppProperties.DESIGN_PRODUCT_BEIJINGTYPE_PRIORITY_FILEKEY, "[{\"wallTypePriority\":[\"A\"]},{\"wallTypePriority\":[\"B\",\"C\"]},{\"wallTypePriority\":[\"D\",\"E\",\"F\",\"G\"]},{\"wallTypePriority\":[\"H\",\"HA\"],\"standby\":[\"I\",\"IA\"]},{\"wallTypePriority\":[\"I\",\"IA\"],\"standby\":[\"H\",\"HA\"]},{\"wallTypePriority\":[\"O\",\"P\",\"Q\",\"R\",\"S\"]}]");
+			JSONArray jsonArray = null;
+			try {
+				jsonArray = JSONArray.fromObject(beijingTypePriorityStr);
+			}catch (Exception e) {
+				return null;
+			}
+			
+			@SuppressWarnings("unchecked")
+			List<BeijingTypePriorityBean> beijingTypePriorityBeanListResult = (List<BeijingTypePriorityBean>) JSONArray.toCollection(jsonArray, BeijingTypePriorityBean.class);
+			Utils.beijingTypePriorityBeanList = beijingTypePriorityBeanListResult;
+			return beijingTypePriorityBeanListResult;
+		}
+	}
+	
+	/**
+	 * 获取背景墙匹配备用方案
+	 * key -> 备用wallTypeList
+	 * 
+	 * @author huangsongbo
+	 * @return
+	 */
+	public static Map<String, List<String>> getStandbyConfMap() {
+		if(standbyConfMap != null) {
+			return standbyConfMap;
+		}else {
+			Map<String, List<String>> returnMap = new HashMap<String, List<String>>();
+			List<BeijingTypePriorityBean> beijingTypePriorityBeanList = Utils.getBeijingTypePriorityBeanList();
+			for (int index = 0; index < beijingTypePriorityBeanList.size(); index++) {
+				BeijingTypePriorityBean beijingTypePriorityBean = beijingTypePriorityBeanList.get(index);
+				List<String> standbyList = beijingTypePriorityBean.getStandby();
+				if(Lists.isNotEmpty(standbyList)) {
+					returnMap.put(index + "", standbyList);
+				}
+			}
+			standbyConfMap = returnMap;
+			return returnMap;
+		}
+	}
+	
+	/**
+	 * 小类valuekey去basic_
+	 * 
+	 * @author huangsongbo
+	 * @param smallTypeValueKeyList
+	 */
+	public static void dealWithBaimoType(List<String> smallTypeValueKeyList) {
+		// 参数验证/处理 ->start
+		if(Lists.isEmpty(smallTypeValueKeyList)) {
+			return;
+		}
+		// 参数验证/处理 ->end
+		
+		for(String smallTypeValuekey : smallTypeValueKeyList) {
+			smallTypeValuekey = smallTypeValuekey.replace("basic_", "");
+		}
+	}
+	
+	/**
+	 * 从配置中取出背景墙分类优先级
+	 * J,K,L,N,O,F,Q,R,S
+	 * 
+	 * @author huangsongbo
+	 * @return
+	 */
+	public static List<String> getWallTypeList() {
+		/*String beijingTypePriority = Utils.getValueByFileKey(AppProperties.APP, AppProperties.DESIGN_PRODUCT_BEIJINGTYPE_PRIORITY_FILEKEY, "J,K,L,N,O,F,Q,R,S");
+		return Utils.getListFromStr(beijingTypePriority);*/
+		List<BeijingTypePriorityBean> beijingTypePriorityBeanList = Utils.getBeijingTypePriorityBeanList();
+		List<String> wallTypeList = new ArrayList<String>();
+		for(BeijingTypePriorityBean beijingTypePriorityBean : beijingTypePriorityBeanList) {
+			wallTypeList.addAll(beijingTypePriorityBean.getWallTypePriority());
+		}
+		return wallTypeList;
+	}
+	
+	/**
+	 * 拆分字符串变成List
+	 * 
+	 * @author huangsongbo
+	 * @param str
+	 * @param splitStr
+	 * @return
+	 */
+	public static List<String> getListFromStr(String str, String splitStr) {
+		List<String> strList = new ArrayList<String>();
+		if (StringUtils.isBlank(str)) {
+			return strList;
+		}
+		if (str.startsWith(splitStr)) {
+			str = str.substring(1, str.length());
+		}
+		if (str.endsWith(splitStr)) {
+			str = str.substring(0, str.length() - 1);
+		}
+		splitStr = "\\" + splitStr; //转义
+		String[] strs = str.split(splitStr);
+		strList = Arrays.asList(strs);
+		return strList;
+	}
+
+
+	/**
+	 * 匹配产品配置类型
+	 * @param valueKey
+	 * @param appKey
+	 * @return
+	 */
+	public static boolean isMateProductType(String valueKey, String appKey) {
+		if (StringUtils.isNotBlank(appKey) && StringUtils.isNotBlank(valueKey)) {
+			valueKey = "," + valueKey + ",";
+			if (appKey.indexOf(valueKey) != -1) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * 
+	 * 
+	 * enableRedisCache 方法描述： 是否启用redis
+	 * 
+	 * @return
+	 * 
+	 * @return boolean 返回类型
+	 * 
+	 * @Exception 异常对象
+	 * 
+	 * @since CodingExample Ver(编码范例查看) 1.1
+	 */
+	public static boolean enableRedisCache() {
+		return SystemCommonConstant.OPEN_REDIS_CACHE_ENABLE.equalsIgnoreCase(
+				Utils.getValue(SystemCommonConstant.REDIS_CACHE_ENABLE, SystemCommonConstant.CLOSE_REDIS_CACHE_ENABLE));
+	}
+	
+	// 判断是否是背景墙
+	public static Integer getIsBgWall(String valueKey) {
+		String bgWall = Utils.getValue("app.smallProductType.beiJingWall", ",dians,shaf,cant,chuangt,xingx,beijing,basic_dians,basic_shaf,basic_cant,basic_chuangt,basic_xingx,basic_beij,doca,dtca,dxca,dica,dhca,dcca,");
+		String productSmallTypes = Utils.getValue("app.distinguish.bgWall",",chuangk,basic_chuangk,basic_mengk,mengk,");
+		if (StringUtils.isNotBlank(valueKey)) {
+			valueKey = "," + valueKey + ",";
+			if (bgWall.indexOf(valueKey) != -1) {
+				return 1;
+			} else if (productSmallTypes.indexOf(valueKey) != -1) {
+				return 2;
+			} else {
+				return 0;
+			}
+		}
+		return 0;
+	}
+	
+	// 白模分类转非白模分类
+	public static String getTypeValueKey(String valueKey) {
+
+		if ("basic_beij".equals(valueKey.trim())) {
+			valueKey = "beijing";
+		}
+		if (StringUtils.isNotBlank(valueKey) && valueKey.indexOf("_") != -1) {
+			valueKey = valueKey.substring(valueKey.indexOf("_") + 1);
+		}
+		return valueKey;
+	}
+	
+	/**
+	 * 取得对应图片的缩略图的图片id(针对于空间,户型等图片存在res_pic的表中的图片)
+	 * 
+	 * @author huangsongbo
+	 * @param resHousePic
+	 * @return
+	 */
+	public static Integer getSmallPicId(ResPic resPic, String type) {
+		if (resPic == null)
+			return -1;
+		String smallPicInfo = resPic.getSmallPicInfo();
+		if (StringUtils.isBlank(smallPicInfo))
+			return null;
+		Map<String, String> msgMap = getMapFromStr(smallPicInfo);
+		String picIdStr = msgMap.get(type);
+		if (StringUtils.isBlank(picIdStr))
+			return null;
+		return Integer.valueOf(picIdStr);
+	}
+	
+	/**
+	 * 特殊格式字符串处理成map:格式:web:38;ipad:37;
+	 * 
+	 * @author huangsongbo
+	 * @param smallPicInfo
+	 * @return
+	 */
+	public static Map<String, String> getMapFromStr(String fileDesc) {
+		Map<String, String> map = new HashMap<String, String>();
+		String[] strs = fileDesc.split(";");
+		for (String str : strs) {
+			if (str.split(":").length == 2) {
+				map.put(str.split(":")[0].trim(), str.split(":")[1].trim());
+			}
+		}
+		return map;
+	}
+
+	/**
+	 * 将字符串转换为Integer类型集合
+	 * @param str
+	 * @return
+	 */
+	public static List<Integer> getIntegerListFromStringList(String str) {
+		List<Integer> list = new ArrayList<Integer>();
+		if (StringUtils.isBlank(str) || "null".equals(str))
+			return list;
+		String[] strs = str.split(",");
+		for (String idStr : strs) {
+			if( StringUtils.isBlank(idStr) ){
+				continue;
+			}
+			list.add(Integer.parseInt(idStr));
+		}
+		return list;
+	}
+
+	/**
+	 * 转换时间格式
+	 * @param date
+	 * @param dateFormatStr
+	 * @return
+	 */
+	public static String getDateStr(Date date, String dateFormatStr) {
+		DateFormat dateFormat = new SimpleDateFormat(dateFormatStr);
+		String str = "";
+		try {
+			str = dateFormat.format(date);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return str;
+	}
+}

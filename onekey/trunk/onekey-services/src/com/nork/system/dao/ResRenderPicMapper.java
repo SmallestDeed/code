@@ -1,0 +1,204 @@
+package com.nork.system.dao;
+
+import com.nork.onekeydesign.model.DesignRenderRoam;
+import com.nork.onekeydesign.model.ResRenderPicQO;
+import com.nork.onekeydesign.model.ThumbData;
+import com.nork.system.model.ResRenderPic;
+import com.nork.system.model.search.ResRenderPicSearch;
+import com.nork.system.model.vo.GroupPicVo;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+/**   
+ * @Title: ResRenderPicMapper.java 
+ * @Package com.nork.system.dao
+ * @Description:渲染图片资源库-渲染图片资源库Mapper
+ * @createAuthor pandajun 
+ * @CreateDate 2017-03-22 14:39:08
+ * @version V1.0   
+ */
+@Repository
+@Transactional
+public interface ResRenderPicMapper {
+    int insertSelective(ResRenderPic record);
+    int updateByPrimaryKeySelective(ResRenderPic record);
+  
+    int deleteByPrimaryKey(Integer id);
+        
+    ResRenderPic selectByPrimaryKey(Integer id);
+    
+    int selectCount(ResRenderPicSearch resRenderPicSearch);
+    
+	List<ResRenderPic> selectPaginatedList(
+			ResRenderPicSearch resRenderPicSearch);
+			
+    List<ResRenderPic> selectList(ResRenderPic resRenderPic);
+    
+	/**
+	 * 其他
+	 * 
+	 */
+    
+    List<ResRenderPic> getResRenderPicByPlanRecommended(@Param("planRecommendedId")Integer planRecommendedId,@Param("renderingType")Integer renderingType);
+    
+    
+    List<ResRenderPic>  getResRenderPicsByBusinessId(@Param("businessId")Integer businessId,@Param("renderingType")Integer renderingType);
+    /**
+     * 为了渲染列表查询所有的缩略图和封面图
+     * @param resRenderPicQO
+     * @return
+     */
+    List<ResRenderPic> selectListByFileKeys(ResRenderPicQO resRenderPicQO);
+    
+    int getLatestSmallPicByBusi(ResRenderPic renderPic);
+
+    List<ResRenderPic> getRenderResourceListByopInfo(
+    		@Param("sourcePlanId")Integer sourcePlanId, 
+    		@Param("templateId")Integer templateId, 
+    		@Param("renderingType")Integer renderType);
+    /**
+     * 分页查询出自己名下的缩略图
+       
+     * getrenderPicByPage(这里用一句话描述这个方法的作用)        
+       
+     * @param thumbData
+     * @return 
+    
+     * @return List<ThumbData>    返回类型   
+       
+     * @Exception 异常对象    
+       
+     * @since  CodingExample　Ver(编码范例查看) 1.1
+     */
+    public List<ThumbData> getRenderPicByPage(ThumbData thumbData);
+    /**
+     * 
+       
+     * countRenderPicByPage分页查询出自己名下的缩略图 (计数)       
+       
+     * @param thumbData
+     * @return 
+    
+     * @return int    返回类型   
+       
+     * @Exception 异常对象    
+       
+     * @since  CodingExample　Ver(编码范例查看) 1.1
+     */
+    public  int countRenderPicByPage(ThumbData thumbData);
+
+    /**
+     * 通过pid获取缩略图
+     * @param pid
+     * @return
+     */
+    ResRenderPic selectOneByPid(Integer pid);
+    
+    /**
+     * 通过副本id删除设计方案
+     * @param sceneId
+     */
+	void deletePicBySceneId(@Param("sceneId") Integer sceneId);
+
+    /**
+     * describe: 更新原图所有原图根据缩略图id
+     * creat_user: yanghz
+     * creat_date: 2017-07-22
+     * creat_time: 上午 01:28
+     **/
+    void updateOrigPicBySmallPicId(ResRenderPic render);
+
+    /**
+     * describe: 根据所缩略图id获取截图id
+     * creat_user: yanghz
+     * creat_date: 2017-07-22
+     * creat_time: 上午 01:55
+     **/
+    public int getTaskIdBySmallId(@Param("smallId") int smallId);
+
+    /**
+     * describe: 根据截图id更新场景id
+     * creat_user: yanghz
+     * creat_date: 2017-07-22
+     * creat_time: 上午 01:57
+     **/
+    public void updateSceneIdByTaskId(@Param("sceneId") int sceneId, @Param("taskId") int taskId);
+    /**
+     * 单点二维码图片。http://192.168.2.13:8080/app/pages/vr720/vr720Single.htm?code=20170712200703077_646765
+       
+     * get720SingleCode 得到720单点分享需要的code        
+       
+     * @param resRenderPic 传入 原图id和create_user_id
+     * @return 
+    
+     * @return ResRenderPic    返回类型    取 sysCode
+       
+     * @Exception 异常对象    
+       
+     * @since  CodingExample　Ver(编码范例查看) 1.1
+     */
+    public ResRenderPic get720SingleCode(ResRenderPic resRenderPic);
+    /**
+     * 多点二维码图片http://192.168.1.232:6080/app/pages/vr720/vr720Roam.htm?code=70ae74da695c40389a083f13cb8b1839
+       
+     * get720RomanCode.得到720多点分享的code    
+       
+     * @param ResRenderPic。传入 截图id 和创建人create_user_id
+     * @return 
+    
+     * @return DesignRenderRoam    返回类型    取uuid
+       
+     * @Exception 异常对象    
+       
+     * @since  CodingExample　Ver(编码范例查看) 1.1
+     */
+    public DesignRenderRoam get720RomanCode(ResRenderPic resRenderPic);
+    
+    /**
+	 * 通过推荐id 渲染图
+	 * @param planRecommendedId
+	 */
+	void deletedByPlanRecommendedId(int planRecommendedId);
+
+    /**
+     * describe: 根据场景副本id查询该方案下所有缩略图
+     * creat_user: yanghz
+     * creat_date: 2017-08-01
+     * creat_time: 下午 06:04
+     * @param sceneId  场景（副本）id
+     **/
+    List<ThumbData> getRenderPicIdsBySceneId(@Param("sceneId") long sceneId);
+
+    /**
+     * describe: 根据分组id查询分组图片
+     * creat_user: yanghz
+     * creat_date: 2017-08-02
+     * creat_time: 下午 05:15
+     **/
+    List<GroupPicVo> getGroupPicList(@Param("gid") String gid);
+    public int countRoamByFileKey(ResRenderPicSearch resRenderPicSearch);
+    
+    /**
+     * 从自动渲染里面取720全景效果图
+     * @param resRenderPic
+     * @return
+     */
+    List<ResRenderPic> selectListOfMobile(ResRenderPic resRenderPic);
+    /**
+     * 从自动渲染里面通过pid取缩略图
+     * @param resRenderPic
+     * @return
+     */
+    ResRenderPic selectOneByPidOfMobile(Integer pid);
+    
+    /**
+     * 查询替换渲染的结果
+     * @param resRenderPic
+     * @return
+     */
+    List<ResRenderPic> getReplaceRenderResult(ResRenderPic resRenderPic);
+    
+}

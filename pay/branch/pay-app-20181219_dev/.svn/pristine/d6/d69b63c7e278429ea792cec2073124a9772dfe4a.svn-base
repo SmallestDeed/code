@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.gateway.pay.trade.dao.PayTradeRefundRecordMapper">
+	<insert id="insertSelective" parameterType="com.sandu.gateway.pay.trade.model.PayTradeRefundRecord" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO pay_trade_refund_record 
+			(
+				origin_pay_trade_no, 
+				origin_internal_trade_no, 
+				origin_external_trade_no, 
+				origin_trade_date, 
+				origin_trade_desc, 
+				origin_total_fee, 
+				internal_refund_no, 
+				pay_refund_no, 
+				external_refund_no, 
+				refund_fee, 
+				refund_desc, 
+				refund_status,
+				refund_success_time,
+				sign, 
+				status, 
+				notify_url, 
+				notify_result, 
+				platform_code, 
+				source, 
+				operator, 
+				sys_code, 
+				creator, 
+				gmt_create, 
+				modifier, 
+				gmt_modified, 
+				is_deleted, 
+				remark
+			) 
+		VALUES 
+			(
+				#{originPayTradeNo},
+				#{originInternalTradeNo},
+				#{originExternalTradeNo},
+				#{originTradeDate},
+				#{originTradeDesc},
+				#{originTotalFee},
+				#{internalRefundNo},
+				#{payRefundNo},
+				#{externalRefundNo},
+				#{refundFee},
+				#{refundDesc},
+				#{refundStatus},
+				#{refundSuccessTime},
+				#{sign},
+				#{status},
+				#{notifyUrl},
+				#{notifyResult},
+				#{platformCode},
+				#{source},
+				#{operator},
+				#{sysCode},
+				#{creator},
+				#{gmtCreate},
+				#{modifier},
+				#{gmtModified},
+				#{isDeleted},
+				#{remark}
+			);
+	</insert>
+	
+	<update id="updateById" parameterType="com.sandu.gateway.pay.trade.model.PayTradeRefundRecord">
+		update pay_trade_refund_record
+		<set>
+			<if test="originPayTradeNo!= null">origin_pay_trade_no=#{originPayTradeNo},</if>
+			<if test="originInternalTradeNo!= null">origin_internal_trade_no=#{originInternalTradeNo},</if>
+			<if test="originExternalTradeNo!= null">origin_external_trade_no=#{originExternalTradeNo},</if>
+			<if test="originTradeDate!= null">origin_trade_date=#{originTradeDate},</if>
+			<if test="originTradeDesc!= null">origin_trade_desc=#{originTradeDesc},</if> 
+			<if test="originTotalFee!= null">origin_total_fee=#{originTotalFee},</if>
+			<if test="internalRefundNo!= null">internal_refund_no=#{internalRefundNo},</if>
+			<if test="payRefundNo!= null">pay_refund_no=#{payRefundNo},</if>
+			<if test="externalRefundNo!= null">external_refund_no=#{externalRefundNo},</if>
+			<if test="refundFee!= null">refund_fee=#{refundFee},</if> 
+			<if test="refundDesc!= null">refund_desc=#{refundDesc},</if>
+			<if test="refundStatus!= null">refund_status=#{refundStatus},</if>
+			<if test="refundSuccessTime!= null">refund_success_time=#{refundSuccessTime},</if>
+			<if test="sign!= null">sign=#{sign},</if>
+			<if test="status!= null">status=#{status},</if>
+			<if test="notifyUrl!= null">notify_url=#{notifyUrl},</if>
+			<if test="notifyResult!= null">notify_result=#{notifyResult},</if> 
+			<if test="platformCode!= null">platform_code=#{platformCode},</if> 
+			<if test="source!= null">source=#{source},</if>
+			<if test="operator!= null">operator=#{operator},</if>
+			<if test="sysCode!= null">sys_code=#{sysCode},</if> 
+			<if test="creator!= null">creator=#{creator},</if> 
+			<if test="gmtCreate!= null">gmt_create=#{gmtCreate},</if> 
+			<if test="modifier!= null">modifier=#{modifier},</if> 
+			<if test="gmtModified!= null">gmt_modified=#{gmtModified},</if>
+			<if test="isDeleted!= null">is_deleted=#{isDeleted},</if> 
+			<if test="remark!= null">remark=#{remark},</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	
+	
+	<select id="selectList" resultType="com.sandu.gateway.pay.trade.model.PayTradeRefundRecord">
+		SELECT
+		    *
+		FROM
+		    pay_trade_refund_record
+		WHERE is_deleted=0
+		<if test="originPayTradeNo!= null">  and origin_pay_trade_no = #{originPayTradeNo,jdbcType=VARCHAR} </if>
+		<if test="originInternalTradeNo != null">  and origin_internal_trade_no = #{originInternalTradeNo,jdbcType=VARCHAR} </if>
+		<if test="payRefundNo != null">  and pay_refund_no = #{payRefundNo,jdbcType=VARCHAR} </if>
+		
+	</select>
+	
+	<update id="updateToProcessStatus">
+		update 
+			pay_trade_refund_record
+		set
+			status=20,
+			modifier = 'system',
+        	gmt_modified = now()
+		where
+		    pay_refund_no = #{payRefundNo}
+		    and status = 10
+		    and is_deleted = 0;
+	</update>
+	
+
+	
+</mapper>

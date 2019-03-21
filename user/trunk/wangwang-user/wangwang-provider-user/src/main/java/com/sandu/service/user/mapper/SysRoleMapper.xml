@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.user.dao.SysRoleDao">
+	<select id="selectRoleGroupRefsByRoleGroupIds" resultType="com.sandu.api.user.model.SysRoleGroupRef">
+		select role_id 
+			from sys_role_group_ref
+			where role_group_id in
+			<foreach collection="roleGroupIds" item="item" index="index" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			and is_deleted = 0;
+	</select>
+	
+	
+	<select id="selectRoleGroupRefsByRoleGroupId" resultType="com.sandu.api.user.model.SysRoleGroupRef">
+		select role_id 
+			from sys_role_group_ref
+			where role_group_id=#{roleGroupId}
+			and is_deleted = 0;
+	</select>
+	
+	
+	<select id="selectUserRolesByUserId" resultType="com.sandu.api.user.model.SysUserRole">
+		select *
+			from sys_user_role
+			where user_id=#{userId}
+			and is_deleted = 0;
+	</select>
+	
+	 <select id="selectRoleFuncsByRoleIds" resultType="com.sandu.api.user.model.SysRoleFunc">
+		select *
+			from sys_role_func
+			where roleid in
+			<foreach collection="roleIds" item="item" index="index" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			and is_deleted = 0
+	</select>
+	
+	<select id="selectRoleFuncByRoleId" resultType="com.sandu.api.user.model.SysRoleFunc">
+		select *
+			from sys_role_func
+			where roleid = #{roleId}
+			and is_deleted = 0
+	</select>
+	
+	<select id="selectRoleByRoleId" resultType="com.sandu.api.user.model.SysRole">
+		select *
+			from sys_role
+			where id = #{roleId}
+			and is_deleted = 0
+	</select>
+	
+	<select id="selectRoleByCode" resultType="com.sandu.api.user.model.SysRole">
+		SELECT *
+		    FROM sys_role
+		    WHERE code = #{code}
+		    AND is_deleted = 0
+	</select>
+
+	<insert id="save" parameterType="com.sandu.api.user.model.SysUserRole">
+		INSERT INTO sys_user_role
+		(
+			user_id, role_id,creator, gmt_create,
+			modifier,gmt_modified,is_deleted
+		)
+		values
+		(
+			#{userId}, #{roleId},#{creator}, #{gmtCreate},
+			#{modifier},#{gmtModified},#{isDeleted}
+		)
+	</insert>
+
+	<update id="delUserRole">
+	     update
+	         sys_user_role
+	         set
+	         is_deleted = 1
+	         WHERE
+	        user_id = #{userId}
+		    and role_id in
+			<foreach collection="oldRoleIds" item="id" open="(" separator="," close=")">
+				#{id}
+			</foreach>
+	</update>
+
+	<insert id="batchUserRole" parameterType="com.sandu.api.user.model.SysUserRole">
+        INSERT INTO sys_user_role
+		(
+			user_id, role_id,creator, gmt_create,
+			modifier,gmt_modified,is_deleted
+		)values
+		<foreach collection="list" item="item" index="index"  separator="," >
+			(#{item.userId},#{item.roleId},#{item.creator},#{item.gmtCreate},
+			 #{item.modifier},#{item.gmtModified},#{item.isDeleted}
+			)
+		</foreach>
+	</insert>
+
+	<select id="getRolePlatformId" parameterType="java.lang.Integer" resultType="java.lang.Long">
+		 SELECT
+		    platform_id
+		 FROM
+		    sys_role
+		 WHERE
+		     id in
+		<foreach collection="roleIds" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+
+	<select id="batchRoleByRoleRroupIds" resultType="java.lang.Long">
+		SELECT
+		  role_id
+		FROM
+		 sys_role_group_ref
+		WHERE
+		 is_deleted = 0 AND
+		 role_group_id IN
+		 <foreach collection="roleGroupIds" item="roleGroupId" open="(" separator="," close=")">
+			 #{roleGroupId}
+		 </foreach>
+	</select>
+</mapper>

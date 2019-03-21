@@ -1,0 +1,160 @@
+package com.sandu.product.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.sandu.common.model.LoginUser;
+import com.sandu.onekey.model.ProductListByTypeInfo.PlanProductInfo;
+import com.sandu.product.model.BaseProduct;
+import com.sandu.product.model.ProductPropsSimple;
+import com.sandu.product.model.constant.ProductConstant.getSmallTypeValueListBySmallTypeValueKeyMapKeyEnum;
+import com.sandu.product.model.result.SearchStructureProductDetailResult;
+import com.sandu.product.model.search.BaseProductSearch;
+import com.sandu.product.model.vo.ProductCeilingVO;
+
+public interface BaseProductService {
+
+	/**
+	 * 获取产品属性
+	 * 
+	 * @param productId 要查询属性的产品id 
+	 * @param productattrcodeChaoxiang 产品属性父级code
+	 * @return
+	 */
+	public List<ProductPropsSimple> getProductPropsSimpleByProductId(Integer productId,
+			String productattrcodeChaoxiang);
+	
+	/**
+	 * 获取产品的过滤属性信息
+	 * 
+	 * @author huangsongbo
+	 * @param mainProductId
+	 * @return
+	 */
+	public List<ProductPropsSimple> getProductFilterPropList(Integer productId);
+	
+	/**
+	 * 获取拉伸缩放长度
+	 * @param smallTypeKey
+	 * @author xiaoxc
+	 * @return Map
+	 */
+	Map<String,String> getStretchZoomLength(String smallTypeKey);
+	
+	/**
+	 * 根据配置,得到要查询的小类valueList
+	 * 
+	 * @author huangsongbo
+	 * @param smallTypeValueKey 传入小类valuekey
+	 * @return
+	 */
+	public Map<getSmallTypeValueListBySmallTypeValueKeyMapKeyEnum, Object> getSmallTypeValueListBySmallTypeValueKey(String smallTypeValueKey);
+	
+	/**
+	 * 设置查询条件:PlanProductInfo ->BaseProductSearch
+	 * 
+	 * @author huangsongbo
+	 * @param planProductInfo
+	 * @return
+	 */
+	public BaseProductSearch getBaseProductSearchByPlanProductInfo(PlanProductInfo planProductInfo);
+	
+	/**
+	 * 产品搜索(简单)
+	 * 
+	 * @author huangsongbo
+	 * @param baseProductSearch
+	 * @return
+	 */
+	public List<BaseProduct> selectProductEasy(BaseProductSearch baseProductSearch);
+	
+	/**
+	 *    获取数据详情
+	 *
+	 * @param id
+	 * @return  BaseProduct 
+	 */
+	public BaseProduct get(Integer id);
+
+	/**
+	 * 根据产品id查找该产品的过滤属性信息
+	 * 
+	 * @author huangsongbo
+	 * @param productId
+	 * @return
+	 */
+	public String getPropFilterInfo(Integer productId);
+	
+	/**
+	 * 根据用户类型获取不同状态数据
+	 * @author xiaoxc
+	 * @param loginUser
+	 * @return list
+	 */
+	public List<Integer> getPutawayList(LoginUser loginUser);
+
+	public BaseProduct getFromCache(Integer productId);
+	
+	/**
+	 * 得到系列标识(返回结果eg:S_1)
+	 * 
+	 * @author huangsongbo
+	 * @param valuekey 小分类valuekey
+	 * @return
+	 */
+	String getSeriesSign(String valuekey);
+	
+	public String getU3dModelId(String mediaType,BaseProduct baseProduct);
+	
+	/**
+	 * 获取是否是硬装
+	 * @param mainProductId
+	 * @return
+	 */
+	public boolean isHard(BaseProduct baseProduct);
+	
+	/**
+	 * 处理拆分材质信息
+	 * @author huangsongbo
+	 * @param splitTexturesInfo
+	 * @param type 
+	 * @return
+	 */
+	public Map<String, Object> dealWithSplitTextureInfo(Integer baseProductId, String splitTexturesInfo, String type);
+	
+	/**
+	 * 批量查询
+	 * */
+	public List<BaseProduct> getBatchData(List<Integer> list);
+	
+	/**
+	 * 通过产品Id获取产品款式
+	 * @author xiaoxc
+	 * @param productCode
+	 * @return
+	 */
+	List<ProductCeilingVO> getCeilingInfoByProductCode(String productCode);
+	
+	/**
+	 * 通过款式匹配天花截面数据
+	 * @param putawayStateList
+	 * @param styleId
+	 * @return
+	 */
+	List<ProductCeilingVO> getCeilingCrossSectionDataByStyleId(List<Integer> putawayStateList, Integer styleId);
+	
+	public String getU3dModelId(String mediaType,BaseProduct baseProduct,String modelType);
+	
+	public Map<String, Object> dealWithSplitTextureInfo(LoginUser loginUser,String modelType,Integer baseProductId, String splitTexturesInfo, String type);
+
+	/**
+	 * BaseProduct->StructureProductDetailsSearch
+	 * @author huangsongbo
+	 * @param baseProduct
+	 * @return
+	 */
+	public SearchStructureProductDetailResult getStructureDetailsSearch(BaseProduct baseProduct, String mediaType);
+	
+	public SearchStructureProductDetailResult getStructureDetailsSearch(BaseProduct baseProduct, Integer mediaType);
+	
+}

@@ -1,0 +1,133 @@
+package com.sandu.service.designTemplet.impl;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.api.base.common.Utils;
+import com.sandu.api.base.common.exception.BizExceptionEE;
+import com.sandu.api.base.service.SysDictionaryService;
+import com.sandu.api.designTemplet.model.DesignTemplet;
+import com.sandu.api.designTemplet.service.DesignTempletService;
+import com.sandu.service.designTemplet.dao.DesignTempletMapper;
+
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
+@Service("designTempletService")
+public class DesignTempletServiceImpl implements DesignTempletService {
+
+	private static final String LOGPREFIX = "[样板房模块]:";
+	
+	@Autowired
+	private DesignTempletMapper designTempletMapper;
+	
+	@Autowired
+	private SysDictionaryService sysDictionaryService;
+	
+	@Override
+	public List<DesignTemplet> getListByHouseId(Integer houseId) throws BizExceptionEE {
+		String throwLogPrefix = "查找样板房列表失败";
+		
+		// 参数验证 ->start
+		if(houseId == null) {
+			String logMes = "params error: houseId = null";
+			log.error(LOGPREFIX + log);
+			throw new BizExceptionEE(throwLogPrefix + "(" + logMes + ")");
+		}
+		// 参数验证 ->end
+
+		return designTempletMapper.selectByHouseId(houseId);
+	}
+
+	@Override
+	public Map<Integer, List<DesignTemplet>> getDesignTempletMap(List<DesignTemplet> designTempletList) throws BizExceptionEE {
+		String throwLogPrefix = "整理样板房列表逻辑异常";
+		
+		// 参数验证 ->start
+		if(Utils.isEmpty(designTempletList)) {
+			String logMes = "params error: Utils.isEmpty(designTempletList) = true";
+			log.error(LOGPREFIX + logMes);
+			throw new BizExceptionEE(throwLogPrefix + "(" + logMes + ")");
+		}
+		// 参数验证 ->end
+		
+		Map<Integer, List<DesignTemplet>> returnMap = new HashMap<Integer, List<DesignTemplet>>();
+		
+		// 按空间类型整理map ->start
+		for(DesignTemplet designTemplet : designTempletList) {
+
+			if(designTemplet.getSpaceAreas() == null) {
+				String logMes = "designTemplet.getSpaceAreas() == null, designTempletId = " + designTemplet.getId();
+				log.error(LOGPREFIX + logMes);
+				throw new BizExceptionEE(throwLogPrefix + "(" + logMes + ")");
+			}
+			
+			Integer houseTypeValue = designTemplet.getSpaceFunctionId();
+			if(returnMap.containsKey(houseTypeValue)) {
+				List<DesignTemplet> list = returnMap.get(houseTypeValue);
+				if(list == null) {
+					list = new ArrayList<DesignTemplet>(Arrays.asList(designTemplet));
+				}else {
+					list.add(designTemplet);
+				}
+				returnMap.put(houseTypeValue, list);
+			}else {
+				List<DesignTemplet> list = Arrays.asList(designTemplet);
+				returnMap.put(houseTypeValue, new ArrayList<DesignTemplet>(list));
+			}
+		}
+		// 按空间类型整理map ->end
+		
+		// 按面积大小对map的每个value(样板房list)排序 ->start
+		for(Integer key : returnMap.keySet()) {
+			List<DesignTemplet> list = returnMap.get(key);
+			if(Utils.isNotEmpty(list)) {
+				Collections.sort(list, new Comparator<DesignTemplet>() {
+
+					@Override
+					public int compare(DesignTemplet o1, DesignTemplet o2) {
+						return o1.getSpaceAreas() - o2.getSpaceAreas();
+					}
+					
+				});
+			}
+		}
+		// 按面积大小对map的每个value(推荐方案list)排序 ->end
+		
+		return returnMap;
+	}
+
+	@Override
+	public Integer getAreaValue(DesignTemplet designTemplet) throws BizExceptionEE {
+		String throwLogPrefix = "获取样板房面积失败";
+		
+		// 参数验证 ->start
+		if(designTemplet == null) {
+			String logMes = "params error: designTemplet = null";
+			log.error(LOGPREFIX + log);
+			throw new BizExceptionEE(throwLogPrefix + "(" + logMes + ")");
+		}
+		if(designTemplet.getSpaceFunctionId() == null) {
+			String logMes = "params error: designTemplet.getSpaceFunctionId() = null";
+			log.error(LOGPREFIX + log);
+			throw new BizExceptionEE(throwLogPrefix + "(" + logMes + ")");
+		}
+		// 参数验证 ->end
+		
+		Integer areaValue = sysDictionaryService.getAreaValue(designTemplet.getMainArea(), designTemplet.getSpaceFunctionId());
+		if(areaValue != null) {
+			return areaValue;
+		}else {
+			return designTemplet.getSpaceAreas();
+		}
+	}
+
+}

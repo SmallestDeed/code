@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.comment.dao.WxCommentRecordMapper">
+  <resultMap id="BaseResultMap" type="com.sandu.comment.model.WxCommentRecord">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="plan_id" jdbcType="BIGINT" property="planId" />
+    <result column="order_id" jdbcType="BIGINT" property="orderId" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="spu_id" jdbcType="BIGINT" property="spuId" />
+    <result column="sku_id" jdbcType="BIGINT" property="skuId" />
+    <result column="desc_level" jdbcType="TINYINT" property="descLevel" />
+    <result column="pid" jdbcType="BIGINT" property="pid" />
+    <result column="comment" jdbcType="VARCHAR" property="comment" />
+    <result column="praise_count" jdbcType="INTEGER" property="praiseCount" />
+    <result column="pic_ids" jdbcType="VARCHAR" property="picIds" />
+    <result column="type" jdbcType="TINYINT" property="type" />
+    <result column="is_show_name" jdbcType="TINYINT" property="isShowName" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, plan_id, order_id, user_id, spu_id, sku_id, desc_level, pid, comment, praise_count, 
+    pic_ids, type, is_show_name, creator, gmt_create, modifier, gmt_modified, is_deleted
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from wx_comment_record
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="queryAll" resultType="com.sandu.comment.model.WxCommentRecord">
+    select
+      wx1.id as id,
+      wx1.comment as comment,
+      wx2.comment as initComment,
+      wx1.user_id as userId,
+      wx2.user_id as initUserId,
+      wx1.praise_count as praiseCount,
+      wx1.gmt_create as gmtCreate,
+      if(wcpr.id is null,'0','1') as praiseStatus,
+      wx1.sku_id,
+      wx1.pic_ids,
+      wx1.gmt_create,
+      wx1.is_show_name,
+      wx1.desc_level,
+      wx1.spu_id,
+      wx1.plan_id
+    FROM `wx_comment_record` wx1
+    left join wx_comment_record wx2 on wx1.pid = wx2.id
+    left join wx_comment_praise_record wcpr on wcpr.comment_id = wx1.id and wcpr.user_id = #{userId}
+    where wx1.type = #{type}
+    <if test="isPicComment != null">
+      and wx1.pic_ids is not null
+      and wx1.pic_ids != ''
+    </if>
+    <if test="spuId != null">
+      and wx1.spu_id = #{spuId}
+    </if>
+    <if test="planId != null">
+      and wx1.plan_id = #{planId}
+    </if>
+    <if test="sortType == null || sortType == 0">
+      order by wx1.gmt_create desc
+    </if>
+    <if test="sortType == 1">
+      order by wx1.praise_count desc
+    </if>
+    limit ${(pageNo-1)*pageSize},#{pageSize}
+  </select>
+  <select id="getCommentListCount" resultType="java.lang.Integer">
+    select count(1) from wx_comment_record
+    where 1 = 1
+    <if test="isPicComment != null">
+      and pic_ids is not null
+      and pic_ids != ''
+    </if>
+    <if test="planId != null">
+      and plan_id = #{planId}
+    </if>
+    <if test="spuId != null">
+      and spu_id = #{spuId}
+    </if>
+  </select>
+
+  <select id="goodsSKUMap" resultType="com.sandu.goods.model.BaseGoodsSKU">
+    SELECT sku.product_id, sku.id, sku.spu_id FROM base_goods_sku sku WHERE product_id IN
+    <foreach collection="list" item="item" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
+
+  <select id="checkCommented" resultType="com.sandu.comment.model.WxCommentRecord">
+    select * from wx_comment_record where 1 = 1 and is_deleted = 0
+    <if test="orderId != null"> and order_id = #{orderId} </if>
+    <if test="planId != null"> and plan_id = #{planId} </if>
+    limit 1
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from wx_comment_record
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.comment.model.WxCommentRecord">
+    insert into wx_comment_record (id, plan_id, order_id, 
+      user_id, spu_id, sku_id, 
+      desc_level, pid, comment, 
+      praise_count, pic_ids, type, 
+      is_show_name, creator, gmt_create, 
+      modifier, gmt_modified, is_deleted
+      )
+    values (#{id,jdbcType=BIGINT}, #{planId,jdbcType=BIGINT}, #{orderId,jdbcType=BIGINT}, 
+      #{userId,jdbcType=BIGINT}, #{spuId,jdbcType=BIGINT}, #{skuId,jdbcType=BIGINT}, 
+      #{descLevel,jdbcType=TINYINT}, #{pid,jdbcType=BIGINT}, #{comment,jdbcType=VARCHAR}, 
+      #{praiseCount,jdbcType=INTEGER}, #{picIds,jdbcType=VARCHAR}, #{type,jdbcType=TINYINT}, 
+      #{isShowName,jdbcType=TINYINT}, #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, 
+      #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.comment.model.WxCommentRecord" useGeneratedKeys="true" keyProperty="id">
+    insert into wx_comment_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="planId != null">
+        plan_id,
+      </if>
+      <if test="orderId != null">
+        order_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="spuId != null">
+        spu_id,
+      </if>
+      <if test="skuId != null">
+        sku_id,
+      </if>
+      <if test="descLevel != null">
+        desc_level,
+      </if>
+      <if test="pid != null">
+        pid,
+      </if>
+      <if test="comment != null">
+        comment,
+      </if>
+      <if test="praiseCount != null">
+        praise_count,
+      </if>
+      <if test="picIds != null">
+        pic_ids,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="isShowName != null">
+        is_show_name,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="planId != null">
+        #{planId,jdbcType=BIGINT},
+      </if>
+      <if test="orderId != null">
+        #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="spuId != null">
+        #{spuId,jdbcType=BIGINT},
+      </if>
+      <if test="skuId != null">
+        #{skuId,jdbcType=BIGINT},
+      </if>
+      <if test="descLevel != null">
+        #{descLevel,jdbcType=TINYINT},
+      </if>
+      <if test="pid != null">
+        #{pid,jdbcType=BIGINT},
+      </if>
+      <if test="comment != null">
+        #{comment,jdbcType=VARCHAR},
+      </if>
+      <if test="praiseCount != null">
+        #{praiseCount,jdbcType=INTEGER},
+      </if>
+      <if test="picIds != null">
+        #{picIds,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=TINYINT},
+      </if>
+      <if test="isShowName != null">
+        #{isShowName,jdbcType=TINYINT},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.comment.model.WxCommentRecord">
+    update wx_comment_record
+    <set>
+      <if test="planId != null">
+        plan_id = #{planId,jdbcType=BIGINT},
+      </if>
+      <if test="orderId != null">
+        order_id = #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="spuId != null">
+        spu_id = #{spuId,jdbcType=BIGINT},
+      </if>
+      <if test="skuId != null">
+        sku_id = #{skuId,jdbcType=BIGINT},
+      </if>
+      <if test="descLevel != null">
+        desc_level = #{descLevel,jdbcType=TINYINT},
+      </if>
+      <if test="pid != null">
+        pid = #{pid,jdbcType=BIGINT},
+      </if>
+      <if test="comment != null">
+        comment = #{comment,jdbcType=VARCHAR},
+      </if>
+      <if test="praiseCount != null">
+        praise_count = #{praiseCount,jdbcType=INTEGER},
+      </if>
+      <if test="picIds != null">
+        pic_ids = #{picIds,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=TINYINT},
+      </if>
+      <if test="isShowName != null">
+        is_show_name = #{isShowName,jdbcType=TINYINT},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.comment.model.WxCommentRecord">
+    update wx_comment_record
+    set plan_id = #{planId,jdbcType=BIGINT},
+      order_id = #{orderId,jdbcType=BIGINT},
+      user_id = #{userId,jdbcType=BIGINT},
+      spu_id = #{spuId,jdbcType=BIGINT},
+      sku_id = #{skuId,jdbcType=BIGINT},
+      desc_level = #{descLevel,jdbcType=TINYINT},
+      pid = #{pid,jdbcType=BIGINT},
+      comment = #{comment,jdbcType=VARCHAR},
+      praise_count = #{praiseCount,jdbcType=INTEGER},
+      pic_ids = #{picIds,jdbcType=VARCHAR},
+      type = #{type,jdbcType=TINYINT},
+      is_show_name = #{isShowName,jdbcType=TINYINT},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updatePraiseCount">
+    update wx_comment_record
+    set praise_count = praise_count + #{count}
+    where id = #{commentId}
+  </update>
+
+  <update id="updateOrderCommentStatus">
+    update mall_base_order set comment_status = #{commentStatus} where id = #{orderId}
+  </update>
+</mapper>

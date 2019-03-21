@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.banner.dao.BaseBannerAdMapper">
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+        id,position_id,name,res_banner_pic_id,ref_model_id,status,sequence,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,url
+    </sql>
+
+    <!--添加 基础-广告-->
+    <insert id="insertBanner" parameterType="com.sandu.api.banner.model.BaseBannerAd" useGeneratedKeys="true" keyProperty="id" >
+        insert into base_banner_ad
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="positionId != null">
+                position_id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="resBannerPicId != null">
+                res_banner_pic_id,
+            </if>
+            <if test="refModelId != null">
+                ref_model_id,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="sequence != null">
+                sequence,
+            </if>
+            <if test="sysCode != null">
+                sys_code,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="url != null">
+                url,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="positionId != null">
+                #{positionId,jdbcType=INTEGER},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="resBannerPicId != null">
+                #{resBannerPicId,jdbcType=INTEGER},
+            </if>
+            <if test="refModelId != null">
+                #{refModelId,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="sequence != null">
+                #{sequence,jdbcType=INTEGER},
+            </if>
+            <if test="sysCode != null">
+                #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="url != null">
+                #{url,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <!--通过Id查询广告信息-->
+    <select id="getBannerById" parameterType="java.lang.Integer" resultType="com.sandu.api.banner.model.BaseBannerAd">
+        SELECT
+            *
+        FROM
+            base_banner_ad
+        WHERE
+            id=#{bannerId,jdbcType=INTEGER}
+            AND is_deleted = 0
+    </select>
+
+    <!--通过positionId 和 refModelId 查询基础广告-->
+    <select id="getBannerByModelPosition" parameterType="com.sandu.api.banner.input.BaseBannerListQuery"
+            resultType="com.sandu.api.banner.model.BaseBannerAd">
+        SELECT
+            *
+        FROM base_banner_ad
+        WHERE is_deleted = 0
+            AND status = 1
+            <if test="refModelId!= null">
+                and ref_model_id = #{refModelId,jdbcType=INTEGER}
+            </if>
+            <if test="positionId!= null">
+                and position_id = #{positionId,jdbcType=INTEGER}
+            </if>
+        ORDER  BY sequence asc
+    </select>
+
+    <!--删除广告-->
+    <update id="deleteBanner" parameterType="com.sandu.api.banner.model.BaseBannerAd" >
+        UPDATE
+            base_banner_ad
+        SET
+            is_deleted= 1,modifier = #{modifier,jdbcType=VARCHAR},
+            gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+        WHERE
+            id=#{id,javaType=INTEGER}
+    </update>
+
+    <!--修改广告-->
+    <update id="updateBanner" parameterType="com.sandu.api.banner.model.BaseBannerAd">
+        UPDATE
+            base_banner_ad
+        <set>
+            <if test="positionId != null">
+                position_id = #{positionId,jdbcType=INTEGER},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="resBannerPicId != null">
+                res_banner_pic_id = #{resBannerPicId,jdbcType=INTEGER},
+            </if>
+            <if test="refModelId != null">
+                ref_model_id = #{refModelId,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                status=#{status,jdbcType=INTEGER},
+            </if>
+            <if test="sequence != null">
+                sequence= #{sequence,jdbcType=INTEGER},
+            </if>
+            <if test="sysCode != null">
+                sys_code = #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="url !=null">
+                url = #{url,jdbcType=VARCHAR}
+            </if>
+        </set>
+        WHERE
+            id=#{id,javaType=INTEGER}
+    </update>
+
+    <!--获取满足条件的数据数量-->
+    <select id="getBannerCount" parameterType="com.sandu.api.banner.model.po.BannerPO" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM  base_banner_ad bba,base_banner_position bbp,res_banner_pic rbp
+        WHERE bba.position_id = bbp.id AND bba.res_banner_pic_id = rbp.id
+        <if test="bannerName != null and bannerName!=''">
+            AND  bba.name LIKE  CONCAT(CONCAT('%',#{bannerName,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="positionName != null and positionName!=''">
+            AND  bbp.name LIKE  CONCAT(CONCAT('%',#{positionName,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="picName != null and picName!=''" >
+            AND rbp.pic_name LIKE  CONCAT(CONCAT('%',#{picName,jdbcType=VARCHAR}),'%')
+        </if>
+            AND bba.is_deleted = 0
+    </select>
+
+    <!--条件查询-->
+    <select id="getBannerList" parameterType="com.sandu.api.banner.model.po.BannerPO" resultType="com.sandu.api.banner.output.BaseBannerVO">
+        SELECT bba.name as bannerName,bbp.name as positionName, rbp.pic_name as picName FROM  base_banner_ad bba,base_banner_position bbp,res_banner_pic rbp
+        WHERE bba.position_id = bbp.id AND bba.res_banner_pic_id = rbp.id
+        <if test="bannerName != null and bannerName!=''">
+            AND  bba.name LIKE  CONCAT(CONCAT('%',#{bannerName,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="positionName != null and positionName!=''">
+            AND  bbp.name LIKE  CONCAT(CONCAT('%',#{positionName,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="picName != null and picName!=''" >
+            AND rbp.pic_name LIKE  CONCAT(CONCAT('%',#{picName,jdbcType=VARCHAR}),'%')
+        </if>
+           AND bba.is_deleted = 0 ORDER  By bba.gmt_create  DESC
+        <if test=" start!=null and pageSize !=null">
+            LIMIT #{start}, #{pageSize}
+        </if>
+    </select>
+
+    <select id="getBannerByRefModelId" resultType="com.sandu.api.banner.model.BaseBannerAd">
+        SELECT * FROM base_banner_ad WHERE is_deleted = 0 AND ref_model_id = #{refModelId}
+    </select>
+
+    <select id="getBannerCountByModelPosition" parameterType="com.sandu.api.banner.input.BaseBannerListQuery" resultType="java.lang.Integer">
+        SELECT
+            count(1)
+        FROM base_banner_ad
+        WHERE is_deleted = 0
+        <if test="refModelId!= null">
+            and ref_model_id = #{refModelId,jdbcType=INTEGER}
+        </if>
+        <if test="positionId!= null">
+            and position_id = #{positionId,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="getAllBannerByModelPosition"  parameterType="com.sandu.api.banner.input.BaseBannerListQuery"
+            resultType="com.sandu.api.banner.model.BaseBannerAd">
+        SELECT
+        *
+        FROM base_banner_ad
+        WHERE is_deleted = 0
+        <if test="refModelId!= null">
+            and ref_model_id = #{refModelId,jdbcType=INTEGER}
+        </if>
+        <if test="positionId!= null">
+            and position_id = #{positionId,jdbcType=INTEGER}
+        </if>
+        ORDER  BY sequence asc
+    </select>
+
+    <select id="countAlreadySaveBanner" resultType="integer">
+        SELECT count(*) from base_banner_ad where position_id = #{positionId};
+    </select>
+
+    <select id="selectBannersByPositionId" resultType="com.sandu.api.banner.model.BaseBannerAd">
+        SELECT
+            ad.id,
+            ad.res_banner_pic_id as resBannerPicId,
+            ad.position_id as positionId,
+            ad.url as url,
+            ad.ref_model_id as refModelId,
+            ad.status as status,
+            pic.pic_path as bannerPicPath,
+            ad.name as name,
+            ad.gmt_create as gmtCreate,
+            ad.gmt_modified as gmtModified
+        FROM
+            base_banner_ad ad LEFT JOIN res_banner_pic pic on ad.res_banner_pic_id = pic.id and pic.is_deleted = 0
+        where
+            ad.position_id = #{positionId} AND ad.is_deleted = 0
+    </select>
+</mapper>

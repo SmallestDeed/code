@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	id="WebApp_ID" version="3.0">
+	<display-name>app</display-name>
+	<context-param>
+		<param-name>webAppRootKey</param-name>
+		<param-value>app.root</param-value>
+	</context-param>
+<!--    <listener>
+        <listener-class>com.alibaba.dubbo.remoting.http.servlet.BootstrapListener</listener-class>
+    </listener> -->
+	<!-- application 全局监听器 -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:spring/spring.xml</param-value>
+	</context-param>
+	
+	
+	<listener>
+		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+	</listener>
+	<context-param>
+		<param-name>log4jConfigLocation</param-name>
+		<param-value>classpath:config/log4j.properties</param-value>
+	</context-param>
+	<context-param>
+		<param-name>log4jRefreshInterval</param-name>
+		<param-value>6000</param-value>
+	</context-param>
+	<listener>
+		<listener-class>com.nork.common.listener.MybatisLogSetListener</listener-class>
+	</listener>
+	<!--  
+	HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest(); 
+	-->
+	<!-- <listener>    
+	        <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>    
+	</listener>  -->
+<!-- 	<listener>
+		<listener-class>com.nork.common.listener.ApplicationListenner</listener-class>
+	</listener> -->
+	<listener>  
+    	<listener-class>com.nork.common.listener.MySessionListener</listener-class>  
+    </listener> 
+	<!-- 防止内存泄漏 -->
+	<listener>
+		<listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
+	</listener>
+	<!-- 短信发送 -->
+	<listener>
+		<listener-class>com.nork.system.sms.SmsClientListener</listener-class>
+	</listener>
+	
+	<filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>utf-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<!-- 
+	<filter> 
+		<filter-name>corsFilter</filter-name>
+		<filter-class>com.nork.common.filter.CORSFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>corsFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	 -->
+	 
+	<filter>  
+	    <filter-name>CORS</filter-name>  
+	    <filter-class>com.thetransactioncompany.cors.CORSFilter</filter-class>  
+	    <init-param>  
+	     <param-name>cors.allowOrigin</param-name>  
+	        <param-value>*</param-value>  
+	    </init-param>  
+	    <init-param>  
+	     <param-name>cors.supportedMethods</param-name>  
+	        <param-value>GET, POST, HEAD, PUT, DELETE, OPTIONS</param-value>  
+	    </init-param>  
+	    <init-param>  
+	     <param-name>cors.supportedHeaders</param-name>  
+	        <param-value>Authorization, MediaType, Accept, Origin, X-Requested-With, Content-Type, Last-Modified, Access-Control-Allow-Origin</param-value>  
+	    </init-param>  
+	    <init-param>  
+	        <param-name>cors.exposedHeaders</param-name>  
+	        <param-value>Set-Cookie</param-value>  
+	    </init-param>  
+	    <init-param>  
+	        <param-name>cors.supportsCredentials</param-name>  
+	        <param-value>true</param-value>  
+	    </init-param>  
+	</filter>  
+	<filter-mapping>  
+	    <filter-name>CORS</filter-name>  
+	    <url-pattern>/*</url-pattern>  
+	</filter-mapping>
+
+
+	<filter>
+		<filter-name>MyFilter</filter-name>
+		<filter-class>com.nork.common.filter.MyFilter</filter-class>
+		<init-param>
+			<description>no need session url</description>
+			<param-name>exceptUrl</param-name>
+			<param-value>
+			/mobile/unlocking/getWXSettings.htm,<!-- 移动端获取微信支付配置的接口，需要配置 -->
+			/mobile/unlocking/unlockingByIntegral.htm,<!-- 移动端使用积分开通的接口，需要配置 -->
+				/web/home/spaceCommon/uploadFile.htm,
+				/delUserLevelCacher.htm,
+				/web/system/sysDictionary/listAllByType.htm,
+				/druid,/jsp/images/,/jsp/js/,/jsp/css/
+			,/index.html,
+			/default.jsp
+			,/mobile/user/findExpenseRecordList.htm
+			,/mobile/design/designPlan/getDesignPlanProductList.htm
+			,/client/resTexture/fileMoveToModel.htm
+			,/pages/vr720/vr720MobileSingleForAuto.htm
+		    <!-- ,/web/pay/,/web/refund/ -->
+		    ,/pages/app/download.jsp
+	        ,/jsp/download.htm
+			,/pages/app/index.jsp
+			,/system/sysDictionary/listAll.htm
+			,/proCategory/searchProCategory.htm
+			,/pages/app/login.jsp
+			,/system/sysUser/sysUserCheck.htm
+			,/system/sysUser/clear.htm
+			,/system/sysUser/app/login.htm
+			,/system/sysUser/app/register.htm
+			,/system/sysUser/login
+			,/system/sysUser/jsplogin
+			,/system/sysUser/register
+	        ,/online/js/,/online/css/
+	        ,/upload/
+	        ,/design/designPlan/uploadPlanRender.htm
+	        ,/system/sysUser/checkMobile.htm
+	        ,/system/sysUser/checkCode.htm
+	        ,/web/system/sysUser/sms.htm
+	        ,/product/baseProduct/checkProductByModelName.htm
+	        ,/product/baseProduct/uploadU3dModel.htm
+	        ,/online/web/design/designPlan/updatePlanConfig.htm
+	        ,/online/web/system/sysUser/app/sms.htm
+	        ,/online/web/system/sysUser/app/findPassword.htm
+	        ,/system/sysVersion/versionCheck.htm
+	        ,/system/sysVersion/versionCheck2.htm
+	       <!--  ,/web/product/baseProduct/updateProductGroupLocation.htm -->
+	        ,/web/system/sysCache/list.htm
+	        ,/web/system/sysCache/clearCache.htm
+	        ,/web/system/sysCache/updateSysDictionaryCache.htm
+	        ,/web/system/sysCache/updateProCategoryCache.htm
+	       <!--  ,/web/system/sysUser/getUserBalance.htm -->
+	        ,/web/system/baseArea/listAll.htm
+	        ,/system/resTexture/searchTexture.htm
+	        ,/system/resTexture/createTexture.htm
+	        ,/web/product/structureProduct/createStructureProduct.htm
+	       <!--  ,/web/product/baseProduct/updateEditorProductGroupLocation.htm -->
+	        ,/web/product/baseProduct/updateProductGroupLocation.htm
+	        ,/web/home/baseHouseApply/create.htm
+	        ,/web/design/designPlan/takeRenderPic.htm
+	        ,/web/design/designPlan/renderStartMessageSend.htm
+	        ,/web/render/renderTask/renderTaskFaildNotice.htm
+	        ,/web/design/designPlan/saveDesignRenderPic.htm
+	        ,/web/design/designPlan/uploadPlanRenderVideo.htm
+	        ,/web/design/intelligenceDecoration/getTempletProductIndexConfig.htm
+			,/web/design/intelligenceDecoration/byConfigSaveProductIndex.htm
+			<!-- ,/web/design/designPlan/prepareRender.htm -->
+			,/mobile/user/login.htm
+			,/mobile/user/app/sms.htm
+			,/mobile/user/app/findPassword.htm
+			,/vr720
+			,/online/share/getWXConfig.htm
+			,/web/product/prepProductSearchInfo/updatePutawayProduct.htm
+			,/web/product/baseProduct/updateBmGroupLocation.htm
+			,/web/pay/wxpaynotify.htm
+			,/web/pay/alipaynotify.htm
+			,/system/productModelPath/checkModelPath.htm
+			,/web/design/autoRender/getRenderTaskList.htm
+			,/web/design/autoRender/updateRenderTaskState.htm
+			,/web/system/sysUser/app/loginForAuto.htm
+			,/web/design/intelligenceDecoration/createPlanByConfig.htm
+			,/web/design/autoRender/getRenderTask.htm 
+			,/web/design/autoRender/addRedisRenderStick.htm
+			,/mobile/searchProduct/searchProduct.htm
+			</param-value>
+		</init-param>
+		<init-param>
+			<description>login Page</description>
+			<param-name>loginUrl</param-name>
+			<param-value>/pages/app/login.jsp</param-value>
+		</init-param>
+		
+		<init-param>
+			<description>Mobile login Page</description>
+			<param-name>mobileLoginUrl</param-name>
+			<param-value>/mobile/user/login.htm</param-value>
+		</init-param>
+		
+	</filter>
+	<filter-mapping>
+		<filter-name>MyFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+
+	<servlet>
+		<servlet-name>SpringMVC</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath:spring/spring-servlet.xml</param-value>
+		</init-param>
+		<init-param>
+			<param-name>dispatchOptionsRequest</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SpringMVC</servlet-name>
+		<url-pattern>*.htm</url-pattern>
+	</servlet-mapping>
+
+
+
+	<filter>
+		<filter-name>DruidWebStatFilter</filter-name>
+		<filter-class>com.alibaba.druid.support.http.WebStatFilter</filter-class>
+		<init-param>
+			<param-name>exclusions</param-name>
+			<param-value>*.xml,*.js,*.gif,*.jpg,*.png,*.css,*.ico,*.jsp,/druid/*,/download/*</param-value>
+		</init-param>
+		<init-param>
+			<param-name>sessionStatMaxCount</param-name>
+			<param-value>2000</param-value>
+		</init-param>
+		<init-param>
+			<param-name>sessionStatEnable</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<init-param>
+			<param-name>principalSessionName</param-name>
+			<param-value>session_user_key</param-value>
+		</init-param>
+		<init-param>
+			<param-name>profileEnable</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>DruidWebStatFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<!--
+	<servlet-mapping>
+		<servlet-name>default</servlet-name>
+		<url-pattern>*.html</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>default</servlet-name>
+		<url-pattern>*.ico</url-pattern>
+	</servlet-mapping>
+		<servlet-mapping>
+		<servlet-name>default</servlet-name>
+		<url-pattern>*.xml</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>default</servlet-name>
+		<url-pattern>*.gif</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>default</servlet-name>
+		<url-pattern>*.png</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>default</servlet-name>
+		<url-pattern>*.jpg</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>default</servlet-name>
+		<url-pattern>*.js</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>default</servlet-name>
+		<url-pattern>*.css</url-pattern>
+	</servlet-mapping>
+	-->
+	<servlet>
+		<servlet-name>DruidStatView</servlet-name>
+		<servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
+		<init-param>
+			<param-name>resetEnable</param-name>
+			<param-value>false</param-value>
+		</init-param>
+		<init-param>
+			<param-name>loginUsername</param-name>
+			<param-value>druid</param-value>
+		</init-param>
+		<init-param>
+			<param-name>loginPassword</param-name>
+			<param-value>druid</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DruidStatView</servlet-name>
+		<url-pattern>/druid/*</url-pattern>
+	</servlet-mapping>
+ 
+
+
+	<session-config>
+		<session-timeout>12000</session-timeout>
+	</session-config>
+	<error-page>
+		<error-code>404</error-code>
+		<location>/pages/errors/404.jsp</location>
+	</error-page>
+	<error-page>
+		<exception-type>java.lang.Exception</exception-type>
+		<location>/pages/errors/errors.jsp</location>
+	</error-page>
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>default.html</welcome-file>
+		<welcome-file>default.htm</welcome-file>
+		<welcome-file>default.jsp</welcome-file>
+	</welcome-file-list>
+</web-app>

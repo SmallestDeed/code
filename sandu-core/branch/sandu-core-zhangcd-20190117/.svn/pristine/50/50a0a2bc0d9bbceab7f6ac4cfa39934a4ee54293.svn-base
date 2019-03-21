@@ -1,0 +1,97 @@
+package com.sandu.service.springFestivalActivity.impl.impl;
+
+import com.sandu.api.base.model.ResPic;
+import com.sandu.api.base.model.SysUser;
+import com.sandu.api.base.service.ResPicService;
+import com.sandu.api.base.service.SysUserService;
+import com.sandu.api.springFestivalActivity.model.WxSpringActivity;
+import com.sandu.api.springFestivalActivity.model.WxUserCard;
+import com.sandu.api.springFestivalActivity.model.WxUserInviteRecord;
+import com.sandu.api.springFestivalActivity.model.WxUserTask;
+import com.sandu.api.springFestivalActivity.output.GiveMeFiveVo;
+import com.sandu.api.springFestivalActivity.output.RedPointFlagVo;
+import com.sandu.api.springFestivalActivity.service.WxSpringActivityService;
+import com.sandu.api.springFestivalActivity.service.WxUserCardService;
+import com.sandu.api.springFestivalActivity.service.WxUserInviteRecordService;
+import com.sandu.api.springFestivalActivity.service.WxUserTaskService;
+import com.sandu.api.springFestivalActivity.service.biz.FilmTicketActivityService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service("filmTicketActivityService")
+public class FilmTicketActivityServiceImpl implements FilmTicketActivityService {
+    private static final String CLASS_LOG_PREFIX = "[电影票活动服务]";
+
+    @Autowired
+    private SysUserService sysUserService;
+    @Autowired
+    private ResPicService resPicService;
+    @Autowired
+    private WxUserTaskService wxUserTaskService;
+    @Autowired
+    private WxSpringActivityService wxSpringActivityService;
+    @Autowired
+    private WxUserCardService wxUserCardService;
+    @Autowired
+    private WxUserInviteRecordService wxUserInviteRecordService;
+
+    @Override
+    public RedPointFlagVo getRedPointFlag(Long userId, Long activityId) {
+        RedPointFlagVo flag = new RedPointFlagVo(true, true, true);
+        // 有可领取任务或可完成任务
+        WxUserTask wxUserTask = WxUserTask.builder().userId(userId).activityId(activityId).isDeleted(0).build();
+        List<WxUserTask> userTaskList = wxUserTaskService.selectSelective(wxUserTask);
+        if (userTaskList != null && userTaskList.size() == 1) {
+            WxUserTask task = userTaskList.get(0);
+            flag.setHasTaskFlag(task.getTaskOneStatus() != 2 || task.getTaskTwoStatus() != 2 || task.getTaskThreeStatus() != 2);
+        }else if (userTaskList != null && userTaskList.size() > 1) {
+            log.warn(CLASS_LOG_PREFIX + "查出的用户任务表结果大于1条。");
+            flag.setHasTaskFlag(false);
+        }
+        // 活动未结束
+        WxSpringActivity activity = wxSpringActivityService.selectByPrimaryKey(activityId);
+        if (activity != null) {
+            flag.setActivityOverFlag(activity.getFilmRemainNum() > 0 && activity.getIsDeleted() == 0);
+        }else {
+            log.warn(CLASS_LOG_PREFIX + "当前活动不存在。");
+            flag.setActivityOverFlag(false);
+        }
+        // 今日获取拼图数量小于3
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        WxUserCard wxUserCard = WxUserCard.builder().userId(userId).activityId(activityId).isDeleted(0).build();
+        List<WxUserCard> cardList = wxUserCardService.selectSelective(wxUserCard);
+        if (cardList != null) {
+            cardList = cardList.stream()
+                    .filter(card -> format.format(new Date()).equals(format.format(card.getCardDate())) && card.getIsDeleted() == 0)
+                    .collect(Collectors.toList());
+            if (cardList != null && cardList.size() == 3) {
+                flag.setCardNumFlag(false);
+            }else if (cardList != null && cardList.size() > 3) {
+                log.warn(CLASS_LOG_PREFIX + "用户今天获得的卡片大于3张。日期:{}", format.format(new Date()));
+                flag.setCardNumFlag(false);
+            }
+        }
+        // 返回结果
+        return flag;
+    }
+
+    @Override
+    public GiveMeFiveVo giveMeFive(Long giveUserId, Long getUserId, Long activityId, Integer isLoginBefore){
+        SysUser giveUser = sysUserService.selectByPrimaryKey(giveUserId);
+        ResPic pic = resPicService.selectByPrimaryKey(giveUser.getPicId().longValue());
+        WxUserInviteRecord.builder()
+                .activityId(activityId)
+                .openId(giveUser.getOpenId())
+                .nickName(giveUser.getNickName())
+                .headPic(pic.getPicPath())
+                .userId(getUserId)
+                .inviteUserId(giveUserId)
+    }
+}

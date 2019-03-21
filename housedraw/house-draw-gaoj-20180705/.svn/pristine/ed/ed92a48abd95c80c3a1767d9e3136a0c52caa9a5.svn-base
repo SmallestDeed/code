@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.area.dao.BaseAreaMapper">
+  <resultMap id="BaseResultMap" type="com.sandu.api.area.model.BaseArea">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="area_code" jdbcType="VARCHAR" property="areaCode" />
+    <result column="area_name" jdbcType="VARCHAR" property="areaName" />
+    <result column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="level_id" jdbcType="INTEGER" property="levelId" />
+    <result column="zip_code" jdbcType="VARCHAR" property="zipCode" />
+    <result column="sys_code" jdbcType="VARCHAR" property="sysCode" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+    <result column="first_letter" jdbcType="VARCHAR" property="firstLetter" />
+    <result column="ordering" jdbcType="INTEGER" property="ordering" />
+    <result column="long_code" jdbcType="VARCHAR" property="longCode" />
+    <result column="att2" jdbcType="VARCHAR" property="att2" />
+    <result column="att3" jdbcType="VARCHAR" property="att3" />
+    <result column="att4" jdbcType="VARCHAR" property="att4" />
+    <result column="att5" jdbcType="VARCHAR" property="att5" />
+    <result column="att6" jdbcType="VARCHAR" property="att6" />
+    <result column="date_att1" jdbcType="TIMESTAMP" property="dateAtt1" />
+    <result column="date_att2" jdbcType="TIMESTAMP" property="dateAtt2" />
+    <result column="num_att1" jdbcType="INTEGER" property="numAtt1" />
+    <result column="num_att2" jdbcType="INTEGER" property="numAtt2" />
+    <result column="num_att3" jdbcType="DECIMAL" property="numAtt3" />
+    <result column="num_att4" jdbcType="DECIMAL" property="numAtt4" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, area_code, area_name, pid, level_id, zip_code, sys_code, gmt_create, creator, 
+    modifier, gmt_modified, is_deleted, first_letter, ordering, long_code, att2, att3, 
+    att4, att5, att6, date_att1, date_att2, num_att1, num_att2, num_att3, num_att4, remark
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from base_area
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="listAreaByName" resultType="com.sandu.api.area.model.BaseArea">
+    SELECT <include refid="listAreaByName_columns" /> FROM base_area a WHERE a.is_deleted = 0 AND a.area_name LIKE CONCAT(#{province}, '%') AND a.level_id = 1
+    UNION ALL
+    SELECT <include refid="listAreaByName_columns" /> FROM base_area a WHERE a.is_deleted = 0 AND a.area_name LIKE CONCAT(#{city}, '%') AND a.level_id = 2
+    UNION ALL
+    SELECT <include refid="listAreaByName_columns" /> FROM base_area a WHERE a.is_deleted = 0 AND a.area_name LIKE CONCAT(#{dist}, '%') AND a.level_id = 3
+  </select>
+
+  <sql id="listAreaByName_columns">
+    a.id, a.area_code, a.area_name, a.level_id
+  </sql>
+
+  <insert id="insertSelective" parameterType="com.sandu.api.area.model.BaseArea">
+    insert into base_area
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="areaCode != null">
+        area_code,
+      </if>
+      <if test="areaName != null">
+        area_name,
+      </if>
+      <if test="pid != null">
+        pid,
+      </if>
+      <if test="levelId != null">
+        level_id,
+      </if>
+      <if test="zipCode != null">
+        zip_code,
+      </if>
+      <if test="sysCode != null">
+        sys_code,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+      <if test="firstLetter != null">
+        first_letter,
+      </if>
+      <if test="ordering != null">
+        ordering,
+      </if>
+      <if test="longCode != null">
+        long_code,
+      </if>
+      <if test="att2 != null">
+        att2,
+      </if>
+      <if test="att3 != null">
+        att3,
+      </if>
+      <if test="att4 != null">
+        att4,
+      </if>
+      <if test="att5 != null">
+        att5,
+      </if>
+      <if test="att6 != null">
+        att6,
+      </if>
+      <if test="dateAtt1 != null">
+        date_att1,
+      </if>
+      <if test="dateAtt2 != null">
+        date_att2,
+      </if>
+      <if test="numAtt1 != null">
+        num_att1,
+      </if>
+      <if test="numAtt2 != null">
+        num_att2,
+      </if>
+      <if test="numAtt3 != null">
+        num_att3,
+      </if>
+      <if test="numAtt4 != null">
+        num_att4,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="areaCode != null">
+        #{areaCode,jdbcType=VARCHAR},
+      </if>
+      <if test="areaName != null">
+        #{areaName,jdbcType=VARCHAR},
+      </if>
+      <if test="pid != null">
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="levelId != null">
+        #{levelId,jdbcType=INTEGER},
+      </if>
+      <if test="zipCode != null">
+        #{zipCode,jdbcType=VARCHAR},
+      </if>
+      <if test="sysCode != null">
+        #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="firstLetter != null">
+        #{firstLetter,jdbcType=VARCHAR},
+      </if>
+      <if test="ordering != null">
+        #{ordering,jdbcType=INTEGER},
+      </if>
+      <if test="longCode != null">
+        #{longCode,jdbcType=VARCHAR},
+      </if>
+      <if test="att2 != null">
+        #{att2,jdbcType=VARCHAR},
+      </if>
+      <if test="att3 != null">
+        #{att3,jdbcType=VARCHAR},
+      </if>
+      <if test="att4 != null">
+        #{att4,jdbcType=VARCHAR},
+      </if>
+      <if test="att5 != null">
+        #{att5,jdbcType=VARCHAR},
+      </if>
+      <if test="att6 != null">
+        #{att6,jdbcType=VARCHAR},
+      </if>
+      <if test="dateAtt1 != null">
+        #{dateAtt1,jdbcType=TIMESTAMP},
+      </if>
+      <if test="dateAtt2 != null">
+        #{dateAtt2,jdbcType=TIMESTAMP},
+      </if>
+      <if test="numAtt1 != null">
+        #{numAtt1,jdbcType=INTEGER},
+      </if>
+      <if test="numAtt2 != null">
+        #{numAtt2,jdbcType=INTEGER},
+      </if>
+      <if test="numAtt3 != null">
+        #{numAtt3,jdbcType=DECIMAL},
+      </if>
+      <if test="numAtt4 != null">
+        #{numAtt4,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.area.model.BaseArea">
+    update base_area
+    <set>
+      <if test="areaCode != null">
+        area_code = #{areaCode,jdbcType=VARCHAR},
+      </if>
+      <if test="areaName != null">
+        area_name = #{areaName,jdbcType=VARCHAR},
+      </if>
+      <if test="pid != null">
+        pid = #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="levelId != null">
+        level_id = #{levelId,jdbcType=INTEGER},
+      </if>
+      <if test="zipCode != null">
+        zip_code = #{zipCode,jdbcType=VARCHAR},
+      </if>
+      <if test="sysCode != null">
+        sys_code = #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="firstLetter != null">
+        first_letter = #{firstLetter,jdbcType=VARCHAR},
+      </if>
+      <if test="ordering != null">
+        ordering = #{ordering,jdbcType=INTEGER},
+      </if>
+      <if test="longCode != null">
+        long_code = #{longCode,jdbcType=VARCHAR},
+      </if>
+      <if test="att2 != null">
+        att2 = #{att2,jdbcType=VARCHAR},
+      </if>
+      <if test="att3 != null">
+        att3 = #{att3,jdbcType=VARCHAR},
+      </if>
+      <if test="att4 != null">
+        att4 = #{att4,jdbcType=VARCHAR},
+      </if>
+      <if test="att5 != null">
+        att5 = #{att5,jdbcType=VARCHAR},
+      </if>
+      <if test="att6 != null">
+        att6 = #{att6,jdbcType=VARCHAR},
+      </if>
+      <if test="dateAtt1 != null">
+        date_att1 = #{dateAtt1,jdbcType=TIMESTAMP},
+      </if>
+      <if test="dateAtt2 != null">
+        date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},
+      </if>
+      <if test="numAtt1 != null">
+        num_att1 = #{numAtt1,jdbcType=INTEGER},
+      </if>
+      <if test="numAtt2 != null">
+        num_att2 = #{numAtt2,jdbcType=INTEGER},
+      </if>
+      <if test="numAtt3 != null">
+        num_att3 = #{numAtt3,jdbcType=DECIMAL},
+      </if>
+      <if test="numAtt4 != null">
+        num_att4 = #{numAtt4,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

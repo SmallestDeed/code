@@ -1,0 +1,752 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.product.dao.UserProductCollectMapper">
+    <!--<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>-->
+    <!-- **插入定义** -->
+    <insert id="insertSelective" parameterType="com.sandu.product.model.UserProductCollect" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into user_product_collect
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sysCode!= null">sys_code,</if>
+            <if test="creator!= null">creator,</if>
+            <if test="gmtCreate!= null">gmt_create,</if>
+            <if test="modifier!= null">modifier,</if>
+            <if test="gmtModified!= null">gmt_modified,</if>
+            <if test="isDeleted!= null">is_deleted,</if>
+            <if test="userId!= null">user_id,</if>
+            <if test="productId!= null">product_id,</if>
+            <if test="att1!= null">att1,</if>
+            <if test="att2!= null">att2,</if>
+            <if test="att3!= null">att3,</if>
+            <if test="att4!= null">att4,</if>
+            <if test="att5!= null">att5,</if>
+            <if test="att6!= null">att6,</if>
+            <if test="dateAtt1!= null">date_att1,</if>
+            <if test="dateAtt2!= null">date_att2,</if>
+            <if test="collectCatalogId!= null">collect_catalog_id,</if>
+            <if test="spuId!= null">spu_id,</if>
+            <if test="numAtt3!= null">num_att3,</if>
+            <if test="numAtt4!= null">num_att4,</if>
+            <if test="remark!= null">remark,</if>
+            <if test="numAtt2!= null">num_att2,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sysCode!= null">#{sysCode,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">#{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">#{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER},</if>
+            <if test="userId!= null">#{userId,jdbcType=INTEGER},</if>
+            <if test="productId!= null">#{productId,jdbcType=INTEGER},</if>
+            <if test="att1!= null">#{att1,jdbcType=VARCHAR},</if>
+            <if test="att2!= null">#{att2,jdbcType=VARCHAR},</if>
+            <if test="att3!= null">#{att3,jdbcType=VARCHAR},</if>
+            <if test="att4!= null">#{att4,jdbcType=VARCHAR},</if>
+            <if test="att5!= null">#{att5,jdbcType=VARCHAR},</if>
+            <if test="att6!= null">#{att6,jdbcType=VARCHAR},</if>
+            <if test="dateAtt1!= null">#{dateAtt1,jdbcType=TIMESTAMP},</if>
+            <if test="dateAtt2!= null">#{dateAtt2,jdbcType=TIMESTAMP},</if>
+            <if test="collectCatalogId!= null">#{collectCatalogId,jdbcType=INTEGER},</if>
+            <if test="spuId!= null">#{spuId,jdbcType=INTEGER},</if>
+            <if test="numAtt3!= null">#{numAtt3,jdbcType=DOUBLE},</if>
+            <if test="numAtt4!= null">#{numAtt4,jdbcType=DOUBLE},</if>
+            <if test="remark!= null">#{remark,jdbcType=VARCHAR},</if>
+            <if test="numAtt2!= null">#{numAtt2,jdbcType=DOUBLE},</if>
+        </trim>
+    </insert>
+
+    <!-- **更新定义** -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.product.model.UserProductCollect">
+        update user_product_collect
+        <set>
+            <if test="sysCode!= null">sys_code = #{sysCode,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">creator = #{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">modifier = #{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">is_deleted = #{isDeleted,jdbcType=INTEGER},</if>
+            <if test="userId!= null">user_id = #{userId,jdbcType=INTEGER},</if>
+            <if test="productId!= null">product_id = #{productId,jdbcType=INTEGER},</if>
+            <if test="att1!= null">att1 = #{att1,jdbcType=VARCHAR},</if>
+            <if test="att2!= null">att2 = #{att2,jdbcType=VARCHAR},</if>
+            <if test="att3!= null">att3 = #{att3,jdbcType=VARCHAR},</if>
+            <if test="att4!= null">att4 = #{att4,jdbcType=VARCHAR},</if>
+            <if test="att5!= null">att5 = #{att5,jdbcType=VARCHAR},</if>
+            <if test="att6!= null">att6 = #{att6,jdbcType=VARCHAR},</if>
+            <if test="dateAtt1!= null">date_att1 = #{dateAtt1,jdbcType=TIMESTAMP},</if>
+            <if test="dateAtt2!= null">date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},</if>
+            <if test="collectCatalogId!= null">collect_catalog_id = #{collectCatalogId,jdbcType=INTEGER},</if>
+            <if test="spuId!= null">spu_id = #{spuId,jdbcType=INTEGER},</if>
+            <if test="numAtt3!= null">num_att3 = #{numAtt3,jdbcType=DOUBLE},</if>
+            <if test="numAtt4!= null">num_att4 = #{numAtt4,jdbcType=DOUBLE},</if>
+            <if test="remark!= null">remark = #{remark,jdbcType=VARCHAR},</if>
+            <if test="numAtt2!= null">num_att2 = #{numAtt2,jdbcType=DOUBLE},</if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!-- **删除定义** -->
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from user_product_collect
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+        id,product_id,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,user_id,product_id,att1,att2,att3,att4,att5,att6,date_att1,date_att2,collect_catalog_id,spu_id,num_att3,num_att4,remark,num_att2
+    </sql>
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.sandu.product.model.UserProductCollect">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="sys_code" property="sysCode" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="product_id" property="productId" jdbcType="INTEGER"/>
+        <result column="att1" property="att1" jdbcType="VARCHAR"/>
+        <result column="att2" property="att2" jdbcType="VARCHAR"/>
+        <result column="att3" property="att3" jdbcType="VARCHAR"/>
+        <result column="att4" property="att4" jdbcType="VARCHAR"/>
+        <result column="att5" property="att5" jdbcType="VARCHAR"/>
+        <result column="att6" property="att6" jdbcType="VARCHAR"/>
+        <result column="date_att1" property="dateAtt1" jdbcType="TIMESTAMP"/>
+        <result column="date_att2" property="dateAtt2" jdbcType="TIMESTAMP"/>
+        <result column="collect_catalog_id" property="collectCatalogId" jdbcType="INTEGER"/>
+        <result column="spu_id" property="spuId" jdbcType="INTEGER"/>
+        <result column="num_att3" property="numAtt3" jdbcType="DOUBLE"/>
+        <result column="num_att4" property="numAtt4" jdbcType="DOUBLE"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="num_att2" property="numAtt2" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!-- **查询定义** -->
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="AllResultMap"
+            parameterType="java.lang.Integer">
+        select
+        <include refid="All_Column_List"/>
+        from user_product_collect
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+            parameterType="com.sandu.product.model.UserProductCollect">
+        select
+        <include refid="All_Column_List"/>
+        from user_product_collect
+        where 1=1
+        <if test="sysCode!= null">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="creator!= null">and creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="gmtCreate!= null">and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}</if>
+        <if test="modifier!= null">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="gmtModified!= null">and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}</if>
+        <if test="isDeleted!= null">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="userId!= null">and user_id = #{userId,jdbcType=INTEGER}</if>
+        <if test="productId!= null">and product_id = #{productId,jdbcType=INTEGER}</if>
+        <if test="att1!= null">and att1 = #{att1,jdbcType=VARCHAR}</if>
+        <if test="att2!= null">and att2 = #{att2,jdbcType=VARCHAR}</if>
+        <if test="att3!= null">and att3 = #{att3,jdbcType=VARCHAR}</if>
+        <if test="att4!= null">and att4 = #{att4,jdbcType=VARCHAR}</if>
+        <if test="att5!= null">and att5 = #{att5,jdbcType=VARCHAR}</if>
+        <if test="att6!= null">and att6 = #{att6,jdbcType=VARCHAR}</if>
+        <if test="dateAtt1!= null">and date_att1 = #{dateAtt1,jdbcType=TIMESTAMP}</if>
+        <if test="dateAtt2!= null">and date_att2 = #{dateAtt2,jdbcType=TIMESTAMP}</if>
+        <if test="collectCatalogId!= null">and collect_catalog_id = #{collectCatalogId,jdbcType=INTEGER}</if>
+        <if test="spuId!= null">and spu_id = #{spuId,jdbcType=INTEGER}</if>
+        <if test="numAtt3!= null">and num_att3 = #{numAtt3,jdbcType=DOUBLE}</if>
+        <if test="numAtt4!= null">and num_att4 = #{numAtt4,jdbcType=DOUBLE}</if>
+        <if test="remark!= null">and remark = #{remark,jdbcType=VARCHAR}</if>
+        <if test="numAtt2!= null">and num_att2 = #{numAtt2,jdbcType=DOUBLE}</if>
+        <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderNum != null and  orderNum !='' ">
+                ${orderNum}
+            </if>
+        </if>
+        <if test="orders != null and  orders !=''  ">
+            order by ${orders}
+        </if>
+    </select>
+
+    <!-- 分页汇总 -->
+    <select id="selectCount" resultType="int"
+            parameterType="com.sandu.product.model.search.UserProductCollectSearch">
+        SELECT COUNT(*)
+        FROM user_product_collect c
+        LEFT JOIN sys_user u ON c.user_id = u.id
+        LEFT JOIN base_product p ON c.product_id =p.id
+        LEFT JOIN base_brand b ON p.brand_id = b.id
+        LEFT JOIN res_pic r ON p.pic_id = r.id
+        LEFT JOIN sys_dictionary s ON s.value = CAST(p.product_type_value AS signed)
+        WHERE 1=1 AND s.type="productType"
+        <if test="userName != null and userName != '' ">
+            AND u.user_name like CONCAT('%',#{userName,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="userId != null and userId != '' ">
+            AND u.id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="id != null and id != '' ">
+            AND c.id = #{id,jdbcType=INTEGER}
+        </if>
+        <if test="productTypeValue != null and productTypeValue != '' ">
+            AND p.product_type_value = #{productTypeValue,jdbcType=VARCHAR}
+        </if>
+        <if test="productName !=  null and productName !=  ''   ">
+            AND p.product_name like CONCAT('%',#{productName,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="brandName !=  null and brandName !=  ''   ">
+            AND b.brand_name like CONCAT('%',#{brandName,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="brandStyleId !=  null and brandStyleId !=  ''   ">
+            AND b.brand_style_id = #{brandStyleId,jdbcType=INTEGER}
+        </if>
+        <if test="sysCode !=  null and sysCode !=  ''   ">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+            and sys_code like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+            and sys_code like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+        </if>
+        <if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+            and sys_code like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+            and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="creator !=  null and creator !=  ''   ">and creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+            and creator like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+            and creator like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+        </if>
+        <if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+            and creator like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="creatorStart !=  null and creatorEnd!= null  ">
+            and creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtCreate !=  null  ">
+            and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+            and gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+        </if>
+        <if test="modifier !=  null and modifier !=  ''   ">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+            and modifier like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+            and modifier like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+        </if>
+        <if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+            and modifier like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="modifierStart !=  null and modifierEnd!= null  ">
+            and modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtModified !=  null  ">
+            and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+        </if>
+        <if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+            and gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+        </if>
+        <if test="isDeleted !=  null  ">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="userId !=  null  ">and c.user_id = #{userId,jdbcType=INTEGER}</if>
+        <if test="productId !=  null  ">and product_id = #{productId,jdbcType=INTEGER}</if>
+
+    </select>
+
+    <!-- 分页查询 ,可在UserProductCollectSearch中自定义查询条件-->
+    <select id="selectPaginatedList" resultMap="AllResultMap"
+            parameterType="com.sandu.product.model.search.UserProductCollectSearch">
+        SELECT
+        c.user_id as userId, c.product_id as productId,
+        c.id as id
+        FROM user_product_collect c
+        LEFT JOIN sys_user u on c.user_id = u.id
+        LEFT JOIN base_product p on c.product_id =p.id
+        LEFT JOIN base_brand b on p.brand_id = b.id
+        WHERE 1=1
+        <if test="userName != null and userName != '' ">
+            AND u.user_name like CONCAT('%',#{userName,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="productName !=  null and productName !=  ''   ">
+            AND p.product_name like CONCAT('%',#{productName,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="brandName !=  null and brandName !=  ''   ">
+            AND b.brand_name like CONCAT('%',#{brandName,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="sysCode !=  null and sysCode !=  ''   ">and c.sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="gmtCreate !=  null  ">
+            and c.gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+            and c.gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+        </if>
+        <if test="modifier !=  null and modifier !=  ''   ">and c.modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+            and c.modifier like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+            and c.modifier like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+        </if>
+        <if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+            and c.modifier like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="modifierStart !=  null and modifierEnd!= null  ">
+            and c.modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtModified !=  null  ">
+            and c.gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+        </if>
+        <if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+            and c.gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+        </if>
+        <if test="isDeleted !=  null  ">and c.is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="userId !=  null  ">and c.user_id = #{userId,jdbcType=INTEGER}</if>
+        <if test="productId !=  null  ">and c.product_id = #{productId,jdbcType=INTEGER}</if>
+        <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderNum != null and  orderNum !='' ">${orderNum}</if>
+        </if>
+        <if test="orders != null and  orders !=''  ">order by #{orders}</if>
+        <if test="order == null and  orders == null ">order by id desc</if>
+        <if test="start !=-1 and limit !=-1">LIMIT #{start}, #{limit}</if>
+    </select>
+
+    <!-- 其他Map等查询方式 -->
+    <resultMap type="com.sandu.product.model.UserProductsConllect" id="userProductsConllectList">
+        <result column="id" property="id" jdbcType="INTEGER"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="product_id" property="productId" jdbcType="INTEGER"/>
+        <result column="product_name" property="productName" jdbcType="VARCHAR"/>
+        <result column="productCode" property="productCode" jdbcType="VARCHAR"/>
+        <result column="product_code" property="productCode" jdbcType="VARCHAR"/>
+        <result column="u3dModelPath" property="u3dModelPath" jdbcType="VARCHAR"/>
+        <result column="materialPath" property="materialPath" jdbcType="VARCHAR"/>
+        <result column="productColorKey" property="productColorKey" jdbcType="INTEGER"/>
+        <result column="value" property="value" jdbcType="VARCHAR"/>
+        <result column="name" property="productTypeName" jdbcType="VARCHAR"/>
+        <result column="product_type_name" property="productTypeName" jdbcType="VARCHAR"/>
+        <result column="product_desc" property="productDesc" jdbcType="VARCHAR"/>
+        <result column="sale_price" property="salePrice" jdbcType="DECIMAL"/>
+        <result column="product_type_value" property="productTypeValue" jdbcType="VARCHAR"/>
+        <result column="product_type" property="productType" jdbcType="VARCHAR"/>
+        <result column="brand_id" property="brandId" jdbcType="INTEGER"/>
+        <result column="brand_name" property="brandName" jdbcType="VARCHAR"/>
+        <result column="pic_path" property="productPath" jdbcType="VARCHAR"/>
+        <result column="product_path" property="productPath" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getUserProductConllect" resultMap="AllResultMap"
+            parameterType="com.sandu.product.model.UserProductCollect">
+        SELECT c.user_id, c.product_id as productId FROM user_product_collect c
+        LEFT JOIN sys_user u ON c.user_id = u.id
+        WHERE 1=1
+        <if test="userId != null and userId != '' ">
+            AND c.user_id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="productId != null and productId != '' ">
+            AND c.product_id = #{productId,jdbcType=INTEGER}
+        </if>
+
+    </select>
+
+    <select id="getUserProductsConllectList" resultMap="userProductsConllectList"
+            parameterType="com.sandu.product.model.UserProductsConllect">
+        SELECT c.user_id as userId, u.user_name as userName,c.product_id as productId,
+        p.product_name as productName,p.sale_price as salePrice,
+        p.product_code as productCode,
+        p.product_desc as productDesc ,
+        p.color_id as productColorKey,
+        b.brand_name as brandName,
+        c.id as id,
+        p.brand_id as brandId,
+        p.product_type_value as productTypeValue,
+        r.pic_path as productPath
+        FROM user_product_collect c
+        LEFT JOIN sys_user u on c.user_id = u.id
+        LEFT JOIN base_product p on c.product_id =p.id
+        LEFT JOIN base_brand b on p.brand_id = b.id
+        LEFT JOIN res_pic r on p.pic_id = r.id
+        WHERE 1=1
+        <if test="userName != null and userName != '' ">
+            AND u.user_name like CONCAT('%',#{userName,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="userId != null and userId != '' ">
+            AND u.id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="id != null and id != '' ">
+            AND c.id = #{id,jdbcType=INTEGER}
+        </if>
+        <if test="brandId != null and brandId != '' ">
+            AND p.brand_id = #{brandId,jdbcType=INTEGER}
+        </if>
+        <if test="productId != null and productId != '' ">
+            AND p.id = #{productId,jdbcType=VARCHAR}
+        </if>
+        <if test="productTypeValue != null and productTypeValue != '' ">
+            AND p.product_type_value = #{productTypeValue,jdbcType=VARCHAR}
+        </if>
+        <if test="productSmallTypeValue != null and productSmallTypeValue != '' ">
+            AND p.product_small_type_value = #{productSmallTypeValue,jdbcType=INTEGER}
+        </if>
+        <if test="productName !=  null and productName !=  ''   ">
+            AND p.product_name like CONCAT('%',#{productName,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="brandName !=  null and brandName !=  ''   ">
+            AND b.brand_name like CONCAT('%',#{brandName,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="brandId !=  null and brandId !=  ''   ">
+            AND b.id = #{brandId,jdbcType=INTEGER}
+        </if>
+        <if test="start !=-1 and limit !=-1">LIMIT #{start}, #{limit}</if>
+
+    </select>
+
+
+    <select id="getAllList" resultMap="userProductsConllectList"
+            parameterType="com.sandu.product.model.UserProductsConllect">
+        <!-- 	    SELECT c.user_id AS userId, u.user_name AS userName,c.product_id AS productId, -->
+        <!-- 	    p.product_code AS productCode, -->
+        <!-- 	    p.product_name AS productName,p.sale_price AS salePrice, -->
+        <!-- 	    p.product_desc AS productDesc , -->
+        <!-- 	    b.brand_name AS brandName, -->
+        <!-- 	    c.id AS id, -->
+        <!-- 	    p.brand_id AS brandId, -->
+        <!-- 	    p.product_type_value AS productTypeValue, -->
+        <!-- 	    s.valuekey AS  productType, -->
+        <!-- 	    s.name AS  productTypeName, -->
+        <!-- 	    r.pic_path AS  productPath -->
+        <!-- 	    FROM user_product_collect c -->
+        <!-- 	    LEFT JOIN sys_user u ON c.user_id = u.id  -->
+        <!-- 	    LEFT JOIN base_product p ON c.product_id =p.id  -->
+        <!-- 	    LEFT JOIN base_brand b ON p.brand_id = b.id -->
+        <!-- 	    LEFT JOIN res_pic r ON p.pic_id = r.id -->
+        <!-- 	    LEFT JOIN sys_dictionary s ON s.value = CAST(p.product_type_value AS  signed) -->
+        <!-- 	    LEFT JOIN collect_catalog cc ON cc.id = c.collect_catalog_id -->
+        <!-- 	    WHERE s.type='productType'  -->
+
+        SELECT c.user_id AS user_id,
+        u.user_name AS user_name,
+        c.product_id AS product_id,
+        bp.product_code AS product_code,
+        bp.product_name AS product_name,
+        bp.sale_price AS sale_price,
+        bp.product_desc AS product_desc ,
+        b.brand_name AS brand_name,
+        c.id AS id,
+        s.S2VALUEKEY AS product_type,
+        s.S2NAME AS product_type_name,
+        bp.brand_id AS brand_id,
+        bp.product_type_value AS product_type_value,
+        r.pic_path AS product_path
+        FROM user_product_collect AS c
+        LEFT JOIN sys_user u ON c.user_id = u.id
+        LEFT JOIN base_product as bp on c.product_id=bp.id
+        LEFT JOIN (
+        SELECT S1.id S1ID,S1.value S1VALUE ,s2.value S2VALUE ,s2.valueKey S2VALUEKEY,s2.name S2NAME,s2.type S2TYPE FROM
+        sys_dictionary as s1 LEFT JOIN sys_dictionary as s2 on s1.type=s2.valuekey
+        where find_in_set
+        (
+        S1.valuekey,#{smallValueKeyS,jdbcType=VARCHAR}) > 0
+        ) s on bp.product_type_value = s.S2VALUE AND bp.product_small_type_value = s.S1VALUE
+        LEFT JOIN base_brand b ON bp.brand_id = b.id
+        LEFT JOIN res_pic r ON bp.pic_id = r.id
+        LEFT JOIN collect_catalog cc ON cc.id = c.collect_catalog_id
+        where 1=1 and s.S1ID is not null and s.S2TYPE='productType'
+
+        <if test="isInternalUser != null and isInternalUser == 'yes'">
+            AND (bp.putaway_state = 1 or bp.putaway_state = 2 or bp.putaway_state = 3)
+        </if>
+        <if test="isInternalUser == null or isInternalUser == ''"><!-- 以前已经上架显示，现在是已发布的显示   -->
+            and bp.putaway_state = 3
+        </if>
+        <if test="collectCatalogId != null and collectCatalogId != 0 ">
+            and c.collect_catalog_id = #{collectCatalogId,jdbcType=INTEGER}
+        </if>
+        <if test="userId != null and userId != '' ">
+            AND u.id = #{userId,jdbcType=INTEGER}
+        </if>
+        ORDER BY c.gmt_create DESC
+        <if test="start !=-1 and limit !=-1">LIMIT #{start}, #{limit}</if>
+
+    </select>
+
+    <select id="getUserProductsConllectCount" resultType="int"
+            parameterType="com.sandu.product.model.UserProductsConllect">
+        <!-- 	    select count(*)  -->
+        <!-- 	    from user_product_collect c -->
+        <!-- 	    left join sys_user u on c.user_id = u.id  -->
+        <!-- 	    left join base_product p on c.product_id =p.id  -->
+        <!-- 	    left join base_brand b on p.brand_id = b.id -->
+        <!-- 	    left join res_pic r on p.pic_id = r.id -->
+        <!-- 		LEFT JOIN collect_catalog cc ON cc.id = c.collect_catalog_id -->
+        <!-- 	    where 1=1 -->
+
+        SELECT count(*)
+        FROM user_product_collect AS c
+        LEFT JOIN sys_user u ON c.user_id = u.id
+        LEFT JOIN base_product as bp on c.product_id=bp.id
+        LEFT JOIN (
+        SELECT S1.id S1ID, S1.value S1VALUE ,s2.value S2VALUE ,s2.valueKey S2VALUEKEY,s2.name S2NAME ,s2.type S2TYPE
+        FROM sys_dictionary as s1 LEFT JOIN sys_dictionary as s2 on s1.type=s2.valuekey
+        where find_in_set(S1.valuekey,#{smallValueKeyS}) > 0) s on bp.product_type_value = s.S2VALUE AND
+        bp.product_small_type_value = s.S1VALUE
+        LEFT JOIN base_brand b ON bp.brand_id = b.id
+        LEFT JOIN res_pic r ON bp.pic_id = r.id
+        LEFT JOIN collect_catalog cc ON cc.id = c.collect_catalog_id
+        where 1=1 and s.S1ID is not null and s.S2TYPE='productType'
+        <if test="isInternalUser != null and isInternalUser == 'yes'">
+            AND (bp.putaway_state = 1 or bp.putaway_state = 2 or bp.putaway_state = 3)
+        </if>
+        <if test="isInternalUser == null or isInternalUser == ''"><!-- 以前已经上架显示，现在是已发布的显示   -->
+            and bp.putaway_state = 3
+        </if>
+        <if test="collectCatalogId != null and collectCatalogId != 0 ">
+            and c.collect_catalog_id = #{collectCatalogId,jdbcType=INTEGER}
+        </if>
+        <if test="userId != null and userId != '' ">
+            and u.id = #{userId,jdbcType=INTEGER}
+        </if>
+
+    </select>
+
+    <select id="cancelConllect" resultType="java.lang.Integer"
+            parameterType="com.sandu.product.model.UserProductCollect">
+        SELECT id FROM user_product_collect
+        WHERE 1 =1
+        <if test="userId != null and userId != '' ">
+            AND user_id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="productId != null and productId != '' ">
+            AND product_id = #{productId,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <!-- end-->
+
+
+    <!-- **更新定义** -->
+    <update id="transferCollection" parameterType="com.sandu.product.model.search.UserProductCollectSearch">
+        update user_product_collect
+        <set>
+            <if test="userId!= null">user_id = #{userId,jdbcType=INTEGER},</if>
+            <if test="collectCatalogId!= null">collect_catalog_id = #{defaultId,jdbcType=INTEGER},</if>
+        </set>
+        where collect_catalog_id = #{collectCatalogId,jdbcType=INTEGER}
+    </update>
+
+    <select id="getSpuIdList" resultType="java.lang.Integer"
+            parameterType="com.sandu.product.model.UserProductsConllect">
+        select
+            t2.id
+        from
+            user_product_collect t1
+            left join base_goods_spu t2 on t2.id = t1.spu_id
+            left join base_product t9 on t9.goods_spu_id = t2.id
+            left join product_category_rel t6 on t6.product_id = t9.id
+            left join pro_category t7 on t7.id = t6.category_id
+            left join platform2c_product_rel t8 on t8.product_id = t9.id
+        where
+            t2.is_deleted = 0
+            and t9.is_deleted = 0
+            and t2.is_putaway = 1
+            and t8.putaway_state = 1
+            <if test="userId != null and userId != '' ">
+                AND t1.user_id = #{userId,jdbcType=INTEGER}
+            </if>
+            <if test="collectCatalogId != null and collectCatalogId != 0 ">
+                and t1.collect_catalog_id = #{collectCatalogId,jdbcType=INTEGER}
+            </if>
+            <if test="productCategoryCode != null and productCategoryCode != '' ">
+                and t7.third_stage_code = #{productCategoryCode,jdbcType=VARCHAR}
+            </if>
+        group by
+            t2.id
+        ORDER BY t1.gmt_create
+            <if test="isSort== 0 or isSort== null">DESC</if>
+            <if test="isSort== 1">ASC</if>
+            <if test="start !=-1 and limit !=-1">LIMIT #{start}, #{limit}</if>
+    </select>
+
+    <select id="getCollectCount" resultType="java.lang.Integer"
+            parameterType="com.sandu.product.model.UserProductsConllect">
+        select count(1) from (
+            select
+                1
+            from
+                user_product_collect t1
+                left join base_goods_spu t2 on t2.id = t1.spu_id
+                left join base_product t9 on t9.goods_spu_id = t2.id
+                left join product_category_rel t6 on t6.product_id = t9.id
+                left join pro_category t7 on t7.id = t6.category_id
+                left join platform2c_product_rel t8 on t8.product_id = t9.id
+            where
+                t2.is_deleted = 0
+                and t9.is_deleted = 0
+                and t2.is_putaway = 1
+                and t8.putaway_state = 1
+                <if test="userId != null and userId != '' ">
+                    AND t1.user_id = #{userId,jdbcType=INTEGER}
+                </if>
+                <if test="collectCatalogId != null and collectCatalogId != 0 ">
+                    and t1.collect_catalog_id = #{collectCatalogId,jdbcType=INTEGER}
+                </if>
+                <if test="productCategoryCode != null and productCategoryCode != '' ">
+                    and t7.third_stage_code = #{productCategoryCode,jdbcType=VARCHAR}
+                </if>
+            group by
+                t2.id
+        )t
+    </select>
+
+
+    <select id="getAllListAll" resultMap="userProductsConllectList"
+            parameterType="com.sandu.product.model.UserProductsConllect">
+        SELECT
+        DISTINCT c.id AS id,
+        c.product_id AS product_id,
+        c.user_id AS user_id, u.user_name AS user_name,
+        p.product_code AS product_code,
+        p.product_name AS product_name,
+        ppr.sale_price AS sale_price,
+        p.product_desc AS product_desc ,
+        b.brand_name AS brand_name,
+        b.company_id AS companyId,
+        p.brand_id AS brand_id,
+        p.product_type_value AS product_type_value,
+        s.valuekey AS product_type,
+        s.name AS product_type_name,
+        r.pic_path AS product_path
+        FROM user_product_collect c
+        LEFT JOIN sys_user u ON c.user_id = u.id
+        LEFT JOIN base_product p ON c.product_id =p.id
+        LEFT JOIN base_brand b ON p.brand_id = b.id
+        LEFT JOIN res_pic r ON p.pic_id = r.id
+        LEFT JOIN sys_dictionary s ON s.value = CAST(p.product_type_value AS signed)
+        LEFT JOIN collect_catalog cc ON cc.id = c.collect_catalog_id
+        left join product_category_rel pcr on pcr.product_id = p.id
+        left join pro_category pc on pc.id = pcr.category_id
+        LEFT JOIN platform2c_product_rel ppr ON ppr.product_id = c.product_id AND ppr.is_deleted = 0
+        WHERE s.type='productType'
+        <!-- 以前已经上架显示，现在是已发布的显示   -->
+        and p.putaway_state = 3
+        AND ppr.platform_id =  14
+        AND ppr.putaway_state = 1
+        AND ppr.allot_state = 1
+        <if test="userId != null and userId != '' ">
+            AND u.id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="collectCatalogId != null and collectCatalogId != 0 ">
+            and c.collect_catalog_id = #{collectCatalogId,jdbcType=INTEGER}
+        </if>
+        <if test="productCategoryCode != null and productCategoryCode != '' ">
+            and pc.third_stage_code = #{productCategoryCode,jdbcType=VARCHAR}
+        </if>
+        ORDER BY c.gmt_create 
+        <if test="isSort== 0 or isSort== null">DESC</if>
+        <if test="isSort== 1">ASC</if>
+        <if test="start !=-1 and limit !=-1">LIMIT #{start}, #{limit}</if>
+	
+    </select>
+
+    <select id="getUserProductsConllectCountAll" resultType="int"
+            parameterType="com.sandu.product.model.UserProductsConllect">
+        select count(DISTINCT p.id)
+        from user_product_collect c
+        left join sys_user u on c.user_id = u.id
+        left join base_product p on c.product_id =p.id
+        left join base_brand b on p.brand_id = b.id
+        left join res_pic r on p.pic_id = r.id
+        LEFT JOIN collect_catalog cc ON cc.id = c.collect_catalog_id
+        left join product_category_rel pcr on pcr.product_id = p.id
+        left join pro_category pc on pc.id = pcr.category_id
+        where 1=1
+        and p.putaway_state = 3
+        <if test="userId != null and userId != '' ">
+            and u.id = #{userId,jdbcType=INTEGER}
+        </if>
+         <if test="productCategoryCode != null and productCategoryCode != '' ">
+            and pc.third_stage_code = #{productCategoryCode,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <!-- 批量删除 -->
+    <delete id="deleteBatch" parameterType="java.util.List">
+        delete from user_product_collect where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+    
+    <!--  根据用户ID查询是用户的收藏夹ID -->
+    <select id="selectCollectCatalogId" resultType="int"
+            parameterType="com.sandu.product.model.UserProductCollect">
+     SELECT collect_catalog_id from user_product_collect WHERE user_id = #{userId} limit 1 
+    </select>
+    
+    
+      <select id="getAllListAll2" resultType="Object"
+            parameterType="com.sandu.product.model.UserProductsConllect">
+       select DISTINCT c.product_id
+        from user_product_collect c
+        left join sys_user u on c.user_id = u.id
+        left join base_product p on c.product_id =p.id
+        left join base_brand b on p.brand_id = b.id
+        left join res_pic r on p.pic_id = r.id
+        LEFT JOIN collect_catalog cc ON cc.id = c.collect_catalog_id
+        left join product_category_rel pcr on pcr.product_id = p.id
+        left join pro_category pc on pc.id = pcr.category_id
+        where 1=1
+        and p.putaway_state = 3
+        <if test="userId != null and userId != '' ">
+            and u.id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="collectCatalogId != null and collectCatalogId != 0 ">
+            and c.collect_catalog_id = #{collectCatalogId,jdbcType=INTEGER}
+        </if>
+    </select>
+    
+    <select id="selectProductIsFavorite" resultType="object">
+    	SELECT product_id from user_product_collect u 
+		where 
+		1=1
+		  <if test="userId != null and userId != '' ">
+            and u.user_id = #{userId,jdbcType=INTEGER}
+        </if>
+		<if test="productIdList!=null and productIdList.size>0">
+		    and u.product_id in
+		    <foreach item="item" index="index" collection="productIdList" open="(" separator="," close=")">
+            #{item}
+            </foreach>
+    	</if>
+    	
+    </select>
+
+
+    <select id="selectSpuIsFavorite" resultType="object">
+        SELECT spu_id from user_product_collect u
+        where
+        1=1
+        <if test="userId != null and userId != '' ">
+            and u.user_id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="productIdList!=null and productIdList.size>0">
+            and u.spu_id in
+            <foreach item="item" index="index" collection="productIdList" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+    </select>
+    
+</mapper>

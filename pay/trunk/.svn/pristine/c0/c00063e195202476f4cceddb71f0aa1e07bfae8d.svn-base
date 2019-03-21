@@ -1,0 +1,962 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.pay.system.dao.SysDictionaryMapper">
+    <!-- //回收策略为先进先出 FIFO //自动刷新时间60s //最多缓存512个引用对象 //只读 -->
+    <!-- <cache eviction="LRU" flushInterval="60000" size="512" readOnly="true"/> -->
+    <!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache" eviction="LRU"
+        flushInterval="60000" size="512" readOnly="true"/> -->
+    <!--mybatis ehcache缓存配置 -->
+    <!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 -->
+    <!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" > <property
+        name="timeToIdleSeconds" value="3600"/>1 hour <property name="timeToLiveSeconds"
+        value="3600"/>1 hour <property name="maxEntriesLocalHeap" value="1000"/>
+        <property name="maxEntriesLocalDisk" value="10000000"/> <property name="memoryStoreEvictionPolicy"
+        value="LRU"/> </cache> -->
+    <!--<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/> -->
+    <!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+    <!-- **插入定义** -->
+    <insert id="insertSelective" parameterType="com.sandu.system.model.SysDictionary"
+            useGeneratedKeys="true" keyProperty="id">
+        insert into sys_dictionary
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sysCode!= null">sys_code,</if>
+            <if test="creator!= null">creator,</if>
+            <if test="gmtCreate!= null">gmt_create,</if>
+            <if test="modifier!= null">modifier,</if>
+            <if test="gmtModified!= null">gmt_modified,</if>
+            <if test="isDeleted!= null">is_deleted,</if>
+            <if test="type!= null">type,</if>
+            <if test="valuekey!= null">valuekey,</if>
+            <if test="value!= null">value,</if>
+            <if test="name!= null">name,</if>
+            <if test="ordering!= null">ordering,</if>
+            <if test="att1!= null">att1,</if>
+            <if test="att2!= null">att2,</if>
+            <if test="att3!= null">att3,</if>
+            <if test="att4!= null">att4,</if>
+            <if test="att5!= null">att5,</if>
+            <if test="att6!= null">att6,</if>
+            <if test="att1Info!= null">att1_info,</if>
+            <if test="att2Info!= null">att2_info,</if>
+            <if test="att3Info!= null">att3_info,</if>
+            <if test="att4Info!= null">att4_info,</if>
+            <if test="att5Info!= null">att5_info,</if>
+            <if test="att6Info!= null">att6_info,</if>
+            <if test="dateAtt1!= null">date_att1,</if>
+            <if test="dateAtt2!= null">date_att2,</if>
+            <if test="numAtt1!= null">num_att1,</if>
+            <if test="picId!= null">pic_id,</if>
+            <if test="numAtt3!= null">num_att3,</if>
+            <if test="numAtt4!= null">num_att4,</if>
+            <if test="remark!= null">remark,</if>
+
+            <if test="att7Info!= null">att7_info,</if>
+            <if test="att7!= null">att7,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sysCode!= null">#{sysCode,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">#{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">#{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER},</if>
+            <if test="type!= null">#{type,jdbcType=VARCHAR},</if>
+            <if test="valuekey!= null">#{valuekey,jdbcType=VARCHAR},</if>
+            <if test="value!= null">#{value,jdbcType=INTEGER},</if>
+            <if test="name!= null">#{name,jdbcType=VARCHAR},</if>
+            <if test="ordering!= null">#{ordering,jdbcType=INTEGER},</if>
+            <if test="att1!= null">#{att1,jdbcType=VARCHAR},</if>
+            <if test="att2!= null">#{att2,jdbcType=VARCHAR},</if>
+            <if test="att3!= null">#{att3,jdbcType=VARCHAR},</if>
+            <if test="att4!= null">#{att4,jdbcType=VARCHAR},</if>
+            <if test="att5!= null">#{att5,jdbcType=VARCHAR},</if>
+            <if test="att6!= null">#{att6,jdbcType=VARCHAR},</if>
+            <if test="att1Info!= null">#{att1Info,jdbcType=VARCHAR},</if>
+            <if test="att2Info!= null">#{att2Info,jdbcType=VARCHAR},</if>
+            <if test="att3Info!= null">#{att3Info,jdbcType=VARCHAR},</if>
+            <if test="att4Info!= null">#{att4Info,jdbcType=VARCHAR},</if>
+            <if test="att5Info!= null">#{att5Info,jdbcType=VARCHAR},</if>
+            <if test="att6Info!= null">#{att6Info,jdbcType=VARCHAR},</if>
+            <if test="dateAtt1!= null">#{dateAtt1,jdbcType=TIMESTAMP},</if>
+            <if test="dateAtt2!= null">#{dateAtt2,jdbcType=TIMESTAMP},</if>
+            <if test="numAtt1!= null">#{numAtt1,jdbcType=INTEGER},</if>
+            <if test="picId!= null">#{picId,jdbcType=INTEGER},</if>
+            <if test="numAtt3!= null">#{numAtt3,jdbcType=DOUBLE},</if>
+            <if test="numAtt4!= null">#{numAtt4,jdbcType=DOUBLE},</if>
+            <if test="remark!= null">#{remark,jdbcType=VARCHAR},</if>
+
+            <if test="att7Info!= null">#{att7Info,jdbcType=VARCHAR},</if>
+            <if test="att7!= null">#{att7,jdbcType=VARCHAR},</if>
+        </trim>
+    </insert>
+
+    <!-- **更新定义** -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.system.model.SysDictionary">
+        update sys_dictionary
+        <set>
+            <if test="sysCode!= null">sys_code = #{sysCode,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">creator = #{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">modifier = #{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">is_deleted = #{isDeleted,jdbcType=INTEGER},</if>
+            <if test="type!= null">type = #{type,jdbcType=VARCHAR},</if>
+            <if test="valuekey!= null">valuekey = #{valuekey,jdbcType=VARCHAR},</if>
+            <if test="value!= null">value = #{value,jdbcType=INTEGER},</if>
+            <if test="name!= null">name = #{name,jdbcType=VARCHAR},</if>
+            <if test="ordering!= null">ordering = #{ordering,jdbcType=INTEGER},</if>
+            <if test="att1!= null">att1 = #{att1,jdbcType=VARCHAR},</if>
+            <if test="att2!= null">att2 = #{att2,jdbcType=VARCHAR},</if>
+            <if test="att3!= null">att3 = #{att3,jdbcType=VARCHAR},</if>
+            <if test="att4!= null">att4 = #{att4,jdbcType=VARCHAR},</if>
+            <if test="att5!= null">att5 = #{att5,jdbcType=VARCHAR},</if>
+            <if test="att6!= null">att6 = #{att6,jdbcType=VARCHAR},</if>
+            <if test="att1Info!= null">att1_info = #{att1Info,jdbcType=VARCHAR},</if>
+            <if test="att2Info!= null">att2_info = #{att2Info,jdbcType=VARCHAR},</if>
+            <if test="att3Info!= null">att3_info = #{att3Info,jdbcType=VARCHAR},</if>
+            <if test="att4Info!= null">att4_info = #{att4Info,jdbcType=VARCHAR},</if>
+            <if test="att5Info!= null">att5_info = #{att5Info,jdbcType=VARCHAR},</if>
+            <if test="att6Info!= null">att6_info = #{att6Info,jdbcType=VARCHAR},</if>
+            <if test="dateAtt1!= null">date_att1 = #{dateAtt1,jdbcType=TIMESTAMP},</if>
+            <if test="dateAtt2!= null">date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},</if>
+            <if test="numAtt1!= null">num_att1 = #{numAtt1,jdbcType=INTEGER},</if>
+            <if test="picId!= null">pic_id = #{picId,jdbcType=INTEGER},</if>
+            <if test="numAtt3!= null">num_att3 = #{numAtt3,jdbcType=DOUBLE},</if>
+            <if test="numAtt4!= null">num_att4 = #{numAtt4,jdbcType=DOUBLE},</if>
+            <if test="remark!= null">remark = #{remark,jdbcType=VARCHAR},</if>
+
+            <if test="att7Info!= null">att7_info = #{att7Info,jdbcType=VARCHAR},</if>
+            <if test="att7!= null">att7 = #{att7,jdbcType=VARCHAR},</if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!-- **删除定义** -->
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from
+        sys_dictionary
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+        id,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,type,att7,att7_info,valuekey,value,name,ordering,att1,att2,att3,att4,att5,att6,att1_info,att2_info,att3_info,att4_info,att5_info,att6_info,date_att1,date_att2,num_att1,pic_id,num_att3,num_att4,remark,show_u3d_model
+    </sql>
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.sandu.system.model.SysDictionary">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="sys_code" property="sysCode" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="type" property="type" jdbcType="VARCHAR"/>
+        <result column="valuekey" property="valuekey" jdbcType="VARCHAR"/>
+        <result column="value" property="value" jdbcType="INTEGER"/>
+        <result column="value" property="smallValue" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="ordering" property="ordering" jdbcType="INTEGER"/>
+        <result column="att1" property="att1" jdbcType="VARCHAR"/>
+        <result column="att2" property="att2" jdbcType="VARCHAR"/>
+        <result column="att3" property="att3" jdbcType="VARCHAR"/>
+        <result column="att4" property="att4" jdbcType="VARCHAR"/>
+        <result column="att5" property="att5" jdbcType="VARCHAR"/>
+        <result column="att6" property="att6" jdbcType="VARCHAR"/>
+        <result column="att1_info" property="att1Info" jdbcType="VARCHAR"/>
+        <result column="att2_info" property="att2Info" jdbcType="VARCHAR"/>
+        <result column="att3_info" property="att3Info" jdbcType="VARCHAR"/>
+        <result column="att4_info" property="att4Info" jdbcType="VARCHAR"/>
+        <result column="att5_info" property="att5Info" jdbcType="VARCHAR"/>
+        <result column="att6_info" property="att6Info" jdbcType="VARCHAR"/>
+        <result column="date_att1" property="dateAtt1" jdbcType="TIMESTAMP"/>
+        <result column="date_att2" property="dateAtt2" jdbcType="TIMESTAMP"/>
+        <result column="num_att1" property="numAtt1" jdbcType="INTEGER"/>
+        <result column="pic_id" property="picId" jdbcType="INTEGER"/>
+        <result column="num_att3" property="numAtt3" jdbcType="DOUBLE"/>
+        <result column="num_att4" property="numAtt4" jdbcType="DOUBLE"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+
+        <result column="att7_info" property="att7Info" jdbcType="VARCHAR"/>
+        <result column="att7" property="att7" jdbcType="VARCHAR"/>
+        <result column="show_u3d_model" property="showU3dModel"
+                jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!-- **查询定义** -->
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="AllResultMap"
+            parameterType="java.lang.Integer">
+        select
+        <include refid="All_Column_List"/>
+        from sys_dictionary
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+            parameterType="com.sandu.system.model.SysDictionary">
+        select
+        <include refid="All_Column_List"/>
+        from sys_dictionary
+        where 1=1 and is_deleted = 0
+        <if test="att7!= null">and att7 = #{att7,jdbcType=VARCHAR}</if>
+        <if test="att7Info!= null">and att7_info = #{att7Info,jdbcType=VARCHAR}</if>
+
+        <if test="sysCode!= null">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="creator!= null">and creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="gmtCreate!= null">and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}</if>
+        <if test="modifier!= null">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="gmtModified!= null">and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}</if>
+        <if test="isDeleted!= null">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="type!= null">and type = #{type,jdbcType=VARCHAR}</if>
+        <if test="valuekey!= null">and valuekey = #{valuekey,jdbcType=VARCHAR}</if>
+        <if test="value!= null">and value = #{value,jdbcType=INTEGER}</if>
+        <if test="name!= null">and name = #{name,jdbcType=VARCHAR}</if>
+        <if test="ordering!= null">and ordering = #{ordering,jdbcType=INTEGER}</if>
+        <if test="att1!= null">and att1 = #{att1,jdbcType=VARCHAR}</if>
+        <if test="att2!= null">and att2 = #{att2,jdbcType=VARCHAR}</if>
+        <if test="att3!= null">and att3 = #{att3,jdbcType=VARCHAR}</if>
+        <if test="att4!= null">and att4 = #{att4,jdbcType=VARCHAR}</if>
+        <if test="att5!= null">and att5 = #{att5,jdbcType=VARCHAR}</if>
+        <if test="att6!= null">and att6 = #{att6,jdbcType=VARCHAR}</if>
+        <if test="att1Info!= null">and att1_info = #{att1Info,jdbcType=VARCHAR}</if>
+        <if test="att2Info!= null">and att2_info = #{att2Info,jdbcType=VARCHAR}</if>
+        <if test="att3Info!= null">and att3_info = #{att3Info,jdbcType=VARCHAR}</if>
+        <if test="att4Info!= null">and att4_info = #{att4Info,jdbcType=VARCHAR}</if>
+        <if test="att5Info!= null">and att5_info = #{att5Info,jdbcType=VARCHAR}</if>
+        <if test="att6Info!= null">and att6_info = #{att6Info,jdbcType=VARCHAR}</if>
+        <if test="dateAtt1!= null">and date_att1 = #{dateAtt1,jdbcType=TIMESTAMP}</if>
+        <if test="dateAtt2!= null">and date_att2 = #{dateAtt2,jdbcType=TIMESTAMP}</if>
+        <if test="numAtt1!= null">and num_att1 = #{numAtt1,jdbcType=INTEGER}</if>
+        <if test="picId!= null">and pic_id = #{picId,jdbcType=INTEGER}</if>
+        <if test="numAtt3!= null">and num_att3 = #{numAtt3,jdbcType=DOUBLE}</if>
+        <if test="numAtt4!= null">and num_att4 = #{numAtt4,jdbcType=DOUBLE}</if>
+        <if test="remark!= null">and remark = #{remark,jdbcType=VARCHAR}</if>
+        <if test="showU3dModel!= null">and show_u3d_model = #{showU3dModel,jdbcType=INTEGER}</if>
+        <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderNum != null and  orderNum !='' ">
+                ${orderNum}
+            </if>
+        </if>
+        <if test="order == null and  orders ==null  ">
+            order by id desc
+        </if>
+        <if test="orders != null and  orders !=''  ">
+            order by ${orders}
+        </if>
+    </select>
+
+    <!-- 分页汇总 -->
+    <select id="selectCount" resultType="int"
+            parameterType="com.sandu.system.model.search.SysDictionarySearch">
+        select count(*)
+        from sys_dictionary
+        where 1=1 and is_deleted = 0
+        <if test="att7!= null">and att7 = #{att7,jdbcType=VARCHAR}</if>
+        <if test="showU3dModel!= null">and show_u3d_model = #{showU3dModel,jdbcType=INTEGER}</if>
+        <if test="att7Info!= null">and att7_info = #{att7Info,jdbcType=VARCHAR}</if>
+        <if test="sysCode !=  null and sysCode !=  ''   ">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+            and sys_code like
+            CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+            and sys_code like
+            CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+        </if>
+        <if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+            and sys_code like
+            CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+            and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and
+            #{sysCodeEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="creator !=  null and creator !=  ''   ">and creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+            and creator like
+            CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+            and creator like
+            CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+        </if>
+        <if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+            and creator like
+            CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="creatorStart !=  null and creatorEnd!= null  ">
+            and creator between #{creatorStart,jdbcType=VARCHAR} and
+            #{creatorEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtCreate !=  null  ">
+            and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+            and gmt_create between
+            #{gmtCreateStart,jdbcType=TIMESTAMP} and
+            #{gmtCreateEnd,jdbcType=TIMESTAMP}
+        </if>
+        <if test="modifier !=  null and modifier !=  ''   ">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+            and modifier like
+            CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+            and modifier like
+            CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+        </if>
+        <if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+            and modifier like
+            CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="modifierStart !=  null and modifierEnd!= null  ">
+            and modifier between #{modifierStart,jdbcType=VARCHAR} and
+            #{modifierEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtModified !=  null  ">
+            and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+        </if>
+        <if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+            and gmt_modified between
+            #{gmtModifiedStart,jdbcType=TIMESTAMP} and
+            #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+        </if>
+        <if test="isDeleted !=  null  ">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="type !=  null and type !=  ''   ">and type = #{type,jdbcType=VARCHAR}</if>
+        <if test="sch_Type_ !=  null and sch_Type_ !=  ''   ">
+            and type like
+            CONCAT(CONCAT('%',#{sch_Type_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Type !=  null and sch_Type !=  ''   ">
+            and type like CONCAT('%',#{sch_Type,jdbcType=VARCHAR})
+        </if>
+        <if test="schType_ !=  null and schType_ !=  ''   ">
+            and type like CONCAT(#{schType_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="typeStart !=  null and typeEnd!= null  ">
+            and type between #{typeStart,jdbcType=VARCHAR} and
+            #{typeEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="valuekey !=  null and valuekey !=  ''   ">and valuekey = #{valuekey,jdbcType=VARCHAR}</if>
+        <if test="sch_Valuekey_ !=  null and sch_Valuekey_ !=  ''   ">
+            and valuekey like
+            CONCAT(CONCAT('%',#{sch_Valuekey_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Valuekey !=  null and sch_Valuekey !=  ''   ">
+            and valuekey like
+            CONCAT('%',#{sch_Valuekey,jdbcType=VARCHAR})
+        </if>
+        <if test="schValuekey_ !=  null and schValuekey_ !=  ''   ">
+            and valuekey like
+            CONCAT(#{schValuekey_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="valuekeyStart !=  null and valuekeyEnd!= null  ">
+            and valuekey between #{valuekeyStart,jdbcType=VARCHAR} and
+            #{valuekeyEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="value !=  null  ">and value = #{value,jdbcType=INTEGER}</if>
+        <if test="name !=  null and name !=  ''   ">and name = #{name,jdbcType=VARCHAR}</if>
+        <if test="sch_Name_ !=  null and sch_Name_ !=  ''   ">
+            and name like
+            CONCAT(CONCAT('%',#{sch_Name_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Name !=  null and sch_Name !=  ''   ">
+            and name like CONCAT('%',#{sch_Name,jdbcType=VARCHAR})
+        </if>
+        <if test="schName_ !=  null and schName_ !=  ''   ">
+            and name like CONCAT(#{schName_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="nameStart !=  null and nameEnd!= null  ">
+            and name between #{nameStart,jdbcType=VARCHAR} and
+            #{nameEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="ordering !=  null  ">and ordering = #{ordering,jdbcType=INTEGER}</if>
+        <if test="att1 !=  null and att1 !=  ''   ">and att1 = #{att1,jdbcType=VARCHAR}</if>
+        <if test="sch_Att1_ !=  null and sch_Att1_ !=  ''   ">
+            and att1 like
+            CONCAT(CONCAT('%',#{sch_Att1_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att1 !=  null and sch_Att1 !=  ''   ">
+            and att1 like CONCAT('%',#{sch_Att1,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt1_ !=  null and schAtt1_ !=  ''   ">
+            and att1 like CONCAT(#{schAtt1_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att1Start !=  null and att1End!= null  ">
+            and att1 between #{att1Start,jdbcType=VARCHAR} and
+            #{att1End,jdbcType=VARCHAR}
+        </if>
+        <if test="att2 !=  null and att2 !=  ''   ">and att2 = #{att2,jdbcType=VARCHAR}</if>
+        <if test="sch_Att2_ !=  null and sch_Att2_ !=  ''   ">
+            and att2 like
+            CONCAT(CONCAT('%',#{sch_Att2_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att2 !=  null and sch_Att2 !=  ''   ">
+            and att2 like CONCAT('%',#{sch_Att2,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt2_ !=  null and schAtt2_ !=  ''   ">
+            and att2 like CONCAT(#{schAtt2_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att2Start !=  null and att2End!= null  ">
+            and att2 between #{att2Start,jdbcType=VARCHAR} and
+            #{att2End,jdbcType=VARCHAR}
+        </if>
+        <if test="att3 !=  null and att3 !=  ''   ">and att3 = #{att3,jdbcType=VARCHAR}</if>
+        <if test="sch_Att3_ !=  null and sch_Att3_ !=  ''   ">
+            and att3 like
+            CONCAT(CONCAT('%',#{sch_Att3_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att3 !=  null and sch_Att3 !=  ''   ">
+            and att3 like CONCAT('%',#{sch_Att3,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt3_ !=  null and schAtt3_ !=  ''   ">
+            and att3 like CONCAT(#{schAtt3_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att3Start !=  null and att3End!= null  ">
+            and att3 between #{att3Start,jdbcType=VARCHAR} and
+            #{att3End,jdbcType=VARCHAR}
+        </if>
+        <if test="att4 !=  null and att4 !=  ''   ">and att4 = #{att4,jdbcType=VARCHAR}</if>
+        <if test="sch_Att4_ !=  null and sch_Att4_ !=  ''   ">
+            and att4 like
+            CONCAT(CONCAT('%',#{sch_Att4_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att4 !=  null and sch_Att4 !=  ''   ">
+            and att4 like CONCAT('%',#{sch_Att4,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt4_ !=  null and schAtt4_ !=  ''   ">
+            and att4 like CONCAT(#{schAtt4_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att4Start !=  null and att4End!= null  ">
+            and att4 between #{att4Start,jdbcType=VARCHAR} and
+            #{att4End,jdbcType=VARCHAR}
+        </if>
+        <if test="att5 !=  null and att5 !=  ''   ">and att5 = #{att5,jdbcType=VARCHAR}</if>
+        <if test="sch_Att5_ !=  null and sch_Att5_ !=  ''   ">
+            and att5 like
+            CONCAT(CONCAT('%',#{sch_Att5_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att5 !=  null and sch_Att5 !=  ''   ">
+            and att5 like CONCAT('%',#{sch_Att5,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt5_ !=  null and schAtt5_ !=  ''   ">
+            and att5 like CONCAT(#{schAtt5_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att5Start !=  null and att5End!= null  ">
+            and att5 between #{att5Start,jdbcType=VARCHAR} and
+            #{att5End,jdbcType=VARCHAR}
+        </if>
+        <if test="att6 !=  null and att6 !=  ''   ">and att6 = #{att6,jdbcType=VARCHAR}</if>
+        <if test="sch_Att6_ !=  null and sch_Att6_ !=  ''   ">
+            and att6 like
+            CONCAT(CONCAT('%',#{sch_Att6_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att6 !=  null and sch_Att6 !=  ''   ">
+            and att6 like CONCAT('%',#{sch_Att6,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt6_ !=  null and schAtt6_ !=  ''   ">
+            and att6 like CONCAT(#{schAtt6_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att6Start !=  null and att6End!= null  ">
+            and att6 between #{att6Start,jdbcType=VARCHAR} and
+            #{att6End,jdbcType=VARCHAR}
+        </if>
+        <if test="att1Info !=  null and att1Info !=  ''   ">and att1_info = #{att1Info,jdbcType=VARCHAR}</if>
+        <if test="att2Info !=  null and att2Info !=  ''   ">and att2_info = #{att2Info,jdbcType=VARCHAR}</if>
+        <if test="att3Info !=  null and att3Info !=  ''   ">and att3_info = #{att3Info,jdbcType=VARCHAR}</if>
+        <if test="att4Info !=  null and att4Info !=  ''   ">and att4_info = #{att4Info,jdbcType=VARCHAR}</if>
+        <if test="att5Info !=  null and att5Info !=  ''   ">and att5_info = #{att5Info,jdbcType=VARCHAR}</if>
+        <if test="att6Info !=  null and att6Info !=  ''   ">and att6_info = #{att6Info,jdbcType=VARCHAR}</if>
+        <if test="dateAtt1 !=  null  ">
+            and date_att1 = #{dateAtt1,jdbcType=TIMESTAMP}
+        </if>
+        <if test="dateAtt1Start !=  null and dateAtt1End!= null  ">
+            and date_att1 between #{dateAtt1Start,jdbcType=TIMESTAMP}
+            and
+            #{dateAtt1End,jdbcType=TIMESTAMP}
+        </if>
+        <if test="dateAtt2 !=  null  ">
+            and date_att2 = #{dateAtt2,jdbcType=TIMESTAMP}
+        </if>
+        <if test="dateAtt2Start !=  null and dateAtt2End!= null  ">
+            and date_att2 between #{dateAtt2Start,jdbcType=TIMESTAMP}
+            and
+            #{dateAtt2End,jdbcType=TIMESTAMP}
+        </if>
+        <if test="numAtt1 !=  null  ">and num_att1 = #{numAtt1,jdbcType=INTEGER}</if>
+        <if test="picId !=  null  ">and pic_id = #{picId,jdbcType=INTEGER}</if>
+        <if test="numAtt3 !=  null  ">and num_att3 = #{numAtt3,jdbcType=DOUBLE}</if>
+        <if test="numAtt4 !=  null  ">and num_att4 = #{numAtt4,jdbcType=DOUBLE}</if>
+        <if test="remark !=  null and remark !=  ''   ">and remark = #{remark,jdbcType=VARCHAR}</if>
+        <if test="sch_Remark_ !=  null and sch_Remark_ !=  ''   ">
+            and remark like
+            CONCAT(CONCAT('%',#{sch_Remark_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Remark !=  null and sch_Remark !=  ''   ">
+            and remark like CONCAT('%',#{sch_Remark,jdbcType=VARCHAR})
+        </if>
+        <if test="schRemark_ !=  null and schRemark_ !=  ''   ">
+            and remark like CONCAT(#{schRemark_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="remarkStart !=  null and remarkEnd!= null  ">
+            and remark between #{remarkStart,jdbcType=VARCHAR} and
+            #{remarkEnd,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <!-- 分页查询 ,可在SysDictionarySearch中自定义查询条件 -->
+    <select id="selectPaginatedList" resultMap="AllResultMap"
+            parameterType="com.sandu.system.model.search.SysDictionarySearch">
+        select
+        <include refid="All_Column_List"/>
+        from sys_dictionary
+        where 1=1
+        <if test="showU3dModel!= null">and show_u3d_model = #{showU3dModel,jdbcType=INTEGER}</if>
+        <if test="att7!= null">and att7 = #{att7,jdbcType=VARCHAR}</if>
+        <if test="att7Info!= null">and att7_info = #{att7Info,jdbcType=VARCHAR}</if>
+        <if test="sysCode !=  null and sysCode !=  ''   ">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+            and sys_code like
+            CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+            and sys_code like
+            CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+        </if>
+        <if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+            and sys_code like
+            CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+            and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and
+            #{sysCodeEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="creator !=  null and creator !=  ''   ">and creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+            and creator like
+            CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+            and creator like
+            CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+        </if>
+        <if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+            and creator like
+            CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="creatorStart !=  null and creatorEnd!= null  ">
+            and creator between #{creatorStart,jdbcType=VARCHAR} and
+            #{creatorEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtCreate !=  null  ">
+            and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+            and gmt_create between
+            #{gmtCreateStart,jdbcType=TIMESTAMP} and
+            #{gmtCreateEnd,jdbcType=TIMESTAMP}
+        </if>
+        <if test="modifier !=  null and modifier !=  ''   ">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+            and modifier like
+            CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+            and modifier like
+            CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+        </if>
+        <if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+            and modifier like
+            CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="modifierStart !=  null and modifierEnd!= null  ">
+            and modifier between #{modifierStart,jdbcType=VARCHAR} and
+            #{modifierEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtModified !=  null  ">
+            and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+        </if>
+        <if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+            and gmt_modified between
+            #{gmtModifiedStart,jdbcType=TIMESTAMP} and
+            #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+        </if>
+        <if test="isDeleted !=  null  ">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="type !=  null and type !=  ''   ">and type = #{type,jdbcType=VARCHAR}</if>
+        <if test="sch_Type_ !=  null and sch_Type_ !=  ''   ">
+            and type like
+            CONCAT(CONCAT('%',#{sch_Type_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Type !=  null and sch_Type !=  ''   ">
+            and type like CONCAT('%',#{sch_Type,jdbcType=VARCHAR})
+        </if>
+        <if test="schType_ !=  null and schType_ !=  ''   ">
+            and type like CONCAT(#{schType_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="typeStart !=  null and typeEnd!= null  ">
+            and type between #{typeStart,jdbcType=VARCHAR} and
+            #{typeEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="valuekey !=  null and valuekey !=  ''   ">and valuekey = #{valuekey,jdbcType=VARCHAR}</if>
+        <if test="sch_Valuekey_ !=  null and sch_Valuekey_ !=  ''   ">
+            and valuekey like
+            CONCAT(CONCAT('%',#{sch_Valuekey_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Valuekey !=  null and sch_Valuekey !=  ''   ">
+            and valuekey like
+            CONCAT('%',#{sch_Valuekey,jdbcType=VARCHAR})
+        </if>
+        <if test="schValuekey_ !=  null and schValuekey_ !=  ''   ">
+            and valuekey like
+            CONCAT(#{schValuekey_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="valuekeyStart !=  null and valuekeyEnd!= null  ">
+            and valuekey between #{valuekeyStart,jdbcType=VARCHAR} and
+            #{valuekeyEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="value !=  null  ">and value = #{value,jdbcType=INTEGER}</if>
+        <if test="name !=  null and name !=  ''   ">and name = #{name,jdbcType=VARCHAR}</if>
+        <if test="sch_Name_ !=  null and sch_Name_ !=  ''   ">
+            and name like
+            CONCAT(CONCAT('%',#{sch_Name_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Name !=  null and sch_Name !=  ''   ">
+            and name like CONCAT('%',#{sch_Name,jdbcType=VARCHAR})
+        </if>
+        <if test="schName_ !=  null and schName_ !=  ''   ">
+            and name like CONCAT(#{schName_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="nameStart !=  null and nameEnd!= null  ">
+            and name between #{nameStart,jdbcType=VARCHAR} and
+            #{nameEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="ordering !=  null  ">and ordering = #{ordering,jdbcType=INTEGER}</if>
+        <if test="att1 !=  null and att1 !=  ''   ">and att1 = #{att1,jdbcType=VARCHAR}</if>
+        <if test="sch_Att1_ !=  null and sch_Att1_ !=  ''   ">
+            and att1 like
+            CONCAT(CONCAT('%',#{sch_Att1_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att1 !=  null and sch_Att1 !=  ''   ">
+            and att1 like CONCAT('%',#{sch_Att1,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt1_ !=  null and schAtt1_ !=  ''   ">
+            and att1 like CONCAT(#{schAtt1_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att1Start !=  null and att1End!= null  ">
+            and att1 between #{att1Start,jdbcType=VARCHAR} and
+            #{att1End,jdbcType=VARCHAR}
+        </if>
+        <if test="att2 !=  null and att2 !=  ''   ">and att2 = #{att2,jdbcType=VARCHAR}</if>
+        <if test="sch_Att2_ !=  null and sch_Att2_ !=  ''   ">
+            and att2 like
+            CONCAT(CONCAT('%',#{sch_Att2_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att2 !=  null and sch_Att2 !=  ''   ">
+            and att2 like CONCAT('%',#{sch_Att2,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt2_ !=  null and schAtt2_ !=  ''   ">
+            and att2 like CONCAT(#{schAtt2_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att2Start !=  null and att2End!= null  ">
+            and att2 between #{att2Start,jdbcType=VARCHAR} and
+            #{att2End,jdbcType=VARCHAR}
+        </if>
+        <if test="att3 !=  null and att3 !=  ''   ">and att3 = #{att3,jdbcType=VARCHAR}</if>
+        <if test="sch_Att3_ !=  null and sch_Att3_ !=  ''   ">
+            and att3 like
+            CONCAT(CONCAT('%',#{sch_Att3_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att3 !=  null and sch_Att3 !=  ''   ">
+            and att3 like CONCAT('%',#{sch_Att3,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt3_ !=  null and schAtt3_ !=  ''   ">
+            and att3 like CONCAT(#{schAtt3_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att3Start !=  null and att3End!= null  ">
+            and att3 between #{att3Start,jdbcType=VARCHAR} and
+            #{att3End,jdbcType=VARCHAR}
+        </if>
+        <if test="att4 !=  null and att4 !=  ''   ">and att4 = #{att4,jdbcType=VARCHAR}</if>
+        <if test="sch_Att4_ !=  null and sch_Att4_ !=  ''   ">
+            and att4 like
+            CONCAT(CONCAT('%',#{sch_Att4_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att4 !=  null and sch_Att4 !=  ''   ">
+            and att4 like CONCAT('%',#{sch_Att4,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt4_ !=  null and schAtt4_ !=  ''   ">
+            and att4 like CONCAT(#{schAtt4_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att4Start !=  null and att4End!= null  ">
+            and att4 between #{att4Start,jdbcType=VARCHAR} and
+            #{att4End,jdbcType=VARCHAR}
+        </if>
+        <if test="att5 !=  null and att5 !=  ''   ">and att5 = #{att5,jdbcType=VARCHAR}</if>
+        <if test="sch_Att5_ !=  null and sch_Att5_ !=  ''   ">
+            and att5 like
+            CONCAT(CONCAT('%',#{sch_Att5_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att5 !=  null and sch_Att5 !=  ''   ">
+            and att5 like CONCAT('%',#{sch_Att5,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt5_ !=  null and schAtt5_ !=  ''   ">
+            and att5 like CONCAT(#{schAtt5_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att5Start !=  null and att5End!= null  ">
+            and att5 between #{att5Start,jdbcType=VARCHAR} and
+            #{att5End,jdbcType=VARCHAR}
+        </if>
+        <if test="att6 !=  null and att6 !=  ''   ">and att6 = #{att6,jdbcType=VARCHAR}</if>
+        <if test="sch_Att6_ !=  null and sch_Att6_ !=  ''   ">
+            and att6 like
+            CONCAT(CONCAT('%',#{sch_Att6_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att6 !=  null and sch_Att6 !=  ''   ">
+            and att6 like CONCAT('%',#{sch_Att6,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt6_ !=  null and schAtt6_ !=  ''   ">
+            and att6 like CONCAT(#{schAtt6_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att6Start !=  null and att6End!= null  ">
+            and att6 between #{att6Start,jdbcType=VARCHAR} and
+            #{att6End,jdbcType=VARCHAR}
+        </if>
+        <if test="att1Info !=  null and att1Info !=  ''   ">and att1_info = #{att1Info,jdbcType=VARCHAR}</if>
+        <if test="att2Info !=  null and att2Info !=  ''   ">and att2_info = #{att2Info,jdbcType=VARCHAR}</if>
+        <if test="att3Info !=  null and att3Info !=  ''   ">and att3_info = #{att3Info,jdbcType=VARCHAR}</if>
+        <if test="att4Info !=  null and att4Info !=  ''   ">and att4_info = #{att4Info,jdbcType=VARCHAR}</if>
+        <if test="att5Info !=  null and att5Info !=  ''   ">and att5_info = #{att5Info,jdbcType=VARCHAR}</if>
+        <if test="att6Info !=  null and att6Info !=  ''   ">and att6_info = #{att6Info,jdbcType=VARCHAR}</if>
+        <if test="dateAtt1 !=  null  ">
+            and date_att1 = #{dateAtt1,jdbcType=TIMESTAMP}
+        </if>
+        <if test="dateAtt1Start !=  null and dateAtt1End!= null  ">
+            and date_att1 between #{dateAtt1Start,jdbcType=TIMESTAMP}
+            and
+            #{dateAtt1End,jdbcType=TIMESTAMP}
+        </if>
+        <if test="dateAtt2 !=  null  ">
+            and date_att2 = #{dateAtt2,jdbcType=TIMESTAMP}
+        </if>
+        <if test="dateAtt2Start !=  null and dateAtt2End!= null  ">
+            and date_att2 between #{dateAtt2Start,jdbcType=TIMESTAMP}
+            and
+            #{dateAtt2End,jdbcType=TIMESTAMP}
+        </if>
+        <if test="numAtt1 !=  null  ">and num_att1 = #{numAtt1,jdbcType=INTEGER}</if>
+        <if test="picId !=  null  ">and pic_id = #{picId,jdbcType=INTEGER}</if>
+        <if test="numAtt3 !=  null  ">and num_att3 = #{numAtt3,jdbcType=DOUBLE}</if>
+        <if test="numAtt4 !=  null  ">and num_att4 = #{numAtt4,jdbcType=DOUBLE}</if>
+        <if test="remark !=  null and remark !=  ''   ">and remark = #{remark,jdbcType=VARCHAR}</if>
+        <if test="sch_Remark_ !=  null and sch_Remark_ !=  ''   ">
+            and remark like
+            CONCAT(CONCAT('%',#{sch_Remark_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Remark !=  null and sch_Remark !=  ''   ">
+            and remark like CONCAT('%',#{sch_Remark,jdbcType=VARCHAR})
+        </if>
+        <if test="schRemark_ !=  null and schRemark_ !=  ''   ">
+            and remark like CONCAT(#{schRemark_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="remarkStart !=  null and remarkEnd!= null  ">
+            and remark between #{remarkStart,jdbcType=VARCHAR} and
+            #{remarkEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="values !=  null and  values.size > 0  ">
+            and value in
+            <foreach collection="values" index="index" item="item" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderNum != null and  orderNum !='' ">${orderNum}</if>
+        </if>
+        <if test="orders != null and  orders !=''  ">order by #{orders}</if>
+        <if test="order == null and  orders == null ">order by id desc</if>
+        <if test="start !=-1 and limit !=-1">LIMIT #{start}, #{limit}</if>
+    </select>
+
+    <!-- 其他Map等查询方式 -->
+    <!-- 查询数据字典标示value最大值 -->
+    <select id="getValueMax" resultType="int" parameterType="java.lang.String">
+        select
+        max(value)
+        from sys_dictionary
+        where type = #{type,jdbcType=VARCHAR}
+    </select>
+    <!-- 查询数据字典direction排序最大值 -->
+    <select id="getOrderingMax" resultType="int" parameterType="java.lang.String">
+        select
+        max(ordering)
+        from sys_dictionary
+        where type =
+        #{type,jdbcType=VARCHAR}
+    </select>
+
+    <select id="findOneByValueKey" resultMap="AllResultMap"
+            parameterType="java.lang.String">
+        select
+        <include refid="All_Column_List"></include>
+        from sys_dictionary where
+        valueKey=#{valueKey,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getNameByType" resultMap="AllResultMap"
+            parameterType="com.sandu.system.model.SysDictionary">
+        SELECT
+        <include refid="All_Column_List"/>
+        FROM sys_dictionary
+        WHERE 1=1
+        <if test="type !=  null and type !=  ''   ">and type = #{type,jdbcType=VARCHAR}</if>
+        <if test="value !=  null  ">and value = #{value,jdbcType=INTEGER}</if>
+        <if test="valuekey !=  null  ">and valuekey = #{valuekey,jdbcType=VARCHAR}</if>
+    </select>
+
+
+    <select id="checkType" resultMap="AllResultMap"
+            parameterType="com.sandu.system.model.SysDictionary">
+        SELECT s2.att3 ,s2.att4 FROM sys_dictionary s1, sys_dictionary s2
+        WHERE 1=1
+        AND s1.type = 'productType'
+        AND s2.type=s1.valuekey
+        <if test="value !=  null and value !=  ''   ">
+            AND s1.value = #{value,jdbcType=INTEGER}
+        </if>
+        <if test="smallValue !=  null and smallValue !=  ''  ">
+            AND s2.value = #{smallValue,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <!-- end -->
+
+
+    <!-- findAllSmallTypeValueKey -->
+    <select id="findAllSmallTypeValueKey" resultType="String">
+        select
+        sd1.valuekey from sys_dictionary sd1 where sd1.type in (select
+        sd2.valuekey from sys_dictionary sd2 where sd2.type="productType")
+    </select>
+
+    <!-- findValueKeyByType -->
+    <select id="findValueKeyByType" resultType="java.lang.String">
+        select valuekey from
+        sys_dictionary where type = #{type,jdbcType=VARCHAR}
+    </select>
+
+
+    <select id="selectSmallTypeObj" resultType="com.sandu.system.model.SysDictionary"
+            parameterType="java.util.Map">
+        SELECT
+        s2.`id`,s2.name,s2.type,s2.`value`,s2.`valuekey`,s2.`att1`,s2.`att2`,s2.`att3`,s2.`att4`,s2.`att5`,s2.`att6`
+        FROM sys_dictionary s1, sys_dictionary s2 WHERE s1.type =
+        'productType'
+        AND s1.value = #{typeValue,jdbcType=INTEGER} AND s2.type
+        = s1.valuekey
+        AND s2.value = #{smallTypeValue,jdbcType=INTEGER}
+        AND
+        s1.is_deleted = 0 AND s2.is_deleted = 0
+    </select>
+
+    <select id="getByTypeAndValueKey" resultMap="AllResultMap">
+        select value,valuekey from sys_dictionary where type =
+        #{type,jdbcType=VARCHAR} and valuekey in
+        <foreach collection="bigTypeList" index="index" item="item"
+                 open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
+    <!-- getValueByTypeAndValueKeylist -->
+    <select id="getValueByTypeAndValueKeylist" resultType="java.lang.Integer">
+        select value from sys_dictionary where type =
+        #{bigType,jdbcType=VARCHAR} and valuekey in
+        <foreach collection="smallTypeList" index="index" item="item"
+                 open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
+    <!-- getProductValueByBaimoValue -->
+    <!-- eg:baimo_mengk获得mengk的value -->
+    <select id="getProductValueByBaimoValue" resultType="java.lang.Integer">
+        select
+        sdneed.value from sys_dictionary sdbig
+        left join sys_dictionary sdsmall
+        on sdsmall.type = sdbig.valuekey and sdsmall.value =
+        #{smallTypeValue,jdbcType=INTEGER}
+        left join sys_dictionary sdneed on
+        sdneed.type = sdbig.valuekey and sdneed.valuekey =
+        replace(sdsmall.valuekey,"basic_","")
+        where sdbig.type = "productType"
+        and sdbig.value = #{typeValue,jdbcType=INTEGER}
+    </select>
+
+    <!-- findOneByTypeAndValueAndValue -->
+    <select id="findOneByTypeAndValueAndValue" resultMap="AllResultMap">
+        select
+        sdsmall.valuekey,sdsmall.att1,sdsmall.type from sys_dictionary sdbig
+        left join sys_dictionary sdsmall on sdsmall.type = sdbig.valuekey and
+        sdsmall.value = #{smallTypeValue,jdbcType=INTEGER}
+        where sdbig.type =
+        #{type,jdbcType=VARCHAR} and sdbig.value =
+        #{typeValue,jdbcType=INTEGER}
+    </select>
+
+
+    <!-- 通过ValueKeys 和 type 查列表 -->
+    <select id="getListByValueKeys" resultMap="AllResultMap">
+        select
+        <include refid="All_Column_List"/>
+        from sys_dictionary
+        where 1 = 1
+        and type = #{type,jdbcType=VARCHAR}
+        and
+        valueKey in
+        <foreach collection="ValueKeys" index="index" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <!-- 通过空间类型查询面积范围列表 -->
+    <select id="selectAreaList" resultMap="AllResultMap"
+            parameterType="java.lang.String">
+        select
+        <include refid="All_Column_List"/>
+        from sys_dictionary
+        <where>
+            is_deleted = 0
+            AND type IN (
+            SELECT
+            valueKey
+            FROM
+            sys_dictionary
+            WHERE
+            type = #{type,jdbcType=VARCHAR}
+            )
+        </where>
+    </select>
+
+    <!-- 通过空间类型查询面积范围总记录 -->
+    <select id="selectAreaCount" resultType="int" parameterType="java.lang.String">
+        select count(1)
+        <include refid="All_Column_List"/>
+        from sys_dictionary
+        <where>
+            is_deleted = 0
+            AND type IN (
+            SELECT
+            valueKey
+            FROM
+            sys_dictionary
+            WHERE
+            type = #{type,jdbcType=VARCHAR}
+            )
+        </where>
+    </select>
+</mapper>

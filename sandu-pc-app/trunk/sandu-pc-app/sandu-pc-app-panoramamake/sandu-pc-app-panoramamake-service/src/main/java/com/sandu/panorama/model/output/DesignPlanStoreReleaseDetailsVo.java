@@ -1,0 +1,39 @@
+package com.sandu.panorama.model.output;
+
+import com.sandu.panorama.model.roam.Roam;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.List;
+
+@Data
+public class DesignPlanStoreReleaseDetailsVo implements Serializable{
+
+    @ApiModelProperty(value = "主键", dataType = "Integer")
+    private Integer id;
+    @ApiModelProperty(value = "方案类型", dataType = "Integer")
+    private Integer designPlanType;
+    @ApiModelProperty(value = "方案ID", dataType = "Integer")
+    private Integer designPlanId;
+    @ApiModelProperty(value = "推荐方案ID", dataType = "Integer")
+    private Integer recommendDesignPlanId;
+    @ApiModelProperty(value = "空间类型", dataType = "String")
+    private String spaceType;
+    @ApiModelProperty(value = "渲染类型（720、多点、图片、视频）", dataType = "Integer")
+    private Integer renderingType;
+    @ApiModelProperty(value = "资源ID", dataType = "Integer")
+    private Integer resourceId;
+    @ApiModelProperty(value = "资源路径", dataType = "String")
+    private String resourcePath;
+    @ApiModelProperty(value = "是否为主图", dataType = "Integer")
+    private Integer isMain;
+    @ApiModelProperty(value = "资源缩略图", dataType = "String")
+    private String thumbPicPath;
+    @ApiModelProperty(value = "行走的热点坐标信息", dataType = "List")
+    private List<Roam> roamList;
+    @ApiModelProperty(value = "穿透的热点坐标信息", dataType = "List")
+    private List<CoordinateVo> coordinateList;
+    @ApiModelProperty(value="样板房ID", dataType = "Integer")
+    private Integer designTemplateId;
+}

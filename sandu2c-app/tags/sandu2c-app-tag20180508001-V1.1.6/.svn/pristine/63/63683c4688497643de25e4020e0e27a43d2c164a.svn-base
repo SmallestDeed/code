@@ -1,0 +1,92 @@
+package com.sandu.web.supplydemand;/**
+ * @ Author     ：weisheng.
+ * @ Date       ：Created in AM 9:37 2018/5/4 0004
+ * @ Description：${description}
+ * @ Modified By：
+ * @Version: $version$
+ */
+
+import com.nork.common.model.LoginUser;
+import com.sandu.common.LoginContext;
+import com.sandu.common.ReturnData;
+import com.sandu.common.file.FileVO;
+import com.sandu.common.file.uploader.Uploader;
+import com.sandu.common.file.uploader.factory.UploaderFactory;
+import com.sandu.common.file.util.file.FilePathUtil;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.supplydemand.service.SupplyDemandPicService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
+
+/**
+ * @author weisheng
+ * @Title: 图片上传
+ * @Package 图片上传
+ * @Description: 图片上传
+ * @date 2018/5/4 0004AM 9:37
+ */
+@Slf4j
+@RestController
+@RequestMapping("/v1/union/supplydemandpic")
+public class SupplyDemandPicController {
+    private final static String CLASS_LOG_PREFIX = "[图片上传服务]";
+
+    @Autowired
+    private SupplyDemandPicService supplyDemandPicService;
+
+    @Value("${file.storage.path}")
+    private String storagePath;
+    /**
+     * 图片上传
+     *
+     * @param file     文件
+     * @param platform platform
+     * @param module   module
+     * @param type     type
+     * @return 图片路径
+     */
+    @PostMapping("/uploadrespic")
+    @ApiOperation(value = "上传文件")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "platform", value = "平台 ios windowPc web ipad macBookPc android", paramType = "query", dataType = "string", required = true),
+            @ApiImplicitParam(name = "module", value = "业务模块: 产品 product ", paramType = "query", dataType = "string", required = true),
+            @ApiImplicitParam(name = "type", value = "文件类型: image 图片 file文件 model模型", paramType = "query", dataType = "string", required = true)
+    })
+    public ResponseEnvelope imgUpload(
+            @RequestPart("file") MultipartFile file,
+            @RequestParam String platform,
+            @RequestParam String module,
+            @RequestParam String type) {
+       /* LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if(loginUser==null){
+            return new ResponseEnvelope(false,"请先登录");
+        }*/
+        LoginUser loginUser =new LoginUser();
+        loginUser.setId(8888888);
+        loginUser.setName("免登录");
+        LocalDateTime now = LocalDateTime.now();
+        String absolutePath = FilePathUtil.absolutePath(storagePath,platform, module, type, now, file.getOriginalFilename());
+        Uploader uploader = UploaderFactory.createUploader(type, file, absolutePath);
+        uploader.upload();
+        FileVO fileVO = uploader.getFileVO();
+        String returnPath = FilePathUtil.formatPath(FilePathUtil.serverPath()) + FilePathUtil.removeStartSlash(FilePathUtil.relativePath(storagePath,absolutePath));
+        fileVO.setUrl(returnPath);
+        //保存到数据库 并设置返回id
+        Long picId = supplyDemandPicService.saveResPic(fileVO, type, absolutePath,loginUser,storagePath);
+        fileVO.setResId(picId);
+        if(picId==null||picId==0){
+            return new ResponseEnvelope(false,"上传图片失败");
+        }
+        return new ResponseEnvelope(true,"上传图片成功",fileVO);
+    }
+
+
+}

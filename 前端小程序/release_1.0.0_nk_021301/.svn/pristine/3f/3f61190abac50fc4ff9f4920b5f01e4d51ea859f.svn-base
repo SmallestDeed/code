@@ -1,0 +1,75 @@
+<view class='item' wx:for="{{orderProductList}}" wx:key="{{index}}">
+    <view class='head'>
+      <image class='head_img' src='{{resourcePath+item.productPicPath}}'></image>
+      <view class='head_info'>
+        <view class='title'>{{item.productName}}</view>
+        <view class='fen_box'>
+          <image class='fen_item' 
+            wx:for="{{item.fen}}"
+            wx:for-index="findex" 
+            wx:for-item="fitem"
+            wx:key="{{findex}}"
+            data-index='{{index}}'
+            data-findex='{{findex}}' 
+            bindtap='setDescLevel'
+            src="{{item.descLevel>=findex?staticImageUrl+'me_icon_score_sctev.png':staticImageUrl+'me_icon_score_nor.png'}}">
+          </image>
+        </view>
+      </view>
+    </view>
+    <view class='box'>
+      <textarea 
+        class='textarea'
+        maxlength="500"
+        bindinput="textInpu" 
+        auto-height='true'
+        data-index='{{index}}'
+        wx:if='{{textShow}}'
+        placeholder='宝贝满足你的期待吗？说说你的使用心得吧~'>
+      </textarea>
+      <view class='textarea' wx:else>{{item.comment}}</view>
+      <view class='textarea_tit'>{{item.commentnum}}</view>
+      <view class='imgbox'>
+        <view 
+        class='itemimg_box'
+        wx:for="{{item.pics}}"
+        wx:for-index="pindex" 
+        wx:for-item="pitem"
+        wx:key="{{pindex}}"
+        >
+          <image  bindtap='delImg' data-pindex='{{pindex}}' data-index="{{index}}" class='delimg' src="{{staticImageUrl}}me_icon_delete.png"></image>
+          <image  class='pic_img' src='{{pitem}}'></image>
+        </view>
+        <view class='addImgbox' bindtap='addImg' data-index='{{index}}' wx:if="{{item.pics.length<5}}">
+          <image src='{{staticImageUrl}}me_icon_add_pic.png' class='addImg'></image>
+          <view>添加图片</view>
+        </view>
+      </view>
+    </view>
+    <view class='niming'>
+      <image class='niming_img' 
+        data-index='{{index}}'
+        data-ishowname='{{item.isShowName}}'
+        bindtap='setShowName'
+        src="{{item.isShowName==1?staticImageUrl+'me_icon_choice_sct.png':staticImageUrl+'me_icon_choice_nor.png'}}">
+      </image>
+      <text>匿名评价</text>
+      <text class='niming_tit'>你的评价可以帮助其他人哦</text>
+    </view>
+</view>
+<view class="footer {{orderProductList.length==1?'one':''}}">
+  <view class='footer_but' bindtap='submintEval'>提交评价</view>
+</view>
+
+<view class='evalSucess' wx:if="{{esShow}}">
+  <view class='evalbox'>
+    <view class='eval_head' catchtap='closeES'>
+      <image src='{{staticImageUrl}}pop_nav_icon_close_02.png'></image>
+    </view>
+    <view class='eval_main'>
+      <image src='{{staticImageUrl}}pop_icon_success.png'></image>
+      <view>评价成功</view>
+    </view>
+    <view class='eval_but' catchtap='goHome'>返回首页</view>
+  </view>
+</view>

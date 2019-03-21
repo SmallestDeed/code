@@ -1,0 +1,91 @@
+package com.nork.design.service.impl;
+
+import com.nork.design.dao.CompanyDesignPlanIncomeMapper;
+import com.nork.design.model.CompanyDesignPlanIncome;
+import com.nork.design.model.CompanyDesignPlanIncomeAggregated;
+import com.nork.design.model.DesignPlanRecommended;
+import com.nork.design.service.CompanyDesignPlanIncomeService;
+import com.nork.design.service.DesignPlanRecommendedService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Service("companyDesignPlanIncomeService")
+public class CompanyDesignPlanIncomeServiceImpl implements CompanyDesignPlanIncomeService {
+
+    @Autowired
+    private CompanyDesignPlanIncomeMapper companyDesignPlanIncomeMapper;
+
+    @Autowired
+    private DesignPlanRecommendedService designPlanRecommendedService;
+
+    @Override
+    public void insert(CompanyDesignPlanIncome companyDesignPlanIncome) {
+        companyDesignPlanIncomeMapper.insert(companyDesignPlanIncome);
+    }
+
+    @Override
+    public CompanyDesignPlanIncomeAggregated getCompanyAggregatedByCompanyId(Integer companyId) {
+        return companyDesignPlanIncomeMapper.getCompanyAggregatedByCompanyId(companyId);
+    }
+
+    @Override
+    public void addCompanyDesignPlanIncomeAggregated(CompanyDesignPlanIncomeAggregated cdpia) {
+        companyDesignPlanIncomeMapper.insertDesignPlanIncomeAggregated(cdpia);
+    }
+
+    @Override
+    public void updateCompanyDesignPlanIncomeAggregated(CompanyDesignPlanIncomeAggregated companyAggregated) {
+        companyDesignPlanIncomeMapper.updateCompanyDesignPlanIncomeAggregated(companyAggregated);
+    }
+
+    @Override
+    public Boolean isExitsBuyDesignPlanCopyRight(Long userId, Integer planId,Integer planType) {
+        int i = companyDesignPlanIncomeMapper.countDesignPlanIncomeRecordByUserIdAndPlanId(userId, planId, planType);
+        return i > 0?Boolean.TRUE:Boolean.FALSE;
+    }
+
+    @Override
+    public Map<String, Object> checkReplaceDesignPlanPay(Long userId, Integer recommendedPlanId, String platformCode,Integer planType) {
+        DesignPlanRecommended designPlanRecommended = designPlanRecommendedService.get(recommendedPlanId);
+        Map<String,Object> map= new HashMap<>();
+        map.put("flag",Boolean.TRUE);
+        map.put("designPlanRecommended",designPlanRecommended);
+        if (designPlanRecommended != null && designPlanRecommended.getChargeType() == 0){
+            return map;
+        }
+
+     /*   if ("mobile2b".equals(platformCode)){
+            //移动B端检验方案是否同一企业
+            SysUser sysUser = sysUserService.get(userId);
+            if (sysUser != null){
+                if (Objects.equals(designPlanRecommended.getCompanyId(),sysUser.getCompanyId())){
+                    return map;
+                }
+            }
+        }*/
+
+        int count = companyDesignPlanIncomeMapper.countDesignPlanIncomeRecordByUserIdAndPlanId(userId, recommendedPlanId, planType);
+        if (count < 1){
+            map.put("flag",Boolean.FALSE);
+        }
+        return map;
+    }
+
+    @Override
+    public Integer planSceneIdTransformRecommendedPlanId(Integer designPlanRenderSceneId) {
+        return designPlanRecommendedService.getRecommendedPlanId(designPlanRenderSceneId);
+    }
+
+    @Override
+    public int updateCurrentDubiANDTotalIncomeDubi(Double planPrice, Integer companyId) {
+        return companyDesignPlanIncomeMapper.updateCurrentDubiANDTotalIncomeDubi(planPrice,companyId);
+    }
+
+    @Override
+    public Integer getFullHouseDesignPlanId(String uuid) {
+        return companyDesignPlanIncomeMapper.getFullHouseDesignPlanId(uuid);
+    }
+}

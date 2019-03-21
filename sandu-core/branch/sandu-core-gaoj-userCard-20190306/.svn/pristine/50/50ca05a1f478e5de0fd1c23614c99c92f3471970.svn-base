@@ -1,0 +1,605 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.base.dao.UserCardMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.api.base.model.UserCard" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="user_head_pic_id" property="userHeadPicId" jdbcType="INTEGER" />
+    <result column="user_head_pic_path" property="userHeadPicPath" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="user_wechat" property="userWechat" jdbcType="VARCHAR" />
+    <result column="company_name" property="companyName" jdbcType="VARCHAR" />
+    <result column="company_post" property="companyPost" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="resume" property="resume" jdbcType="VARCHAR" />
+    <result column="user_pic_ids" property="userPicIds" jdbcType="VARCHAR" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="MODIFIER" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="TINYINT" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="button_name" property="buttonName" jdbcType="VARCHAR" />
+    <result column="presentation" property="presentation" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id, user_name, user_head_pic_id, user_head_pic_path, phone, user_wechat, company_name, company_post,
+    email, address, resume, user_pic_ids, creator, gmt_create, MODIFIER, gmt_modified, 
+    is_deleted, remark, button_name, presentation
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from user_card
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from user_card
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.base.model.UserCard" >
+    insert into user_card (id, user_id, user_name, 
+      user_head_pic_id, user_head_pic_path, phone,
+      user_wechat,
+      company_name, company_post, email, 
+      address, resume, user_pic_ids, 
+      creator, gmt_create, MODIFIER, 
+      gmt_modified, is_deleted, remark,
+      button_name, presentation
+      )
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR}, 
+      #{userHeadPicId,jdbcType=INTEGER}, #{userHeadPicPath,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR},
+      #{userWechat,jdbcType=VARCHAR},
+      #{companyName,jdbcType=VARCHAR}, #{companyPost,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
+      #{address,jdbcType=VARCHAR}, #{resume,jdbcType=VARCHAR}, #{userPicIds,jdbcType=VARCHAR}, 
+      #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=TINYINT}, #{remark,jdbcType=VARCHAR},
+      #{buttonName,jdbcType=VARCHAR}, #{presentation,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.base.model.UserCard" >
+    insert into user_card
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="userName != null" >
+        user_name,
+      </if>
+      <if test="userHeadPicId != null" >
+        user_head_pic_id,
+      </if>
+      <if test="userHeadPicPath != null" >
+        user_head_pic_path,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="userWechat != null" >
+        user_wechat,
+      </if>
+      <if test="companyName != null" >
+        company_name,
+      </if>
+      <if test="companyPost != null" >
+        company_post,
+      </if>
+      <if test="email != null" >
+        email,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="resume != null" >
+        resume,
+      </if>
+      <if test="userPicIds != null" >
+        user_pic_ids,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        MODIFIER,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="buttonName != null" >
+        button_name,
+      </if>
+      <if test="presentation != null" >
+        presentation,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="userHeadPicId != null" >
+        #{userHeadPicId,jdbcType=INTEGER},
+      </if>
+      <if test="userHeadPicPath != null" >
+        #{userHeadPicPath,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="userWechat != null" >
+        #{userWechat,jdbcType=VARCHAR},
+      </if>
+      <if test="companyName != null" >
+        #{companyName,jdbcType=VARCHAR},
+      </if>
+      <if test="companyPost != null" >
+        #{companyPost,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="resume != null" >
+        #{resume,jdbcType=VARCHAR},
+      </if>
+      <if test="userPicIds != null" >
+        #{userPicIds,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=TINYINT},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="buttonName != null" >
+        #{buttonName,jdbcType=VARCHAR},
+      </if>
+      <if test="presentation != null" >
+        #{presentation,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.base.model.UserCard" >
+    update user_card
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="userName != null" >
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="userHeadPicId != null" >
+        user_head_pic_id = #{userHeadPicId,jdbcType=INTEGER},
+      </if>
+      <if test="userHeadPicPath != null" >
+        user_head_pic_path = #{userHeadPicPath,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="userWechat != null" >
+        user_wechat = #{userWechat,jdbcType=VARCHAR},
+      </if>
+      <if test="companyName != null" >
+        company_name = #{companyName,jdbcType=VARCHAR},
+      </if>
+      <if test="companyPost != null" >
+        company_post = #{companyPost,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="resume != null" >
+        resume = #{resume,jdbcType=VARCHAR},
+      </if>
+      <if test="userPicIds != null" >
+        user_pic_ids = #{userPicIds,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        MODIFIER = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=TINYINT},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="buttonName != null" >
+        button_name = #{buttonName,jdbcType=VARCHAR},
+      </if>
+      <if test="presentation != null" >
+        presentation = #{presentation,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.base.model.UserCard" >
+    update user_card
+    set user_id = #{userId,jdbcType=INTEGER},
+      user_name = #{userName,jdbcType=VARCHAR},
+      user_head_pic_id = #{userHeadPicId,jdbcType=INTEGER},
+      user_head_pic_path = #{userHeadPicPath,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      user_wechat = #{userWechat,jdbcType=VARCHAR},
+      company_name = #{companyName,jdbcType=VARCHAR},
+      company_post = #{companyPost,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      resume = #{resume,jdbcType=VARCHAR},
+      user_pic_ids = #{userPicIds,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      MODIFIER = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=TINYINT},
+      remark = #{remark,jdbcType=VARCHAR},
+      button_name = #{buttonName,jdbcType=VARCHAR},
+      presentation = #{presentation,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+    <select id="getUserCardByUserId" resultType="integer" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM
+            user_card
+        WHERE
+            user_id = #{userId,jdbcType=INTEGER}
+        AND
+            is_deleted = 0
+    </select>
+
+    <update id="updateByUserIdSelective" parameterType="com.sandu.api.base.model.UserCard">
+        update user_card
+        <set >
+            <if test="userName != null" >
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="userHeadPicId != null" >
+                user_head_pic_id = #{userHeadPicId,jdbcType=INTEGER},
+            </if>
+            <if test="userHeadPicPath != null" >
+              user_head_pic_path = #{userHeadPicPath,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null" >
+                phone = #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="userWechat != null" >
+                user_wechat = #{userWechat,jdbcType=VARCHAR},
+            </if>
+            <if test="companyName != null" >
+                company_name = #{companyName,jdbcType=VARCHAR},
+            </if>
+            <if test="companyPost != null" >
+                company_post = #{companyPost,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null" >
+                email = #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="address != null" >
+                address = #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="resume != null" >
+                resume = #{resume,jdbcType=VARCHAR},
+            </if>
+            <if test="userPicIds != null" >
+                user_pic_ids = #{userPicIds,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null" >
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null" >
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null" >
+                MODIFIER = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null" >
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null" >
+                is_deleted = #{isDeleted,jdbcType=TINYINT},
+            </if>
+            <if test="remark != null" >
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="buttonName != null" >
+              button_name = #{buttonName,jdbcType=VARCHAR},
+            </if>
+            <if test="presentation != null" >
+              presentation = #{presentation,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where user_id = #{userId,jdbcType=INTEGER}
+    </update>
+
+    <select id="getAllUserCardOfCompany" parameterType="com.sandu.api.base.input.UserCardStatisticsQuery"
+        resultType="com.sandu.api.base.output.UserCardStatisticsVo">
+        SELECT
+            su.nick_name AS nickName,
+            su.user_name AS userName,
+            su.mobile AS mobile,
+            GROUP_CONCAT(bb.brand_name) as brandNameStr,
+            bc.company_name AS companyName,
+            tar.count AS todayVisitCount,
+            tar.userCount AS todayVisitUser,
+            mar.count AS monthVisitCount,
+            mar.userCount AS monthVisitUser,
+            ar.count AS totalVisitCount,
+            ar.userCount AS totalVisitUser,
+            ttr.count AS todayTransmitCount,
+            mtr.count AS monthTransmitCount,
+            tr.count AS totalTransmitCount
+        FROM
+            sys_user su
+        LEFT JOIN user_card uc ON uc.user_id = su.id
+        AND uc.is_deleted = 0
+        LEFT JOIN base_company bc ON bc.id = su.business_administration_id
+        LEFT JOIN base_brand bb ON bc.id = bb.company_id
+        LEFT JOIN (
+            SELECT
+                user_card_id,
+                COUNT(1) AS COUNT,
+                COUNT(DISTINCT user_id) AS userCount
+            FROM
+                user_card_access_record
+            WHERE
+                (
+                    TO_DAYS(gmt_modified) = TO_DAYS(NOW())
+                )
+            GROUP BY
+                user_card_id
+        ) tar ON tar.user_card_id = uc.id
+        LEFT JOIN (
+            SELECT
+                user_card_id,
+                COUNT(1) AS COUNT,
+                COUNT(DISTINCT user_id) AS userCount
+            FROM
+                user_card_access_record
+            WHERE
+                DATE_FORMAT(gmt_modified, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+            GROUP BY
+                user_card_id
+        ) mar ON mar.user_card_id = uc.id
+        LEFT JOIN (
+            SELECT
+                user_card_id,
+                COUNT(1) AS COUNT,
+                COUNT(DISTINCT user_id) AS userCount
+            FROM
+                user_card_access_record
+            GROUP BY
+                user_card_id
+        ) ar ON ar.user_card_id = uc.id
+        LEFT JOIN (
+            SELECT
+                user_id,
+                count(1) AS count
+            FROM
+                user_card_transmit_record
+            WHERE
+                (
+                    TO_DAYS(update_time) = TO_DAYS(NOW())
+                )
+            GROUP BY
+                user_id
+        ) ttr ON ttr.user_id = su.id
+        LEFT JOIN (
+            SELECT
+                user_id,
+                count(1) AS count
+            FROM
+                user_card_transmit_record
+            WHERE
+                (
+                    DATE_FORMAT(update_time, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+                )
+            GROUP BY
+                user_id
+        ) mtr ON mtr.user_id = su.id
+        LEFT JOIN (
+            SELECT
+                user_id,
+                count(1) AS count
+            FROM
+                user_card_transmit_record
+            GROUP BY
+                user_id
+        ) tr ON tr.user_id = su.id
+        WHERE
+        bc.id IN
+        <foreach collection="companyIdList" separator="," item="item" index="index" open="(" close=")">
+            #{item}
+        </foreach>
+        <if test="nickName != null and nickName != ''">
+          AND su.nick_name like concat('%',#{nickName},'%')
+        </if>
+        <if test="mobile != null and mobile != ''">
+          AND su.mobile like concat('%',#{mobile},'%')
+        </if>
+        <if test="userName != null and userName != ''">
+          AND su.user_name like concat('%',#{userName},'%')
+        </if>
+        AND su.is_deleted = 0
+        AND bc.is_deleted = 0
+        GROUP BY
+            su.nick_name,
+            su.user_name,
+            su.mobile,
+            bc.company_name
+        <if test="order != null and order != ''">
+          ORDER BY ${order}
+        </if>
+        <if test="sort != null and sort != ''" >
+          ${sort}
+        </if>
+        <if test="start != null and limit != null and (start != 0 or limit != 0)" >
+          limit ${start},${limit}
+        </if>
+    </select>
+
+    <select id="getAllUserCardCount"  parameterType="com.sandu.api.base.input.UserCardStatisticsQuery"
+            resultType="java.lang.Integer">
+        select count(1) from (
+            SELECT
+            su.nick_name AS nickName,
+            su.user_name AS userName,
+            su.mobile AS mobile,
+            GROUP_CONCAT(bb.brand_name) as brandNameStr,
+            bc.company_name AS companyName,
+            tar.count AS todayVisitCount,
+            tar.userCount AS todayVisitUser,
+            mar.count AS monthVisitCount,
+            mar.userCount AS monthVisitUser,
+            ar.count AS totalVisitCount,
+            ar.userCount AS totalVisitUser,
+            ttr.count AS todayTransmitCount,
+            mtr.count AS monthTransmitCount,
+            tr.count AS totalTransmitCount
+            FROM
+            sys_user su
+            LEFT JOIN user_card uc ON uc.user_id = su.id
+            AND uc.is_deleted = 0
+            LEFT JOIN base_company bc ON bc.id = su.business_administration_id
+            LEFT JOIN base_brand bb ON bc.id = bb.company_id
+            LEFT JOIN (
+            SELECT
+            user_card_id,
+            COUNT(1) AS COUNT,
+            COUNT(DISTINCT user_id) AS userCount
+            FROM
+            user_card_access_record
+            WHERE
+            (
+            TO_DAYS(gmt_modified) = TO_DAYS(NOW())
+            )
+            GROUP BY
+            user_card_id
+            ) tar ON tar.user_card_id = uc.id
+            LEFT JOIN (
+            SELECT
+            user_card_id,
+            COUNT(1) AS COUNT,
+            COUNT(DISTINCT user_id) AS userCount
+            FROM
+            user_card_access_record
+            WHERE
+            DATE_FORMAT(gmt_modified, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+            GROUP BY
+            user_card_id
+            ) mar ON mar.user_card_id = uc.id
+            LEFT JOIN (
+            SELECT
+            user_card_id,
+            COUNT(1) AS COUNT,
+            COUNT(DISTINCT user_id) AS userCount
+            FROM
+            user_card_access_record
+            GROUP BY
+            user_card_id
+            ) ar ON ar.user_card_id = uc.id
+            LEFT JOIN (
+            SELECT
+            user_id,
+            count(1) AS count
+            FROM
+            user_card_transmit_record
+            WHERE
+            (
+            TO_DAYS(update_time) = TO_DAYS(NOW())
+            )
+            GROUP BY
+            user_id
+            ) ttr ON ttr.user_id = su.id
+            LEFT JOIN (
+            SELECT
+            user_id,
+            count(1) AS count
+            FROM
+            user_card_transmit_record
+            WHERE
+            (
+            DATE_FORMAT(update_time, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+            )
+            GROUP BY
+            user_id
+            ) mtr ON mtr.user_id = su.id
+            LEFT JOIN (
+            SELECT
+            user_id,
+            count(1) AS count
+            FROM
+            user_card_transmit_record
+            GROUP BY
+            user_id
+            ) tr ON tr.user_id = su.id
+            WHERE
+            bc.id IN 
+            <foreach collection="companyIdList" separator="," item="item" index="index" open="(" close=")">
+                #{item}
+            </foreach>
+            <if test="nickName != null and nickName != ''">
+                AND su.nick_name like concat('%',#{nickName},'%')
+            </if>
+            <if test="mobile != null and mobile != ''">
+                AND su.mobile = #{mobile}
+            </if>
+            <if test="userName != null and userName != ''">
+                AND su.user_name like concat('%',#{userName},'%')
+            </if>
+            AND su.is_deleted = 0
+            AND bc.is_deleted = 0
+            GROUP BY
+            su.nick_name,
+            su.user_name,
+            su.mobile,
+            bc.company_name
+        ) a
+    </select>
+</mapper>

@@ -1,0 +1,291 @@
+package com.sandu.system.model;
+
+import java.io.Serializable;
+import java.util.List;
+
+import com.sandu.system.model.po.ResPicPO;
+
+/**   
+ * @Title: ResPic.java 
+ * @Package com.nork.system.model
+ * @Description:系统-图片资源库
+ * @createAuthor pandajun 
+ * @CreateDate 2015-05-19 16:06:59
+ * @version V1.0   
+ */
+public class ResPic extends ResPicPO implements Serializable{
+	
+	private static final long serialVersionUID = 1L;
+
+	/*添加三个字段:三个字段能获得file_type信息*/
+	private String firstMenu;
+	
+	private String secondMenu;
+	
+	private String thirdMenuP;
+
+	private String OriginalPicPath;
+	
+	//ipad缩略图路径
+	private String ipadThumbnailPath;
+	
+	//web缩略图路径
+	private String webThumbnailPath;
+	
+	/** 原图ID。缩略图时使用 **/
+	private Integer baseRenderId;
+	
+	//产品主键ID
+	private Integer productId;
+	private String  deviceId = null;
+	private String  msgId = null;
+	private String  ids = null;
+	private Integer start = 0;
+	private Integer limit = 20;
+	private String  order = null;
+	private String  orderNum = null;
+	private String  orders = null;
+	/**级别限制的资源数量*/
+	private int levelLimitCount=0;
+	
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
+	}
+
+	public String getMsgId() {
+		return msgId;
+	}
+
+	public void setMsgId(String msgId) {
+		this.msgId = msgId;
+	}
+
+	public String getIds() {
+		return ids;
+	}
+
+	public void setIds(String ids) {
+		this.ids = ids;
+	}
+
+	public Integer getStart() {
+		return start;
+	}
+
+	public void setStart(Integer start) {
+		this.start = start;
+	}
+
+	public Integer getLimit() {
+		return limit;
+	}
+
+	public void setLimit(Integer limit) {
+		this.limit = limit;
+	}
+
+	public String getOrder() {
+		return order;
+	}
+
+	public void setOrder(String order) {
+		this.order = order;
+	}
+
+	public String getOrderNum() {
+		return orderNum;
+	}
+
+	public void setOrderNum(String orderNum) {
+		this.orderNum = orderNum;
+	}
+
+	public String getOrders() {
+		return orders;
+	}
+
+	public void setOrders(String orders) {
+		this.orders = orders;
+	}
+
+	public int getLevelLimitCount() {
+		return levelLimitCount;
+	}
+
+	public void setLevelLimitCount(int levelLimitCount) {
+		this.levelLimitCount = levelLimitCount;
+	}
+
+	public Integer getProductId() {
+		return productId;
+	}
+
+	public void setProductId(Integer productId) {
+		this.productId = productId;
+	}
+
+	public String getIpadThumbnailPath() {
+		return ipadThumbnailPath;
+	}
+
+	public void setIpadThumbnailPath(String ipadThumbnailPath) {
+		this.ipadThumbnailPath = ipadThumbnailPath;
+	}
+
+	public String getWebThumbnailPath() {
+		return webThumbnailPath;
+	}
+
+	public void setWebThumbnailPath(String webThumbnailPath) {
+		this.webThumbnailPath = webThumbnailPath;
+	}
+
+	public String getFirstMenu() {
+		return firstMenu;
+	}
+
+	public void setFirstMenu(String firstMenu) {
+		this.firstMenu = firstMenu;
+	}
+
+	public String getSecondMenu() {
+		return secondMenu;
+	}
+
+	public void setSecondMenu(String secondMenu) {
+		this.secondMenu = secondMenu;
+	}
+
+	public String getThirdMenuP() {
+		return thirdMenuP;
+	}
+
+	public void setThirdMenuP(String thirdMenuP) {
+		this.thirdMenuP = thirdMenuP;
+	}
+
+	public String getOriginalPicPath() {
+		return OriginalPicPath;
+	}
+	public void setOriginalPicPath(String originalPicPath) {
+		OriginalPicPath = originalPicPath;
+	}
+
+	@Override
+    public boolean equals(Object that) {
+        if (this == that) {
+            return true;
+        }
+        if (that == null) {
+            return false;
+        }
+        if (getClass() != that.getClass()) {
+            return false;
+        }
+        ResPic other = (ResPic) that;
+        return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
+            && (this.getSysCode() == null ? other.getSysCode() == null : this.getSysCode().equals(other.getSysCode()))
+            && (this.getCreator() == null ? other.getCreator() == null : this.getCreator().equals(other.getCreator()))
+            && (this.getSysTaskPicId() == null ? other.getSysTaskPicId() == null : this.getSysTaskPicId().equals(other.getSysTaskPicId()))
+            && (this.getGmtCreate() == null ? other.getGmtCreate() == null : this.getGmtCreate().equals(other.getGmtCreate()))
+            && (this.getModifier() == null ? other.getModifier() == null : this.getModifier().equals(other.getModifier()))
+            && (this.getGmtModified() == null ? other.getGmtModified() == null : this.getGmtModified().equals(other.getGmtModified()))
+            && (this.getIsDeleted() == null ? other.getIsDeleted() == null : this.getIsDeleted().equals(other.getIsDeleted()))
+            && (this.getPicCode() == null ? other.getPicCode() == null : this.getPicCode().equals(other.getPicCode()))
+            && (this.getPicName() == null ? other.getPicName() == null : this.getPicName().equals(other.getPicName()))
+            && (this.getPicFileName() == null ? other.getPicFileName() == null : this.getPicFileName().equals(other.getPicFileName()))
+            && (this.getPicType() == null ? other.getPicType() == null : this.getPicType().equals(other.getPicType()))
+            && (this.getPicSize() == null ? other.getPicSize() == null : this.getPicSize().equals(other.getPicSize()))
+            && (this.getPicWeight() == null ? other.getPicWeight() == null : this.getPicWeight().equals(other.getPicWeight()))
+            && (this.getPicHigh() == null ? other.getPicHigh() == null : this.getPicHigh().equals(other.getPicHigh()))
+            && (this.getPicSuffix() == null ? other.getPicSuffix() == null : this.getPicSuffix().equals(other.getPicSuffix()))
+            && (this.getPicLevel() == null ? other.getPicLevel() == null : this.getPicLevel().equals(other.getPicLevel()))
+            && (this.getPicFormat() == null ? other.getPicFormat() == null : this.getPicFormat().equals(other.getPicFormat()))
+            && (this.getPicPath() == null ? other.getPicPath() == null : this.getPicPath().equals(other.getPicPath()))
+            && (this.getPicDesc() == null ? other.getPicDesc() == null : this.getPicDesc().equals(other.getPicDesc()))
+            && (this.getPicOrdering() == null ? other.getPicOrdering() == null : this.getPicOrdering().equals(other.getPicOrdering()))
+   
+            && (this.getFileKeys() == null ? other.getFileKeys() == null : this.getFileKeys().equals(other.getFileKeys()))
+            && (this.getBusinessIds() == null ? other.getBusinessIds() == null : this.getBusinessIds().equals(other.getBusinessIds()))
+            && (this.getSmallPicInfo() == null ? other.getSmallPicInfo() == null : this.getSmallPicInfo().equals(other.getSmallPicInfo()))
+            && (this.getViewPoint() == null ? other.getViewPoint() == null : this.getViewPoint().equals(other.getViewPoint()))
+            && (this.getScene() == null ? other.getScene() == null : this.getScene().equals(other.getScene()))
+            && (this.getDateAtt1() == null ? other.getDateAtt1() == null : this.getDateAtt1().equals(other.getDateAtt1()))
+            && (this.getDateAtt2() == null ? other.getDateAtt2() == null : this.getDateAtt2().equals(other.getDateAtt2()))
+            && (this.getNumAtt2() == null ? other.getNumAtt2() == null : this.getNumAtt2().equals(other.getNumAtt2()))
+            && (this.getNumAtt3() == null ? other.getNumAtt3() == null : this.getNumAtt3().equals(other.getNumAtt3()))
+            && (this.getNumAtt4() == null ? other.getNumAtt4() == null : this.getNumAtt4().equals(other.getNumAtt4()))
+            && (this.getRemark() == null ? other.getRemark() == null : this.getRemark().equals(other.getRemark()))
+;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
+        result = prime * result + ((getSysCode() == null) ? 0 : getSysCode().hashCode());
+        result = prime * result + ((getCreator() == null) ? 0 : getCreator().hashCode());
+        result = prime * result + ((getSysTaskPicId() == null) ? 0 : getSysTaskPicId().hashCode());
+        result = prime * result + ((getGmtCreate() == null) ? 0 : getGmtCreate().hashCode());
+        result = prime * result + ((getModifier() == null) ? 0 : getModifier().hashCode());
+        result = prime * result + ((getGmtModified() == null) ? 0 : getGmtModified().hashCode());
+        result = prime * result + ((getIsDeleted() == null) ? 0 : getIsDeleted().hashCode());
+        result = prime * result + ((getPicCode() == null) ? 0 : getPicCode().hashCode());
+        result = prime * result + ((getPicName() == null) ? 0 : getPicName().hashCode());
+        result = prime * result + ((getPicFileName() == null) ? 0 : getPicFileName().hashCode());
+        result = prime * result + ((getPicType() == null) ? 0 : getPicType().hashCode());
+        result = prime * result + ((getPicSize() == null) ? 0 : getPicSize().hashCode());
+        result = prime * result + ((getPicWeight() == null) ? 0 : getPicWeight().hashCode());
+        result = prime * result + ((getPicHigh() == null) ? 0 : getPicHigh().hashCode());
+        result = prime * result + ((getPicSuffix() == null) ? 0 : getPicSuffix().hashCode());
+        result = prime * result + ((getPicLevel() == null) ? 0 : getPicLevel().hashCode());
+        result = prime * result + ((getPicFormat() == null) ? 0 : getPicFormat().hashCode());
+        result = prime * result + ((getPicPath() == null) ? 0 : getPicPath().hashCode());
+        result = prime * result + ((getPicDesc() == null) ? 0 : getPicDesc().hashCode());
+        result = prime * result + ((getPicOrdering() == null) ? 0 : getPicOrdering().hashCode());
+        result = prime * result + ((getFileKeys() == null) ? 0 : getFileKeys().hashCode());
+        result = prime * result + ((getBusinessIds() == null) ? 0 : getBusinessIds().hashCode());
+        result = prime * result + ((getSmallPicInfo() == null) ? 0 : getSmallPicInfo().hashCode());
+        result = prime * result + ((getViewPoint() == null) ? 0 : getViewPoint().hashCode());
+        result = prime * result + ((getScene() == null) ? 0 : getScene().hashCode());
+        result = prime * result + ((getDateAtt1() == null) ? 0 : getDateAtt1().hashCode());
+        result = prime * result + ((getDateAtt2() == null) ? 0 : getDateAtt2().hashCode());
+        result = prime * result + ((getNumAtt2() == null) ? 0 : getNumAtt2().hashCode());
+        result = prime * result + ((getNumAtt3() == null) ? 0 : getNumAtt3().hashCode());
+        result = prime * result + ((getNumAtt4() == null) ? 0 : getNumAtt4().hashCode());
+        result = prime * result + ((getRemark() == null) ? 0 : getRemark().hashCode());
+        return result;
+    }
+    
+	private String resIds;
+	
+	public String getResIds() {
+		return resIds;
+	}
+
+	public void setResIds(String resIds) {
+		this.resIds = resIds;
+	}
+
+	private List<Integer> resIdList;
+	public List<Integer> getResIdList() {
+		return resIdList;
+	}
+
+	public void setResIdList(List<Integer> resIdList) {
+		this.resIdList = resIdList;
+	}
+
+	public Integer getBaseRenderId() {
+		return baseRenderId;
+	}
+
+	public void setBaseRenderId(Integer baseRenderId) {
+		this.baseRenderId = baseRenderId;
+	}
+}

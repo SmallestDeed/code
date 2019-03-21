@@ -1,0 +1,21 @@
+package com.sandu.api.springFestivalActivity.service;
+
+import com.sandu.api.springFestivalActivity.model.WxUserTask;
+
+import java.util.List;
+
+public interface WxUserTaskService {
+    List<WxUserTask> selectSelective(WxUserTask wxUserTask);
+
+    int insertSelective(WxUserTask record);
+
+    WxUserTask selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(WxUserTask record);
+
+    Integer getRateByUserId(Long activityId, Long userId);
+
+    List<WxUserTask> getUnderwayTaskList(Long activityId);
+
+    List<WxUserTask> getDoingTaskList(Long activityId);
+}

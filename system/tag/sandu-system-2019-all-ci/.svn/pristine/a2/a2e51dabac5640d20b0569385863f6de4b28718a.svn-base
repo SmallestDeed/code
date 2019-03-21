@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.banner.dao.MiniProIndexDialogMapper">
+
+    <insert id="insert" parameterType="com.sandu.api.banner.model.MiniProIndexDialog">
+        insert into mini_pro_index_dialog
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="dialogName != null">
+                dialog_name,
+            </if>
+            <if test="url != null">
+                url,
+            </if>
+            <if test="dialogImageResPicId != null">
+                dialog_image_res_pic_id,
+            </if>
+            <if test="isEnable != null">
+                is_enable,
+            </if>
+            <if test="dialogCode != null">
+                dialog_code,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="dialogName != null">
+                #{dialogName},
+            </if>
+            <if test="url != null">
+                #{url},
+            </if>
+            <if test="dialogImageResPicId != null">
+                #{dialogImageResPicId},
+            </if>
+            <if test="isEnable != null">
+                #{isEnable},
+            </if>
+            <if test="dialogCode != null">
+                #{dialogCode},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+    <select id="selectMiniProIndexDialogList" resultType="com.sandu.api.banner.model.MiniProIndexDialog">
+        SELECT
+            d.id as id,
+            d.dialog_name as dialogName,
+            d.url,
+            d.is_enable as isEnable,
+            d.dialog_image_res_pic_id as dialogImageResPicId,
+            d.dialog_code as dialogCode,
+            d.gmt_create as  gmtCreate,
+            d.gmt_modified as gmtModified,
+            pic.pic_path as picPath
+        FROM
+            mini_pro_index_dialog d LEFT JOIN res_banner_pic pic on d.dialog_image_res_pic_id = pic.id and pic.is_deleted = 0
+        where
+          d.dialog_code = #{dialogCode} and
+          d.is_deleted = 0 order by d.gmt_create desc
+    </select>
+
+    <select id="getEnableDialog" resultType="com.sandu.api.banner.model.MiniProIndexDialog">
+         SELECT
+            d.id as id,
+            d.dialog_name as dialogName,
+            d.url,
+            d.is_enable as isEnable,
+            d.dialog_image_res_pic_id as dialogImageResPicId,
+            d.dialog_code as dialogCode,
+            d.gmt_create as  gmtCreate,
+            d.gmt_modified as gmtModified,
+            pic.pic_path as picPath
+         FROM
+            mini_pro_index_dialog d LEFT JOIN res_banner_pic pic on d.dialog_image_res_pic_id = pic.id and pic.is_deleted = 0
+         where
+            d.dialog_code = #{dialogCode} and
+            d.is_deleted = 0 and
+            d.is_enable = 1
+    </select>
+
+    <update id="update" parameterType="com.sandu.api.banner.model.MiniProIndexDialog">
+        UPDATE
+          mini_pro_index_dialog
+        <set>
+            <if test="dialogName != null">
+                dialog_name = #{dialogName},
+            </if>
+            <if test="url != null">
+                url = #{url},
+            </if>
+            <if test="dialogImageResPicId != null">
+                dialog_image_res_pic_id = #{dialogImageResPicId},
+            </if>
+            <if test="isEnable != null">
+                is_enable = #{isEnable},
+            </if>
+            <if test="dialogCode != null">
+                dialog_code=#{dialogCode},
+            </if>
+            <if test="sysCode != null">
+                sys_code = #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+        </set>
+        WHERE
+        id=#{id}
+    </update>
+
+    <select id="get" resultType="com.sandu.api.banner.model.MiniProIndexDialog">
+        SELECT * from mini_pro_index_dialog where id = #{dialogId} and is_deleted = 0;
+    </select>
+
+    <select id="countIsEnable" resultType="int">
+        SELECT count(*) from mini_pro_index_dialog where  is_deleted = 0 and is_enable = 1;
+    </select>
+
+</mapper>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.design.dao.CompanyDesignPlanIncomeMapper">
+     <insert id="insert" parameterType="com.nork.design.model.CompanyDesignPlanIncome">
+         INSERT INTO
+             company_design_plan_income
+             (
+                plan_code,buyer_id,company_id,use_type,use_time,
+                plan_price,withdraw_amount,withdraw_status,
+                creator,gmt_create,modifier,gmt_modified,is_deleted
+             )
+             VALUES
+             (
+               #{planCode},#{buyerId},#{companyId},#{useType},#{useTime},
+               #{planPrice},#{withdrawAmount},#{withdrawStatus},
+               #{creator},#{gmtCreate},#{modifier},#{gmtModified},#{isDeleted}
+             )
+     </insert>
+
+    <select id="getCompanyAggregatedByCompanyId" resultType="com.nork.design.model.CompanyDesignPlanIncomeAggregated">
+        SELECT
+           id,
+           company_id as companyId,
+           today_income as todayIncome,
+           wait_withdraw_amount as waitWithdrawAmount,
+           total_income as totalIncome,
+           last_updated_date as lastUpdatedDate,
+           is_deleted as isDeleted
+         FROM
+           company_design_plan_income_aggregated
+         WHERE
+            is_deleted = 0 AND
+            company_id = #{companyId}
+    </select>
+
+    <insert id="insertDesignPlanIncomeAggregated" parameterType="com.nork.design.model.CompanyDesignPlanIncomeAggregated">
+       INSERT INTO
+          company_design_plan_income_aggregated
+              (company_id, today_income, wait_withdraw_amount, total_income, is_deleted,last_updated_date)
+          VALUES
+               (#{companyId},#{todayIncome},#{waitWithdrawAmount},#{totalIncome},#{isDeleted},#{lastUpdatedDate})
+    </insert>
+
+    <update id="updateCompanyDesignPlanIncomeAggregated" parameterType="com.nork.design.model.CompanyDesignPlanIncomeAggregated">
+        UPDATE
+          company_design_plan_income_aggregated
+          SET
+           total_income = #{totalIncome},
+           today_income = #{todayIncome},
+           wait_withdraw_amount = #{waitWithdrawAmount},
+           last_updated_date = now()
+           where
+           id = #{id} and is_deleted = 0
+    </update>
+
+</mapper>

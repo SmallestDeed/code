@@ -1,0 +1,103 @@
+<!--pages/mine/my-favorite-fitment/choose-designer/choose-designer.wxml-->
+<view class='search-box {{isActived?"active":""}}'>
+  <input bindfocus='focus' bindblur='blur' bindinput='input' value='{{searchWord}}'></input>
+  <image src='{{staticImageUrl}}huxing_icon_search.png' style='width:28rpx;height:28rpx'></image>
+  <text class='placeholder'>搜索关键字</text>
+  <text class='cancel' bindtap='clear'>取消</text>
+</view>
+
+<view>
+  <view wx:if='{{result.nearest.list.length>0}}'>
+    <view class='title'>最近联系</view>
+    <view class='item' wx:for='{{result.nearest.list}}' wx:key bindtap='toggleModel' data-item='{{item}}'>
+      <view class='left'>
+        <image src='{{item.logoUrl ? resourcePath+item.logoUrl : staticImageUrl+"/home_pic_no.png"}}'></image>
+      </view>
+      <view class='right'>
+        <view class='name'>{{item.shopName}}</view>
+        <view class='style'>{{item.categoryNames?"擅长风格："+item.categoryNames:''}}</view>
+        <view class='item_tag'>
+          <text wx:if="{{item.projectCaseCount}}">{{item.projectCaseCount}}个真实案例</text>
+          <text wx:if="{{item.companyDesignerCount}}">{{item.companyDesignerCount}}名设计师</text>
+          <text wx:if="{{item.companyShopArticleCount}}">{{item.companyShopArticleCount}}条博文</text>
+          <text wx:if="{{item.shopPlanCount}}">{{item.shopPlanCount}}个方案</text>
+        </view>
+        <view class='stars'>
+          <image src='{{staticImageUrl}}designer_score_0{{item.star >= 5? "1":"2"}}.png' style='width:30rpx;height:30rpx'></image>
+          <image src='{{staticImageUrl}}designer_score_0{{item.star >= 4? "1":"2"}}.png' style='width:30rpx;height:30rpx'></image>
+          <image src='{{staticImageUrl}}designer_score_0{{item.star >= 3? "1":"2"}}.png' style='width:30rpx;height:30rpx'></image>
+          <image src='{{staticImageUrl}}designer_score_0{{item.star >= 2? "1":"2"}}.png' style='width:30rpx;height:30rpx'></image>
+          <image src='{{staticImageUrl}}designer_score_0{{item.star >= 1? "1":"2"}}.png' style='width:30rpx;height:30rpx'></image>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- <view wx:if='{{result.recommend.list.length>0}}'>
+    <view class='title'>系统推荐</view>
+    <view class='item' wx:for='{{result.recommend.list}}' wx:key bindtap='toggleModel' data-item='{{item}}'>
+      <view class='left'>
+        <image src='{{item.logoUrl ? resourcePath+item.logoUrl : staticImageUrl+"/home_pic_no.png"}}'></image>
+      </view>
+      <view class='right'>
+        <view class='name'>{{item.shopName}}</view>
+        <view class='style'>{{item.categoryNames?"擅长风格："+item.categoryNames:''}}</view>
+        <view class='item_tag'>
+          <text wx:if="{{item.projectCaseCount}}">{{item.projectCaseCount}}个真实案例</text>
+          <text wx:if="{{item.companyDesignerCount}}">{{item.companyDesignerCount}}名设计师</text>
+          <text wx:if="{{item.companyShopArticleCount}}">{{item.companyShopArticleCount}}条博文</text>
+          <text wx:if="{{item.shopPlanCount}}">{{item.shopPlanCount}}个方案</text>
+        </view>
+        <view class='stars'>
+          <image src='{{staticImageUrl}}designer_score_0{{item.star >= 5? "1":"2"}}.png' style='width:30rpx;height:30rpx'></image>
+          <image src='{{staticImageUrl}}designer_score_0{{item.star >= 4? "1":"2"}}.png' style='width:30rpx;height:30rpx'></image>
+          <image src='{{staticImageUrl}}designer_score_0{{item.star >= 3? "1":"2"}}.png' style='width:30rpx;height:30rpx'></image>
+          <image src='{{staticImageUrl}}designer_score_0{{item.star >= 2? "1":"2"}}.png' style='width:30rpx;height:30rpx'></image>
+          <image src='{{staticImageUrl}}designer_score_0{{item.star >= 1? "1":"2"}}.png' style='width:30rpx;height:30rpx'></image>
+        </view>
+      </view>
+    </view>
+  </view> -->
+
+  <view wx:if='{{result.others.list.length>0}}'>
+    <view class='title' wx:if='{{!searchWord}}'>其他{{type==5?"设计师":"建筑公司"}}</view>
+    <view class='item' wx:for='{{result.others.list}}' wx:key bindtap='toggleModel' data-item='{{item}}'>
+      <view class='left'>
+        <image src='{{item.logoUrl ? resourcePath+item.logoUrl : staticImageUrl+"/home_pic_no.png"}}'></image>
+      </view>
+      <view class='right'>
+        <view class='name'>{{item.shopName}}</view>
+        <view class='style'>{{item.categoryNames?"擅长风格："+item.categoryNames:''}}</view>
+        <view class='item_tag'>
+          <text wx:if="{{item.projectCaseCount}}">{{item.projectCaseCount}}个真实案例</text>
+          <text wx:if="{{item.companyDesignerCount}}">{{item.companyDesignerCount}}名设计师</text>
+          <text wx:if="{{item.companyShopArticleCount}}">{{item.companyShopArticleCount}}条博文</text>
+          <text wx:if="{{item.shopPlanCount}}">{{item.shopPlanCount}}个方案</text>
+        </view>
+        <view class='stars'>
+          <image src='{{staticImageUrl}}designer_score_0{{item.star >= 5? "1":"2"}}.png' style='width:30rpx;height:30rpx'></image>
+          <image src='{{staticImageUrl}}designer_score_0{{item.star >= 4? "1":"2"}}.png' style='width:30rpx;height:30rpx'></image>
+          <image src='{{staticImageUrl}}designer_score_0{{item.star >= 3? "1":"2"}}.png' style='width:30rpx;height:30rpx'></image>
+          <image src='{{staticImageUrl}}designer_score_0{{item.star >= 2? "1":"2"}}.png' style='width:30rpx;height:30rpx'></image>
+          <image src='{{staticImageUrl}}designer_score_0{{item.star >= 1? "1":"2"}}.png' style='width:30rpx;height:30rpx'></image>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+
+<view class='mask' wx:if='{{isShowModel}}'>
+  <view class='model'>
+    <view class='model-title'>发送给：</view>
+    <view class='model-user'>
+      <text>{{modelItem.shopName}}</text>
+    </view>
+    <image class='model-img' src='{{planPicPath? resourcePath + planPicPath : staticImageUrl+"design_def.png"}}'></image>
+    <input class='model-input' placeholder='给{{type==5?"设计师":"建筑公司"}}留言' bindblur='modelInputBlur' value='{{modelItem.value}}'></input>
+    <view class='model-btns'>
+      <view bindtap='toggleModel'>取消</view>
+      <view bindtap='confirm'>确定</view>
+    </view>
+  </view>
+</view>

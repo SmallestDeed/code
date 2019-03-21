@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nork.decorateOrder.dao.DecorateSeckillMapper">
+
+	<resultMap id="BaseResultMap" type="com.nork.decorateOrder.model.DecorateSeckill">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="customer_id" jdbcType="BIGINT" property="customerId" />
+		<result column="proprietor_info_id" jdbcType="INTEGER"
+			property="proprietorInfoId" />
+		<result column="status" jdbcType="TINYINT" property="status" />
+		<result column="price" jdbcType="DECIMAL" property="price" />
+		<result column="creator" jdbcType="VARCHAR" property="creator" />
+		<result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+		<result column="modifier" jdbcType="VARCHAR" property="modifier" />
+		<result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+		<result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+		<result column="user_id" jdbcType="BIGINT" property="userId" />
+		<result column="order_status" jdbcType="INTEGER" property="orderStatus" />
+		<result column="order_timeout" jdbcType="TIMESTAMP" property="orderTimeout" />
+		<association property="proprietorInfo" javaType="com.nork.decorateOrder.model.ProprietorInfo">
+			<result column="proprietor_info_user_name" jdbcType="VARCHAR" property="userName" />
+			<result column="proprietor_info_province_code" jdbcType="VARCHAR" property="provinceCode" />
+			<result column="proprietor_info_city_code" jdbcType="VARCHAR" property="cityCode" />
+			<result column="proprietor_info_area_name" jdbcType="VARCHAR" property="areaName" />
+			<result column="proprietor_info_house_acreage" jdbcType="VARCHAR" property="houseAcreage" />
+			<result column="proprietor_info_bedroom_num" jdbcType="TINYINT" property="bedroomNum" />
+			<result column="proprietor_info_living_room_num" jdbcType="TINYINT" property="livingRoomNum" />
+			<result column="proprietor_info_toilet_num" jdbcType="TINYINT" property="toiletNum" />
+			<result column="proprietor_info_decorate_type" jdbcType="TINYINT" property="decorateType" />
+			<result column="proprietor_info_decorate_budget" jdbcType="TINYINT" property="decorateBudget" />
+			<result column="proprietor_info_decorate_style" jdbcType="INTEGER" property="decorateStyle" />
+			<result column="proprietor_info_decorate_house_type" jdbcType="TINYINT" property="decorateHouseType" />
+			<result column="proprietor_info_remark" jdbcType="VARCHAR" property="remark" />
+			<result column="proprietor_info_mobile" jdbcType="VARCHAR" property="mobile" />
+		</association>
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		id, customer_id, proprietor_info_id, status, price, creator, gmt_create,
+		modifier,
+		gmt_modified, is_deleted, user_id
+	</sql>
+	
+	<select id="selectByPrimaryKey" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from decorate_seckill
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+	
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from decorate_seckill
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	
+	<insert id="insert" parameterType="com.nork.decorateOrder.model.DecorateSeckill">
+		insert into decorate_seckill (id, customer_id, proprietor_info_id,
+		status, price, creator,
+		gmt_create, modifier, gmt_modified,
+		is_deleted, user_id)
+		values (#{id,jdbcType=BIGINT}, #{customerId,jdbcType=BIGINT},
+		#{proprietorInfoId,jdbcType=INTEGER},
+		#{status,jdbcType=TINYINT}, #{price,jdbcType=DECIMAL}, #{creator,jdbcType=VARCHAR},
+		#{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR},
+		#{gmtModified,jdbcType=TIMESTAMP},
+		#{isDeleted,jdbcType=INTEGER}),
+		#{userId, jdbcType = BIGINT}
+	</insert>
+	
+	<insert id="insertSelective" parameterType="com.nork.decorateOrder.model.DecorateSeckill">
+		insert into decorate_seckill
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="customerId != null">
+				customer_id,
+			</if>
+			<if test="proprietorInfoId != null">
+				proprietor_info_id,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="price != null">
+				price,
+			</if>
+			<if test="creator != null">
+				creator,
+			</if>
+			<if test="gmtCreate != null">
+				gmt_create,
+			</if>
+			<if test="modifier != null">
+				modifier,
+			</if>
+			<if test="gmtModified != null">
+				gmt_modified,
+			</if>
+			<if test="isDeleted != null">
+				is_deleted,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="customerId != null">
+				#{customerId,jdbcType=BIGINT},
+			</if>
+			<if test="proprietorInfoId != null">
+				#{proprietorInfoId,jdbcType=INTEGER},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=TINYINT},
+			</if>
+			<if test="price != null">
+				#{price,jdbcType=DECIMAL},
+			</if>
+			<if test="creator != null">
+				#{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtCreate != null">
+				#{gmtCreate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifier != null">
+				#{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null">
+				#{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDeleted != null">
+				#{isDeleted,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	
+	<update id="updateByPrimaryKeySelective" parameterType="com.nork.decorateOrder.model.DecorateSeckill">
+		update decorate_seckill
+		<set>
+			<if test="customerId != null">
+				customer_id = #{customerId,jdbcType=BIGINT},
+			</if>
+			<if test="proprietorInfoId != null">
+				proprietor_info_id = #{proprietorInfoId,jdbcType=INTEGER},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=TINYINT},
+			</if>
+			<if test="price != null">
+				price = #{price,jdbcType=DECIMAL},
+			</if>
+			<if test="creator != null">
+				creator = #{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtCreate != null">
+				gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifier != null">
+				modifier = #{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null">
+				gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDeleted != null">
+				is_deleted = #{isDeleted,jdbcType=INTEGER},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	
+	<update id="updateByPrimaryKey" parameterType="com.nork.decorateOrder.model.DecorateSeckill">
+		update decorate_seckill
+		set customer_id = #{customerId,jdbcType=BIGINT},
+		proprietor_info_id = #{proprietorInfoId,jdbcType=INTEGER},
+		status = #{status,jdbcType=TINYINT},
+		price = #{price,jdbcType=DECIMAL},
+		creator = #{creator,jdbcType=VARCHAR},
+		gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+		modifier = #{modifier,jdbcType=VARCHAR},
+		gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+		is_deleted = #{isDeleted,jdbcType=INTEGER}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	
+	<select id="selectDetailsById" resultMap="BaseResultMap">
+		select 
+		
+		<!-- 用户信息 ->start -->
+		pi.user_name as proprietor_info_user_name,
+		pi.province_code as proprietor_info_province_code,
+		pi.city_code as proprietor_info_city_code,
+		pi.area_name as proprietor_info_area_name,
+		pi.house_acreage as proprietor_info_house_acreage,
+		pi.bedroom_num as proprietor_info_bedroom_num,
+		pi.living_room_num as proprietor_info_living_room_num,
+		pi.toilet_num as proprietor_info_toilet_num,
+		pi.decorate_house_type as proprietor_info_decorate_house_type,
+		pi.decorate_style as proprietor_info_decorate_style,
+		pi.decorate_type as proprietor_info_decorate_type,
+		pi.decorate_budget as proprietor_info_decorate_budget,
+		pi.remark as proprietor_info_remark,
+		pi.mobile as proprietor_info_mobile,
+		<!-- 用户信息 ->end -->
+		
+		<!-- 订单信息 ->start -->
+		ds.id as id,
+		ds.price as price,
+		ds.status as status,
+		<!-- 订单信息 ->end -->
+		
+		<!-- 订单状态 ->start -->
+		dorder.order_status as order_status,
+		dorder.order_timeout as order_timeout,
+		dorder.user_id as user_id
+		<!-- 订单状态 ->end -->
+
+		from decorate_seckill ds
+		left join proprietor_info pi on pi.id = ds.proprietor_info_id
+		left join decorate_seckill_order dso on dso.decorate_seckill_id = ds.id
+		left join decorate_order dorder on dorder.decorate_seckill_order_id = dso.id
+		where ds.id = #{id}
+		order by dorder.id desc limit 0, 1
+	</select>
+	
+	<select id="selectListBySearch" resultMap="BaseResultMap" parameterType="com.nork.decorateOrder.model.search.DecorateSeckillSearch">
+		select 
+		
+		<!-- 用户信息 ->start -->
+		pi.user_name as proprietor_info_user_name,
+		pi.province_code as proprietor_info_province_code,
+		pi.city_code as proprietor_info_city_code,
+		pi.area_name as proprietor_info_area_name,
+		pi.house_acreage as proprietor_info_house_acreage,
+		pi.bedroom_num as proprietor_info_bedroom_num,
+		pi.living_room_num as proprietor_info_living_room_num,
+		pi.toilet_num as proprietor_info_toilet_num,
+		pi.decorate_house_type as proprietor_info_decorate_house_type,
+		pi.decorate_style as proprietor_info_decorate_style,
+		pi.decorate_type as proprietor_info_decorate_type,
+		pi.decorate_budget as proprietor_info_decorate_budget,
+		pi.remark as proprietor_info_remark,
+		<!-- 用户信息 ->end -->
+		
+		<!-- 订单信息 ->start -->
+		ds.id as id,
+		ds.price as price,
+		ds.status as status
+		<!-- 订单信息 ->end -->
+
+		from decorate_seckill ds
+		left join proprietor_info pi on pi.id = ds.proprietor_info_id
+		
+		<where>
+			<if test="idListNotIn != null and idListNotIn.size > 0">
+				and ds.id not in 
+				<foreach collection="idListNotIn" item="idListNotInItem" open="(" close=")" separator=",">
+					#{idListNotInItem}
+				</foreach>
+			</if>
+			<if test="idList != null and idList.size > 0">
+				and ds.id in 
+				<foreach collection="idList" item="idListItem" open="(" close=")" separator=",">
+					#{idListItem}
+				</foreach>
+			</if>
+			<if test="status != null">
+				and ds.status = #{status}
+			</if>
+			<if test="cityCode != null">
+				and pi.city_code = #{cityCode}
+			</if>
+			<if test="decorateBudgetValue != null">
+				and pi.decorate_budget = #{decorateBudgetValue}
+			</if>
+			<if test="decorateTypeValue != null">
+				and pi.decorate_type = #{decorateTypeValue}
+			</if>
+			<if test="baseProductStyleId != null">
+				and pi.decorate_style = #{baseProductStyleId}
+			</if>
+			<if test="beingSnappedUpSeckillGmtCreateAfter != null">
+				and ((ds.status = 1 and ds.gmt_create <![CDATA[> ]]> #{beingSnappedUpSeckillGmtCreateAfter}) or ds.status != 1)
+			</if>
+		</where> 
+		
+		<choose>
+			<when test="orderType != null and orderType == 2">
+				order by status, ds.id desc
+			</when>
+			<otherwise>
+				order by ds.id desc
+			</otherwise>
+		</choose>
+ 		<if test="start != null and limit != null">
+ 			limit #{start},#{limit}
+ 		</if>
+	</select>
+	
+	<select id="selectCountBySearch" resultType="int">
+		select count(ds.id)
+		from decorate_seckill ds
+		<!-- 有过滤条件自行添加 -->
+		<where>
+			<if test="isDeleted != null">
+				and ds.is_deleted = #{isDeleted}
+			</if>
+			<if test="status != null">
+				and ds.status = #{status}
+			</if>
+		</where>
+	</select>
+	
+	<update id="updateByIdAndStatus">
+		update decorate_seckill
+		<set>
+			<if test="decorateSeckill.customerId != null">
+				customer_id = #{decorateSeckill.customerId,jdbcType=BIGINT},
+			</if>
+			<if test="decorateSeckill.proprietorInfoId != null">
+				proprietor_info_id = #{decorateSeckill.proprietorInfoId,jdbcType=INTEGER},
+			</if>
+			<if test="decorateSeckill.status != null">
+				status = #{decorateSeckill.status,jdbcType=TINYINT},
+			</if>
+			<if test="decorateSeckill.price != null">
+				price = #{decorateSeckill.price,jdbcType=DECIMAL},
+			</if>
+			<if test="decorateSeckill.creator != null">
+				creator = #{decorateSeckill.creator,jdbcType=VARCHAR},
+			</if>
+			<if test="decorateSeckill.gmtCreate != null">
+				gmt_create = #{decorateSeckill.gmtCreate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="decorateSeckill.modifier != null">
+				modifier = #{decorateSeckill.modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="decorateSeckill.gmtModified != null">
+				gmt_modified = #{decorateSeckill.gmtModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="decorateSeckill.isDeleted != null">
+				is_deleted = #{decorateSeckill.isDeleted,jdbcType=INTEGER},
+			</if>
+			<if test="decorateSeckill.userId != null">
+				user_id = #{decorateSeckill.userId, jdbcType=BIGINT},
+			</if>
+		</set>
+		<where>
+			<if test="whereId != null">
+				and id = #{whereId, jdbcType=BIGINT}
+			</if>
+			<if test="whereStatus != null">
+				and status = #{whereStatus, jdbcType=INTEGER}
+			</if>
+		</where>
+	</update>
+	
+	<update id="updateUserIdAndStatusByIdList">
+		update decorate_seckill set user_id = #{userId}, status = #{status} where id in 
+		<foreach collection="idList" item="item" separator="," open="(" close=")">
+			#{item}
+		</foreach>
+	</update>
+	
+</mapper>

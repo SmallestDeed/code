@@ -1,0 +1,1092 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.design.dao.DesignPlanProductRenderSceneMapper">
+	
+	<select id="selectById" resultMap="AllResultMap">
+		select 
+		<include refid="All_Column_List"/>
+		 from design_plan_product_render_scene
+		 where id = #{id} and is_deleted = 0
+	</select>
+	
+	<sql id="All_Column_List">
+		id,is_main_structure_product,is_group_replace_way,product_index,is_standard,center,region_mark,style_id,measure_code,
+		describe_info,sys_code,split_textures_choose_info,plan_group_id,creator,gmt_create,modifier,gmt_modified,is_deleted,
+		group_type,model_product_id,plan_id,is_dirty,product_id,init_product_id,location_file_id,product_sequence,material_pic_id,
+		planProduct_id,display_status,remark,is_hide,pos_index_path,
+		product_group_id,is_main_product,pos_name,bind_parent_productId,same_product_type_index,wall_orientation,wall_type,
+		group_product_uniqueId,is_replace_texture
+	</sql>
+	
+	<resultMap id="AllResultMap" type="com.nork.design.model.DesignPlanProductRenderScene">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result  column="split_textures_choose_info" property="splitTexturesChooseInfo" jdbcType="VARCHAR" />
+		<result  column="plan_group_id" property="planGroupId" jdbcType="VARCHAR" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="group_type" property="groupType" jdbcType="INTEGER" />
+		<result  column="model_product_id" property="modelProductId" jdbcType="INTEGER" />
+		<result  column="plan_id" property="planId" jdbcType="INTEGER" />
+		<result  column="is_dirty" property="isDirty" jdbcType="INTEGER" />
+		<result  column="product_id" property="productId" jdbcType="INTEGER" />
+		<result  column="init_product_id" property="initProductId" jdbcType="INTEGER" />
+		<result  column="location_file_id" property="locationFileId" jdbcType="INTEGER" />
+		<result  column="product_sequence" property="productSequence" jdbcType="VARCHAR" />
+		<result  column="material_pic_id" property="materialPicId" jdbcType="VARCHAR" />
+		<result  column="planProduct_id" property="planProductId" jdbcType="INTEGER" />
+		<result  column="display_status" property="displayStatus" jdbcType="INTEGER" />
+		<result  column="remark" property="remark" jdbcType="VARCHAR" />
+		<result  column="is_hide" property="isHide" jdbcType="INTEGER" />
+		<result  column="pos_index_path" property="posIndexPath" jdbcType="VARCHAR" />
+		<result  column="product_group_id" property="productGroupId" jdbcType="INTEGER" />
+		<result  column="is_main_product" property="isMainProduct" jdbcType="INTEGER" />
+		<result  column="pos_name" property="posName" jdbcType="VARCHAR" />
+		<result  column="bind_parent_productId" property="bindParentProductId" jdbcType="VARCHAR" />
+		<result  column="same_product_type_index" property="sameProductTypeIndex" jdbcType="INTEGER" />
+		<result  column="is_standard" property="isStandard" jdbcType="INTEGER" />
+		<result  column="center" property="center" jdbcType="VARCHAR" />
+		<result  column="region_mark" property="regionMark" jdbcType="VARCHAR" />
+		<result  column="style_id" property="styleId" jdbcType="INTEGER" />
+		<result  column="measure_code" property="measureCode" jdbcType="VARCHAR" />
+		<result  column="describe_info" property="describeInfo" jdbcType="VARCHAR" />
+		<result  column="product_index" property="productIndex" jdbcType="INTEGER" />
+		<result  column="is_main_structure_product" property="isMainStructureProduct" jdbcType="INTEGER" />
+		<result  column="is_group_replace_way" property="isGroupReplaceWay" jdbcType="INTEGER" />
+		<result  column="wall_orientation" property="wallOrientation" jdbcType="VARCHAR" />
+		<result  column="wall_type" property="wallType" jdbcType="VARCHAR" />
+		<result  column="group_product_uniqueId" property="groupProductUniqueId" jdbcType="VARCHAR" />
+		<result  column="is_replace_texture" property="isReplaceTexture" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<!-- getListByPlanId -->
+	<select id="getListByPlanId" resultMap="AllResultMap">
+		select <include refid="All_Column_List"></include> from design_plan_product_render_scene where plan_id = #{planId}
+		<!--xiaoxc_20180419 注释说明：还原效果图方案需把已删除的产品也一并还原过去，部分产品可做还原操作-->
+		<!--and is_deleted = 0-->
+	</select>
+	
+	<!-- insert -->
+	<insert id="insert" parameterType="com.nork.design.model.DesignPlanProductRenderScene"  useGeneratedKeys="true" keyProperty="id">
+		insert into design_plan_product_render_scene
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		<if test="sysCode!= null">sys_code, </if>
+		<if test="splitTexturesChooseInfo!= null">split_textures_choose_info, </if>
+		<if test="planGroupId!= null">plan_group_id, </if>
+		<if test="creator!= null">creator, </if>
+		<if test="gmtCreate!= null">gmt_create, </if>
+		<if test="modifier!= null">modifier, </if>
+		<if test="gmtModified!= null">gmt_modified, </if>
+		<if test="isDeleted!= null">is_deleted, </if>
+		<if test="groupType!= null">group_type, </if>
+		<if test="modelProductId!= null">model_product_id, </if>
+		<if test="planId!= null">plan_id, </if>
+		<if test="isDirty!= null">is_dirty, </if>
+		<if test="productId!= null">product_id, </if>
+		<if test="initProductId!= null">init_product_id, </if>
+		<if test="locationFileId!= null">location_file_id, </if>
+		<if test="productSequence!= null">product_sequence, </if>
+		<if test="materialPicId!= null">material_pic_id, </if>
+		<if test="planProductId!= null">planProduct_id, </if>
+		<if test="displayStatus!= null">display_status, </if>
+		<if test="remark!= null">remark, </if>
+		<if test="isHide!= null">is_hide, </if>
+		<if test="posIndexPath!= null">pos_index_path, </if>
+		<if test="productGroupId!= null">product_group_id, </if>
+		<if test="isMainProduct!= null">is_main_product, </if>
+		<if test="posName!= null">pos_name, </if>
+		<if test="bindParentProductId!= null">bind_parent_productId, </if>
+		<if test="sameProductTypeIndex!= null">same_product_type_index ,</if>
+		<if test="isStandard!= null">is_standard, </if>
+		<if test="center!= null and center!='' ">center, </if>
+		<if test="regionMark!= null and regionMark!='' ">region_mark, </if>
+		<if test="styleId!= null">style_id, </if>
+		<if test="measureCode!= null and measureCode!='' ">measure_code, </if>
+		<if test="describeInfo!= null and describeInfo!=''">describe_info, </if>
+		<if test="productIndex!= null">product_index, </if>
+		<if test="isMainStructureProduct!= null">is_main_structure_product, </if>
+		<if test="isGroupReplaceWay!= null">is_group_replace_way, </if>
+		<if test="wallType!= null and wallType!='' ">wall_type, </if>
+		<if test="wallOrientation!= null and wallOrientation!='' ">wall_orientation, </if>
+		<if test="groupProductUniqueId!= null">group_product_uniqueId, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="splitTexturesChooseInfo!= null">  #{splitTexturesChooseInfo,jdbcType=VARCHAR}, </if>
+		<if test="planGroupId!= null">  #{planGroupId,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="groupType!= null">  #{groupType,jdbcType=INTEGER}, </if>
+		<if test="modelProductId!= null">  #{modelProductId,jdbcType=INTEGER}, </if>
+		<if test="planId!= null">  #{planId,jdbcType=INTEGER}, </if>
+		<if test="isDirty!= null">  #{isDirty,jdbcType=INTEGER}, </if>
+		<if test="productId!= null">  #{productId,jdbcType=INTEGER}, </if>
+		<if test="initProductId!= null">  #{initProductId,jdbcType=INTEGER}, </if>
+		<if test="locationFileId!= null">  #{locationFileId,jdbcType=INTEGER}, </if>
+		<if test="productSequence!= null">  #{productSequence,jdbcType=VARCHAR}, </if>
+		<if test="materialPicId!= null">  #{materialPicId,jdbcType=VARCHAR}, </if>
+		<if test="planProductId!= null">  #{planProductId,jdbcType=INTEGER}, </if>
+		<if test="displayStatus!= null">  #{displayStatus,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>
+		<if test="isHide!= null">  #{isHide,jdbcType=INTEGER}, </if>
+		<if test="posIndexPath!= null">  #{posIndexPath,jdbcType=VARCHAR}, </if>
+		<if test="productGroupId!= null">#{productGroupId,jdbcType=INTEGER}, </if>
+		<if test="isMainProduct!= null">#{isMainProduct,jdbcType=INTEGER}, </if>
+		<if test="posName!= null">#{posName,jdbcType=VARCHAR}, </if>
+		<if test="bindParentProductId!= null">  #{bindParentProductId,jdbcType=VARCHAR}, </if>
+		<if test="sameProductTypeIndex!= null">  #{sameProductTypeIndex,jdbcType=INTEGER}, </if>
+		<if test="isStandard!= null">#{isStandard,jdbcType=INTEGER}, </if>
+		<if test="center!= null and center!='' ">#{center,jdbcType=VARCHAR}, </if>
+		<if test="regionMark!= null and regionMark!='' ">#{regionMark,jdbcType=VARCHAR}, </if>
+		<if test="styleId!= null">#{styleId,jdbcType=INTEGER}, </if>
+		<if test="measureCode!= null and measureCode!='' ">#{measureCode,jdbcType=VARCHAR}, </if>
+		<if test="describeInfo!= null and describeInfo!=''">#{describeInfo,jdbcType=VARCHAR}, </if>
+		<if test="productIndex!= null">#{productIndex,jdbcType=INTEGER}, </if>
+		<if test="isMainStructureProduct!= null">#{isMainStructureProduct,jdbcType=INTEGER}, </if>
+		<if test="isGroupReplaceWay!= null">#{isGroupReplaceWay,jdbcType=INTEGER}, </if>
+		<if test="wallType!= null and wallType!='' ">#{wallType,jdbcType=VARCHAR}, </if>
+		<if test="wallOrientation!= null and wallOrientation!='' ">#{wallOrientation,jdbcType=VARCHAR}, </if>
+		<if test="groupProductUniqueId!= null and groupProductUniqueId!='' ">#{groupProductUniqueId,jdbcType=VARCHAR}, </if>
+		</trim>
+	</insert>
+	
+	<!-- insertList -->
+	<insert id="insertList" parameterType="java.util.List">
+		<if test="designPlanProductRenderSceneList != null and designPlanProductRenderSceneList.size > 0">
+			insert into design_plan_product_render_scene
+			(
+			sys_code,
+			split_textures_choose_info,
+			plan_group_id,
+			creator,
+			gmt_create,
+			modifier,
+			gmt_modified,
+			is_deleted,
+			group_type,
+			model_product_id,
+			plan_id,
+			is_dirty,
+			product_id,
+			init_product_id,
+			location_file_id,
+			product_sequence,
+			material_pic_id,
+			planProduct_id,
+			display_status,
+			remark,
+			is_hide,
+			pos_index_path,
+			product_group_id,
+			is_main_product,
+			pos_name,
+			bind_parent_productId,
+			same_product_type_index,
+			is_standard,
+			center,
+			region_mark,
+			style_id,
+			measure_code,
+			describe_info,
+			product_index,
+			is_main_structure_product,
+			is_group_replace_way,
+			wall_orientation,
+			wall_type,
+			group_product_uniqueId,
+			is_replace_texture
+			)
+			values
+			<foreach collection="designPlanProductRenderSceneList" item="item" index="index" separator="," >
+				(
+				#{item.sysCode,jdbcType=VARCHAR}, 
+				#{item.splitTexturesChooseInfo,jdbcType=VARCHAR}, 
+				#{item.planGroupId,jdbcType=VARCHAR}, 
+				#{item.creator,jdbcType=VARCHAR}, 
+				#{item.gmtCreate,jdbcType=TIMESTAMP}, 
+				#{item.modifier,jdbcType=VARCHAR}, 
+				#{item.gmtModified,jdbcType=TIMESTAMP}, 
+				#{item.isDeleted,jdbcType=INTEGER}, 
+				#{item.groupType,jdbcType=INTEGER}, 
+				#{item.modelProductId,jdbcType=INTEGER}, 
+				#{item.planId,jdbcType=INTEGER}, 
+				#{item.isDirty,jdbcType=INTEGER}, 
+				#{item.productId,jdbcType=INTEGER}, 
+				#{item.initProductId,jdbcType=INTEGER}, 
+				#{item.locationFileId,jdbcType=INTEGER}, 
+				#{item.productSequence,jdbcType=VARCHAR}, 
+				#{item.materialPicId,jdbcType=VARCHAR}, 
+				#{item.planProductId,jdbcType=INTEGER}, 
+				#{item.displayStatus,jdbcType=INTEGER}, 
+				#{item.remark,jdbcType=VARCHAR}, 
+				#{item.isHide,jdbcType=INTEGER}, 
+				#{item.posIndexPath,jdbcType=VARCHAR}, 
+				#{item.productGroupId,jdbcType=INTEGER}, 
+				#{item.isMainProduct,jdbcType=INTEGER}, 
+				#{item.posName,jdbcType=VARCHAR}, 
+				#{item.bindParentProductId,jdbcType=VARCHAR}, 
+				#{item.sameProductTypeIndex,jdbcType=INTEGER}, 
+				#{item.isStandard,jdbcType=INTEGER}, 
+				#{item.center,jdbcType=VARCHAR}, 
+				#{item.regionMark,jdbcType=VARCHAR}, 
+				#{item.styleId,jdbcType=INTEGER}, 
+				#{item.measureCode,jdbcType=VARCHAR}, 
+				#{item.describeInfo,jdbcType=VARCHAR}, 
+				#{item.productIndex,jdbcType=INTEGER}, 
+				#{item.isMainStructureProduct,jdbcType=INTEGER}, 
+				#{item.isGroupReplaceWay,jdbcType=INTEGER},
+				#{item.wallOrientation,jdbcType=VARCHAR}, 
+				#{item.wallType,jdbcType=VARCHAR},
+				#{item.groupProductUniqueId,jdbcType=VARCHAR},
+				#{item.isReplaceTexture,jdbcType=INTEGER}
+				)
+			</foreach>
+		</if>
+	</insert>
+	
+	<!-- deleteByPlanId -->
+	<delete id="deleteByPlanId">
+		<!--delete from design_plan_product_render_scene where plan_id = #{planId}-->
+		UPDATE design_plan_product_render_scene SET is_deleted = 1,gmt_modified = NOW() WHERE plan_id = #{planId}
+	</delete>
+
+	<select id="getProductCount" resultType="int">
+		SELECT COUNT(id) FROM design_plan_product_render_scene WHERE plan_id=#{planId} AND is_deleted=0
+	</select>
+	
+	<resultMap id="designPlanProductResultMap" type="com.nork.design.model.DesignPlanProductResult">
+		<id column="id" property="productId" jdbcType="INTEGER"/>
+		<result column="product_name" property="productName" jdbcType="VARCHAR"/>
+		<result column="pro_style_id" property="proStyleValue" jdbcType="VARCHAR"/>
+		<result column="product_type_value" property="productTypeValue" jdbcType="VARCHAR"/>
+		<result column="sale_price" property="salePrice" jdbcType="VARCHAR"/>
+		<result column="brand_name" property="brandName" jdbcType="VARCHAR"/>
+		<result column="pic_path" property="picPath" jdbcType="VARCHAR"/>
+		<result column="product_code" property="productCode" jdbcType="VARCHAR"/>
+		<result column="location" property="location" jdbcType="VARCHAR"/>
+		<result column="file_path" property="filePath" jdbcType="VARCHAR"/>
+		<result column="pos_name" property="posName" jdbcType="VARCHAR"/>
+		<result column="pos_index_path" property="posIndexPath" jdbcType="VARCHAR"/>
+		<result column="group_id" property="groupId" jdbcType="INTEGER"/>
+		<result column="planProductId" property="planProductId" jdbcType="INTEGER"/>
+		<result column="brand_id" property="brandId" jdbcType="INTEGER"/>
+		<result column="pic_id" property="picId" jdbcType="INTEGER"/>
+		<result column="sale_price_value" property="salePriceValue" jdbcType="INTEGER"/>
+		<result column="product_small_type_value" property="productSmallTypeValue" jdbcType="INTEGER"/>
+		<result column="plan_group_id" property="planGroupId" jdbcType="VARCHAR"/>
+		<!-- 产品公开与不空开-->
+		<result column="secrecy_flag" property="secrecyFlag" jdbcType="INTEGER"/>
+		<result column="company_id" property="companyId" jdbcType="INTEGER"/>
+	</resultMap>
+	
+	<!-- planProductCount -->
+	<select id="planProductCount" resultType="int">
+		SELECT count(bp.id) FROM base_product bp 
+		LEFT JOIN design_plan_product_render_scene dpp ON bp.id = dpp.product_id
+		LEFT JOIN base_brand bb ON bp.brand_id = bb.id
+		LEFT JOIN res_pic rp ON bp.pic_id = rp.id  
+		WHERE 1=1 
+		<if test="planId != null">
+			AND dpp.plan_id =  #{planId,jdbcType=INTEGER}
+		</if>
+		<if test="isDeleted != null">
+			AND dpp.is_deleted =  #{isDeleted,jdbcType=INTEGER}
+		</if>
+		<if test="groupType != null">
+			AND dpp.group_type =  #{groupType,jdbcType=INTEGER}
+		</if>
+	</select>
+	
+	<!-- planProductList -->
+	<select id="planProductList" resultMap="designPlanProductResultMap">
+		SELECT bp.pic_id,bp.id,bp.product_name,bp.sale_price,bp.pro_style_id,bp.product_code,
+		bp.product_type_value,bb.id as 'brand_id',bb.brand_name,rp.pic_path,bp.sale_price_value FROM design_plan_product_render_scene as dpp
+		LEFT JOIN base_product bp ON  dpp.product_id  =   bp.id
+		LEFT JOIN base_brand bb ON bp.brand_id = bb.id
+		LEFT JOIN res_pic rp ON bp.pic_id = rp.id  
+		WHERE 1=1 
+		and bp.id is not null
+		<if test="isInternalUser != null and isInternalUser == 'yes'">
+			AND  (bp.putaway_state = 1 or bp.putaway_state = 2  or bp.putaway_state = 3)
+		</if>
+		<if test="isInternalUser == null or isInternalUser == ''"><!-- 以前已经上架显示，现在是已发布的显示   -->
+			and bp.putaway_state = 3
+		</if>
+		<if test="planId != null">
+			AND dpp.plan_id =  #{planId,jdbcType=INTEGER}
+		</if>
+		<if test="isDeleted != null">
+			AND dpp.is_deleted =  #{isDeleted,jdbcType=INTEGER}
+		</if>
+		<if test="groupType != null">
+			AND dpp.group_type =  #{groupType,jdbcType=INTEGER}
+		</if>
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if> 
+	</select>
+
+	<!-- 结算大类型清单 -->
+	<resultMap id="costTypeListResult" type="com.nork.design.model.ProductsCostType">
+		<result column="costCodes" property="costCodes" jdbcType="VARCHAR"/>
+		<result column="totalPrice" property="totalPrice" jdbcType="DECIMAL"/>
+		<result column="costTypeValue" property="costTypeValue" jdbcType="VARCHAR"/>
+		<result column="costTypeCode" property="costTypeCode" jdbcType="VARCHAR"/>
+		<result column="costTypeName" property="costTypeName" jdbcType="VARCHAR"/>
+	</resultMap>
+
+	<!-- 结算汇总清单 -->
+	<select id="costTypeListCount" resultType="int" parameterType="com.nork.design.model.DesignPlanProductRenderScene">
+		SELECT  COUNT(*)  FROM
+		(SELECT GROUP_CONCAT(C.costTypeCode) costCodes,SUM(C.totalPrice) totalPrice ,s2.value costTypeValue,s2.valuekey costTypeCode,s2.name costTypeName
+		FROM
+		(SELECT GROUP_CONCAT(bp.id) productIds,SUM(bp.sale_price) totalPrice,s3.value costTypeValue,s3.valuekey costTypeCode,s3.name costTypeName FROM design_plan_product_render_scene dp
+		LEFT JOIN base_product bp ON bp.id = dp.product_id
+		LEFT JOIN (SELECT bs.type,bs.valuekey,bs.value,bs.name,bs.ordering FROM sys_dictionary bs WHERE bs.type = 'productType' ORDER BY bs.ordering) s1 ON bp.product_type_value = s1.value
+		LEFT JOIN sys_dictionary s2 ON s2.value = bp.product_small_type_value AND s2.type = s1.valuekey
+		LEFT JOIN (SELECT tal.type,tal.valuekey,tal.value,tal.name,tal.ordering FROM sys_dictionary tal WHERE tal.type = 'total' ORDER BY tal.ordering) s3 ON s3.valuekey = s2.att2
+		WHERE 1=1  AND dp.is_deleted = 0
+		<if test="planId != null and planId != ''">
+			AND dp.plan_id = #{planId,jdbcType=INTEGER}
+		</if>
+		<!-- 新过滤逻辑(品牌,大类,小类,产品idList) -->
+		<if test="baseProduct !=  null and  baseProduct.size > 0  ">
+			and (
+			<foreach collection="baseProduct" index="index" item="item">
+				<choose>
+					<when test="index== 0">
+						<choose>
+							<when test="item.productIdList!=null and item.productIdList.size>0">
+								(bp.id in
+								<foreach collection="item.productIdList" index="indexProductId" item="itemProductId" open="(" separator="," close=")">
+									#{itemProductId}
+								</foreach>
+								)
+							</when>
+							<otherwise>
+								<!-- 品牌&&大小类 -->
+								(<!-- 1=1  -->
+								<if test="item.brandId != null and item.brandId != 0 ">
+									<!-- and  -->bp.brand_id=#{item.brandId}
+								</if>
+								<if test="item.productTypeValue != null and item.productTypeValue != '' ">
+									and bp.product_type_value=#{item.productTypeValue}
+								</if>
+								<if test="item.productSmallTypeValue != null and item.productSmallTypeValue != '' ">
+									and bp.product_small_type_value=#{item.productSmallTypeValue}
+								</if>
+								)
+								<!-- 品牌||大小类 -->
+							</otherwise>
+						</choose>
+					</when>
+					<otherwise>
+						or
+						<choose>
+							<when test="item.productIdList!=null and item.productIdList.size>0">
+								(bp.id in
+								<foreach collection="item.productIdList" index="indexProductId" item="itemProductId" open="(" separator="," close=")">
+									#{itemProductId}
+								</foreach>
+								)
+							</when>
+							<otherwise>
+								<!-- 品牌&&大小类 -->
+								(<!-- 1=1  -->
+								<if test="item.brandId != null and item.brandId != 0 ">
+									<!-- and  -->bp.brand_id=#{item.brandId}
+								</if>
+								<if test="item.productTypeValue != null and item.productTypeValue != '' ">
+									and bp.product_type_value=#{item.productTypeValue}
+								</if>
+								<if test="item.productSmallTypeValue != null and item.productSmallTypeValue != '' ">
+									and bp.product_small_type_value=#{item.productSmallTypeValue}
+								</if>
+								)
+								<!-- 品牌||大小类 -->
+							</otherwise>
+						</choose>
+					</otherwise>
+				</choose>
+
+			</foreach>
+			)
+		</if>
+		<!-- 新过滤逻辑(品牌,大类,小类,产品idList)->end -->
+		AND s2.att3 != 'baimo'
+		GROUP BY s2.att2
+		ORDER BY s3.ordering,s2.ordering) C
+		LEFT JOIN
+		(SELECT  bs.type, bs.valuekey, bs.value, bs.name, bs.ordering, bs.att1
+		FROM  sys_dictionary bs
+		WHERE bs.type = 'total'
+		ORDER BY bs.ordering) s1
+		ON C.costTypeCode = s1.valuekey
+		LEFT JOIN
+		(SELECT  sd.type, sd.valuekey, sd.value, sd.name, sd.ordering
+		FROM sys_dictionary sd
+		WHERE sd.type = 'totalType'
+		ORDER BY sd.ordering) s2
+		ON s1.att1 = s2.valuekey
+		WHERE 1 = 1
+		AND s1.att1 IS NOT NULL
+		GROUP BY s1.att1) t
+	</select>
+
+	<select id="costTypeList" resultMap="costTypeListResult" parameterType="com.nork.design.model.DesignPlanProductRenderScene">
+		SELECT GROUP_CONCAT(C.costTypeCode) costCodes,SUM(C.totalPrice) totalPrice ,s2.value costTypeValue,s2.valuekey costTypeCode,s2.name costTypeName
+		FROM
+		(SELECT GROUP_CONCAT(bp.id) productIds,SUM(bp.sale_price) totalPrice,s3.value costTypeValue,s3.valuekey costTypeCode,s3.name costTypeName FROM design_plan_product_render_scene dp
+		LEFT JOIN base_product bp ON bp.id = dp.product_id
+		LEFT JOIN (SELECT bs.type,bs.valuekey,bs.value,bs.name,bs.ordering FROM sys_dictionary bs WHERE bs.type = 'productType' ORDER BY bs.ordering) s1 ON bp.product_type_value = s1.value
+		LEFT JOIN sys_dictionary s2 ON s2.value = bp.product_small_type_value AND s2.type = s1.valuekey
+		LEFT JOIN (SELECT tal.type,tal.valuekey,tal.value,tal.name,tal.ordering FROM sys_dictionary tal WHERE tal.type = 'total' ORDER BY tal.ordering) s3 ON s3.valuekey = s2.att2
+		WHERE 1=1  AND dp.is_deleted = 0
+		<if test="planId != null and planId != ''">
+			AND dp.plan_id = #{planId,jdbcType=INTEGER}
+		</if>
+		<!-- 新过滤逻辑(品牌,大类,小类,产品idList) -->
+		<if test="baseProduct !=  null and  baseProduct.size > 0  ">
+			and (
+			<foreach collection="baseProduct" index="index" item="item">
+				<choose>
+					<when test="index== 0">
+						<choose>
+							<when test="item.productIdList!=null and item.productIdList.size>0">
+								(bp.id in
+								<foreach collection="item.productIdList" index="indexProductId" item="itemProductId" open="(" separator="," close=")">
+									#{itemProductId}
+								</foreach>
+								)
+							</when>
+							<otherwise>
+								<!-- 品牌&&大小类 -->
+								(<!-- 1=1  -->
+								<if test="item.brandId != null and item.brandId != 0 ">
+									<!-- and  -->bp.brand_id=#{item.brandId}
+								</if>
+								<if test="item.productTypeValue != null and item.productTypeValue != '' ">
+									and bp.product_type_value=#{item.productTypeValue}
+								</if>
+								<if test="item.productSmallTypeValue != null and item.productSmallTypeValue != '' ">
+									and bp.product_small_type_value=#{item.productSmallTypeValue}
+								</if>
+								)
+								<!-- 品牌||大小类 -->
+							</otherwise>
+						</choose>
+					</when>
+					<otherwise>
+						or
+						<choose>
+							<when test="item.productIdList!=null and item.productIdList.size>0">
+								(bp.id in
+								<foreach collection="item.productIdList" index="indexProductId" item="itemProductId" open="(" separator="," close=")">
+									#{itemProductId}
+								</foreach>
+								)
+							</when>
+							<otherwise>
+								<!-- 品牌&&大小类 -->
+								(<!-- 1=1  -->
+								<if test="item.brandId != null and item.brandId != 0 ">
+									<!-- and  -->bp.brand_id=#{item.brandId}
+								</if>
+								<if test="item.productTypeValue != null and item.productTypeValue != '' ">
+									and bp.product_type_value=#{item.productTypeValue}
+								</if>
+								<if test="item.productSmallTypeValue != null and item.productSmallTypeValue != '' ">
+									and bp.product_small_type_value=#{item.productSmallTypeValue}
+								</if>
+								)
+								<!-- 品牌||大小类 -->
+							</otherwise>
+						</choose>
+					</otherwise>
+				</choose>
+
+			</foreach>
+			)
+		</if>
+		<!-- 新过滤逻辑(品牌,大类,小类,产品idList)->end -->
+		AND s2.att3 != 'baimo'
+		GROUP BY s2.att2
+		ORDER BY s3.ordering,s2.ordering) C
+		LEFT JOIN
+		(SELECT  bs.type, bs.valuekey, bs.value, bs.name, bs.ordering, bs.att1
+		FROM  sys_dictionary bs
+		WHERE bs.type = 'total'
+		ORDER BY bs.ordering) s1
+		ON C.costTypeCode = s1.valuekey
+		LEFT JOIN
+		(SELECT  sd.type, sd.valuekey, sd.value, sd.name, sd.ordering
+		FROM sys_dictionary sd
+		WHERE sd.type = 'totalType'
+		ORDER BY sd.ordering) s2
+		ON s1.att1 = s2.valuekey
+		WHERE 1 = 1
+		AND s1.att1 IS NOT NULL
+		GROUP BY s1.att1
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+
+	<!-- 结算清单 -->
+	<resultMap id="costListResult" type="com.nork.design.model.ProductsCost">
+		<result column="productIds" property="productIds" jdbcType="VARCHAR"/>
+		<result column="totalPrice" property="totalPrice" jdbcType="DECIMAL"/>
+		<result column="costTypeValue" property="costTypeValue" jdbcType="VARCHAR"/>
+		<result column="costTypeCode" property="costTypeCode" jdbcType="VARCHAR"/>
+		<result column="costTypeName" property="costTypeName" jdbcType="VARCHAR"/>
+		<result column="productCount" property="productCount" jdbcType="INTEGER"/>
+	</resultMap>
+
+	<!-- 结算汇总清单 -->
+	<select id="costListCount" resultType="int" parameterType="com.nork.design.model.DesignPlanProduct">
+		select count(*) from(
+		SELECT GROUP_CONCAT(bp.id),SUM(bp.sale_price) totalPrice,s3.value costTypeValue,s3.valuekey costTypeCode,s3.name
+		costTypeName FROM design_plan_product dp
+		LEFT JOIN base_product bp ON bp.id = dp.product_id
+		LEFT JOIN (SELECT bs.type,bs.valuekey,bs.value,bs.name,bs.ordering FROM sys_dictionary bs WHERE bs.type =
+		'productType' ORDER BY bs.ordering) s1 ON bp.product_type_value = s1.value
+		LEFT JOIN sys_dictionary s2 ON s2.value = bp.product_small_type_value AND s2.type = s1.valuekey
+		LEFT JOIN (SELECT tal.type,tal.valuekey,tal.value,tal.name,tal.ordering FROM sys_dictionary tal WHERE tal.type =
+		'total' ORDER BY tal.ordering) s3 ON s3.valuekey = s2.att2
+		WHERE 1=1  AND dp.is_deleted = 0
+		<if test="planId != null and planId != ''">
+			AND dp.plan_id = #{planId,jdbcType=INTEGER}
+		</if>
+		<if test="authorizedConfigList != null and authorizedConfigList.size > 0">
+			AND (
+			<foreach collection="authorizedConfigList" index="index" item="item">
+				<if test="index > 0">or</if>
+				(
+				<if test="item.brandIds != null and item.brandIds != ''">
+					FIND_IN_SET(bp.brand_id, #{item.brandIds,jdbcType=VARCHAR})
+				</if>
+				<if test="item.bigType != null and item.bigType != ''">
+					AND FIND_IN_SET(bp.product_type_mark, #{item.bigType,jdbcType=VARCHAR})
+				</if>
+				<if test="item.smallType != null and item.smallType != ''">
+					AND FIND_IN_SET(bp.product_small_type_mark, #{item.smallType,jdbcType=VARCHAR})
+				</if>
+				<if test="item.productIds != null and item.productIds != ''">
+					AND FIND_IN_SET(bp.id, #{item.productIds,jdbcType=VARCHAR})
+				</if>
+				)
+			</foreach>
+			)
+		</if>
+		AND s2.att3 != 'baimo'
+		GROUP BY s2.att2
+		ORDER BY s3.ordering,s2.ordering
+		) t
+	</select>
+
+	<select id="costList" resultMap="costListResult" parameterType="com.nork.design.model.ProductsCostType">
+		SELECT GROUP_CONCAT(bp.id) productIds,SUM(bp.sale_price) totalPrice,s3.value costTypeValue,s3.valuekey costTypeCode,s3.name costTypeName,COUNT(bp.id) productCount FROM design_plan_product_render_scene dp
+		LEFT JOIN base_product bp ON bp.id = dp.product_id
+		LEFT JOIN (SELECT bs.type,bs.valuekey,bs.value,bs.name,bs.ordering FROM sys_dictionary bs WHERE bs.type = 'productType' ORDER BY bs.ordering) s1 ON bp.product_type_value = s1.value
+		LEFT JOIN sys_dictionary s2 ON s2.value = bp.product_small_type_value AND s2.type = s1.valuekey
+		LEFT JOIN (SELECT tal.type,tal.valuekey,tal.value,tal.name,tal.ordering FROM sys_dictionary tal WHERE tal.type = 'total' ORDER BY tal.ordering) s3 ON s3.valuekey = s2.att2
+		WHERE 1=1  AND dp.is_deleted = 0
+		<if test="planId != null and planId != ''">
+			AND dp.plan_id = #{planId,jdbcType=INTEGER}
+		</if>
+		<if test="costCodes != null and costCodes != ''">
+			AND FIND_IN_SET(s3.valuekey, #{costCodes,jdbcType=VARCHAR})
+		</if>
+		<!-- 新过滤逻辑(品牌,大类,小类,产品idList) -->
+		<if test="baseProduct !=  null and  baseProduct.size > 0  ">
+			and (
+			<foreach collection="baseProduct" index="index" item="item">
+				<choose>
+					<when test="index== 0">
+						<choose>
+							<when test="item.productIdList!=null and item.productIdList.size>0">
+								(bp.id in
+								<foreach collection="item.productIdList" index="indexProductId" item="itemProductId" open="(" separator="," close=")">
+									#{itemProductId}
+								</foreach>
+								)
+							</when>
+							<otherwise>
+								<!-- 品牌&&大小类 -->
+								(<!-- 1=1  -->
+								<if test="item.brandId != null and item.brandId != 0 ">
+									<!-- and  -->bp.brand_id=#{item.brandId}
+								</if>
+								<if test="item.productTypeValue != null and item.productTypeValue != '' ">
+									and bp.product_type_value=#{item.productTypeValue}
+								</if>
+								<if test="item.productSmallTypeValue != null and item.productSmallTypeValue != '' ">
+									and bp.product_small_type_value=#{item.productSmallTypeValue}
+								</if>
+								)
+								<!-- 品牌||大小类 -->
+							</otherwise>
+						</choose>
+					</when>
+					<otherwise>
+						or
+						<choose>
+							<when test="item.productIdList!=null and item.productIdList.size>0">
+								(bp.id in
+								<foreach collection="item.productIdList" index="indexProductId" item="itemProductId" open="(" separator="," close=")">
+									#{itemProductId}
+								</foreach>
+								)
+							</when>
+							<otherwise>
+								<!-- 品牌&&大小类 -->
+								(<!-- 1=1  -->
+								<if test="item.brandId != null and item.brandId != 0 ">
+									<!-- and  -->bp.brand_id=#{item.brandId}
+								</if>
+								<if test="item.productTypeValue != null and item.productTypeValue != '' ">
+									and bp.product_type_value=#{item.productTypeValue}
+								</if>
+								<if test="item.productSmallTypeValue != null and item.productSmallTypeValue != '' ">
+									and bp.product_small_type_value=#{item.productSmallTypeValue}
+								</if>
+								)
+								<!-- 品牌||大小类 -->
+							</otherwise>
+						</choose>
+					</otherwise>
+				</choose>
+
+			</foreach>
+			)
+		</if>
+		<!-- 新过滤逻辑(品牌,大类,小类,产品idList)->end -->
+		AND s2.att3 != 'baimo'
+		GROUP BY s2.att2
+		ORDER BY s3.ordering,s2.ordering
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+
+	<!-- 结算清单明细 -->
+	<resultMap id="costDetailResult" type="com.nork.design.model.ProductCostDetail">
+		<id column="id" property="productId" jdbcType="VARCHAR"/>
+		<result column="product_name" property="productName" jdbcType="VARCHAR"/>
+		<result column="brand_name" property="brandName" jdbcType="VARCHAR"/>
+		<result column="unitPrice" property="unitPrice" jdbcType="DECIMAL"/>
+		<result column="totalPrice" property="totalPrice" jdbcType="DECIMAL"/>
+		<result column="totalCount" property="count" jdbcType="INTEGER"/>
+		<result column="productPicPath" property="productPicPath" jdbcType="VARCHAR"/>
+		<result column="productModelNumber" property="productModelNumber" jdbcType="VARCHAR"/>
+		<result column="productSpec" property="productSpec" jdbcType="VARCHAR"/>
+		<result column="productDesc" property="productDesc" jdbcType="VARCHAR"/>
+		<result column="productOriginalPicPath" property="productOriginalPicPath" jdbcType="VARCHAR"/>
+		<result column="productUnit" property="productUnit" jdbcType="VARCHAR"/>
+		<result column="productCode" property="productCode" jdbcType="VARCHAR"/>
+		<result column="posIndexPath" property="posIndexPath" jdbcType="VARCHAR"/>
+		
+		<result column="productTypeValue" property="productTypeValue" jdbcType="VARCHAR"/>
+		<result column="productSmallTypeValue" property="productSmallTypeValue" jdbcType="VARCHAR"/>
+		<result column="planProductId" property="planProductId" jdbcType="INTEGER"/>
+		<result column="isMainProduct" property="isMainProduct" jdbcType="INTEGER"/>
+		<result column="productTypeValue" property="productTypeValue" jdbcType="VARCHAR"/>
+		<result column="productSmallTypeValue" property="productSmallTypeValue" jdbcType="VARCHAR"/>
+		<result column="spaceCommonId" property="spaceCommonId" jdbcType="INTEGER"/>
+		
+		<result column="sourcePlanGroupId" property="sourcePlanGroupId" jdbcType="VARCHAR"/>
+		<result column="sourceProductGroupId" property="sourceProductGroupId" jdbcType="INTEGER"/>
+		<result column="sourceGroupProductUniqueId" property="sourceGroupProductUniqueId" jdbcType="VARCHAR"/>
+		<result column="sourceGroupProductId" property="sourceGroupProductId" jdbcType="INTEGER"/>
+		<result column="sourceGroupProductCode" property="sourceGroupProductCode" jdbcType="VARCHAR"/>
+		<result column="split_textures_choose_info" property="sourceSplitTexturesChooseInfo" jdbcType="VARCHAR"/>
+		<result column="is_standard" property="isStandard" jdbcType="INTEGER"/>
+		<result column="region_mark" property="regionMark" jdbcType="VARCHAR"/>
+		<result column="style_id" property="styleId" jdbcType="INTEGER"/>
+		<result column="measure_code" property="measureCode" jdbcType="VARCHAR"/>
+		<result column="structure_id" property="structureId" jdbcType="INTEGER"/>
+		<result column="valuekey" property="valuekey" jdbcType="VARCHAR"/>
+		<result column="is_replace_texture" property="isReplaceTexture" jdbcType="INTEGER"/>
+	</resultMap>
+
+	<!-- 结算清单明细 -->
+	<select id="costDetail" resultMap="costDetailResult" parameterType="com.nork.design.model.ProductsCost">
+		SELECT bp.id,bp.product_name,bb.brand_name,bp.sale_price unitPrice,(bp.sale_price*COUNT(bp.id)) totalPrice,COUNT(bp.id) totalCount,rp.pic_path productPicPath,
+		bp.product_model_number productModelNumber,bp.product_spec productSpec,product_desc productDesc,rp1.pic_path productOriginalPicPath,sd.name productUnit,bp.product_code productCode
+		,dp.pos_index_path as posIndexPath        	  <!-- 挂节点 -->
+		,dp.is_main_product as isMainProduct      	  <!-- 是否是主产品 -->
+		,dp.id as planProductId						  <!-- 方案产品id -->
+		,dp2.space_common_id as spaceCommonId			  <!-- 空间id -->
+		,bp.product_type_mark as categoryCode		  <!-- 产品分类编码 -->
+		,bp.product_small_type_mark as smallCategoryCode<!-- 产品小分类编码 -->
+		,bp.product_type_value as productTypeValue		<!-- 产品类别value···大类 -->
+		,bp.product_small_type_value as productSmallTypeValue  <!-- 产品类别value···小类 -->
+		
+		,dp.plan_group_id as sourcePlanGroupId          	  <!-- 设计方案组合ID-->
+		,dp.product_group_id as sourceProductGroupId  	  <!-- 产品组合ID -->
+		,dp.group_product_uniqueId as sourceGroupProductUniqueId		<!-- 组合产品唯一标识 -->
+		,gp.id as sourceGroupProductId			<!-- 组合id -->
+		,gp.group_code as sourceGroupProductCode	<!-- 组合code -->
+		,dp.split_textures_choose_info <!-- 默认材质信息  -->
+		,dp.is_standard		<!-- 描述(区域、尺寸代码) -->
+		,dp.region_mark		<!-- 区域标识 -->
+		,dp.style_id		<!-- 款式id -->
+		,dp.measure_code	<!-- 尺寸代码 -->
+		,gp.structure_id	<!-- 结构id -->
+		,dp.is_replace_texture<!-- 是否做了材质替换(0:否;1:是) -->
+		,s2.valuekey
+		
+		FROM design_plan_product_render_scene dp
+		LEFT JOIN base_product bp ON bp.id = dp.product_id
+		LEFT JOIN (SELECT bs.type,bs.valuekey,bs.value,bs.name,bs.ordering FROM sys_dictionary bs WHERE bs.type = 'productType' ORDER BY bs.ordering) s1 ON bp.product_type_value = s1.value
+		LEFT JOIN sys_dictionary s2 ON s2.value = bp.product_small_type_value AND s2.type = s1.valuekey
+		LEFT JOIN res_pic rp ON bp.pic_id = rp.id
+		LEFT JOIN res_pic rp1 ON bp.pic_ids = rp1.id
+		LEFT JOIN base_brand bb ON bb.id = bp.brand_id
+		LEFT JOIN sys_dictionary sd on sd.value = bp.sale_price_value and sd.type='productUnitPrice'
+		LEFT JOIN group_product gp on gp.id = dp.product_group_id
+		LEFT JOIN design_plan_render_scene dp2 ON dp2.id = dp.plan_id
+		WHERE 1=1 AND dp.is_deleted = 0
+		<if test="planId != null and planId != ''">
+			AND dp.plan_id = #{planId,jdbcType=INTEGER}
+		</if>
+		<if test="costTypeCode != null and costTypeCode != ''">
+			AND s2.att2 = #{costTypeCode,jdbcType=VARCHAR}
+		</if>
+		<!-- 新过滤逻辑(品牌,大类,小类,产品idList) -->
+		<if test="baseProduct !=  null and  baseProduct.size > 0  ">
+			and (
+			<foreach collection="baseProduct" index="index" item="item">
+				<choose>
+					<when test="index== 0">
+						<choose>
+							<when test="item.productIdList!=null and item.productIdList.size>0">
+								(bp.id in
+								<foreach collection="item.productIdList" index="indexProductId" item="itemProductId" open="(" separator="," close=")">
+									#{itemProductId}
+								</foreach>
+								)
+							</when>
+							<otherwise>
+								<!-- 品牌&&大小类 -->
+								(<!-- 1=1  -->
+								<if test="item.brandId != null and item.brandId != 0 ">
+									<!-- and  -->bp.brand_id=#{item.brandId}
+								</if>
+								<if test="item.productTypeValue != null and item.productTypeValue != '' ">
+									and bp.product_type_value=#{item.productTypeValue}
+								</if>
+								<if test="item.productSmallTypeValue != null and item.productSmallTypeValue != '' ">
+									and bp.product_small_type_value=#{item.productSmallTypeValue}
+								</if>
+								)
+								<!-- 品牌||大小类 -->
+							</otherwise>
+						</choose>
+					</when>
+					<otherwise>
+						or
+						<choose>
+							<when test="item.productIdList!=null and item.productIdList.size>0">
+								(bp.id in
+								<foreach collection="item.productIdList" index="indexProductId" item="itemProductId" open="(" separator="," close=")">
+									#{itemProductId}
+								</foreach>
+								)
+							</when>
+							<otherwise>
+								<!-- 品牌&&大小类 -->
+								(<!-- 1=1  -->
+								<if test="item.brandId != null and item.brandId != 0 ">
+									<!-- and  -->bp.brand_id=#{item.brandId}
+								</if>
+								<if test="item.productTypeValue != null and item.productTypeValue != '' ">
+									and bp.product_type_value=#{item.productTypeValue}
+								</if>
+								<if test="item.productSmallTypeValue != null and item.productSmallTypeValue != '' ">
+									and bp.product_small_type_value=#{item.productSmallTypeValue}
+								</if>
+								)
+								<!-- 品牌||大小类 -->
+							</otherwise>
+						</choose>
+					</otherwise>
+				</choose>
+
+			</foreach>
+			)
+		</if>
+		<!-- 新过滤逻辑(品牌,大类,小类,产品idList)->end -->
+		AND s2.att3 != 'baimo'
+		GROUP BY bp.id
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+	
+	<select id="getDesignPlanProductList" resultMap="designPlanProductResultMap" parameterType="com.nork.design.model.DesignPlanProductRenderScene">
+		SELECT bp.pic_id,bp.id,bp.product_name,bp.sale_price,bp.pro_style_id,bp.product_code
+		,bp.secrecy_flag
+		,bp.company_id
+		,bp.product_type_value,bb.id as 'brand_id',bb.brand_name,rp.pic_path,bp.sale_price_value FROM design_plan_product_render_scene as dpp
+		LEFT JOIN base_product bp ON  dpp.product_id  =   bp.id
+		LEFT JOIN base_brand bb ON bp.brand_id = bb.id
+		LEFT JOIN res_pic rp ON bp.pic_id = rp.id  
+		WHERE  bp.id is not null
+		<if test="isInternalUser != null and isInternalUser == 'yes'">
+			AND  (bp.putaway_state = 1 or bp.putaway_state = 2  or bp.putaway_state = 3)
+		</if>
+		<if test="isInternalUser == null or isInternalUser == ''"><!-- 以前已经上架显示，现在是已发布的显示   -->
+			and bp.putaway_state = 3
+		</if>
+		<if test="planId != null">
+			AND dpp.plan_id =  #{planId,jdbcType=INTEGER}
+		</if>
+		<if test="isDeleted != null">
+			AND dpp.is_deleted =  #{isDeleted,jdbcType=INTEGER}
+		</if>
+		<if test="groupType != null">
+			AND dpp.group_type =  #{groupType,jdbcType=INTEGER}
+		</if>
+		AND bp.product_code NOT LIKE "%baimo%"  GROUP BY bp.id
+	</select>
+	
+	<!-- 结算汇总清单 -->
+	<select id="costTypeListCountV2" resultType="int" parameterType="com.nork.design.model.DesignPlanProduct">
+		SELECT  COUNT(*)  FROM
+		(SELECT GROUP_CONCAT(C.costTypeCode) costCodes,SUM(C.totalPrice) totalPrice ,s2.value costTypeValue,s2.valuekey costTypeCode,s2.name costTypeName
+		FROM 
+		(SELECT GROUP_CONCAT(bp.id) productIds,SUM(bp.sale_price) totalPrice,s3.value costTypeValue,s3.valuekey costTypeCode,s3.name costTypeName 
+		FROM design_plan_product_render_scene dp
+		LEFT JOIN base_product bp ON bp.id = dp.product_id
+		LEFT JOIN (SELECT bs.type,bs.valuekey,bs.value,bs.name,bs.ordering FROM sys_dictionary bs WHERE bs.type = 'productType' ORDER BY bs.ordering) s1 ON bp.product_type_value = s1.value
+		LEFT JOIN sys_dictionary s2 ON s2.value = bp.product_small_type_value AND s2.type = s1.valuekey
+		LEFT JOIN (SELECT tal.type,tal.valuekey,tal.value,tal.name,tal.ordering FROM sys_dictionary tal WHERE tal.type = 'total' ORDER BY tal.ordering) s3 ON s3.valuekey = s2.att2
+		WHERE 1=1  AND dp.is_deleted = 0
+		<if test="planId != null and planId != ''">
+			AND dp.plan_id = #{planId,jdbcType=INTEGER}
+		</if>
+			<!-- 新过滤逻辑(品牌,大类,小类,产品idList) -->
+			<if test="baseProduct !=  null and  baseProduct.size > 0  ">
+				and (
+				<foreach collection="baseProduct" index="index" item="item">
+					<choose>
+						<when test="index== 0">
+							<choose>
+								<when test="item.productIdList!=null and item.productIdList.size>0">
+									(bp.id in
+										 <foreach collection="item.productIdList" index="indexProductId" item="itemProductId" open="(" separator="," close=")">
+										 	#{itemProductId}
+										 </foreach>
+									)
+								</when>
+								<otherwise>
+									<!-- 品牌&&大小类 -->
+									(<!-- 1=1  -->
+									<if test="item.brandId != null and item.brandId != 0 ">
+										<!-- and  -->bp.brand_id=#{item.brandId}
+									</if>
+									<if test="item.productTypeValue != null and item.productTypeValue != '' ">
+										and bp.product_type_value=#{item.productTypeValue}
+									</if>
+									<if test="item.productSmallTypeValue != null and item.productSmallTypeValue != '' ">
+										and bp.product_small_type_value=#{item.productSmallTypeValue}
+									</if>
+									)
+									<!-- 品牌||大小类 -->
+								</otherwise>
+							</choose>
+						</when>
+						<otherwise>
+							or 
+							<choose>
+								<when test="item.productIdList!=null and item.productIdList.size>0">
+									(bp.id in
+										 <foreach collection="item.productIdList" index="indexProductId" item="itemProductId" open="(" separator="," close=")">
+										 	#{itemProductId}
+										 </foreach>
+									)
+								</when>
+								<otherwise>
+									<!-- 品牌&&大小类 -->
+									(<!-- 1=1  -->
+									<if test="item.brandId != null and item.brandId != 0 ">
+										<!-- and  -->bp.brand_id=#{item.brandId}
+									</if>
+									<if test="item.productTypeValue != null and item.productTypeValue != '' ">
+										and bp.product_type_value=#{item.productTypeValue}
+									</if>
+									<if test="item.productSmallTypeValue != null and item.productSmallTypeValue != '' ">
+										and bp.product_small_type_value=#{item.productSmallTypeValue}
+									</if>
+									)
+									<!-- 品牌||大小类 -->
+								</otherwise>
+							</choose>
+						</otherwise>
+					</choose>
+
+				</foreach>
+				)
+			</if>
+			<!-- 新过滤逻辑(品牌,大类,小类,产品idList)->end -->
+		AND s2.att3 != 'baimo'
+		GROUP BY s2.att2
+		ORDER BY s3.ordering,s2.ordering) C
+		LEFT JOIN 
+   		  (SELECT  bs.type, bs.valuekey, bs.value, bs.name, bs.ordering, bs.att1 
+        FROM  sys_dictionary bs 
+   		WHERE bs.type = 'total' 
+    	ORDER BY bs.ordering) s1 
+    	ON C.costTypeCode = s1.valuekey 
+        LEFT JOIN 
+    		(SELECT  sd.type, sd.valuekey, sd.value, sd.name, sd.ordering
+    	FROM sys_dictionary sd 
+    	WHERE sd.type = 'totalType' 
+    	ORDER BY sd.ordering) s2 
+    	ON s1.att1 = s2.valuekey 
+    	WHERE 1 = 1
+    	AND s1.att1 IS NOT NULL
+    	GROUP BY s1.att1) t
+	</select>
+	
+	<!-- costTypeList -->
+	<select id="costTypeListV2" resultMap="costTypeListResult" parameterType="com.nork.design.model.DesignPlanProduct">
+		SELECT GROUP_CONCAT(C.costTypeCode) costCodes,SUM(C.totalPrice) totalPrice ,s2.value costTypeValue,s2.valuekey costTypeCode,s2.name costTypeName
+		FROM 
+		(SELECT GROUP_CONCAT(bp.id) productIds,SUM(bp.sale_price) totalPrice,s3.value costTypeValue,s3.valuekey costTypeCode,s3.name costTypeName FROM design_plan_product_render_scene dp
+		LEFT JOIN base_product bp ON bp.id = dp.product_id
+		LEFT JOIN (SELECT bs.type,bs.valuekey,bs.value,bs.name,bs.ordering FROM sys_dictionary bs WHERE bs.type = 'productType' ORDER BY bs.ordering) s1 ON bp.product_type_value = s1.value
+		LEFT JOIN sys_dictionary s2 ON s2.value = bp.product_small_type_value AND s2.type = s1.valuekey
+		LEFT JOIN (SELECT tal.type,tal.valuekey,tal.value,tal.name,tal.ordering FROM sys_dictionary tal WHERE tal.type = 'total' ORDER BY tal.ordering) s3 ON s3.valuekey = s2.att2
+		WHERE 1=1  AND dp.is_deleted = 0
+		<if test="planId != null and planId != ''">
+			AND dp.plan_id = #{planId,jdbcType=INTEGER}
+		</if>
+			<!-- 新过滤逻辑(品牌,大类,小类,产品idList) -->
+			<if test="baseProduct !=  null and  baseProduct.size > 0  ">
+				and (
+				<foreach collection="baseProduct" index="index" item="item">
+					<choose>
+						<when test="index== 0">
+							<choose>
+								<when test="item.productIdList!=null and item.productIdList.size>0">
+									(bp.id in
+										 <foreach collection="item.productIdList" index="indexProductId" item="itemProductId" open="(" separator="," close=")">
+										 	#{itemProductId}
+										 </foreach>
+									)
+								</when>
+								<otherwise>
+									<!-- 品牌&&大小类 -->
+									(<!-- 1=1  -->
+									<if test="item.brandId != null and item.brandId != 0 ">
+										<!-- and  -->bp.brand_id=#{item.brandId}
+									</if>
+									<if test="item.productTypeValue != null and item.productTypeValue != '' ">
+										and bp.product_type_value=#{item.productTypeValue}
+									</if>
+									<if test="item.productSmallTypeValue != null and item.productSmallTypeValue != '' ">
+										and bp.product_small_type_value=#{item.productSmallTypeValue}
+									</if>
+									)
+									<!-- 品牌||大小类 -->
+								</otherwise>
+							</choose>
+						</when>
+						<otherwise>
+							or 
+							<choose>
+								<when test="item.productIdList!=null and item.productIdList.size>0">
+									(bp.id in
+										 <foreach collection="item.productIdList" index="indexProductId" item="itemProductId" open="(" separator="," close=")">
+										 	#{itemProductId}
+										 </foreach>
+									)
+								</when>
+								<otherwise>
+									<!-- 品牌&&大小类 -->
+									(<!-- 1=1  -->
+									<if test="item.brandId != null and item.brandId != 0 ">
+										<!-- and  -->bp.brand_id=#{item.brandId}
+									</if>
+									<if test="item.productTypeValue != null and item.productTypeValue != '' ">
+										and bp.product_type_value=#{item.productTypeValue}
+									</if>
+									<if test="item.productSmallTypeValue != null and item.productSmallTypeValue != '' ">
+										and bp.product_small_type_value=#{item.productSmallTypeValue}
+									</if>
+									)
+									<!-- 品牌||大小类 -->
+								</otherwise>
+							</choose>
+						</otherwise>
+					</choose>
+
+				</foreach>
+				)
+			</if>
+			<!-- 新过滤逻辑(品牌,大类,小类,产品idList)->end -->
+		AND s2.att3 != 'baimo'
+		GROUP BY s2.att2
+		ORDER BY s3.ordering,s2.ordering) C
+		LEFT JOIN 
+   		  (SELECT  bs.type, bs.valuekey, bs.value, bs.name, bs.ordering, bs.att1 
+        FROM  sys_dictionary bs 
+   		WHERE bs.type = 'total' 
+    	ORDER BY bs.ordering) s1 
+    	ON C.costTypeCode = s1.valuekey 
+        LEFT JOIN 
+    		(SELECT  sd.type, sd.valuekey, sd.value, sd.name, sd.ordering
+    	FROM sys_dictionary sd 
+    	WHERE sd.type = 'totalType' 
+    	ORDER BY sd.ordering) s2 
+    	ON s1.att1 = s2.valuekey 
+    	WHERE 1 = 1
+    	AND s1.att1 IS NOT NULL
+    	GROUP BY s1.att1 
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+
+	<select id="findListBySceneId" resultType="java.lang.String">
+		SELECT sd2.valuekey FROM design_plan_product_render_scene d
+		LEFT JOIN base_product b ON b.id = d.product_id AND b.`is_deleted` = 0
+		LEFT JOIN sys_dictionary sd1 ON sd1.type = 'productType' AND sd1.value = b.`product_type_value` AND sd1.is_deleted = 0
+		LEFT JOIN sys_dictionary sd2 ON sd1.valuekey = sd2.type AND sd2.value = b.`product_small_type_value` AND sd2.is_deleted = 0
+		WHERE d.plan_id = #{designPlanRenderSceneId,jdbcType=INTEGER} AND d.is_deleted = 0
+	</select>
+	
+	<!-- getListByPlanIdAndIsDeleted -->
+	<select id="getListByPlanIdAndIsDeleted" resultMap="AllResultMap">
+		select <include refid="All_Column_List"></include> from design_plan_product_render_scene where plan_id = #{planId}
+		and is_deleted = #{isDeleted}
+	</select>
+	
+	<!-- getMianGroupProductInfo -->
+	<select id="getMianGroupProductInfo" parameterType="java.lang.Integer" resultType="com.nork.design.model.DesignPlanProductRenderScene">
+		select 
+		dpprs.product_group_id as productGroupId,
+		dpprs.product_id as ProductId
+		from design_plan_product_render_scene dpprs
+		where 
+		dpprs.plan_id = #{id} 
+		and dpprs.product_group_id is not null
+		and dpprs.product_group_id != 0
+		and dpprs.is_main_product = 1
+		and dpprs.group_type = 0
+		and dpprs.is_deleted = 0
+	</select>
+
+	<select id="selectDesignPlanRenderGroupList"  resultType="com.nork.design.model.DesignRenderGroup">
+		SELECT
+			id,
+			plan_code AS planCode,
+			plan_name AS planName,
+			IF(id=group_primary_id,1,0) AS orderNum
+		FROM
+			design_plan_render_scene
+		WHERE	render_type = 2
+			AND group_primary_id = #{sceneId}
+			AND is_deleted = 0
+		ORDER BY orderNUm desc;
+	</select>
+
+</mapper>

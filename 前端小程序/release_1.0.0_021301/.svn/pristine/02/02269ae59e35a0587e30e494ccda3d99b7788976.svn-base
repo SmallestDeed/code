@@ -1,0 +1,37 @@
+<!--pages/my-user-news/my-user-news.wxml-->
+
+<!-- 实时消息模块 -->
+<view class='my-news-user' wx:if="{{userInformation.length>0}}">
+  <view class='news-user-list'>
+    <view class='user-list-item clearfix {{item.isMove?"user-list-item-active": ""}}' bindtouchstart='informationTouchStart' bindtouchmove='informationTouchMove' data-item='{{item}}' data-index='{{index}}' wx:for='{{userInformation}}' wx:key='{{index}}'>
+      <view data-item='{{item}}' data-index='{{index}}' catchtap='routerToChatFrame' class='clearfix user-list-item-box fl'>
+        <view class='list-item-logo fl'>
+          <image src='{{staticImageUrl}}home_icon_head_nor.png'></image>
+          <view class='item-logo-hint' wx:if='{{item.unreadMsg > 0}}'>{{item.unreadMsg >= 100 ? '99+' : item.unreadMsg}}</view>
+        </view>
+        <view class='list-item-message fl clearfix'> 
+          <view class='item-message-fl fl'>
+            <view class='clearfix'>
+              <view class='message-fl-name ellipsis fl'>{{item.contactName}}</view>
+              <view class='item-message-image fl'>
+                <image src='{{staticImageUrl+"businessType"+ (item.userType == 2? 5: item.userType - 2) +".png"}}' mode='aspectFit'></image> 
+              </view>
+              <view class='item-message-fr fr'>{{item.sendTime}}</view>
+            </view>
+            <view class='message-fl-hint ellipsis'>
+              <text wx:if='{{item.msgType==0}}'>{{item.lastMsg}}</text>
+              <text wx:if='{{item.msgType==1}}'>[图片消息]</text>
+              <text wx:if='{{item.msgType==2||item.msgType==3}}'>[方案消息]</text>
+              <text wx:if='{{item.msgType==4}}'>[户型消息]</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class='list-item-delete fl' data-item='{{item}}' data-index='{{index}}' catchtap='deleteUserContacts'>删除</view>
+    </view>
+  </view>
+</view>
+<view wx:else class="empty_tip">
+  <image style='width:403rpx;height:270rpx' src="{{staticImageUrl}}me_pic_no_02.png"></image>
+  <view class="txt">{{message}}</view>
+</view>

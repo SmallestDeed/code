@@ -1,0 +1,18 @@
+package com.sandu.system.dao;
+
+import org.springframework.stereotype.Repository;
+
+import com.sandu.system.model.ResDesign;
+
+@Repository
+public interface ResDesignMapper {
+
+	int insertSelective(ResDesign record);
+
+	int updateByPrimaryKeySelective(ResDesign record);
+
+	int deleteByPrimaryKey(Integer id);
+
+	ResDesign selectByPrimaryKey(Integer id);
+	
+}

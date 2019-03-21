@@ -1,0 +1,42 @@
+package com.sandu.design.service.impl;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.design.dao.DesignPlanRecommendedProductMapper;
+import com.sandu.design.model.DesignPlanRecommendedProduct;
+import com.sandu.design.service.DesignPlanRecommendedProductService;
+
+@Service("designPlanRecommendedProductService")
+public class DesignPlanRecommendedProductServiceImpl implements DesignPlanRecommendedProductService {
+
+	@Autowired
+	private DesignPlanRecommendedProductMapper designPlanRecommendedProductMapper;
+	
+	@Override
+	public List<DesignPlanRecommendedProduct> getListByRecommendedId(Integer planRecommendedId) {
+		// *参数验证 ->start
+		if(planRecommendedId == null) {
+			return null;
+		}
+		// *参数验证 ->end
+		return designPlanRecommendedProductMapper.getListByRecommendedId(planRecommendedId);
+	}
+
+	@Override
+	public List<DesignPlanRecommendedProduct> getBeijingProductInfo(Integer recommendedPlanId) {
+		if(recommendedPlanId == null) {
+			return null;
+		}
+		return designPlanRecommendedProductMapper.getBeijingProductInfo(recommendedPlanId);
+	}
+
+	@Override
+	public int getCountByPlanIdAndProductTypeValue(Integer planRecommendedId, Integer bigTypeValue, Integer smallTypeValue) {
+		return designPlanRecommendedProductMapper.getCountByPlanIdAndProductTypeValue(planRecommendedId, bigTypeValue, smallTypeValue);
+	}
+
+}

@@ -1,0 +1,159 @@
+package com.sandu.web.user.controller;
+
+import com.nork.common.model.LoginUser;
+import com.sandu.base.service.BaseAreaService;
+import com.sandu.common.LoginContext;
+import com.sandu.common.model.PageModel;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.common.util.collections.Lists;
+import com.sandu.home.model.BaseHouse;
+import com.sandu.home.model.vo.UserHouseAccountsVo;
+import com.sandu.home.service.HouseSpaceNewService;
+import com.sandu.system.model.ResHousePic;
+import com.sandu.system.service.ResHousePicService;
+import com.sandu.user.service.UserFinanceService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 系统-用户资源模块
+ * @author WangHaiLin
+ * @date 2018/5/9  18:08
+ */
+@Api(tags = "userResources",description = "用户资源")
+@RestController
+@RequestMapping("/v1/xzminiprogram/userresources")
+public class UserResourcesConroller {
+    @Autowired
+    private UserFinanceService userFinanceService;
+
+
+    @Autowired
+    private ResHousePicService resHousePicService;
+
+    @Autowired
+    private HouseSpaceNewService houseSpaceNewService;
+    @Autowired
+    private BaseAreaService baseAreaService;
+    /**
+     *
+     * 查询用户使用的户型
+     * @return
+     */
+    @ApiOperation(value = "用户已使用户型查询",response = ResponseEnvelope.class)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "isSort",value = "是否排序",paramType = "query",dataType = "Integer"),
+            @ApiImplicitParam(name = "pageSize",value = "每页数量",paramType = "query",dataType = "Integer"),
+            @ApiImplicitParam(name = "curPage",value = "当前页",paramType = "query",dataType = "Integer")
+    })
+    @RequestMapping(value = "/finduseraccounts",method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEnvelope findUserAccounts(@RequestParam (value = "pageSize",required = false) Integer pageSize,
+                                             @RequestParam(value = "curPage",required = false) Integer curPage,
+                                             @RequestParam(value = "isSort",required = false) Integer isSort) {
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if(loginUser==null){
+            return new ResponseEnvelope(false, "请先登录");
+        }
+        //查询用户的总共户型套数
+        Integer userAlreadyBoughtHouseCount = userFinanceService.queryUserAlreadyBoughtHouseCount(loginUser.getId());
+        //查询用户已使用户型套数
+        Integer userUsedHouseCount = userFinanceService.queryUserUsedHouseCount(loginUser.getId());
+        //查询用户可使用户型套数
+        Integer userValidHouseCount = userAlreadyBoughtHouseCount-userUsedHouseCount;
+
+        BaseHouse queryBaseHouse = new BaseHouse();
+        queryBaseHouse.setUserId(loginUser.getId());
+        //处理页面大小
+        if (null != pageSize && 0 != pageSize) {
+            queryBaseHouse.setLimit(pageSize);
+        } else {
+            queryBaseHouse.setLimit(PageModel.DEFAULT_PAGE_PAGESIZE);
+        }
+        //处理起始位置
+        if (null!=curPage && 0!=curPage){
+            queryBaseHouse.setStart((curPage-1)*queryBaseHouse.getLimit());
+        }else{
+            queryBaseHouse.setStart(0);
+        }
+
+        if(null!=isSort) {
+            queryBaseHouse.setIsSort(isSort);
+        }
+        //查询用户已使用户型的详细信息
+        List<BaseHouse> houselist = userFinanceService.queryUserUsedHouseDetailList(queryBaseHouse);
+        if(houselist!=null) {
+            for (BaseHouse baseHouse : houselist) {
+                // 取户型的缩略图和大图
+                if (baseHouse.getPicRes1Id() != null && baseHouse.getPicRes1Id() != 0) {
+                    ResHousePic resHousePic = resHousePicService.get(baseHouse.getPicRes1Id());
+                    if (null != resHousePic) {
+                        baseHouse.setThumbnailPath(resHousePic.getThumbnailPath());
+                        baseHouse.setLargeThumbnailPath(resHousePic.getLargeThumbnailPath());
+                    }
+                }
+                String longCodeName ="";
+                //查询小区的地址
+                if(StringUtils.isNotBlank(baseHouse.getAreaLongCode())) {
+                    String longCode = baseHouse.getAreaLongCode();
+                    String str = longCode.substring(1, longCode.length()-1);
+                    String[] split = str.split("\\.");
+                    List<String> list = new ArrayList<String>();
+                    for (String code : split) {
+                        if(!list.contains(code)) {
+                            list.add(code);
+                            String codeName = baseAreaService.getCodeName(code);
+                            longCodeName += codeName;
+                        }
+                    }
+                }
+                baseHouse.setHouseAddress(longCodeName);
+
+
+
+
+                // 取户型的空间定位类型
+                List<String> spaceTypeList = houseSpaceNewService.getSpaceTypeListByHouseId(baseHouse.getId());
+                if (Lists.isEmpty(spaceTypeList)) {
+                    continue;
+                }
+                Map<String, Integer> elementsCount = new HashMap<String, Integer>();
+                for (String s : spaceTypeList) {
+                    Integer i = elementsCount.get(s);
+                    if (i == null) {
+                        elementsCount.put(s, 1);
+                    } else {
+                        elementsCount.put(s, i + 1);
+                    }
+                }
+                baseHouse.setHouseTypeStr(((elementsCount.containsKey("3") ? elementsCount.get("3") : 0) + "厅"
+                        + (elementsCount.containsKey("4") ? elementsCount.get("4") : 0)) + "室"
+                        + (elementsCount.containsKey("6") ? elementsCount.get("6") : 0) + "卫"
+                        + (elementsCount.containsKey("5") ? elementsCount.get("5") : 0) + "厨"
+                        + (elementsCount.containsKey("7") ? elementsCount.get("7") : 0) + "书"
+                        + (elementsCount.containsKey("8") ? elementsCount.get("8") : 0) + "衣"
+                        + (elementsCount.containsKey("9") ? elementsCount.get("9") : 0) + "其他");
+
+            }
+        }
+
+        UserHouseAccountsVo userHouseAccountsVo = new UserHouseAccountsVo();
+        userHouseAccountsVo.setUserAlreadyBoughtHouseCount(userAlreadyBoughtHouseCount);
+        userHouseAccountsVo.setUserUsedHouseCount(userUsedHouseCount);
+        userHouseAccountsVo.setUserValidHouseCount(userValidHouseCount);
+        userHouseAccountsVo.setHouselist(houselist);
+
+        return new ResponseEnvelope(true, "success", userHouseAccountsVo,null==userUsedHouseCount?0:userUsedHouseCount);
+    }
+
+}

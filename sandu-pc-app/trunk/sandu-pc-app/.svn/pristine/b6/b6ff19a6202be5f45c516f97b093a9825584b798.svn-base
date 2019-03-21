@@ -1,0 +1,2463 @@
+package com.sandu.design.service.impl;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.common.cache.service.CommonCacheService;
+import com.sandu.common.metadata.ModuleType;
+import com.sandu.common.model.LoginUser;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.common.model.constant.SystemCommonConstant;
+import com.sandu.common.properties.ResProperties;
+import com.sandu.common.util.FileUploadUtils;
+import com.sandu.common.util.Utils;
+import com.sandu.common.util.collections.Lists;
+import com.sandu.common.util.constant.AESFileConstant;
+import com.sandu.common.util.constant.Constants;
+import com.sandu.design.cache.service.DesignPlanProductCacheService;
+import com.sandu.design.dao.DesignPlanMapper;
+import com.sandu.design.model.DesignPlan;
+import com.sandu.design.model.DesignPlanModel;
+import com.sandu.design.model.DesignPlanOperationLog;
+import com.sandu.design.model.DesignPlanProduct;
+import com.sandu.design.model.DesignPlanRecommended;
+import com.sandu.design.model.DesignRules;
+import com.sandu.design.model.DesignTemplet;
+import com.sandu.design.model.PosNameInfo;
+import com.sandu.design.model.UnityDesignPlan;
+import com.sandu.design.model.UnityPlanProduct;
+import com.sandu.design.model.constant.DesignPlanBusinessTypeConstant;
+import com.sandu.design.model.constant.DesignPlanConstants;
+import com.sandu.design.model.constant.RecommendedDecorateState;
+import com.sandu.design.service.DesignPlanOperationLogService;
+import com.sandu.design.service.DesignPlanProductService;
+import com.sandu.design.service.DesignPlanRecommendedService;
+import com.sandu.design.service.DesignPlanService;
+import com.sandu.design.service.DesignRulesService;
+import com.sandu.design.service.DesignTempletService;
+import com.sandu.design.service.OptimizePlanService;
+import com.sandu.home.model.UnitySpaceCommon;
+import com.sandu.product.model.BaseProduct;
+import com.sandu.product.model.GroupProduct;
+import com.sandu.product.model.GroupProductDetails;
+import com.sandu.product.model.StructureProduct;
+import com.sandu.product.model.StructureProductDetails;
+import com.sandu.product.model.constant.ProductModelConstant;
+import com.sandu.product.model.constant.ProductTypeConstant;
+import com.sandu.product.model.dto.ProductDTO;
+import com.sandu.product.model.dto.SplitTextureDTO;
+import com.sandu.product.model.dto.SplitTextureDTO.ResTextureDTO;
+import com.sandu.product.model.result.SearchStructureProductDetailResult;
+import com.sandu.product.model.result.SearchStructureProductResult;
+import com.sandu.product.model.vo.ProductCeilingVO;
+import com.sandu.product.service.BaseProductService;
+import com.sandu.product.service.GroupProductDetailsService;
+import com.sandu.product.service.GroupProductService;
+import com.sandu.product.service.ProductAttributeService;
+import com.sandu.product.service.StructureProductDetailsService;
+import com.sandu.product.service.StructureProductService;
+import com.sandu.system.model.ResDesign;
+import com.sandu.system.model.ResFile;
+import com.sandu.system.model.ResModel;
+import com.sandu.system.model.ResPic;
+import com.sandu.system.model.ResTexture;
+import com.sandu.system.model.SysDictionary;
+import com.sandu.system.service.ResDesignService;
+import com.sandu.system.service.ResFileService;
+import com.sandu.system.service.ResModelService;
+import com.sandu.system.service.ResPicService;
+import com.sandu.system.service.ResTextureService;
+import com.sandu.system.service.SysDictionaryService;
+
+import net.sf.json.JSONObject;
+
+@Service("designPlanService")
+public class DesignPlanServiceImpl implements DesignPlanService {
+	
+	@Autowired
+	private OptimizePlanService optimizePlanService;
+	
+	@Autowired
+	private DesignPlanMapper designPlanMapper;
+	
+	@Autowired
+	private DesignTempletService designTempletService;
+	
+	@Autowired
+	private DesignPlanRecommendedService designPlanRecommendedService;
+	
+	@Autowired
+	private DesignPlanProductService designPlanProductService;
+	
+	@Autowired
+	private ResDesignService resDesignService;
+	
+	@Autowired
+	private ResModelService resModelService;
+	
+	@Autowired
+	private BaseProductService baseProductService;
+	
+	@Autowired
+	private SysDictionaryService sysDictionaryService;
+	
+	@Autowired
+	private ResTextureService resTextureService;
+	
+	@Autowired
+	private ProductAttributeService productAttributeService;
+	
+	@Autowired
+	private DesignRulesService designRulesService;
+	
+	@Autowired
+	private DesignPlanOperationLogService designPlanOperationLogService;
+	
+	@Autowired
+	private DesignPlanService designPlanService;
+	
+	@Autowired
+	private GroupProductService groupProductService;
+	
+	@Autowired
+	private GroupProductDetailsService groupProductDetailsService;
+	
+	@Autowired
+	private ResPicService resPicService;
+	
+	@Autowired
+	private StructureProductService structureProductService;
+	
+	@Autowired
+	private ResFileService resFileService;
+	
+	@Autowired
+	private StructureProductDetailsService structureProductDetailsService;
+	
+	@Autowired
+	private DesignPlanProductCacheService designPlanProductCacheService;
+	
+	@Autowired
+	private CommonCacheService commonCacheService;
+	
+	Logger logger = LoggerFactory.getLogger(DesignPlanServiceImpl.class);
+	
+	private final String SERVERURL = Utils.getValue("app.server.url", "http://localhost:18080/onlineDecorate");
+	
+	private final String RESOURCESURL = Utils.getValue("app.resources.url",
+			"http://localhost:18080/onlineDecorate/upload");
+	
+	@Override
+	public DesignPlan createDesignPlanForOneKey(DesignPlan designPlan, DesignPlanRecommended designPlanRecommended,
+			DesignTemplet designTemplet, String mediaType, LoginUser loginUser, Integer isDeleted, Integer opType) {
+		// 参数验证/参数处理 ->start
+		if (isDeleted == null) {
+			isDeleted = 0;
+		}
+		if (opType == null) {
+			opType = DesignPlanConstants.USER_RENDER;
+		}
+		// 参数验证/参数处理 ->end
+		String planCode = designTemplet.getDesignCode() + "_" + Utils.generateRandomDigitString(6);
+
+		designPlan.setMediaType(Utils.getIntValue(mediaType));
+		designPlan.setPlanCode(planCode);
+		designPlan.setPlanName(designTemplet.getDesignName());
+		designPlan.setUserId(loginUser == null ? -1 : loginUser.getId());
+		designPlan.setDesignSourceType(7);
+		designPlan.setDesignId(designTemplet.getId());
+		designPlan.setPicId(designTemplet.getPicId());
+		/* designPlan.setSysCode(designTemplet.getDesignCode()); */
+		designPlan.setSysCode(Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+		designPlan.setDesignTemplateId(designTemplet.getId());/* 样板房ID */
+		designPlan.setSpaceCommonId(designTemplet.getSpaceCommonId());/* 适用的空间ID */
+		designPlan.setDesignStyleId(null);
+		// 存储设计方案业务来源
+		designPlan.setBusinessType(DesignPlanBusinessTypeConstant.TYPE_INTELLIGENCE);
+
+		/*if(designPlanRecommended != null) {
+			// 拼花
+			designPlan.setSpellingFlowerProduct(designPlanRecommended.getSpellingFlowerProduct());
+			// 拷贝效果图拼花配置文件
+			if (designPlanRecommended.getSpellingFlowerFileId() != null) {
+				Integer resFileId = this.planCopyFileFromResDesignScene(designPlanRecommended.getSpellingFlowerFileId().toString(), 
+					"onekeydesign.designPlan.spellingFlowerFile","/AA/d_userdesign/[yyyy]/[MM]/[dd]/[HH]/onekeydesign/designPlan/spellingFlowerFile/",
+					null, designPlanRecommended.getPlanCode(),loginUser);
+				designPlan.setSpellingFlowerFileId(resFileId);
+			} else {
+				designPlan.setSpellingFlowerFileId(-1);
+			}
+		}*/
+
+		/* 公共空间拷贝//u3d模型直接引用样板房的模型 */
+		String modelId = this.getU3dModelId(mediaType == null ? "2" : mediaType.toString(), designTemplet);
+		if (StringUtils.isNotBlank(modelId)) {
+			designPlan.setModelId(Utils.getIntValue(modelId));
+		} else {
+			designPlan.setModelId(-1);
+		}
+
+		designPlan.setIsOpen(0);
+		this.sysSave(designPlan, loginUser);
+		designPlan.setIsDeleted(isDeleted);
+		Integer designPlanId = null;
+		if (DesignPlanConstants.AUTO_RENDER != opType) {
+			designPlanId = this.add(designPlan);
+		} else {
+			// 自动渲染,则把设计方案产品数据存在自动渲染产品表里
+			designPlanId = optimizePlanService.add(designPlan);
+		}
+		logger.info("add:id=" + designPlanId);
+		designPlan.setId(designPlanId);
+		if (designPlanId > 0) {
+			return designPlan;
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public int update(DesignPlan designPlan) {
+		return designPlanMapper.updateByPrimaryKeySelective(designPlan); 
+	}
+
+	@Override
+	public Integer createPlanByConfig(
+			Integer designTempletId, Integer recommendedPlanId,
+			String configEncrypt, String mediaType, LoginUser loginUser,
+			List<PosNameInfo> posNameInfoList,
+			Integer opType
+			) {
+		
+		logger.error("start createPlanByConfig");
+		
+		// *参数验证 ->start
+		if(designTempletId == null) {
+			logger.error("------function:DesignPlanServiceImpl.createPlanByConfig(......)->\n参数designTempletId不能为空");
+			return null;
+		}
+		DesignTemplet designTemplet = designTempletService.get(designTempletId);
+		if(designTemplet == null) {
+			logger.error("------function:DesignPlanServiceImpl.createPlanByConfig(......)->\n样板房未找到(designTempletId = " + designTempletId + ")");
+		}
+		if(recommendedPlanId == null) {
+			logger.error("------function:DesignPlanServiceImpl.createPlanByConfig(......)->\n参数recommendedPlanId不能为空");
+			return null;
+		}
+		DesignPlanRecommended designPlanRecommended = designPlanRecommendedService.get(recommendedPlanId);
+		if(designPlanRecommended == null) {
+			return null;
+		}
+		if(StringUtils.isEmpty(configEncrypt)) {
+			return null;
+		}
+		/*if(StringUtils.isEmpty(mediaType)) {
+			return null;
+		}*/
+		if(loginUser == null) {
+			return null;
+		}
+		if(Lists.isEmpty(posNameInfoList)) {
+			return null;
+		}
+		if (opType == null) {
+			opType = DesignPlanConstants.USER_RENDER;
+		}
+		// *参数验证 ->end
+		
+		// *得到designPlan ->start
+		Integer designPlanProductId = posNameInfoList.get(0).getDeignPlanProductId();
+		Integer planId = null;
+		if(designPlanProductId != null) {
+			
+			DesignPlanProduct designPlanProduct = null;
+			if(DesignPlanConstants.AUTO_RENDER != opType) {
+				designPlanProduct = designPlanProductService.get(designPlanProductId);
+			}else {
+				// 自动渲染
+				designPlanProduct = optimizePlanService.getPlanProduct(designPlanProductId);
+			}
+			if(designPlanProduct != null) {
+				planId = designPlanProduct.getPlanId();
+			}
+		}
+		if(planId == null || planId < 1) {
+			logger.error("------function:DesignPlanServiceImpl.createPlanByConfig(......)->\n设计方案未找到,该设计方案的某个设计方案产品id:designPlanProductId:" + designPlanProductId);
+			return null;
+		}
+		
+		DesignPlan designPlan = null;
+		if(DesignPlanConstants.AUTO_RENDER != opType) {
+			designPlan = this.get(planId);
+		}else {
+			// 自动渲染
+			designPlan = optimizePlanService.getPlan(planId);
+		}
+		
+		if(designPlan == null) {
+			logger.error("------function:DesignPlanServiceImpl.createPlanByConfig(......)->\n设计方案未找到;planId:" + planId);
+			return null;
+		}
+		// *得到designPlan ->end
+		
+		// *保存配置文件 ->start
+		String configKey = Utils.getValueByFileKey(ResProperties.RES, ResProperties.DESIGNPLAN_U3DCONFIG_FILEKEY, "/AA/d_userdesign/[YYYY]/[MM]/[dd]/[HH]/onekeydesign/designPlan/u3dconfig/");
+		//文件名称
+		String fileName = System.currentTimeMillis()+"_" + Utils.generateRandomDigitString(6)+".txt";
+		//先把文件保存到本地
+		String filePath = Utils.getAbsolutePath(configKey + fileName, null);
+		boolean uploadFtpFlag = FileUploadUtils.writeTxtFile(filePath, configEncrypt);
+		if(!uploadFtpFlag) {
+			// 设计文件保存失败
+			logger.error("function:DesignPlanServiceImpl.createPlanByConfig(....)->\n设计方案配置文件保存失败");
+			return null;
+		}
+		Integer resDesignId = resDesignService.createResDesignByFile(
+				new File(filePath), ResProperties.DESIGNPLAN_U3DCONFIG_FILEKEY,
+				/*designPlan.getPlanCode(), */
+				Utils.getCurrentDateTime(Utils.DATETIMESSS) +"_"+ Utils.generateRandomDigitString(6),
+				loginUser.getLoginName(), 
+				designPlan.getId(),
+				opType);
+		if(resDesignId == null || resDesignId < 1) {
+			logger.error("function:DesignPlanServiceImpl.createPlanByConfig(....)->\\n设计方案配置文件数据(ResDesign)新建失败");
+			return null;
+		}
+		
+		/*拷贝效果图拼花配置文件*/
+		if (designPlanRecommended.getSpellingFlowerFileId() != null) {
+			Integer resFileId = this.planCopyFileFromResDesignScene(designPlanRecommended.getSpellingFlowerFileId().toString(), 
+				"onekeydesign.designPlan.spellingFlowerFile","/AA/d_userdesign/[yyyy]/[MM]/[dd]/[HH]/onekeydesign/designPlan/spellingFlowerFile/",
+				null, designPlanRecommended.getPlanCode(),loginUser);
+			designPlan.setSpellingFlowerFileId(resFileId);
+		} else {
+			designPlan.setSpellingFlowerFileId(-1);
+		}
+
+		designPlan.setConfigFileId(resDesignId);
+		designPlan.setSpellingFlowerProduct(designPlanRecommended.getSpellingFlowerProduct());
+		// *保存配置文件 ->end
+		
+		// *生成设计方案产品列表 ->start
+		boolean flag = designPlanProductService.updateByConfig(configEncrypt, posNameInfoList, opType);
+		if(!flag) {
+			return null;
+		}
+		// *生成设计方案产品列表 ->end
+		
+		designPlan.setIsDeleted(0);
+		designPlan.setRecommendedPlanId(recommendedPlanId);
+		
+		if(DesignPlanConstants.AUTO_RENDER != opType) {
+			this.update(designPlan);
+		}else {
+			// 自动渲染
+			optimizePlanService.update(designPlan);
+		}
+		return designPlan.getId();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Object getDesignPlanInfoForOneKey(Integer designPlanId, Integer newFlag, String houseId, String livingId,
+			String residentialUnitsName, Boolean isRelease, LoginUser loginUser, String mediaType,
+			String needOrNoCache) {
+
+		String logPrefix = "function:DesignPlanServiceImpl.getDesignPlanInfoForOneKey -> ";
+
+		// 参数验证/处理 ->start
+		if (StringUtils.isEmpty(needOrNoCache)) {
+			needOrNoCache = Constants.NEED_CACHE;
+		}
+		String msg = "";
+		if (newFlag == null) {
+			newFlag = 0;
+		}
+
+		DesignPlanModel designPlan = this.selectDesignPlanInfo(designPlanId);
+
+		if (designPlan == null) {
+			return new ResponseEnvelope<UnityDesignPlan>(false, msg);
+		}
+		if (StringUtils.isEmpty(designPlan.getFilePath())) {
+			logger.error(
+					"找不到方案ID=" + designPlan.getDesignPlanId() + "配置文件！templetId=" + designPlan.getDesignTemplateId());
+			return new ResponseEnvelope<UnityDesignPlan>(false, "配置文件异常！");
+		}
+		// 构建unity模型加载时需要的model对象:返回设计方案,空间模型,产品列表及产品配置等信息
+		UnityDesignPlan unityDesignPlan = new UnityDesignPlan();
+		// 获取拼花信息
+		this.spellingFlowerData(designPlan, unityDesignPlan);
+		unityDesignPlan.setNewFlag(newFlag);// 是否是第一次进入
+		// 一.获取设计方案信息
+		unityDesignPlan.setServiceUrl(SERVERURL);// 访问地址
+		// unityDesignPlan.setUploadDir(UPLOADDIR);//文件上传路径,资源类信息需使用访问地址+上传路径+文件路径
+		unityDesignPlan.setResourcesUrl(RESOURCESURL);// 资源文件访问地址
+
+		// 获取拼花信息
+		this.spellingFlowerData(designPlan, unityDesignPlan);
+		// U3D界面UI文件
+		unityDesignPlan.setDesignPlanUIPath("/pages/online/resource/UI.assetbundle");
+		unityDesignPlan.setDesignPlanId(designPlan.getDesignPlanId());// 设计方案id
+		unityDesignPlan.setDesignTempletId(designPlan.getDesignTemplateId());// 样板房id
+		unityDesignPlan.setPlanName(designPlan.getPlanName());// 设计方案名称
+		unityDesignPlan.setPlanCode(designPlan.getPlanCode());// 设计方案编码
+		/*Integer modelTemplteFileId = designPlan.getModelId();*/
+		// 模型设计方案公共资源(同样板房资源)
+		if (StringUtils.isNotBlank(designPlan.getModelPath())) {
+			unityDesignPlan.setU3dModelPath(designPlan.getModelPath());
+		} else {
+			unityDesignPlan.setU3dModelPath("");
+		}
+		// 模型总体配置文件
+		unityDesignPlan.setDesignPlanConfigPath(designPlan.getFilePath());
+
+		// 二.获取空间信息
+		UnitySpaceCommon unitySpaceCommon = new UnitySpaceCommon();
+		Integer spaceId = designPlan.getSpaceCommonId();
+		unitySpaceCommon.setSpaceCommonId(spaceId);
+		unitySpaceCommon.setHouseId(houseId);
+		unitySpaceCommon.setLivingId(livingId);
+		unitySpaceCommon.setPlanSource(designPlan.getPlanSource());
+		unitySpaceCommon.setSpaceCode(designPlan.getSpaceCode());// 空间编码(场景编码)
+		unitySpaceCommon.setSpaceName(designPlan.getSpaceName());
+		unitySpaceCommon.setSpaceAreas(designPlan.getSpaceAreas());
+		unitySpaceCommon.setResidentialUnitsName(residentialUnitsName); // 小区户型名称
+		unitySpaceCommon.setHouseTypeValue(designPlan.getHouseTypeValue());
+		unitySpaceCommon.setHouseTypeName(designPlan.getHouseTypeName());
+		unityDesignPlan.setUnitySpaceCommon(unitySpaceCommon);
+		// 空间灯光（白天、黄昏、黑夜）u3d模型文件
+		if (designPlan.getDaylightU3dModelId() != null && designPlan.getDaylightU3dModelId() > 0) {
+			ResModel resModel = resModelService.get(designPlan.getDaylightU3dModelId());// res_model 中获取白天的模型文件
+			unitySpaceCommon.setDaylightU3dModelPath(resModel == null ? "" : resModel.getModelPath());
+		} else {
+			unitySpaceCommon.setDaylightU3dModelPath("");
+		}
+		if (designPlan.getDusklightU3dModelId() != null && designPlan.getDusklightU3dModelId() > 0) {
+			ResModel resModel = resModelService.get(designPlan.getDusklightU3dModelId());// res_model 中获取黄昏的模型文件
+			unitySpaceCommon.setDusklightU3dModelPath(resModel == null ? "" : resModel.getModelPath());
+		} else {
+			unitySpaceCommon.setDaylightU3dModelPath("");
+		}
+		if (designPlan.getNightlightU3dModelId() != null && designPlan.getNightlightU3dModelId() > 0) {
+			ResModel resModel = resModelService.get(designPlan.getNightlightU3dModelId());// res_model 中获取夜晚的模型文件
+			unitySpaceCommon.setNightlightU3dModelPath(resModel == null ? "" : resModel.getModelPath());
+		} else {
+			unitySpaceCommon.setDaylightU3dModelPath("");
+		}
+
+		// 设计模式
+		if (designPlan.getDesignTempletCode() == null) {
+			msg = "designTemplet is null !designTempletId = " + designPlan.getDesignTemplateId();
+			return new ResponseEnvelope<UnityDesignPlan>(false, msg);
+		} else {
+			if (designPlan.getDesignTempletCode().endsWith("_000")) {
+				unityDesignPlan.setDesignMode("0");
+			} else {
+				unityDesignPlan.setDesignMode("1");
+			}
+		}
+
+		// 三.获取方案中用到的产品列表
+		// 产品信息,返回装修顺序及相机参数值
+		// 产品级别数据存储
+		List<UnityPlanProduct> unityPlanProductList = new ArrayList<UnityPlanProduct>();
+		// 最终数据U3DUI界面转换存储
+		List<UnityPlanProduct> newUnityPlanProductList = new ArrayList<UnityPlanProduct>();
+		// 获取方案产品列表
+		DesignPlanProduct designPlanProduct = new DesignPlanProduct();
+		designPlanProduct.setIsDeleted(0);
+		designPlanProduct.setPlanId(designPlan.getDesignPlanId());
+		List<DesignPlanProduct> designProductList = null;
+		if (Utils.enableRedisCache() && StringUtils.equals(Constants.NEED_CACHE, needOrNoCache)) {
+			designProductList = designPlanProductCacheService.getAllList(designPlanProduct);
+		} else {
+			designProductList = designPlanProductService.getList(designPlanProduct);// 设计方案中使用到的产品
+		}
+		// 状态权限
+		List<Integer> putawayStateList = baseProductService.getPutawayList(loginUser);
+
+		if (designProductList != null && designProductList.size() > 0) {
+
+			TreeSet<String> productTypeCodeSet = new TreeSet<String>();
+			Map<String, UnityPlanProduct> unityPlanProductMap_p = new HashMap<String, UnityPlanProduct>();
+			for (DesignPlanProduct planProduct : designProductList) {
+				UnityPlanProduct unityPlanProduct = new UnityPlanProduct();
+				unityPlanProduct.setIsDirty(planProduct.getIsDirty());
+				unityPlanProduct.setPlanProductId(planProduct.getId());
+				unityPlanProduct.setProductSequence(planProduct.getProductSequence());
+				unityPlanProduct.setMaterialPicPaths(new String[] {});
+				unityPlanProduct.setDecorationModelPath(new String[] {});
+				unityPlanProduct.setPosIndexPath(planProduct.getPosIndexPath());
+				unityPlanProduct.setPosName(planProduct.getPosName());
+				unityPlanProduct.setBindProductId(planProduct.getBindParentProductId());
+
+				/* 天花、地面、地面结构拆分 */
+				unityPlanProduct.setIsStandard(planProduct.getIsStandard());
+				unityPlanProduct.setCenter(planProduct.getCenter());
+				unityPlanProduct.setRegionMark(planProduct.getRegionMark());
+				unityPlanProduct.setStyleId(planProduct.getStyleId());
+				unityPlanProduct.setMeasureCode(planProduct.getMeasureCode());
+				unityPlanProduct.setDescribeInfo(planProduct.getDescribeInfo());
+				unityPlanProduct.setProductIndex(planProduct.getProductIndex());
+
+				unityPlanProduct.setIsGroupReplaceWay(planProduct.getIsGroupReplaceWay());
+				unityPlanProduct.setIsMainStructureProduct(planProduct.getIsMainStructureProduct());
+
+				/* 处理结构返回格式 */
+				unityPlanProduct = this.getPlanProductStructureJson(unityPlanProduct, planProduct, designPlan,
+						loginUser);
+				// 产品的基本信息
+				BaseProduct baseProduct = null;
+				if (planProduct.getProductId() != null && planProduct.getProductId() > 0) {
+					if (Utils.enableRedisCache() && StringUtils.equals(Constants.NEED_CACHE, needOrNoCache)) {
+						/*baseProduct = BaseProductCacher.get(planProduct.getProductId());*/
+						baseProduct = baseProductService.getFromCache(planProduct.getProductId());
+					} else {
+						baseProduct = baseProductService.get(planProduct.getProductId());// 产品公用基本信息 '产品品牌', '产品风格',
+																							// '产品规格', '产品颜色', '产品长度',
+																							// '产品宽度', '产品高度', '销售价格',等等
+					}
+				}
+				if (null == baseProduct) {
+					msg = "planProduct.getProductId():" + planProduct.getProductId();
+					return new ResponseEnvelope<UnityDesignPlan>(false, msg);
+				}
+
+				String productTypeValue = baseProduct.getProductTypeValue();
+				Integer productSmallTypeValue = baseProduct.getProductSmallTypeValue();
+				SysDictionary sysDictionary = new SysDictionary();
+				if (baseProduct != null && productSmallTypeValue != null && StringUtils.isNotBlank(productTypeValue)) {
+					// 通过大小类获取小类信息
+					Map<String, Object> map = new HashMap<>();
+					map.put("smallTypeValue", productSmallTypeValue);
+					map.put("typeValue", productTypeValue);
+					sysDictionary = sysDictionaryService.selectSmallTypeObj(map);
+
+					if (sysDictionary != null) {
+						unityPlanProduct.setMoveWay(sysDictionary.getAtt5());
+						if (ProductTypeConstant.PRODUCT_BIG_TYPE_QIANGM.equals(sysDictionary.getType())) {// 墙面
+							unityPlanProduct.setBgWall(
+									Utils.getIsBgWall(sysDictionary == null ? "" : sysDictionary.getValuekey()));
+						} else {
+							unityPlanProduct.setBgWall(0);
+						}
+					} else {
+						logger.debug("sDictionary is null, sd.getValuekey()=" + /* sysDictionary.getValuekey() */null
+								+ ";baseProduct.getProductSmallTypeValue()=" + baseProduct.getProductSmallTypeValue()
+								+ ";productid=" + baseProduct.getProductId() + ";baseProduct.getProductTypeValue()="
+								+ baseProduct.getProductTypeValue() + ";planProduct.getProductId()="
+								+ planProduct.getProductId());
+					}
+					if (baseProduct.getBmIds() != null) {
+						unityPlanProduct.setIsCustomized(1);
+					}
+					// 系列标志
+					unityPlanProduct.setSeriesSign(baseProductService.getSeriesSign(sysDictionary.getValuekey()));
+					// 系列id add by huangsongbo 2017.12.27
+					unityPlanProduct.setSeriesId(baseProduct.getSeriesId());
+				}
+				if (null != baseProduct) {
+					if (baseProduct.getProductCode().equals("nork_ddli_0021")) {
+						logger.error("getDesignPlanInfo nork_ddli_0021==" + baseProduct.getId());
+					}
+
+					if (baseProduct.getProductCode().equals("masd_ddli_0004")) {
+						logger.error("getDesignPlanInfo masd_ddli_0004==" + baseProduct.getId());
+					}
+					unityPlanProduct.setProductId(baseProduct.getId());
+					unityPlanProduct.setProductCode(baseProduct.getProductCode());
+					unityPlanProduct.setParentProductId(baseProduct.getParentId());
+					unityPlanProduct.setProductLength(baseProduct.getProductLength());
+					unityPlanProduct.setProductWidth(baseProduct.getProductWidth());
+					unityPlanProduct.setProductHeight(baseProduct.getProductHeight());
+					unityPlanProduct.setMinHeight(baseProduct.getMinHeight());
+					// 如果该墙面有绑定关系，则取绑定产品白模长宽高
+					String bindProductid = planProduct.getBindParentProductId();
+					if (ProductTypeConstant.PRODUCT_BIG_TYPE_QIANGM
+							.equals(sysDictionary == null ? "" : sysDictionary.getType())
+							&& StringUtils.isNotBlank(bindProductid)) {
+						String array[] = bindProductid.split(",");
+						BaseProduct baiMoProduct = null;
+						StringBuffer fullPaveLength = new StringBuffer();
+
+						for (String bindId : array) {
+							if (Utils.enableRedisCache() && StringUtils.equals(Constants.NEED_CACHE, needOrNoCache)) {
+								/*baiMoProduct = BaseProductCacher.get(Utils.getIntValue(bindId));*/
+								baiMoProduct = baseProductService.getFromCache(Utils.getIntValue(bindId));
+							} else {
+								baiMoProduct = baseProductService.get(Utils.getIntValue(bindId));
+							}
+							if (baiMoProduct != null && baiMoProduct.getFullPaveLength() != null) {
+								fullPaveLength.append(baiMoProduct.getFullPaveLength() + ",");
+							}
+						}
+						if (fullPaveLength.toString().length() > 0) {
+							String fullPave = fullPaveLength.toString();
+							unityPlanProduct.setFullPaveLength(
+									fullPave != null ? fullPave.substring(0, fullPave.length() - 1) : fullPave);
+						}
+					}
+					// 如果是背景墙、窗帘、淋浴屏则取白模产品的长宽高
+					Integer baiMoId = planProduct.getInitProductId();
+					Map<String, String> stretchZoomMap = baseProductService
+							.getStretchZoomLength(sysDictionary == null ? "" : sysDictionary.getValuekey());
+					if (stretchZoomMap != null && stretchZoomMap.size() > 0 && baiMoId != null
+							&& baiMoId.intValue() > 0) {
+						BaseProduct baiMoProduct = null;
+						if (Utils.enableRedisCache() && StringUtils.equals(Constants.NEED_CACHE, needOrNoCache)) {
+							/*baiMoProduct = BaseProductCacher.get(baiMoId);*/
+							baiMoProduct = baseProductService.getFromCache(baiMoId);
+						} else {
+							baiMoProduct = baseProductService.get(baiMoId);
+						}
+						if (baiMoProduct != null) {
+							if (StringUtils.isNotEmpty(baiMoProduct.getProductLength())) {
+								unityPlanProduct.setInitModelLength(Integer.parseInt(baiMoProduct.getProductLength()));
+							}
+							if (StringUtils.isNotEmpty(baiMoProduct.getProductWidth())) {
+								unityPlanProduct.setInitModelWidth(Integer.parseInt(baiMoProduct.getProductWidth()));
+							}
+							if (StringUtils.isNotEmpty(baiMoProduct.getProductHeight())) {
+								unityPlanProduct.setInitModelHeight(Integer.parseInt(baiMoProduct.getProductHeight()));
+							}
+							if (baiMoProduct.getFullPaveLength() != null) {
+								unityPlanProduct.setFullPaveLength(baiMoProduct.getFullPaveLength());
+							}
+						}
+					}
+				}
+
+				// 如果是天花,则模型路径传对应白膜的模型路径(为了适配户型绘制功能) update by huangsongbo 2018.3.26 ->start
+				String u3dModelId = null;
+				/* if(StringUtils.equals("tianh", unityPlanProduct.getProductTypeCode())) { */
+				/* if(StringUtils.equals("1", baseProduct.getProductTypeValue())) { */
+				if (StringUtils.equals(ProductTypeConstant.PRODUCT_BIG_TYPE_VALUE_TIANH,
+						baseProduct.getProductTypeValue())) {
+					if (planProduct != null && planProduct.getInitProductId() != null) {
+						BaseProduct baseProductBaimo = baseProductService.get(planProduct.getInitProductId());
+						if (baseProductBaimo != null) {
+							u3dModelId = baseProductService
+									.getU3dModelId(mediaType == null ? "2" : mediaType.toString(), baseProductBaimo);
+						} else {
+							logger.error(logPrefix + "baseProductBaimo = null;productId = "
+									+ planProduct.getInitProductId());
+						}
+					} else {
+						logger.error(
+								logPrefix + "(planProduct != null && planProduct.getInitProductId() != null) = true");
+					}
+				}
+
+				if (u3dModelId == null) {
+					u3dModelId = baseProductService.getU3dModelId(mediaType == null ? "2" : mediaType.toString(),
+							baseProduct);
+				}
+				// 如果是天花,则模型路径传对应白膜的模型路径(为了适配户型绘制功能) update by huangsongbo 2018.3.26 ->end
+
+				ResModel resModel = resModelService.get(StringUtils.isEmpty(u3dModelId) ? 0 : new Integer(u3dModelId));
+				if (resModel != null) {
+					unityPlanProduct.setProductModelPath(resModel.getModelPath());
+					unityPlanProduct.setModelLength(resModel.getLength());
+					unityPlanProduct.setModelWidth(resModel.getWidth());
+					unityPlanProduct.setModelHeight(resModel.getHeight());
+					unityPlanProduct.setModelMinHeight(resModel.getMinHeight());
+				} else {
+					// unityPlanProduct.setProductModelPath("");
+					/* 应对只有材质的硬装产品无模型的情况 */
+					boolean isHard = false;
+					if (baseProduct != null) {
+						isHard = baseProductService.isHard(baseProduct);
+					}
+					if (isHard) {
+						BaseProduct baimoProduct = null;
+						Integer currentProductId = null;
+						// 换贴图应找当前产品模型
+						if (planProduct.getModelProductId() != null && planProduct.getModelProductId() != 0) {
+							currentProductId = planProduct.getModelProductId();
+							unityPlanProduct.setModelProductId(planProduct.getModelProductId());
+						} else {
+							currentProductId = planProduct.getInitProductId();
+						}
+
+						// BaseProduct baseProduct_ = new BaseProduct();
+						// baseProduct_.setId(currentProductId);
+						// baseProduct_.setMediaType(mediaType);
+						if (Utils.enableRedisCache() && StringUtils.equals(Constants.NEED_CACHE, needOrNoCache)) {
+							/*baimoProduct = BaseProductCacher.get(currentProductId);*/
+							baimoProduct = baseProductService.getFromCache(currentProductId);
+							// baimoProduct = BaseProductCacher.getDataAndModel(baseProduct_);
+						} else {
+							baimoProduct = baseProductService.get(currentProductId);
+							// baimoProduct = baseProductService.getDataAndModel(baseProduct_);
+						}
+						/* 获取不同媒介u3d模型 */
+						String modelId = baseProductService.getU3dModelId(mediaType, baimoProduct);
+						if (StringUtils.isNotBlank(modelId)) {
+							ResModel resModel1 = null;
+							if (Utils.enableRedisCache() && StringUtils.equals(Constants.NEED_CACHE, needOrNoCache)) {
+								/*resModel1 = ResourceCacher.getModel(Integer.valueOf(modelId));*/
+								resModel1 = resModelService.getFromCache(Integer.valueOf(modelId));
+							} else {
+								resModel1 = resModelService.get(Integer.valueOf(modelId));
+							}
+							if (resModel1 != null) {
+								unityPlanProduct.setProductModelPath(resModel1.getModelPath());
+							}
+						}
+					}
+				}
+
+				if (baseProduct != null && StringUtils.isNotBlank(baseProduct.getMaterialPicIds())) {
+					String materialIds = baseProduct.getMaterialPicIds();
+					List<String> idsInfo = Utils.getListFromStr(materialIds);
+					List<String> materialPicList = new ArrayList<String>();
+					ResTexture resTextureTemp = null;
+					for (String idStr : idsInfo) {
+						ResTexture resTexture = resTextureService.get(Integer.valueOf(idStr));// 材质库
+						if (resTexture == null)
+							continue;
+						if (resTextureTemp == null) {
+							resTextureTemp = resTexture;
+							unityPlanProduct.setTextureAttrValue(resTextureTemp.getTextureAttrValue());
+							unityPlanProduct.setLaymodes(resTextureTemp.getLaymodes());
+						}
+						if (resTexture != null && resTexture.getId() != null) {
+							materialPicList.add(resTexture.getFilePath());
+						}
+					}
+					unityPlanProduct.setMaterialPicPaths(
+							(String[]) materialPicList.toArray(new String[materialPicList.size()]));
+				}
+
+				/*---------------------xiaoxc  end-----*/
+				/* 产品子集数量 */
+				unityPlanProduct.setLeafNum(0);
+				/* 标示产品在界面中的展示类型 */
+				unityPlanProduct.setIsLeaf(new Integer(1));
+				/* 产品是否隐藏 */
+				unityPlanProduct.setIsHide(planProduct.getIsHide());
+
+				String splitTexturesInfo = baseProduct.getSplitTexturesInfo();
+				if (StringUtils.isNotBlank(splitTexturesInfo)) {
+					if (StringUtils.isNotBlank(planProduct.getSplitTexturesChooseInfo())) {
+						splitTexturesInfo = planProduct.getSplitTexturesChooseInfo();
+					}
+					Map<String, Object> map = baseProductService.dealWithSplitTextureInfo(baseProduct.getId(),
+							splitTexturesInfo, "choose");
+					unityPlanProduct.setIsSplit((Integer) map.get("isSplit"));
+					unityPlanProduct.setSplitTexturesChoose((List<SplitTextureDTO>) map.get("splitTexturesChoose"));
+				} else {
+					List<SplitTextureDTO> splitTextureDTOList = new ArrayList<SplitTextureDTO>();
+					String materialIds = baseProduct.getMaterialPicIds();
+					Integer materialId = 0;
+					if (StringUtils.isNotBlank(materialIds)) {
+						List<String> materialIdStrList = Utils.getListFromStr(materialIds);
+						if (materialIdStrList != null && materialIdStrList.size() > 0) {
+							materialId = Integer.valueOf(materialIdStrList.get(0));
+						}
+					}
+					if (materialId != null && materialId > 0) {
+						ResTexture resTexture = resTextureService.get(materialId);
+						if (resTexture != null) {
+							splitTextureDTOList = new ArrayList<SplitTextureDTO>();
+							List<SplitTextureDTO.ResTextureDTO> resTextureDTOList = new ArrayList<SplitTextureDTO.ResTextureDTO>();
+							SplitTextureDTO splitTextureDTO = new SplitTextureDTO("1", "", null);
+							SplitTextureDTO.ResTextureDTO resTextureDTO = resTextureService.fromResTexture(resTexture);
+							resTextureDTO.setKey(splitTextureDTO.getKey());
+							resTextureDTO.setProductId(baseProduct.getId());
+							resTextureDTOList.add(resTextureDTO);
+							splitTextureDTO.setList(resTextureDTOList);
+							splitTextureDTOList.add(splitTextureDTO);
+							unityPlanProduct.setSplitTexturesChoose(splitTextureDTOList);
+						}
+					}
+				}
+
+				/* 处理拆分材质产品的默认材质信息->end */
+				UnityPlanProduct unityPlanProduct_p = unityPlanProduct.copy();
+				// 产品类别信息
+				if (!StringUtils.isEmpty(productTypeValue)) {
+					SysDictionary sd = sysDictionaryService.getSysDictionary("productType",
+							new Integer(productTypeValue));
+					if (sd != null) {
+						/*
+						 * 为保证父节点与子节点的productTypeCode相同，指定如下规则：
+						 * 子节点时，parentTypeCode和smallTyeCode，productTypeCode三者都存在值，
+						 * smallTyeCode为本身的节点的信息值parentTypeCode与productTypeCode相等
+						 * 父节点时，parentTypeCode存在值(暂时不取)，productTypeCode为节点本身信息值，因为子节点太多，
+						 * 故子节点smallTyeCode为空值
+						 */
+						unityPlanProduct.setProductTypeValue(sd.getValue());
+						unityPlanProduct.setProductTypeCode(sd.getValuekey());
+						unityPlanProduct.setProductTypeName(sd.getName());
+
+						unityPlanProduct_p.setProductTypeValue(sd.getValue());
+						unityPlanProduct_p.setProductTypeCode(sd.getValuekey());
+						unityPlanProduct_p.setProductTypeName(sd.getName());
+						/* 获取子节点的父节点信息 */
+						unityPlanProduct.setParentTypeCode(sd.getValuekey());
+						unityPlanProduct.setParentTypeName(sd.getName());
+						unityPlanProduct.setParentTypeValue(sd.getValue());
+
+						unityPlanProduct_p.setParentTypeValue(-1);
+						unityPlanProduct_p.setParentTypeCode("");
+						unityPlanProduct_p.setParentTypeName("");
+
+						/* 获取子节点的节点信息 */
+						if (productSmallTypeValue != null && new Integer(productSmallTypeValue).intValue() > 0) {
+							if (sysDictionary != null) {
+								unityPlanProduct.setSmallTypeValue(sysDictionary.getValue());
+								unityPlanProduct.setSmallTypeCode(sysDictionary.getValuekey());
+								unityPlanProduct.setSmallTypeName(sysDictionary.getName());
+								/* 是否是白模 */
+								Integer isBm = 0;
+								if ("baimo".equals(sysDictionary.getAtt3())) {
+									isBm = 1;
+									String bjType = Utils.getValue("app.smallProductType.beiJingWall", "");
+									if (bjType.indexOf(sysDictionary.getValuekey()) != -1) {
+										unityPlanProduct.setIsHide(1);
+									}
+								}
+								unityPlanProduct.setIsBaimo(isBm);
+								unityPlanProduct_p.setIsBaimo(isBm);
+								/* 软装硬装以下规则处理，同时按最小基本的数据定义-按1硬装2软装,默认软装 */
+								String rootType = StringUtils.isEmpty(sysDictionary.getAtt1()) ? "2"
+										: sysDictionary.getAtt1().trim();
+								unityPlanProduct.setRootType(rootType);
+								unityPlanProduct_p.setRootType("");
+								unityPlanProduct_p.setIsBaimo(isBm);
+								unityPlanProduct_p.setSmallTypeValue(-1);
+								unityPlanProduct_p.setSmallTypeCode("");
+								unityPlanProduct_p.setSmallTypeName("");
+							}
+						}
+					}
+				}
+
+				/* 存储产品分类集合,便于组装UI界面 */
+				if (!StringUtils.isEmpty(unityPlanProduct.getProductTypeCode())) {
+					productTypeCodeSet.add(unityPlanProduct.getProductTypeCode());
+					// 默认使用第一条记录信息做数据代入*/
+					if (!unityPlanProductMap_p.containsKey(unityPlanProduct.getProductTypeCode())) {
+						/*
+						 * 为保证父节点与子节点的productTypeCode相同，指定如下规则：
+						 * 子节点时，parentTypeCode和smallTyeCode，productTypeCode三者都存在值，
+						 * smallTyeCode为本身的节点的信息值parentTypeCode与productTypeCode相等
+						 * 父节点时，parentTypeCode存在值，productTypeCode为节点本身信息值，因为子节点太多，故子节点smallTyeCode为空值
+						 */
+						unityPlanProductMap_p.put(unityPlanProduct.getProductTypeCode(), unityPlanProduct_p);
+					}
+				} else {
+					logger.debug("unityPlanProduct.getProductTypeCode() is null ;unityPlanProduct.getProductTypeCode()="
+							+ unityPlanProduct.getProductTypeCode() + ";unityPlanProduct.getProductId="
+							+ unityPlanProduct.getProductId() + ";unityPlanProduct.getProductCode="
+							+ unityPlanProduct.getProductCode());
+				}
+
+				Map<String, String> map = new HashMap<String, String>();
+				/* 将材质的长宽也给 塞到这个list 中取 */
+				String aterialPicIds = baseProduct.getMaterialPicIds();/** 材质id **/
+				if (aterialPicIds != null && !"".equals(aterialPicIds)) {
+					if (StringUtils.isNumeric(aterialPicIds)) {
+						ResTexture resTexture = resTextureService.get(Integer.parseInt(aterialPicIds));
+						if (resTexture != null) {
+							unityPlanProduct.setTextureWidth(resTexture.getFileWidth() + "");
+							unityPlanProduct.setTextureHeight(resTexture.getFileHeight() + "");
+						}
+					}
+				}
+				/* 在组合产品查询列表 中 增加产品属性 */
+				map = productAttributeService.getPropertyMap(baseProduct.getId());// 产品属性
+				unityPlanProduct.setPropertyMap(map);
+
+				// 关联白模产品的属性
+				Map<String, String> basicPropertyMap = new HashMap<>();
+				basicPropertyMap = productAttributeService.getPropertyMap(planProduct.getInitProductId());
+				unityPlanProduct.setBasicPropertyMap(basicPropertyMap);
+
+				// 新逻辑客户端用到的天花数据存储到单独VO里
+				this.getProductCeilingVO(unityPlanProduct, planProduct, baseProduct, putawayStateList);
+
+				/* 样板房产品ID */
+				unityPlanProduct.setTemplateProductId(
+						planProduct.getInitProductId() == null ? "" : planProduct.getInitProductId().toString());
+
+				/* 组装产品的规则 */
+				String productTypeCode = unityPlanProduct.getProductTypeCode();/* 产品大类 */
+				String productSmallTypeCode = unityPlanProduct.getSmallTypeCode();/* 产品小类 */
+				String productId = null;// 产品ID
+				if (unityPlanProduct.getProductId() != null) {
+					productId = unityPlanProduct.getProductId().toString();/* 产品ID */
+				}
+
+				/* 获取规则 */
+				Map<String, String> rulesMap = new HashMap<>();
+				Map<Object, Object> rulesParamsMap = new HashMap<>();
+				rulesParamsMap.put("rulesProductId", productId);
+				ResponseEnvelope rulesResponseMapResult = null;
+				if (Utils.enableRedisCache()) {
+					/*rulesResponseMapResult = CommonCacher.getAll(ModuleType.DesignPlan, "getRulesSecondaryList",
+							rulesParamsMap);*/
+					rulesResponseMapResult = commonCacheService.getAll(ModuleType.DesignPlan, "getRulesSecondaryList",
+							rulesParamsMap);
+				}
+
+				if (rulesResponseMapResult != null) {
+					rulesMap = (Map<String, String>) rulesResponseMapResult.getObj();
+				} else {
+					rulesMap = designRulesService.getRulesSecondaryList(productId, productTypeCode,
+							productSmallTypeCode, spaceId, designPlan.getDesignTemplateId(), new DesignRules(), map);
+
+				}
+				unityPlanProduct.setRulesMap(rulesMap);
+				if (unityPlanProduct.getPlanProductId().intValue() == 3093779) {
+					logger.error("getDesignPlanInfo==>test==s06sf01" + unityPlanProduct.getProductId()
+							+ "pproductTypeCode=" + unityPlanProduct.getProductCode());
+				}
+
+				unityPlanProductList.add(unityPlanProduct);
+			}
+			/* 大循环的结束括号 */
+
+			// 四.定制装修导航(在产品列表中该增加大按钮性质,同时,只有一个时,删除小按钮)
+			// 组装每个产品的分类信息
+			this.getDecorationNavigationInfo(unityPlanProductList, newUnityPlanProductList, productTypeCodeSet,
+					unityPlanProductMap_p);
+		}
+
+		ComparatorT cpmparator = new ComparatorT();
+		Collections.sort(newUnityPlanProductList, cpmparator);
+		unityDesignPlan.setDatalist(newUnityPlanProductList);
+		ResponseEnvelope responseEnvelope = new ResponseEnvelope<UnityDesignPlan>(true, unityDesignPlan);
+
+		return responseEnvelope;
+	}
+
+	@Override
+	public UnityDesignPlan wrapperData(Integer designPlanId, UnityDesignPlan unityDesignPlan) {
+		List<UnityPlanProduct> dataList = unityDesignPlan.getDatalist();
+		List<ProductDTO> list = this.getProductDTOList(designPlanId);
+		for(UnityPlanProduct upp : dataList) {
+			Integer upp_productId = upp.getProductId();
+			for(ProductDTO productDTO : list) {
+				Integer productId = productDTO.getProductId();
+				if(upp_productId.equals(productId) && upp.getPosIndexPath().equals(productDTO.getPosIndexPath())) {
+					String valueKey = productDTO.getValueKey();
+					if(StringUtils.isNotBlank(valueKey)) {
+						if(valueKey.indexOf("_") != -1) {
+							String[] split = valueKey.split("_");
+							upp.setBasicModelType(split[1]);
+						} else {
+							upp.setBasicModelType(valueKey);
+						}
+					}
+				}
+			}
+		}
+
+		return unityDesignPlan;
+	}
+
+	/**
+     * 通过设计方案id查询U3D设计方案对象(设计方案-获取设计方案进入模型)
+     * 
+     * */
+    @Override
+    public Object getDesignPlan(String houseId, String livingId, Integer designPlanId,
+            String residentialUnitsName, Integer newFlag, String msgId,LoginUser loginUser,Boolean isRelease,String mediaType,Long startTime,String modelType) {
+        DesignPlanOperationLog designPlanOperationLog = new DesignPlanOperationLog();
+        designPlanOperationLog.setUserId(loginUser.getId());
+        designPlanOperationLog.setDesignPlanId(designPlanId);
+        designPlanOperationLog.setStatus(0);
+        designPlanOperationLog.setBusinessKey(SystemCommonConstant.MODIFIED_DESIGN_PLAN);
+        designPlanOperationLog.setGmtCreate(new Date());
+        designPlanOperationLog.setIsDeleted(0);
+        designPlanOperationLog.setCreator(loginUser.getLoginName());
+        designPlanOperationLog.setSysCode(Utils
+                                                .getCurrentDateTime(Utils.DATETIMESSS)
+                                                + "_"
+                                                + Utils.generateRandomDigitString(6));
+        designPlanOperationLog.setModifier(loginUser.getLoginName());
+        designPlanOperationLog.setGmtModified(new Date());
+        designPlanOperationLogService.insertSelective(designPlanOperationLog);
+        //添加数据结束<<end
+        
+        Map<Object,Object>      paramsMap = new HashMap<>();
+        paramsMap.put("designPlanId", designPlanId);
+        DesignPlan designPlan = designPlanService.get(designPlanId);
+        //测试发布中 、发布中 、待审核的方案不能删除、修改,点击删除提示用户"请先取消发布!" 
+        if(isRelease!=null && !isRelease){  //不是 复制或者 拷贝 的 都需要走里面的方法
+                if(designPlan!=null && designPlan.getIsRelease()!=null ){
+                        boolean flag = designPlanRecommendedService.isDesignPlanCheck(loginUser,null);
+                        if(flag){
+                                if(designPlan.getIsRelease().intValue() == RecommendedDecorateState.IS_RELEASEING){
+                                        return new ResponseEnvelope<>(false,"该方案正在发布!  ","none");
+                                }
+                        }else{
+                                if(designPlan.getIsRelease().intValue() == RecommendedDecorateState.IS_RELEASEING 
+                                                || designPlan.getIsRelease().intValue() == RecommendedDecorateState.IS_TEST_RELEASE
+                                                        ||designPlan.getIsRelease().intValue() == RecommendedDecorateState.WAITING_CHECK_RELEASE){
+                                        return new ResponseEnvelope<>(false,"请取消发布后编辑!  ","none");
+                                }
+                        }       
+                }
+        }
+
+        //设计方案信息
+        UnityDesignPlan unityDesignPlan = new UnityDesignPlan();
+        ResponseEnvelope responseEnvelopeInfo = (ResponseEnvelope)designPlanService.getDesignPlanInfo(designPlanId,newFlag,houseId,livingId,residentialUnitsName,isRelease,loginUser,mediaType, null,modelType);
+        if( responseEnvelopeInfo.isSuccess() ){
+                unityDesignPlan = (UnityDesignPlan)responseEnvelopeInfo.getObj();
+                unityDesignPlan.setEffectsConfig(designPlan.getEffectsConfig());
+        }else{
+                logger.error(responseEnvelopeInfo.getMessage());
+                return responseEnvelopeInfo;
+        }       
+        unityDesignPlan = wrapperData(designPlanId, unityDesignPlan);
+        logger.info("创建设计方案消耗时间:" + (System.currentTimeMillis() - startTime));
+        ResponseEnvelope responseEnvelope = new  ResponseEnvelope<UnityDesignPlan>(unityDesignPlan, msgId, true);
+        
+        if(Utils.enableRedisCache()){
+                commonCacheService.addAll(ModuleType.DesignPlan, "getDesignPlanWeb", paramsMap, responseEnvelope);
+        }
+        return responseEnvelope;
+    }
+
+    /**
+	 * 处理副本配置文件
+	 * @param resId
+	 * @param resType
+	 * @param fileKey
+	 * @param bussniess
+	 * @param request
+	 * @param code
+	 * @return
+	 */
+	private Integer planCopyFileFromResDesignScene(String resId,String fileKey,String defaultPath, Integer bussniess,String code,LoginUser loginUser) {
+		String resFilePath = "";
+		Integer newResId = -1;
+		ResDesign resDesign = new ResDesign();
+		if (!StringUtils.isEmpty(resId)) {
+			String targetName = null;
+			ResDesign file = resDesignService.get(Integer.parseInt(resId));
+			if (file != null && !StringUtils.isEmpty(file.getFilePath())) {
+				resFilePath = file.getFilePath();
+				resDesign = file.resDesignCopy();
+			}
+			if (!StringUtils.isEmpty(resFilePath)) {
+				String srcPath = Utils.dealWithPath(Utils.getAbsolutePath(resFilePath, null), null);
+				File srcresourcesFile = new File(srcPath);
+				if (!srcresourcesFile.getParentFile().exists()) {
+					srcresourcesFile.getParentFile().mkdirs();
+				}
+				String resourcesName = resFilePath.substring(resFilePath.replace("/", "\\").lastIndexOf("\\") + 1,
+						resFilePath.length());
+				if ("linux".equals(FileUploadUtils.SYSTEM_FORMAT)) {
+					resourcesName = resFilePath.substring(resFilePath.lastIndexOf("/") + 1, resFilePath.length());
+				}
+
+				String newPath = Utils.getPropertyName("config/res", fileKey + ".upload.path", defaultPath).trim();
+				newPath = Utils.replaceDate(newPath);
+				String tarName = resourcesName.substring(resourcesName.lastIndexOf("/") + 1,
+						resourcesName.lastIndexOf("_")) + "_" + Utils.getCurrentDateTime(Utils.DATETIMESSS)
+						+ resourcesName.substring(resourcesName.indexOf("."));
+				targetName = newPath + tarName;
+				targetName = targetName.replace(".txt", AESFileConstant.AES_FIRST+".txt");//复制的配置文件因为源文件已经加密，要在文件后面加个标识
+				String local_targetPath = Utils.dealWithPath(Utils.getAbsolutePath(targetName, null), null);
+				File local_targetFile = new File(local_targetPath);
+				if (!local_targetFile.getParentFile().exists()) {
+					local_targetFile.getParentFile().mkdirs();
+				}
+				boolean flag = false;
+				String resPath = resFilePath.substring(0, resFilePath.lastIndexOf("/") + 1);
+				String dbFilePath = Utils.getAbsolutePath(newPath + tarName, null);
+				if (Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD) == 1) {
+					if (srcresourcesFile.isFile() && srcresourcesFile.exists()) { // 判断文件是否存在
+						flag = FileUploadUtils.fileCopy(srcresourcesFile, local_targetFile);
+					} else {
+						logger.error("srcresourcesFile is not  exists !srcresourcesFile="+srcresourcesFile);
+					}
+				} else if (Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD) == 2) {
+					/*flag = FtpUploadUtils.downFile(resPath, resourcesName);// 下载到本地
+					if (FileUploadUtils.fileCopy(srcresourcesFile, local_targetFile)) {
+						if (flag) {
+							flag = FtpUploadUtils.uploadFile(tarName, dbFilePath, newPath);// 上传ftp服务器
+							if (flag) {
+								FileUploadUtils.deleteFile(newPath + tarName);	// 删除本地
+							} else {
+								return newResId;
+							}
+						} else {
+							return newResId;
+						}
+					} else {
+						logger.error("copy file is error");
+						return -1;
+					}*/
+				} else {
+					// 3 本地和ftp同时上传(默认是本地上传)resPath：FTP服务器上的相对路径，resourcesName：要下载的文件名，newPath+tarName：下载到本地文件路径+文件名称
+					/*flag = FtpUploadUtils.downFile(resPath, resourcesName);// 下载到本地
+					if (!flag || FileUploadUtils.fileCopy(srcresourcesFile, local_targetFile)) {
+						logger.error("copy file is error");
+						return -1;
+					}
+					if (flag) {// tarName:文件名称，dbFilePath:本地文件路径，newPath:ftp服务器存放文件路径
+						flag = FtpUploadUtils.uploadFile(tarName, dbFilePath, newPath);// 上传ftp服务器
+						if (!flag) {
+							return newResId;
+						}
+					} else {
+						return newResId;
+					}*/
+				}
+			}
+			resDesign.setSysCode(code);
+			resDesign.setFilePath(targetName);
+			resDesign.setFileKey(fileKey);
+			resDesign.setBusinessId(bussniess);
+			resDesign.setFileCode(code);
+			/*this.sysSave(resDesign, loginUser);*/
+			resDesignService.sysSave(resDesign, loginUser);
+			newResId = resDesignService.add(resDesign);
+		}
+
+		return newResId;
+	}
+    
+	/*
+	 * 根据不同的媒介获取不同的样板房模型
+	 */
+	private String getU3dModelId(String mediaType, DesignTemplet designTemplet) {
+		if (designTemplet == null || mediaType == null) {
+			return "";
+		}
+		if ("3".equals(mediaType)) {
+			return designTemplet.getPcModelU3dId() == null ? "" : designTemplet.getPcModelU3dId().toString();
+		} else if ("4".equals(mediaType)) {
+			return designTemplet.getMacBookpcModelU3dId() == null ? ""
+					: designTemplet.getMacBookpcModelU3dId().toString();
+		} else if ("5".equals(mediaType)) {
+			return designTemplet.getIosModelU3dId() == null ? "" : designTemplet.getIosModelU3dId().toString();
+		} else if ("6".equals(mediaType)) {
+			return designTemplet.getAndroidModelU3dId() == null ? "" : designTemplet.getAndroidModelU3dId().toString();
+		} else if ("7".equals(mediaType)) {
+			return designTemplet.getIpadModelU3dId() == null ? "" : designTemplet.getIpadModelU3dId().toString();
+		} else {
+			return designTemplet.getWebModelU3dId() == null ? "" : designTemplet.getWebModelU3dId().toString();
+		}
+	}
+	
+	private void sysSave(DesignPlan model, LoginUser loginUser) {
+		if (model != null) {
+			if (model.getId() == null) {
+				model.setGmtCreate(new Date());
+				model.setCreator(loginUser.getLoginName());
+				model.setIsDeleted(0);
+				if (model.getSysCode() == null || "".equals(model.getSysCode())) {
+					model.setSysCode(Utils
+							.getCurrentDateTime(Utils.DATETIMESSS)
+							+ "_"
+							+ Utils.generateRandomDigitString(6));
+				}
+			}
+
+			model.setGmtModified(new Date());
+			model.setModifier(loginUser.getLoginName());
+		}
+	}
+	
+	/**
+	 * 新增数据
+	 *
+	 * @param designPlan
+	 * @return  int 
+	 */
+	@Override
+	public int add(DesignPlan designPlan) {
+		designPlanMapper.insertSelective(designPlan);
+		return designPlan.getId();
+	}
+	
+	/**
+	 *    获取数据详情
+	 *
+	 * @param id
+	 * @return  DesignPlan 
+	 */
+	@Override
+	public DesignPlan get(Integer id) {
+		return designPlanMapper.selectByPrimaryKey(id);
+	}
+	
+	@Override
+	public DesignPlanModel selectDesignPlanInfo(Integer id) {
+		return designPlanMapper.selectDesignPlanInfo(id);
+	}
+	
+	/**
+	 * 返回拼花结构格式
+	 * @param designPlan
+	 * @param unityDesignPlan
+	 */
+	@SuppressWarnings("unchecked")
+	public void spellingFlowerData(DesignPlanModel designPlan,UnityDesignPlan unityDesignPlan) {
+		if(designPlan == null || StringUtils.isEmpty(designPlan.getSpellingFlowerProduct()) || unityDesignPlan == null) {
+			return;
+		}
+		if(designPlan.getSpellingFlowerFileId()!=null && designPlan.getSpellingFlowerFileId().intValue() > 0) {
+			ResDesign resDesign  = resDesignService.get(designPlan.getSpellingFlowerFileId());
+			if(resDesign != null) {
+				unityDesignPlan.setSpellingFlower(resDesign.getFilePath());
+			}
+		}
+		//Map<Integer,String>idMap = new HashMap<Integer,String>();
+		String [] arr = designPlan.getSpellingFlowerProduct().split(",");
+		List<BaseProduct>productList = null;
+		if(arr != null && arr.length > 0 && !"[]".equals(arr)) {
+			List<Integer>ids = new ArrayList<Integer>();
+			for (String id : arr) {
+				ids.add(Integer.parseInt(id));
+			}
+			productList = baseProductService.getBatchData(ids);
+		}
+		Map<String,Object>spellingFlowerProductMap = new HashMap<String,Object>();
+		if(productList != null && productList.size() > 0) {
+			for (BaseProduct product : productList) {
+				List<SplitTextureDTO> splitTextureDTOList = new ArrayList<>();
+				Integer isSplit = 0;
+				if(StringUtils.isNotEmpty(product.getSplitTexturesInfo())){
+					Map<String, Object> map = baseProductService.dealWithSplitTextureInfo(product.getId(), product.getSplitTexturesInfo(), "choose");
+					isSplit = (Integer) map.get("isSplit");
+					splitTextureDTOList = (List<SplitTextureDTO>) map.get("splitTexturesChoose");
+				}else {
+					if(StringUtils.isNotBlank(product.getMaterialPicIds())){
+						this.getSingleTexture(product, splitTextureDTOList);
+					}
+				}
+				if(null!=splitTextureDTOList&&splitTextureDTOList.size()>0){
+					spellingFlowerProductMap.put(product.getId()+"", splitTextureDTOList);
+				}
+			}
+		}
+		unityDesignPlan.setSpellingFlowerProductMap(spellingFlowerProductMap);
+	}
+	
+
+	@Override
+	public UnityPlanProduct getPlanProductStructureJson(UnityPlanProduct unityPlanProduct,DesignPlanProduct planProduct,DesignPlanModel designPlan, LoginUser loginUser) {
+		int groupId = planProduct.getProductGroupId()==null?0:planProduct.getProductGroupId();
+		int isMain = planProduct.getIsMainProduct()==null?0:planProduct.getIsMainProduct();
+		Integer groupType=planProduct.getGroupType();
+		unityPlanProduct.setGroupType(groupType);
+		Map<Integer,Integer> memoryMap=new HashMap<Integer, Integer>();
+		if(groupType==null||new Integer(0).equals(groupType)){
+					/*组合*/
+			unityPlanProduct.setProductGroupId(groupId);
+			unityPlanProduct.setIsMainProduct(isMain);
+			unityPlanProduct.setPlanGroupId(planProduct.getPlanGroupId());
+			unityPlanProduct.setPlanStructureId("");
+					/*识别是否是结构组合->是->得到对应结构的id*/
+					/*先从memoryMap中找(防止重复访问数据库)*/
+			if(groupId>0){
+				if(memoryMap.containsKey(groupId)){
+					unityPlanProduct.setProductStructureId(memoryMap.get(groupId));
+				}else{
+					/*如果该组合是结构组合,找对应的结构id*/
+					GroupProduct groupProduct=groupProductService.get(groupId);
+					if(groupProduct!=null){
+						Integer structureId=groupProduct.getStructureId();
+						if(structureId!=null&&structureId>0){
+							unityPlanProduct.setProductStructureId(structureId);
+							String PlanGroupId=unityPlanProduct.getPlanGroupId();
+							if(StringUtils.isNotBlank(PlanGroupId)){
+								String[] strs=PlanGroupId.split("_");
+								unityPlanProduct.setPlanStructureId(structureId+"_"+strs[1]);
+							}
+							memoryMap.put(groupId, structureId);
+						}
+					}
+				}
+			}
+					/*识别是否是结构组合->是->得到对应结构的id->end*/
+			if(unityPlanProduct.getProductStructureId()!=null&&unityPlanProduct.getProductStructureId()>0){
+
+			}else{
+				unityPlanProduct.setProductStructureId(new Integer(0));
+			}
+		}else if(new Integer(1).equals(groupType)){
+					/*结构*/
+			unityPlanProduct.setIsMainProduct(new Integer(0));
+			unityPlanProduct.setProductGroupId(new Integer(0));
+			unityPlanProduct.setPlanGroupId("");
+			unityPlanProduct.setPlanStructureId(planProduct.getPlanGroupId());
+			unityPlanProduct.setProductStructureId(groupId);
+		}
+
+		//如果该产品是主产品，则返回该方案产品组合的方案产品ID数据
+		GroupProductDetails groupProductDetails = new GroupProductDetails();
+		//if( isMain == 1 || groupId > 0 ){
+		if(groupId>0){
+			DesignPlanProduct planProducts = new DesignPlanProduct();
+			/*planProducts.setProductGroupId(groupId);*/
+			planProducts.setPlanGroupId(planProduct.getPlanGroupId());
+			planProducts.setPlanId(designPlan.getDesignPlanId());
+			planProducts.setGroupType(groupType);
+			planProducts.setIsDeleted(0);
+			List<DesignPlanProduct> dppList=null;
+			if(Utils.enableRedisCache()){
+				dppList = designPlanProductCacheService.getAllList(planProducts);
+			}else{
+				dppList = designPlanProductService.getList(planProducts);
+			}
+
+			if( Lists.isNotEmpty(dppList) ){
+				Integer arrayIds[] = new Integer[dppList.size()];
+				for(int i=0;i<dppList.size();i++){
+					DesignPlanProduct dpp = dppList.get(i);
+					arrayIds[i] = dpp.getId();
+				}
+				if(new Integer(1).equals(groupType))
+					unityPlanProduct.setPlanProductStructureIds(arrayIds);
+				else{
+					/*if(new Integer(1).equals(isMain))*/
+					unityPlanProduct.setPlanProductGroupIds(arrayIds);
+					unityPlanProduct.setPlanProductStructureIds(arrayIds);
+				}
+			}
+		}else{
+			//如果是次产品则去检索它是否有组合过并且是主产品，是则设置成1
+			//白模产品不需要检索
+					/*查询条件设置组合查询的state(根据用户类型,内部用户能查到测试和上架的组合,其他用户只能查到上架的组合)*/
+
+			Integer userType=loginUser.getUserType();
+			List<Integer> statusList=new ArrayList<Integer>();
+			statusList.add(1);
+			if(userType==1){
+				statusList.add(2);
+			}
+			groupProductDetails.setStatusList(statusList);
+					/*查询条件设置组合查询的state(根据用户类型,内部用户能查到测试和上架的组合,其他用户只能查到上架的组合)->end*/
+			if(!planProduct.getProductId().equals(planProduct.getInitProductId())){
+				groupProductDetails.setProductId(planProduct.getProductId());
+				groupProductDetails.setIsMain(1);
+				List<GroupProductDetails> gpdList=null;
+				if(Utils.enableRedisCache()){
+					/*gpdList = GroupProductDetailsCache.getList(groupProductDetails);*/
+					gpdList = groupProductDetailsService.getListFromCache(groupProductDetails);
+				}else{
+					gpdList = groupProductDetailsService.getList(groupProductDetails);
+				}
+				if( gpdList.size() > 0 ){
+					unityPlanProduct.setIsMainProduct(1);
+				}
+			}
+		}
+		return unityPlanProduct;
+	}
+
+	/**
+	 * 获取截面天花数据
+	 * @param unityPlanProduct
+	 * @param planProduct
+	 */
+	@Override
+	public void getProductCeilingVO(UnityPlanProduct unityPlanProduct, DesignPlanProduct planProduct,
+									 BaseProduct baseProduct, List<Integer> putawayStateList) {
+		if (ProductTypeConstant.PRODUCT_BIG_TYPE_TIANH.equals(unityPlanProduct.getProductTypeCode())) {
+			ProductCeilingVO productCeilingVO = new ProductCeilingVO();
+			//TODO 是截面天花直接获取本身产品信息，否则通过款式匹配，匹配不到给默认截面信息和款式
+			if (ProductTypeConstant.PRODUCT_SMALL_TYPE_JIEM.equals(unityPlanProduct.getSmallTypeCode())) {
+				List<ProductCeilingVO> productCeilingVOList = baseProductService.getCeilingInfoByProductCode(baseProduct.getProductCode());
+				if (null != productCeilingVOList && 0 < productCeilingVOList.size()) {
+					productCeilingVO = productCeilingVOList.get(0);
+				}
+			} else {
+				//通过款式匹配
+				List<ProductCeilingVO> productCeilingVOList = baseProductService.getCeilingCrossSectionDataByStyleId(putawayStateList, baseProduct.getStyleId());
+				if (null != productCeilingVOList && 0 < productCeilingVOList.size()) {
+					productCeilingVO = productCeilingVOList.get(0);
+				} else {
+					//没有匹配到则加载默认截面天花info
+					productCeilingVOList = baseProductService.getCeilingInfoByProductCode(ProductModelConstant.DEFAULT_JIEM_TIANH_PRODUCT_CODE.trim());
+					if (null != productCeilingVOList && 0 < productCeilingVOList.size()) {
+						productCeilingVO = productCeilingVOList.get(0);
+					}
+				}
+			}
+			productCeilingVO.setRegionMark(planProduct.getRegionMark());
+			unityPlanProduct.setProductCeilingVO(productCeilingVO);
+		}
+	}
+	
+
+	@Override
+	public List<UnityPlanProduct> getDecorationNavigationInfo(List<UnityPlanProduct> unityPlanProductList,List<UnityPlanProduct> newUnityPlanProductList,TreeSet<String> productTypeCodeSet,Map<String, UnityPlanProduct> unityPlanProductMap_p) {
+
+		// 组装每个产品的分类信息
+		Map<String, List<UnityPlanProduct>> productMap = new HashMap<String, List<UnityPlanProduct>>();
+		if (!productTypeCodeSet.isEmpty()) {
+			for (String pproductTypeCode : productTypeCodeSet) {
+				List<UnityPlanProduct> productList = new ArrayList<UnityPlanProduct>();
+				for (UnityPlanProduct sunityPlanProduct : unityPlanProductList) {
+					if (pproductTypeCode.equals(sunityPlanProduct.getProductTypeCode())) {
+						productList.add(sunityPlanProduct);
+					}
+				}
+				productMap.put(pproductTypeCode, productList);
+			}
+		}
+
+		// 四.定制装修导航(在产品列表中该增加大按钮性质,同时,只有一个时,删除小按钮)
+		// 为保证父节点与子节点的productTypeCode相同，指定如下规则：
+		// 子节点时，parentTypeCode和smallTyeCode，productTypeCode三者都存在值，smallTyeCode为本身的节点的信息值parentTypeCode与productTypeCode相等
+		// 父节点时，parentTypeCode存在值，productTypeCode为节点本身信息值，因为子节点太多，故子节点smallTyeCode为空值
+		if (!productTypeCodeSet.isEmpty()) {
+			for (String pproductTypeCode : productTypeCodeSet) {
+				// 获取父节点信息
+				UnityPlanProduct munityPlanProduct = unityPlanProductMap_p.get(pproductTypeCode);
+				UnityPlanProduct punityPlanProduct = munityPlanProduct.copy();
+				punityPlanProduct.setIsLeaf(0);
+				List<UnityPlanProduct> list = productMap.get(pproductTypeCode);
+				if (list != null && list.size() > 0) {
+					punityPlanProduct.setLeafNum(list.size());
+					punityPlanProduct.setProductGroupId(0);
+					punityPlanProduct.setIsMainProduct(0);
+				}
+				if(punityPlanProduct.getPlanProductId().intValue() ==3093779) {
+					logger.error("getDecorationNavigationInfo==>test==s06sf01" + punityPlanProduct.getProductId() + "pproductTypeCode=" + pproductTypeCode);
+				}
+				
+				
+				newUnityPlanProductList.add(punityPlanProduct);
+				// 追加下属所有子节点信息
+				for (UnityPlanProduct sunityPlanProduct : unityPlanProductList) {
+					if (pproductTypeCode.equals(sunityPlanProduct.getProductTypeCode())) {
+						if(punityPlanProduct.getPlanProductId().intValue() ==3093779) {
+							logger.error("getDecorationNavigationInfo==>sunityPlanProduct==>test==s06sf01" + punityPlanProduct.getProductId() + "pproductTypeCode=" + pproductTypeCode);
+						}
+					
+						// if(list.size()>1){
+						newUnityPlanProductList.add(sunityPlanProduct);
+						// }
+					}
+				}
+			}
+		}
+		return newUnityPlanProductList;
+	}
+
+	// 根据产品顺序排序（升序）
+	public class ComparatorT implements Comparator {
+		public int compare(Object obj1, Object obj2) {
+			UnityPlanProduct unity1 = (UnityPlanProduct) obj1;
+			UnityPlanProduct unity2 = (UnityPlanProduct) obj2;
+			int flag = (unity1.getProductSequence() == null ? new Integer(0) : new Integer(unity1.getProductSequence()))
+					.compareTo(unity2.getProductSequence() == null ? new Integer(0)
+							: new Integer(unity2.getProductSequence()));
+			if (flag == 0) {
+				return (unity1.getProductSequence() == null ? new Integer(0) : new Integer(unity1.getProductSequence()))
+						.compareTo(unity2.getProductSequence() == null ? new Integer(0)
+								: new Integer(unity2.getProductSequence()));
+			} else {
+				return flag;
+			}
+		}
+	}
+	
+	public List<ProductDTO> getProductDTOList(Integer designPlanId) {
+		return designPlanMapper.getProductDTOList(designPlanId);
+	}
+
+	@Override
+	public Object getDesignPlanInfo(Integer designPlanId,Integer newFlag,String houseId,String livingId,String residentialUnitsName,Boolean isRelease, LoginUser loginUser, String mediaType, String needOrNoCache,String modelType) {
+		String logPrefix = "function:DesignPlanServiceImpl.getDesignPlanInfo -> ";
+		
+		// 参数验证/处理 ->start
+		if(StringUtils.isEmpty(needOrNoCache)) {
+			needOrNoCache = Constants.NEED_CACHE;
+		}
+		String msg = "";
+		if (newFlag == null) {
+			newFlag = 0;
+		}
+
+		DesignPlanModel designPlan = null;
+		logger.error("selectDesignPlanInfo.mediaType="+mediaType+",modelType="+modelType);
+		if(StringUtils.isEmpty(modelType)||"null".equals(modelType)||StringUtils.isBlank(modelType)){
+			if ("5".equals(mediaType)) {
+				designPlan = designPlanService.selectIosDesignPlanInfo(designPlanId);
+			} else if ("6".equals(mediaType)) {
+				designPlan = designPlanService.selectAndroidDesignPlanInfo(designPlanId);
+			}else{
+				designPlan = designPlanService.selectDesignPlanInfo(designPlanId);
+			}
+		}else{
+			if(modelType.equals("IPhonePlayer")){
+				designPlan = designPlanService.selectIosDesignPlanInfo(designPlanId);
+			}if(modelType.equals("Android")){
+				designPlan = designPlanService.selectAndroidDesignPlanInfo(designPlanId);
+			}else{
+				designPlan = designPlanService.selectDesignPlanInfo(designPlanId);
+			}
+		}
+
+		if (designPlan == null) {
+			return new ResponseEnvelope<UnityDesignPlan>(false, msg);
+		}
+		if (StringUtils.isEmpty(designPlan.getFilePath())) {
+			logger.error("找不到方案ID="+designPlan.getDesignPlanId()+"配置文件！templetId="+designPlan.getDesignTemplateId());
+			return new ResponseEnvelope<UnityDesignPlan>(false,"配置文件异常！");
+		}
+		// 构建unity模型加载时需要的model对象:返回设计方案,空间模型,产品列表及产品配置等信息
+		UnityDesignPlan unityDesignPlan = new UnityDesignPlan();
+		//获取拼花信息
+//		this.spellingFlowerData(designPlan,unityDesignPlan);
+		unityDesignPlan.setNewFlag(newFlag);// 是否是第一次进入
+		// 一.获取设计方案信息
+		unityDesignPlan.setServiceUrl(SERVERURL);// 访问地址
+		// unityDesignPlan.setUploadDir(UPLOADDIR);//文件上传路径,资源类信息需使用访问地址+上传路径+文件路径
+		unityDesignPlan.setResourcesUrl(RESOURCESURL);// 资源文件访问地址
+		
+		//获取拼花信息
+		this.spellingFlowerData(loginUser,modelType,designPlan,unityDesignPlan);
+		// U3D界面UI文件
+		unityDesignPlan.setDesignPlanUIPath("/pages/online/resource/UI.assetbundle");
+		unityDesignPlan.setDesignTempletId(designPlan.getDesignTemplateId());//样板房id
+		unityDesignPlan.setDesignPlanId(designPlan.getDesignPlanId());// 设计方案id
+		unityDesignPlan.setPlanName(designPlan.getPlanName());// 设计方案名称
+		unityDesignPlan.setPlanCode(designPlan.getPlanCode());// 设计方案编码
+		Integer modelTemplteFileId = designPlan.getModelId();
+		// 模型设计方案公共资源(同样板房资源)
+		if (StringUtils.isNotBlank(designPlan.getModelPath())) {
+			unityDesignPlan.setU3dModelPath(designPlan.getModelPath());
+		} else {
+			unityDesignPlan.setU3dModelPath("");
+		}
+		// 模型总体配置文件
+		unityDesignPlan.setDesignPlanConfigPath(designPlan.getFilePath());
+
+		// 二.获取空间信息
+		UnitySpaceCommon unitySpaceCommon = new UnitySpaceCommon();
+		Integer spaceId = designPlan.getSpaceCommonId();
+		unitySpaceCommon.setSpaceCommonId(spaceId);
+		unitySpaceCommon.setHouseId(houseId);
+		unitySpaceCommon.setLivingId(livingId);
+		unitySpaceCommon.setPlanSource(designPlan.getPlanSource());
+		unitySpaceCommon.setSpaceCode(designPlan.getSpaceCode());// 空间编码(场景编码)
+		unitySpaceCommon.setSpaceName(designPlan.getSpaceName());
+		unitySpaceCommon.setSpaceAreas(designPlan.getSpaceAreas());
+		unitySpaceCommon.setResidentialUnitsName(residentialUnitsName); // 小区户型名称
+		unitySpaceCommon.setHouseTypeValue(designPlan.getHouseTypeValue());
+		unitySpaceCommon.setHouseTypeName(designPlan.getHouseTypeName());
+		unityDesignPlan.setUnitySpaceCommon(unitySpaceCommon);
+		//空间灯光（白天、黄昏、黑夜）u3d模型文件
+		if(designPlan.getDaylightU3dModelId() != null && designPlan.getDaylightU3dModelId() > 0){
+			ResModel resModel = resModelService.get(designPlan.getDaylightU3dModelId());//res_model 中获取白天的模型文件
+			unitySpaceCommon.setDaylightU3dModelPath(resModel==null?"":resModel.getModelPath());
+		}else{
+			unitySpaceCommon.setDaylightU3dModelPath("");
+		}
+		if(designPlan.getDusklightU3dModelId() != null && designPlan.getDusklightU3dModelId() > 0){
+			ResModel resModel = resModelService.get(designPlan.getDusklightU3dModelId());//res_model 中获取黄昏的模型文件
+			unitySpaceCommon.setDusklightU3dModelPath(resModel==null?"":resModel.getModelPath());
+		}else{
+			unitySpaceCommon.setDaylightU3dModelPath("");
+		}
+		if(designPlan.getNightlightU3dModelId() != null && designPlan.getNightlightU3dModelId() > 0){
+			ResModel resModel = resModelService.get(designPlan.getNightlightU3dModelId());//res_model 中获取夜晚的模型文件
+			unitySpaceCommon.setNightlightU3dModelPath(resModel==null?"":resModel.getModelPath());
+		}else{
+			unitySpaceCommon.setDaylightU3dModelPath("");
+		}
+
+		//设计模式
+		if( designPlan.getDesignTempletCode() == null ){
+			msg = "designTemplet is null !designTempletId = "+designPlan.getDesignTemplateId();
+			return new ResponseEnvelope<UnityDesignPlan>(false,msg);
+		}else {
+			if (designPlan.getDesignTempletCode().endsWith("_000")) {
+				unityDesignPlan.setDesignMode("0");
+			} else {
+				unityDesignPlan.setDesignMode("1");
+			}
+		}
+
+		// 三.获取方案中用到的产品列表
+		// 产品信息,返回装修顺序及相机参数值
+		// 产品级别数据存储
+		List<UnityPlanProduct> unityPlanProductList = new ArrayList<UnityPlanProduct>();
+		// 最终数据U3DUI界面转换存储
+		List<UnityPlanProduct> newUnityPlanProductList = new ArrayList<UnityPlanProduct>();
+		// 获取方案产品列表
+		DesignPlanProduct designPlanProduct = new DesignPlanProduct();
+		designPlanProduct.setIsDeleted(0);
+		designPlanProduct.setPlanId(designPlan.getDesignPlanId());
+		List<DesignPlanProduct> designProductList = null;
+		//add by xiaoxc 这块用缓存会存在问题（还原和改造同一方案进去会列表有变更）
+//		if (Utils.enableRedisCache() && StringUtils.equals(Constants.NEED_CACHE, needOrNoCache)) {
+//			designProductList = DesignPlanProductCacher.getAllList(designPlanProduct);
+//		} else {
+//			designProductList = designPlanProductService.getList(designPlanProduct);//设计方案中使用到的产品
+//		}
+		designProductList = designPlanProductService.getList(designPlanProduct);//设计方案中使用到的产品
+		//状态权限
+		List<Integer> putawayStateList = baseProductService.getPutawayList(loginUser);
+
+		if (designProductList != null && designProductList.size() > 0) {
+			
+			TreeSet<String> productTypeCodeSet = new TreeSet<String>();
+			Map<String, UnityPlanProduct> unityPlanProductMap_p = new HashMap<String, UnityPlanProduct>();
+			for (DesignPlanProduct planProduct : designProductList) {
+				UnityPlanProduct unityPlanProduct = new UnityPlanProduct();
+				unityPlanProduct.setIsDirty(planProduct.getIsDirty());
+				unityPlanProduct.setPlanProductId(planProduct.getId());
+				unityPlanProduct.setProductSequence(planProduct.getProductSequence());
+				unityPlanProduct.setMaterialPicPaths(new String[]{});
+				unityPlanProduct.setDecorationModelPath(new String[]{});
+				unityPlanProduct.setPosIndexPath(planProduct.getPosIndexPath());
+				unityPlanProduct.setPosName(planProduct.getPosName());
+				unityPlanProduct.setBindProductId(planProduct.getBindParentProductId());
+				
+				/*天花、地面、地面结构拆分*/
+				unityPlanProduct.setIsStandard(planProduct.getIsStandard());
+				unityPlanProduct.setCenter(planProduct.getCenter());
+				unityPlanProduct.setRegionMark(planProduct.getRegionMark());
+				unityPlanProduct.setStyleId(planProduct.getStyleId());
+				unityPlanProduct.setMeasureCode(planProduct.getMeasureCode());
+				unityPlanProduct.setDescribeInfo(planProduct.getDescribeInfo());
+				unityPlanProduct.setProductIndex(planProduct.getProductIndex());
+				
+				unityPlanProduct.setIsGroupReplaceWay(planProduct.getIsGroupReplaceWay());
+				unityPlanProduct.setIsMainStructureProduct(planProduct.getIsMainStructureProduct());
+
+				/*处理结构返回格式*/
+				unityPlanProduct = this.getPlanProductStructureJson(unityPlanProduct, planProduct, designPlan, loginUser);
+				// 产品的基本信息
+				BaseProduct baseProduct = null;
+				if (planProduct.getProductId() != null && planProduct.getProductId() > 0) {
+					if (Utils.enableRedisCache() && StringUtils.equals(Constants.NEED_CACHE, needOrNoCache)) {
+						/*baseProduct = BaseProductCacher.get(planProduct.getProductId());*/
+						baseProduct = baseProductService.getFromCache(planProduct.getProductId());
+					} else {
+						baseProduct = baseProductService.get(planProduct.getProductId());//产品公用基本信息   '产品品牌',  '产品风格', '产品规格',  '产品颜色',  '产品长度', '产品宽度', '产品高度', '销售价格',等等
+					}
+				}
+				if (null == baseProduct) {
+					msg = "planProduct.getProductId():" + planProduct.getProductId();
+					return new ResponseEnvelope<UnityDesignPlan>(false, msg);
+				}
+
+				String productTypeValue = baseProduct.getProductTypeValue();
+				Integer productSmallTypeValue = baseProduct.getProductSmallTypeValue();
+				SysDictionary sysDictionary = new SysDictionary();
+				if (baseProduct != null && productSmallTypeValue != null
+						&& StringUtils.isNotBlank(productTypeValue)) {
+					//通过大小类获取小类信息
+					Map<String, Object> map = new HashMap<>();
+					map.put("smallTypeValue", productSmallTypeValue);
+					map.put("typeValue", productTypeValue);
+					sysDictionary = sysDictionaryService.selectSmallTypeObj(map);
+
+					if (sysDictionary != null) {
+						unityPlanProduct.setMoveWay(sysDictionary.getAtt5());
+						if (ProductTypeConstant.PRODUCT_BIG_TYPE_QIANGM.equals(sysDictionary.getType())) {//墙面
+							unityPlanProduct.setBgWall(Utils.getIsBgWall(sysDictionary == null ? "" : sysDictionary.getValuekey()));
+						} else {
+							unityPlanProduct.setBgWall(0);
+						}
+					} else {
+						logger.debug("sDictionary is null, sd.getValuekey()=" + /*sysDictionary.getValuekey() */null
+						+ ";baseProduct.getProductSmallTypeValue()=" + baseProduct.getProductSmallTypeValue() 
+						+ ";productid=" + baseProduct.getProductId() + ";baseProduct.getProductTypeValue()=" 
+						+ baseProduct.getProductTypeValue()+";planProduct.getProductId()="+planProduct.getProductId());
+					}
+					if (baseProduct.getBmIds() != null) {
+						unityPlanProduct.setIsCustomized(1);
+					}
+					//系列标志
+					unityPlanProduct.setSeriesSign(baseProductService.getSeriesSign(sysDictionary.getValuekey()));
+				}
+				if (null != baseProduct) {
+					if(baseProduct.getProductCode().equals("nork_ddli_0021")) {
+						logger.error("getDesignPlanInfo nork_ddli_0021==" + baseProduct.getId());
+					}
+					
+					if(baseProduct.getProductCode().equals("masd_ddli_0004")) {
+						logger.error("getDesignPlanInfo masd_ddli_0004==" + baseProduct.getId());
+					}
+					unityPlanProduct.setProductId(baseProduct.getId());
+					unityPlanProduct.setProductCode(baseProduct.getProductCode());
+					unityPlanProduct.setParentProductId(baseProduct.getParentId());
+					unityPlanProduct.setProductLength(baseProduct.getProductLength());
+					unityPlanProduct.setProductWidth(baseProduct.getProductWidth());
+					unityPlanProduct.setProductHeight(baseProduct.getProductHeight());
+					unityPlanProduct.setMinHeight(baseProduct.getMinHeight());
+					//如果该墙面有绑定关系，则取绑定产品白模长宽高
+					String bindProductid = planProduct.getBindParentProductId();
+					if (ProductTypeConstant.PRODUCT_BIG_TYPE_QIANGM.equals(sysDictionary == null ? "" : sysDictionary.getType()) && StringUtils.isNotBlank(bindProductid)) {
+						String array[] = bindProductid.split(",");
+						BaseProduct baiMoProduct = null;
+						StringBuffer fullPaveLength = new StringBuffer();
+
+						for (String bindId : array) {
+							if (Utils.enableRedisCache() && StringUtils.equals(Constants.NEED_CACHE, needOrNoCache)) {
+								/*baiMoProduct = BaseProductCacher.get(Utils.getIntValue(bindId));*/
+								baiMoProduct = baseProductService.getFromCache(Utils.getIntValue(bindId));
+							} else {
+								baiMoProduct = baseProductService.get(Utils.getIntValue(bindId));
+							}
+							if (baiMoProduct != null && baiMoProduct.getFullPaveLength() != null) {
+								fullPaveLength.append(baiMoProduct.getFullPaveLength() + ",");
+							}
+						}
+						if (fullPaveLength.toString().length() > 0) {
+							String fullPave = fullPaveLength.toString();
+							unityPlanProduct.setFullPaveLength(fullPave != null ? fullPave.substring(0, fullPave.length() - 1) : fullPave);
+						}
+					}
+					//如果是背景墙、窗帘、淋浴屏则取白模产品的长宽高
+					Integer baiMoId = planProduct.getInitProductId();
+					Map<String,String> stretchZoomMap = baseProductService.getStretchZoomLength(sysDictionary == null ? "" : sysDictionary.getValuekey());
+					if (stretchZoomMap != null && stretchZoomMap.size() > 0 && baiMoId != null && baiMoId.intValue() > 0) {
+						BaseProduct baiMoProduct = null;
+						if (Utils.enableRedisCache() && StringUtils.equals(Constants.NEED_CACHE, needOrNoCache)) {
+							/*baiMoProduct = BaseProductCacher.get(baiMoId);*/
+							baiMoProduct = baseProductService.getFromCache(baiMoId);
+						} else {
+							baiMoProduct = baseProductService.get(baiMoId);
+						}
+						if (baiMoProduct != null) {
+							if (StringUtils.isNotEmpty(baiMoProduct.getProductLength())) {
+								unityPlanProduct.setInitModelLength(Integer.parseInt(baiMoProduct.getProductLength()));
+							}
+							if (StringUtils.isNotEmpty(baiMoProduct.getProductWidth())) {
+								unityPlanProduct.setInitModelWidth(Integer.parseInt(baiMoProduct.getProductWidth()));
+							}
+							if (StringUtils.isNotEmpty(baiMoProduct.getProductHeight())) {
+								unityPlanProduct.setInitModelHeight(Integer.parseInt(baiMoProduct.getProductHeight()));
+							}
+							if (baiMoProduct.getFullPaveLength() != null) {
+								unityPlanProduct.setFullPaveLength(baiMoProduct.getFullPaveLength());
+							}
+						}
+					}
+				}
+
+				logger.debug("baseProduct.json="+JSONObject.fromObject(baseProduct).toString());
+				
+				/*String u3dModelId = baseProductService.getU3dModelId(mediaType == null ? "2" : mediaType.toString(), baseProduct,modelType);*/
+				// 如果是天花,则模型路径传对应白膜的模型路径(为了适配户型绘制功能) update by huangsongbo 2018.3.26 ->start
+				String u3dModelId = null;
+				if(StringUtils.equals(ProductTypeConstant.PRODUCT_BIG_TYPE_VALUE_TIANH, baseProduct.getProductTypeValue())) {
+					if(planProduct != null && planProduct.getInitProductId() != null) {
+						BaseProduct baseProductBaimo = baseProductService.get(planProduct.getInitProductId());
+						if(baseProductBaimo != null) {
+							u3dModelId = baseProductService.getU3dModelId(mediaType == null ? "2" : mediaType.toString(), baseProductBaimo);
+						}else {
+							logger.error(logPrefix + "baseProductBaimo = null;productId = " + planProduct.getInitProductId());
+						}
+					}else {
+						logger.error(logPrefix + "(planProduct != null && planProduct.getInitProductId() != null) = true");
+					}
+				}
+				
+				if(u3dModelId == null) {
+					u3dModelId = baseProductService.getU3dModelId(mediaType == null ? "2" : mediaType.toString(), baseProduct);
+				}
+				// 如果是天花,则模型路径传对应白膜的模型路径(为了适配户型绘制功能) update by huangsongbo 2018.3.26 ->end
+				
+				ResModel resModel = resModelService.get(StringUtils.isEmpty(u3dModelId) ? 0 : new Integer(u3dModelId));
+				if (resModel != null) {
+					unityPlanProduct.setProductModelPath(resModel.getModelPath());
+					unityPlanProduct.setModelLength(resModel.getLength());
+					unityPlanProduct.setModelWidth(resModel.getWidth());
+					unityPlanProduct.setModelHeight(resModel.getHeight());
+					unityPlanProduct.setModelMinHeight(resModel.getMinHeight());
+				} else {
+					//unityPlanProduct.setProductModelPath("");
+					/*应对只有材质的硬装产品无模型的情况*/
+					boolean isHard = false;
+					if (baseProduct != null) {
+						isHard = baseProductService.isHard(baseProduct);
+					}
+					if (isHard) {
+						BaseProduct baimoProduct = null;
+						Integer currentProductId = null;
+						//换贴图应找当前产品模型
+						if (planProduct.getModelProductId() != null && planProduct.getModelProductId() != 0) {
+							currentProductId = planProduct.getModelProductId();
+							unityPlanProduct.setModelProductId(planProduct.getModelProductId());
+						} else {
+							currentProductId = planProduct.getInitProductId();
+						}
+
+						if (Utils.enableRedisCache() && StringUtils.equals(Constants.NEED_CACHE, needOrNoCache)) {
+							/*baimoProduct = BaseProductCacher.get(currentProductId);*/
+							baimoProduct = baseProductService.getFromCache(currentProductId);
+						} else {
+ 							baimoProduct = baseProductService.get(currentProductId);
+						}
+						/*获取不同媒介u3d模型*/
+						String modelId = baseProductService.getU3dModelId(mediaType,baimoProduct,modelType);
+						if( StringUtils.isNotBlank(modelId) ){
+							ResModel resModel1 = null ;
+							if(Utils.enableRedisCache() && StringUtils.equals(Constants.NEED_CACHE, needOrNoCache)){
+								/*resModel1 = ResourceCacher.getModel(Integer.valueOf(modelId));*/
+								resModel1 = resModelService.getFromCache(Integer.valueOf(modelId));
+							}else{
+								resModel1 = resModelService.get(Integer.valueOf(modelId));
+							}
+							if( resModel1 != null ){
+								unityPlanProduct.setProductModelPath(resModel1.getModelPath());
+							}
+						}
+					}
+				}
+
+				if (baseProduct != null && StringUtils.isNotBlank(baseProduct.getMaterialPicIds())) {
+					String materialIds = baseProduct.getMaterialPicIds();
+					List<String> idsInfo = Utils.getListFromStr(materialIds);
+					List<String> materialPicList = new ArrayList<String>();
+					ResTexture resTextureTemp = null;
+					for (String idStr : idsInfo) {
+						ResTexture resTexture = resTextureService.get(Integer.valueOf(idStr));//材质库
+						if (resTexture == null)
+							continue;
+						if (resTextureTemp == null) {
+							resTextureTemp = resTexture;
+							unityPlanProduct.setTextureAttrValue(resTextureTemp.getTextureAttrValue());
+							unityPlanProduct.setLaymodes(resTextureTemp.getLaymodes());
+						}
+						if (resTexture != null && resTexture.getId() != null) {
+							materialPicList.add(resTexture.getFilePath());
+						}
+					}
+					unityPlanProduct.setMaterialPicPaths((String[]) materialPicList.toArray(new String[materialPicList.size()]));
+				}
+
+				/*---------------------xiaoxc  end-----*/
+				/* 产品子集数量*/
+				unityPlanProduct.setLeafNum(0);
+				/* 标示产品在界面中的展示类型*/
+				unityPlanProduct.setIsLeaf(new Integer(1));
+				/* 产品是否隐藏*/
+				unityPlanProduct.setIsHide(planProduct.getIsHide());
+
+				String splitTexturesInfo = baseProduct.getSplitTexturesInfo();
+				if (StringUtils.isNotBlank(splitTexturesInfo)) {
+					if (StringUtils.isNotBlank(planProduct.getSplitTexturesChooseInfo())) {
+						splitTexturesInfo = planProduct.getSplitTexturesChooseInfo();
+					}
+					Map<String, Object> map = baseProductService.dealWithSplitTextureInfo(loginUser,modelType,baseProduct.getId(), splitTexturesInfo, "choose");
+					unityPlanProduct.setIsSplit((Integer) map.get("isSplit"));
+					unityPlanProduct.setSplitTexturesChoose((List<SplitTextureDTO>) map.get("splitTexturesChoose"));
+				} else {
+					List<SplitTextureDTO> splitTextureDTOList = new ArrayList<SplitTextureDTO>();
+					String materialIds = baseProduct.getMaterialPicIds();
+					Integer materialId = 0;
+					if (StringUtils.isNotBlank(materialIds)) {
+						List<String> materialIdStrList = Utils.getListFromStr(materialIds);
+						if (materialIdStrList != null && materialIdStrList.size() > 0) {
+							materialId = Integer.valueOf(materialIdStrList.get(0));
+						}
+					}
+					if (materialId != null && materialId > 0) {
+						ResTexture resTexture = resTextureService.get(materialId);
+						if (resTexture != null) {
+							splitTextureDTOList = new ArrayList<SplitTextureDTO>();
+							List<SplitTextureDTO.ResTextureDTO> resTextureDTOList = new ArrayList<SplitTextureDTO.ResTextureDTO>();
+							SplitTextureDTO splitTextureDTO = new SplitTextureDTO("1", "", null);
+							SplitTextureDTO.ResTextureDTO resTextureDTO = resTextureService.fromResTexture(resTexture);
+							resTextureDTO.setKey(splitTextureDTO.getKey());
+							resTextureDTO.setProductId(baseProduct.getId());
+							resTextureDTOList.add(resTextureDTO);
+							splitTextureDTO.setList(resTextureDTOList);
+							splitTextureDTOList.add(splitTextureDTO);
+							unityPlanProduct.setSplitTexturesChoose(splitTextureDTOList);
+						}
+					}
+				}
+
+				/*处理拆分材质产品的默认材质信息->end*/
+				UnityPlanProduct unityPlanProduct_p = unityPlanProduct.copy();
+				// 产品类别信息
+				if (!StringUtils.isEmpty(productTypeValue)) {
+					SysDictionary sd = sysDictionaryService.getSysDictionary("productType", new Integer(productTypeValue));
+					if (sd != null) {
+						/* 为保证父节点与子节点的productTypeCode相同，指定如下规则：
+						子节点时，parentTypeCode和smallTyeCode，productTypeCode三者都存在值，smallTyeCode为本身的节点的信息值parentTypeCode与productTypeCode相等
+						父节点时，parentTypeCode存在值(暂时不取)，productTypeCode为节点本身信息值，因为子节点太多，故子节点smallTyeCode为空值*/
+						unityPlanProduct.setProductTypeValue(sd.getValue());
+						unityPlanProduct.setProductTypeCode(sd.getValuekey());
+						unityPlanProduct.setProductTypeName(sd.getName());
+
+						unityPlanProduct_p.setProductTypeValue(sd.getValue());
+						unityPlanProduct_p.setProductTypeCode(sd.getValuekey());
+						unityPlanProduct_p.setProductTypeName(sd.getName());
+						/* 获取子节点的父节点信息*/
+						unityPlanProduct.setParentTypeCode(sd.getValuekey());
+						unityPlanProduct.setParentTypeName(sd.getName());
+						unityPlanProduct.setParentTypeValue(sd.getValue());
+
+						unityPlanProduct_p.setParentTypeValue(-1);
+						unityPlanProduct_p.setParentTypeCode("");
+						unityPlanProduct_p.setParentTypeName("");
+
+						/* 获取子节点的节点信息*/
+						if (productSmallTypeValue != null && new Integer(productSmallTypeValue).intValue() > 0) {
+							if (sysDictionary != null) {
+								unityPlanProduct.setSmallTypeValue(sysDictionary.getValue());
+								unityPlanProduct.setSmallTypeCode(sysDictionary.getValuekey());
+								unityPlanProduct.setSmallTypeName(sysDictionary.getName());
+								/* 是否是白模*/
+								Integer isBm = 0;
+								if ("baimo".equals(sysDictionary.getAtt3())) {
+									isBm = 1;
+									String bjType = Utils.getValue("app.smallProductType.beiJingWall", "");
+									if( bjType.indexOf(sysDictionary.getValuekey()) != -1 ){
+										unityPlanProduct.setIsHide(1);
+									}
+								}
+								unityPlanProduct.setIsBaimo(isBm);
+								unityPlanProduct_p.setIsBaimo(isBm);
+								/* 软装硬装以下规则处理，同时按最小基本的数据定义-按1硬装2软装,默认软装*/
+								String rootType = StringUtils.isEmpty(sysDictionary.getAtt1()) ? "2" : sysDictionary.getAtt1().trim();
+								unityPlanProduct.setRootType(rootType);
+								unityPlanProduct_p.setRootType("");
+								unityPlanProduct_p.setIsBaimo(isBm);
+								unityPlanProduct_p.setSmallTypeValue(-1);
+								unityPlanProduct_p.setSmallTypeCode("");
+								unityPlanProduct_p.setSmallTypeName("");
+							}
+						}
+					}
+				}
+
+				/* 存储产品分类集合,便于组装UI界面*/
+				if (!StringUtils.isEmpty(unityPlanProduct.getProductTypeCode())) {
+					productTypeCodeSet.add(unityPlanProduct.getProductTypeCode());
+					// 默认使用第一条记录信息做数据代入*/
+					if (!unityPlanProductMap_p.containsKey(unityPlanProduct.getProductTypeCode())) {
+						/* 为保证父节点与子节点的productTypeCode相同，指定如下规则：
+						子节点时，parentTypeCode和smallTyeCode，productTypeCode三者都存在值，smallTyeCode为本身的节点的信息值parentTypeCode与productTypeCode相等
+						 父节点时，parentTypeCode存在值，productTypeCode为节点本身信息值，因为子节点太多，故子节点smallTyeCode为空值*/
+						unityPlanProductMap_p.put(unityPlanProduct.getProductTypeCode(), unityPlanProduct_p);
+					}
+				} else {
+					logger.debug("unityPlanProduct.getProductTypeCode() is null ;unityPlanProduct.getProductTypeCode()=" + unityPlanProduct.getProductTypeCode() + ";unityPlanProduct.getProductId=" + unityPlanProduct.getProductId() + ";unityPlanProduct.getProductCode=" + unityPlanProduct.getProductCode());
+				}
+
+				Map<String, String> map = new HashMap<String, String>();
+				/*将材质的长宽也给  塞到这个list 中取 */
+				String aterialPicIds = baseProduct.getMaterialPicIds();/**材质id**/
+				if (aterialPicIds != null && !"".equals(aterialPicIds)) {
+					if (StringUtils.isNumeric(aterialPicIds)) {
+						ResTexture resTexture = resTextureService.get(Integer.parseInt(aterialPicIds));
+						if (resTexture != null) {
+							unityPlanProduct.setTextureWidth(resTexture.getFileWidth() + "");
+							unityPlanProduct.setTextureHeight(resTexture.getFileHeight() + "");
+						}
+					}
+				}
+				/*在组合产品查询列表 中 增加产品属性*/
+				map = productAttributeService.getPropertyMap(baseProduct.getId());//产品属性
+				unityPlanProduct.setPropertyMap(map);
+
+				// 关联白模产品的属性
+				Map<String,String> basicPropertyMap = new HashMap<>();
+				basicPropertyMap = productAttributeService.getPropertyMap(planProduct.getInitProductId());
+				unityPlanProduct.setBasicPropertyMap(basicPropertyMap);
+
+				//新逻辑客户端用到的天花数据存储到单独VO里
+				this.getProductCeilingVO(unityPlanProduct, planProduct, baseProduct, putawayStateList);
+
+				/* 样板房产品ID*/
+				unityPlanProduct.setTemplateProductId(
+						planProduct.getInitProductId() == null ? "" : planProduct.getInitProductId().toString());
+
+				/* 组装产品的规则*/
+				String productTypeCode = unityPlanProduct.getProductTypeCode();/* 产品大类*/
+				String productSmallTypeCode = unityPlanProduct.getSmallTypeCode();/* 产品小类*/
+				String productId = null;// 产品ID
+				if (unityPlanProduct.getProductId() != null) {
+					productId = unityPlanProduct.getProductId().toString();/*产品ID*/
+				}
+
+				/*获取规则*/
+				Map<String, String> rulesMap = new HashMap<>();
+				Map<Object, Object> rulesParamsMap = new HashMap<>();
+				rulesParamsMap.put("rulesProductId", productId);
+				ResponseEnvelope rulesResponseMapResult = null;
+				if(Utils.enableRedisCache()){
+					/*rulesResponseMapResult = CommonCacher.getAll(ModuleType.DesignPlan, "getRulesSecondaryList", rulesParamsMap);*/
+					rulesResponseMapResult = commonCacheService.getAll(ModuleType.DesignPlan, "getRulesSecondaryList", rulesParamsMap);
+				}
+				
+				if (rulesResponseMapResult != null) {
+					rulesMap = (Map<String, String>) rulesResponseMapResult.getObj();
+				} else {
+					rulesMap = designRulesService.getRulesSecondaryList(productId, productTypeCode,
+							productSmallTypeCode, spaceId, designPlan.getDesignTemplateId(), new DesignRules(), map);
+
+				}
+				unityPlanProduct.setRulesMap(rulesMap);
+				if(unityPlanProduct.getPlanProductId().intValue() == 3093779) {
+					logger.error("getDesignPlanInfo==>test==s06sf01" + unityPlanProduct.getProductId() + "pproductTypeCode=" + unityPlanProduct.getProductCode());
+				}
+				
+				unityPlanProductList.add(unityPlanProduct);
+			}
+			/*大循环的结束括号*/
+
+			// 四.定制装修导航(在产品列表中该增加大按钮性质,同时,只有一个时,删除小按钮)
+			// 组装每个产品的分类信息
+			this.getDecorationNavigationInfo(unityPlanProductList, newUnityPlanProductList, productTypeCodeSet, unityPlanProductMap_p);
+			
+			// 地面通铺结构
+			this.handlerStructure(designPlanId, spaceId, this.getValue(mediaType), unityDesignPlan);
+		}
+		
+		ComparatorT cpmparator = new ComparatorT();
+		Collections.sort(newUnityPlanProductList, cpmparator);
+		unityDesignPlan.setDatalist(newUnityPlanProductList);
+		ResponseEnvelope responseEnvelope = new  ResponseEnvelope<UnityDesignPlan>(true,unityDesignPlan);
+
+		return responseEnvelope;
+	}
+	
+	Integer getValue(Object arg) {
+		return arg == null ? null : Integer.valueOf(arg.toString());
+	}
+	
+	public void getSingleTexture(BaseProduct product,List<SplitTextureDTO> splitTextureDTOList) {
+		if(null==splitTextureDTOList){
+			return;
+		}
+		ResModel textureBallModel = null;
+		String materialPath = "";
+		ResPic normalPic = null;
+		String normalParam = "";
+		String normalPath = "";
+		SplitTextureDTO splitTextureDTO = null;
+		ResTexture resTexture = resTextureService.get(Integer.valueOf(product.getMaterialPicIds()));
+		if(null!=resTexture){
+			if(resTexture.getTextureBallFileId() != null){
+				textureBallModel = resModelService.get(resTexture.getTextureBallFileId());
+				if(textureBallModel != null){
+					materialPath = textureBallModel.getModelPath();
+					materialPath = Utils.dealWithPath(materialPath, "linux");
+				}
+			}
+			if(resTexture.getNormalPicId()!=null){
+				normalParam = resTexture.getNormalParam();
+				normalPic =  resPicService.get(resTexture.getNormalPicId());
+				if(normalPic!=null){
+					normalPath = normalPic.getPicPath();
+					normalPath = Utils.dealWithPath(normalPath, "linux");
+				}
+			}
+
+			String resTexturePic = null; //材质图片
+			if(resTexture.getPicId() !=null && resTexture.getPicId().intValue() > 0) {
+				ResPic resPic = resPicService.get(resTexture.getPicId());
+				if(resPic != null) {
+					resTexturePic = resPic.getPicPath();
+				}
+			}
+
+			// 单材质产品
+			splitTextureDTO = new SplitTextureDTO("1", "", null);
+			SplitTextureDTO.ResTextureDTO resTextureDTO = splitTextureDTO.new ResTextureDTO(
+					Integer.valueOf(product.getMaterialPicIds()),resTexturePic,resTexture.getTextureAttrValue(),
+					resTexture.getFileHeight(),resTexture.getFileWidth(),resTexture.getLaymodes(),materialPath,normalParam,normalPath);
+			resTextureDTO.setKey("1");
+			resTextureDTO.setProductId(product.getId());
+			List<ResTextureDTO> resTextureDTOList = new ArrayList<ResTextureDTO>();
+			resTextureDTOList.add(resTextureDTO);
+			splitTextureDTO.setList(resTextureDTOList);
+
+			//加入
+			splitTextureDTOList.add(splitTextureDTO);
+		}
+	}
+	
+	/**
+	 * 返回拼花结构格式
+	 * @param designPlan
+	 * @param unityDesignPlan
+	 */
+	@SuppressWarnings("unchecked")
+	public void spellingFlowerData(LoginUser loginUser,String modelType,DesignPlanModel designPlan,UnityDesignPlan unityDesignPlan) {
+		if(designPlan == null || unityDesignPlan == null) {
+			return;
+		}
+		if(designPlan.getSpellingFlowerFileId()!=null && designPlan.getSpellingFlowerFileId().intValue() > 0) {
+			ResDesign resDesign  = resDesignService.get(designPlan.getSpellingFlowerFileId());
+			if(resDesign != null) {
+				unityDesignPlan.setSpellingFlower(resDesign.getFilePath());
+			}
+		}
+		if (StringUtils.isEmpty(designPlan.getSpellingFlowerProduct())) {
+			return ;
+		}
+		String [] arr = designPlan.getSpellingFlowerProduct().split(",");
+		List<BaseProduct>productList = null;
+		if(arr != null && arr.length > 0 && !"[]".equals(arr)) {
+			List<Integer>ids = new ArrayList<Integer>();
+			for (String id : arr) {
+				/*int productId = 0;
+				if(id.indexOf("_")!=-1) {
+					String idStr = id.substring(0, id.indexOf("_"));
+					productId = Integer.parseInt(idStr);
+					String str = id.split("_")[1];
+					idMap.put(productId, str);
+				}else {
+					productId = Integer.parseInt(id);
+				}*/
+				ids.add(Integer.parseInt(id));
+			}
+			productList = baseProductService.getBatchData(ids);
+		}
+		Map<String,Object>spellingFlowerProductMap = new HashMap<String,Object>();
+		if(productList != null && productList.size() > 0) {
+			for (BaseProduct product : productList) {
+				List<SplitTextureDTO> splitTextureDTOList = new ArrayList<>();
+				Integer isSplit = 0;
+				if(StringUtils.isNotEmpty(product.getSplitTexturesInfo())){
+					Map<String, Object> map = baseProductService.dealWithSplitTextureInfo(loginUser,modelType,product.getId(), product.getSplitTexturesInfo(), "choose");
+					isSplit = (Integer) map.get("isSplit");
+					splitTextureDTOList = (List<SplitTextureDTO>) map.get("splitTexturesChoose");
+				}else { 
+					if(StringUtils.isNotBlank(product.getMaterialPicIds())){
+						this.getSingleTexture(loginUser,modelType,product, splitTextureDTOList);
+					}
+				}
+				/*product.setIsSplit(isSplit);
+				product.setSplitTexturesChoose(splitTextureDTOList);
+				if(idMap != null && idMap.size()>0) {
+					idMap.get(product.getId())
+				}
+				for (SplitTextureDTO splitTextureDTO : splitTextureDTOList) {
+					
+				}*/
+				if(null!=splitTextureDTOList&&splitTextureDTOList.size()>0){
+					spellingFlowerProductMap.put(product.getId()+"", splitTextureDTOList);
+				}
+			}	
+		}
+		unityDesignPlan.setSpellingFlowerProductMap(spellingFlowerProductMap);
+	}
+	
+	/**
+	 * 地面通铺结构，songjianming@sandusapce.com
+	 * @param designPlanId
+	 * @param spaceId
+	 * @param mediaType
+	 * @return
+	 */
+	List<SearchStructureProductResult> handlerStructure(Integer designPlanId, Integer spaceId, Integer mediaType, UnityDesignPlan unityDesignPlan) {
+		List<SearchStructureProductResult> list = new ArrayList<SearchStructureProductResult>();
+		Integer dataType = designPlanMapper.getDesignPlanSource(designPlanId);
+		if (dataType == null || dataType != DesignPlanConstants.ORIGIN_DRAW) {
+			// 原先是否为通铺结构   0 =（结构产品 -通铺结构）
+			Integer count = designPlanMapper.countGroundStructure(designPlanId);
+			Integer countProduct = designPlanMapper.countGroundStructureProduct(designPlanId);
+			if (countProduct - count > 0) {
+				logger.info("获取设计方案的地面通铺结构");
+				List<StructureProduct> listStructure = structureProductService.listStructure(designPlanId);
+				if (listStructure != null && !listStructure.isEmpty()) {
+					for (StructureProduct product : listStructure) {
+						SearchStructureProductResult result = this.handler(product, spaceId, mediaType);
+						list.add(result);
+					}
+				}
+			}
+			
+			// 数据类型 1、老数据
+			unityDesignPlan.setDataType(1);
+		} else {
+			// 数据类型 1、老数据
+			unityDesignPlan.setDataType(2);
+		}
+		
+		unityDesignPlan.setGroundStructure(list);
+		
+		return list;
+	}
+	
+	public void getSingleTexture(LoginUser loginUser,String modelType,BaseProduct product,List<SplitTextureDTO> splitTextureDTOList) {
+		if( splitTextureDTOList == null ){
+			return;
+		}
+		ResModel textureBallModel = null;
+		String materialPath = "";
+		ResPic normalPic = null;
+		String normalParam = "";
+		String normalPath = "";
+		Integer textureBallFileId = null;
+		SplitTextureDTO splitTextureDTO = null;
+		String mediaType = loginUser.getMediaType();//媒介
+
+		ResTexture resTexture = resTextureService.get(Integer.valueOf(product.getMaterialPicIds()));
+		if(null!=resTexture){
+			logger.error("getSingleTexture.mediaType="+mediaType+",modelType="+modelType);
+
+			//根据媒介类型取值
+			if(StringUtils.isEmpty(modelType)||"null".equals(modelType)||StringUtils.isBlank(modelType)){
+				if ("5".equals(mediaType)) {
+					textureBallFileId = resTexture.getIosTextureBallFileId();
+				} else if ("6".equals(mediaType)) {
+					textureBallFileId = resTexture.getAndroidTextureBallFileId();
+				}else{
+					textureBallFileId = resTexture.getTextureBallFileId();
+				}
+			}else{
+				if(modelType.equals("IPhonePlayer")){
+					textureBallFileId = resTexture.getIosTextureBallFileId();
+				}if(modelType.equals("Android")){
+					textureBallFileId = resTexture.getAndroidTextureBallFileId();
+				}else{
+					textureBallFileId = resTexture.getTextureBallFileId();
+				}
+			}
+
+			if(textureBallFileId != null && textureBallFileId.intValue()>0){
+				textureBallModel = resModelService.get(textureBallFileId);
+				if(textureBallModel != null){
+					materialPath = textureBallModel.getModelPath();
+					materialPath = Utils.dealWithPath(materialPath, "linux");
+				}
+			}
+
+			if(resTexture.getNormalPicId()!=null){
+				normalParam = resTexture.getNormalParam();
+				normalPic =  resPicService.get(resTexture.getNormalPicId());
+
+				if(normalPic!=null){
+					String smallPicInfo = normalPic.getSmallPicInfo();
+					Map<String,String> map = this.getSmallPicInfoMap(smallPicInfo);
+
+					//根据媒介类型取值
+					if(StringUtils.isEmpty(modelType)||"null".equals(modelType)||StringUtils.isBlank(modelType)){
+
+						if ("5".equals(mediaType)) {
+							Integer iosId = null != map.get("ios") ? Integer.valueOf(map.get("ios")) : null;
+							ResPic iosResPic = iosId != null ? resPicService.get(iosId) : null;
+							normalPath = iosResPic != null ? iosResPic.getPicPath() : "";
+						} else if ("6".equals(mediaType)) {
+							Integer androidId = null != map.get("android") ? Integer.valueOf(map.get("android")) : null;
+							ResPic androidResPic = androidId != null ? resPicService.get(androidId) : null;
+							normalPath = androidResPic != null ? androidResPic.getPicPath() : "";
+						}else{
+							normalPath=normalPic.getPicPath();
+						}
+
+					}else{
+
+						if(modelType.equals("IPhonePlayer")){
+							Integer iosId = null != map.get("ios") ? Integer.valueOf(map.get("ios")) : null;
+							ResPic iosResPic = iosId != null ? resPicService.get(iosId) : null;
+							normalPath = iosResPic != null ? iosResPic.getPicPath() : "";
+						}if(modelType.equals("Android")){
+							Integer androidId = null != map.get("android") ? Integer.valueOf(map.get("android")) : null;
+							ResPic androidResPic = androidId != null ? resPicService.get(androidId) : null;
+							normalPath = androidResPic != null ? androidResPic.getPicPath() : "";
+						}else{
+							normalPath=normalPic.getPicPath();
+						}
+
+					}
+
+					normalPath = Utils.dealWithPath(normalPath, "linux");
+				}
+			}
+
+			String resTexturePic = null; //材质图片
+			if(resTexture.getPicId() !=null && resTexture.getPicId().intValue() > 0) {
+				ResPic resPic = resPicService.get(resTexture.getPicId());
+				if(resPic != null) {
+					String smallPicInfo = resPic.getSmallPicInfo();
+					Map<String,String> map = this.getSmallPicInfoMap(smallPicInfo);
+
+					//根据媒介类型取值
+					if(StringUtils.isEmpty(modelType)||"null".equals(modelType)||StringUtils.isBlank(modelType)){
+
+						if ("5".equals(mediaType)) {
+							Integer iosId = null==map.get("ios")?null:Integer.valueOf(map.get("ios"));
+							ResPic iosResPic = iosId == null ? null : resPicService.get(iosId);
+							resTexturePic = iosResPic != null ? iosResPic.getPicPath() : "";
+						} else if ("6".equals(mediaType)) {
+							Integer androidId = null==map.get("android")?null:Integer.valueOf(map.get("android"));
+							ResPic androidResPic = androidId == null ? null : resPicService.get(androidId);
+							resTexturePic = androidResPic != null ? androidResPic.getPicPath() : "";
+						}else{
+							resTexturePic=resPic.getPicPath();
+						}
+
+					}else{
+
+						if(modelType.equals("IPhonePlayer")){
+							Integer iosId = null==map.get("ios")?null:Integer.valueOf(map.get("ios"));
+							ResPic iosResPic = iosId == null ? null : resPicService.get(iosId);
+							resTexturePic = iosResPic != null ? iosResPic.getPicPath() : null;
+						}if(modelType.equals("Android")){
+							Integer androidId = null==map.get("android")?null:Integer.valueOf(map.get("android"));
+							ResPic androidResPic = androidId == null ? null : resPicService.get(androidId);
+							resTexturePic = androidResPic != null ? androidResPic.getPicPath() : "";
+						}else{
+							resTexturePic=resPic.getPicPath();
+						}
+
+					}
+
+				}
+			}
+
+			// 单材质产品
+			splitTextureDTO = new SplitTextureDTO(product.getProductCode(), "", null);
+			SplitTextureDTO.ResTextureDTO resTextureDTO = splitTextureDTO.new ResTextureDTO(
+					Integer.valueOf(product.getMaterialPicIds()),resTexturePic,resTexture.getTextureAttrValue(),
+					resTexture.getFileHeight(),resTexture.getFileWidth(),resTexture.getLaymodes(),materialPath,normalParam,normalPath);
+			resTextureDTO.setKey("1");
+			resTextureDTO.setProductId(product.getId());
+			List<ResTextureDTO> resTextureDTOList = new ArrayList<ResTextureDTO>();
+			resTextureDTOList.add(resTextureDTO);
+			splitTextureDTO.setList(resTextureDTOList);
+
+			//加入
+			splitTextureDTOList.add(splitTextureDTO);
+		}
+	}
+	
+	SearchStructureProductResult handler(StructureProduct structureProduct, Integer spaceId, Integer mediaType) {
+		SearchStructureProductResult searchStructureProductResult = new SearchStructureProductResult(structureProduct.getId(),
+				structureProduct.getStructureName(), structureProduct.getStructureCode(), "", "", null, "", "");
+
+		/* 封面图片路径 */
+		Integer picId = structureProduct.getPicId();
+		if (picId != null && picId > 0) {
+			ResPic resPic = resPicService.get(picId);
+			if (resPic != null) {
+				searchStructureProductResult.setPicPath(resPic.getPicPath());
+			}
+			Integer smallPicId = Utils.getSmallPicId(resPic, "ipad");
+			if (smallPicId != null && smallPicId.intValue() > 0) {
+				ResPic resSmallPic = resPicService.get(smallPicId);
+				searchStructureProductResult.setSmallPicPath(resSmallPic == null ? "" : resSmallPic.getPicPath());
+			}
+		}
+
+		Integer descPicPath = structureProduct.getDescPicId();
+		if (descPicPath != null && descPicPath > 0) {
+			ResPic resPic = resPicService.get(descPicPath);
+			if (resPic != null) {
+				searchStructureProductResult.setDescPicPath(resPic.getPicPath());
+			}
+		}
+		searchStructureProductResult.setStructureDes(structureProduct.getRemark());
+
+		/* 封面图片路径->end */
+		/* config(从文件中取) */
+		Integer fileId = structureProduct.getConfigFileId();
+		if (fileId != null && fileId > 0) {
+			ResFile resFile = resFileService.get(fileId);
+			if (resFile != null) {
+				// String url=Utils.getValue("app.upload.root", "")+resFile.getFilePath();
+				// String config=FileUploadUtils.getFileContext(url);
+				// searchStructureProductResult.setStructureConfig(config);
+				String url = resFile.getFilePath();
+				searchStructureProductResult.setFilePath(url);
+			}
+		}
+
+		/* config(从文件中取)->end */
+		/* 明细list */
+		/* 查询明细 */
+		List<SearchStructureProductDetailResult> searchStructureProductDetailResults = new ArrayList<SearchStructureProductDetailResult>();
+		List<StructureProductDetails> structureProductDetailList = structureProductDetailsService.findAllByStructureId(structureProduct.getId());
+		if (structureProductDetailList != null && structureProductDetailList.size() > 0) {
+			for (StructureProductDetails structureProductDetail : structureProductDetailList) {
+				Integer productId = structureProductDetail.getProductId();
+				BaseProduct baseProduct = null;
+				if (productId != null && productId > 0) {
+					if (Utils.enableRedisCache())
+						/*baseProduct = BaseProductCacher.get(productId);*/
+						baseProduct = baseProductService.getFromCache(productId);
+					else
+						baseProduct = baseProductService.get(productId);
+				}
+				if (baseProduct == null)
+					continue;
+				String productTypeValue = baseProduct.getProductTypeValue();
+				if (StringUtils.isNotBlank(productTypeValue)) {
+					SysDictionary productTypeSysDic = sysDictionaryService.getSysDictionaryByValue("productType", Integer.valueOf(productTypeValue));
+					baseProduct.setProductTypeMark(productTypeSysDic.getValuekey());
+					Integer productSmallTypeValue = baseProduct.getProductSmallTypeValue();
+					if (productTypeSysDic.getValue() != null && productSmallTypeValue != null) {
+						SysDictionary productSmallTypeSysDic = sysDictionaryService.getSysDictionaryByValue(productTypeSysDic.getValuekey(), productSmallTypeValue);
+						baseProduct.setProductSmallTypeMark(productSmallTypeSysDic.getValuekey());
+					}
+				}
+				SearchStructureProductDetailResult searchStructureProductDetailResult = baseProductService.getStructureDetailsSearch(baseProduct, mediaType);
+				searchStructureProductDetailResult.setCameraLook(structureProductDetail.getCameraLook());
+				searchStructureProductDetailResult.setCameraView(structureProductDetail.getCameraView());
+				searchStructureProductDetailResult.setProductStructureId(structureProduct.getId());
+				searchStructureProductDetailResult.setStyleId(structureProductDetail.getStyleId());
+				searchStructureProductDetailResult.setMeasureCode(structureProductDetail.getMeasureCode());
+				searchStructureProductDetailResult.setRegionMark(structureProduct.getRegionMark());
+				searchStructureProductDetailResult.setDescribeInfo(structureProductDetail.getDescribeInfo());
+				searchStructureProductDetailResult.setTemplateProductId(productId);
+				searchStructureProductDetailResult.setBasicModelType(baseProduct.getProductSmallTypeMark().replace("basic_", ""));
+				/* rulesMap */
+				Map<String, String> map = new HashMap<String, String>();
+				map = productAttributeService.getPropertyMap(baseProduct.getId());
+				baseProduct.setPropertyMap(map);
+				searchStructureProductDetailResult.setStructureProductSign(map.get("structureSign"));
+				Map<String, String> rulesMap = designRulesService.getRulesSecondaryList(baseProduct.getId().toString(), baseProduct.getProductTypeMark(), baseProduct.getProductSmallTypeMark(), spaceId, null, new DesignRules(), map);
+				searchStructureProductDetailResult.setRulesMap(rulesMap);
+				searchStructureProductDetailResult.setPropertyMap(map);
+				searchStructureProductDetailResult.setBasicPropertyMap(map);
+				/* rulesMap->end */
+				searchStructureProductDetailResults.add(searchStructureProductDetailResult);
+			}
+		}
+		searchStructureProductResult.setStructureProductList(searchStructureProductDetailResults);
+		/* 明细list->end */
+		return searchStructureProductResult;
+	}
+
+	private Map getSmallPicInfoMap(String smallPicInfo){
+		Map<String,String> map = new HashMap<String,String>();
+		String[] strs = StringUtils.isEmpty(smallPicInfo) ? new String[0] : smallPicInfo.split(";");
+		for(String s:strs){
+			String[] ms = s.split(":");
+			map.put(ms[0], ms[1]);
+		}
+		return map;
+	}
+
+	@Override
+	public DesignPlanModel selectIosDesignPlanInfo(Integer id) {
+		return designPlanMapper.selectIosDesignPlanInfo(id);
+	}
+
+	@Override
+	public DesignPlanModel selectAndroidDesignPlanInfo(Integer id) {
+		return designPlanMapper.selectAndroidDesignPlanInfo(id);
+	}
+	
+}

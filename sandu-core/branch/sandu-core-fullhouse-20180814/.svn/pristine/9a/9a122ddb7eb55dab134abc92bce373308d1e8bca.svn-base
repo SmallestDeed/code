@@ -1,0 +1,256 @@
+package com.sandu.service.fullhouse.impl.biz;
+
+import com.google.gson.Gson;
+import com.sandu.api.base.model.BaseProductStyle;
+import com.sandu.api.base.model.SysUser;
+import com.sandu.api.base.service.BaseProductStyleService;
+import com.sandu.api.base.service.SysUserService;
+import com.sandu.api.designplan.model.DesignPlanRecommended;
+import com.sandu.api.designplan.service.DesignPlanRecommendedService;
+import com.sandu.api.designplan.service.biz.DesignPlanRecommendedBizService;
+import com.sandu.api.fullhouse.common.constant.FullHouseConstant;
+import com.sandu.api.fullhouse.input.DesignPlanQuery;
+import com.sandu.api.fullhouse.input.DesignPlanStyleQuery;
+import com.sandu.api.fullhouse.input.FullHouseDesignPlanAdd;
+import com.sandu.api.fullhouse.input.FullHouseDesignPlanQuery;
+import com.sandu.api.fullhouse.model.FullHouseDesignPlan;
+import com.sandu.api.fullhouse.output.DesignPlanStyleVO;
+import com.sandu.api.fullhouse.output.DesignPlanVO;
+import com.sandu.api.fullhouse.output.FullHouseDesignPlanVO;
+import com.sandu.api.fullhouse.service.FullHouseDesignPlanDetailService;
+import com.sandu.api.fullhouse.service.FullHouseDesignPlanService;
+import com.sandu.api.fullhouse.service.biz.FullHouseDesignPlanBizService;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * created by zhangchengda
+ * 2018/8/15 18:37
+ * 全屋方案业务服务
+ */
+@Log4j2
+@Service("fullHouseDesignPlanBizService")
+public class FullHouseDesignPlanBizServiceImpl implements FullHouseDesignPlanBizService {
+    @Autowired
+    private DesignPlanRecommendedBizService designPlanRecommendedBizService;
+    @Autowired
+    private BaseProductStyleService baseProductStyleService;
+    @Autowired
+    private FullHouseDesignPlanService fullHouseDesignPlanService;
+    @Autowired
+    private FullHouseDesignPlanDetailService fullHouseDesignPlanDetailService;
+    @Autowired
+    private DesignPlanRecommendedService designPlanRecommendedService;
+    @Autowired
+    private SysUserService sysUserService;
+    private static final int DEFAULT_CURRENT_PAGE = 1;
+    private static final int DEFAULT_DESIGN_PLAN_PAGE_SIZE = 20;
+    private static final int DEFAULT_FULL_HOUSE_DESIGN_PLAN_PAGE_SIZE = 10;
+    private static final int DEFAULT_START = 0;
+    private static final Gson gson = new Gson();
+
+    /**
+     * created by zhangchengda
+     * 2018/8/16 12:52
+     * 查询用于全屋方案制作的组合方案主方案/一键方案（空间类型为厨房时）
+     * @param query 查询参数
+     * @return 可选方案集合
+     */
+    @Override
+    public List<DesignPlanVO> selectGroupPrimaryDesignPlan(DesignPlanQuery query) {
+        // 处理分页
+        if (query.getCurPage() == null || query.getCurPage() <= 0){
+            query.setCurPage(DEFAULT_CURRENT_PAGE);
+        }
+        if (query.getPageSize() == null || query.getPageSize() <= 0){
+            query.setPageSize(DEFAULT_DESIGN_PLAN_PAGE_SIZE);
+        }
+        if (query.getPageSize() != null && query.getCurPage() != null){
+            query.setStart((query.getCurPage() - 1) * query.getPageSize());
+        }else {
+            query.setStart(DEFAULT_START);
+        }
+        // 查询方案
+        log.info("查询用于全屋方案制作的组合方案主方案/一键方案（空间类型为厨房时），查询参数:{}", gson.toJson(query));
+        return designPlanRecommendedBizService.selectGroupPrimaryDesignPlan(query);
+    }
+
+    /**
+     * created by zhangcheng
+     * 2018/8/16 16:18
+     * 查询用于全屋方案制作的组合方案主方案/一键方案（空间类型为厨房时）总数
+     * @param query 查询参数
+     * @return 方案总数
+     */
+    @Override
+    public Integer selectGroupPrimaryDesignPlanCount(DesignPlanQuery query) {
+        // 处理分页
+        query.setCurPage(null);
+        query.setPageSize(null);
+        query.setStart(null);
+        // 查询方案总数
+        log.info("查询用于全屋方案制作的组合方案主方案/一键方案（空间类型为厨房时）总数,查询参数:{}",gson.toJson(query));
+        return designPlanRecommendedBizService.selectGroupPrimaryDesignPlanCount(query);
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/8/16 17:22
+     * 查询任意空间类型下所有的方案风格
+     * @param query 查询参数
+     * @return 该空间类型下的所有方案风格
+     */
+    @Override
+    public List<DesignPlanStyleVO> selectDesignPlanStyle(DesignPlanStyleQuery query) {
+        // 处理查询参数，找到对应空间类型的方案风格节点code
+        // 例：客餐厅空间类型找到方案风格为客餐厅的code："kecanting"
+        String parentCode = null;
+        switch (query.getSpaceType()){
+            case FullHouseConstant.SPACE_TYPE_FULL_HOUSE:
+                parentCode = FullHouseConstant.DESIGN_PLAN_STYLE_CODE_FULL_HOUSE;
+                break;
+            case FullHouseConstant.SPACE_TYPE_LIVING_DINING_ROOM:
+                parentCode = FullHouseConstant.DESIGN_PLAN_STYLE_CODE_LIVING_DINING_ROOM;
+                break;
+            case FullHouseConstant.SPACE_TYPE_BEDROOM:
+                parentCode = FullHouseConstant.DESIGN_PLAN_STYLE_CODE_BEDROOM;
+                break;
+            case FullHouseConstant.SPACE_TYPE_KITCHEN:
+                parentCode = FullHouseConstant.DESIGN_PLAN_STYLE_CODE_KITCHEN;
+                break;
+            case FullHouseConstant.SPACE_TYPE_TOILET:
+                parentCode = FullHouseConstant.DESIGN_PLAN_STYLE_CODE_TOILET;
+                break;
+            case FullHouseConstant.SPACE_TYPE_SCHOOLROOM:
+                parentCode = FullHouseConstant.DESIGN_PLAN_STYLE_CODE_SCHOOLROOM;
+                break;
+            case FullHouseConstant.SPACE_TYPE_CLOAKROOM:
+                parentCode = FullHouseConstant.DESIGN_PLAN_STYLE_CODE_CLOAKROOM;
+                break;
+            default:
+                return null;
+        }
+        // 通过父节点的code查询当前空间类型方案的风格
+        log.info("查询当前空间类型的所有方案风格,风格code:{}", parentCode);
+        List<BaseProductStyle> list = baseProductStyleService.selectListByParentCode(parentCode);
+        // 组装返回结果
+        log.info("查询方案风格结果数:{}", list.size());
+        List<DesignPlanStyleVO> designPlanStyleVOList = new ArrayList<>(list.size());
+        list.forEach(style -> {
+            DesignPlanStyleVO designPlanStyleVO = new DesignPlanStyleVO();
+            designPlanStyleVO.setDesignPlanStyleId(style.getId().intValue());
+            designPlanStyleVO.setDesignPlanStyleName(style.getName());
+            designPlanStyleVOList.add(designPlanStyleVO);
+        });
+        return designPlanStyleVOList;
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/8/17 10:52
+     * 查询当前登录用户制作的符合查询条件的全屋方案
+     * @param query 查询参数
+     * @return 全屋方案集合
+     */
+    @Override
+    public List<FullHouseDesignPlanVO> selectFullHouseDesignPlan(FullHouseDesignPlanQuery query) {
+        // 处理分页
+        if (query.getCurPage() == null || query.getCurPage() <= 0){
+            query.setCurPage(DEFAULT_CURRENT_PAGE);
+        }
+        if (query.getPageSize() == null || query.getPageSize() <= 0){
+            query.setPageSize(DEFAULT_FULL_HOUSE_DESIGN_PLAN_PAGE_SIZE);
+        }
+        if (query.getPageSize() != null && query.getCurPage() != null){
+            query.setStart((query.getCurPage() - 1) * query.getPageSize());
+        }else {
+            query.setStart(DEFAULT_START);
+        }
+        // 查询方案
+        log.info("查询当前登录用户制作的全屋方案，查询参数:{}", gson.toJson(query));
+        return fullHouseDesignPlanService.selectFullHouseDesignPlan(query);
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/8/17 11:32
+     * 查询当前登录用户制作的符合查询条件的全屋方案总数
+     * @param query 查询参数
+     * @return 全屋方案总数
+     */
+    @Override
+    public Integer selectFullHouseDesignPlanCount(FullHouseDesignPlanQuery query) {
+        // 处理分页
+        query.setCurPage(null);
+        query.setPageSize(null);
+        query.setStart(null);
+        // 查询方案总数
+        log.info("查询当前登录用户制作的符合查询条件的全屋方案总数，查询参数:{}",gson.toJson(query));
+        return fullHouseDesignPlanService.selectFullHouseDesignPlanCount(query);
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/8/17 13:56
+     * 制作全屋方案
+     * @param fullHouseDesignPlanAdd 制作全屋方案参数
+     * @param userId 用户ID
+     */
+    @Override
+    public void createFullHouseDesignPlan(FullHouseDesignPlanAdd fullHouseDesignPlanAdd, Integer userId) {
+        //------------------------- 新建全屋方案数据 -------------------------//
+        FullHouseDesignPlan fullHouseDesignPlan = new FullHouseDesignPlan();
+        // 生成UUID
+        UUID uuid = UUID.randomUUID();
+        fullHouseDesignPlan.setUuid(uuid.toString());
+        // 生成方案编码
+        // TODO: 2018/8/17 未确定方案编码生成规则，等跟产品确认后再补上
+        // 方案名称
+        fullHouseDesignPlan.setPlanName(fullHouseDesignPlanAdd.getDesignPlanName());
+        // 方案风格
+        BaseProductStyle style = baseProductStyleService.selectByPrimaryKey(fullHouseDesignPlanAdd.getDesignPlanStyleId().longValue());
+        fullHouseDesignPlan.setPlanStyleId(style.getId().intValue());
+        fullHouseDesignPlan.setPlanStyleName(style.getName());
+        // 方案缩略图，全屋方案缩略图为客餐厅方案组合的主方案的缩略图
+        Integer groupPrimaryId = fullHouseDesignPlanAdd.getLivingDiningRoom().get(0);
+        DesignPlanRecommended designPlanRecommended = designPlanRecommendedService.selectByPrimaryKey(groupPrimaryId);
+        fullHouseDesignPlan.setPlanPicId(designPlanRecommended.getPicId());
+        // 方案描述
+        fullHouseDesignPlan.setPlanDescribe(null);
+        // 公司，设计师
+        SysUser user = sysUserService.selectByPrimaryKey(userId.longValue());
+        fullHouseDesignPlan.setUserId(user.getId().intValue());
+        fullHouseDesignPlan.setBrandId(null);
+        fullHouseDesignPlan.setCompanyId(user.getCompanyId());
+        // 方案来源类型
+        fullHouseDesignPlan.setSourceType(FullHouseConstant.FULL_HOUSE_SOURCE_TYPE_INTERNAL_PRODUCTION);
+        // 来源方案ID，内部制作时没有来源方案
+        fullHouseDesignPlan.setSourcePlanId(null);
+        // 方案交付次数，默认0
+        fullHouseDesignPlan.setAllotCount(0);
+        // 公开状态，默认未公开
+        fullHouseDesignPlan.setOpenState(FullHouseConstant.FULL_HOUSE_OPEN_STATE_NO);
+        // 720UUID,https://pcapi.ci.sanduspace.com/v1/panorama/make
+        // TODO: 2018/8/17 720UUID通过rest调取pc端的接口返回获得
+        // 方案版本，默认1
+        fullHouseDesignPlan.setVersion(FullHouseConstant.FULL_HOUSE_VERSION_DEFAULT);
+        // 系统信息
+        Date date = new Date();
+        fullHouseDesignPlan.setCreator(user.getMobile());
+        fullHouseDesignPlan.setGmtCreate(date);
+        fullHouseDesignPlan.setModifier(user.getMobile());
+        fullHouseDesignPlan.setGmtModified(date);
+        fullHouseDesignPlan.setIsDeleted(FullHouseConstant.FULL_HOUSE_IS_DELETED_NO);
+        fullHouseDesignPlan.setRemark(null);
+        //------------------------- end -------------------------//
+        //------------------------- 新建全屋方案详情数据 -------------------------//
+
+        //------------------------- end -------------------------//
+    }
+}

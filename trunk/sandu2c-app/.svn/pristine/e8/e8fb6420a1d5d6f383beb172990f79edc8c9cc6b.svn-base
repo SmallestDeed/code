@@ -1,0 +1,1962 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.designplan.dao.DesignPlanRecommendedMapper">
+
+	<!-- **常量定义** -->
+	<sql id="All_Column_List">
+
+
+		id,plan_id,recommended_type,is_recommended,is_default_decorate,plan_number,design_recommended_style_id,release_time,is_release,cover_pic_Id,plan_code,plan_name,plan_source,house_id,living_id,residential_units_name,user_id,media_type,design_source_type,design_id,share_total,is_open,is_change,
+		is_decorated,draft_state,baiMo_state,stuff_finish_state,decorate_finish_state,design_template_id,design_style_id,pic_id,model_id,model_3d_id,model_u3d_id,web_model_u3d_id,ios_model_u3d_id,ipad_model_u3d_id,pc_model_u3d_id,
+		android_model_u3d_id,macBookpc_model_u3d_id,config_file_id,space_common_id,designPlan_render_pic_ids,plan_desc,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,remark,evening_file_id,dawn_file_id,night_file_id,effects_config,apply_space_areas,group_primary_id
+
+	</sql>
+
+	<resultMap id="planRecommendedResultMap"
+			   type="com.sandu.designplan.model.DesignPlanRecommendedResult">
+		<id column="id" property="id" jdbcType="INTEGER" />
+
+		<result column="designPlanRecommendId" property="designPlanRecommendId" jdbcType="INTEGER" />
+		<result column="designPlanName" property="designPlanName" jdbcType="VARCHAR" />
+		<result column="spaceStyleName" property="spaceStyleName" jdbcType="VARCHAR" />
+		<result column="space_area" property="spaceArea" jdbcType="VARCHAR" />
+		<result column="spaceType" property="spaceType" jdbcType="INTEGER" />
+		<result column="designPlanCoverPath" property="designPlanCoverPath" jdbcType="VARCHAR" />
+		<result column="applySpaceAreas" property="applySpaceAreas" jdbcType="VARCHAR" />
+
+		<result column="planRecommendedId" property="planRecommendedId" jdbcType="INTEGER" />
+		<result column="plan_id" property="planId" jdbcType="INTEGER" />
+		<result column="cover_path" property="coverPath" jdbcType="VARCHAR" />
+		<result column="is_release" property="isRelease" jdbcType="INTEGER" />
+		<result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result column="creator" property="creator" jdbcType="VARCHAR" />
+		<result column="space_areas" property="spaceAreas" jdbcType="VARCHAR" />
+		<result column="style_name" property="styleName" jdbcType="VARCHAR" />
+		<result column="release_time" property="releaseTime" jdbcType="TIMESTAMP" />
+		<result column="space_function_id" property="spaceFunctionId" jdbcType="INTEGER" />
+		<result column="living_id" property="livingId" jdbcType="INTEGER" />
+		<result column="house_id" property="houseId" jdbcType="INTEGER" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="plan_source" property="planSource" jdbcType="VARCHAR" />
+		<result column="is_default_decorate" property="isDefaultDecorate" jdbcType="INTEGER" />
+		<result column="bid" property="bid" jdbcType="VARCHAR" />
+		<result column="favoriteName" property="favoriteName" jdbcType="VARCHAR" />
+		<result column="space_shape" property="spaceShape" jdbcType="INTEGER" />
+		<result column="renderCount" property="renderCount" jdbcType="INTEGER" />
+		<result column="isFavorite" property="isFavorite" jdbcType="INTEGER" />
+		<result column="isLike" property="isLike" jdbcType="INTEGER" />
+		<result column="like_num" property="likeNum" jdbcType="INTEGER" />
+		<result column="collect_num" property="collectNum" jdbcType="INTEGER" />
+		<result  column="group_primary_id" property="groupPrimaryId" jdbcType="INTEGER" />
+		<result column="designerHeadPic" property="designerHeadPic" jdbcType="VARCHAR" />
+		<result column="creator" property="designerName" jdbcType="VARCHAR" />
+		<result column="view_num" property="viewNum" jdbcType="INTEGER" />
+		<result column="company_shop_id" property="shopId" jdbcType="INTEGER" />
+		<result column="desc_file_id" property="descFileId" jdbcType="INTEGER" />
+		<result column="charge_type" property="chargeType"/>
+		<result column="plan_price" property="planPrice"/>
+		<result column="use_count" property="useCount"/>
+		<result column="planHouseType" property="planHouseType" javaType="INTEGER" />
+		<collection property="shops" select="selectShopInfo" ofType="com.sandu.designplan.model.ShopInfo" javaType="java.util.ArrayList" column="userId"/>
+	</resultMap>
+
+	<!-- **结果定义** -->
+	<resultMap id="AllResultMap"
+			   type="com.sandu.designplan.model.DesignPlanRecommended">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="recommended_type" property="recommendedType"
+				jdbcType="INTEGER" />
+		<result column="plan_id" property="planId" jdbcType="INTEGER" />
+		<result column="plan_code" property="planCode" jdbcType="VARCHAR" />
+		<result column="plan_name" property="planName" jdbcType="VARCHAR" />
+		<result column="plan_source" property="planSource" jdbcType="VARCHAR" />
+		<result column="house_id" property="houseId" jdbcType="INTEGER" />
+		<result column="living_id" property="livingId" jdbcType="INTEGER" />
+		<result column="residential_units_name" property="residentialUnitsName"
+				jdbcType="VARCHAR" />
+		<result column="user_id" property="userId" jdbcType="INTEGER" />
+		<result column="media_type" property="mediaType" jdbcType="INTEGER" />
+		<result column="design_source_type" property="designSourceType"
+				jdbcType="INTEGER" />
+		<result column="design_id" property="designId" jdbcType="INTEGER" />
+		<result column="design_template_id" property="designTemplateId"
+				jdbcType="INTEGER" />
+		<result column="design_style_id" property="designStyleId"
+				jdbcType="INTEGER" />
+		<result column="pic_id" property="picId" jdbcType="INTEGER" />
+		<result column="model_id" property="modelId" jdbcType="INTEGER" />
+		<result column="model_3d_id" property="model3dId" jdbcType="INTEGER" />
+		<result column="model_u3d_id" property="modelU3dId" jdbcType="INTEGER" />
+		<result column="web_model_u3d_id" property="webModelU3dId"
+				jdbcType="INTEGER" />
+		<result column="ios_model_u3d_id" property="iosModelU3dId"
+				jdbcType="INTEGER" />
+		<result column="ipad_model_u3d_id" property="ipadModelU3dId"
+				jdbcType="INTEGER" />
+		<result column="pc_model_u3d_id" property="pcModelU3dId"
+				jdbcType="INTEGER" />
+		<result column="android_model_u3d_id" property="androidModelU3dId"
+				jdbcType="INTEGER" />
+		<result column="macBookpc_model_u3d_id" property="macBookpcModelU3dId"
+				jdbcType="INTEGER" />
+		<result column="config_file_id" property="configFileId"
+				jdbcType="INTEGER" />
+		<result column="space_common_id" property="spaceCommonId"
+				jdbcType="INTEGER" />
+		<result column="designPlan_render_pic_ids" property="designPlanRenderPicIds"
+				jdbcType="VARCHAR" />
+		<result column="space_function_id" property="spaceFunctionId"
+				jdbcType="INTEGER" />
+		<result column="space_areas" property="spaceAreas" jdbcType="VARCHAR" />
+		<result column="plan_desc" property="planDesc" jdbcType="VARCHAR" />
+		<result column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result column="creator" property="creator" jdbcType="VARCHAR" />
+		<result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<!--<result column="evening_file_id" property="eveningFileId" jdbcType="INTEGER"
+			/> <result column="dawn_file_id" property="dawnFileId" jdbcType="INTEGER"
+			/> <result column="night_file_id" property="nightFileId" jdbcType="INTEGER"
+			/> -->
+		<result column="share_total" property="shareTotal" jdbcType="INTEGER" />
+		<result column="is_open" property="isOpen" jdbcType="INTEGER" />
+		<result column="is_change" property="isChange" jdbcType="INTEGER" />
+		<result column="is_decorated" property="isDecorated" jdbcType="INTEGER" />
+		<result column="draft_state" property="draftState" jdbcType="INTEGER" />
+		<result column="baiMo_state" property="baiMoState" jdbcType="INTEGER" />
+		<result column="stuff_finish_state" property="stuffFinishState"
+				jdbcType="INTEGER" />
+		<result column="decorate_finish_state" property="decorateFinishState"
+				jdbcType="INTEGER" />
+
+
+		<result column="cover_pic_Id" property="coverPicId" jdbcType="INTEGER" />
+		<result column="is_release" property="isRelease" jdbcType="INTEGER" />
+		<result column="release_time" property="releaseTime" jdbcType="TIMESTAMP" />
+		<result column="design_recommended_style_id" property="designRecommendedStyleId"
+				jdbcType="INTEGER" />
+
+		<result column="effects_config" property="effectsConfig"
+				jdbcType="VARCHAR" />
+
+		<result column="is_recommended" property="isRecommended"
+				jdbcType="INTEGER" />
+		<result column="is_default_decorate" property="isDefaultDecorate"
+				jdbcType="INTEGER" />
+		<result column="plan_number" property="planNumber" jdbcType="VARCHAR" />
+		<result column="apply_space_areas" property="applySpaceAreas" jdbcType="VARCHAR" />
+		<result column="group_primary_id" property="groupPrimaryId" jdbcType="INTEGER" />
+	</resultMap>
+
+	<!-- **插入定义** -->
+	<insert id="insertSelective" parameterType="com.sandu.designplan.model.DesignPlanRecommended"
+			useGeneratedKeys="true" keyProperty="id">
+		insert into design_plan_recommended
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="recommendedType!= null">recommended_type,</if>
+			<if test="planId!= null">plan_id,</if>
+			<if test="planCode!= null">plan_code,</if>
+			<if test="planName!= null">plan_name,</if>
+			<if test="planSource!= null">plan_source,</if>
+			<if test="houseId!= null">house_id,</if>
+			<if test="livingId!= null">living_id,</if>
+			<if test="residentialUnitsName!= null">residential_units_name,</if>
+			<if test="userId!= null">user_id,</if>
+			<if test="mediaType!= null">media_type,</if>
+			<if test="designSourceType!= null">design_source_type,</if>
+			<if test="designId!= null">design_id,</if>
+			<if test="designTemplateId!= null">design_template_id,</if>
+			<if test="designStyleId!= null">design_style_id,</if>
+			<if test="picId!= null">pic_id,</if>
+			<if test="modelId!= null">model_id,</if>
+			<if test="model3dId!= null">model_3d_id,</if>
+			<if test="modelU3dId!= null">model_u3d_id,</if>
+			<if test="webModelU3dId!= null">web_model_u3d_id,</if>
+			<if test="iosModelU3dId!= null">ios_model_u3d_id,</if>
+			<if test="ipadModelU3dId!= null">ipad_model_u3d_id,</if>
+			<if test="pcModelU3dId!= null">pc_model_u3d_id,</if>
+			<if test="androidModelU3dId!= null">android_model_u3d_id,</if>
+			<if test="macBookpcModelU3dId!= null">macBookpc_model_u3d_id,</if>
+			<if test="configFileId!= null">config_file_id,</if>
+			<if test="planDesc!= null">plan_desc,</if>
+			<if test="spaceCommonId!= null">space_common_id,</if>
+			<if test="designPlanRenderPicIds!= null">designPlan_render_pic_ids,</if>
+			<if test="sysCode!= null">sys_code,</if>
+			<if test="creator!= null">creator,</if>
+			<if test="gmtCreate!= null">gmt_create,</if>
+			<if test="modifier!= null">modifier,</if>
+			<if test="gmtModified!= null">gmt_modified,</if>
+			<if test="isDeleted!= null">is_deleted,</if>
+			<if test="remark!= null">remark,</if>
+			<!--<if test="eveningFileId!= null">evening_file_id, </if> <if test="dawnFileId!=
+				null">dawn_file_id, </if> <if test="nightFileId!= null">night_file_id, </if> -->
+			<if test="shareTotal!= null">share_total,</if>
+			<if test="isOpen!= null">is_open,</if>
+			<if test="isChange!= null">is_change,</if>
+			<if test="isDecorated!= null">is_decorated,</if>
+			<if test="draftState!= null">draft_state,</if>
+			<if test="baiMoState!= null">baiMo_state,</if>
+			<if test="stuffFinishState!= null">stuff_finish_state,</if>
+			<if test="decorateFinishState!= null">decorate_finish_state,</if>
+
+
+			<if test="coverPicId!= null">cover_pic_Id,</if>
+			<if test="isRelease!= null">is_release,</if>
+			<if test="releaseTime!= null">release_time,</if>
+			<if test="designRecommendedStyleId!= null">design_recommended_style_id,</if>
+
+			<if test="isRecommended!= null">is_recommended,</if>
+			<if test="isDefaultDecorate!= null">is_default_decorate,</if>
+			<if test="planNumber!= null">plan_number,</if>
+
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="recommendedType!= null">#{recommendedType,jdbcType=INTEGER},</if>
+			<if test="planId!= null">#{planId,jdbcType=INTEGER},</if>
+			<if test="planCode!= null">#{planCode,jdbcType=VARCHAR},</if>
+			<if test="planName!= null">#{planName,jdbcType=VARCHAR},</if>
+			<if test="planSource!= null">#{planSource,jdbcType=VARCHAR},</if>
+			<if test="houseId!= null">#{houseId,jdbcType=INTEGER},</if>
+			<if test="livingId!= null">#{livingId,jdbcType=INTEGER},</if>
+			<if test="residentialUnitsName!= null">#{residentialUnitsName,jdbcType=VARCHAR},</if>
+			<if test="userId!= null">#{userId,jdbcType=INTEGER},</if>
+			<if test="mediaType!= null">#{mediaType,jdbcType=INTEGER},</if>
+			<if test="designSourceType!= null">#{designSourceType,jdbcType=INTEGER},</if>
+			<if test="designId!= null">#{designId,jdbcType=INTEGER},</if>
+			<if test="designTemplateId!= null">#{designTemplateId,jdbcType=INTEGER},</if>
+			<if test="designStyleId!= null">#{designStyleId,jdbcType=INTEGER},</if>
+			<if test="picId!= null">#{picId,jdbcType=INTEGER},</if>
+			<if test="modelId!= null">#{modelId,jdbcType=INTEGER},</if>
+			<if test="model3dId!= null">#{model3dId,jdbcType=INTEGER},</if>
+			<if test="modelU3dId!= null">#{modelU3dId,jdbcType=INTEGER},</if>
+			<if test="webModelU3dId!= null">#{webModelU3dId,jdbcType=INTEGER},</if>
+			<if test="iosModelU3dId!= null">#{iosModelU3dId,jdbcType=INTEGER},</if>
+			<if test="ipadModelU3dId!= null">#{ipadModelU3dId,jdbcType=INTEGER},</if>
+			<if test="pcModelU3dId!= null">#{pcModelU3dId,jdbcType=INTEGER},</if>
+			<if test="androidModelU3dId!= null">#{androidModelU3dId,jdbcType=INTEGER},</if>
+			<if test="macBookpcModelU3dId!= null">#{macBookpcModelU3dId,jdbcType=INTEGER},</if>
+			<if test="configFileId!= null">#{configFileId,jdbcType=INTEGER},</if>
+			<if test="spaceCommonId!= null">#{spaceCommonId,jdbcType=INTEGER},</if>
+			<if test="designPlanRenderPicIds!= null">#{designPlanRenderPicIds,jdbcType=VARCHAR},</if>
+			<if test="planDesc!= null">#{planDesc,jdbcType=VARCHAR},</if>
+			<if test="sysCode!= null">#{sysCode,jdbcType=VARCHAR},</if>
+			<if test="creator!= null">#{creator,jdbcType=VARCHAR},</if>
+			<if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP},</if>
+			<if test="modifier!= null">#{modifier,jdbcType=VARCHAR},</if>
+			<if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP},</if>
+			<if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER},</if>
+			<if test="remark!= null">#{remark,jdbcType=VARCHAR},</if>
+			<!--<if test="eveningFileId!= null"> #{eveningFileId,jdbcType=INTEGER},
+				</if> <if test="dawnFileId!= null"> #{dawnFileId,jdbcType=INTEGER}, </if>
+				<if test="nightFileId!= null"> #{nightFileId,jdbcType=INTEGER}, </if> -->
+			<if test="shareTotal!= null">#{shareTotal,jdbcType=INTEGER},</if>
+			<if test="isOpen!= null">#{isOpen,jdbcType=INTEGER},</if>
+			<if test="isChange!= null">#{isChange,jdbcType=INTEGER},</if>
+			<if test="isDecorated!= null">#{isDecorated,jdbcType=INTEGER},</if>
+			<if test="draftState!= null">#{draftState,jdbcType=INTEGER},</if>
+			<if test="baiMoState!= null">#{baiMoState,jdbcType=INTEGER},</if>
+			<if test="stuffFinishState!= null">#{stuffFinishState,jdbcType=INTEGER},</if>
+			<if test="decorateFinishState!= null">#{decorateFinishState,jdbcType=INTEGER},</if>
+
+
+			<if test="coverPicId!= null">#{coverPicId,jdbcType=INTEGER},</if>
+			<if test="isRelease!= null">#{isRelease,jdbcType=INTEGER},</if>
+			<if test="releaseTime!= null">#{releaseTime,jdbcType=TIMESTAMP},</if>
+			<if test="designRecommendedStyleId!= null">#{designRecommendedStyleId,jdbcType=INTEGER},</if>
+
+			<if test="isRecommended!= null">#{isRecommended,jdbcType=INTEGER},</if>
+			<if test="isDefaultDecorate!= null">#{isDefaultDecorate,jdbcType=INTEGER},</if>
+			<if test="planNumber!= null">#{planNumber,jdbcType=VARCHAR},</if>
+		</trim>
+	</insert>
+
+	<!-- **更新定义** -->
+	<update id="updateByPrimaryKeySelective" parameterType="com.sandu.designplan.model.DesignPlanRecommended">
+		update design_plan_recommended
+		<set>
+			<if test="planId!= null">plan_id = #{planId,jdbcType=INTEGER},</if>
+			<if test="recommendedType!= null">recommended_type = #{recommendedType,jdbcType=INTEGER},
+			</if>
+			<if test="planCode!= null">plan_code = #{planCode,jdbcType=VARCHAR},</if>
+			<if test="planName!= null">plan_name = #{planName,jdbcType=VARCHAR},</if>
+			<if test="userId!= null">user_id = #{userId,jdbcType=INTEGER},</if>
+			<if test="mediaType!= null">media_type = #{mediaType,jdbcType=INTEGER},</if>
+			<if test="designSourceType!= null">design_source_type =
+				#{designSourceType,jdbcType=INTEGER},</if>
+			<if test="designId!= null">design_id = #{designId,jdbcType=INTEGER},</if>
+			<if test="designTemplateId!= null">design_template_id =
+				#{designTemplateId,jdbcType=INTEGER},</if>
+			<if test="designStyleId!= null">design_style_id = #{designStyleId,jdbcType=INTEGER},</if>
+			<if test="picId!= null">pic_id = #{picId,jdbcType=INTEGER},</if>
+			<if test="modelId!= null">model_id = #{modelId,jdbcType=INTEGER},</if>
+			<if test="model3dId!= null">model_3d_id = #{model3dId,jdbcType=INTEGER},</if>
+			<if test="modelU3dId!= null">model_u3d_id = #{modelU3dId,jdbcType=INTEGER},</if>
+			<if test="webModelU3dId!= null">web_model_u3d_id = #{webModelU3dId,jdbcType=INTEGER},
+			</if>
+			<if test="iosModelU3dId!= null">ios_model_u3d_id = #{iosModelU3dId,jdbcType=INTEGER},
+			</if>
+			<if test="pcModelU3dId!= null">pc_model_u3d_id = #{pcModelU3dId,jdbcType=INTEGER},</if>
+			<if test="ipadModelU3dId!= null">ipad_model_u3d_id = #{ipadModelU3dId,jdbcType=INTEGER},
+			</if>
+			<if test="androidModelU3dId!= null">android_model_u3d_id =
+				#{androidModelU3dId,jdbcType=INTEGER},</if>
+			<if test="macBookpcModelU3dId!= null">macBookpc_model_u3d_id =
+				#{macBookpcModelU3dId,jdbcType=INTEGER},</if>
+			<if test="configFileId!= null">config_file_id = #{configFileId,jdbcType=INTEGER},</if>
+			<if test="spaceCommonId!= null">space_common_id = #{spaceCommonId,jdbcType=INTEGER},</if>
+			<if test="designPlanRenderPicIds!= null">designPlan_render_pic_ids =
+				#{designPlanRenderPicIds,jdbcType=VARCHAR},
+			</if>
+			<if test="planDesc!= null">plan_desc = #{planDesc,jdbcType=VARCHAR},</if>
+			<if test="sysCode!= null">sys_code = #{sysCode,jdbcType=VARCHAR},</if>
+			<if test="creator!= null">creator = #{creator,jdbcType=VARCHAR},</if>
+			<if test="gmtCreate!= null">gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},</if>
+			<if test="modifier!= null">modifier = #{modifier,jdbcType=VARCHAR},</if>
+			<if test="gmtModified!= null">gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},</if>
+			<if test="isDeleted!= null">is_deleted = #{isDeleted,jdbcType=INTEGER},</if>
+			<if test="remark!= null">remark = #{remark,jdbcType=VARCHAR},</if>
+			<!--<if test="eveningFileId!= null"> evening_file_id = #{eveningFileId,jdbcType=INTEGER},
+				</if> <if test="dawnFileId!= null"> dawn_file_id = #{dawnFileId,jdbcType=INTEGER},
+				</if> <if test="nightFileId!= null"> night_file_id = #{nightFileId,jdbcType=INTEGER},
+				</if> -->
+			<if test="shareTotal!= null">share_total = #{shareTotal,jdbcType=INTEGER},</if>
+			<if test="isOpen!= null">is_open = #{isOpen,jdbcType=INTEGER},</if>
+			<if test="isChange!= null">is_change = #{isChange,jdbcType=INTEGER},</if>
+			<if test="isDecorated!= null">is_decorated = #{isDecorated,jdbcType=INTEGER},</if>
+			<if test="isDecorated!= null">is_decorated = #{isDecorated,jdbcType=INTEGER},</if>
+			<if test="draftState!= null">draft_state = #{draftState,jdbcType=INTEGER},</if>
+			<if test="baiMoState!= null">baiMo_state = #{baiMoState,jdbcType=INTEGER},</if>
+			<if test="stuffFinishState!= null">stuff_finish_state =
+				#{stuffFinishState,jdbcType=INTEGER},</if>
+			<if test="decorateFinishState!= null">decorate_finish_state =
+				#{decorateFinishState,jdbcType=INTEGER},</if>
+
+
+			<if test="coverPicId!= null">cover_pic_Id = #{coverPicId,jdbcType=INTEGER},</if>
+			<if test="isRelease!= null">is_release = #{isRelease,jdbcType=INTEGER},</if>
+			<if test="releaseTime!= null">release_time =#{releaseTime,jdbcType=TIMESTAMP},</if>
+			<if test="designRecommendedStyleId!= null">design_recommended_style_id =
+				#{designRecommendedStyleId,jdbcType=INTEGER},
+			</if>
+
+			<if test="effectsConfig!= null">effects_config = #{effectsConfig,jdbcType=VARCHAR},</if>
+
+			<if test="isRecommended!= null">is_recommended = #{isRecommended,jdbcType=INTEGER},</if>
+			<if test="isDefaultDecorate!= null">is_default_decorate =
+				#{isDefaultDecorate,jdbcType=INTEGER},</if>
+			<if test="planNumber!= null">plan_number = #{planNumber,jdbcType=VARCHAR},</if>
+
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<!-- **删除定义** -->
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from design_plan_recommended
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+
+	<!-- 按主键查询 -->
+	<select id="selectByPrimaryKey" resultMap="AllResultMap"
+			parameterType="java.lang.Integer">
+		select
+		<include refid="All_Column_List" />
+		from design_plan_recommended
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+
+
+	<!-- 查询所有，可排序 -->
+	<select id="selectList" resultMap="AllResultMap"
+			parameterType="com.sandu.designplan.model.DesignPlanRecommended">
+		select
+		<include refid="All_Column_List" />
+		from design_plan_recommended
+		where 1=1
+		<if test="planId!= null">and plan_id = #{planId,jdbcType=INTEGER}</if>
+		<if test="recommendedType!= null">and recommended_type = #{recommendedType,jdbcType=INTEGER}
+		</if>
+		<if test="isRecommended!= null">and is_recommended = #{isRecommended,jdbcType=INTEGER}
+		</if>
+		<if test="isDefaultDecorate!= null">and is_default_decorate = #{isDecorate,jdbcType=INTEGER}
+		</if>
+		<if test="planNumber!= null">and plan_number = #{planNumber,jdbcType=VARCHAR}</if>
+
+		<if test="designRecommendedStyleId!= null">and design_recommended_style_id =
+			#{designRecommendedStyleId,jdbcType=INTEGER}
+		</if>
+		<if test="releaseTime!= null">and release_time =#{releaseTime,jdbcType=TIMESTAMP}</if>
+		<if test="isRelease!= null">and is_release = #{isRelease,jdbcType=INTEGER}</if>
+		<if test="coverPicId!= null">and cover_pic_Id = #{coverPicId,jdbcType=INTEGER}</if>
+
+
+		<if test="id!= null">and id = #{id,jdbcType=INTEGER}</if>
+		<if test="planCode!= null">and plan_code = #{planCode,jdbcType=VARCHAR}</if>
+		<if test="planName!= null">and plan_name = #{planName,jdbcType=VARCHAR}</if>
+		<if test="userId!= null">and user_id = #{userId,jdbcType=INTEGER}</if>
+		<if test="mediaType!= null">and media_type = #{mediaType,jdbcType=INTEGER}</if>
+		<if test="designSourceType!= null">and design_source_type =
+			#{designSourceType,jdbcType=INTEGER}</if>
+		<if test="designId!= null">and design_id = #{designId,jdbcType=INTEGER}</if>
+		<if test="designStyleId!= null">and design_style_id = #{designStyleId,jdbcType=INTEGER}
+		</if>
+		<if test="picId!= null">and pic_id = #{picId,jdbcType=INTEGER}</if>
+		<if test="modelId!= null">and model_id = #{modelId,jdbcType=INTEGER}</if>
+		<if test="model3dId!= null">and model_3d_id = #{model3dId,jdbcType=INTEGER}</if>
+		<if test="modelU3dId!= null">and model_u3d_id = #{modelU3dId,jdbcType=INTEGER}</if>
+		<if test="webModelU3dId!= null">and web_model_u3d_id = #{webModelU3dId,jdbcType=INTEGER}
+		</if>
+		<if test="configFileId!= null">and config_file_id = #{configFileId,jdbcType=INTEGER}</if>
+		<if test="spaceCommonId!= null">and space_common_id = #{spaceCommonId,jdbcType=INTEGER}
+		</if>
+		<if test="designPlanRenderPicIds!= null">and
+			LOCATE(#{designPlanRenderPicIds,jdbcType=VARCHAR},designPlan_render_pic_ids)
+			> 0,
+		</if>
+		<if test="planDesc!= null">and plan_desc = #{planDesc,jdbcType=VARCHAR}</if>
+
+		<if test="draftState!= null">and draft_state = #{draftState,jdbcType=INTEGER}</if>
+		<if test="baiMoState!= null">and baiMo_state = #{baiMoState,jdbcType=INTEGER}</if>
+		<if test="stuffFinishState!= null">and stuff_finish_state =
+			#{stuffFinishState,jdbcType=INTEGER}</if>
+		<if test="decorateFinishState!= null">and decorate_finish_state =
+			#{decorateFinishState,jdbcType=INTEGER}</if>
+
+		<if test="sysCode!= null">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+		<if test="creator!= null">and creator = #{creator,jdbcType=VARCHAR}</if>
+		<if test="gmtCreate!= null">and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}</if>
+		<if test="modifier!= null">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+		<if test="gmtModified!= null">and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}</if>
+		<if test="isDeleted!= null">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+		<if test="groupPrimaryId!= null">and group_primary_id = #{groupPrimaryId, jdbcType=INTEGER}</if>
+		<if test="order != null and  order !=''  ">
+			order by ${order}
+			<if test="orderNum != null and  orderNum !='' ">
+				${orderNum}
+			</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">
+			order by ${orders}
+		</if>
+	</select>
+
+	<!-- 分页汇总 -->
+	<select id="selectCount" resultType="int"
+			parameterType="com.sandu.designplan.model.DesignPlanRecommended">
+		select count(*)
+		from design_plan_recommended
+		where 1=1
+		<if test="planId!= null">and plan_id = #{planId,jdbcType=INTEGER}</if>
+		<if test="recommendedType!= null">and recommended_type = #{recommendedType,jdbcType=INTEGER}
+		</if>
+		<if test="isRecommended!= null">and is_recommended = #{isRecommended,jdbcType=INTEGER}
+		</if>
+		<if test="isDefaultDecorate!= null">and is_default_decorate = #{isDecorate,jdbcType=INTEGER}
+		</if>
+		<if test="planNumber!= null">and plan_number = #{planNumber,jdbcType=VARCHAR}</if>
+
+		<if test="designRecommendedStyleId!= null">and design_recommended_style_id =
+			#{designRecommendedStyleId,jdbcType=INTEGER}
+		</if>
+		<if test="releaseTime!= null">and release_time =#{releaseTime,jdbcType=TIMESTAMP}</if>
+		<if test="isRelease!= null">and is_release = #{isRelease,jdbcType=INTEGER}</if>
+		<if test="coverPicId!= null">and cover_pic_Id = #{coverPicId,jdbcType=INTEGER}</if>
+
+
+		<if test="id!= null">and id = #{id,jdbcType=INTEGER}</if>
+		<if test="planCode!= null">and plan_code = #{planCode,jdbcType=VARCHAR}</if>
+		<if test="planName!= null">and plan_name = #{planName,jdbcType=VARCHAR}</if>
+		<if test="userId!= null">and user_id = #{userId,jdbcType=INTEGER}</if>
+		<if test="mediaType!= null">and media_type = #{mediaType,jdbcType=INTEGER}</if>
+		<if test="designSourceType!= null">and design_source_type =
+			#{designSourceType,jdbcType=INTEGER}</if>
+		<if test="designId!= null">and design_id = #{designId,jdbcType=INTEGER}</if>
+		<if test="designStyleId!= null">and design_style_id = #{designStyleId,jdbcType=INTEGER}
+		</if>
+		<if test="picId!= null">and pic_id = #{picId,jdbcType=INTEGER}</if>
+		<if test="modelId!= null">and model_id = #{modelId,jdbcType=INTEGER}</if>
+		<if test="model3dId!= null">and model_3d_id = #{model3dId,jdbcType=INTEGER}</if>
+		<if test="modelU3dId!= null">and model_u3d_id = #{modelU3dId,jdbcType=INTEGER}</if>
+		<if test="webModelU3dId!= null">and web_model_u3d_id = #{webModelU3dId,jdbcType=INTEGER}
+		</if>
+		<if test="configFileId!= null">and config_file_id = #{configFileId,jdbcType=INTEGER}</if>
+		<if test="spaceCommonId!= null">and space_common_id = #{spaceCommonId,jdbcType=INTEGER}
+		</if>
+		<if test="designPlanRenderPicIds!= null">and
+			LOCATE(#{designPlanRenderPicIds,jdbcType=VARCHAR},designPlan_render_pic_ids)
+			> 0,
+		</if>
+		<if test="planDesc!= null">and plan_desc = #{planDesc,jdbcType=VARCHAR}</if>
+
+		<if test="draftState!= null">and draft_state = #{draftState,jdbcType=INTEGER}</if>
+		<if test="baiMoState!= null">and baiMo_state = #{baiMoState,jdbcType=INTEGER}</if>
+		<if test="stuffFinishState!= null">and stuff_finish_state =
+			#{stuffFinishState,jdbcType=INTEGER}</if>
+		<if test="decorateFinishState!= null">and decorate_finish_state =
+			#{decorateFinishState,jdbcType=INTEGER}</if>
+
+		<if test="sysCode!= null">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+		<if test="creator!= null">and creator = #{creator,jdbcType=VARCHAR}</if>
+		<if test="gmtCreate!= null">and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}</if>
+		<if test="modifier!= null">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+		<if test="gmtModified!= null">and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}</if>
+		<if test="isDeleted!= null">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+	</select>
+
+	<!-- 方案推荐总条数 -->
+	<select id="getPlanRecommendedCount" resultType="java.lang.Integer"
+			parameterType="com.sandu.designplan.model.DesignPlanRecommended">
+
+		select COUNT(DISTINCT dp.id)
+		from design_plan_recommended AS dp
+
+		<if test="platformId != null and platformId != 0"> LEFT JOIN design_plan_2c_platform dpp ON dpp.plan_id = dp.id AND dpp.is_deleted = 0 </if>
+		LEFT JOIN
+		(SELECT fid,recommendId,bid from design_plan_recommend_favorite_ref where fid
+		in (SELECT bid from
+		sys_business_favorite where userId =#{userId}) ) AS fr ON(fr.recommendId = dp.id)
+		LEFT JOIN (SELECT id,user_name from sys_user where is_deleted = 0) AS su
+		ON (dp.user_id = su.id)
+		LEFT JOIN (SELECT id,pic_path from res_render_pic where is_deleted = 0 and
+		plan_recommended_id is not null) AS
+		rrp ON (dp.cover_pic_id = rrp.id)
+		LEFT JOIN (SELECT plan_id,is_deleted,brand_id,company_id from design_plan_brand ) AS dpb ON (dp.id = dpb.plan_id)
+		LEFT JOIN (SELECT id,brand_name from base_brand where is_deleted = 0 ) AS
+		bb ON (dpb.brand_id = bb.id)
+		LEFT JOIN design_templet AS dt ON (dp.design_template_id = dt.id)
+		LEFT JOIN (SELECT id,space_function_id,space_areas,space_shape from
+		space_common where is_deleted = 0) AS sc on(sc.id = dt.space_common_id)
+		<if test="livingName != null and livingName !='' ">
+			LEFT JOIN (SELECT standard_space_id,house_id from house_space where
+			is_deleted = 0)as hs ON
+			(hs.standard_space_id = sc.id)
+			LEFT JOIN (SELECT id,living_id from base_house where is_deleted = 0) AS
+			bh ON (hs.house_id = bh.id)
+			LEFT JOIN (SELECT id,living_name FROM base_living ) as bl ON (bl.id =
+			bh.living_id)
+		</if>
+		LEFT JOIN base_product_style AS bps ON (bps.id =
+		dp.design_recommended_style_id)
+		LEFT JOIN (SELECT NAME,VALUE FROM sys_dictionary WHERE is_deleted = 0 AND
+		type = 'houseType' ) AS sd ON
+		(sc.space_function_id = sd.VALUE)
+		LEFT JOIN plan_decorate_price pdp on pdp.plan_recommend_id = dp.id
+		<if test='enterType == "oneKey"'>
+			left join (select group_primary_id,group_concat(apply_space_areas) areas from design_plan_recommended where group_primary_id != 0 group by group_primary_id)areat on areat.group_primary_id = dp.group_primary_id
+		</if>
+		WHERE
+		dp.is_deleted = 0
+		<if test="id != null">
+			AND dp.id = #{id}
+		</if>
+		<if test='onlyInternalPlan != null and onlyInternalPlan == "Y"'>
+			AND plan_source !='deliver' and plan_source !='share'
+		</if>
+		<!-- AND dpb.is_deleted = 0 -->
+		<if test="platformId != null and platformId != 0">
+			AND dpp.platform_id = #{platformId}
+			AND dpp.putaway_state = 1
+			AND dpp.allot_state = 1
+		</if>
+		<!-- 如果是审核管理员 -->
+		<if test="checkAdministrator != null and checkAdministrator == 'yes' ">
+			<if test="spaceFunctionIds != null and spaceFunctionIds.size() >0">
+				AND sc.space_function_id in
+				<foreach collection="spaceFunctionIds" index="index" item="item"
+						 open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+		</if>
+		<!-- 如果不是审核管理员 -->
+		<if test="checkAdministrator == null or checkAdministrator != 'yes' ">
+
+			<if test="spaceFunctionId!= null">
+				AND sc.space_function_id = #{spaceFunctionId,jdbcType=INTEGER}
+			</if>
+		</if>
+
+		<if test="companyId != null">
+			AND (dpb.company_id = #{companyId,jdbcType=INTEGER} or dp.company_id = #{companyId,jdbcType=INTEGER})
+		</if>
+		<if test="brandIds != null and brandIds.size > 0">
+			AND dpb.brand_id in
+			<foreach collection="brandIds" index="index" item="item"
+					 open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="planNumber!= null and planNumber!= '' ">
+			AND dp.plan_number = #{planNumber,jdbcType=VARCHAR}
+		</if>
+		<if test="isRelease != null">
+			AND dp.is_release = #{isRelease,jdbcType=INTEGER}
+		</if>
+		<if test="isReleases != null and isReleases.size() >0">
+			AND dp.is_release in
+			<foreach collection="isReleases" index="index" item="item"
+					 open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="recommendedType != null">
+			AND dp.recommended_type = #{recommendedType,jdbcType=INTEGER}
+		</if>
+
+		<if test="recommendedTypes != null and recommendedTypes.size() >0">
+			AND dp.recommended_type  in
+			<foreach collection="recommendedTypes" index="index" item="item"
+					 open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+
+		<!-- 空间形状搜索 -->
+		<if test="spaceShape != null">
+			AND sc.space_shape = #{spaceShape,jdbcType=INTEGER}
+		</if>
+<!--
+		<if test="designRecommendedStyleId!= null">
+			AND dp.design_recommended_style_id =
+			#{designRecommendedStyleId,jdbcType=INTEGER}
+		</if>-->
+		<if test="designRecommendedStyleName!= null and designRecommendedStyleName!= '' "  >
+			AND bps.name like CONCAT(CONCAT('%',#{designRecommendedStyleName,jdbcType=VARCHAR}),'%')
+		</if>
+
+
+        <!-- 如果没有样板房面积相关数据，则只显示主方案，有样板房面积就显示所有方案 -->
+        <!-- 改为如果没有样板房面积相关数据，则显示主方案或没有打组的方案，有样板房面积就显示没有打组的适合的方案和所有主方案
+             即所有主方案始终显示，因为产品说组合方案适用所有面积，没有打组的方案：才会有面积过滤  2018.09.08 add by gaoj-->
+		<choose>
+			<when test='enterType == "oneKey"'>
+				<!-- 组合方案只要主方案或其中子方案面积适配就显示,单空间方案面积适配才显示 update by weis ,time:20181029 -->
+				<!-- and  ((FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},areat.areas))
+				OR (dp.group_primary_id = 0 and (FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},dp.apply_space_areas) OR dp.apply_space_areas = ''))) -->
+				and (dp.group_primary_id = dp.id or dp.group_primary_id = 0)
+				and (FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},dp.apply_space_areas) or FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},areat.areas) or dp.apply_space_areas = '')
+			</when>
+			<otherwise>
+				and ( dp.group_primary_id = dp.id or ( dp.group_primary_id = 0
+				<choose>
+					<when test="areaValue== null or areaValue==''">
+						) )
+					</when>
+					<otherwise>
+						and (FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},dp.apply_space_areas) or dp.apply_space_areas = '') ) )
+					</otherwise>
+				</choose>
+			</otherwise>
+		</choose>
+        <!-- 如果没有样板房面积相关数据，则只显示主方案，有样板房面积就显示所有方案 -->
+        <!--<if test="areaValue== null or areaValue==''">-->
+            <!--AND (dp.group_primary_id = 0 OR dp.group_primary_id = dp.id)-->
+        <!--</if>-->
+		<!--<if test="areaValue!= null and areaValue!='' ">-->
+			<!--AND (FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},dp.apply_space_areas) or dp.apply_space_areas = '')-->
+		<!--</if>-->
+		<!-- 装修报价类型筛选 -->
+		<if test="decoratePriceType != null">
+			and pdp.decorate_price_type = #{decoratePriceType,jdbcType=INTEGER}
+			<if test="decoratePriceRange != null">
+				and pdp.decorate_price_range = #{decoratePriceRange,jdbcType=INTEGER}
+			</if>
+		</if>
+		<choose>
+			<when
+					test="creator != null and creator != '' and brandName != null and brandName != '' and livingName != null and livingName !='' ">
+				AND (
+				su.user_name like CONCAT(CONCAT('%',#{creator,jdbcType=VARCHAR}),'%')
+				or bb.brand_name like
+				CONCAT(CONCAT('%',#{brandName,jdbcType=VARCHAR}),'%')
+				or bl.living_name like
+				CONCAT(CONCAT('%',#{livingName,jdbcType=VARCHAR}),'%')
+				)
+			</when>
+			<otherwise>
+				<if test="creator!= null and creator!= '' ">
+					AND su.user_name like
+					CONCAT(CONCAT('%',#{creator,jdbcType=VARCHAR}),'%')
+				</if>
+				<if test="brandName != null and brandName != '' ">
+					AND bb.brand_name like
+					CONCAT(CONCAT('%',#{brandName,jdbcType=VARCHAR}),'%')
+				</if>
+				<if test="livingName != null and livingName !='' ">
+					AND bl.living_name like
+					CONCAT(CONCAT('%',#{livingName,jdbcType=VARCHAR}),'%')
+				</if>
+			</otherwise>
+		</choose>
+		<!-- 组合方案用主方案ID去重,单空间方案用方案ID去重 update by weis ,time:20181029 -->
+		<!-- GROUP BY IF(dp.group_primary_id>0,dp.group_primary_id,dp.id) -->
+</select>
+
+
+<!-- 方案推荐数据 -->
+	<select id="getPlanRecommendedList" resultMap="planRecommendedResultMap"
+			parameterType="com.sandu.designplan.model.DesignPlanRecommended">
+		SELECT DISTINCT
+		dp.id AS planRecommendedId,
+		dp.id as designPlanRecommendId,
+		dp.plan_name as designPlanName,
+		bps.NAME AS  spaceStyleName,
+		sc.space_areas as space_area,
+		sc.space_function_id as spaceType,
+		rrp.pic_path AS designPlanCoverPath,
+		dp.apply_space_areas as applySpaceAreas,
+		dp.apply_space_areas as applySpaceAreas,
+		dp.plan_id,
+		rrp.pic_path AS cover_path,
+		dp.plan_name,
+		dp.is_release,
+		dp.gmt_modified,
+		dp.gmt_create,
+		su.user_name AS creator,
+		su.id userId,
+		sc.space_areas,
+		bps.NAME AS style_name,
+		sc.space_function_id,
+		dp.release_time,
+		dp.living_id,
+		dp.house_id,
+		dp.remark,
+		dp.plan_source,
+		dp.is_default_decorate,
+		sd.NAME AS houseTypeName,
+		fr.bid,
+		fr.status AS isFavorite,
+		dpl.status AS isLike,
+		sc.space_shape,
+		dp.group_primary_id,
+		t.count AS renderCount,
+		dp.desc_file_id,
+		dp.charge_type,
+		dp.use_count,
+		dp.plan_price,
+		1 planHouseType,
+		dpsi.like_num,
+		dpsi.collect_num,
+		dpsi.view_num
+		from design_plan_recommended AS dp
+		LEFT JOIN design_plan_like AS dpl ON dpl.design_id = dp.id AND dpl.user_id = #{userId}
+		LEFT JOIN design_plan_2c_platform dpp ON dpp.plan_id = dp.id AND dpp.is_deleted = 0
+		left join (SELECT count(1) AS count ,art.plan_id from auto_render_task art
+		GROUP BY art.plan_id) as T on t.plan_id = dp.id
+		LEFT JOIN
+		(SELECT fid,recommendId,bid,status from design_plan_recommend_favorite_ref where fid
+		in (SELECT bid from
+		sys_business_favorite where userId =#{userId}) ) AS fr ON(fr.recommendId = dp.id)
+		LEFT JOIN (SELECT id,user_name,pic_id from sys_user where is_deleted = 0) AS su
+		ON (dp.user_id = su.id)
+		LEFT JOIN (SELECT id,pic_path from res_render_pic where is_deleted = 0 and
+		plan_recommended_id is not null) AS
+		rrp ON (dp.cover_pic_id = rrp.id)
+		LEFT JOIN (SELECT plan_id,is_deleted,brand_id,company_id from design_plan_brand ) AS
+		dpb ON (dp.id = dpb.plan_id)
+		LEFT JOIN (SELECT id,brand_name from base_brand where is_deleted = 0 ) AS
+		bb ON (dpb.brand_id = bb.id)
+		LEFT JOIN design_templet AS dt ON (dp.design_template_id = dt.id)
+		LEFT JOIN (SELECT id,space_function_id,space_areas,space_shape from
+		space_common where is_deleted = 0) AS sc
+		on(sc.id =
+		dt.space_common_id)
+		<if test="livingName != null and livingName !='' ">
+			LEFT JOIN (SELECT standard_space_id,house_id from house_space where
+			is_deleted = 0)as hs ON
+			(hs.standard_space_id = sc.id)
+			LEFT JOIN (SELECT id,living_id from base_house where is_deleted = 0) AS
+			bh ON (hs.house_id = bh.id)
+			LEFT JOIN (SELECT id,living_name FROM base_living ) as bl ON (bl.id =
+			bh.living_id)
+		</if>
+		LEFT JOIN base_product_style AS bps ON (bps.id =
+		dp.design_recommended_style_id)
+		LEFT JOIN (SELECT NAME,VALUE FROM sys_dictionary WHERE is_deleted = 0 AND
+		type = 'houseType' ) AS sd ON
+		(sc.space_function_id = sd.VALUE)
+		LEFT JOIN plan_decorate_price pdp on pdp.plan_recommend_id = dp.id
+		LEFT JOIN design_plan_summary_info dpsi on dpsi.design_id = dp.id and dpsi.design_plan_type = 0 and dpsi.is_deleted = 0
+		<if test='enterType == "oneKey"'>
+			left join (select group_primary_id,group_concat(apply_space_areas) areas from design_plan_recommended where group_primary_id != 0 group by group_primary_id)areat on areat.group_primary_id = dp.group_primary_id
+		</if>
+		WHERE
+		dp.is_deleted = 0
+		<if test='onlyInternalPlan != null and onlyInternalPlan == "Y"'>
+			AND plan_source !='deliver' and plan_source !='share'
+		</if>
+		<!-- AND dpb.is_deleted = 0 -->
+		<if test="platformId != null and platformId != 0">
+			AND dpp.platform_id = #{platformId}
+			AND dpp.putaway_state = 1
+			AND dpp.allot_state = 1
+		</if>
+		<!-- 如果是审核管理员 -->
+		<if test="checkAdministrator != null and checkAdministrator == 'yes' ">
+			<if test="spaceFunctionIds != null and spaceFunctionIds.size() >0">
+				AND sc.space_function_id in
+				<foreach collection="spaceFunctionIds" index="index" item="item"
+						 open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+		</if>
+		<!-- 如果不是审核管理员 -->
+		<if test="checkAdministrator == null or checkAdministrator != 'yes' ">
+
+			<if test="spaceFunctionId!= null">
+				AND sc.space_function_id = #{spaceFunctionId,jdbcType=INTEGER}
+			</if>
+		</if>
+
+		<if test="companyId != null">
+			AND (dpb.company_id = #{companyId,jdbcType=INTEGER} or dp.company_id = #{companyId,jdbcType=INTEGER})
+		</if>
+		<if test="brandIds != null and brandIds.size > 0">
+			AND dpb.brand_id in
+			<foreach collection="brandIds" index="index" item="item"
+					 open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="planNumber!= null and planNumber!= '' ">
+			AND dp.plan_number = #{planNumber,jdbcType=VARCHAR}
+		</if>
+		<if test="isRelease != null">
+			AND dp.is_release = #{isRelease,jdbcType=INTEGER}
+		</if>
+		<if test="isReleases != null and isReleases.size() >0">
+			AND dp.is_release in
+			<foreach collection="isReleases" index="index" item="item"
+					 open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="recommendedType != null">
+			AND dp.recommended_type = #{recommendedType,jdbcType=INTEGER}
+		</if>
+
+		<if test="recommendedTypes != null and recommendedTypes.size() >0">
+			AND dp.recommended_type  in
+			<foreach collection="recommendedTypes" index="index" item="item"
+					 open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+	<!--	<if test="designRecommendedStyleId!= null">
+			AND dp.design_recommended_style_id =
+			#{designRecommendedStyleId,jdbcType=INTEGER}
+		</if>-->
+
+		<if test="designRecommendedStyleName!= null and designRecommendedStyleName!= '' "  >
+			AND bps.name like CONCAT(CONCAT('%',#{designRecommendedStyleName,jdbcType=VARCHAR}),'%')
+		</if>
+		<!-- 空间形状搜索 -->
+		<if test="spaceShape != null">
+			AND sc.space_shape = #{spaceShape,jdbcType=INTEGER}
+		</if>
+		<!-- 如果没有样板房面积相关数据，则只显示主方案，有样板房面积就显示所有方案 -->
+		<!-- 改为如果没有样板房面积相关数据，则显示主方案或没有打组的方案，有样板房面积就显示没有打组的适合的方案和所有主方案
+		 	即所有主方案始终显示，因为产品说组合方案适用所有面积，没有打组的方案：才会有面积过滤  2018.09.08 add by gaoj-->
+		<choose>
+			<when test='enterType == "oneKey"'>
+				<!-- 组合方案只要主方案或其中子方案面积适配就显示,单空间方案面积适配才显示 update by weis ,time:20181029 -->
+				<!-- and  ((FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},areat.areas))
+				OR (dp.group_primary_id = 0 and (FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},dp.apply_space_areas) OR dp.apply_space_areas = ''))) -->
+				and (dp.group_primary_id = dp.id or dp.group_primary_id = 0)
+				and (FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},dp.apply_space_areas) or FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},areat.areas) or dp.apply_space_areas = '')
+			</when>
+			<otherwise>
+				and ( dp.group_primary_id = dp.id or ( dp.group_primary_id = 0
+				<choose>
+					<when test="areaValue== null or areaValue==''">
+						) )
+					</when>
+					<otherwise>
+						and (FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},dp.apply_space_areas) or dp.apply_space_areas = '') ) )
+					</otherwise>
+				</choose>
+			</otherwise>
+		</choose>
+		<!--<if test="areaValue== null or areaValue==''">-->
+			<!--AND (dp.group_primary_id = 0 OR dp.group_primary_id = dp.id)-->
+		<!--</if>-->
+		<!--<if test="areaValue!= null and areaValue!='' ">-->
+			<!--AND (FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},dp.apply_space_areas) or dp.apply_space_areas = '')-->
+		<!--</if>-->
+
+		<!-- 装修报价类型筛选 -->
+		<if test="decoratePriceType != null">
+			and pdp.decorate_price_type = #{decoratePriceType,jdbcType=INTEGER}
+			<if test="decoratePriceRange != null">
+				and pdp.decorate_price_range = #{decoratePriceRange,jdbcType=INTEGER}
+			</if>
+		</if>
+		<choose>
+			<when test="creator != null and creator != '' and brandName != null and brandName != '' and livingName != null and livingName !='' ">
+				AND (
+				su.user_name like CONCAT(CONCAT('%',#{creator,jdbcType=VARCHAR}),'%')
+				or bb.brand_name like
+				CONCAT(CONCAT('%',#{brandName,jdbcType=VARCHAR}),'%')
+				or bl.living_name like
+				CONCAT(CONCAT('%',#{livingName,jdbcType=VARCHAR}),'%')
+				)
+			</when>
+			<otherwise>
+				<if test="creator!= null and creator!= '' ">
+					AND su.user_name like
+					CONCAT(CONCAT('%',#{creator,jdbcType=VARCHAR}),'%')
+				</if>
+				<if test="brandName != null and brandName != '' ">
+					AND bb.brand_name like
+					CONCAT(CONCAT('%',#{brandName,jdbcType=VARCHAR}),'%')
+				</if>
+				<if test="livingName != null and livingName !='' ">
+					AND bl.living_name like
+					CONCAT(CONCAT('%',#{livingName,jdbcType=VARCHAR}),'%')
+				</if>
+			</otherwise>
+		</choose>
+		<!-- 组合方案用主方案ID去重,单空间方案用方案ID去重 update by weis ,time:20181029 -->
+		<!-- GROUP BY IF(dp.group_primary_id>0,dp.group_primary_id,dp.id) -->
+		ORDER BY
+		<!--按发布时间排序修改为按平台表的修改时间排序，罗春意的需求 add by gaoj 2018.08.20-->
+		<!--<if test="isSortByReleaseTime == null and isSortByRenderCount == null">dp.release_time DESC</if>-->
+		<!--<if test="isSortByReleaseTime ==1 ">dp.release_time ASC</if>-->
+		<!--<if test="isSortByReleaseTime ==0 ">dp.release_time DESC</if>-->
+		<if test="isSortByReleaseTime == null and isSortByRenderCount == null">dpp.gmt_modified ASC</if>
+		<if test="isSortByReleaseTime ==1 ">dpp.gmt_modified ASC</if>
+		<if test="isSortByReleaseTime ==0 ">dpp.gmt_modified ASC</if>
+		<if test="isSortByRenderCount == 0">t.count ASC</if>
+		<if test="isSortByRenderCount == 1">t.count ASC</if>
+
+		<if test="start !=-1 and limit !=-1">LIMIT #{start}, #{limit}</if>
+	</select>
+	<select id="selectShopInfo" resultType="com.sandu.designplan.model.ShopInfo" parameterType="java.lang.Integer">
+		select
+			cs.id shopId
+			,rp.pic_path logo
+		from
+			company_shop cs
+			left join res_pic rp on rp.id = cs.logo_pic_id and rp.is_deleted = 0
+		where
+			cs.user_id = #{userId}
+			and cs.is_deleted = 0
+	</select>
+
+	<!-- 获取该方案推荐的白膜产品的数量，如果大于0那么是m+3 未装修完成的推荐（m+3 是不装修直接渲染的快捷键） -->
+	<select id="getRecommendedDecorateState" resultType="int"
+			parameterType="int">
+		SELECT count(1) from design_plan_recommended_product as a
+		LEFT JOIN base_product as b on(a.product_id=b.id) where
+		a.plan_recommended_id = #{id}
+		and a.is_deleted = 0
+		and b.product_code like 'baimo%'
+	</select>
+
+	<select id="getFavoritePlanRecommendedList" resultMap="planRecommendedResultMap"
+			parameterType="com.sandu.designplan.model.DesignPlanRecommended">
+		SELECT DISTINCT
+		dp.id as planRecommendedId,
+
+		dp.id as designPlanRecommendId,
+		dp.plan_name as designPlanName,
+		bps.NAME AS  spaceStyleName,
+		sc.space_areas as space_area,
+		sc.space_function_id as spaceType,
+		rrp.pic_path AS designPlanCoverPath,
+		dp.apply_space_areas as applySpaceAreas,
+		dp.plan_id,
+		rrp.pic_path AS cover_path,
+		dp.plan_name,
+		dp.is_release,
+		dp.gmt_modified,
+		dp.gmt_create,
+		su.user_name AS 'creator',
+		su.id userId,
+		sc.space_areas,
+		bps.NAME AS 'style_name',
+		sc.space_function_id,
+		dp.release_time,
+		dp.living_id,
+		dp.house_id,
+		dp.remark,
+		dp.plan_source,
+		dp.is_default_decorate,
+		sd.name as houseTypeName,
+		fr.bid,
+		fr.status AS isFavorite,
+		dpsi.like_num,
+		dpsi.collect_num,
+		dpsi.view_num,
+		dpl.status AS isLike,
+		fr.name as 'favoriteName',
+		dp.group_primary_id,
+		dp.charge_type,
+		dp.plan_price,
+		dp.company_id,
+		1 planHouseType
+		FROM (select dprfr.id,dprfr.bid,sbf.name,dprfr.recommendId,dprfr.ctime,dprfr.status
+		from design_plan_recommend_favorite_ref as dprfr
+		LEFT JOIN sys_business_favorite as sbf on(dprfr.fid = sbf.bid) where
+		sbf.userId = #{userId} AND dprfr.status = 1
+		<if test="favoriteBid!= null and favoriteBid!='' ">
+			AND dprfr.fid = #{favoriteBid,jdbcType=VARCHAR}
+		</if>
+		) AS fr
+		LEFT JOIN design_plan_summary_info AS dpsi ON dpsi.design_id = fr.recommendId AND dpsi.is_deleted = 0
+		LEFT JOIN design_plan_like AS dpl ON dpl.design_id = fr.recommendId AND dpl.user_id = #{userId}
+		LEFT JOIN (SELECT * from design_plan_recommended where is_deleted = 0
+		<if test="isInternalUser!= null and isInternalUser == 'yes' ">
+			AND is_release in (1,2)
+		</if>
+		<if test="isInternalUser == null or isInternalUser != 'yes' ">
+			AND is_release = 1
+		</if>
+		) AS dp on(fr.recommendId = dp.id)
+		<if test="BrandIds != null">
+			LEFT JOIN (SELECT plan_id,brand_id from design_plan_brand where is_deleted
+			= 0 )AS dpb ON (dp.id = dpb.plan_id)
+			LEFT JOIN base_brand AS bb ON (dpb.brand_id = bb.id)
+		</if>
+		LEFT JOIN design_templet AS dt ON ( dp.design_template_id = dt.id )
+		LEFT JOIN space_common AS sc ON (sc.id = dt.space_common_id)
+		<if test="livingName != null and livingName !='' ">
+			LEFT JOIN (SELECT standard_space_id,house_id from house_space where
+			is_deleted = 0)as hs ON
+			(hs.standard_space_id = sc.id)
+			LEFT JOIN (SELECT id,living_id from base_house where is_deleted = 0) AS
+			bh ON (hs.house_id = bh.id)
+			LEFT JOIN (SELECT id FROM base_living ) as bl ON (bl.id = bh.living_id)
+		</if>
+		LEFT JOIN (SELECT id,pic_path from res_render_pic where is_deleted = 0
+		and plan_recommended_id is not null) AS
+		rrp ON (dp.cover_pic_id = rrp.id)
+		LEFT JOIN base_product_style AS bps ON ( bps.id =
+		dp.design_recommended_style_id )
+		LEFT JOIN (SELECT id,user_name from sys_user where is_deleted = 0) AS su
+		ON (dp.user_id = su.id)
+		LEFT JOIN (SELECT NAME,VALUE FROM sys_dictionary WHERE is_deleted = 0 AND
+		type = 'houseType' ) AS sd ON
+		(sc.space_function_id = sd.VALUE)
+		LEFT JOIN design_plan_2c_platform dpcp on dpcp.plan_id = dp.id
+		<if test='enterType == "oneKey"'>
+			left join (select group_primary_id,group_concat(apply_space_areas) areas from design_plan_recommended where group_primary_id != 0 group by group_primary_id)areat on areat.group_primary_id = dp.id
+		</if>
+		WHERE 1=1
+		and  dp.is_deleted = 0
+		<if test="designRecommendedStyleName!= null and designRecommendedStyleName!= '' "  >
+			AND bps.name like CONCAT(CONCAT('%',#{designRecommendedStyleName,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="platformId != null">
+			and dpcp.platform_id = #{platformId}
+			and dpcp.putaway_state = 1
+			and dpcp.allot_state = 1
+		</if>
+		<if test="BrandIds != null">
+			dpb.brand_id in
+			<foreach collection="brandIds" index="index" item="item" open="("
+					 separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="spaceFunctionId!= null">
+			and sc.space_function_id = #{spaceFunctionId,jdbcType=INTEGER}
+		</if>
+		<if test="livingName!= null and livingName!='' ">
+			and bl.living_name like
+			CONCAT(CONCAT('%',#{livingName,jdbcType=VARCHAR}),'%')
+		</if>
+		<!-- 如果没有样板房面积相关数据，则只显示主方案，有样板房面积就显示所有方案 -->
+		<!-- 改为如果没有样板房面积相关数据，则显示主方案或没有打组的方案，有样板房面积就显示没有打组的适合的方案和所有主方案
+             即所有主方案始终显示，因为产品说组合方案适用所有面积，没有打组的方案：才会有面积过滤  2018.09.08 add by gaoj-->
+		<choose>
+			<when test='enterType == "oneKey"'>
+				and (dp.group_primary_id = dp.id or dp.group_primary_id = 0)
+				and (FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},dp.apply_space_areas) or FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},areat.areas) or dp.apply_space_areas = '')
+			</when>
+			<otherwise>
+				and ( dp.group_primary_id = dp.id or ( dp.group_primary_id = 0
+				<choose>
+					<when test="areaValue== null or areaValue==''">
+						) )
+					</when>
+					<otherwise>
+						and (FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},dp.apply_space_areas) or dp.apply_space_areas = '') ) )
+					</otherwise>
+				</choose>
+			</otherwise>
+		</choose>
+		order by fr.ctime
+		<if test="isSort != 1 or isSort == null">DESC</if>
+		<if test="isSort == 1">ASC</if>
+		<if test="start !=-1 and limit !=-1">LIMIT #{start}, #{limit}</if>
+	</select>
+
+	<select id="getFavoritePlanRecommendedCount" resultType="int"
+			parameterType="com.sandu.designplan.model.DesignPlanRecommended">
+		SELECT DISTINCT
+		count(DISTINCT fr.id)
+		FROM (select dprfr.id,dprfr.bid,sbf.name,dprfr.recommendId from
+		design_plan_recommend_favorite_ref as dprfr
+		LEFT JOIN sys_business_favorite as sbf on(dprfr.fid = sbf.bid) where
+		sbf.userId = #{userId} AND dprfr.status = 1
+		<if test="favoriteBid!= null and favoriteBid!='' ">
+			AND dprfr.fid = #{favoriteBid,jdbcType=VARCHAR}
+		</if>
+		) AS fr
+		LEFT JOIN (SELECT * from design_plan_recommended
+
+		where is_deleted = 0
+		<if test="isInternalUser!= null and isInternalUser == 'yes' ">
+			AND is_release in (1,2)
+		</if>
+		<if test="isInternalUser == null or isInternalUser != 'yes' ">
+			AND is_release = 1
+		</if>
+
+		) AS dp on(fr.recommendId = dp.id)
+		<if test="BrandIds != null">
+			LEFT JOIN (SELECT plan_id,brand_id from design_plan_brand where is_deleted
+			= 0 )AS dpb ON (dp.id = dpb.plan_id)
+			LEFT JOIN base_brand AS bb ON (dpb.brand_id = bb.id)
+		</if>
+		LEFT JOIN design_templet AS dt ON ( dp.design_template_id = dt.id )
+		LEFT JOIN space_common AS sc ON (sc.id = dt.space_common_id)
+		<if test="livingName != null and livingName !='' ">
+			LEFT JOIN (SELECT standard_space_id,house_id from house_space where
+			is_deleted = 0)as hs ON
+			(hs.standard_space_id = sc.id)
+			LEFT JOIN (SELECT id,living_id from base_house where is_deleted = 0) AS
+			bh ON (hs.house_id = bh.id)
+			LEFT JOIN (SELECT id FROM base_living ) as bl ON (bl.id = bh.living_id)
+		</if>
+		LEFT JOIN (SELECT id,pic_path from res_render_pic where is_deleted = 0
+		and plan_recommended_id is not null) AS
+		rrp ON (dp.cover_pic_id = rrp.id)
+		LEFT JOIN base_product_style AS bps ON ( bps.id =
+		dp.design_recommended_style_id )
+		LEFT JOIN (SELECT id,user_name from sys_user where is_deleted = 0) AS su
+		ON (dp.user_id = su.id)
+		LEFT JOIN (SELECT NAME,VALUE FROM sys_dictionary WHERE is_deleted = 0 AND
+		type = 'houseType' ) AS sd ON
+		(sc.space_function_id = sd.VALUE)
+		LEFT JOIN design_plan_2c_platform dpcp on dpcp.plan_id = dp.id
+		<if test='enterType == "oneKey"'>
+			left join (select group_primary_id,group_concat(apply_space_areas) areas from design_plan_recommended where group_primary_id != 0 group by group_primary_id)areat on areat.group_primary_id = dp.id
+		</if>
+		WHERE 1=1
+		and  dp.is_deleted = 0
+
+		<if test="designRecommendedStyleName!= null and designRecommendedStyleName!= '' "  >
+			AND bps.name like CONCAT(CONCAT('%',#{designRecommendedStyleName,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="platformId != null">
+			and dpcp.platform_id = #{platformId}
+			and dpcp.putaway_state = 1
+			and dpcp.allot_state = 1
+		</if>
+		<if test="BrandIds != null">
+			dpb.brand_id in
+			<foreach collection="brandIds" index="index" item="item" open="("
+					 separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="spaceFunctionId!= null">
+			and sc.space_function_id = #{spaceFunctionId,jdbcType=INTEGER}
+		</if>
+		<if test="livingName!= null and livingName!='' ">
+			and bl.living_name like
+			CONCAT(CONCAT('%',#{livingName,jdbcType=VARCHAR}),'%')
+		</if>
+		<!-- 如果没有样板房面积相关数据，则只显示主方案，有样板房面积就显示所有方案 -->
+		<!-- 改为如果没有样板房面积相关数据，则显示主方案或没有打组的方案，有样板房面积就显示没有打组的适合的方案和所有主方案
+             即所有主方案始终显示，因为产品说组合方案适用所有面积，没有打组的方案：才会有面积过滤  2018.09.08 add by gaoj-->
+		<choose>
+			<when test='enterType == "oneKey"'>
+				and (dp.group_primary_id = dp.id or dp.group_primary_id = 0)
+				and (FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},dp.apply_space_areas) or FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},areat.areas or dp.apply_space_areas = ''))
+			</when>
+			<otherwise>
+				and ( dp.group_primary_id = dp.id or ( dp.group_primary_id = 0
+				<choose>
+					<when test="areaValue== null or areaValue==''">
+						) )
+					</when>
+					<otherwise>
+						and (FIND_IN_SET(#{areaValue,jdbcType=VARCHAR},dp.apply_space_areas) or dp.apply_space_areas = '') ) )
+					</otherwise>
+				</choose>
+			</otherwise>
+		</choose>
+	</select>
+
+
+
+
+	<select id="getStatusByIds" resultType="com.sandu.designplan.model.DesignPlanRecommended">
+		SELECT plan_id planId,recommended_type recommendedType,is_release
+		isRelease FROM design_plan_recommended where plan_id IN
+		<foreach item="item" index="index" collection="list" open="("
+				 separator="," close=")">
+			#{item}
+		</foreach>
+		AND is_deleted=0
+	</select>
+
+
+	<!-- 查询方案的渲染次数 -->
+	<select id="selectRenderCountById" resultType="long"
+			parameterType="int">
+		SELECT count(1) from auto_render_task where plan_id = #{planRecommendedId}
+	</select>
+
+
+
+
+
+<!-- 选装网方案推荐总条数 -->
+	<select id="getPlanRecommendCount" resultType="int"
+			parameterType="com.sandu.designplan.model.PlanRecommendedListQuery">
+		select COUNT(DISTINCT dp.id)
+		from design_plan_recommended AS dp
+
+		LEFT JOIN design_plan_2c_platform dpp ON dpp.plan_id = dp.id AND dpp.is_deleted = 0
+		LEFT JOIN
+		(SELECT fid,recommendId,bid from design_plan_recommend_favorite_ref where fid
+		in (SELECT bid from
+		sys_business_favorite where userId =#{userId}) ) AS fr ON(fr.recommendId = dp.id)
+		LEFT JOIN (SELECT id,user_name from sys_user where is_deleted = 0) AS su
+		ON (dp.user_id = su.id)
+		LEFT JOIN (SELECT id,pic_path from res_render_pic where is_deleted = 0 and
+		plan_recommended_id is not null) AS
+		rrp ON (dp.cover_pic_id = rrp.id)
+		LEFT JOIN (SELECT plan_id,is_deleted,brand_id from design_plan_brand ) AS
+		dpb ON (dp.id = dpb.plan_id)
+		LEFT JOIN (SELECT id,brand_name from base_brand where is_deleted = 0 ) AS
+		bb ON (dpb.brand_id = bb.id)
+		LEFT JOIN design_templet AS dt ON (dp.design_template_id = dt.id)
+		LEFT JOIN (SELECT id,space_function_id,space_areas,space_shape from
+		space_common where is_deleted = 0) AS sc on(sc.id = dt.space_common_id)
+		<if test="livingName != null and livingName !='' ">
+			LEFT JOIN (SELECT standard_space_id,house_id from house_space where
+			is_deleted = 0)as hs ON
+			(hs.standard_space_id = sc.id)
+			LEFT JOIN (SELECT id,living_id from base_house where is_deleted = 0) AS
+			bh ON (hs.house_id = bh.id)
+			LEFT JOIN (SELECT id,living_name FROM base_living ) as bl ON (bl.id =
+			bh.living_id)
+		</if>
+		LEFT JOIN base_product_style AS bps ON (bps.id =
+		dp.design_recommended_style_id)
+		LEFT JOIN (SELECT NAME,VALUE FROM sys_dictionary WHERE is_deleted = 0 AND
+		type = 'houseType' ) AS sd ON
+		(sc.space_function_id = sd.VALUE)
+		WHERE
+		dp.is_deleted = 0
+		AND dpb.is_deleted = 0
+		<!-- 是否发布 0 否 1是 -->
+		<if test="isRelease != null">
+			AND dp.is_release = #{isRelease,jdbcType=INTEGER}
+		</if>
+		<!-- 方案推荐1.公开类型 2一键装修 -->
+		<if test="recommendedType != null">
+			AND dp.recommended_type = #{recommendedType,jdbcType=INTEGER}
+		</if>
+		<!-- 空间类型    如：客餐厅  卧室 卫生间等    3 = 客餐厅 -->
+		<if test="spaceFunctionId!= null">
+			AND sc.space_function_id = #{spaceFunctionId,jdbcType=INTEGER}
+		</if>
+		<!-- 风格类型 -->
+		<if test="designRecommendedStyleId!= null">
+			AND dp.design_recommended_style_id =
+			#{designRecommendedStyleId,jdbcType=INTEGER}
+		</if>
+		<!-- 面积 -->
+		<if test="areaValue!= null and areaValue!='' ">
+			AND sc.space_areas = #{areaValue,jdbcType=VARCHAR}
+		</if>
+		<choose>
+			<when test="creator != null and creator != '' and brandName != null and brandName != '' and livingName != null and livingName !='' ">
+				AND (
+				su.user_name like CONCAT(CONCAT('%',#{creator,jdbcType=VARCHAR}),'%')
+				or bb.brand_name like
+				CONCAT(CONCAT('%',#{brandName,jdbcType=VARCHAR}),'%')
+				or bl.living_name like
+				CONCAT(CONCAT('%',#{livingName,jdbcType=VARCHAR}),'%')
+				)
+			</when>
+			<otherwise>
+				<if test="creator!= null and creator!= '' ">
+					AND su.user_name like
+					CONCAT(CONCAT('%',#{creator,jdbcType=VARCHAR}),'%')
+				</if>
+				<if test="brandName != null and brandName != '' ">
+					AND bb.brand_name like
+					CONCAT(CONCAT('%',#{brandName,jdbcType=VARCHAR}),'%')
+				</if>
+				<if test="livingName != null and livingName !='' ">
+					AND bl.living_name like
+					CONCAT(CONCAT('%',#{livingName,jdbcType=VARCHAR}),'%')
+				</if>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 选装网方案推荐数据 -->
+	<select id="getPlanRecommendList" resultMap="planRecommendedResultMap"
+			parameterType="com.sandu.designplan.model.PlanRecommendedListQuery">
+		SELECT DISTINCT
+		dp.id AS planRecommendedId,
+
+		dp.id as designPlanRecommendId,
+		dp.plan_name as designPlanName,
+		bps.NAME AS  spaceStyleName,
+		sc.space_areas as space_area,
+		sc.space_function_id as spaceType,
+		rrp.pic_path AS designPlanCoverPath,
+		dp.apply_space_areas as applySpaceAreas,
+
+		dp.apply_space_areas as applySpaceAreas,
+		dp.plan_id,
+		rrp.pic_path AS cover_path,
+		dp.plan_name,
+		dp.is_release,
+		dp.gmt_modified,
+		dp.gmt_create,
+		su.user_name AS 'creator',
+		sc.space_areas,
+		bps. NAME AS 'style_name',
+		sc.space_function_id,
+		dp.release_time,
+		dp.living_id,
+		dp.house_id,
+		dp.remark,
+		dp.plan_source,
+		dp.is_default_decorate,
+		sd. NAME AS houseTypeName,
+		fr.bid,
+		fr.status AS isFavorite,
+		dpl.status AS isLike,
+		dpsi.like_num,
+		dpsi.collect_num,
+		sc.space_shape,
+		t.count AS renderCount
+		from design_plan_recommended AS dp
+		LEFT JOIN design_plan_summary_info AS dpsi ON dpsi.design_id = dp.id AND dpsi.is_deleted = 0
+		LEFT JOIN design_plan_like AS dpl ON dpl.design_id = dp.id AND dpl.user_id = #{userId}
+		LEFT JOIN design_plan_2c_platform dpp ON dpp.plan_id = dp.id AND dpp.is_deleted = 0
+		LEFT JOIN (SELECT count(1) AS count ,art.plan_id from auto_render_task art GROUP BY art.plan_id) as T on t.plan_id = dp.id
+		LEFT JOIN (SELECT fid,recommendId,bid,status from design_plan_recommend_favorite_ref where fid
+					in (SELECT bid from sys_business_favorite where userId =#{userId}) ) AS fr ON(fr.recommendId = dp.id)
+		LEFT JOIN (SELECT id,user_name from sys_user where is_deleted = 0) AS su ON (dp.user_id = su.id)
+		LEFT JOIN (SELECT id,pic_path from res_render_pic where is_deleted = 0 and plan_recommended_id is not null) AS rrp ON (dp.cover_pic_id = rrp.id)
+		LEFT JOIN (SELECT plan_id,is_deleted,brand_id from design_plan_brand ) AS dpb ON (dp.id = dpb.plan_id)
+		LEFT JOIN (SELECT id,brand_name from base_brand where is_deleted = 0 ) AS bb ON (dpb.brand_id = bb.id)
+		LEFT JOIN design_templet AS dt ON (dp.design_template_id = dt.id)
+		LEFT JOIN (SELECT id,space_function_id,space_areas,space_shape from
+					space_common where is_deleted = 0) AS sc on(sc.id = dt.space_common_id)
+		<!-- 小区名称 -->
+		<if test="livingName != null and livingName !='' ">
+			LEFT JOIN (SELECT standard_space_id,house_id from house_space where
+			is_deleted = 0)as hs ON
+			(hs.standard_space_id = sc.id)
+			LEFT JOIN (SELECT id,living_id from base_house where is_deleted = 0) AS
+			bh ON (hs.house_id = bh.id)
+			LEFT JOIN (SELECT id,living_name FROM base_living ) as bl ON (bl.id =
+			bh.living_id)
+		</if>
+		LEFT JOIN base_product_style AS bps ON (bps.id =
+		dp.design_recommended_style_id)
+		LEFT JOIN (SELECT NAME,VALUE FROM sys_dictionary WHERE is_deleted = 0 AND
+		type = 'houseType' ) AS sd ON
+		(sc.space_function_id = sd.VALUE)
+		WHERE
+		dp.is_deleted = 0
+		AND dpb.is_deleted = 0
+		<!-- 是否发布 0 否 1是 -->
+		<if test="isRelease != null">
+			AND dp.is_release = #{isRelease,jdbcType=INTEGER}
+		</if>
+		<!-- 方案推荐1.公开类型 2一键装修 -->
+		<if test="recommendedType != null">
+			AND dp.recommended_type = #{recommendedType,jdbcType=INTEGER}
+		</if>
+		<!-- 空间类型    如：客餐厅  卧室 卫生间等    3 = 客餐厅 -->
+		<if test="spaceFunctionId!= null">
+			AND sc.space_function_id = #{spaceFunctionId,jdbcType=INTEGER}
+		</if>
+		<!-- 风格类型 -->
+		<if test="designRecommendedStyleId!= null">
+			AND dp.design_recommended_style_id =
+			#{designRecommendedStyleId,jdbcType=INTEGER}
+		</if>
+		<!-- 面积 -->
+		<if test="areaValue!= null and areaValue!='' ">
+			AND sc.space_areas = #{areaValue,jdbcType=VARCHAR}
+		</if>
+		<choose>
+		<!-- 创建人 品牌名称 小区名称 -->
+			<when test="creator != null and creator != '' and brandName != null and brandName != '' and livingName != null and livingName !='' ">
+				AND (
+				su.user_name like CONCAT(CONCAT('%',#{creator,jdbcType=VARCHAR}),'%')
+				or bb.brand_name like
+				CONCAT(CONCAT('%',#{brandName,jdbcType=VARCHAR}),'%')
+				or bl.living_name like
+				CONCAT(CONCAT('%',#{livingName,jdbcType=VARCHAR}),'%')
+				)
+			</when>
+			<otherwise>
+				<!-- 创建人 -->
+				<if test="creator!= null and creator!= '' ">
+					AND su.user_name like
+					CONCAT(CONCAT('%',#{creator,jdbcType=VARCHAR}),'%')
+				</if>
+				<!-- 品牌名称 -->
+				<if test="brandName != null and brandName != '' ">
+					AND bb.brand_name like
+					CONCAT(CONCAT('%',#{brandName,jdbcType=VARCHAR}),'%')
+				</if>
+				<!-- 小区名称 -->
+				<if test="livingName != null and livingName !='' ">
+					AND bl.living_name like
+					CONCAT(CONCAT('%',#{livingName,jdbcType=VARCHAR}),'%')
+				</if>
+			</otherwise>
+		</choose>
+		ORDER BY
+		<if test="sort != null and sort == 'new'">dpsi.like_num DESC</if><!-- 最新(点赞数) -->
+		<if test="sort != null and sort == 'hot'">dp.gmt_create DESC</if><!-- 最热(方案时间) -->
+		<if test="start !=-1 and limit !=-1">LIMIT #{start}, #{limit}</if>
+	</select>
+
+
+	<!-- 公开 -->
+	<select id="getPlanRecommendOpenCount" resultType="int" parameterType="com.sandu.designplan.model.PlanRecommendedListQuery">
+		select count(distinct(dpr.id)) from design_plan_recommended dpr
+		left join design_plan_2c_platform dp2p on dp2p.plan_id = dpr.id 
+		and dp2p.is_deleted = 0 and dp2p.allot_state = 1 and dp2p.putaway_state = 1
+		<if test="spaceFunctionId != null or (areaValue != null and areaValue != '')">
+			left join space_common sc on sc.id = dpr.space_common_id
+		</if>
+		where 1 = 1
+			and concat(",",dpr.shelf_status,",") like 
+			concat ("%,OPEN,%")
+		<if test="planName != null and planName != ''">
+			and dpr.plan_name like concat ("%",#{planName,jdbcType=VARCHAR},"%")
+		</if>
+		<!-- 空间类型    如：客餐厅  卧室 卫生间等    3 = 客餐厅 -->
+		<if test="spaceFunctionId != null">
+			and sc.space_function_id = #{spaceFunctionId,jdbcType=INTEGER}
+		</if>
+		<if test="areaValue != null and areaValue != ''">
+			and sc.space_areas = #{areaValue,jdbcType=VARCHAR}
+		</if>
+		<if test="designRecommendedStyleId != null">
+			and dpr.design_recommended_style_id = #{designRecommendedStyleId,jdbcType=INTEGER}
+		</if>
+		<if test="isRelease != null">
+			and dpr.is_release = #{isRelease,jdbcType=INTEGER}
+		</if>
+		<if test="recommendedType != null">
+			and dpr.recommended_type = #{recommendedType,jdbcType=INTEGER}
+		</if>
+	</select>
+
+	<select id="getPlanRecommendOpenList" resultMap="planRecommendedResultMap" parameterType="com.sandu.designplan.model.PlanRecommendedListQuery">
+		select 
+		distinct(dpr.id) as plan_recommended_id,
+		fr.bid,
+		fr. STATUS AS isFavorite,
+		dpl. STATUS AS isLike,
+	    dpsi.like_num,
+		dpsi.collect_num,
+		dpr.plan_id,
+		dpr.plan_name,
+		rrp.pic_path as cover_path,
+		dpr.is_release,
+		dpr.gmt_modified,
+		dpr.gmt_create,
+		sc.space_areas,
+		bps.name as style_name,
+		su.user_name as creator,
+		sd.name as house_type_name,
+		sc.space_function_id,
+		dpr.release_time,
+		dpr.living_id,
+		dpr.house_id,
+		dpr.remark,
+		dpr.plan_source,
+		dpr.is_default_decorate,
+		sc.space_code,
+		case
+		when dprfr.bid is null then 0
+		else dprfr.bid end as bid
+		from design_plan_recommended dpr
+		
+		LEFT JOIN design_plan_summary_info AS dpsi ON dpsi.design_id = dpr.id
+		AND dpsi.is_deleted = 0
+		LEFT JOIN design_plan_like AS dpl ON dpl.design_id = dpr.id
+		AND dpl.user_id = #{userId}
+		LEFT JOIN (SELECT fid,recommendId,bid,STATUS FROM design_plan_recommend_favorite_ref WHERE
+		fid IN (SELECT bid FROM sys_business_favorite WHERE userId =#{userId})) AS fr ON (fr.recommendId = dpr.id)
+		
+		left join design_plan_2c_platform dp2p on dp2p.plan_id = dpr.id
+		and dp2p.is_deleted = 0 and dp2p.allot_state = 1 and dp2p.putaway_state = 1
+		left join res_render_pic rrp on rrp.id = dpr.cover_pic_Id
+		left join space_common sc on sc.id = dpr.space_common_id
+		left join base_product_style bps on bps.id = dpr.design_recommended_style_id
+		left join sys_user su on su.id = dpr.user_id
+		left join sys_dictionary sd on sd.type = "houseType" and sd.value = sc.space_function_id
+		left join sys_business_favorite sbf on sbf.userId = #{userId,jdbcType=INTEGER}
+		left join design_plan_recommend_favorite_ref dprfr on dprfr.fid = sbf.bid and dprfr.recommendId = dpr.id
+		where 1 = 1
+		<!-- 商家后台上下架状态 ONEKEY 一键方案   OPEN 公开方案 -->
+			and concat(",",dpr.shelf_status,",") like 
+			concat ("%,OPEN,%")
+		<!-- 方案名称 -->
+		<if test="planName != null and planName != ''">
+			and dpr.plan_name like concat ("%",#{planName,jdbcType=VARCHAR},"%")
+		</if>
+		<!-- 空间类型    如：客餐厅  卧室 卫生间等    3 = 客餐厅 -->
+		<if test="spaceFunctionId != null">
+			and sc.space_function_id = #{spaceFunctionId,jdbcType=INTEGER}
+		</if>
+		<!-- 面积 -->
+		<if test="areaValue != null and areaValue != ''">
+			and sc.space_areas = #{areaValue,jdbcType=VARCHAR}
+		</if>
+		<!-- 风格 -->
+		<if test="designRecommendedStyleId != null">
+			and dpr.design_recommended_style_id = #{designRecommendedStyleId,jdbcType=INTEGER}
+		</if>
+		<!-- 是否发布 0 否 1是 -->
+		<if test="isRelease != null">
+			and dpr.is_release = #{isRelease,jdbcType=INTEGER}
+		</if>
+		<!-- 方案推荐1.公开类型 2一键装修 -->
+		<if test="recommendedType != null">
+			and dpr.recommended_type = #{recommendedType,jdbcType=INTEGER}
+		</if>
+		ORDER BY
+		<if test="sort != null and sort == 'new'">dpsi.like_num DESC</if><!-- 最新(点赞数) -->
+		<if test="sort != null and sort == 'hot'">dpr.gmt_create DESC</if><!-- 最热(方案时间) -->
+		<if test="start != null and limit != null">
+			limit #{start,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+		</if>
+	</select>
+
+	<select id="selectAllById" parameterType="integer" resultMap="planRecommendedResultMap">
+		SELECT DISTINCT
+		dp.id AS planRecommendedId,
+		dp.id AS designPlanRecommendId,
+		dp.plan_name AS designPlanName,
+		bps.NAME AS  spaceStyleName,
+		sc.space_areas AS space_area,
+		sc.space_function_id AS spaceType,
+		rrp.pic_path AS designPlanCoverPath,
+		dp.apply_space_areas AS applySpaceAreas,
+		dp.plan_id,
+		rrp.pic_path AS cover_path,
+		dp.plan_name,
+		dp.is_release,
+		dp.gmt_modified,
+		dp.gmt_create,
+		su.user_name AS 'creator',
+		sc.space_areas,
+		bps. NAME AS 'style_name',
+		sc.space_function_id,
+		dp.release_time,
+		dp.living_id,
+		dp.house_id,
+		dp.remark,
+		dp.plan_source,
+		dp.is_default_decorate,
+		sd. NAME AS houseTypeName,
+		fr.bid,
+		fr.status AS isFavorite,
+		dpl.status AS isLike,
+		dpsi.like_num,
+		dpsi.collect_num,
+		sc.space_shape,
+		dp.group_primary_id,
+		t.count AS renderCount
+		FROM design_plan_recommended AS dp
+		LEFT JOIN design_plan_summary_info AS dpsi ON dpsi.design_id = dp.id AND dpsi.is_deleted = 0
+		LEFT JOIN design_plan_like AS dpl ON dpl.design_id = dp.id
+		LEFT JOIN (SELECT COUNT(1) AS COUNT ,art.plan_id FROM auto_render_task art
+		GROUP BY art.plan_id) AS T ON t.plan_id = dp.id
+		LEFT JOIN
+		(SELECT fid,recommendId,bid,STATUS FROM design_plan_recommend_favorite_ref WHERE fid
+		IN (SELECT bid FROM
+		sys_business_favorite ) ) AS fr ON(fr.recommendId = dp.id)
+		LEFT JOIN (SELECT id,user_name FROM sys_user WHERE is_deleted = 0) AS su
+		ON (dp.user_id = su.id)
+		LEFT JOIN (SELECT id,pic_path,rendering_type,plan_recommended_id FROM res_render_pic WHERE is_deleted = 0 AND
+        rendering_type = 4 and file_key = 'design.designPlanRecommended.render.small.pic' AND
+        plan_recommended_id IS NOT NULL) AS
+		<!--rrp ON (dp.cover_pic_id = rrp.id)-->
+        rrp ON (dp.id = rrp.plan_recommended_id)
+		LEFT JOIN design_templet AS dt ON (dp.design_template_id = dt.id)
+		LEFT JOIN (SELECT id,space_function_id,space_areas,space_shape FROM
+		space_common WHERE is_deleted = 0) AS sc
+		ON(sc.id =
+		dt.space_common_id)
+		LEFT JOIN base_product_style AS bps ON (bps.id =
+		dp.design_recommended_style_id)
+		LEFT JOIN (SELECT NAME,VALUE FROM sys_dictionary WHERE is_deleted = 0 AND
+		TYPE = 'houseType' ) AS sd ON
+		(sc.space_function_id = sd.VALUE)
+		WHERE dp.id = #{planRecommendedId,jdbcType=INTEGER}
+	</select>
+
+
+
+	<select id="selectSharePlanCount" resultType="java.lang.Integer">
+		SELECT
+			COUNT(DISTINCT dp.id)
+		FROM
+			design_plan_recommended_intermediary AS dpr
+			LEFT JOIN design_plan_recommended dp ON dp.id = dpr.design_plan_recommended_id
+		WHERE dpr.is_deleted = 0 and dp.is_deleted = 0
+	</select>
+
+
+	<select id="selectSharePlanList" resultType="com.sandu.designplan.view.SharePlanDTO" parameterType="com.sandu.common.model.PageModel">
+		SELECT
+			dpr.plan_name AS planName,
+			CONVERT(dpr.decoration_quotation / 100,DECIMAL(10,2)) AS decorationQuotation,
+			CONVERT(dpr.decoration_quotation * dpr.space_areas * 0.03 / (100 * 100),DECIMAL(10,2)) AS planPrepPrice,
+			CONVERT(dpr.space_areas / 100,DECIMAL(10,2)) AS spaceAreas,
+			dpr.design_plan_recommended_id AS planRecommendedId,
+			bps. NAME AS planStyleName
+		FROM
+			design_plan_recommended_intermediary dpr
+		LEFT JOIN design_plan_recommended dp ON dp.id = dpr.design_plan_recommended_id
+		LEFT JOIN base_product_style AS bps ON bps.id = dp.design_recommended_style_id
+		AND bps.is_deleted = 0
+		WHERE
+			dpr.is_deleted = 0 AND dp.is_deleted = 0
+		ORDER BY dpr.gmt_modified DESC
+		limit #{start,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+
+
+	<select id="getPlanDecoratePrice" parameterType="integer"
+                resultType="com.sandu.designplan.vo.PlanDecoratePriceBO">
+		SELECT sd.name as decorateTypeName,p.decorate_price as decoratePrice
+			FROM plan_decorate_price p,sys_dictionary sd
+			WHERE sd.type = 'decorateType'
+			AND p.decorate_price_type = sd.value
+			AND p.is_deleted = 0
+			AND p.plan_recommend_id = #{planRecommendId,jdbcType=INTEGER}
+	</select>
+
+
+	<update id="updateViewNumberPlusOne" parameterType="java.lang.Integer">
+		update
+			design_plan_summary_info
+		set
+			view_num = view_num + 1
+		where
+			design_id = #{planRecommendId}
+	</update>
+
+	<resultMap id="selectDetailResult" type="com.sandu.designplan.model.DesignPlanRecommendedResult">
+		<result column="id" property="planRecommendedId" jdbcType="INTEGER" />
+		<result column="plan_id" property="planId" jdbcType="INTEGER" />
+		<result column="plan_name" property="planName" jdbcType="VARCHAR" />
+		<result column="spaceStyleName" property="styleName" jdbcType="VARCHAR" />
+		<result column="space_areas" property="spaceAreas" jdbcType="VARCHAR" />
+		<result column="isFavorite" property="isFavorite" jdbcType="INTEGER" />
+		<result column="isLike" property="isLike" jdbcType="INTEGER" />
+		<result column="user_name" property="designerName" jdbcType="VARCHAR" />
+		<result column="pic_id" property="designerHeadPic" jdbcType="VARCHAR" />
+		<result column="desc_file_id" property="descFileId" jdbcType="INTEGER" />
+		<result column="plan_price" property="planPrice" jdbcType="DOUBLE" />
+		<result column="space_function_id" property="spaceFunctionId" jdbcType="INTEGER" />
+		<result column="apply_space_areas" property="applySpaceAreas" jdbcType="VARCHAR" />
+		<result column="group_primary_id" property="groupPrimaryId" jdbcType="INTEGER" />
+		<collection property="shops" select="selectShopInfo" ofType="com.sandu.designplan.model.ShopInfo" javaType="java.util.ArrayList" column="userId"/>
+		<collection property="planDecoratePriceList" ofType="com.sandu.designplan.vo.PlanDecoratePriceBO">
+			<result column="decorateTypeName" property="decorateTypeName" jdbcType="VARCHAR"></result>
+			<result column="decoratePrice" property="decoratePrice" jdbcType="INTEGER"></result>
+		</collection>
+
+	</resultMap>
+	<select id="selectDetail" resultMap="selectDetailResult" parameterType="java.lang.Integer">
+		select
+			t1.id
+			,t1.plan_id
+			,t1.plan_name
+			,t1.charge_type
+			,t1.plan_price
+			,t2.name spaceStyleName
+			,t5.user_name
+			,t5.pic_id
+			,t7.space_areas
+			,t9.name decorateTypeName
+        	,t8.decorate_price decoratePrice
+        	,t1.desc_file_id
+        	,t10.status isLike
+        	,t11.id isFavorite
+        	,t5.id userId
+        	,t1.apply_space_areas
+        	,t12.space_function_id
+        	,t1.group_primary_id
+		from
+			design_plan_recommended t1
+			left join base_product_style t2 on t2.id = t1.design_recommended_style_id and t2.is_deleted = 0
+			left join sys_user t5 on t5.id = t1.user_id and t5.is_deleted = 0
+			left join space_common t7 on t7.id = t1.space_common_id and t7.is_deleted = 0
+			left join plan_decorate_price t8 on t8.plan_recommend_id = t1.id and t8.is_deleted = 0
+			left join sys_dictionary t9 on t9.value = t8.decorate_price_type and t9.type = 'decorateType'
+			left join design_plan_like t10 on t10.user_id = t5.id and t10.design_id = t1.id and t10.is_deleted = 0
+			left join design_plan_favorite t11 on t11.userId = t5.id and t11.designId = t1.id
+			left join space_common t12 on t12.id = t1.space_common_id
+		WHERE
+			t1.id = #{id}
+			and t1.is_deleted = 0
+	</select>
+
+	<select id="selectDesignPlanIdsFromRecord" resultType="integer">
+		SELECT
+			design_plan_id
+		FROM
+			user_design_plan_purchase_record
+		WHERE
+			is_deleted = 0 AND
+			user_id = #{userId} and
+			trade_status = 2
+	</select>
+
+	<select id="getFavoriteCount" parameterType="com.sandu.designplan.model.DesignPlanRecommended" resultType="java.lang.Integer">
+		SELECT
+			count(1)
+		FROM
+			(SELECT
+				dprfr.recommendId,
+				dprfr.full_house_design_plan_id
+			FROM
+				design_plan_recommend_favorite_ref AS dprfr
+				LEFT JOIN sys_business_favorite AS sbf ON ( dprfr.fid = sbf.bid )
+			WHERE
+				sbf.userId = #{userId}
+				AND dprfr.STATUS = 1
+				) AS t1
+			LEFT JOIN ( SELECT * FROM design_plan_recommended WHERE is_deleted = 0 AND is_release = 1
+				<if test="companyId != null">
+					and company_id = #{companyId}
+				</if>
+				) AS t2 ON ( t1.recommendId = t2.id )
+			LEFT JOIN design_plan_2c_platform t3 on t3.plan_id = t2.id and t3.platform_id = #{platformId} and t3.design_plan_type != 3
+			LEFT JOIN full_house_design_plan t4 on t4.is_deleted = 0 and t4.id = t1.full_house_design_plan_id
+				<if test="companyId != null">
+					and t4.company_id = #{companyId}
+				</if>
+			LEFT JOIN design_plan_2c_platform t5 on t5.plan_id = t4.id and t5.platform_id = #{platformId} and t5.design_plan_type = 3
+		WHERE
+			1 = 1
+		  	and (t3.putaway_state = 1 or t5.putaway_state = 1)
+		  	and (t3.allot_state = 1 or t5.allot_state = 1)
+	</select>
+    <select id="getDesignById" resultType="com.sandu.designplan.model.DesignPlanRecommended">
+		SELECT * from design_plan_recommended
+        where id = #{id}
+	</select>
+	<select id="listDesignPlanProducts" resultType="com.sandu.design.model.DesignPlanProduct">
+		SELECT
+		dprp.plan_recommended_id AS planId,
+		dprp.product_id
+		FROM design_plan_recommended_product dprp
+		WHERE dprp.plan_recommended_id = #{planId}
+		GROUP BY dprp.product_id
+	</select>
+
+
+
+	<select id="getAllSuperiorPlanList" resultType="com.sandu.designplan.model.DesignPlanRecommendedSuperior">
+	  select * from design_plan_recommended_superior where is_deleted = 0  ORDER BY space_type ASC
+	</select>
+
+	<select id="getSpaceSuperiorPlanList" resultType="com.sandu.designplan.model.DesignPlanRecommendedSuperior" parameterType="java.lang.Integer">
+
+	  select * from design_plan_recommended_superior where is_deleted = 0  and space_type = #{spaceType} ORDER BY ordering ASC limit 5
+
+	</select>
+
+
+
+	<select id="getAllDesignPlanRecommendedInfo" resultMap="planRecommendedResultMap"
+			parameterType="object">
+	SELECT
+	DISTINCT ur.id AS userReviewsId,
+	dp.id AS id,
+	dp.id AS planRecommendedId,
+	dp.id as designPlanRecommendId,
+	dp.plan_name as designPlanName,
+	bps.NAME AS  spaceStyleName,
+	sc.space_areas as space_area,
+	sc.space_function_id as spaceType,
+	rrp.pic_path AS designPlanCoverPath,
+	dp.apply_space_areas as applySpaceAreas,
+	dp.apply_space_areas as applySpaceAreas,
+	dp.plan_id,
+	rrp.pic_path AS cover_path,
+	dp.plan_name,
+	dp.is_release,
+	dp.gmt_modified,
+	dp.gmt_create,
+	su.user_name AS creator,
+	su.id userId,
+	sc.space_areas,
+	bps.NAME AS style_name,
+	sc.space_function_id,
+	dp.release_time,
+	dp.living_id,
+	dp.house_id,
+	dp.remark,
+	dp.plan_source,
+	dp.is_default_decorate,
+	sd.NAME AS houseTypeName,
+	fr.bid,
+	fr.status AS isFavorite,
+	dpl.status AS isLike,
+	sc.space_shape,
+	dp.group_primary_id,
+	t.count AS renderCount,
+	dp.desc_file_id,
+	dp.charge_type,
+	dp.use_count,
+	dp.plan_price,
+	1 planHouseType,
+	dpsi.like_num,
+	dpsi.collect_num,
+	dpsi.view_num
+	from user_reviews ur
+	left join design_plan_recommended AS dp on ur.plan_id = dp.id
+	LEFT JOIN design_plan_like AS dpl ON dpl.design_id = dp.id AND dpl.user_id = #{userId}
+	LEFT JOIN design_plan_2c_platform dpp ON dpp.plan_id = dp.id AND dpp.is_deleted = 0
+	left join (SELECT count(1) AS count ,art.plan_id from auto_render_task art
+	GROUP BY art.plan_id) as T on t.plan_id = dp.id
+	LEFT JOIN
+	(SELECT fid,recommendId,bid,status from design_plan_recommend_favorite_ref where fid
+	in (SELECT bid from
+	sys_business_favorite where userId =#{userId}) ) AS fr ON(fr.recommendId = dp.id)
+	LEFT JOIN (SELECT id,user_name,pic_id from sys_user where is_deleted = 0) AS su
+	ON (dp.user_id = su.id)
+	LEFT JOIN (SELECT plan_recommended_id,pic_path from res_render_pic where is_deleted = 0 and
+	plan_recommended_id is not null and file_key = 'design.designPlanRecommended.render.small.pic' and rendering_type = 4 ) AS
+	rrp ON (dp.id = rrp.plan_recommended_id)
+	LEFT JOIN (SELECT plan_id,is_deleted,brand_id,company_id from design_plan_brand ) AS
+	dpb ON (dp.id = dpb.plan_id)
+	LEFT JOIN (SELECT id,brand_name from base_brand where is_deleted = 0 ) AS
+	bb ON (dpb.brand_id = bb.id)
+	LEFT JOIN design_templet AS dt ON (dp.design_template_id = dt.id)
+	LEFT JOIN (SELECT id,space_function_id,space_areas,space_shape from
+	space_common where is_deleted = 0) AS sc
+	on(sc.id =
+	dt.space_common_id)
+	LEFT JOIN base_product_style AS bps ON (bps.id =
+	dp.design_recommended_style_id)
+	LEFT JOIN (SELECT NAME,VALUE FROM sys_dictionary WHERE is_deleted = 0 AND
+	type = 'houseType' ) AS sd ON
+	(sc.space_function_id = sd.VALUE)
+	LEFT JOIN plan_decorate_price pdp on pdp.plan_recommend_id = dp.id
+	LEFT JOIN design_plan_summary_info dpsi on dpsi.design_id = dp.id and dpsi.design_plan_type = 0 and dpsi.is_deleted = 0
+	WHERE
+	dp.is_deleted = 0 and ur.is_deleted = 0 and ur.plan_type = 1 and ur.plan_id in
+		<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	order by sc.space_function_id asc
+	</select>
+
+	<select id="getAllDesignPlanRecommendedInfoList" resultMap="planRecommendedResultMap"
+			parameterType="java.util.List">
+		SELECT DISTINCT
+		dp.id AS planRecommendedId,
+		dp.id as designPlanRecommendId,
+		dp.plan_name as designPlanName,
+		bps.NAME AS  spaceStyleName,
+		sc.space_areas as space_area,
+		sc.space_function_id as spaceType,
+		rrp.pic_path AS designPlanCoverPath,
+		dp.apply_space_areas as applySpaceAreas,
+		dp.apply_space_areas as applySpaceAreas,
+		dp.plan_id,
+		rrp.pic_path AS cover_path,
+		dp.plan_name,
+		dp.is_release,
+		dp.gmt_modified,
+		dp.gmt_create,
+		su.user_name AS creator,
+		su.id userId,
+		sc.space_areas,
+		bps.NAME AS style_name,
+		sc.space_function_id,
+		dp.release_time,
+		dp.living_id,
+		dp.house_id,
+		dp.remark,
+		dp.plan_source,
+		dp.is_default_decorate,
+		sd.NAME AS houseTypeName,
+		fr.bid,
+		fr.status AS isFavorite,
+		dpl.status AS isLike,
+		sc.space_shape,
+		dp.group_primary_id,
+		t.count AS renderCount,
+		dp.desc_file_id,
+		dp.charge_type,
+		dp.use_count,
+		dp.plan_price,
+		1 planHouseType,
+		dpsi.like_num,
+		dpsi.collect_num,
+		dpsi.view_num
+		from design_plan_recommended AS dp
+		LEFT JOIN design_plan_like AS dpl ON dpl.design_id = dp.id AND dpl.user_id = #{userId}
+		LEFT JOIN design_plan_2c_platform dpp ON dpp.plan_id = dp.id AND dpp.is_deleted = 0
+		left join (SELECT count(1) AS count ,art.plan_id from auto_render_task art
+		GROUP BY art.plan_id) as T on t.plan_id = dp.id
+		LEFT JOIN
+		(SELECT fid,recommendId,bid,status from design_plan_recommend_favorite_ref where fid
+		in (SELECT bid from
+		sys_business_favorite where userId =#{userId}) ) AS fr ON(fr.recommendId = dp.id)
+		LEFT JOIN (SELECT id,user_name,pic_id from sys_user where is_deleted = 0) AS su
+		ON (dp.user_id = su.id)
+		LEFT JOIN (SELECT id,pic_path from res_render_pic where is_deleted = 0 and
+		plan_recommended_id is not null) AS
+		rrp ON (dp.cover_pic_id = rrp.id)
+		LEFT JOIN (SELECT plan_id,is_deleted,brand_id,company_id from design_plan_brand ) AS
+		dpb ON (dp.id = dpb.plan_id)
+		LEFT JOIN (SELECT id,brand_name from base_brand where is_deleted = 0 ) AS
+		bb ON (dpb.brand_id = bb.id)
+		LEFT JOIN design_templet AS dt ON (dp.design_template_id = dt.id)
+		LEFT JOIN (SELECT id,space_function_id,space_areas,space_shape from
+		space_common where is_deleted = 0) AS sc
+		on(sc.id =
+		dt.space_common_id)
+		LEFT JOIN base_product_style AS bps ON (bps.id =
+		dp.design_recommended_style_id)
+		LEFT JOIN (SELECT NAME,VALUE FROM sys_dictionary WHERE is_deleted = 0 AND
+		type = 'houseType' ) AS sd ON
+		(sc.space_function_id = sd.VALUE)
+		LEFT JOIN plan_decorate_price pdp on pdp.plan_recommend_id = dp.id
+		LEFT JOIN design_plan_summary_info dpsi on dpsi.design_id = dp.id and dpsi.design_plan_type = 0 and dpsi.is_deleted = 0
+		WHERE
+		dp.is_deleted = 0 and dp.id in
+		<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		order by sc.space_function_id asc
+
+	</select>
+</mapper>

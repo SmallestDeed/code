@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.shop.dao.ProjectCaseDao">
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+        id,shop_id,case_title,release_status,pic_ids,file_id,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,remark
+    </sql>
+
+    <!-- **插入定义** -->
+    <insert id="insert" parameterType="com.sandu.api.shop.model.ProjectCase"  useGeneratedKeys="true" keyProperty="id">
+        insert into project_case
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="shopId!= null">shop_id, </if>
+            <if test="caseTitle!= null">case_title, </if>
+            <if test="releaseStatus!= null">release_status, </if>
+            <if test="picIds!= null">pic_ids, </if>
+            <if test="fileId!= null">file_id, </if>
+            <if test="sysCode!= null">sys_code, </if>
+            <if test="creator!= null">creator, </if>
+            <if test="gmtCreate!= null">gmt_create, </if>
+            <if test="modifier!= null">modifier, </if>
+            <if test="gmtModified!= null">gmt_modified, </if>
+            <if test="isDeleted!= null">is_deleted, </if>
+            <if test="remark!= null">remark, </if>
+            <if test="sid!= null">sid, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="shopId!= null">  #{shopId,jdbcType=INTEGER}, </if>
+            <if test="caseTitle!= null">  #{caseTitle,jdbcType=VARCHAR}, </if>
+            <if test="releaseStatus!= null">  #{releaseStatus,jdbcType=INTEGER}, </if>
+            <if test="picIds!= null">  #{picIds,jdbcType=VARCHAR}, </if>
+            <if test="fileId!= null">  #{fileId,jdbcType=INTEGER}, </if>
+            <if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+            <if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+            <if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+            <if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+            <if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+            <if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+            <if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>
+            <if test="sid!= null">  #{sid}, </if>
+        </trim>
+    </insert>
+
+    <!-- **更新定义** -->
+    <update id="update" parameterType="com.sandu.api.shop.model.ProjectCase">
+        update project_case
+        <set>
+            <if test="shopId!= null">  shop_id = #{shopId,jdbcType=INTEGER}, </if>
+            <if test="caseTitle!= null">  case_title = #{caseTitle,jdbcType=VARCHAR}, </if>
+            <if test="releaseStatus!= null">  release_status = #{releaseStatus,jdbcType=INTEGER}, </if>
+            <if test="picIds!= null">  pic_ids = #{picIds,jdbcType=VARCHAR}, </if>
+            <if test="fileId!= null">  file_id = #{fileId,jdbcType=INTEGER}, </if>
+            <if test="sysCode!= null">  sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+            <if test="creator!= null">  creator = #{creator,jdbcType=VARCHAR}, </if>
+            <if test="gmtCreate!= null">  gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+            <if test="modifier!= null">  modifier = #{modifier,jdbcType=VARCHAR}, </if>
+            <if test="gmtModified!= null">  gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+            <if test="isDeleted!= null">  is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+            <if test="remark!= null">  remark = #{remark,jdbcType=VARCHAR}, </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!--逻辑删除-->
+    <update id="delete" parameterType="com.sandu.api.shop.model.ProjectCase" >
+        UPDATE
+            project_case
+        SET
+            is_deleted= 1,
+            modifier = #{modifier,jdbcType=VARCHAR},
+            gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+        WHERE
+            id=#{id,javaType=INTEGER}
+    </update>
+
+    <!--根据店铺ID批量逻辑删除-->
+    <update id="batchDelByShopId" parameterType="com.sandu.api.shop.model.ProjectCase" >
+        UPDATE
+          project_case
+        SET
+            is_deleted= 1,
+            modifier = #{modifier,jdbcType=VARCHAR},
+            gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+        WHERE
+          shop_id=#{shopId,javaType=INTEGER}
+    </update>
+
+    <!--通过Id查询信息-->
+    <select id="findById" parameterType="java.lang.Integer" resultType="com.sandu.api.shop.model.ProjectCase">
+        SELECT
+          <include refid="All_Column_List"/>
+        FROM
+          project_case
+        WHERE
+          id=#{id,jdbcType=INTEGER}
+          AND is_deleted = 0
+    </select>
+
+    <!--查询条件下的数量-->
+    <select id="findCount" parameterType="com.sandu.api.shop.input.ProjectCaseQuery" resultType="java.lang.Integer">
+            SELECT
+            count(id)
+            FROM project_case WHERE 1=1
+            <choose>
+                <when test="shopId != null and shopId != 0">
+                    and shop_id = #{shopId,jdbcType=INTEGER}
+                </when>
+                <otherwise>
+                    and shop_id = -1
+                </otherwise>
+            </choose>
+            <if test="caseTitle != null and caseTitle != ''">
+                and case_title LIKE CONCAT(CONCAT('%',#{caseTitle,jdbcType=VARCHAR}),'%')
+            </if>
+            AND is_deleted = 0
+    </select>
+
+    <!--查询条件下的列表-->
+    <select id="findList" parameterType="com.sandu.api.shop.input.ProjectCaseQuery"
+            resultType="com.sandu.api.shop.output.ProjectCaseVO">
+            SELECT
+            pc.id as case_id,pc.case_title,pc.gmt_create as create_date,
+            pc.release_status,pc.pic_ids, rf.file_path
+            FROM project_case pc
+            LEFT join res_file rf ON rf.id = pc.file_id
+            WHERE 1=1
+            <choose>
+                <when test="shopId != null and shopId != 0">
+                    and pc.shop_id = #{shopId,jdbcType=INTEGER}
+                </when>
+                <otherwise>
+                    and pc.shop_id = -1
+                </otherwise>
+            </choose>
+            <if test="caseTitle != null and caseTitle != ''">
+                and pc.case_title LIKE CONCAT(CONCAT('%',#{caseTitle,jdbcType=VARCHAR}),'%')
+            </if>
+            AND pc.is_deleted = 0
+            ORDER BY pc.id DESC
+            limit #{start},#{limit}
+    </select>
+
+
+    <update id="deleteCaseByShopId" >
+        UPDATE project_case
+        SET
+            is_deleted = 1,
+            modifier = #{loginUserName,jdbcType=VARCHAR},
+            gmt_modified = NOW()
+        WHERE shop_id IN
+        <foreach item="item" collection="shopIds" separator="," open="(" close=")" index="">
+            #{item}
+        </foreach>
+    </update>
+
+
+    <select id="getCaseByShopId" resultType="java.lang.Integer">
+        SELECT COUNT(id)
+        FROM project_case
+        WHERE is_deleted = 0
+        AND shop_id IN
+        <foreach item="item" collection="shopIds" separator="," open="(" close=")" index="">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getMainShopCaseId" resultType="java.lang.Integer">
+        SELECT
+            t2.id
+        FROM
+            project_case t1
+            LEFT JOIN project_case t2 on t2.sid = t1.id and t2.is_deleted = 0 and t2.shop_id = #{mainShopId}
+        WHERE
+            t1.id = #{caseId}
+    </select>
+
+    <select id="get" resultType="com.sandu.api.shop.model.ProjectCase" parameterType="java.lang.Integer">
+        SELECT
+            *
+        FROM
+            project_case
+        WHERE
+            id = #{id}
+    </select>
+
+    <update id="updateMainShopCaseStatus">
+        update
+		    project_case t1
+		    inner join project_case t2 on t2.id = t1.sid and t2.shop_id = #{shopId}
+        set
+            t1.is_deleted = #{status},
+            t1.gmt_modified = CURRENT_TIMESTAMP
+        where
+		    t1.shop_id = #{mainShopId}
+    </update>
+</mapper>

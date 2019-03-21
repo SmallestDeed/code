@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.resmodel.dao.ModelCopyLogDao">
+
+
+    <insert id="addModelCopyLog" parameterType="com.sandu.api.resmodel.model.ModelCopyLog"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into res_model_copy_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="kind != null">
+                kind,
+            </if>
+            <if test="sourceId != null">
+                source_id,
+            </if>
+            <if test="sourceCompanyId != null">
+                source_company_id,
+            </if>
+            <if test="targetId != null">
+                target_id,
+            </if>
+            <if test="targetCompanyId != null">
+                target_company_id,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="kind != null">
+                #{kind},
+            </if>
+            <if test="sourceId != null">
+                #{sourceId},
+            </if>
+            <if test="sourceCompanyId != null">
+                #{sourceCompanyId},
+            </if>
+            <if test="targetId != null">
+                #{targetId},
+            </if>
+            <if test="targetCompanyId != null">
+                #{targetCompanyId},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate},
+            </if>
+        </trim>
+    </insert>
+
+    <delete id="deleteBySourceId">
+        DELETE FROM res_model_copy_log
+        WHERE source_id = #{modelId}
+    </delete>
+    <delete id="deleteByCompanyIdAndSourceId">
+        DELETE FROM res_model_copy_log where source_id = #{modelId} and target_company_id = #{companyId} and kind = 1
+    </delete>
+
+</mapper>

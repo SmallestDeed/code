@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.system.dao.SysVersionDao">
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.sandu.api.system.model.SysVersion">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result  column="system_type" property="systemType" jdbcType="VARCHAR" />
+        <result  column="version" property="version" jdbcType="VARCHAR" />
+        <result  column="status" property="status" jdbcType="INTEGER" />
+        <result  column="title" property="title" jdbcType="VARCHAR" />
+        <result  column="content" property="content" jdbcType="VARCHAR" />
+        <result  column="app_path" property="appPath" jdbcType="VARCHAR" />
+        <result  column="ios_file_url" property="iosFileUrl" jdbcType="VARCHAR" />
+        <result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+        <result  column="creator" property="creator" jdbcType="VARCHAR" />
+        <result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+        <result  column="release_date" property="releaseDate" jdbcType="TIMESTAMP" />
+        <result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+        <result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+        <result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+        <result  column="upgrade_method" property="upgradeMethod" jdbcType="INTEGER" />
+        <result  column="file_id" property="fileId" jdbcType="INTEGER" />
+        <result  column="patch_file_id" property="patchFileId" jdbcType="INTEGER" />
+        <result  column="shell_exe_file_id" property="shellExeFileId" jdbcType="INTEGER" />
+        <result  column="ver_exe_file_id" property="verExeFileId" jdbcType="INTEGER" />
+        <result  column="ver_type" property="verType" jdbcType="VARCHAR" />
+        <result  column="att1" property="att1" jdbcType="VARCHAR" />
+        <result  column="att2" property="att2" jdbcType="VARCHAR" />
+        <result  column="numa1" property="numa1" jdbcType="INTEGER" />
+        <result  column="numa2" property="numa2" jdbcType="INTEGER" />
+        <result  column="remark" property="remark" jdbcType="VARCHAR" />
+        <result  column="internal_file_id" property="internalFileId" jdbcType="INTEGER" />
+        <result  column="internal_patch_file_id" property="internalPatchFileId" jdbcType="INTEGER" />
+        <result  column="test_patch_file_id" property="testPatchFileId" jdbcType="INTEGER" />
+        <result  column="file_id_32" property="fileId32" jdbcType="INTEGER" />
+        <result  column="patch_file_id_32" property="patchFileId32" jdbcType="INTEGER" />
+    </resultMap>
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+        id,file_id_32,patch_file_id_32,internal_file_id,internal_patch_file_id,test_patch_file_id,system_type,version,status,title,content,app_path,ios_file_url,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,upgrade_method,att1,att2,numa1,numa2,remark,file_id,patch_file_id,shell_exe_file_id,ver_exe_file_id,ver_type,release_date
+    </sql>
+
+    <!-- 分页查询 ,可在SysVersionSearch中自定义查询条件-->
+    <select id="selectPaginatedList" resultMap="AllResultMap"
+            parameterType="com.sandu.api.system.model.SysVersionSearch">
+        select
+        <include refid="All_Column_List" />
+        from sys_version
+        where 1=1
+        <if test="fileId32!= null"> and file_id_32 =   #{fileId32,jdbcType=INTEGER}  </if>
+        <if test="patchFileId32!= null"> and patch_file_id_32 =  #{patchFileId32,jdbcType=INTEGER}  </if>
+        <if test="internalFileId!= null"> and internal_file_id = #{internalFileId,jdbcType=INTEGER}  </if>
+        <if test="internalPatchFileId!= null"> and internal_patch_file_id = #{internalPatchFileId,jdbcType=INTEGER}  </if>
+        <if test="testPatchFileId!= null"> and test_patch_file_id = #{testPatchFileId,jdbcType=INTEGER}  </if>
+        <if test="systemType !=  null and systemType !=  ''   "> and system_type  = #{systemType,jdbcType=VARCHAR} </if>
+        <if test="verType !=  null and verType !=  ''   "> and ver_type  = #{verType,jdbcType=VARCHAR} </if>
+        <if test="sch_SystemType_ !=  null and sch_SystemType_ !=  ''   ">
+            and system_type  like CONCAT(CONCAT('%',#{sch_SystemType_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_SystemType !=  null and sch_SystemType !=  ''   ">
+            and system_type  like CONCAT('%',#{sch_SystemType,jdbcType=VARCHAR})
+        </if>
+        <if test="schSystemType_ !=  null and schSystemType_ !=  ''   ">
+            and system_type  like CONCAT(#{schSystemType_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="systemTypeStart !=  null and systemTypeEnd!= null  ">
+            and system_type between #{systemTypeStart,jdbcType=VARCHAR} and #{systemTypeEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="version !=  null and version !=  ''   "> and version  = #{version,jdbcType=VARCHAR} </if>
+        <if test="sch_Version_ !=  null and sch_Version_ !=  ''   ">
+            and version  like CONCAT(CONCAT('%',#{sch_Version_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Version !=  null and sch_Version !=  ''   ">
+            and version  like CONCAT('%',#{sch_Version,jdbcType=VARCHAR})
+        </if>
+        <if test="schVersion_ !=  null and schVersion_ !=  ''   ">
+            and version  like CONCAT(#{schVersion_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="versionStart !=  null and versionEnd!= null  ">
+            and version between #{versionStart,jdbcType=VARCHAR} and #{versionEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="status !=  null  ">			and status  = #{status,jdbcType=INTEGER} </if>
+        <if test="title !=  null and title !=  ''   "> and title  = #{title,jdbcType=VARCHAR} </if>
+        <if test="sch_Title_ !=  null and sch_Title_ !=  ''   ">
+            and title  like CONCAT(CONCAT('%',#{sch_Title_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Title !=  null and sch_Title !=  ''   ">
+            and title  like CONCAT('%',#{sch_Title,jdbcType=VARCHAR})
+        </if>
+        <if test="schTitle_ !=  null and schTitle_ !=  ''   ">
+            and title  like CONCAT(#{schTitle_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="titleStart !=  null and titleEnd!= null  ">
+            and title between #{titleStart,jdbcType=VARCHAR} and #{titleEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="content !=  null and content !=  ''   "> and content  = #{content,jdbcType=VARCHAR} </if>
+        <if test="sch_Content_ !=  null and sch_Content_ !=  ''   ">
+            and content  like CONCAT(CONCAT('%',#{sch_Content_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Content !=  null and sch_Content !=  ''   ">
+            and content  like CONCAT('%',#{sch_Content,jdbcType=VARCHAR})
+        </if>
+        <if test="schContent_ !=  null and schContent_ !=  ''   ">
+            and content  like CONCAT(#{schContent_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="contentStart !=  null and contentEnd!= null  ">
+            and content between #{contentStart,jdbcType=VARCHAR} and #{contentEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="appPath !=  null and appPath !=  ''   "> and app_path  = #{appPath,jdbcType=VARCHAR} </if>
+        <if test="iosFileUrl !=  null and iosFileUrl !=  ''   "> and ios_file_url  = #{iosFileUrl,jdbcType=VARCHAR} </if>
+        <if test="sch_AppPath_ !=  null and sch_AppPath_ !=  ''   ">
+            and app_path  like CONCAT(CONCAT('%',#{sch_AppPath_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_AppPath !=  null and sch_AppPath !=  ''   ">
+            and app_path  like CONCAT('%',#{sch_AppPath,jdbcType=VARCHAR})
+        </if>
+        <if test="schAppPath_ !=  null and schAppPath_ !=  ''   ">
+            and app_path  like CONCAT(#{schAppPath_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="appPathStart !=  null and appPathEnd!= null  ">
+            and app_path between #{appPathStart,jdbcType=VARCHAR} and #{appPathEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="sysCode !=  null and sysCode !=  ''   "> and sys_code  = #{sysCode,jdbcType=VARCHAR} </if>
+        <if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+            and sys_code  like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+            and sys_code  like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+        </if>
+        <if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+            and sys_code  like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+            and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="creator !=  null and creator !=  ''   "> and creator  = #{creator,jdbcType=VARCHAR} </if>
+        <if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+            and creator  like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+            and creator  like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+        </if>
+        <if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+            and creator  like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="creatorStart !=  null and creatorEnd!= null  ">
+            and creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtCreate !=  null  ">
+            and gmt_create  = #{gmtCreate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+            and gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+        </if>
+        <if test="releaseDate !=  null  ">
+            and release_date  = #{releaseDate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="modifier !=  null and modifier !=  ''   "> and modifier  = #{modifier,jdbcType=VARCHAR} </if>
+        <if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+            and modifier  like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+            and modifier  like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+        </if>
+        <if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+            and modifier  like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="modifierStart !=  null and modifierEnd!= null  ">
+            and modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtModified !=  null  ">
+            and gmt_modified  = #{gmtModified,jdbcType=TIMESTAMP}
+        </if>
+        <if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+            and gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+        </if>
+        <if test="isDeleted !=  null  ">			and is_deleted  = #{isDeleted,jdbcType=INTEGER} </if>
+        <if test="upgradeMethod !=  null  ">			and upgrade_method  = #{upgradeMethod,jdbcType=INTEGER} </if>
+        <if test="fileId !=  null  ">			and file_id  = #{fileId,jdbcType=INTEGER} </if>
+        <if test="patchFileId !=  null  ">			and patch_file_id  = #{patchFileId,jdbcType=INTEGER} </if>
+        <if test="att1 !=  null and att1 !=  ''   "> and att1  = #{att1,jdbcType=VARCHAR} </if>
+        <if test="sch_Att1_ !=  null and sch_Att1_ !=  ''   ">
+            and att1  like CONCAT(CONCAT('%',#{sch_Att1_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att1 !=  null and sch_Att1 !=  ''   ">
+            and att1  like CONCAT('%',#{sch_Att1,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt1_ !=  null and schAtt1_ !=  ''   ">
+            and att1  like CONCAT(#{schAtt1_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att1Start !=  null and att1End!= null  ">
+            and att1 between #{att1Start,jdbcType=VARCHAR} and #{att1End,jdbcType=VARCHAR}
+        </if>
+        <if test="att2 !=  null and att2 !=  ''   "> and att2  = #{att2,jdbcType=VARCHAR} </if>
+        <if test="sch_Att2_ !=  null and sch_Att2_ !=  ''   ">
+            and att2  like CONCAT(CONCAT('%',#{sch_Att2_,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="sch_Att2 !=  null and sch_Att2 !=  ''   ">
+            and att2  like CONCAT('%',#{sch_Att2,jdbcType=VARCHAR})
+        </if>
+        <if test="schAtt2_ !=  null and schAtt2_ !=  ''   ">
+            and att2  like CONCAT(#{schAtt2_,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="att2Start !=  null and att2End!= null  ">
+            and att2 between #{att2Start,jdbcType=VARCHAR} and #{att2End,jdbcType=VARCHAR}
+        </if>
+        <if test="numa1 !=  null  ">			and numa1  = #{numa1,jdbcType=INTEGER} </if>
+        <if test="numa2 !=  null  ">			and numa2  = #{numa2,jdbcType=INTEGER} </if>
+        <if test="remark !=  null and remark !=  ''   "> and remark  = #{remark,jdbcType=VARCHAR} </if>		<if test="sch_Remark_ !=  null and sch_Remark_ !=  ''   ">
+        and remark  like CONCAT(CONCAT('%',#{sch_Remark_,jdbcType=VARCHAR}),'%')
+    </if>		<if test="sch_Remark !=  null and sch_Remark !=  ''   ">
+        and remark  like CONCAT('%',#{sch_Remark,jdbcType=VARCHAR})
+    </if>		<if test="schRemark_ !=  null and schRemark_ !=  ''   ">
+        and remark  like CONCAT(#{schRemark_,jdbcType=VARCHAR},'%')
+    </if>		<if test="remarkStart !=  null and remarkEnd!= null  ">
+        and remark between #{remarkStart,jdbcType=VARCHAR} and #{remarkEnd,jdbcType=VARCHAR}
+    </if>
+        <if test="order != null and  order !=''  ">
+            order by ${order} <if test="orderNum != null and  orderNum !='' ">${orderNum}</if>
+        </if>
+        <if test="orders != null and  orders !=''  ">  order by #{orders}</if>
+        <if test="order == null and  orders == null ">  order by id desc</if>
+        <if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+    </select>
+
+</mapper>

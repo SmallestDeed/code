@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.merchantManagePay.dao.DesinPlanRecommendedDao">
+
+    <select id="getListsByIds" resultType="com.sandu.api.merchantManagePay.model.DesignPlanBO">
+        SELECT
+           id as planId,
+           sale_price as salePrice,
+           sale_price_charge_type as salePriceChargeType,
+           company_id as companyId,
+           plan_code as planCode,
+           user_id as userId
+        FROM
+           design_plan_recommended
+        WHERE
+          is_deleted = 0 AND
+          id IN
+        <foreach collection="designPlanIds" open="(" separator="," close=")" item="id">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="getFullDesignPlans" resultType="com.sandu.api.merchantManagePay.model.FullHouseDesignBo">
+        SELECT
+            id as planId,
+            sale_price as salePrice,
+            sale_price_charge_type as salePriceChargeType,
+            company_id as companyId,
+            plan_code as planCode,
+            user_id as userId
+        FROM
+            full_house_design_plan
+        WHERE
+        is_deleted = 0 AND
+        id IN
+        <foreach collection="designPlanIds" open="(" separator="," close=")" item="id">
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>

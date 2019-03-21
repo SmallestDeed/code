@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.design.dao.DesignPlanProductMapper">
+	
+	<!-- **常量定义** -->
+	<sql id="All_Column_List">
+		id,wall_orientation,wall_type,is_main_structure_product,is_group_replace_way,product_index,is_standard,center,region_mark,style_id,measure_code,describe_info,sys_code,split_textures_choose_info,plan_group_id,creator,gmt_create,modifier,gmt_modified,is_deleted,group_type,model_product_id,plan_id,is_dirty,product_id,init_product_id,location_file_id,product_sequence,material_pic_id,att2,att3,att4,att5,att6,date_att1,date_att2,planProduct_id,display_status,num_att3,num_att4,remark,is_hide,pos_index_path,product_group_id,is_main_product,pos_name,bind_parent_productId,same_product_type_index,group_product_uniqueId
+	</sql>
+	
+	<!-- **结果定义** -->
+	<resultMap id="AllResultMap" type="com.sandu.design.model.DesignPlanProduct">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result  column="split_textures_choose_info" property="splitTexturesChooseInfo" jdbcType="VARCHAR" />
+		<result  column="plan_group_id" property="planGroupId" jdbcType="VARCHAR" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="group_type" property="groupType" jdbcType="INTEGER" />
+		<result  column="model_product_id" property="modelProductId" jdbcType="INTEGER" />
+		<result  column="plan_id" property="planId" jdbcType="INTEGER" />
+		<result  column="is_dirty" property="isDirty" jdbcType="INTEGER" />
+		<result  column="product_id" property="productId" jdbcType="INTEGER" />
+		<result  column="init_product_id" property="initProductId" jdbcType="INTEGER" />
+		<result  column="location_file_id" property="locationFileId" jdbcType="INTEGER" />
+		<result  column="product_sequence" property="productSequence" jdbcType="VARCHAR" />
+		<result  column="material_pic_id" property="materialPicId" jdbcType="VARCHAR" />
+		<result  column="att2" property="att2" jdbcType="VARCHAR" />
+		<result  column="att3" property="att3" jdbcType="VARCHAR" />
+		<result  column="att4" property="att4" jdbcType="VARCHAR" />
+		<result  column="att5" property="att5" jdbcType="VARCHAR" />
+		<result  column="att6" property="att6" jdbcType="VARCHAR" />
+		<result  column="date_att1" property="dateAtt1" jdbcType="TIMESTAMP" />
+		<result  column="date_att2" property="dateAtt2" jdbcType="TIMESTAMP" />
+		<result  column="planProduct_id" property="planProductId" jdbcType="INTEGER" />
+		<result  column="display_status" property="displayStatus" jdbcType="INTEGER" />
+		<result  column="num_att3" property="numAtt3" jdbcType="DOUBLE" />
+		<result  column="num_att4" property="numAtt4" jdbcType="DOUBLE" />
+		<result  column="remark" property="remark" jdbcType="VARCHAR" />
+		<result  column="is_hide" property="isHide" jdbcType="INTEGER" />
+		<result  column="pos_index_path" property="posIndexPath" jdbcType="VARCHAR" />
+		<result  column="product_group_id" property="productGroupId" jdbcType="INTEGER" />
+		<result  column="is_main_product" property="isMainProduct" jdbcType="INTEGER" />
+		<result  column="pos_name" property="posName" jdbcType="VARCHAR" />
+		<result  column="bind_parent_productId" property="bindParentProductId" jdbcType="VARCHAR" />
+		<result  column="same_product_type_index" property="sameProductTypeIndex" jdbcType="INTEGER" />
+		<result  column="is_standard" property="isStandard" jdbcType="INTEGER" />
+		<result  column="center" property="center" jdbcType="VARCHAR" />
+		<result  column="region_mark" property="regionMark" jdbcType="VARCHAR" />
+		<result  column="style_id" property="styleId" jdbcType="INTEGER" />
+		<result  column="measure_code" property="measureCode" jdbcType="VARCHAR" />
+		<result  column="describe_info" property="describeInfo" jdbcType="VARCHAR" />
+		<result  column="product_index" property="productIndex" jdbcType="INTEGER" />
+		<result  column="is_main_structure_product" property="isMainStructureProduct" jdbcType="INTEGER" />
+		<result  column="is_group_replace_way" property="isGroupReplaceWay" jdbcType="INTEGER" />
+		<result  column="wall_orientation" property="wallOrientation" jdbcType="VARCHAR" />
+		<result  column="wall_type" property="wallType" jdbcType="VARCHAR" />
+		<result  column="productPutawayState" property="productPutawayState" jdbcType="INTEGER" />
+		<result  column="product_code" property="productCode" jdbcType="VARCHAR" />
+		<result  column="group_product_uniqueId" property="groupProductUniqueId" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	
+	<!-- **插入定义** -->
+	<insert id="insertSelective" parameterType="com.sandu.design.model.DesignPlanProduct" useGeneratedKeys="true" keyProperty="id">
+		insert into design_plan_product
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		<if test="sysCode!= null">sys_code, </if>
+		<if test="splitTexturesChooseInfo!= null">split_textures_choose_info, </if>
+		<if test="planGroupId!= null">plan_group_id, </if>
+		<if test="creator!= null">creator, </if>
+		<if test="gmtCreate!= null">gmt_create, </if>
+		<if test="modifier!= null">modifier, </if>
+		<if test="gmtModified!= null">gmt_modified, </if>
+		<if test="isDeleted!= null">is_deleted, </if>
+		<if test="groupType!= null">group_type, </if>
+		<if test="modelProductId!= null">model_product_id, </if>
+		<if test="planId!= null">plan_id, </if>
+		<if test="isDirty!= null">is_dirty, </if>
+		<if test="productId!= null">product_id, </if>
+		<if test="initProductId!= null">init_product_id, </if>
+		<if test="locationFileId!= null">location_file_id, </if>
+		<if test="productSequence!= null">product_sequence, </if>
+		<if test="materialPicId!= null">material_pic_id, </if>
+		<if test="att2!= null">att2, </if>
+		<if test="att3!= null">att3, </if>
+		<if test="att4!= null">att4, </if>
+		<if test="att5!= null">att5, </if>
+		<if test="att6!= null">att6, </if>
+		<if test="dateAtt1!= null">date_att1, </if>
+		<if test="dateAtt2!= null">date_att2, </if>
+		<if test="planProductId!= null">planProduct_id, </if>
+		<if test="displayStatus!= null">display_status, </if>
+		<if test="numAtt3!= null">num_att3, </if>
+		<if test="numAtt4!= null">num_att4, </if>
+		<if test="remark!= null">remark, </if>
+		<if test="isHide!= null">is_hide, </if>
+		<if test="posIndexPath!= null">pos_index_path, </if>
+		<if test="productGroupId!= null">product_group_id, </if>
+		<if test="isMainProduct!= null">is_main_product, </if>
+		<if test="posName!= null">pos_name, </if>
+		<if test="bindParentProductId!= null">bind_parent_productId, </if>
+		<if test="sameProductTypeIndex!= null">same_product_type_index ,</if>
+		<if test="isStandard!= null">is_standard, </if>
+		<if test="center!= null and center!='' ">center, </if>
+		<if test="regionMark!= null and regionMark!='' ">region_mark, </if>
+		<if test="styleId!= null">style_id, </if>
+		<if test="measureCode!= null and measureCode!='' ">measure_code, </if>
+		<if test="describeInfo!= null and describeInfo!=''">describe_info, </if>
+		<if test="productIndex!= null">product_index, </if>
+		<if test="isMainStructureProduct!= null">is_main_structure_product, </if>
+		<if test="isGroupReplaceWay!= null">is_group_replace_way, </if>
+		<if test="wallOrientation!= null">wall_orientation, </if>
+		<if test="wallType!= null">wall_type, </if>
+		<if test="groupProductUniqueId!= null">group_product_uniqueId, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="splitTexturesChooseInfo!= null">  #{splitTexturesChooseInfo,jdbcType=VARCHAR}, </if>
+		<if test="planGroupId!= null">  #{planGroupId,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="groupType!= null">  #{groupType,jdbcType=INTEGER}, </if>
+		<if test="modelProductId!= null">  #{modelProductId,jdbcType=INTEGER}, </if>
+		<if test="planId!= null">  #{planId,jdbcType=INTEGER}, </if>
+		<if test="isDirty!= null">  #{isDirty,jdbcType=INTEGER}, </if>
+		<if test="productId!= null">  #{productId,jdbcType=INTEGER}, </if>
+		<if test="initProductId!= null">  #{initProductId,jdbcType=INTEGER}, </if>
+		<if test="locationFileId!= null">  #{locationFileId,jdbcType=INTEGER}, </if>
+		<if test="productSequence!= null">  #{productSequence,jdbcType=VARCHAR}, </if>
+		<if test="materialPicId!= null">  #{materialPicId,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  #{att2,jdbcType=VARCHAR}, </if>
+		<if test="att3!= null">  #{att3,jdbcType=VARCHAR}, </if>
+		<if test="att4!= null">  #{att4,jdbcType=VARCHAR}, </if>
+		<if test="att5!= null">  #{att5,jdbcType=VARCHAR}, </if>
+		<if test="att6!= null">  #{att6,jdbcType=VARCHAR}, </if>
+		<if test="dateAtt1!= null">  #{dateAtt1,jdbcType=TIMESTAMP}, </if>
+		<if test="dateAtt2!= null">  #{dateAtt2,jdbcType=TIMESTAMP}, </if>
+		<if test="planProductId!= null">  #{planProductId,jdbcType=INTEGER}, </if>
+		<if test="displayStatus!= null">  #{displayStatus,jdbcType=INTEGER}, </if>
+		<if test="numAtt3!= null">  #{numAtt3,jdbcType=DOUBLE}, </if>
+		<if test="numAtt4!= null">  #{numAtt4,jdbcType=DOUBLE}, </if>
+		<if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>
+		<if test="isHide!= null">  #{isHide,jdbcType=INTEGER}, </if>
+		<if test="posIndexPath!= null">  #{posIndexPath,jdbcType=VARCHAR}, </if>
+		<if test="productGroupId!= null">#{productGroupId,jdbcType=INTEGER}, </if>
+		<if test="isMainProduct!= null">#{isMainProduct,jdbcType=INTEGER}, </if>
+		<if test="posName!= null">#{posName,jdbcType=VARCHAR}, </if>
+		<if test="bindParentProductId!= null">  #{bindParentProductId,jdbcType=VARCHAR}, </if>
+		<if test="sameProductTypeIndex!= null">  #{sameProductTypeIndex,jdbcType=INTEGER}, </if>
+		<if test="isStandard!= null">#{isStandard,jdbcType=INTEGER}, </if>
+		<if test="center!= null and center!='' ">#{center,jdbcType=VARCHAR}, </if>
+		<if test="regionMark!= null and regionMark!='' ">#{regionMark,jdbcType=VARCHAR}, </if>
+		<if test="styleId!= null">#{styleId,jdbcType=INTEGER}, </if>
+		<if test="measureCode!= null and measureCode!='' ">#{measureCode,jdbcType=VARCHAR}, </if>
+		<if test="describeInfo!= null and describeInfo!=''">#{describeInfo,jdbcType=VARCHAR}, </if>
+		<if test="productIndex!= null">#{productIndex,jdbcType=INTEGER}, </if>
+		<if test="isMainStructureProduct!= null">#{isMainStructureProduct,jdbcType=INTEGER}, </if>
+		<if test="isGroupReplaceWay!= null">#{isGroupReplaceWay,jdbcType=INTEGER}, </if>
+		<if test="wallOrientation!= null">#{wallOrientation,jdbcType=VARCHAR}, </if>
+		<if test="wallType!= null">#{wallType,jdbcType=VARCHAR}, </if>
+		<if test="groupProductUniqueId!= null">#{groupProductUniqueId,jdbcType=VARCHAR}, </if>
+		</trim>
+	</insert>
+
+	<!-- **更新定义** -->
+	<update id="updateByPrimaryKeySelective" parameterType="com.sandu.design.model.DesignPlanProduct">
+		update design_plan_product
+		<set>
+		<if test="sysCode!= null">  sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="splitTexturesChooseInfo!= null">  split_textures_choose_info = #{splitTexturesChooseInfo,jdbcType=VARCHAR}, </if>
+		<if test="planGroupId!= null">  plan_group_id = #{planGroupId,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  creator = #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  modifier = #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="groupType!= null">  group_type = #{groupType,jdbcType=INTEGER}, </if>
+		<if test="modelProductId!= null">  model_product_id = #{modelProductId,jdbcType=INTEGER}, </if>
+		<if test="planId!= null">  plan_id = #{planId,jdbcType=INTEGER}, </if>
+		<if test="isDirty!= null">  is_dirty = #{isDirty,jdbcType=INTEGER}, </if>
+		<if test="productId!= null">  product_id = #{productId,jdbcType=INTEGER}, </if>
+		<if test="initProductId!= null">  init_product_id = #{initProductId,jdbcType=INTEGER}, </if>
+		<if test="locationFileId!= null">  location_file_id = #{locationFileId,jdbcType=VARCHAR}, </if>
+		<if test="productSequence!= null">  product_sequence = #{productSequence,jdbcType=VARCHAR}, </if>
+		<if test="materialPicId!= null">  material_pic_id = #{materialPicId,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  att2 = #{att2,jdbcType=VARCHAR}, </if>
+		<if test="att3!= null">  att3 = #{att3,jdbcType=VARCHAR}, </if>
+		<if test="att4!= null">  att4 = #{att4,jdbcType=VARCHAR}, </if>
+		<if test="att5!= null">  att5 = #{att5,jdbcType=VARCHAR}, </if>
+		<if test="att6!= null">  att6 = #{att6,jdbcType=VARCHAR}, </if>
+		<if test="dateAtt1!= null">  date_att1 = #{dateAtt1,jdbcType=TIMESTAMP}, </if>
+		<if test="dateAtt2!= null">  date_att2 = #{dateAtt2,jdbcType=TIMESTAMP}, </if>
+		<if test="planProductId!= null">  planProduct_id = #{planProductId,jdbcType=INTEGER}, </if>
+		<if test="displayStatus!= null">  display_status = #{displayStatus,jdbcType=INTEGER}, </if>
+		<if test="numAtt3!= null">  num_att3 = #{numAtt3,jdbcType=DOUBLE}, </if>
+		<if test="numAtt4!= null">  num_att4 = #{numAtt4,jdbcType=DOUBLE}, </if>
+		<if test="remark!= null">  remark = #{remark,jdbcType=VARCHAR}, </if>
+		<if test="isHide!= null">  is_hide = #{isHide,jdbcType=INTEGER}, </if>
+		<if test="posIndexPath!= null">  pos_index_path = #{posIndexPath,jdbcType=VARCHAR}, </if>
+		<if test="productGroupId!= null">  product_group_id = #{productGroupId,jdbcType=INTEGER},</if>
+		<if test="isMainProduct!= null">  is_main_product = #{isMainProduct,jdbcType=INTEGER},</if>
+		<if test="posName!= null">  pos_name = #{posName,jdbcType=VARCHAR},</if>
+		<if test="bindParentProductId!= null"> bind_parent_productId = #{bindParentProductId,jdbcType=VARCHAR}, </if>
+		<if test="isStandard!= null"> is_standard = #{isStandard,jdbcType=INTEGER}, </if>
+		<if test="center!= null and center!='' ">center = #{center,jdbcType=VARCHAR}, </if>
+		<if test="regionMark!= null and regionMark!='' "> region_mark = #{regionMark,jdbcType=VARCHAR}, </if>
+		<if test="styleId!= null">style_id = #{styleId,jdbcType=INTEGER}, </if>
+		<if test="measureCode!= null and measureCode!='' ">measure_code = #{measureCode,jdbcType=VARCHAR}, </if>
+		<if test="describeInfo!= null and describeInfo!=''">describe_info = #{describeInfo,jdbcType=VARCHAR}, </if>
+		<if test="productIndex!= null">product_index = #{productIndex,jdbcType=INTEGER}, </if>
+		<if test="isMainStructureProduct!= null"> is_main_structure_product = #{isMainStructureProduct,jdbcType=INTEGER}, </if>
+		<if test="isGroupReplaceWay!= null"> is_group_replace_way = #{isGroupReplaceWay,jdbcType=INTEGER}, </if>
+		<if test="wallOrientation!= null"> wall_orientation = #{wallOrientation,jdbcType=VARCHAR}, </if>
+		<if test="wallType!= null"> wall_type = #{wallType,jdbcType=VARCHAR}, </if>
+		<if test="groupProductUniqueId!= null"> group_product_uniqueId = #{groupProductUniqueId,jdbcType=VARCHAR}, </if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<!-- **删除定义** -->
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from design_plan_product
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	
+	<!-- 按主键查询 -->
+	<select id="selectByPrimaryKey" resultMap="AllResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="All_Column_List" />
+		from design_plan_product
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	
+		<!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+		parameterType="com.sandu.design.model.DesignPlanProduct">
+		select
+		<include refid="All_Column_List" />
+		from design_plan_product
+        where 1=1
+        <if test="resIdList !=  null and  resIdList.size > 0  ">
+			and	id in
+			<foreach collection="resIdList" index="index" item="item" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+        <if test="isMainStructureProduct!= null">and is_main_structure_product = #{isMainStructureProduct,jdbcType=INTEGER}  </if>
+		<if test="isGroupReplaceWay!= null">and is_group_replace_way = #{isGroupReplaceWay,jdbcType=INTEGER}  </if>
+        <if test="productIndex!= null"> and   product_index = #{product_index,jdbcType=INTEGER} </if>
+        <if test="isStandard!= null"> and   is_standard = #{isStandard,jdbcType=INTEGER} </if>
+		<if test="center!= null and center!='' ">and   center = #{center,jdbcType=VARCHAR} </if>
+		<if test="regionMark!= null and regionMark!='' ">and    region_mark = #{regionMark,jdbcType=VARCHAR} </if>
+		<if test="styleId!= null">and   style_id = #{styleId,jdbcType=INTEGER} </if>
+		<if test="measureCode!= null and measureCode!='' ">and   measure_code = #{measureCode,jdbcType=VARCHAR} </if>
+		<if test="describeInfo!= null and describeInfo!=''">and   describe_info = #{describeInfo,jdbcType=VARCHAR} </if>
+		<if test="sysCode!= null">  and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="planGroupId!= null">  and plan_group_id = #{planGroupId,jdbcType=VARCHAR} </if>
+		<if test="creator!= null">  and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="gmtCreate!= null">  and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+		<if test="modifier!= null">  and modifier = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="gmtModified!= null">  and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP} </if>
+		<if test="isDeleted!= null">  and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="groupType!= null">  and group_type = #{groupType,jdbcType=INTEGER} </if>
+		<if test="modelProductId!= null">  and model_product_id = #{modelProductId,jdbcType=INTEGER} </if>
+		<if test="planId!= null">  and plan_id = #{planId,jdbcType=INTEGER} </if>
+		<if test="isDirty!= null">  and is_dirty = #{isDirty,jdbcType=INTEGER} </if>
+		<if test="productId!= null">  and product_id = #{productId,jdbcType=INTEGER} </if>
+		<if test="initProductId!= null">  and init_product_id = #{initProductId,jdbcType=INTEGER} </if>
+		<if test="locationFileId!= null">  and location_file_id = #{locationFileId,jdbcType=INTEGER} </if>
+		<if test="productSequence!= null">  and product_sequence = #{productSequence,jdbcType=VARCHAR} </if>
+		<if test="materialPicId!= null">  and material_pic_id = #{materialPicId,jdbcType=VARCHAR} </if>
+		<if test="att2!= null">  and att2 = #{att2,jdbcType=VARCHAR} </if>
+		<if test="att3!= null">  and att3 = #{att3,jdbcType=VARCHAR} </if>
+		<if test="att4!= null">  and att4 = #{att4,jdbcType=VARCHAR} </if>
+		<if test="att5!= null">  and att5 = #{att5,jdbcType=VARCHAR} </if>
+		<if test="att6!= null">  and att6 = #{att6,jdbcType=VARCHAR} </if>
+		<if test="dateAtt1!= null">  and date_att1 = #{dateAtt1,jdbcType=TIMESTAMP} </if>
+		<if test="dateAtt2!= null">  and date_att2 = #{dateAtt2,jdbcType=TIMESTAMP} </if>
+		<if test="planProductId!= null">  and planProduct_id = #{planProductId,jdbcType=INTEGER} </if>
+		<if test="displayStatus!= null">  and display_status = #{displayStatus,jdbcType=INTEGER} </if>
+		<if test="numAtt3!= null">  and num_att3 = #{numAtt3,jdbcType=DOUBLE} </if>
+		<if test="numAtt4!= null">  and num_att4 = #{numAtt4,jdbcType=DOUBLE} </if>
+		<if test="remark!= null">  and remark = #{remark,jdbcType=VARCHAR} </if>
+		<if test="isHide!= null">  and is_hide = #{isHide,jdbcType=INTEGER} </if>
+		<if test="posIndexPath!= null">  and pos_index_path = #{posIndexPath,jdbcType=VARCHAR} </if>
+		<if test="productGroupId!= null">  and product_group_id = #{productGroupId,jdbcType=INTEGER} </if>
+		<if test="isMainProduct!= null">  and is_main_product = #{isMainProduct,jdbcType=INTEGER} </if>
+		<if test="posName!= null">  and pos_name = #{posName,jdbcType=VARCHAR} </if>
+		<if test="bindParentProductId!= null">  and bind_parent_productId = #{bindParentProductId,jdbcType=VARCHAR} </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order}
+			<if test="orderNum != null and  orderNum !='' ">
+				${orderNum}
+			</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">
+		   order by ${orders}
+		</if>
+	</select>
+	
+</mapper>

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.system.dao.ModelAreaTextureRelMapper" >
+  <resultMap id="BaseResultMap" type="com.nork.system.model.ModelAreaTextureRel" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="area_id" property="areaId" jdbcType="VARCHAR" />
+    <result column="texture_id" property="textureId" jdbcType="INTEGER" />
+    <result column="affect_price" property="affectPrice" jdbcType="INTEGER" />
+    <result column="is_default" property="isDefault" jdbcType="TINYINT" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, area_id, texture_id, affect_price, is_default, gmt_create, gmt_modified, creator
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from model_area_texture_rel
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from model_area_texture_rel
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insertSelective" parameterType="com.nork.system.model.ModelAreaTextureRel" useGeneratedKeys="true" keyProperty="id">
+    insert into model_area_texture_rel
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="areaId != null" >
+        area_id,
+      </if>
+      <if test="textureId != null" >
+        texture_id,
+      </if>
+      <if test="affectPrice != null" >
+        affect_price,
+      </if>
+      <if test="isDefault != null" >
+        is_default,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="areaId != null" >
+        #{areaId,jdbcType=VARCHAR},
+      </if>
+      <if test="textureId != null" >
+        #{textureId,jdbcType=INTEGER},
+      </if>
+      <if test="affectPrice != null" >
+        #{affectPrice,jdbcType=INTEGER},
+      </if>
+      <if test="isDefault != null" >
+        #{isDefault,jdbcType=TINYINT},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.nork.system.model.ModelAreaTextureRel" >
+    update model_area_texture_rel
+    <set >
+      <if test="areaId != null" >
+        area_id = #{areaId,jdbcType=VARCHAR},
+      </if>
+      <if test="textureId != null" >
+        texture_id = #{textureId,jdbcType=INTEGER},
+      </if>
+      <if test="affectPrice != null" >
+        affect_price = #{affectPrice,jdbcType=INTEGER},
+      </if>
+      <if test="isDefault != null" >
+        is_default = #{isDefault,jdbcType=TINYINT},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectListByModelAreaIdList" resultMap="BaseResultMap" >
+      SELECT
+          <include refid="Base_Column_List" />
+      FROM
+          model_area_texture_rel
+      WHERE area_id IN
+            <foreach collection="areaIdList" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            <if test="isDefault != null and isDefault != '' ">
+                AND is_default = #{isDefault}
+            </if>
+  </select>
+
+</mapper>

@@ -1,0 +1,94 @@
+package com.sandu.search.storage.design;
+
+import com.sandu.search.entity.elasticsearch.po.metadate.DesignTemplatePo;
+import com.sandu.search.exception.MetaDataException;
+import com.sandu.search.service.metadata.MetaDataService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 设计方案样板房元数据存储
+ *
+ * @date 20180131
+ * @auth pengxuangang
+ */
+@Slf4j
+@Component
+public class DesignTemplateMetaDataStorage {
+
+    private final static String CLASS_LOG_PREFIX = "设计方案样板房元数据存储:";
+
+    @Autowired
+    private MetaDataService metaDataService;
+
+    //设计方案样板房元数据
+    private static Map<Integer, DesignTemplatePo> designTemplatePoMap = new HashMap<>();
+
+    /**
+     * 更新数据
+     * @param isEnforceLoad 是否强制更新
+     */
+    public void updateData(boolean isEnforceLoad) {
+
+        //若无强制更新则更新前判断是否已有数据
+        if (!isEnforceLoad) {
+            if (null != designTemplatePoMap && 0 < designTemplatePoMap.size()) {
+                return;
+            }
+        }
+
+        //设计方案样板房元数据
+        List<DesignTemplatePo> designTemplatePoList;
+        try {
+            //获取数据
+            log.info(CLASS_LOG_PREFIX + "开始获取设计方案样板房元数据....");
+            designTemplatePoList = metaDataService.queryDesignTemplatePoMetaData();
+            log.info(CLASS_LOG_PREFIX + "获取设计方案样板房元数据完成,总条数:{}", (null == designTemplatePoList ? 0 : designTemplatePoList.size()));
+        } catch (MetaDataException e) {
+            log.error(CLASS_LOG_PREFIX + "获取设计方案样板房元数据失败: MetaDataException:{}", e);
+            throw new NullPointerException(CLASS_LOG_PREFIX + "获取设计方案样板房元数据失败,List<DesignTemplatePo> is null.MetaDataException:" + e);
+        }
+
+        //临时对象
+        Map<Integer, DesignTemplatePo> tempDesignTemplatePoMap = new HashMap<>();
+
+        //转换为Map元数据
+        if (null != designTemplatePoList && 0 != designTemplatePoList.size()) {
+            designTemplatePoList.forEach(designTemplatePo -> tempDesignTemplatePoMap.put(designTemplatePo.getDesignTemplateId(), designTemplatePo));
+        }
+
+        //装回对象
+        designTemplatePoMap = null;
+        designTemplatePoMap = tempDesignTemplatePoMap;
+    }
+
+    /**
+     * 根据ID获取设计方案样板房数据
+     *
+     * @param designTemplateId
+     * @return
+     */
+    public DesignTemplatePo getDesignTemplatePoById(Integer designTemplateId) {
+
+        if (null == designTemplateId || 0 == designTemplateId) {
+            return null;
+        }
+
+        if (null == designTemplatePoMap || 0 >= designTemplatePoMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        if (designTemplatePoMap.containsKey(designTemplateId)) {
+            return designTemplatePoMap.get(designTemplateId);
+        }
+
+        return null;
+    }
+
+}

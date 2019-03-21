@@ -1,0 +1,255 @@
+package com.sandu.system.service.impl;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.common.model.LoginUser;
+import com.sandu.common.util.Utils;
+import com.sandu.product.model.BaseBrand;
+import com.sandu.product.model.dto.SplitTextureDTO;
+import com.sandu.product.service.BaseBrandService;
+import com.sandu.system.dao.ResTextureMapper;
+import com.sandu.system.model.ResModel;
+import com.sandu.system.model.ResPic;
+import com.sandu.system.model.ResTexture;
+import com.sandu.system.service.ResModelService;
+import com.sandu.system.service.ResPicService;
+import com.sandu.system.service.ResTextureService;
+
+@Service("resTextureService")
+public class ResTextureServiceImpl implements ResTextureService {
+
+	Logger logger = LoggerFactory.getLogger(ResTextureServiceImpl.class);
+	
+	@Autowired
+	private ResModelService resModelService;
+	
+	@Autowired
+	private ResPicService resPicService;
+	
+	@Autowired
+	private BaseBrandService baseBrandService;
+	
+	@Autowired
+	private ResTextureMapper resTextureMapper;
+	
+	@Override
+	public SplitTextureDTO.ResTextureDTO fromResTexture(ResTexture resTexture) {//TODO:增加了材质球文件路径
+		Integer picId=resTexture.getPicId();
+		Integer normalPicId = resTexture.getNormalPicId();
+		String path="";
+		String normalPicPath="";
+		BaseBrand baseBrand = null;
+		Integer textureBallFileId = resTexture.getTextureBallFileId();
+		String materialPath = "";
+		String brandName="";
+		if(textureBallFileId != null && textureBallFileId.intValue()>0){
+			ResModel resModel = resModelService.get(textureBallFileId);
+			if(resModel != null){
+				materialPath = resModel.getModelPath();
+			}
+		}
+		
+		if(picId!=null&&picId.intValue()>0){
+			ResPic resPic=resPicService.get(picId);
+			if(resPic!=null){
+				path=resPic.getPicPath();
+			}
+		}
+		if(normalPicId!=null&&normalPicId.intValue()>0){
+			ResPic resPic=resPicService.get(normalPicId);
+			if(resPic!=null){
+				normalPicPath= /*Utils.getValue("app.resources.url", "") + */resPic.getPicPath();
+				normalPicPath= Utils.dealWithPath(normalPicPath, "linux");
+				logger.debug("------normalPicPath:" + normalPicPath);
+			}
+		}
+		/*添加品牌id与品牌名称*/
+		if(null!=resTexture&&null!=resTexture.getBrandId()){
+			baseBrand = baseBrandService.get(resTexture.getBrandId());
+			if(null!=baseBrand){
+				brandName = baseBrand.getBrandName();
+			}
+		}
+		return new SplitTextureDTO().new ResTextureDTO(resTexture.getId(), path, resTexture.getTextureAttrValue(), resTexture.getFileHeight(), 
+				resTexture.getFileWidth(), resTexture.getLaymodes(),materialPath,resTexture.getNormalParam(),normalPicPath,
+				resTexture.getBrandId(),brandName,resTexture.getTextureCode());
+	}
+
+	/**
+	 *    获取数据详情
+	 *
+	 * @param id
+	 * @return  ResTexture 
+	 */
+	@Override
+	public ResTexture get(Integer id) {
+		return resTextureMapper.selectByPrimaryKey(id);
+	}
+
+	/**
+	 * 通过id 集合 批量获取数据
+	 * @param textureIdStrList
+	 * @return
+	 */
+	@Override
+	public List<ResTexture> getBatchGet(ResTexture resTexture) {
+		return resTextureMapper.getBatchGet(resTexture);
+	}
+
+
+	@Override
+	public SplitTextureDTO.ResTextureDTO fromResTexture(LoginUser loginUser, ResTexture resTexture,String modelType) {//TODO,增加媒介类型判断
+		String path="";
+		String normalPicPath="";
+		String materialPath = "";
+		String brandName="";
+		BaseBrand baseBrand = null;
+		Integer textureBallFileId = null;
+
+		String mediaType = loginUser.getMediaType();//媒介
+		Integer picId=resTexture.getPicId();
+		Integer normalPicId = resTexture.getNormalPicId();
+
+		logger.debug("fromResTexture.mediaType="+mediaType+",modelType="+modelType);
+
+		//根据媒介类型取值
+		if(StringUtils.isEmpty(modelType)||"null".equals(modelType)||StringUtils.isBlank(modelType)){
+			if ("5".equals(mediaType)) {
+				textureBallFileId = resTexture.getIosTextureBallFileId();
+			} else if ("6".equals(mediaType)) {
+				textureBallFileId = resTexture.getAndroidTextureBallFileId();
+			}else{
+				textureBallFileId = resTexture.getTextureBallFileId();
+			}
+		}else{
+			if(modelType.equals("IPhonePlayer")){
+				textureBallFileId = resTexture.getIosTextureBallFileId();
+			}if(modelType.equals("Android")){
+				textureBallFileId = resTexture.getAndroidTextureBallFileId();
+			}else{
+				textureBallFileId = resTexture.getTextureBallFileId();
+			}
+		}
+
+		if(textureBallFileId != null && textureBallFileId.intValue()>0){
+//			ResFile resFile=resFileService.get(textureBallFileId);
+			ResModel resModel = resModelService.get(textureBallFileId);
+			if(resModel != null){
+				materialPath = resModel.getModelPath();
+			}
+		}
+		
+		if(picId!=null&&picId.intValue()>0){
+			ResPic resPic=resPicService.get(picId);
+			if(resPic!=null){
+				String smallPicInfo = resPic.getSmallPicInfo();
+				Map<String,String> map = this.getSmallPicInfoMap(smallPicInfo);
+
+				//根据媒介类型取值
+				if(StringUtils.isEmpty(modelType)||"null".equals(modelType)||StringUtils.isBlank(modelType)){
+
+					if ("5".equals(mediaType)) {
+						Integer iosId = null==map.get("ios")?null:Integer.valueOf(map.get("ios"));
+						ResPic iosResPic = iosId == null ? null : resPicService.get(iosId);
+						path = iosResPic != null ? iosResPic.getPicPath() : "";
+					} else if ("6".equals(mediaType)) {
+						Integer androidId = null==map.get("android")?null:Integer.valueOf(map.get("android"));
+						ResPic androidResPic = androidId == null ? null : resPicService.get(androidId);
+						path = androidResPic != null ? androidResPic.getPicPath() : "";
+					}else{
+						path=resPic.getPicPath();
+					}
+
+				}else{
+
+					if(modelType.equals("IPhonePlayer")){
+						Integer iosId = null==map.get("ios")?null:Integer.valueOf(map.get("ios"));
+						ResPic iosResPic = iosId == null ? null : resPicService.get(iosId);
+						path = iosResPic != null ? iosResPic.getPicPath() : null;
+					}if(modelType.equals("Android")){
+						Integer androidId = null==map.get("android")?null:Integer.valueOf(map.get("android"));
+						ResPic androidResPic = androidId == null ? null : resPicService.get(androidId);
+						path = androidResPic != null ? androidResPic.getPicPath() : "";
+					}else{
+						path=resPic.getPicPath();
+					}
+
+				}
+
+			}
+		}
+
+		if(normalPicId!=null&&normalPicId.intValue()>0){
+			ResPic resPic=resPicService.get(normalPicId);
+
+			if(resPic!=null){
+				String smallPicInfo = resPic.getSmallPicInfo();
+				Map<String,String> map = this.getSmallPicInfoMap(smallPicInfo);
+
+				//根据媒介类型取值
+				if(StringUtils.isEmpty(modelType)||"null".equals(modelType)||StringUtils.isBlank(modelType)){
+
+					if ("5".equals(mediaType)) {
+						Integer iosId = null != map.get("ios") ? Integer.valueOf(map.get("ios")) : null;
+						ResPic iosResPic = iosId != null ? resPicService.get(iosId) : null;
+						normalPicPath = iosResPic != null ? iosResPic.getPicPath() : "";
+					} else if ("6".equals(mediaType)) {
+						Integer androidId = null != map.get("android") ? Integer.valueOf(map.get("android")) : null;
+						ResPic androidResPic = androidId != null ? resPicService.get(androidId) : null;
+						normalPicPath = androidResPic != null ? androidResPic.getPicPath() : "";
+					}else{
+						normalPicPath=resPic.getPicPath();
+					}
+
+				}else{
+
+					if(modelType.equals("IPhonePlayer")){
+						Integer iosId = null != map.get("ios") ? Integer.valueOf(map.get("ios")) : null;
+						ResPic iosResPic = iosId != null ? resPicService.get(iosId) : null;
+						normalPicPath = iosResPic != null ? iosResPic.getPicPath() : "";
+					}if(modelType.equals("Android")){
+						Integer androidId = null != map.get("android") ? Integer.valueOf(map.get("android")) : null;
+						ResPic androidResPic = androidId != null ? resPicService.get(androidId) : null;
+						normalPicPath = androidResPic != null ? androidResPic.getPicPath() : "";
+					}else{
+						normalPicPath=resPic.getPicPath();
+					}
+
+				}
+
+				normalPicPath= Utils.dealWithPath(normalPicPath, "linux");
+			}
+		}
+
+		/*添加品牌id与品牌名称*/
+		if(null!=resTexture&&null!=resTexture.getBrandId()){
+			baseBrand = baseBrandService.get(resTexture.getBrandId());
+			if(null!=baseBrand){
+				brandName = baseBrand.getBrandName();
+			}
+		}
+
+		return new SplitTextureDTO().new ResTextureDTO(resTexture.getId(), path, resTexture.getTextureAttrValue(), resTexture.getFileHeight(), 
+				resTexture.getFileWidth(), resTexture.getLaymodes(),materialPath,resTexture.getNormalParam(),normalPicPath,
+				resTexture.getBrandId(),brandName,resTexture.getTextureCode());
+	}
+
+	private Map getSmallPicInfoMap(String smallPicInfo){
+		Map<String,String> map = new HashMap<String,String>();
+		String[] strs = StringUtils.isEmpty(smallPicInfo) ? new String[0] : smallPicInfo.split(";");
+		for(String s:strs){
+			String[] ms = s.split(":");
+			map.put(ms[0], ms[1]);
+		}
+		return map;
+	}
+	
+}

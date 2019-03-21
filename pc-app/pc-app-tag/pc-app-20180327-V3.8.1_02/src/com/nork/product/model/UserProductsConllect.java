@@ -1,0 +1,396 @@
+package com.nork.product.model;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
+import com.nork.common.model.Mapper;
+
+public class UserProductsConllect extends Mapper  implements Serializable{
+
+	private static final long serialVersionUID = 1L;
+	private Integer id;
+	private String userName;
+	private String productId;
+	private String productCode;
+	private String productName;
+	private String productType;
+	/** 产品类型（唯一标识） **/
+	private String productTypeKey;
+	private String productTypeName;
+	private String productDesc;
+	private String productPath;
+	private Integer brandId;
+	private Integer picId;
+	
+	private String productTypeCode;
+	private String materialPicPath;
+	//材质图片s
+	private String[] materialPicPaths;
+	private String materialConfigPath;
+	private Integer parentProductId;
+	/** 规则json **/
+	private Map<String,String> rulesMap;
+	private String rootType;
+	private String productLength;
+	private String productWidth;
+	private String productHeight;
+	/**  收藏目录名称  **/
+	private String catalogName;
+	/**  收藏目录名称  **/
+	private String collectCatalogId;
+	/*材质属性*/
+	private Integer textureAttrValue; 
+	/*铺设方式*/
+	private String laymodes;
+	/*判断是否是可拆分材质产品:0:普通产品;1:可拆分材质产品(橱柜)*/
+	private Integer isSplit=new Integer(0);
+	/*可拆分材质信息*/
+	private List<SplitTextureDTO> splitTexturesChoose;
+	/*材质宽*/
+	private String textureWidth;
+	/*材质高*/
+	private String textureHeight;
+	
+	private String isInternalUser;
+	
+	private String brandIds;//品牌ids
+	//系列ID
+	private Integer seriesId = new Integer(0);
+
+	public Integer getSeriesId() {
+		return seriesId;
+	}
+
+	public void setSeriesId(Integer seriesId) {
+		this.seriesId = seriesId;
+	}
+
+	public String getIsInternalUser() {
+		return isInternalUser;
+	}
+
+	public void setIsInternalUser(String isInternalUser) {
+		this.isInternalUser = isInternalUser;
+	}
+
+	public String getTextureWidth() {
+		return textureWidth;
+	}
+
+	public void setTextureWidth(String textureWidth) {
+		this.textureWidth = textureWidth;
+	}
+
+	public String getTextureHeight() {
+		return textureHeight;
+	}
+
+	public void setTextureHeight(String textureHeight) {
+		this.textureHeight = textureHeight;
+	}
+
+	public Integer getIsSplit() {
+		return isSplit;
+	}
+
+	public void setIsSplit(Integer isSplit) {
+		this.isSplit = isSplit;
+	}
+
+	public List<SplitTextureDTO> getSplitTexturesChoose() {
+		return splitTexturesChoose;
+	}
+
+	public void setSplitTexturesChoose(List<SplitTextureDTO> splitTexturesChoose) {
+		this.splitTexturesChoose = splitTexturesChoose;
+	}
+	public String getCollectCatalogId() {
+		return collectCatalogId;
+	}
+
+	public void setCollectCatalogId(String collectCatalogId) {
+		this.collectCatalogId = collectCatalogId;
+	}
+	/**smallValueKey集合*/
+	private String smallValueKeyS;
+	
+	
+	public String getSmallValueKeyS() {
+		return smallValueKeyS;
+	}
+
+	public void setSmallValueKeyS(String smallValueKeyS) {
+		this.smallValueKeyS = smallValueKeyS;
+	}
+
+	public Integer getTextureAttrValue() {
+		return textureAttrValue;
+	}
+
+	public void setTextureAttrValue(Integer textureAttrValue) {
+		this.textureAttrValue = textureAttrValue;
+	}
+
+	public String getLaymodes() {
+		return laymodes;
+	}
+
+	public void setLaymodes(String laymodes) {
+		this.laymodes = laymodes;
+	}
+
+	public String getCatalogName() {
+		return catalogName;
+	}
+
+	public void setCatalogName(String catalogName) {
+		this.catalogName = catalogName;
+	}
+	
+
+	public String getRootType() {
+		return rootType;
+	}
+	public void setRootType(String rootType) {
+		this.rootType = rootType;
+	}
+	public String getProductLength() {
+		return productLength;
+	}
+	public void setProductLength(String productLength) {
+		this.productLength = productLength;
+	}
+	public String getProductWidth() {
+		return productWidth;
+	}
+	public void setProductWidth(String productWidth) {
+		this.productWidth = productWidth;
+	}
+	public String getProductHeight() {
+		return productHeight;
+	}
+	public void setProductHeight(String productHeight) {
+		this.productHeight = productHeight;
+	}
+	public String getProductTypeCode() {
+		return productTypeCode;
+	}
+	public void setProductTypeCode(String productTypeCode) {
+		this.productTypeCode = productTypeCode;
+	}
+	public String getMaterialPicPath() {
+		return materialPicPath;
+	}
+	public void setMaterialPicPath(String materialPicPath) {
+		this.materialPicPath = materialPicPath;
+	}
+	public String[] getMaterialPicPaths() {
+		return materialPicPaths;
+	}
+	public void setMaterialPicPaths(String[] materialPicPaths) {
+		this.materialPicPaths = materialPicPaths;
+	}
+	public String getMaterialConfigPath() {
+		return materialConfigPath;
+	}
+	public void setMaterialConfigPath(String materialConfigPath) {
+		this.materialConfigPath = materialConfigPath;
+	}
+	public Integer getParentProductId() {
+		return parentProductId;
+	}
+	public void setParentProductId(Integer parentProductId) {
+		this.parentProductId = parentProductId;
+	}
+	public Map<String, String> getRulesMap() {
+		return rulesMap;
+	}
+	public void setRulesMap(Map<String, String> rulesMap) {
+		this.rulesMap = rulesMap;
+	}
+	public String getBrandIds() {
+		return brandIds;
+	}
+
+	public void setBrandIds(String brandIds) {
+		this.brandIds = brandIds;
+	}
+	//品牌名称
+	private String brandName;
+	private double salePrice;
+	//产品价格单位
+	private String salePriceValueName;
+	/** 产品类型（大类） **/
+	private String productTypeValue;
+	private String msgId;
+	/** 产品类型（小类） **/
+	private Integer productSmallTypeValue;
+	/**  产品类型code（小类）  **/
+	private String productSmallTypeCode;
+	/**  产品类型name（小类）  **/
+	private String productSmallTypeName;
+	/** 品牌类型 **/
+	private Integer brandStyleId;
+	/**  u3d模型  **/
+	private String u3dModelPath;
+	/** 产品颜色 **/
+	private Integer productColorKey;
+	
+	public String getSalePriceValueName() {
+		return salePriceValueName;
+	}
+
+	public void setSalePriceValueName(String salePriceValueName) {
+		this.salePriceValueName = salePriceValueName;
+	}
+
+	public String getProductCode() {
+		return productCode;
+	}
+	public void setProductCode(String productCode) {
+		this.productCode = productCode;
+	}
+	public String getProductType() {
+		return productType;
+	}
+	public void setProductType(String productType) {
+		this.productType = productType;
+	}
+	public String getProductTypeKey() {
+		return productTypeKey;
+	}
+	public void setProductTypeKey(String productTypeKey) {
+		this.productTypeKey = productTypeKey;
+	}
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	private Integer userId;
+	private Integer value;
+	public Integer getValue() {
+		return value;
+	}
+	public void setValue(Integer value) {
+		this.value = value;
+	}
+	public String getProductTypeName() {
+		return productTypeName;
+	}
+	public void setProductTypeName(String productTypeName) {
+		this.productTypeName = productTypeName;
+	}
+	
+	public Integer getPicId() {
+		return picId;
+	}
+	public void setPicId(Integer picId) {
+		this.picId = picId;
+	}
+	
+	public String getProductTypeValue() {
+		return productTypeValue;
+	}
+	public void setProductTypeValue(String productTypeValue) {
+		this.productTypeValue = productTypeValue;
+	}
+	public String getProductPath() {
+		return productPath;
+	}
+	public void setProductPath(String productPath) {
+		this.productPath = productPath;
+	}
+	public Integer getBrandId() {
+		return brandId;
+	}
+	public void setBrandId(Integer brandId) {
+		this.brandId = brandId;
+	}
+	public String getBrandName() {
+		return brandName;
+	}
+	public void setBrandName(String brandName) {
+		this.brandName = brandName;
+	}
+	public String getProductDesc() {
+		return productDesc;
+	}
+	public void setProductDesc(String productDesc) {
+		this.productDesc = productDesc;
+	}
+	public Integer getUserId() {
+		return userId;
+	}
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	public String getProductId() {
+		return productId;
+	}
+	public void setProductId(String productId) {
+		this.productId = productId;
+	}
+	public String getProductName() {
+		return productName;
+	}
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
+	public double getSalePrice() {
+		return salePrice;
+	}
+	public void setSalePrice(double salePrice) {
+		this.salePrice = salePrice;
+	}
+	public String getMsgId() {
+		return msgId;
+	}
+	public void setMsgId(String msgId) {
+		this.msgId = msgId;
+	}
+	public Integer getProductSmallTypeValue() {
+		return productSmallTypeValue;
+	}
+	public void setProductSmallTypeValue(Integer productSmallTypeValue) {
+		this.productSmallTypeValue = productSmallTypeValue;
+	}
+	public String getProductSmallTypeName() {
+		return productSmallTypeName;
+	}
+	public void setProductSmallTypeName(String productSmallTypeName) {
+		this.productSmallTypeName = productSmallTypeName;
+	}
+	public String getProductSmallTypeCode() {
+		return productSmallTypeCode;
+	}
+	public void setProductSmallTypeCode(String productSmallTypeCode) {
+		this.productSmallTypeCode = productSmallTypeCode;
+	}
+	public Integer getBrandStyleId() {
+		return brandStyleId;
+	}
+	public void setBrandStyleId(Integer brandStyleId) {
+		this.brandStyleId = brandStyleId;
+	}
+	public String getU3dModelPath() {
+		return u3dModelPath;
+	}
+	public void setU3dModelPath(String u3dModelPath) {
+		this.u3dModelPath = u3dModelPath;
+	}
+	public Integer getProductColorKey() {
+		return productColorKey;
+	}
+	public void setProductColorKey(Integer productColorKey) {
+		this.productColorKey = productColorKey;
+	}
+}

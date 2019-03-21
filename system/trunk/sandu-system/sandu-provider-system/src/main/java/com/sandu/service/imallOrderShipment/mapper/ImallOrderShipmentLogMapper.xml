@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.imallOrderShipment.dao.ImallOrderShipmentLogDao">
+
+    <!--保存发货单-->
+    <insert id="insertOrderShipmentLog" parameterType="com.sandu.api.imallOrderShipment.model.ImallOrderShipmentLog" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO `imall_order_shipment_log`
+        (shipment_id,content,creator,gmt_create,modifier,gmt_modified,is_deleted,sys_code)
+        values(#{shipmentId},#{content},#{creator},CURRENT_TIMESTAMP,#{modifier},CURRENT_TIMESTAMP,#{isDeleted},#{sysCode})
+    </insert>
+
+    <!--通过id获取发货单信息-->
+    <select id="getImallOrderShipmentLog" resultType="com.sandu.api.imallOrderShipment.model.ImallOrderShipmentLog">
+      select shipment_id,content,creator,gmt_create,modifier,gmt_modified,is_deleted
+      from imall_order_shipment_log
+      where id=#{id}
+    </select>
+
+    <!--通过order_id获取发货单列表-->
+    <select id="getImallOrderShipmentLogList" resultType="com.sandu.api.imallOrderShipment.model.ImallOrderShipmentLog">
+      select shipment_id,content,creator,gmt_create,modifier,gmt_modified,is_deleted
+      from imall_order_shipment_log
+      where shipment_id=#{shipmentId}
+    </select>
+
+</mapper>

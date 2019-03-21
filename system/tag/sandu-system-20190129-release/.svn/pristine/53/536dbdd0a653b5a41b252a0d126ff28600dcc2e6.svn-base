@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.category.dao.ProCategoryMapper" >
+
+  <resultMap id="BaseResultMap" type="com.sandu.api.category.model.ProCategory" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="code" property="code" jdbcType="VARCHAR" />
+    <result column="long_code" property="longCode" jdbcType="VARCHAR" />
+    <result column="pid" property="pid" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="is_leaf" property="isLeaf" jdbcType="INTEGER" />
+    <result column="level" property="level" jdbcType="INTEGER" />
+    <result column="ordering" property="ordering" jdbcType="INTEGER" />
+    <result column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    <result column="state" property="state" jdbcType="VARCHAR" />
+    <result column="att2" property="att2" jdbcType="VARCHAR" />
+    <result column="att3" property="att3" jdbcType="VARCHAR" />
+    <result column="att4" property="att4" jdbcType="VARCHAR" />
+    <result column="att5" property="att5" jdbcType="VARCHAR" />
+    <result column="att6" property="att6" jdbcType="VARCHAR" />
+    <result column="date_att1" property="dateAtt1" jdbcType="TIMESTAMP" />
+    <result column="date_att2" property="dateAtt2" jdbcType="TIMESTAMP" />
+    <result column="num_att1" property="numAtt1" jdbcType="INTEGER" />
+    <result column="num_att2" property="numAtt2" jdbcType="INTEGER" />
+    <result column="num_att3" property="numAtt3" jdbcType="DECIMAL" />
+    <result column="num_att4" property="numAtt4" jdbcType="DECIMAL" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="attribute_type" property="attributeType" jdbcType="VARCHAR" />
+    <result column="attribute_key" property="attributeKey" jdbcType="VARCHAR" />
+    <result column="name_first_letter" property="nameFirstLetter" jdbcType="CHAR" />
+    <result column="first_stage_code" property="firstStageCode" jdbcType="VARCHAR" />
+    <result column="second_stage_code" property="secondStageCode" jdbcType="VARCHAR" />
+    <result column="third_stage_code" property="thirdStageCode" jdbcType="VARCHAR" />
+    <result column="fourth_stage_code" property="fourthStageCode" jdbcType="VARCHAR" />
+    <result column="fifth_stage_code" property="fifthStageCode" jdbcType="VARCHAR" />
+    <result column="pic_id" property="picId" jdbcType="INTEGER" />
+    <result column="pic_path" property="picPath" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    id, code, long_code, pid, name, is_leaf, level, ordering, sys_code, creator, gmt_create, 
+    modifier, gmt_modified, is_deleted, state, att2, att3, att4, att5, att6, date_att1, 
+    date_att2, num_att1, num_att2, num_att3, num_att4, remark, attribute_type, attribute_key, 
+    name_first_letter, first_stage_code, second_stage_code, third_stage_code, fourth_stage_code, 
+    fifth_stage_code, pic_id, pic_path
+  </sql>
+
+  <!-- 根据主键 查询 产品分类基础信息 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from pro_category
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <!-- 根据主键 删除 产品分类基础信息 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from pro_category
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <!-- 根据主键 逻辑删除 产品分类基础信息 -->
+  <delete id="deleteLogicByPrimaryKey">
+    UPDATE
+      pro_category
+    SET
+      is_deleted = 1,
+      modifier = #{loginName,jdbcType=VARCHAR},
+      gmt_modified = NOW(),
+      remark = concat( remark,';delMark;')
+    WHERE id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <!-- 根据产品分类基础实体类 查询 产品分类基础信息 -->
+  <insert id="insertSelective" parameterType="com.sandu.api.category.model.ProCategory" >
+    insert into pro_category
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="code != null" >
+        code,
+      </if>
+      <if test="longCode != null" >
+        long_code,
+      </if>
+      <if test="pid != null" >
+        pid,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="isLeaf != null" >
+        is_leaf,
+      </if>
+      <if test="level != null" >
+        level,
+      </if>
+      <if test="ordering != null" >
+        ordering,
+      </if>
+      <if test="sysCode != null" >
+        sys_code,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="state != null" >
+        state,
+      </if>
+      <if test="att2 != null" >
+        att2,
+      </if>
+      <if test="att3 != null" >
+        att3,
+      </if>
+      <if test="att4 != null" >
+        att4,
+      </if>
+      <if test="att5 != null" >
+        att5,
+      </if>
+      <if test="att6 != null" >
+        att6,
+      </if>
+      <if test="dateAtt1 != null" >
+        date_att1,
+      </if>
+      <if test="dateAtt2 != null" >
+        date_att2,
+      </if>
+      <if test="numAtt1 != null" >
+        num_att1,
+      </if>
+      <if test="numAtt2 != null" >
+        num_att2,
+      </if>
+      <if test="numAtt3 != null" >
+        num_att3,
+      </if>
+      <if test="numAtt4 != null" >
+        num_att4,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="attributeType != null" >
+        attribute_type,
+      </if>
+      <if test="attributeKey != null" >
+        attribute_key,
+      </if>
+      <if test="nameFirstLetter != null" >
+        name_first_letter,
+      </if>
+      <if test="firstStageCode != null" >
+        first_stage_code,
+      </if>
+      <if test="secondStageCode != null" >
+        second_stage_code,
+      </if>
+      <if test="thirdStageCode != null" >
+        third_stage_code,
+      </if>
+      <if test="fourthStageCode != null" >
+        fourth_stage_code,
+      </if>
+      <if test="fifthStageCode != null" >
+        fifth_stage_code,
+      </if>
+      <if test="picId != null" >
+        pic_id,
+      </if>
+      <if test="picPath != null" >
+        pic_path,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="code != null" >
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="longCode != null" >
+        #{longCode,jdbcType=VARCHAR},
+      </if>
+      <if test="pid != null" >
+        #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="isLeaf != null" >
+        #{isLeaf,jdbcType=INTEGER},
+      </if>
+      <if test="level != null" >
+        #{level,jdbcType=INTEGER},
+      </if>
+      <if test="ordering != null" >
+        #{ordering,jdbcType=INTEGER},
+      </if>
+      <if test="sysCode != null" >
+        #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=VARCHAR},
+      </if>
+      <if test="att2 != null" >
+        #{att2,jdbcType=VARCHAR},
+      </if>
+      <if test="att3 != null" >
+        #{att3,jdbcType=VARCHAR},
+      </if>
+      <if test="att4 != null" >
+        #{att4,jdbcType=VARCHAR},
+      </if>
+      <if test="att5 != null" >
+        #{att5,jdbcType=VARCHAR},
+      </if>
+      <if test="att6 != null" >
+        #{att6,jdbcType=VARCHAR},
+      </if>
+      <if test="dateAtt1 != null" >
+        #{dateAtt1,jdbcType=TIMESTAMP},
+      </if>
+      <if test="dateAtt2 != null" >
+        #{dateAtt2,jdbcType=TIMESTAMP},
+      </if>
+      <if test="numAtt1 != null" >
+        #{numAtt1,jdbcType=INTEGER},
+      </if>
+      <if test="numAtt2 != null" >
+        #{numAtt2,jdbcType=INTEGER},
+      </if>
+      <if test="numAtt3 != null" >
+        #{numAtt3,jdbcType=DECIMAL},
+      </if>
+      <if test="numAtt4 != null" >
+        #{numAtt4,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="attributeType != null" >
+        #{attributeType,jdbcType=VARCHAR},
+      </if>
+      <if test="attributeKey != null" >
+        #{attributeKey,jdbcType=VARCHAR},
+      </if>
+      <if test="nameFirstLetter != null" >
+        #{nameFirstLetter,jdbcType=CHAR},
+      </if>
+      <if test="firstStageCode != null" >
+        #{firstStageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="secondStageCode != null" >
+        #{secondStageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdStageCode != null" >
+        #{thirdStageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="fourthStageCode != null" >
+        #{fourthStageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="fifthStageCode != null" >
+        #{fifthStageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="picId != null" >
+        #{picId,jdbcType=INTEGER},
+      </if>
+      <if test="picPath != null" >
+        #{picPath,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+  <!-- 根据主键 修改 产品分类基础信息 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.category.model.ProCategory" >
+    update pro_category
+    <set >
+      <if test="code != null" >
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="longCode != null" >
+        long_code = #{longCode,jdbcType=VARCHAR},
+      </if>
+      <if test="pid != null" >
+        pid = #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="isLeaf != null" >
+        is_leaf = #{isLeaf,jdbcType=INTEGER},
+      </if>
+      <if test="level != null" >
+        level = #{level,jdbcType=INTEGER},
+      </if>
+      <if test="ordering != null" >
+        ordering = #{ordering,jdbcType=INTEGER},
+      </if>
+      <if test="sysCode != null" >
+        sys_code = #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="state != null" >
+        state = #{state,jdbcType=VARCHAR},
+      </if>
+      <if test="att2 != null" >
+        att2 = #{att2,jdbcType=VARCHAR},
+      </if>
+      <if test="att3 != null" >
+        att3 = #{att3,jdbcType=VARCHAR},
+      </if>
+      <if test="att4 != null" >
+        att4 = #{att4,jdbcType=VARCHAR},
+      </if>
+      <if test="att5 != null" >
+        att5 = #{att5,jdbcType=VARCHAR},
+      </if>
+      <if test="att6 != null" >
+        att6 = #{att6,jdbcType=VARCHAR},
+      </if>
+      <if test="dateAtt1 != null" >
+        date_att1 = #{dateAtt1,jdbcType=TIMESTAMP},
+      </if>
+      <if test="dateAtt2 != null" >
+        date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},
+      </if>
+      <if test="numAtt1 != null" >
+        num_att1 = #{numAtt1,jdbcType=INTEGER},
+      </if>
+      <if test="numAtt2 != null" >
+        num_att2 = #{numAtt2,jdbcType=INTEGER},
+      </if>
+      <if test="numAtt3 != null" >
+        num_att3 = #{numAtt3,jdbcType=DECIMAL},
+      </if>
+      <if test="numAtt4 != null" >
+        num_att4 = #{numAtt4,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="attributeType != null" >
+        attribute_type = #{attributeType,jdbcType=VARCHAR},
+      </if>
+      <if test="attributeKey != null" >
+        attribute_key = #{attributeKey,jdbcType=VARCHAR},
+      </if>
+      <if test="nameFirstLetter != null" >
+        name_first_letter = #{nameFirstLetter,jdbcType=CHAR},
+      </if>
+      <if test="firstStageCode != null" >
+        first_stage_code = #{firstStageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="secondStageCode != null" >
+        second_stage_code = #{secondStageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdStageCode != null" >
+        third_stage_code = #{thirdStageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="fourthStageCode != null" >
+        fourth_stage_code = #{fourthStageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="fifthStageCode != null" >
+        fifth_stage_code = #{fifthStageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="picId != null" >
+        pic_id = #{picId,jdbcType=INTEGER},
+      </if>
+      <if test="picPath != null" >
+        pic_path = #{picPath,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <!-- 根据分类id 层级 查询 下级 分类列表 -->
+  <select id="getCategoryListByPidLevel" resultType="com.sandu.api.category.output.ProCategoryListVO" parameterType="com.sandu.api.category.input.ProCategoryListQuery">
+    SELECT
+        id    AS categoryId,
+        name  AS categoryName
+    FROM
+        pro_category
+    WHERE pid = #{categoryId,jdbcType=INTEGER}
+          <if test="level != null and level != '' ">
+              <![CDATA[ AND level <= ${level} ]]>
+          </if>
+      AND is_deleted = 0
+  </select>
+
+  <!-- 根据id集合 查询 名称 字符串 -->
+  <select id="selectCategoryNames" resultType="java.lang.String">
+    SELECT
+        GROUP_CONCAT(name)
+    FROM
+        pro_category
+    WHERE id IN
+          <foreach collection="idList" item="item" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+      AND is_deleted = 0
+  </select>
+
+
+  <!-- 通过子级ID查父级ID -->
+  <select id="findParentId" resultType="java.lang.Integer">
+    SELECT
+      DISTINCT pc.pid
+    FROM
+      pro_category pc
+    WHERE pc.id IN
+          <foreach collection="idList" item="item" open="(" separator="," close=")">
+              #{item}
+          </foreach>
+      AND is_deleted = 0
+  </select>
+
+
+  <!-- 根据idList 获取 上级 id 集合 -->
+  <select id="selectPCategoryListByIdList" resultType="java.lang.Integer">
+    SELECT
+        DISTINCT pid
+    FROM
+        pro_category
+    WHERE pid > 0
+      AND id IN
+          <foreach item="item" collection="idList" separator="," open="(" close=")" index="">
+              #{item}
+          </foreach>
+      AND is_deleted = 0
+  </select>
+
+  <!-- 根据idList 获 集合 -->
+  <select id="selectListByIdListPid" resultType="com.sandu.api.category.output.ProCategoryListVO">
+    SELECT
+        id    AS categoryId,
+        name  AS categoryName
+    FROM
+        pro_category
+    WHERE pid = #{pid}
+      AND id IN
+          <foreach item="item" collection="idList" separator="," open="(" close=")" index="">
+              #{item}
+          </foreach>
+      AND is_deleted = 0
+  </select>
+
+
+  <!-- 根据idList 获 集合 -->
+  <select id="selectListByIdList" resultType="com.sandu.api.category.output.CategoryListVO">
+    SELECT
+        id    AS categoryId,
+        name  AS categoryName
+    FROM
+        pro_category
+    WHERE id IN
+          <foreach item="item" collection="idList" separator="," open="(" close=")" index="">
+              #{item}
+          </foreach>
+      AND is_deleted = 0
+  </select>
+
+  <!-- 根据参数 查询 是否存在这些分类id -->
+  <select id="selectCountByIdList" resultType="java.lang.Integer">
+    SELECT
+        COUNT(1)
+    FROM
+        pro_category
+    WHERE id IN
+          <foreach item="item" collection="idList" separator="," open="(" close=")" index="">
+              #{item}
+          </foreach>
+      AND level = ${level}
+      AND is_deleted = 0
+  </select>
+
+
+  <!-- 根据codeList 获 集合 -->
+  <select id="selectListByCodeList" resultType="com.sandu.api.category.output.CategoryListVO">
+    SELECT
+    id    AS categoryId,
+    name  AS categoryName
+    FROM
+    pro_category
+    WHERE code IN
+    <foreach item="item" collection="codeList" separator="," open="(" close=")" index="">
+      #{item}
+    </foreach>
+    AND level = #{level}
+    AND is_deleted = 0
+  </select>
+
+  <!--通过pid查询可见产品列表-->
+  <select id="selectCategoryByPid" resultType="com.sandu.api.category.output.CategoryListVO">
+    SELECT id as categoryId,name as categoryName
+    FROM pro_category
+    WHERE pid = #{pId}
+    AND is_deleted = 0
+  </select>
+
+</mapper>

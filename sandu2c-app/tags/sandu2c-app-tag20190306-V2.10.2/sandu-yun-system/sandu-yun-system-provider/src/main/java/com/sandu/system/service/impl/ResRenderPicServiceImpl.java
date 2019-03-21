@@ -1,0 +1,668 @@
+package com.sandu.system.service.impl;
+
+import com.sandu.common.util.FileUploadUtils;
+import com.sandu.common.util.Utils;
+import com.sandu.demo.model.ResDesign;
+import com.sandu.design.model.DesignRenderRoam;
+import com.sandu.design.model.ResRenderPicQO;
+import com.sandu.designplan.model.DesignPlanRecommended;
+import com.sandu.designplan.model.DesignPlanRenderScene;
+import com.sandu.designplan.model.ResRenderPic;
+import com.sandu.designplan.service.DesignPlanRecommendedService;
+import com.sandu.designplan.service.DesignPlanRenderSceneService;
+import com.sandu.home.model.SpaceCommon;
+import com.sandu.home.service.SpaceCommonService;
+import com.sandu.pano.model.SingleSceneVo;
+import com.sandu.pano.model.roam.Coordinate;
+import com.sandu.pano.model.roam.Roam;
+import com.sandu.pano.model.scene.PanoramaVo;
+import com.sandu.pano.model.util.PanoramaUtil;
+import com.sandu.product.model.BaseCompany;
+import com.sandu.product.service.BaseCompanyService;
+import com.sandu.render.model.RenderTypeCode;
+import com.sandu.render.model.ResRenderData;
+import com.sandu.system.dao.DesignRenderRoamMapper;
+import com.sandu.system.dao.ResRenderPicMapper;
+import com.sandu.system.model.ResPic;
+import com.sandu.system.model.ResRenderVideo;
+import com.sandu.system.model.SysDictionary;
+import com.sandu.system.service.*;
+import com.sandu.user.model.SysUser;
+import com.sandu.user.service.SysUserService;
+import net.sf.json.JSONArray;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.sandu.util.Commoner.isEmpty;
+
+
+@Service("resRenderPicService")
+public class ResRenderPicServiceImpl implements ResRenderPicService {
+
+    @Autowired
+    private ResRenderPicMapper resRenderPicMapper;
+    @Autowired
+    private ResRenderVideoService resRenderVideoService;
+    @Autowired
+    private DesignPlanRecommendedService designPlanRecommendedService;
+    @Autowired
+    private SysUserService sysUserService;
+    @Autowired
+    private BaseCompanyService baseCompanyService;
+    @Autowired
+    private ResPicService resPicService;
+    @Autowired
+    private SpaceCommonService spaceCommonService;
+    @Autowired
+    private SysDictionaryService sysDictionaryService;
+    @Autowired
+    private DesignRenderRoamMapper designRenderRoamMapper;
+    @Autowired
+    private ResDesignService resDesignService;
+    @Autowired
+    private DesignPlanRenderSceneService designPlanRenderSceneService;
+
+    @Value("${app.server.url}")
+    private String rederResPath;
+
+
+    /**
+     * 根据推荐方案Id和渲染类型获得最新渲染原图
+     */
+    @Override
+    public Map<String, String> getResRenderPic(Integer sourcePlanId, Integer templateId, Integer renderingType) {
+        return null;
+    }
+
+    /**
+     * 所有数据
+     *
+     * @param resRenderPic
+     * @return List<ResRenderPic>
+     */
+    @Override
+    public List<ResRenderPic> getList(ResRenderPic resRenderPic) {
+        return resRenderPicMapper.selectList(resRenderPic);
+    }
+
+    /**
+     * 获取数据详情
+     *
+     * @param id
+     * @return ResRenderPic
+     */
+    @Override
+    public ResRenderPic get(Integer id) {
+        return resRenderPicMapper.selectByPrimaryKey(id);
+    }
+
+
+    /**
+     * 根据推荐方案Id和渲染类型获得最新渲染原图
+     */
+    @Override
+    public ResRenderData getResRenderPicByPlanRecommended(Integer planRecommendedId, Integer renderingType) {
+        if (planRecommendedId != null) {
+            if (RenderTypeCode.COMMON_PICTURE_LEVEL == renderingType.intValue()) {
+                //获取照片级资源
+                DesignPlanRecommended designPlanRecommended = new DesignPlanRecommended();
+                designPlanRecommended.setId(planRecommendedId);
+                List<ResRenderData> photoRes = this.getPhotoRes(planRecommendedId, renderResEnum.designPlanRecommended);
+                if (photoRes != null && photoRes.size() > 0) {
+                    ResRenderData res = photoRes.get(0);
+                    return res;
+                } else {
+                    return new ResRenderData();
+                }
+            }
+
+        }
+        return new ResRenderData();
+    }
+
+
+    @Override
+    public String getQRCodeInfo(ResRenderPic resPic) {
+        String picPath;
+        if (resPic.getRenderingType() != null) {
+            if (RenderTypeCode.COMMON_720_LEVEL == resPic.getRenderingType() || RenderTypeCode.HD_720_LEVEL == resPic.getRenderingType()) {// 普通单图720
+                ResRenderPic singleCode = resRenderPicMapper.get720SingleCode(resPic);//得到720单点分享需要的code
+                if (singleCode != null && StringUtils.isNotEmpty(singleCode.getSysCode())) {
+                    picPath = singleCode.getSysCode();
+                } else {
+                    return null;
+                }
+
+            } else if (RenderTypeCode.ROAM_720_LEVEL == resPic.getRenderingType()) {// 720漫游
+                // 获取720漫游组信息，传过来的pid问截图ID。渲染图列表接口返回了缩略图列表和对应的截图ID
+                DesignRenderRoam romanCode = resRenderPicMapper.get720RomanCode(resPic);
+                if (romanCode != null && StringUtils.isNotEmpty(romanCode.getUuid())) {
+                    picPath = romanCode.getUuid();
+                } else {
+                    return null;
+                }
+            } else if (RenderTypeCode.COMMON_VIDEO == resPic.getRenderingType() || RenderTypeCode.HD_VIDEO == resPic.getRenderingType()) {//普通视频
+                ResRenderVideo resRenderVideo = new ResRenderVideo();
+                resRenderVideo.setIsDeleted(0);
+                resRenderVideo.setSysTaskPicId(resPic.getId());
+                List<ResRenderVideo> videoList = resRenderVideoService.getList(resRenderVideo);
+                if (videoList == null || videoList.size() <= 0) {
+                    return null;
+                } else if (videoList != null && videoList.size() == 1) {
+                    picPath = videoList.get(0).getVideoPath();
+                } else {
+                    return null;
+                }
+            } else {
+                picPath = resPic.getPicPath();
+            }
+        } else {
+            /*取普通渲染图路径*/
+            picPath = resPic.getPicPath();
+        }
+        return picPath;
+    }
+
+    @Override
+    public String get720RomanCode(Integer picResId) {
+        ResRenderPic resRenderPic = new ResRenderPic();
+        resRenderPic.setId(picResId);
+        DesignRenderRoam designRenderRoam = resRenderPicMapper.get720RomanCode(resRenderPic);
+        if (null == designRenderRoam) {
+            return null;
+        }
+        return designRenderRoam.getUuid();
+    }
+
+    /**
+     * 通过pid获取缩略图
+     *
+     * @param pid
+     * @return
+     */
+    @Override
+    public ResRenderPic selectOneByPid(Integer pid) {
+        return resRenderPicMapper.selectOneByPid(pid);
+    }
+
+    /**
+     * 从自动渲染里面取720全景效果图
+     *
+     * @param resRenderPic
+     * @return
+     */
+    @Override
+    public List<ResRenderPic> selectListOfMobile(ResRenderPic resRenderPic) {
+        return resRenderPicMapper.selectListOfMobile(resRenderPic);
+    }
+
+    /**
+     * 从自动渲染里面通过pid取缩略图
+     *
+     * @param pid
+     * @return
+     */
+    @Override
+    public ResRenderPic selectOneByPidOfMobile(Integer pid) {
+        return resRenderPicMapper.selectOneByPidOfMobile(pid);
+    }
+
+    @Override
+    public List<ResRenderPic> queryPicListByResRenderPic(ResRenderPic resRenderPic) {
+        return resRenderPicMapper.queryPicListByResRenderPic(resRenderPic);
+    }
+
+    /**
+     * 为了渲染列表查询所有的缩略图和封面图
+     */
+    @Override
+    public List<ResRenderPic> selectListByFileKeys(ResRenderPicQO resRenderPicQO) {
+        return resRenderPicMapper.selectListByFileKeys(resRenderPicQO);
+    }
+
+    @Override
+    public ResRenderPic get720SingleCode(ResRenderPic resPic) {
+
+        return resRenderPicMapper.get720SingleCode(resPic);
+    }
+
+    @Override
+    public DesignRenderRoam get720RomanCode(ResRenderPic resPic) {
+
+        return resRenderPicMapper.get720RomanCode(resPic);
+    }
+
+    @Override
+    public Map<String, List<ResRenderData>> getAllResRenderPic(Integer id, renderResEnum type) {
+        Map<String, List<ResRenderData>> resRenderDataMap = new HashMap<>();
+        //获取照片级资源
+        List<ResRenderData> photoRes = this.getPhotoRes(id, type);
+        resRenderDataMap.put("photo", photoRes);
+        //获取视频资源
+        List<ResRenderData> videoRes = this.getVideoRes(id, type);
+        resRenderDataMap.put("video", videoRes);
+        //获取单点720资源
+        List<ResRenderData> single720Res = this.getSingle720Res(id, type);
+        resRenderDataMap.put("single720", single720Res);
+        //获取多点720资源
+        List<ResRenderData> roam720Res = this.getRoam720Res(id, type);
+        resRenderDataMap.put("roam720", roam720Res);
+
+        return resRenderDataMap;
+    }
+
+    @Override
+    public ResRenderPic getResRenderPicByPlanRecommended2(Integer planRecommendedId) {
+        List<ResRenderPic> resRenderPicList = resRenderPicMapper.selectRenderPicList(planRecommendedId);
+        if (resRenderPicList == null || resRenderPicList.size() == 0) {
+            return null;
+        }
+        return resRenderPicList.get(0);
+    }
+
+    @Override
+    public List<ResRenderPic> getResRenderPicListByRecommendedIds(List<Integer> planRecommendedIds) {
+        return resRenderPicMapper.selectRenderPicListByRecommendIds(planRecommendedIds);
+    }
+
+    //获取照片级资源
+    private List<ResRenderData> getPhotoRes(Integer id, renderResEnum type) {
+        ResRenderPic resRenderPic = new ResRenderPic();
+        List<String> fileKeys = new ArrayList<>();
+        List<ResRenderData> resRenderDataList = new ArrayList<>();
+        if (type == renderResEnum.designPlanRecommended) {
+            resRenderPic.setPlanRecommendedId(id);
+            fileKeys.add("design.designPlanRecommended.render.small.pic");
+        } else if (type == renderResEnum.designPlanRenderScene) {
+            resRenderPic.setDesignSceneId(id);
+            fileKeys.add("design.designPlan.render.small.pic");
+        } else {
+            return null;
+        }
+        resRenderPic.setIsDeleted(0);
+        resRenderPic.setOrder("gmt_create desc");
+        resRenderPic.setRenderingType(1);
+
+        resRenderPic.setFileKeyList(fileKeys);
+        List<ResRenderPic> picList = this.getList(resRenderPic);
+        if (picList != null && picList.size() > 0) {
+            for (ResRenderPic res : picList) {
+                ResRenderPic renderPic = this.get(res.getPid());
+                ResRenderData resRenderData = new ResRenderData();
+                resRenderData.setRenderingType(res.getRenderingType());
+                resRenderData.setPicPath(this.getQRCodeInfo(renderPic));
+                resRenderDataList.add(resRenderData);
+            }
+        }
+        return resRenderDataList;
+
+
+    }
+
+    //获取视频资源
+    private List<ResRenderData> getVideoRes(Integer id, renderResEnum type) {
+        ResRenderPic resRenderPic = new ResRenderPic();
+        List<String> fileKeys = new ArrayList<>();
+        List<ResRenderData> resRenderDataList = new ArrayList<>();
+        if (type == renderResEnum.designPlanRecommended) {
+            resRenderPic.setPlanRecommendedId(id);
+            fileKeys.add("design.designPlanRecommended.render.video.cover");
+            fileKeys.add("design.designPlanRecommended.render.pic");
+        } else if (type == renderResEnum.designPlanRenderScene) {
+            resRenderPic.setDesignSceneId(id);
+            fileKeys.add("design.designPlan.render.video.cover");
+        } else {
+            return null;
+        }
+        resRenderPic.setIsDeleted(0);
+        resRenderPic.setOrder("gmt_create desc");
+        resRenderPic.setRenderingType(6);
+
+        resRenderPic.setFileKeyList(fileKeys);
+        List<ResRenderPic> picList = this.getList(resRenderPic);
+        if (picList != null && picList.size() > 0) {
+            for (ResRenderPic res : picList) {
+                ResRenderPic renderPic = this.get(res.getId());
+                ResRenderData resRenderData = new ResRenderData();
+                resRenderData.setRenderingType(renderPic.getRenderingType());
+                resRenderData.setPicPath(this.getQRCodeInfo(renderPic));
+                resRenderDataList.add(resRenderData);
+            }
+        }
+        return resRenderDataList;
+
+
+    }
+
+
+    //获取单点720资源
+    private List<ResRenderData> getSingle720Res(Integer id, renderResEnum type) {
+        ResRenderPic resRenderPic = new ResRenderPic();
+        List<String> fileKeys = new ArrayList<>();
+        List<ResRenderData> resRenderDataList = new ArrayList<>();
+        if (type == renderResEnum.designPlanRecommended) {
+            resRenderPic.setPlanRecommendedId(id);
+            fileKeys.add("design.designPlanRecommended.render.small.pic");
+        } else if (type == renderResEnum.designPlanRenderScene) {
+            resRenderPic.setDesignSceneId(id);
+            fileKeys.add("design.designPlan.render.small.pic");
+        } else {
+            return null;
+        }
+        resRenderPic.setIsDeleted(0);
+        resRenderPic.setOrder("gmt_create desc");
+        resRenderPic.setRenderingType(4);
+        resRenderPic.setFileKeyList(fileKeys);
+        List<ResRenderPic> picList = this.getList(resRenderPic);
+        if (picList != null && picList.size() > 0) {
+            for (ResRenderPic res : picList) {
+                ResRenderPic renderPic = this.get(res.getPid());
+                ResRenderData resRenderData = new ResRenderData();
+                resRenderData.setRenderingType(res.getRenderingType());
+                resRenderData.setPicPath(this.getQRCodeInfo(renderPic));
+
+                SingleSceneVo singleSceneVo = new SingleSceneVo();
+                //获取单点720缩略图和原图
+                singleSceneVo.setThumbnailPicPath(res.getPicPath());
+                singleSceneVo.setPicPath(renderPic.getPicPath());
+
+                // 获取页面需要显示的业务信息（用户昵称、企业LOGO、企业名称
+                PanoramaVo panoramaVo = new PanoramaVo();
+                PanoramaVo newPanoramaVo = getUserInfoDetail(id, panoramaVo, type);
+                singleSceneVo.setPanoramaVo(newPanoramaVo);
+
+
+                resRenderData.setSingleSceneVo(singleSceneVo);
+                resRenderDataList.add(resRenderData);
+            }
+        }
+        return resRenderDataList;
+
+
+    }
+
+
+    //获取多点720资源
+    private List<ResRenderData> getRoam720Res(Integer id, renderResEnum type) {
+        ResRenderPic resRenderPic = new ResRenderPic();
+        List<String> fileKeys = new ArrayList<>();
+        List<ResRenderData> resRenderDataList = new ArrayList<>();
+        if (type == renderResEnum.designPlanRecommended) {
+            resRenderPic.setPlanRecommendedId(id);
+            fileKeys.add("design.designPlanRecommended.render.small.pic");
+        } else if (type == renderResEnum.designPlanRenderScene) {
+            resRenderPic.setDesignSceneId(id);
+            fileKeys.add("design.designPlan.render.small.pic");
+        } else {
+            return null;
+        }
+        resRenderPic.setIsDeleted(0);
+        resRenderPic.setOrder("gmt_create desc");
+        resRenderPic.setRenderingType(8);
+
+        resRenderPic.setFileKeyList(fileKeys);
+        List<ResRenderPic> picList = this.getList(resRenderPic);
+        if (picList != null && picList.size() > 0) {
+            for (ResRenderPic res : picList) {
+                ResRenderPic renderPic = null;
+                if (type == renderResEnum.designPlanRecommended) {
+                    renderPic = this.get(res.getPid());
+                } else if (type == renderResEnum.designPlanRenderScene) {
+                    renderPic = this.get(res.getSysTaskPicId());
+                } else {
+                    return null;
+                }
+
+
+                ResRenderData resRenderData = new ResRenderData();
+                resRenderData.setRenderingType(res.getRenderingType());
+                resRenderData.setPicPath(this.getQRCodeInfo(renderPic));
+                SingleSceneVo singleSceneVo = new SingleSceneVo();
+                //获取多点720的渲染截图
+                singleSceneVo.setPicPath(renderPic.getPicPath());
+                singleSceneVo.setThumbnailPicPath(res.getPicPath());
+
+                //获取多点720的热点位置
+                List<Roam> roams = getRoams(resRenderData);
+
+                singleSceneVo.setRoamList(roams);
+
+                // 获取页面需要显示的业务信息（用户昵称、企业LOGO、企业名称
+                PanoramaVo panoramaVo = new PanoramaVo();
+                PanoramaVo newPanoramaVo = getUserInfoDetail(id, panoramaVo, type);
+                singleSceneVo.setPanoramaVo(newPanoramaVo);
+
+
+                resRenderData.setSingleSceneVo(singleSceneVo);
+                resRenderDataList.add(resRenderData);
+            }
+        }
+        return resRenderDataList;
+
+    }
+
+    private List<Roam> getRoams(ResRenderData resRenderData) {
+        List<Roam> roamList = null;
+
+        DesignRenderRoam designRenderRoam = designRenderRoamMapper.selectByUUID(resRenderData.getPicPath());
+        if (designRenderRoam != null) {
+            // 获取多720图片之间的关系信息
+            String roamConfigContext = "";
+            Integer roamConfigId = designRenderRoam.getRoamConfig();
+            if (roamConfigId != null && roamConfigId.intValue() > 0) {
+                ResDesign roamConfig = resDesignService.get(roamConfigId);
+                if (roamConfig != null) {
+                    String filePath = rederResPath + roamConfig.getFilePath();
+                    roamConfigContext = FileUploadUtils.getJsonByInternet(filePath);
+                }
+            }
+
+            if (StringUtils.isNotBlank(roamConfigContext)) {
+                JSONArray jsonArray = JSONArray.fromObject(roamConfigContext);
+                roamList = JSONArray.toList(jsonArray, Roam.class);
+            }
+        }
+        List<Roam> roams = new ArrayList<>();
+        if (roamList != null && roamList.size() > 0) {
+
+            for (Roam roam : roamList) {
+                Integer resId = roam.getFieldName();
+                ResRenderPic r = this.get(resId);
+                List<Coordinate> coordinateList = new ArrayList<>();
+                roam.setFieldNamePath(r.getPicPath());
+                for (Roam roam1 : roamList) {
+                    Integer resId1 = roam1.getFieldName();
+                    ResRenderPic r1 = this.get(resId1);
+
+                    Coordinate coordinate = new Coordinate();
+                    if (roam1.getFieldName() == roam.getFieldName()) {
+                        continue;
+                    }
+                    coordinate.setAth(PanoramaUtil.getAth(roam, roam1));
+                    coordinate.setAtv(PanoramaUtil.getAtv(roam, roam1));
+                    coordinate.setTargetFieldName(roam1.getFieldName());
+                    coordinate.setTargetFieldNamePath(r1.getPicPath());
+                    coordinateList.add(coordinate);
+                }
+                roam.setCoordinateList(coordinateList);
+                roams.add(roam);
+            }
+        }
+        return roams;
+    }
+
+
+    private PanoramaVo getUserInfoDetail(Integer id, PanoramaVo panoramaVo, renderResEnum type) {
+        if (type == renderResEnum.designPlanRecommended) {
+            DesignPlanRecommended designPlanRecommended = designPlanRecommendedService.get(id);
+            panoramaVo = getPanoramaVoByRecommendedId(panoramaVo, designPlanRecommended);
+        } else if (type == renderResEnum.designPlanRenderScene) {
+            DesignPlanRenderScene designPlanRenderScene = designPlanRenderSceneService.get(id);
+            panoramaVo = getPanoramaVoBySceneId(panoramaVo, designPlanRenderScene);
+        } else {
+            return null;
+        }
+
+        return panoramaVo;
+    }
+
+
+    private PanoramaVo getPanoramaVoByRecommendedId(PanoramaVo panoramaVo, DesignPlanRecommended designPlanRecommended) {
+        panoramaVo.setUserId(designPlanRecommended.getUserId());
+        Integer userId = designPlanRecommended.getUserId();
+        SysUser sysUser = sysUserService.get(userId);
+        if (sysUser != null) {
+            panoramaVo.setUserId(sysUser.getId());
+            panoramaVo.setUserType(sysUser.getUserType());
+            panoramaVo.setUserName(sysUser.getUserName());
+            //如果是经销商账号 就取公司的Pid
+            if (sysUser.getUserType().intValue() == 3) {
+                // 获取用户公司
+                Integer companyId = sysUser.getBusinessAdministrationId();
+                BaseCompany company = baseCompanyService.get(companyId);
+                if (company.getPid().intValue() > 0) {
+                    BaseCompany baseCompany = baseCompanyService.get(company.getPid());
+                    if (baseCompany != null) {
+                        panoramaVo.setCompanyName(baseCompany.getCompanyName());
+
+                        // 获取用户公司LOGO
+                        if (baseCompany.getCompanyLogo() != null) {
+                            ResPic resPic = resPicService.get(baseCompany.getCompanyLogo());
+                            if (resPic != null) {
+                                panoramaVo.setCompanyLogoPath(resPic.getPicPath());
+                            }
+                        }
+                    }
+                }
+
+            } else {
+                // 获取用户公司
+                Integer companyId = sysUser.getBusinessAdministrationId();
+                BaseCompany baseCompany = baseCompanyService.get(companyId);
+                if (baseCompany != null) {
+                    panoramaVo.setCompanyName(baseCompany.getCompanyName());
+                    // 获取用户公司LOGO
+                    if (baseCompany.getCompanyLogo() != null) {
+                        ResPic resPic = resPicService.get(baseCompany.getCompanyLogo());
+                        if (resPic != null) {
+                            panoramaVo.setCompanyLogoPath(Utils.getAbsoluteUrlByRelativeUrl(resPic.getPicPath()));
+                        }
+                    }
+                }
+            }
+        }
+        // 获取房型类型
+        if (designPlanRecommended.getSpaceCommonId() != null) {
+            SpaceCommon spaceCommon = spaceCommonService.get(designPlanRecommended.getSpaceCommonId());
+            if (spaceCommon != null && spaceCommon.getSpaceFunctionId() != null) {
+                SysDictionary sysDictionary = sysDictionaryService.findOneByTypeAndValue("houseType", spaceCommon.getSpaceFunctionId());
+                panoramaVo.setHouseTypeName("我设计的" + sysDictionary.getName());
+            }
+        }
+        return panoramaVo;
+    }
+
+
+    private PanoramaVo getPanoramaVoBySceneId(PanoramaVo panoramaVo, DesignPlanRenderScene designPlanRenderScene) {
+        panoramaVo.setUserId(designPlanRenderScene.getUserId());
+        Integer userId = designPlanRenderScene.getUserId();
+        SysUser sysUser = sysUserService.get(userId);
+        if (sysUser != null) {
+            panoramaVo.setUserId(sysUser.getId());
+            panoramaVo.setUserType(sysUser.getUserType());
+            panoramaVo.setUserName(sysUser.getUserName());
+            //如果是经销商账号 就取公司的Pid
+            if (sysUser.getUserType().intValue() == 3) {
+                // 获取用户公司
+                Integer companyId = sysUser.getBusinessAdministrationId();
+                BaseCompany company = baseCompanyService.get(companyId);
+                if (company.getPid().intValue() > 0) {
+                    BaseCompany baseCompany = baseCompanyService.get(company.getPid());
+                    if (baseCompany != null) {
+                        panoramaVo.setCompanyName(baseCompany.getCompanyName());
+
+                        // 获取用户公司LOGO
+                        if (baseCompany.getCompanyLogo() != null) {
+                            ResPic resPic = resPicService.get(baseCompany.getCompanyLogo());
+                            if (resPic != null) {
+                                panoramaVo.setCompanyLogoPath(resPic.getPicPath());
+                            }
+                        }
+                    }
+                }
+
+            } else {
+                // 获取用户公司
+                Integer companyId = sysUser.getBusinessAdministrationId();
+                BaseCompany baseCompany = baseCompanyService.get(companyId);
+                if (baseCompany != null) {
+                    panoramaVo.setCompanyName(baseCompany.getCompanyName());
+                    // 获取用户公司LOGO
+                    if (baseCompany.getCompanyLogo() != null) {
+                        ResPic resPic = resPicService.get(baseCompany.getCompanyLogo());
+                        if (resPic != null) {
+                            panoramaVo.setCompanyLogoPath(Utils.getAbsoluteUrlByRelativeUrl(resPic.getPicPath()));
+                        }
+                    }
+                }
+            }
+        }
+        // 获取房型类型
+        if (designPlanRenderScene.getSpaceCommonId() != null) {
+            SpaceCommon spaceCommon = spaceCommonService.get(designPlanRenderScene.getSpaceCommonId());
+            if (spaceCommon != null && spaceCommon.getSpaceFunctionId() != null) {
+                SysDictionary sysDictionary = sysDictionaryService.findOneByTypeAndValue("houseType", spaceCommon.getSpaceFunctionId());
+                panoramaVo.setHouseTypeName("我设计的" + sysDictionary.getName());
+            }
+        }
+        return panoramaVo;
+    }
+
+    @Override
+    public Map<Integer, String> idAndPathMap(List<Integer> picIds) {
+        picIds = picIds.stream().filter(Objects::nonNull).distinct().collect(Collectors.toList());
+        if (isEmpty(picIds)) {
+            return Collections.emptyMap();
+        }
+        List<ResPic> resRenderPics = resPicService.getResPicByIds(picIds);
+        return resRenderPics.stream().collect(Collectors.toMap(resPic -> resPic.getId().intValue(), resRender -> {
+            if (isEmpty(resRender.getPicPath())) {
+                return "";
+            } else {
+                return resRender.getPicPath();
+            }
+        }));
+    }
+
+    @Override
+    public ResRenderPic getMyPlanCoverResRenderPic(Integer planId) {
+        List<ResRenderPic> resRenderPicList = resRenderPicMapper.selectMyPlanCoverResRenderPic(planId);
+        if(resRenderPicList == null  || resRenderPicList.size() == 0){
+            return null;
+        }
+        return resRenderPicList.get(0);
+    }
+
+    @Override
+    public ResRenderPic getFullHouseCoverResRenderPic(Integer planId) {
+        List<ResRenderPic> resRenderPicList = resRenderPicMapper.selectFullHouseCoverResRenderPic(planId);
+        if(resRenderPicList == null  || resRenderPicList.size() == 0){
+            return null;
+        }
+        return resRenderPicList.get(0);
+    }
+
+    @Override
+    public ResRenderPic getSingleSpaceCoverResRenderPic(Integer planId) {
+        List<ResRenderPic> resRenderPicList = resRenderPicMapper.selectSingleSpaceCoverResRenderPic(planId);
+        if(resRenderPicList == null  || resRenderPicList.size() == 0){
+            return null;
+        }
+        return resRenderPicList.get(0);
+    }
+}

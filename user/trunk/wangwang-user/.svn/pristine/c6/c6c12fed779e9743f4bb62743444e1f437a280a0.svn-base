@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.alibabatech.com/schema/dubbo
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+        ">
+
+    <!--支付账户表-->
+    <dubbo:reference interface="com.sandu.pay.order.service.PayAccountService"
+                     id="payAcctService" version="1.0.1" retries="0" timeout="60000"/>
+
+    <!--付款方式业务关联表-->
+    <dubbo:reference interface="com.sandu.pay.order.service.PayModelGroupRefService"
+                     id="payModelGroupRefService" version="1.0.1" retries="0" timeout="60000"/>
+
+    <dubbo:reference interface="com.sandu.pay.order.service.PayOrderService"
+                     id="payOrderService" version="1.0.1" retries="0" timeout="60000"/>
+
+    <dubbo:reference interface="com.sandu.api.servicepurchase.serivce.biz.ServicesPurchaseBizService"
+                     id="servicesPurchaseBizService" protocol="dubbo" timeout="60000"
+                     version="1.0.2"/>
+
+    <dubbo:reference interface="com.sandu.api.servicepurchase.serivce.ServicesBaseInfoService"
+                     id="servicesBaseInfoService" protocol="dubbo" timeout="60000"
+                     version="1.0.2"/>
+
+    <dubbo:reference interface="com.sandu.api.servicepurchase.serivce.ServicesAccountRelService"
+                     id="servicesAccountRelService" protocol="dubbo" timeout="60000"
+                     version="1.0.2"/>
+
+    <dubbo:reference interface="com.sandu.api.servicepurchase.serivce.ServicesRoleRelService"
+                     id="servicesRoleRelService" protocol="dubbo" timeout="60000"
+                     version="1.0.2"/>
+
+    <dubbo:reference interface="com.sandu.api.servicepurchase.serivce.ServicesPriceService"
+                     id="servicesPriceService" protocol="dubbo" timeout="60000"
+                     version="1.0.2"/>
+</beans>

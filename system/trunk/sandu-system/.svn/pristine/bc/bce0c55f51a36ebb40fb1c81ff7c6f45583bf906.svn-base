@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.alibabatech.com/schema/dubbo
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+        ">
+    <!-- 生成远程服务代理，可以像使用本地bean一样使用demoService -->
+    <!--<dubbo:reference id="payOrderService"-->
+    <!--interface="com.sandu.api.merchantManagePay.service.PayOrderService" retries="${dubbo.retries}" version="${dubbo.version}"/>-->
+    <!---->
+    <dubbo:reference id="payOrderService"
+                     interface="com.sandu.pay.order.service.PayOrderService" retries="${dubbo.retries}"
+                     version="1.0.1"/>
+
+    <dubbo:reference id="merchantManagePayOrderService"
+                     interface="com.sandu.api.merchantManagePay.service.PayOrderService" retries="${dubbo.retries}"
+                     version="${dubbo.version}"/>
+
+
+    <dubbo:reference interface="com.sandu.gateway.pay.forward.service.PayService"
+                     id="miniProPay" protocol="dubbo" timeout="30000" retries="0" version="2.0.0" group="miniProPay"/>
+
+</beans>

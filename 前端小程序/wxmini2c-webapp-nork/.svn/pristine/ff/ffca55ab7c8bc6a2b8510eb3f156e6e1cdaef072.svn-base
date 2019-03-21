@@ -1,0 +1,114 @@
+<view class="main">
+    <view class="con">
+        <view class="product-list" wx:if="contentlist.length>0">
+            <view class="product-iteam" wx:for="{{contentlist}}" wx:key='{{index}}'>
+            <form bindsubmit='formToThreeD' report-submit='true'>
+                <view class="product-image">
+                    <block wx:if='{{item.renderPic}}'>
+                    <button 
+                    class='productImage' 
+                    form-type="submit"
+                    data-type='photo' 
+                    data-id='{{item.cpId}}' 
+                    data-item='{{item}}'>
+                      <image class="productImage" src="{{resourcePath}}/{{item.pic}}"></image>
+                    </button>
+                    </block>
+                    <block wx:if='{{item.render720}}'>
+                    <button 
+                    class='productImage' 
+                    form-type="submit" 
+                    data-type='720' 
+                    data-id='{{item.cpId}}' 
+                    data-item='{{item}}'>
+                      <image class="productImage" src="{{resourcePath}}/{{item.pic}}"></image>
+                    </button>
+                    </block>
+                    <block wx:if='{{item.renderRoam}}'>
+                    <button 
+                    class='productImage' 
+                    form-type="submit" 
+                    data-type='roam' 
+                    data-id='{{item.cpId}}' 
+                    data-item='{{item}}'>
+                      <image class="productImage" src="{{resourcePath}}/{{item.pic}}"></image>
+                    </button>
+                    </block>
+                    <block wx:if='{{item.renderVideo}}'>
+                      <image 
+                      class="productImage"
+                      bindtap='toThreeD' 
+                      data-type='video' 
+                      data-id='{{item.cpId}}' 
+                      data-item='{{item}}'
+                      src="{{resourcePath}}/{{item.pic}}"></image>
+                    </block>
+                    <button 
+                    class='iconIMG0' 
+                    form-type="submit"
+                    data-type='720'
+                    wx:if='{{item.render720}}
+                    data-id='{{item.cpId}}' 
+                    data-item='{{item}}'>
+                      <image class="productImage" src="../../static/image/3.png"></image>
+                    </button>
+                    <button 
+                    class='iconIMG1' 
+                    form-type="submit" 
+                    data-type='roam'
+                    wx:if='{{item.renderRoam}}
+                    data-id='{{item.cpId}}' 
+                    data-item='{{item}}'>
+                      <image class="productImage" src="../../static/image/4.png"></image>
+                    </button>
+                    <image 
+                    class="iconIMG2" 
+                    bindtap='toThreeD' 
+                    data-type='video'
+                    wx:if='{{item.renderVideo}}
+                    data-id='{{item.cpId}}' 
+                    data-item='{{item}}'
+                    src="../../static/image/5.png"></image>
+                    <!-- <image wx:if='{{item.render720}}' class="iconIMG0"  bindtap='toThreeD' data-type='720' data-item='{{item}}' src="../../static/image/3.png"></image>
+                    <image wx:if='{{item.renderRoam}}' class="iconIMG1" data-type='roam' bindtap='toThreeD' data-item='{{item}}' src="../../static/image/4.png"></image>
+                    <image wx:if='{{item.renderVideo}}' class="iconIMG2" data-type='video' bindtap='toThreeD' data-item='{{item}}' src="../../static/image/5.png"></image> -->
+                </view>
+            </form>
+                <view class="product-info">
+                    <view class="product-info-top clearfix">
+                        <view class="product-info-left">
+                            {{item.name}}
+                        </view>
+                        <view class="product-info-right">
+                            {{item.ctime}}
+                        </view>
+                    </view>
+                    <view class="product-info-bottom clearfix">
+                        <!-- <view class="fl"></view> -->
+                        <view class="fr" bindtap='deletebtn' data-index='{{index}}'>
+                          <image src='./image/mydesign_icon_more.png' class='ellipsis'></image>
+                        </view>
+                        <view class="{{deleteFlag && deleteIndex==index?'black fr':'none'}}" bindtap='delete' data-id='{{item.cpId}}'>
+                          <view>
+                            <image src='./image/me_icon_delete.png' class='deleteIcon'></image>
+                          </view>
+                          <view class='deletetxt'>删除</view>
+                        </view>
+                    </view>
+                </view>
+            </view>
+        </view>
+
+        <block wx:if="{{!contentlist.length>0}}">
+          <view class="empty_tip ">
+            <image class="image" src="../static/image/me_pic_no_02.png"></image>
+            <view class="txt">您还没有渲染过方案</view>
+            <button class='goRenderBtn' bindtap='tohousetype'>去购买</button>
+          </view>
+        </block>        
+        
+    </view>
+</view>
+  <!-- 快速导航 -->
+  <import src="../../component/quick-navigation/quick-navigation.wxml"/>
+  <template is="quickNavigation" data="{{ ...quickNavigation }}"/>    

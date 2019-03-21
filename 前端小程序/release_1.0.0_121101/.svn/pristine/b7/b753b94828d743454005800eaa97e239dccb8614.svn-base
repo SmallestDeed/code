@@ -1,0 +1,99 @@
+<view class="header">
+  <view class="tab-control ">
+    <view class='{{type=="1"?"supplyselect":"supply"}}' bindtap='changeType' data-type='1'>供应</view>
+    <view class='line'></view>
+    <view class='{{type=="2"?"supplyselect":"supply"}}' bindtap='changeType' data-type='2'>需求</view>
+  </view>
+  <view class="choose">
+    <view class="choose-item" bindtap='select' data-type="排序">
+      <view style='{{isShowRankBox?"color:#ff6419":""}}'>{{supTypeId == 0?'最新':'最热'}}</view>
+      <image src="/static/image/{{isShowRankBox?'choose_icon_up@2x':'choose_icon_down@2x'}}.png"></image>
+    </view>
+    <view class="choose-item" bindtap='select' data-type="地区">
+      <view style='{{isShowSiteBox?"color:#ff6419":""}}'>{{city}}</view>
+      <image src="/static/image/{{isShowSiteBox?'choose_icon_up@2x':'choose_icon_down@2x'}}.png"></image>
+    </view>
+    <view class="choose-item" bindtap='select' data-type="发布者">
+      <view style='{{isShowPromulgatorBox?"color:#ff6419":""}}'>
+        {{professionArr[professionValue].name}}
+      </view>
+      <image src="/static/image/{{isShowPromulgatorBox?'choose_icon_up@2x':'choose_icon_down@2x'}}.png"></image>
+    </view>
+  </view>
+</view>
+ 
+<view class="options" wx:if="{{isShowRankBox || isShowPromulgatorBox || isShowSiteBox}}">
+  <view class="options-box">
+    <!-- 排序盒子 -->
+    <view class="rank-box" wx:if="{{isShowRankBox}}" wx:key="{{index}}">
+      <view class="{{supTypeId == item.id?'rank-item-active':'rank-item'}}" 
+        bindtap='sortCommit'
+        data-id="{{item.id}}"
+        wx:for="{{sortArr}}" 
+        wx:key="{{index}}">{{item.name}}</view>
+    </view>
+    <!-- 发布者盒子 -->
+    <view class="promulgator-box" wx:if="{{isShowPromulgatorBox}}">
+      <!-- <view class="promulgator-item" bindtap='professionCommit'>全部</view> -->
+      <view class="{{professionArr[professionValue].id == item.id?'promulgator-item-active':'promulgator-item'}}" 
+        bindtap='professionCommit' data-item='{{item}}' data-index='{{index}}'
+        wx:for="{{professionArr}}" 
+        wx:key="{{index}}">{{item.name}}</view>
+    </view>
+    <!-- 省市区盒子 -->
+    <view class="site-box" wx:if="{{isShowSiteBox}}">
+      <view class="left">
+        <!-- <view class="{{districtCode == -1?'left-item-active':'left-item'}}">常用&热门</view> -->
+        <view class="{{provinceCode == item.areaCode?'left-item-active':'left-item'}}" 
+          bindtap='selectProvince'
+          data-item="{{item}}"
+          wx:for="{{provinces}}"
+          wx:key="{{index}}">
+         {{item.areaName}}
+        </view>
+      </view>
+      <view class="right">
+        <view class="ordinary-city-box" >
+          <view class="{{cityCode == item.areaCode?'city-item-active':'city-item'}}" 
+            bindtap='selectCity'
+            data-item="{{item}}"
+            wx:for="{{citys}}" 
+            wx:key="{{index}}">
+            {{item.areaName}}
+            <image class="item-img" src="/static/image/choose.png" wx:if="{{cityCode == item.areaCode}}"></image>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+<!-- style="{{(isShowRankBox || isShowPromulgatorBox || isShowSiteBox?'height: 80%':'')}}; overflow: hidden" -->
+<view class="list" style="{{(isShowRankBox || isShowPromulgatorBox || isShowSiteBox?'height: 80%':'')}}; overflow: hidden">
+  <view class="list-item" 
+    wx:for='{{supplyList}}'
+    wx:key='{{index}}' 
+    bindtap='toDetail' 
+    data-id='{{item.supplyDemandId}}'>
+    <image src='{{resourcePath+item.onePicture}}' mode="aspectFill"></image>
+    <view class="message">
+      <view class="title">{{item.title}}</view>
+      <view class="site ellipsis">
+        {{item.provinceAddress}}{{item.cityAddress}}{{item.districtAddress}}{{item.address}} 
+      </view>
+      <view class="data-box">
+        <view>浏览 {{item.viewNum}}</view>
+        <view style="margin: 0 15rpx">|</view>
+        <view>{{item.gmtModified}}发布</view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<view class="empty" wx:if="{{isShowUndefined}}">
+  <image src="/static/image/undefined.png"></image>
+  <view>什么都没有呢~</view>
+</view>
+
+<!-- 快速导航模块 -->
+  <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav"  data="{{ ...newNav }}"/>

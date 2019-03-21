@@ -1,0 +1,48 @@
+package com.sandu.user.service.impl;/**
+ * @ Author     ：weisheng.
+ * @ Date       ：Created in PM 8:48 2018/5/29 0029
+ * @ Description：${description}
+ * @ Modified By：
+ * @Version: $version$
+ */
+
+import com.sandu.user.dao.UserInviteMapper;
+import com.sandu.user.model.UserInvite;
+import com.sandu.user.service.UserInviteService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ * @Title: 用户邀请服务
+ * @Package
+ * @Description:
+ * @author weisheng
+ * @date 2018/5/29 0029PM 8:48
+ */
+@Service("userInviteService")
+public class UserInviteServiceImpl implements UserInviteService{
+
+
+    @Autowired
+    private UserInviteMapper userInviteMapper;
+
+
+
+    @Override
+    public Integer saveUserInviteInfo(UserInvite userInvite) {
+        userInviteMapper.insertSelective(userInvite);
+        return userInvite.getId();
+    }
+
+    @Override
+    public Integer updateUserInviteStatus(UserInvite userInvite) {
+        userInviteMapper.updateByPrimaryKeySelective(userInvite);
+
+        return userInvite.getId();
+    }
+
+    @Override
+    public UserInvite getUserInviteByUuid(String uuid) {
+        return null;
+    }
+}

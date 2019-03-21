@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.alibabatech.com/schema/dubbo
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+        ">
+    <!-- 生成远程服务代理，可以像使用本地bean一样使用demoService -->
+    <dubbo:reference id="sysDictionaryService" check="false"
+                     interface="com.sandu.system.service.SysDictionaryService" version="${dubbo.version}" retries="${dubbo.retries}"/>
+                     
+    <dubbo:reference id="sysUserService" check="false"
+                     interface="com.sandu.user.service.SysUserService" version="${dubbo.version}" retries="${dubbo.retries}"/>
+
+    <dubbo:reference id="templateMsgService"
+                     interface="com.sandu.api.notify.wx.TemplateMsgService"
+                     retries="${dubbo.retries}" version="1.0.2"/>
+
+    <dubbo:reference id="systemSysUserService"
+                     interface="com.sandu.api.user.service.SysUserService"
+                     retries="${dubbo.retries}" version="20.18.0"/>
+</beans>

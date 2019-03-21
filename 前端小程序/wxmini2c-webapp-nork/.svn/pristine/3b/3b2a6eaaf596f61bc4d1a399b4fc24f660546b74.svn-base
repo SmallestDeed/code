@@ -1,0 +1,73 @@
+<wxs module="public" src="../../utils/public.wxs"></wxs>
+<view class='serch'>
+  <view class='city' bindtap='changeCtiy'>
+        <view class='cityname'>{{city}}</view>
+        <image class='cityimage' src='{{triangleicon}}'></image>
+    </view>
+  <view class='searchItem'>
+    <image src='{{searchicon}}' />
+    <input placeholder-class="placeholder" placeholder='输入店名关键字' maxlength='30' bindinput='searchValue' bindconfirm='search'></input>
+  </view>
+  <view class='searchtxt' bindtap='search'>搜索</view>
+</view>
+
+<view class='shop'>
+  
+  <view class='detail' 
+        catchtap='todetail'  
+        data-id='{{item.id}}' 
+        wx:key="item" 
+        wx:for='{{shopList}}' 
+        data-city='{{item.cityName}}'
+        data-name="{{item.shopName}}"
+        data-longitude='{{item.longitude}}'
+        data-latitude='{{item.latitude}}'
+        data-distance='{{item.distance}}'
+  >
+      <image class='image' src='{{item.logoUrl}}' mode='aspectFill' binderror="errorFunction" data-img="shopList[{{index}}].logoUrl"></image>
+      <view class='tag'>
+        <image class='tagimg' src='../mini-offcial-web/image/wei_msg_label.png'></image>
+        <view class='tagtxt'>精选</view>
+      </view>
+      <view class='information'>
+        <view class='name' >{{item.shopName}}</view>
+        <view class='address'>{{item.provinceName+item.cityName+item.areaName+item.shopAddress}}</view>
+        <text wx:if="{{item.distance&&isNk}}" 
+                class='distance' 
+                catchtap='goLocation' 
+                data-latitude='{{item.latitude}}'
+                data-name="{{item.shopName}}"
+                data-address="{{item.provinceName+item.cityName+item.areaName+item.shopAddress}}"
+                data-longitude='{{item.longitude}}'
+            > {{public.toFix(item.distance,1)}}km</text>
+        <!--<view class='howfar'>120m</view>-->
+      </view>
+    </view>
+</view>
+<block wx:if='{{shopList.length==0 && flag==true}}'>
+<view class='noShop'>
+    <image class='noShopimg' src='../mini-offcial-web/image/wei_icon_empty.png'></image>
+    <view class='noShoptxt'>暂无门店信息</view>
+</view>
+</block>
+
+
+
+<view wx:if="{{condition}}" class="citypicker" wx:key='{{index}}'>
+  <view class="cityheader">
+      <view  bindtap='provincialLinkageHide' data-flag="{{false}}" class="city-cancel">取消</view>
+      <view  bindtap='provincialLinkageHide' data-flag="{{true}}" class="city-true">确定</view>
+  </view>
+  <picker-view indicator-style="height: 50px;" style="width: 100%; height: 250px;" value="{{value}}" bindchange="bindChange" class="citybody">
+      <picker-view-column>
+          <view wx:for="{{provinces}}" wx:key="item">{{item.areaName}}</view>
+      </picker-view-column>
+      <picker-view-column>
+          <view wx:for="{{citys}}" wx:key="item">{{item.areaName}}</view>
+      </picker-view-column>
+  </picker-view>
+</view>
+
+    <import src="../../component/quick-navigation/quick-navigation.wxml"/>
+  <template is="quickNavigation" data="{{ ...quickNavigation }}"/>
+  <view class='black' wx:if='{{condition}}'></view>

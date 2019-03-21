@@ -1,0 +1,67 @@
+package com.sandu.product.service.impl;
+
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.common.util.collections.Lists;
+import com.sandu.product.dao.ProductPropsMapper;
+import com.sandu.product.model.ProductProps;
+import com.sandu.product.service.ProductPropsService;
+
+@Service("productPropsService")
+public class ProductPropsServiceImpl implements ProductPropsService {
+
+	@Autowired
+	private ProductPropsMapper productPropsMapper;
+	
+	@Override
+	public String getStructureProductPropCodeByProductId(Integer productId, String productAttrCode) {
+		// 参数验证 ->start
+		if(productId == null) {
+			return null;
+		}
+		if(StringUtils.isEmpty(productAttrCode)) {
+			productAttrCode = "structureSign";
+		}
+		// 参数验证 ->end
+		List<String> propValueList = productPropsMapper.getStructureProductPropCodeByProductId(productId, productAttrCode);
+		if(Lists.isNotEmpty(propValueList)) {
+			return propValueList.get(0);
+		}else {
+			return null;
+		}
+	}
+
+	@Override
+	public String getStructureProductPropValueByProductId(Integer productId, String productAttrCode) {
+		// 参数验证 ->start
+		if(productId == null) {
+			return null;
+		}
+		if(StringUtils.isEmpty(productAttrCode)) {
+			productAttrCode = "structureSign";
+		}
+		// 参数验证 ->end
+		List<String> propValueList = productPropsMapper.getStructureProductPropValueByProductId(productId, productAttrCode);
+		if(Lists.isNotEmpty(propValueList)) {
+			return propValueList.get(0);
+		}else {
+			return null;
+		}
+	}
+
+	/**
+	 *    获取数据详情
+	 *
+	 * @param id
+	 * @return  ProductProps 
+	 */
+	@Override
+	public ProductProps get(Integer id) {
+		return productPropsMapper.selectByPrimaryKey(id);
+	}
+
+}

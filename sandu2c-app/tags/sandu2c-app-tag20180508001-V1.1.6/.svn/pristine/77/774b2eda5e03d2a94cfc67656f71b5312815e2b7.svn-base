@@ -1,0 +1,46 @@
+package com.sandu.user.service.impl;/**
+ * @ Author     ：weisheng.
+ * @ Date       ：Created in AM 10:08 2018/5/14 0014
+ * @ Description：${description}
+ * @ Modified By：
+ * @Version: $version$
+ */
+
+import com.sandu.user.dao.UserPrivateMessageMapper;
+import com.sandu.user.model.input.UserPrivateMessageAdd;
+import com.sandu.user.model.view.UserPrivateMessageVo;
+import com.sandu.user.service.UserPrivateMessageService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+/**
+ * @Title: 用户留言
+ * @Package
+ * @Description:
+ * @author weisheng
+ * @date 2018/5/14 0014AM 10:08
+ */
+@Service("userPrivateMessageService")
+public class UserPrivateMessageServiceImpl implements UserPrivateMessageService{
+
+    @Autowired
+    private UserPrivateMessageMapper userPrivateMessageMapper;
+
+    @Override
+    public List<UserPrivateMessageVo> getUserPrivateMessageList(UserPrivateMessageAdd userPrivateMessageAdd) {
+
+        return userPrivateMessageMapper.selectUserPrivateMessageList(userPrivateMessageAdd);
+    }
+
+    @Override
+    public List<UserPrivateMessageVo> getUserPrivateMessageInfoList(UserPrivateMessageAdd userPrivateMessageAdd) {
+        return userPrivateMessageMapper.selectUserPrivateMessageInfoList(userPrivateMessageAdd);
+    }
+
+    @Override
+    public Integer delUserPrivateMessage(UserPrivateMessageAdd userPrivateMessageAdd) {
+        return userPrivateMessageMapper.delUserPrivateMessage(userPrivateMessageAdd);
+    }
+}

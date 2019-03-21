@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.merchantManagePay.dao.PayOrderDao">
+
+    <insert id="insert" parameterType="com.sandu.api.merchantManagePay.model.PayOrder" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into pay_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId!= null">user_id,</if>
+            <if test="productType!= null">product_type,</if>
+            <if test="productId!= null">product_id,</if>
+            <if test="productName!= null">product_name,</if>
+            <if test="productDesc!= null">product_desc,</if>
+            <if test="orderNo!= null">order_no,</if>
+            <if test="totalFee!= null">total_fee,</if>
+            <if test="adjustFee!= null">adjust_fee,</if>
+            <if test="payType!= null">pay_type,</if>
+            <if test="tradeType!= null">trade_type,</if>
+            <if test="bizType!= null">biz_type,</if>
+            <if test="financeType!= null">finance_type,</if>
+            <if test="payState!= null">pay_state,</if>
+            <if test="prepayId!= null">prepay_id,</if>
+            <if test="codeUrl!= null">code_url,</if>
+            <if test="refId!= null">ref_id,</if>
+            <if test="openId!= null">open_id,</if>
+            <if test="orderDate!= null">order_date,</if>
+            <if test="sysCode!= null">sys_code,</if>
+            <if test="creator!= null">creator,</if>
+            <if test="gmtCreate!= null">gmt_create,</if>
+            <if test="modifier!= null">modifier,</if>
+            <if test="gmtModified!= null">gmt_modified,</if>
+            <if test="isDeleted!= null">is_deleted,</if>
+            <if test="att1!= null">att1,</if>
+            <if test="att2!= null">att2,</if>
+            <if test="numa1!= null">numa1,</if>
+            <if test="numa2!= null">numa2,</if>
+            <if test="remark!= null">remark,</if>
+            <if test="taskId!= null">task_id,</if>
+            <if test="planId!= null">plan_id,</if>
+            <if test="houseId!= null">house_id,</if>
+            <if test="currentIntegral!= null">current_integral,</if>
+            <if test="platformId!= null">platform_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId!= null">#{userId,jdbcType=INTEGER},</if>
+            <if test="productType!= null">#{productType,jdbcType=VARCHAR},</if>
+            <if test="productId!= null">#{productId,jdbcType=INTEGER},</if>
+            <if test="productName!= null">#{productName,jdbcType=VARCHAR},</if>
+            <if test="productDesc!= null">#{productDesc,jdbcType=VARCHAR},</if>
+            <if test="orderNo!= null">#{orderNo,jdbcType=VARCHAR},</if>
+            <if test="totalFee!= null">#{totalFee,jdbcType=INTEGER},</if>
+            <if test="adjustFee!= null">#{adjustFee,jdbcType=INTEGER},</if>
+            <if test="payType!= null">#{payType,jdbcType=VARCHAR},</if>
+            <if test="tradeType!= null">#{tradeType,jdbcType=VARCHAR},</if>
+            <if test="bizType!= null">#{bizType,jdbcType=VARCHAR},</if>
+            <if test="financeType!= null">#{financeType,jdbcType=VARCHAR},</if>
+            <if test="payState!= null">#{payState,jdbcType=VARCHAR},</if>
+            <if test="prepayId!= null">#{prepayId,jdbcType=VARCHAR},</if>
+            <if test="codeUrl!= null">#{codeUrl,jdbcType=VARCHAR},</if>
+            <if test="refId!= null">#{refId,jdbcType=VARCHAR},</if>
+            <if test="openId!= null">#{openId,jdbcType=VARCHAR},</if>
+            <if test="orderDate!= null">#{orderDate,jdbcType=TIMESTAMP},</if>
+            <if test="sysCode!= null">#{sysCode,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">#{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">#{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER},</if>
+            <if test="att1!= null">#{att1,jdbcType=VARCHAR},</if>
+            <if test="att2!= null">#{att2,jdbcType=VARCHAR},</if>
+            <if test="numa1!= null">#{numa1,jdbcType=INTEGER},</if>
+            <if test="numa2!= null">#{numa2,jdbcType=INTEGER},</if>
+            <if test="remark!= null">#{remark,jdbcType=VARCHAR},</if>
+            <if test="taskId!= null">#{taskId,jdbcType=INTEGER},</if>
+            <if test="planId!= null">#{planId,jdbcType=INTEGER},</if>
+            <if test="houseId!= null">#{houseId,jdbcType=INTEGER},</if>
+            <if test="currentIntegral!= null">#{currentIntegral,jdbcType=INTEGER},</if>
+            <if test="platformId!= null">#{platformId,jdbcType=INTEGER},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePayState">
+        UPDATE
+          pay_order
+          SET
+          pay_state = #{payState}
+          WHERE
+          order_no = #{orderNo} AND
+          is_deleted = 0
+    </update>
+
+    <select id="getbyOrderNo" resultType="com.sandu.api.merchantManagePay.model.PayOrder">
+        SELECT
+          *
+        FROM
+          pay_order
+        WHERE
+          order_no = #{orderNo} AND
+          is_deleted = 0
+    </select>
+
+    <insert id="inserMgrRechargeLog" parameterType="com.sandu.api.merchantManagePay.model.MgrRechargeLog"
+            useGeneratedKeys="true" keyProperty="id">
+        insert into mgr_recharge_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId!= null">user_id,</if>
+            <if test="rechargeAmount!= null">recharge_amount,</if>
+            <if test="currentBalance!= null">current_balance,</if>
+            <if test="rechargeType!= null">recharge_type,</if>
+            <if test="rechargeStatus!= null">recharge_status,</if>
+            <if test="administratorId!= null">administrator_id,</if>
+            <if test="sysCode!= null">sys_code,</if>
+            <if test="creator!= null">creator,</if>
+            <if test="gmtCreate!= null">gmt_create,</if>
+            <if test="modifier!= null">modifier,</if>
+            <if test="gmtModified!= null">gmt_modified,</if>
+            <if test="isDeleted!= null">is_deleted,</if>
+            <if test="att1!= null">att1,</if>
+            <if test="att2!= null">att2,</if>
+            <if test="numa1!= null">numa1,</if>
+            <if test="numa2!= null">numa2,</if>
+            <if test="remark!= null">remark,</if>
+
+            <if test="orderNo != null">order_no,</if>
+            <if test="platformBussinessType != null">
+                platform_bussiness_type,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId!= null">#{userId,jdbcType=INTEGER},</if>
+            <if test="rechargeAmount!= null">#{rechargeAmount,jdbcType=DOUBLE},</if>
+            <if test="currentBalance!= null">#{currentBalance,jdbcType=DOUBLE},</if>
+            <if test="rechargeType!= null">#{rechargeType,jdbcType=INTEGER},</if>
+            <if test="rechargeStatus!= null">#{rechargeStatus,jdbcType=INTEGER},</if>
+            <if test="administratorId!= null">#{administratorId,jdbcType=INTEGER},</if>
+            <if test="sysCode!= null">#{sysCode,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">#{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">#{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER},</if>
+            <if test="att1!= null">#{att1,jdbcType=VARCHAR},</if>
+            <if test="att2!= null">#{att2,jdbcType=VARCHAR},</if>
+            <if test="numa1!= null">#{numa1,jdbcType=INTEGER},</if>
+            <if test="numa2!= null">#{numa2,jdbcType=INTEGER},</if>
+            <if test="remark!= null">#{remark,jdbcType=VARCHAR},</if>
+
+            <if test="orderNo != null">#{orderNo,jdbcType=VARCHAR},</if>
+            <if test="platformBussinessType != null">
+                #{platformBussinessType,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateUserDubi">
+        UPDATE
+          pay_account
+          SET
+          balance_amount = balance_amount + #{totalFee},
+          gmt_modified = now()
+          WHERE
+          user_id = #{userId} AND
+          is_deleted = 0 AND
+          platform_bussiness_type = '2b'
+    </update>
+
+    <insert id="batchInsertPayorder">
+        INSERT INTO pay_order
+        (
+            is_deleted, creator,user_id, gmt_create,
+            modifier,gmt_modified,
+            product_type,product_name,biz_type,
+            plan_id,platform_id,total_fee,order_no,pay_state,order_date,finance_type
+        )values
+        <foreach collection="payOrders" item="item" index="index" separator=",">
+            (#{item.isDeleted},#{item.creator}, #{item.userId},#{item.gmtCreate},
+             #{item.modifier}, #{item.gmtModified},
+            #{item.productType},#{item.productName},#{item.bizType},
+            #{item.planId},#{item.platformId},#{item.totalFee},#{item.orderNo},#{item.payState},
+            #{item.orderDate},#{item.financeType}
+            )
+        </foreach>
+    </insert>
+
+    <select id="getOrderSuccess" resultType="com.sandu.api.merchantManagePay.model.PayOrder">
+        SELECT
+           *
+        FROM
+           pay_order
+        WHERE
+           order_no = #{orderNo} AND
+           is_deleted = 0 AND
+           pay_state = 'SUCCESS';
+    </select>
+
+    <select id="getPayAccountByUserId" resultType="com.sandu.pay.order.model.PayAccount">
+       SELECT
+            *
+        FROM
+            pay_account
+        WHERE
+            user_id = #{userId}
+            AND is_deleted = 0
+            AND platform_bussiness_type = '2b';
+    </select>
+
+    <update id="updatePayAccount">
+        UPDATE
+          pay_account
+        SET
+          balance_amount = balance_amount - #{totalFee},
+          gmt_modified = now(),
+          consum_amount = consum_amount + #{totalFee}
+          WHERE
+          id =  #{id}
+    </update>
+
+</mapper>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.fullhouse.dao.FullHouseDesignPlanDetailMapper">
+  <resultMap id="BaseResultMap" type="com.sandu.fullhouse.model.FullHouseDesignPlanDetail">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="uuid" jdbcType="VARCHAR" property="uuid" />
+    <result column="full_house_plan_id" jdbcType="INTEGER" property="fullHousePlanId" />
+    <result column="recommended_plan_group_primary_id" jdbcType="INTEGER" property="recommendedPlanGroupPrimaryId" />
+    <result column="render_scene_plan_id" jdbcType="INTEGER" property="renderScenePlanId" />
+    <result column="space_type" jdbcType="INTEGER" property="spaceType" />
+    <result column="priority_level" jdbcType="INTEGER" property="priorityLevel" />
+    <result column="plan_render_resource_id" jdbcType="INTEGER" property="planRenderResourceId" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, uuid, full_house_plan_id, recommended_plan_group_primary_id, render_scene_plan_id, 
+    space_type, priority_level, plan_render_resource_id, creator, gmt_create, modifier, 
+    gmt_modified, is_deleted, remark
+  </sql>
+
+  <select id="selectByPlanId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from full_house_design_plan_detail
+    where full_house_plan_id = #{planId}
+  </select>
+
+</mapper>

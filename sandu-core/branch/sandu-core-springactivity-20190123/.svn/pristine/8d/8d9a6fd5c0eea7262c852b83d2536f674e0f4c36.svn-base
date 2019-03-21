@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.springFestivalActivity.dao.WxSigninSummaryMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.api.springFestivalActivity.model.WxSigninSummary" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="activity_id" property="activityId" jdbcType="BIGINT" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="red_packet_num" property="redPacketNum" jdbcType="DECIMAL" />
+    <result column="sign_times" property="signTimes" jdbcType="INTEGER" />
+    <result column="lottery_times" property="lotteryTimes" jdbcType="INTEGER" />
+    <result column="lottery_use_times" property="lotteryUseTimes" jdbcType="INTEGER" />
+    <result column="lottery_remain_times" property="lotteryRemainTimes" jdbcType="INTEGER" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, activity_id, user_id, red_packet_num, sign_times, lottery_times, lottery_use_times, 
+    lottery_remain_times, creator, gmt_create, modifier, gmt_modified, is_deleted
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from wx_signin_summary
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from wx_signin_summary
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.springFestivalActivity.model.WxSigninSummary" >
+    insert into wx_signin_summary (id, activity_id, user_id, 
+      red_packet_num, sign_times, lottery_times, 
+      lottery_use_times, lottery_remain_times, creator, 
+      gmt_create, modifier, gmt_modified, 
+      is_deleted)
+    values (#{id,jdbcType=BIGINT}, #{activityId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, 
+      #{redPacketNum,jdbcType=DECIMAL}, #{signTimes,jdbcType=INTEGER}, #{lotteryTimes,jdbcType=INTEGER}, 
+      #{lotteryUseTimes,jdbcType=INTEGER}, #{lotteryRemainTimes,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{isDeleted,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.springFestivalActivity.model.WxSigninSummary" >
+    insert into wx_signin_summary
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="activityId != null" >
+        activity_id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="redPacketNum != null" >
+        red_packet_num,
+      </if>
+      <if test="signTimes != null" >
+        sign_times,
+      </if>
+      <if test="lotteryTimes != null" >
+        lottery_times,
+      </if>
+      <if test="lotteryUseTimes != null" >
+        lottery_use_times,
+      </if>
+      <if test="lotteryRemainTimes != null" >
+        lottery_remain_times,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="activityId != null" >
+        #{activityId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="redPacketNum != null" >
+        #{redPacketNum,jdbcType=DECIMAL},
+      </if>
+      <if test="signTimes != null" >
+        #{signTimes,jdbcType=INTEGER},
+      </if>
+      <if test="lotteryTimes != null" >
+        #{lotteryTimes,jdbcType=INTEGER},
+      </if>
+      <if test="lotteryUseTimes != null" >
+        #{lotteryUseTimes,jdbcType=INTEGER},
+      </if>
+      <if test="lotteryRemainTimes != null" >
+        #{lotteryRemainTimes,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.springFestivalActivity.model.WxSigninSummary" >
+    update wx_signin_summary
+    <set >
+      <if test="activityId != null" >
+        activity_id = #{activityId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="redPacketNum != null" >
+        red_packet_num = #{redPacketNum,jdbcType=DECIMAL},
+      </if>
+      <if test="signTimes != null" >
+        sign_times = #{signTimes,jdbcType=INTEGER},
+      </if>
+      <if test="lotteryTimes != null" >
+        lottery_times = #{lotteryTimes,jdbcType=INTEGER},
+      </if>
+      <if test="lotteryUseTimes != null" >
+        lottery_use_times = #{lotteryUseTimes,jdbcType=INTEGER},
+      </if>
+      <if test="lotteryRemainTimes != null" >
+        lottery_remain_times = #{lotteryRemainTimes,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.springFestivalActivity.model.WxSigninSummary" >
+    update wx_signin_summary
+    set activity_id = #{activityId,jdbcType=BIGINT},
+      user_id = #{userId,jdbcType=BIGINT},
+      red_packet_num = #{redPacketNum,jdbcType=DECIMAL},
+      sign_times = #{signTimes,jdbcType=INTEGER},
+      lottery_times = #{lotteryTimes,jdbcType=INTEGER},
+      lottery_use_times = #{lotteryUseTimes,jdbcType=INTEGER},
+      lottery_remain_times = #{lotteryRemainTimes,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+    <select id="getBySelective" resultMap="BaseResultMap"
+            parameterType="com.sandu.api.springFestivalActivity.model.WxSigninSummary">
+        SELECT <include refid="Base_Column_List"/>
+        FROM wx_signin_summary
+        WHERE 1=1
+        <if test="activityId != null" >
+          AND activity_id = #{activityId,jdbcType=BIGINT}
+        </if>
+        <if test="userId != null" >
+          AND user_id = #{userId,jdbcType=BIGINT}
+        </if>
+        <if test="redPacketNum != null" >
+          AND red_packet_num = #{redPacketNum,jdbcType=DECIMAL}
+        </if>
+        <if test="signTimes != null" >
+          AND sign_times = #{signTimes,jdbcType=INTEGER}
+        </if>
+        <if test="lotteryTimes != null" >
+          AND lottery_times = #{lotteryTimes,jdbcType=INTEGER}
+        </if>
+        <if test="lotteryUseTimes != null" >
+          AND lottery_use_times = #{lotteryUseTimes,jdbcType=INTEGER}
+        </if>
+        <if test="lotteryRemainTimes != null" >
+          AND lottery_remain_times = #{lotteryRemainTimes,jdbcType=INTEGER}
+        </if>
+        <if test="creator != null" >
+          AND creator = #{creator,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtCreate != null" >
+          AND gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="modifier != null" >
+          AND modifier = #{modifier,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtModified != null" >
+          AND gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+        </if>
+        <if test="isDeleted != null" >
+          AND is_deleted = #{isDeleted,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <update id="decrOnceLotteryCount">
+        UPDATE wx_signin_summary
+        SET lottery_use_times = lottery_use_times + 1, lottery_remain_times = lottery_remain_times - 1
+        WHERE activity_id = #{activityId,jdbcType=BIGINT}
+        AND user_id = #{userId,jdbcType=BIGINT}
+    </update>
+
+
+    <select id="getLotteryWheelNeedData" resultType="com.sandu.api.springFestivalActivity.output.LotteryWheelVo">
+        SELECT
+          wss.sign_times            AS signInCount,
+          wss.lottery_remain_times  AS lotteryRemainCount,
+          wut.lottery_rate          AS lotteryRate
+        FROM wx_signin_summary wss,wx_user_task wut
+        WHERE wss.activity_id = #{activityId,jdbcType=BIGINT}
+        AND wss.user_id = #{userId,jdbcType=BIGINT}
+        AND wut.activity_id = #{activityId,jdbcType=BIGINT}
+        AND wut.user_id = #{userId,jdbcType=BIGINT}
+    </select>
+</mapper>

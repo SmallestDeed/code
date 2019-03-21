@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.pointmall.dao.GiftImageDao">
+
+    <select id="getGiftImageList"  resultType="String">
+        SELECT filename FROM imall_gift_image WHERE 1=1
+
+        <if test="giftId != null and giftId != ''">
+            AND gift_id = #{giftId}
+        </if>
+        AND is_deleted = 0
+        ORDER BY cover DESC,`order` ASC
+    </select>
+
+    <select id="getGiftImageById" resultType="com.sandu.api.pointmall.model.vo.GiftSingleVo">
+        SELECT * FROM imall_gift_image WHERE 1=1
+
+        <if test="giftId != null and giftId != ''">
+            AND gift_id = #{giftId}
+        </if>
+        <if test="cover != null and cover != ''">
+            AND cover = #{cover}
+        </if>
+        <if test="id != null and id != ''">
+            AND id = #{id}
+        </if>
+        AND is_deleted = 0
+    </select>
+
+</mapper>

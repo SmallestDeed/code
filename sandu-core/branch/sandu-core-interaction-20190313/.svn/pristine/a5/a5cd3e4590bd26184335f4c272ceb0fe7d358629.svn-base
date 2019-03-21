@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.base.dao.InteractiveZoneTopicMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.api.base.model.InteractiveZoneTopic" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="block_type" property="blockType" jdbcType="INTEGER" />
+    <result column="cover_pic_ids" property="coverPicIds" jdbcType="VARCHAR" />
+    <result column="share_type" property="shareType" jdbcType="INTEGER" />
+    <result column="living_room_num" property="livingRoomNum" jdbcType="INTEGER" />
+    <result column="bedroom_num" property="bedroomNum" jdbcType="INTEGER" />
+    <result column="house_area" property="houseArea" jdbcType="REAL" />
+    <result column="house_cost" property="houseCost" jdbcType="REAL" />
+    <result column="house_stytle" property="houseStytle" jdbcType="INTEGER" />
+    <result column="plan_id" property="planId" jdbcType="INTEGER" />
+    <result column="house_id" property="houseId" jdbcType="INTEGER" />
+    <result column="plan_cover_id" property="planCoverId" jdbcType="INTEGER" />
+    <result column="house_cover_id" property="houseCoverId" jdbcType="INTEGER" />
+    <result column="article_source" property="articleSource" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="article_id" property="articleId" jdbcType="INTEGER" />
+    <result column="project_case_id" property="projectCaseId" jdbcType="INTEGER" />
+    <result column="is_top" property="isTop" jdbcType="INTEGER" />
+    <result column="ordering" property="ordering" jdbcType="INTEGER" />
+    <result column="publish_user_id" property="publishUserId" jdbcType="INTEGER" />
+    <result column="publish_time" property="publishTime" jdbcType="TIMESTAMP" />
+    <result column="creator" property="creator" jdbcType="INTEGER" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.sandu.api.base.model.InteractiveZoneTopic" extends="BaseResultMap" >
+    <result column="content" property="content" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, title, block_type, cover_pic_ids, share_type, living_room_num, bedroom_num, house_area, 
+    house_cost, house_stytle, plan_id, house_id, plan_cover_id, house_cover_id, article_source, 
+    status, article_id, project_case_id, is_top, ordering, publish_user_id, publish_time, 
+    creator, gmt_create, modifier, gmt_modified, is_deleted
+  </sql>
+  <sql id="Blob_Column_List" >
+    content
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from interactive_zone_topic
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from interactive_zone_topic
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.base.model.InteractiveZoneTopic" >
+    insert into interactive_zone_topic (id, title, block_type, 
+      cover_pic_ids, share_type, living_room_num, 
+      bedroom_num, house_area, house_cost, 
+      house_stytle, plan_id, house_id, 
+      plan_cover_id, house_cover_id, article_source, 
+      status, article_id, project_case_id, 
+      is_top, ordering, publish_user_id, 
+      publish_time, creator, gmt_create, 
+      modifier, gmt_modified, is_deleted, 
+      content)
+    values (#{id,jdbcType=BIGINT}, #{title,jdbcType=VARCHAR}, #{blockType,jdbcType=INTEGER}, 
+      #{coverPicIds,jdbcType=VARCHAR}, #{shareType,jdbcType=INTEGER}, #{livingRoomNum,jdbcType=INTEGER}, 
+      #{bedroomNum,jdbcType=INTEGER}, #{houseArea,jdbcType=REAL}, #{houseCost,jdbcType=REAL}, 
+      #{houseStytle,jdbcType=INTEGER}, #{planId,jdbcType=INTEGER}, #{houseId,jdbcType=INTEGER}, 
+      #{planCoverId,jdbcType=INTEGER}, #{houseCoverId,jdbcType=INTEGER}, #{articleSource,jdbcType=INTEGER}, 
+      #{status,jdbcType=INTEGER}, #{articleId,jdbcType=INTEGER}, #{projectCaseId,jdbcType=INTEGER}, 
+      #{isTop,jdbcType=INTEGER}, #{ordering,jdbcType=INTEGER}, #{publishUserId,jdbcType=INTEGER}, 
+      #{publishTime,jdbcType=TIMESTAMP}, #{creator,jdbcType=INTEGER}, #{gmtCreate,jdbcType=TIMESTAMP}, 
+      #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER}, 
+      #{content,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.base.model.InteractiveZoneTopic" >
+    insert into interactive_zone_topic
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="title != null" >
+        title,
+      </if>
+      <if test="blockType != null" >
+        block_type,
+      </if>
+      <if test="coverPicIds != null" >
+        cover_pic_ids,
+      </if>
+      <if test="shareType != null" >
+        share_type,
+      </if>
+      <if test="livingRoomNum != null" >
+        living_room_num,
+      </if>
+      <if test="bedroomNum != null" >
+        bedroom_num,
+      </if>
+      <if test="houseArea != null" >
+        house_area,
+      </if>
+      <if test="houseCost != null" >
+        house_cost,
+      </if>
+      <if test="houseStytle != null" >
+        house_stytle,
+      </if>
+      <if test="planId != null" >
+        plan_id,
+      </if>
+      <if test="houseId != null" >
+        house_id,
+      </if>
+      <if test="planCoverId != null" >
+        plan_cover_id,
+      </if>
+      <if test="houseCoverId != null" >
+        house_cover_id,
+      </if>
+      <if test="articleSource != null" >
+        article_source,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="articleId != null" >
+        article_id,
+      </if>
+      <if test="projectCaseId != null" >
+        project_case_id,
+      </if>
+      <if test="isTop != null" >
+        is_top,
+      </if>
+      <if test="ordering != null" >
+        ordering,
+      </if>
+      <if test="publishUserId != null" >
+        publish_user_id,
+      </if>
+      <if test="publishTime != null" >
+        publish_time,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="blockType != null" >
+        #{blockType,jdbcType=INTEGER},
+      </if>
+      <if test="coverPicIds != null" >
+        #{coverPicIds,jdbcType=VARCHAR},
+      </if>
+      <if test="shareType != null" >
+        #{shareType,jdbcType=INTEGER},
+      </if>
+      <if test="livingRoomNum != null" >
+        #{livingRoomNum,jdbcType=INTEGER},
+      </if>
+      <if test="bedroomNum != null" >
+        #{bedroomNum,jdbcType=INTEGER},
+      </if>
+      <if test="houseArea != null" >
+        #{houseArea,jdbcType=REAL},
+      </if>
+      <if test="houseCost != null" >
+        #{houseCost,jdbcType=REAL},
+      </if>
+      <if test="houseStytle != null" >
+        #{houseStytle,jdbcType=INTEGER},
+      </if>
+      <if test="planId != null" >
+        #{planId,jdbcType=INTEGER},
+      </if>
+      <if test="houseId != null" >
+        #{houseId,jdbcType=INTEGER},
+      </if>
+      <if test="planCoverId != null" >
+        #{planCoverId,jdbcType=INTEGER},
+      </if>
+      <if test="houseCoverId != null" >
+        #{houseCoverId,jdbcType=INTEGER},
+      </if>
+      <if test="articleSource != null" >
+        #{articleSource,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="articleId != null" >
+        #{articleId,jdbcType=INTEGER},
+      </if>
+      <if test="projectCaseId != null" >
+        #{projectCaseId,jdbcType=INTEGER},
+      </if>
+      <if test="isTop != null" >
+        #{isTop,jdbcType=INTEGER},
+      </if>
+      <if test="ordering != null" >
+        #{ordering,jdbcType=INTEGER},
+      </if>
+      <if test="publishUserId != null" >
+        #{publishUserId,jdbcType=INTEGER},
+      </if>
+      <if test="publishTime != null" >
+        #{publishTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=INTEGER},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.base.model.InteractiveZoneTopic" >
+    update interactive_zone_topic
+    <set >
+      <if test="title != null" >
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="blockType != null" >
+        block_type = #{blockType,jdbcType=INTEGER},
+      </if>
+      <if test="coverPicIds != null" >
+        cover_pic_ids = #{coverPicIds,jdbcType=VARCHAR},
+      </if>
+      <if test="shareType != null" >
+        share_type = #{shareType,jdbcType=INTEGER},
+      </if>
+      <if test="livingRoomNum != null" >
+        living_room_num = #{livingRoomNum,jdbcType=INTEGER},
+      </if>
+      <if test="bedroomNum != null" >
+        bedroom_num = #{bedroomNum,jdbcType=INTEGER},
+      </if>
+      <if test="houseArea != null" >
+        house_area = #{houseArea,jdbcType=REAL},
+      </if>
+      <if test="houseCost != null" >
+        house_cost = #{houseCost,jdbcType=REAL},
+      </if>
+      <if test="houseStytle != null" >
+        house_stytle = #{houseStytle,jdbcType=INTEGER},
+      </if>
+      <if test="planId != null" >
+        plan_id = #{planId,jdbcType=INTEGER},
+      </if>
+      <if test="houseId != null" >
+        house_id = #{houseId,jdbcType=INTEGER},
+      </if>
+      <if test="planCoverId != null" >
+        plan_cover_id = #{planCoverId,jdbcType=INTEGER},
+      </if>
+      <if test="houseCoverId != null" >
+        house_cover_id = #{houseCoverId,jdbcType=INTEGER},
+      </if>
+      <if test="articleSource != null" >
+        article_source = #{articleSource,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="articleId != null" >
+        article_id = #{articleId,jdbcType=INTEGER},
+      </if>
+      <if test="projectCaseId != null" >
+        project_case_id = #{projectCaseId,jdbcType=INTEGER},
+      </if>
+      <if test="isTop != null" >
+        is_top = #{isTop,jdbcType=INTEGER},
+      </if>
+      <if test="ordering != null" >
+        ordering = #{ordering,jdbcType=INTEGER},
+      </if>
+      <if test="publishUserId != null" >
+        publish_user_id = #{publishUserId,jdbcType=INTEGER},
+      </if>
+      <if test="publishTime != null" >
+        publish_time = #{publishTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=INTEGER},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="content != null" >
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.sandu.api.base.model.InteractiveZoneTopic" >
+    update interactive_zone_topic
+    set title = #{title,jdbcType=VARCHAR},
+      block_type = #{blockType,jdbcType=INTEGER},
+      cover_pic_ids = #{coverPicIds,jdbcType=VARCHAR},
+      share_type = #{shareType,jdbcType=INTEGER},
+      living_room_num = #{livingRoomNum,jdbcType=INTEGER},
+      bedroom_num = #{bedroomNum,jdbcType=INTEGER},
+      house_area = #{houseArea,jdbcType=REAL},
+      house_cost = #{houseCost,jdbcType=REAL},
+      house_stytle = #{houseStytle,jdbcType=INTEGER},
+      plan_id = #{planId,jdbcType=INTEGER},
+      house_id = #{houseId,jdbcType=INTEGER},
+      plan_cover_id = #{planCoverId,jdbcType=INTEGER},
+      house_cover_id = #{houseCoverId,jdbcType=INTEGER},
+      article_source = #{articleSource,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      article_id = #{articleId,jdbcType=INTEGER},
+      project_case_id = #{projectCaseId,jdbcType=INTEGER},
+      is_top = #{isTop,jdbcType=INTEGER},
+      ordering = #{ordering,jdbcType=INTEGER},
+      publish_user_id = #{publishUserId,jdbcType=INTEGER},
+      publish_time = #{publishTime,jdbcType=TIMESTAMP},
+      creator = #{creator,jdbcType=INTEGER},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      content = #{content,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.base.model.InteractiveZoneTopic" >
+    update interactive_zone_topic
+    set title = #{title,jdbcType=VARCHAR},
+      block_type = #{blockType,jdbcType=INTEGER},
+      cover_pic_ids = #{coverPicIds,jdbcType=VARCHAR},
+      share_type = #{shareType,jdbcType=INTEGER},
+      living_room_num = #{livingRoomNum,jdbcType=INTEGER},
+      bedroom_num = #{bedroomNum,jdbcType=INTEGER},
+      house_area = #{houseArea,jdbcType=REAL},
+      house_cost = #{houseCost,jdbcType=REAL},
+      house_stytle = #{houseStytle,jdbcType=INTEGER},
+      plan_id = #{planId,jdbcType=INTEGER},
+      house_id = #{houseId,jdbcType=INTEGER},
+      plan_cover_id = #{planCoverId,jdbcType=INTEGER},
+      house_cover_id = #{houseCoverId,jdbcType=INTEGER},
+      article_source = #{articleSource,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      article_id = #{articleId,jdbcType=INTEGER},
+      project_case_id = #{projectCaseId,jdbcType=INTEGER},
+      is_top = #{isTop,jdbcType=INTEGER},
+      ordering = #{ordering,jdbcType=INTEGER},
+      publish_user_id = #{publishUserId,jdbcType=INTEGER},
+      publish_time = #{publishTime,jdbcType=TIMESTAMP},
+      creator = #{creator,jdbcType=INTEGER},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

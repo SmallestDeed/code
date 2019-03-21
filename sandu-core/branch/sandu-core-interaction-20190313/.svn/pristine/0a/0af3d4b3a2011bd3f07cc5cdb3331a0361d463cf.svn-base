@@ -1,0 +1,119 @@
+package com.sandu.web.InteractiveZone;
+
+import com.github.pagehelper.PageInfo;
+import com.sandu.api.base.common.ResponseEnvelope;
+import com.sandu.api.base.common.exception.BizException;
+import com.sandu.api.base.input.InteracitveZoneTopicAdd;
+import com.sandu.api.base.input.InteractiveZoneTopicAdd;
+import com.sandu.api.base.input.InteractiveZoneTopicQuery;
+import com.sandu.api.base.model.InteractiveZoneTopic;
+import com.sandu.api.base.output.InteractiveZoneTopicVO;
+import com.sandu.api.base.service.InteractiveZoneTopicService;
+import com.sandu.api.user.model.SysUser;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+/**
+ * @ClassName: InteractiveZoneTopicController
+ * @Auther: gaoj
+ * @Date: 2019/3/13 10:06
+ * @Description:
+ * @Version 1.0
+ */
+@RequestMapping("/v1/core/interactiveZoneTopic")
+@Slf4j
+@RestController
+public class InteractiveZoneTopicController {
+
+    private final String CLASS_LOG_PREFIX = "【互动区主题控制层】";
+
+    @Autowired
+    private InteractiveZoneTopicService interactiveZoneTopicService;
+
+    @RequestMapping("/list")
+    public ResponseEnvelope list(@RequestBody InteractiveZoneTopicQuery interactiveZoneTopicQuery, SysUser sysUser) {
+
+
+        if (null == interactiveZoneTopicQuery || StringUtils.isBlank(interactiveZoneTopicQuery.getBlockTypeValueKey())) {
+            return new ResponseEnvelope(false, "参数缺失");
+        }
+
+        try {
+            Integer count = interactiveZoneTopicService.totalCount(interactiveZoneTopicQuery);
+            if (null == count || 0 >= count) {
+                return new ResponseEnvelope(false, "没有找到相关数据");
+            }
+            List<InteractiveZoneTopic> list = interactiveZoneTopicService.list(interactiveZoneTopicQuery);
+            return new ResponseEnvelope(true, "查询成功", count, list);
+        } catch (BizException e) {
+            log.warn(CLASS_LOG_PREFIX + "列表数据异常，bizException={}", e);
+            return new ResponseEnvelope(false, e.getMessage());
+        } catch (Exception e) {
+            log.warn(CLASS_LOG_PREFIX + "列表数据异常，exception={}", e);
+            return new ResponseEnvelope(false, "系统异常");
+        }
+    }
+
+    @ApiOperation("随选网互动区列表")
+    @GetMapping("sxw/list")
+    public void listInSXW(@RequestBody InteractiveZoneTopicQuery query) {
+        PageInfo<InteractiveZoneTopicVO> list = interactiveZoneTopicService.queryBiz(query);
+
+
+    }
+
+
+    @ApiOperation("随选网发布主题")
+    @PostMapping("sxw/release/topic")
+    public void releaseTopic(@RequestBody InteracitveZoneTopicAdd add) {
+        // todo : 验证参数
+        interactiveZoneTopicService.add(add);
+
+    }
+
+    @ApiOperation("随选网主题详情")
+    @GetMapping("sxw/topic/{id}")
+    public void topicDetails(@PathVariable Integer id) {
+
+
+    }
+
+    @ApiOperation("随选网评论")
+    @PostMapping("sxw/topic/review")
+    public void reviewTopic() {
+
+
+    }
+
+    @RequestMapping("/add")
+    public ResponseEnvelope add(@RequestBody InteractiveZoneTopicAdd interactiveZoneTopicAdd, SysUser sysUser) {
+        if (null == interactiveZoneTopicAdd) {
+            return new ResponseEnvelope(false, "参数缺失");
+        }
+        try {
+            Integer count = interactiveZoneTopicService.add(interactiveZoneTopicAdd, sysUser);
+            return new ResponseEnvelope(count == 1, count == 1 ? "添加成功" : "添加失败");
+        } catch (BizException e) {
+            log.warn(CLASS_LOG_PREFIX + "列表数据异常，bizException={}", e);
+            return new ResponseEnvelope(false, e.getMessage());
+        } catch (Exception e) {
+            log.warn(CLASS_LOG_PREFIX + "列表数据异常，exception={}", e);
+            return new ResponseEnvelope(false, "系统异常");
+        }
+    }
+
+    @RequestMapping("/update")
+    public ResponseEnvelope update(@RequestBody InteractiveZoneTopicAdd interactiveZoneTopicAdd, SysUser sysUser) {
+        if (null == interactiveZoneTopicAdd) {
+            return new ResponseEnvelope(false, "参数缺失");
+        }
+
+        Integer count = interactiveZoneTopicService.update(interactiveZoneTopicAdd, sysUser);
+        return new ResponseEnvelope(count == 1, count == 1 ? "修改成功" : "修改失败");
+    }
+}

@@ -1,0 +1,56 @@
+package com.sandu.service.base.impl;
+
+import com.sandu.api.base.input.InteractiveZoneReplyAdd;
+import com.sandu.api.base.model.InteractiveZoneReply;
+
+import com.sandu.api.base.service.InteractiveZoneReplyService;
+import com.sandu.api.base.service.InteractiveZoneTopicService;
+import com.sandu.api.user.model.SysUser;
+import com.sandu.service.base.dao.InteractiveZoneReplyMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+
+/**
+ * @ClassName: InteractiveZoneReplyServiceImpl
+ * @Auther: gaoj
+ * @Date: 2019/3/13 17:30
+ * @Description:
+ * @Version 1.0
+ */
+@Service("interactiveZoneReplyService")
+@Slf4j
+public class InteractiveZoneReplyServiceImpl implements InteractiveZoneReplyService {
+
+    private final String CLASS_LOG_PREFIX = "【互动区主题业务层】";
+
+    @Autowired
+    private InteractiveZoneReplyMapper interactiveZoneReplyMapper;
+    @Autowired
+    private InteractiveZoneTopicService interactiveZoneTopicService;
+
+
+    @Override
+    public Integer add(InteractiveZoneReplyAdd interactiveZoneReplyAdd, SysUser sysUser) {
+        InteractiveZoneReply interactiveZoneReply = new InteractiveZoneReply();
+        BeanUtils.copyProperties(interactiveZoneReplyAdd, interactiveZoneReply);
+        Integer blockTypeValue = interactiveZoneTopicService.getBlockTypeValue(interactiveZoneReplyAdd.getBlockTypeValueKey());
+        interactiveZoneReply.setBlockType(blockTypeValue);
+        this.addCommonParam(interactiveZoneReply, sysUser);
+
+        return interactiveZoneReplyMapper.insertSelective(interactiveZoneReply);
+    }
+
+    private void addCommonParam(InteractiveZoneReply interactiveZoneReply, SysUser sysUser) {
+        Long userId = sysUser.getId();
+        interactiveZoneReply.setCreator(userId + "");
+        interactiveZoneReply.setModifier(userId + "");
+        Date date = new Date();
+        interactiveZoneReply.setGmtCreate(date);
+        interactiveZoneReply.setGmtModified(date);
+        interactiveZoneReply.setIsDeleted(0);
+    }
+}

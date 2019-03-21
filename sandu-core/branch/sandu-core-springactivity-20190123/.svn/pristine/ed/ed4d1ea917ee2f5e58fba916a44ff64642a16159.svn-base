@@ -1,0 +1,82 @@
+package com.sandu.job;
+
+import com.sandu.api.notify.wx.TemplateMsgService;
+import com.sandu.api.notify.wx.bo.TemplateMsgReqParam;
+import com.sandu.api.springFestivalActivity.service.biz.FilmTicketActivityService;
+import com.sandu.api.user.model.SysUser;
+import com.sandu.api.user.service.SysUserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+
+import java.util.*;
+
+@Component
+public class FilmTicketActivityJob {
+    private static Long activityId = null;
+    private final FilmTicketActivityService filmTicketActivityService;
+    private final SysUserService sysUserService;
+    private final TemplateMsgService templateMsgService;
+
+    @Autowired
+    public FilmTicketActivityJob(FilmTicketActivityService filmTicketActivityService,
+                                 SysUserService sysUserService,
+                                 TemplateMsgService templateMsgService) {
+        this.filmTicketActivityService = filmTicketActivityService;
+        this.sysUserService = sysUserService;
+        this.templateMsgService = templateMsgService;
+    }
+
+    public void nineAmExcute() {
+        if (activityId != null) {
+            List<Long> userIdList = filmTicketActivityService.getUserListWhoDoingTask(activityId);
+            if (userIdList != null && userIdList.size() > 0) {
+                Map<String, Map<String, String>> templateData = this.buildData("您有新的任务可以领取",
+                        "现在体验装修我家/产品替换功能，就可以获得一张拼图哦，点击继续领取免费电影票吧");
+                for (Long userId : userIdList) {
+                    SysUser user = sysUserService.get(userId.intValue());
+                    this.sendTemplateMsg(user, 8, templateData, new Object[0]);
+                }
+            }
+        }
+    }
+
+    public void fivePmExcute() {
+        if (activityId != null) {
+            Map<Long, Integer> userCardNumMap = filmTicketActivityService.getUserListWhoCardNumLessThanThree(activityId);
+            if (userCardNumMap != null && userCardNumMap.size() > 0) {
+                Set<Map.Entry<Long, Integer>> entrySet = userCardNumMap.entrySet();
+                Iterator<Map.Entry<Long, Integer>> iterator = entrySet.iterator();
+                while(iterator.hasNext()) {
+                    Map.Entry<Long, Integer> entry = iterator.next();
+                    Map<String, Map<String, String>> templateData = this.buildData("您今日已领取" + entry.getValue() + "张拼图，还可以继续领取拼图哦",
+                            "现在体验装修我家/产品替换功能，就可以获得一张拼图哦，点击继续领取免费电影票吧");
+                    SysUser user = sysUserService.get(entry.getKey().intValue());
+                    this.sendTemplateMsg(user, 9, templateData, new Object[0]);
+                }
+            }
+        }
+    }
+
+    @Async
+    public void sendTemplateMsg(SysUser miniUser, Integer msgType, Map templateData, Object[] pageParams) {
+        if (miniUser == null) return;
+        TemplateMsgReqParam param = templateMsgService.buildTemplateReqParam(miniUser, msgType, templateData, pageParams);
+        templateMsgService.sendTemplateMsg(param);
+    }
+
+    private Map<String, Map<String, String>> buildData(String... strings) {
+        Map<String, Map<String, String>> map = new HashMap<>();
+        for (int i = 0; i < strings.length; i++) {
+            Map<String, String> valueMap = new HashMap<>();
+            String string = strings[i];
+            valueMap.put("value", string);
+            map.put("keyword" + (i + 1), valueMap);
+        }
+        return map;
+    }
+
+    public static void setActivityId(Long newActivityId) {
+        activityId = newActivityId;
+    }
+}

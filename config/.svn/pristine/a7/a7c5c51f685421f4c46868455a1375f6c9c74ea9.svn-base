@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="https://www.springframework.org/schema/beans"
+	xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="https://www.springframework.org/schema/context"
+	xsi:schemaLocation="https://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        https://www.springframework.org/schema/context
+        https://www.springframework.org/schema/context/spring-context-3.2.xsd">
+    <bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		 <property name="corePoolSize" value="10" />
+		 <property name="maxPoolSize" value="100" />
+		 <property name="queueCapacity" value="500" />
+    </bean>
+	
+	<!-- 定时删除超时的订单 -->
+	<bean id="deleteTimeOutOrderJob"  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+		<property name="targetObject"><bean class="com.nork.pay.service.impl.PayOrderServiceImpl"/></property>  
+		<property name="targetMethod" value="deleteTimeOutOrder" />  
+		<property name="concurrent" value="false" /> 
+	</bean> 
+	<bean id="deleteTimeOutOrderTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">  
+		<property name="jobDetail" ref="deleteTimeOutOrderJob" />  
+		<property name="cronExpression" value="0 0/5 * * * ?" />
+	</bean>
+
+	<!-- 处理原原件 -->
+	<!--<bean id="processingSourceFile" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject"><bean class="com.nork.system.service.impl.ResFileServiceImpl"/></property>
+		<property name="targetMethod" value="processingSourceFile" />
+		<property name="concurrent" value="false"/>
+	</bean>	
+	<bean id="processingSourceFileTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="processingSourceFile" />
+		<property name="cronExpression" value="0 0 2 ? * *" />
+	</bean> -->
+
+	<!-- 定时处理删除30天后的文件 -->
+	<!--<bean id="processingDeletedFile" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject"><bean class="com.nork.system.service.impl.ResFileServiceImpl"/></property>
+		<property name="targetMethod" value="processingDeletedFile" />
+		<property name="concurrent" value="false"/>
+	</bean>	
+	<bean id="processingDeletedFileTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="processingDeletedFile" />
+		<property name="cronExpression" value="0 0 2 ? * *" />
+	</bean> -->
+
+	<!-- 定时清理创建时间超过指定时间的临时方案(每30分钟) -->
+	<!--<bean id="delTempDesignJob"  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject"><bean class="com.nork.design.service.impl.DesignPlanRenderServiceImpl"/></property>
+		<property name="targetMethod" value="deleteTempDesignPaln4RenderBakSceneTask" />
+		<property name="concurrent" value="false" />
+	</bean>
+	<bean id="delTempDesignJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="delTempDesignJob" />
+		<property name="cronExpression" value="0 0/59 * * * ?" />
+		<property name="startDelay">
+			<value>10000</value>
+		</property>
+	</bean> -->
+	
+	<!-- txt数据录入 (用户登录日志) -->
+	<bean id="txtDataEntry"  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+		<property name="targetObject"><bean class="com.nork.system.service.impl.SysUserLoginLogServiceImpl"/></property>  
+		<property name="targetMethod" value="userLoginDataEntry" />  
+		<property name="concurrent" value="false" /> 
+	</bean>
+	<bean id="txtDataEntryJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">  
+		<property name="jobDetail" ref="txtDataEntry" />  
+		<property name="cronExpression" value="0 0 05 * * ?" />  
+	</bean>
+
+	<!-- txt数据录入(用户系统操作记录) -->
+	<bean id="systemOperationTxtDataEntry"  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+		<property name="targetObject"><bean class="com.nork.system.service.impl.SysUserSystemOperationLogServiceImpl"/></property>  
+		<property name="targetMethod" value="userOperationLog" />  
+		<property name="concurrent" value="false" />
+	</bean> 
+	<bean id="systemOperationTxt" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">  
+		<property name="jobDetail" ref="systemOperationTxtDataEntry" />  
+		<property name="cronExpression" value="0 03 01 * * ?" />  
+	</bean>  
+
+
+	<!-- txt数据录入(APP传过来的txt文件,用户系统操作记录) -->
+	<bean id="appSystemTxtDataEntry"  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+		<property name="targetObject"><bean class="com.nork.system.service.impl.SysUserSystemOperationLogServiceImpl"/></property>  
+		<property name="targetMethod" value="analysisAppTextFile" />  
+		<property name="concurrent" value="false" /> 
+	</bean> 
+	<bean id="appSystemOperationTxt" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">  
+		<property name="jobDetail" ref="appSystemTxtDataEntry" />  
+		<property name="cronExpression" value="0 05 01 * * ?" />  
+	</bean>
+
+	<!-- 删除备份目录下的txt文件 -->
+	<bean id="deleteTxtFile"  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+		<property name="targetObject"><bean class="com.nork.system.service.impl.SysUserLoginLogServiceImpl"/></property>  
+		<property name="targetMethod" value="deleteText" />  
+		<property name="concurrent" value="false" /> 
+	</bean>
+	
+	<bean id="deleteTxtFileJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">  
+		<property name="jobDetail" ref="deleteTxtFile" />  
+		<property name="cronExpression" value="0 7 01 * * ?" />  
+	</bean>
+
+	<!-- 增量预处理数据 -->
+	<bean id="noTranUpdatePutawayProductAndSetStatusJob"  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+		<property name="targetObject"><bean class="com.nork.product.service.impl.PrepProductSearchInfoServiceImpl"/></property>  
+		<property name="targetMethod" value="noTranUpdatePutawayProductAndSetStatus" />  
+		<property name="concurrent" value="false" />
+    </bean> 
+	<bean id="noTranUpdatePutawayProductAndSetStatusTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">  
+		<property name="jobDetail" ref="noTranUpdatePutawayProductAndSetStatusJob" />  
+		<property name="cronExpression" value="0 0/10 * * * ?" />
+	</bean>
+
+	
+	<bean id="jobScheduler" lazy-init="false" autowire="no"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<!-- 定时清理创建时间超过指定时间的临时方案(每30分钟)
+				<ref bean="delTempDesignJobTrigger"/> -->
+				<!-- 定时处理删除30天后的文件
+				<ref bean="processingDeletedFileTrigger"/> -->
+				<!-- 处理原原件
+				<ref bean="processingSourceFileTrigger"/> -->
+				<!-- 定时删除超时的订单 -->
+				<ref bean="deleteTimeOutOrderTrigger"/>
+				<!-- txt数据录入 (用户登录日志) -->
+				<ref bean="txtDataEntryJobTrigger"/>
+				<!-- txt数据录入(用户系统操作记录)
+				<ref bean="systemOperationTxt"/> -->
+				<!-- txt数据录入(APP传过来的txt文件,用户系统操作记录)
+				<ref bean="appSystemOperationTxt"/> -->
+				<!-- 删除备份目录下的txt文件
+				<ref bean="deleteTxtFileJobTrigger"/> -->
+				<!-- 增量预处理数据 -->
+				<ref bean="noTranUpdatePutawayProductAndSetStatusTrigger"/>
+			</list>
+		</property>
+	</bean>
+</beans>

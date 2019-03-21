@@ -1,0 +1,244 @@
+package com.sandu.supplydemand.service.impl;/**
+ * @ Author     ：weisheng.
+ * @ Date       ：Created in PM 6:02 2018/4/27 0027
+ * @ Description：${description}
+ * @ Modified By：
+ * @Version: $version$
+ */
+
+import com.sandu.common.util.StringUtils;
+import com.sandu.common.util.Utils;
+import com.sandu.product.model.BaseCompany;
+import com.sandu.supplydemand.dao.BaseSupplyDemandMapper;
+import com.sandu.supplydemand.dao.SupplyDemandCategoryMapper;
+import com.sandu.supplydemand.dao.SupplyDemandPicMapper;
+import com.sandu.supplydemand.input.BaseSupplyDemandAdd;
+import com.sandu.supplydemand.model.BaseSupplyDemand;
+import com.sandu.supplydemand.model.SupplyDemandPic;
+import com.sandu.supplydemand.output.BaseSupplyDemandVo;
+import com.sandu.supplydemand.output.SupplyDemandCategoryVo;
+import com.sandu.supplydemand.service.SupplyDemandService;
+import com.sandu.user.model.CompanyShopVo;
+import com.sandu.user.model.UserRoleContants;
+import com.sandu.user.model.UserVo;
+import com.sandu.user.service.SysUserService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
+import java.util.List;
+
+/**
+ * @author weisheng
+ * @Title: 供求信息接口实现类
+ * @Package 供求信息接口实现类
+ * @Description:
+ * @date 2018/4/27 0027PM 6:02
+ */
+@Slf4j
+@Service("supplyDemandService")
+public class SupplyDemandServiceImpl implements SupplyDemandService {
+    @Autowired
+    private BaseSupplyDemandMapper baseSupplyDemandMapper;
+    @Autowired
+    private SupplyDemandCategoryMapper supplyDemandCategoryMapper;
+    @Autowired
+    private SupplyDemandPicMapper supplyDemandPicMapper;
+    @Autowired
+    private SysUserService sysUserService;
+
+    @Override
+    public List<BaseSupplyDemand> getAllSupplyDemandInfo(BaseSupplyDemandAdd baseSupplyDemandAdd) {
+        //当分类为一级分类,查询分类下的所有信息
+        if(StringUtils.isNotBlank(baseSupplyDemandAdd.getSupplyDemandCategoryId())){
+            String supplyDemandCategoryId = baseSupplyDemandAdd.getSupplyDemandCategoryId();
+            List<Integer> categoryIdList = Utils.getIntegerListFromStringList(supplyDemandCategoryId, ",");
+            if(categoryIdList!=null &&categoryIdList.size() ==1){
+                List<String> supplyDemandCategoryIdList = supplyDemandCategoryMapper.getAllSupplyDemandCategoryByOneCategory(categoryIdList.get(0));
+                baseSupplyDemandAdd.setSupplyDemandCategoryIdList(supplyDemandCategoryIdList);
+            }
+        }
+
+        List<BaseSupplyDemand> baseSupplyDemandList = baseSupplyDemandMapper.selectList(baseSupplyDemandAdd);
+        if (baseSupplyDemandList == null || baseSupplyDemandList.size() == 0) {
+            return null;
+        }
+        for (BaseSupplyDemand baseSupplyDemand : baseSupplyDemandList) {
+            //获取供求信息分类
+            String supplyDemandCategoryId = baseSupplyDemand.getSupplyDemandCategoryId();
+            List<Integer> categoryIdList = Utils.getIntegerListFromStringList(supplyDemandCategoryId, ",");
+            if (categoryIdList != null && categoryIdList.size() > 0) {
+                List<SupplyDemandCategoryVo> supplyDemandCategoryVoList = supplyDemandCategoryMapper.selectCategoryName(categoryIdList);
+                for (SupplyDemandCategoryVo supplyDemandCategoryVo : supplyDemandCategoryVoList) {
+                    if (supplyDemandCategoryVo.getLevel() == 1) {
+                        baseSupplyDemand.setSupplyDemandCategoryName(supplyDemandCategoryVo.getName());
+                        baseSupplyDemand.setSupplyDemandCategoryPicPath(supplyDemandCategoryVo.getPicPath());
+                    } else if (supplyDemandCategoryVo.getLevel() == 2) {
+                        baseSupplyDemand.setSupplyDemandSmallCategoryName(supplyDemandCategoryVo.getName());
+                     baseSupplyDemand.setSupplyDemandCategoryPicPath(supplyDemandCategoryVo.getPicPath());
+                    }
+                }
+            }
+
+            //获取供求信息图片列表,取第一个为封面图
+            String coverPicIds = baseSupplyDemand.getCoverPicId();
+            List<Integer> coverPicIdList = Utils.getIntegerListFromStringList(coverPicIds, ",");
+            if (coverPicIdList != null && coverPicIdList.size() > 0) {
+                List<SupplyDemandPic> supplyDemandPicList = supplyDemandPicMapper.selectSupplyDemandPic(coverPicIdList);
+                if (supplyDemandPicList != null && supplyDemandPicList.size() > 0) {
+                    baseSupplyDemand.setSupplyDemandPicList(supplyDemandPicList);
+                    baseSupplyDemand.setSupplyDemandCoverPic(supplyDemandPicList.get(0));
+                }
+            }
+            baseSupplyDemand.setPublisher(baseSupplyDemand.getContact());
+
+            //发布者有店铺的，显示店铺logo。无店铺的显示个人头像，均无完善时，显示默认头像
+            List<CompanyShopVo> companyShopVoList = sysUserService.getCompanyShop(baseSupplyDemand.getCreatorId());
+            if(companyShopVoList!=null && companyShopVoList.size()>0 ){
+                baseSupplyDemand.setUserPicPath(companyShopVoList.get(0).getCompanyShopPicPath());
+            }
+
+
+            int userType = baseSupplyDemand.getCreatorTypeValue().intValue();
+            //当用户类型为经销商,厂商,装修公司,设计公司,工长的时候查询公司信息
+            if (userType == UserRoleContants.DEALERS ||
+                    userType == UserRoleContants.FIRM ||
+                    userType == UserRoleContants.DESIGNER_COMPANY ||
+                    userType == UserRoleContants.DECORATE_COMPANY ||
+                    userType == UserRoleContants.FOREMAN) {
+                BaseCompany baseCompany = sysUserService.getCompanyInfo(baseSupplyDemand.getCreatorId());
+                if(baseCompany!=null){
+                    baseSupplyDemand.setNickName(baseCompany.getCompanyName());
+                    baseSupplyDemand.setUserPicPath(baseCompany.getCompanyLogoPicPath());
+                }
+
+            //当用户类型为设计师,业主,中介的时候查询个人信息
+            } else if (userType == UserRoleContants.DESIGNER ||
+                    userType == UserRoleContants.COMMON ||
+                    userType == UserRoleContants.MEDIATION) {
+                UserVo userVo =  sysUserService.getUserInfo(baseSupplyDemand.getCreatorId());
+                if(userVo!=null){
+                    baseSupplyDemand.setNickName(userVo.getNickName());
+                    baseSupplyDemand.setUserPicPath(userVo.getPicPath());
+                }
+
+
+            }
+
+
+        }
+        return baseSupplyDemandList;
+    }
+
+    @Override
+    public Integer getAllSupplyDemandCount(BaseSupplyDemandAdd baseSupplyDemandAdd) {
+        //当分类为一级分类,查询分类下的所有信息
+        if(StringUtils.isNotBlank(baseSupplyDemandAdd.getSupplyDemandCategoryId())){
+            String supplyDemandCategoryId = baseSupplyDemandAdd.getSupplyDemandCategoryId();
+            List<Integer> categoryIdList = Utils.getIntegerListFromStringList(supplyDemandCategoryId, ",");
+            if(categoryIdList!=null &&categoryIdList.size() ==1){
+                List<String> supplyDemandCategoryIdList = supplyDemandCategoryMapper.getAllSupplyDemandCategoryByOneCategory(categoryIdList.get(0));
+                baseSupplyDemandAdd.setSupplyDemandCategoryIdList(supplyDemandCategoryIdList);
+            }
+        }
+
+        return baseSupplyDemandMapper.selectListCount(baseSupplyDemandAdd);
+    }
+
+    @Override
+    @Transactional
+    public Integer updateMySupplyDemandStatus(BaseSupplyDemandAdd baseSupplyDemandAdd) {
+        BaseSupplyDemand baseSupplyDemand = new BaseSupplyDemand();
+        baseSupplyDemand.setPushStatus(baseSupplyDemandAdd.getPushStatus());
+        baseSupplyDemand.setId(baseSupplyDemandAdd.getSupplyDemandId());
+        baseSupplyDemand.setCreatorId(baseSupplyDemandAdd.getCreatorId());
+        Date date = new Date();
+        baseSupplyDemand.setGmtModified(date);
+        baseSupplyDemand.setGmtPublish(date);
+        return baseSupplyDemandMapper.updateByPrimaryKeySelective(baseSupplyDemand);
+    }
+
+    @Override
+    public BaseSupplyDemand getSupplyDemandInfo(Integer supplyDemandId) {
+
+
+        BaseSupplyDemand baseSupplyDemand = baseSupplyDemandMapper.selectSupplyDemandInfoByid(supplyDemandId);
+        if(baseSupplyDemand==null){
+            return null;
+        }
+        //获取供求信息分类
+        String supplyDemandCategoryId = baseSupplyDemand.getSupplyDemandCategoryId();
+        List<Integer> categoryIdList = Utils.getIntegerListFromStringList(supplyDemandCategoryId, ",");
+        if (categoryIdList != null && categoryIdList.size() > 0) {
+            List<SupplyDemandCategoryVo> supplyDemandCategoryVoList = supplyDemandCategoryMapper.selectCategoryName(categoryIdList);
+            for (SupplyDemandCategoryVo supplyDemandCategoryVo : supplyDemandCategoryVoList) {
+                if (supplyDemandCategoryVo.getLevel() == 1) {
+                    baseSupplyDemand.setSupplyDemandCategoryName(supplyDemandCategoryVo.getName());
+                    baseSupplyDemand.setSupplyDemandCategoryPicPath(supplyDemandCategoryVo.getPicPath());
+                } else if (supplyDemandCategoryVo.getLevel() == 2) {
+                    baseSupplyDemand.setSupplyDemandSmallCategoryName(supplyDemandCategoryVo.getName());
+                    baseSupplyDemand.setSupplyDemandCategoryPicPath(supplyDemandCategoryVo.getPicPath());
+                }
+            }
+        }
+
+        //获取供求信息图片列表,取第一个为封面图
+        String coverPicIds = baseSupplyDemand.getCoverPicId();
+        List<Integer> coverPicIdList = Utils.getIntegerListFromStringList(coverPicIds, ",");
+        if (coverPicIdList != null && coverPicIdList.size() > 0) {
+            List<SupplyDemandPic> supplyDemandPicList = supplyDemandPicMapper.selectSupplyDemandPic(coverPicIdList);
+            if (supplyDemandPicList != null && supplyDemandPicList.size() > 0) {
+                baseSupplyDemand.setSupplyDemandPicList(supplyDemandPicList);
+                baseSupplyDemand.setSupplyDemandCoverPic(supplyDemandPicList.get(0));
+            }
+        }
+        baseSupplyDemand.setPublisher(baseSupplyDemand.getContact());
+        int userType = baseSupplyDemand.getCreatorTypeValue().intValue();
+        //当用户类型为经销商,厂商,装修公司,设计公司,工长的时候查询公司信息
+        if (userType == UserRoleContants.DEALERS ||
+                userType == UserRoleContants.FIRM ||
+                userType == UserRoleContants.DESIGNER_COMPANY ||
+                userType == UserRoleContants.DECORATE_COMPANY ||
+                userType == UserRoleContants.FOREMAN) {
+            BaseCompany baseCompany = sysUserService.getCompanyInfo(baseSupplyDemand.getCreatorId());
+            baseSupplyDemand.setNickName(baseCompany.getCompanyName());
+            baseSupplyDemand.setUserPicPath(baseCompany.getCompanyLogoPicPath());
+            //当用户类型为设计师,业主,中介的时候查询个人信息
+        } else if (userType == UserRoleContants.DESIGNER ||
+                userType == UserRoleContants.COMMON ||
+                userType == UserRoleContants.MEDIATION) {
+            UserVo userVo =  sysUserService.getUserInfo(baseSupplyDemand.getCreatorId());
+            baseSupplyDemand.setNickName(userVo.getNickName());
+            baseSupplyDemand.setUserPicPath(userVo.getPicPath());
+
+        }
+        return baseSupplyDemand;
+    }
+
+    @Override
+    public Integer updateSupplyDemandInfo(BaseSupplyDemand baseSupplyDemand) {
+        Date date = new Date();
+        baseSupplyDemand.setPushStatus(0);
+        baseSupplyDemand.setGmtModified(date);
+        baseSupplyDemand.setGmtPublish(date);
+        baseSupplyDemandMapper.updateByPrimaryKeySelective(baseSupplyDemand);
+        return baseSupplyDemand.getId();
+    }
+
+    @Override
+    public Integer addSupplyDemandInfo(BaseSupplyDemand baseSupplyDemand) {
+        Date date = new Date();
+        baseSupplyDemand.setPushStatus(0);
+        baseSupplyDemand.setGmtCreate(date);
+        baseSupplyDemand.setIsDeleted(0);
+        baseSupplyDemand.setSysCode(Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+        baseSupplyDemand.setGmtModified(date);
+        baseSupplyDemand.setGmtPublish(date);
+        baseSupplyDemandMapper.insert(baseSupplyDemand);
+        return baseSupplyDemand.getId();
+    }
+
+
+}

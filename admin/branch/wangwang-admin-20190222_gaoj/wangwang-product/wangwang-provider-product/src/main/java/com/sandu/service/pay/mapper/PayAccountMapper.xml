@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.pay.dao.PayAccountMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.api.pay.model.PayAccount" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="consum_amount" property="consumAmount" jdbcType="DOUBLE" />
+    <result column="balance_amount" property="balanceAmount" jdbcType="DOUBLE" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="platform_id" property="platformId" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="platform_bussiness_type" property="platformBussinessType" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, consum_amount, balance_amount, user_id, platform_id, is_deleted, creator, gmt_create, 
+    modifier, gmt_modified, platform_bussiness_type
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from pay_account
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  
+  
+  <select id="selectByUserId" resultMap="BaseResultMap">
+   select 
+    <include refid="Base_Column_List" />
+    from pay_account
+    where is_deleted = 0
+    <if test="userId != null and userId !=''">
+    	and user_id = #{userId}
+    </if>
+  </select>
+  
+  <!-- 判断账户余额是否充足 -->
+  <select id="checkAccountBalance" resultType="java.lang.Integer">
+  	 select 
+     count(1)
+    from pay_account
+    where is_deleted = 0
+    <if test="userId != null and userId !=''">
+    	and user_id = #{userId}
+    </if>
+  	<if test="amount != null and amount !=''">
+    	and balance_amount &gt;= #{amount}
+    </if>
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from pay_account
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.pay.model.PayAccount" >
+    insert into pay_account (id, consum_amount, balance_amount, 
+      user_id, platform_id, is_deleted, 
+      creator, gmt_create, modifier, 
+      gmt_modified, platform_bussiness_type)
+    values (#{id,jdbcType=INTEGER}, #{consumAmount,jdbcType=DOUBLE}, #{balanceAmount,jdbcType=DOUBLE}, 
+      #{userId,jdbcType=INTEGER}, #{platformId,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER}, 
+      #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{platformBussinessType,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.pay.model.PayAccount" >
+    insert into pay_account
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="consumAmount != null" >
+        consum_amount,
+      </if>
+      <if test="balanceAmount != null" >
+        balance_amount,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="platformId != null" >
+        platform_id,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="platformBussinessType != null" >
+        platform_bussiness_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="consumAmount != null" >
+        #{consumAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="balanceAmount != null" >
+        #{balanceAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="platformId != null" >
+        #{platformId,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="platformBussinessType != null" >
+        #{platformBussinessType,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updatePayAccountByUserId" parameterType="com.sandu.api.pay.model.PayAccount" >
+    update pay_account
+    <set >
+      <if test="consumAmount != null" >
+        consum_amount = #{consumAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="balanceAmount != null" >
+        balance_amount = #{balanceAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where 1=1
+    <choose>
+    	<when test="userId !=null and userId !=''">
+    		and user_id = #{userId}
+    	</when>
+    	<otherwise>
+    		and 1=2
+    	</otherwise>
+    </choose>
+    <if test="leftBalanceAmount !=null and leftBalanceAmount!=''">
+    	and balance_amount = #{leftBalanceAmount}
+    </if>
+  </update>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.pay.model.PayAccount" >
+    update pay_account
+    <set >
+      <if test="consumAmount != null" >
+        consum_amount = #{consumAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="balanceAmount != null" >
+        balance_amount = #{balanceAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="platformId != null" >
+        platform_id = #{platformId,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="platformBussinessType != null" >
+        platform_bussiness_type = #{platformBussinessType,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.pay.model.PayAccount" >
+    update pay_account
+    set consum_amount = #{consumAmount,jdbcType=DOUBLE},
+      balance_amount = #{balanceAmount,jdbcType=DOUBLE},
+      user_id = #{userId,jdbcType=INTEGER},
+      platform_id = #{platformId,jdbcType=INTEGER},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      platform_bussiness_type = #{platformBussinessType,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

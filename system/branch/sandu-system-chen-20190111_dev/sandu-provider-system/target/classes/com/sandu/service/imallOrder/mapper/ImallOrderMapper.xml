@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.imallOrder.dao.ImallOrderDao">
+
+    <!--查询订单-->
+    <select id="findAll" resultType="com.sandu.api.imallOrder.output.ImallOrderVO" parameterType="com.sandu.api.imallOrder.model.ImallOrderPO">
+        select DISTINCT torder.id,order_no,total_point,status,buyer_nick_name
+        ,item_name,item_point,item_count,torder.gmt_create
+        ,(select filename from imall_gift_image where small=1 and gift_id=gift.id AND is_deleted = 0 limit 1) as item_small
+        from imall_order torder
+        left join imall_order_item item on item.order_id=torder.id
+        left join imall_gifts gift on gift.id=item.item_id
+        INNER join imall_order_address address on address.order_id=torder.id
+        <where>
+            1=1
+            <if test="orderNo != ''"> AND torder.order_no LIKE CONCAT('%', #{orderNo},'%')</if>
+            <if test="status != null"> and torder.status=#{status}</if>
+            <if test="startDate != '' and startDate != null and endDate != '' and endDate != null">
+                AND torder.gmt_create between #{startDate} and #{endDate}
+            </if>
+            <if test="startDate != null and startDate != '' and endDate == null">
+                AND torder.gmt_create &gt; #{startDate}
+            </if>
+            <if test="startDate == null and endDate != null and endDate != '' ">
+                AND torder.gmt_create &lt; #{endDate}
+            </if>
+            <if test="buyerNickName != ''"> and torder.buyer_nick_name LIKE CONCAT('%', #{buyerNickName},'%')</if>
+            <if test="consignee != ''"> and address.consignee LIKE CONCAT('%', #{consignee},'%')</if>
+            <if test="mobile != ''"> and address.mobile LIKE CONCAT('%', #{mobile},'%')</if>
+            and torder.is_deleted=0
+        </where>
+        ORDER BY torder.gmt_create DESC
+    </select>
+
+    <!--获取订单信息-->
+    <select id="getImallOrderById" resultType="com.sandu.api.imallOrder.model.ImallOrder">
+      SELECT `id`,`order_no`,`total_point`,total_count,`status`,`gmt_create`
+      ,buyer_nick_name,buyer_id
+      ,payment_status,payment_date,payment_point,remark
+      ,express_fee,express_no,express_compay
+      FROM `imall_order` WHERE id=#{orderId}
+    </select>
+
+    <!--获取订单明细-->
+    <select id="getImallOrderItem" resultType="com.sandu.api.imallOrder.model.ImallOrderItem">
+        select item.id,item.item_id,item.item_name,item.item_point,item.item_count
+        ,(select filename from imall_gift_image where small=1 and gift_id=gift.id  AND is_deleted = 0 limit 1) as item_small
+        from imall_order_item item
+        left join imall_gifts gift on gift.id=item.item_id
+        WHERE item.order_id=#{orderId} and item.is_deleted=0
+    </select>
+
+    <!--获取订单日志-->
+    <select id="getImallOrderLog" resultType="com.sandu.api.imallOrder.model.ImallOrderLog">
+      SELECT `id`,`order_id`,`content`,`creator`,`gmt_create`,creator_type
+      FROM `imall_order_log`
+      WHERE order_id=#{orderId} and is_deleted=0
+    </select>
+
+    <!--获取订单地址信息-->
+    <select id="getImallOrderAddress" resultType="com.sandu.api.imallOrder.model.ImallOrderAddress">
+      SELECT `id`,`order_id`,`country`,province,city,area
+      ,address,zipcode,consignee,mobile
+      ,`creator`,`gmt_create`
+      FROM `imall_order_address`
+      where order_id=#{orderId} and is_deleted=0
+    </select>
+
+    <!--修改订单状态-->
+    <update id="updateImallOrderStatus">
+        UPDATE `imall_order`
+        <set>
+            `status` = #{status},
+            modifier=#{modifier},`gmt_modified` = CURRENT_TIMESTAMP
+        </set>
+        WHERE `id` = #{id}
+    </update>
+
+    <!--添加订单日志-->
+    <insert id="insertImallOrderLog" parameterType="com.sandu.api.imallOrder.model.ImallOrderLog" keyProperty="id" useGeneratedKeys="true">
+        insert into imall_order_log
+        (order_id,content,creator,creator_type,gmt_create,modifier,gmt_modified,is_deleted,sys_code)
+        VALUES (#{orderId},#{content},#{creator},#{creatorType},CURRENT_TIMESTAMP,#{modifier},CURRENT_TIMESTAMP,0,#{sysCode})
+    </insert>
+
+    <!--添加订单地址信息-->
+    <insert id="insertImallOrderAddress" parameterType="com.sandu.api.imallOrder.model.ImallOrderAddress" keyProperty="id" useGeneratedKeys="true">
+        insert into imall_order_address
+        (order_id,country,province,city,area,address,zipcode,consignee,mobile,creator,gmt_create,modifier,gmt_modified,is_deleted)
+        VALUES (#{orderId},#{country},#{province},#{city},#{area},#{address},#{zipcode},#{consignee},#{mobile},#{creator},#{gmtCreate},#{creator},#{gmtCreate},0)
+    </insert>
+
+    <!--删除订单地址信息-->
+    <update id="deleteImallOrderAddress">
+        UPDATE imall_order_address
+        SET is_deleted = 1,modifier=#{modifier},gmt_modified= CURRENT_TIMESTAMP
+        WHERE order_id =#{orderId}
+    </update>
+
+    <!--快递信息-->
+    <update id="updateImallOrderExpress">
+        UPDATE imall_order
+        SET shipment_status=1,status=#{status}
+        ,express_no=#{expressNo},express_compay = #{expressCompay}
+        ,modifier=#{modifier},gmt_modified=CURRENT_TIMESTAMP
+        WHERE id =#{orderId}
+    </update>
+
+    <!--退款-->
+    <update id="updateRefundment">
+        UPDATE imall_order
+        SET refundment_status=1,modifier=#{modifier},gmt_modified=CURRENT_TIMESTAMP
+        WHERE id =#{orderId}
+    </update>
+
+    <!-- 积分操作相关 -->
+    <!--添加退积分记录-->
+    <insert id="addPointInout" parameterType="com.sandu.api.imallOrder.model.UserPointInout" keyProperty="id" useGeneratedKeys="true">
+        insert into user_point_inout(buyer_id,in_out_amount,end_point,order_id,describes,remark,creator,gmt_create)
+        VALUES (#{buyerId},#{inOutAmount},#{endPoint},#{orderId},#{describes},#{remark},#{creator},CURRENT_TIMESTAMP)
+    </insert>
+
+
+
+    <!-- 订单汇总状态数量 -->
+    <select id="collectStatusCount" resultType="java.util.Map">
+        select CONVERT(`status`,signed) status,sum(1) total from imall_order
+        where 1=1
+        and is_deleted=0
+        GROUP BY `status`
+    </select>
+</mapper>

@@ -1,0 +1,196 @@
+<!--pages/web-detail-complicated/web-detail-complicated.wxml-->
+<wxs module="public" src="../../utils/public.wxs"></wxs>
+<import src="../../utils/wxParse/wxParse.wxml" />
+<view class='white'>
+    <swiper wx:if="{{List.coverResList.length>0}}" class='toparea' 
+        indicator-dots="{{List.coverResList.length>=2?true:false}}"autoplay='true' interval='5000' indicator-active-color="#ff6419" circular='true'>
+        <block wx:for="{{List.coverResList}}">
+            <swiper-item>
+                <image src="{{resourcePath+item}}" mode='aspectFill' class="toparea" />
+            </swiper-item>
+        </block>
+    </swiper>
+
+    <view class='information'>
+        <view class='title'>
+            <view class='titletxt'>{{List.shopName}}<view class='pullRight' wx:if="{{distance&&isNk}}">{{distance?distance+'km':''}}</view></view>
+            <!--<view class='range'>120.2km</view>-->
+        </view>
+        <view class='phone' bindtap='call' data-phone='{{List.contactPhone}}'>
+            <view class='phonenumber'>{{List.contactPhone}}</view>
+            <view class='pullRight'><image class='icon' src='../static/image/wei_icon_phone_02.png' mode='aspectFill'></image></view>
+        </view>
+        <view class='address'>
+            <view class='addresstxt'>{{List.provinceName+List.cityName+List.areaName+List.shopAddress}}</view>
+            <view class='pullRight'><image wx:if='distance&&isNk' class='icon' src='../static/image/wei_icon_gps.png' catchtap='goLocation' ></image></view>
+        </view>
+        <image class='activities' src='./image/wei_pic_sale.png'></image>
+    </view>
+
+
+    <view class='gary'></view>
+    <view class='planchange'>
+
+        <view class="{{selectNumber==1?'optionchecked':'option'}}" bindtap='changeplan' data-type='plan' data-num='1'>
+            <view>门店信息</view>
+            <block wx:if='{{selectNumber==1}}'>
+                <view class='selectcolor'></view>
+            </block>
+        </view>
+        <view class="{{selectNumber==2?'optionchecked':'option'}}" bindtap='changeplan' data-type='plan' data-num='2'>
+            <view>一键方案</view>
+            <block wx:if='{{selectNumber==2}}'>
+                <view class='selectcolor'></view>
+            </block>
+        </view>
+
+        <view class="{{selectNumber==3?'optionchecked':'option'}}" bindtap='changeplan' data-type='plan' data-num='3'>
+            <view>样板间</view>
+            <block wx:if='{{selectNumber==3}}'>
+                <view class='selectcolor'></view>
+            </block>
+        </view>
+
+        <view class="{{selectNumber==4?'optionchecked':'option'}}" bindtap='changeplan' data-type='plan' data-num='4'>
+            <view>工程案例</view>
+            <block wx:if='{{selectNumber==4}}'>
+                <view class='selectcolor'></view>
+            </block>
+        </view>
+    </view>
+</view>
+
+<block wx:if='{{selectNumber==1}}'>
+    <view class='shopcase'>
+        <template is="wxParse" data="{{wxParseData:article.nodes}}" />
+    </view>
+    <!-- <view class='shopcase'>
+    <view class='title'>
+      <view class='line'></view>
+      <view class='txt'>门店介绍</view>
+    </view>
+    <view class='content'>{{shopList.shop}}</view>
+    
+    <view class='shopmanager'>
+      <view class='line'></view>
+      <view class='txt'>店长介绍</view>
+    </view>
+    <image mode='aspectFill' class='manager' src='{{shopList.shopManager}}'></image>
+    <view class='managerName'>{{shopList.managerName}}</view>
+    <view class='content'>{{shopList.managerContent}}</view>
+
+
+    <view class='teamjs'>
+      <view class='line'></view>
+      <view class='txt'>团队风采</view>
+    </view>
+    
+    <view wx:for='{{shopList.team}}' class='team'>
+      <block wx:if="{{item.type=='image'}}">
+        <image mode='widthFix'  class='teamimage' src='{{item.content}}'></image>
+      </block>
+      <block wx:if="{{item.type=='content'}}">
+        <view class='teamcontent'>{{item.content}}</view>
+      </block>
+     
+
+    </view>
+  </view> -->
+</block>
+
+<block wx:if='{{selectNumber==2||selectNumber==3}}'>
+    <view class='plan' wx:if="{{type!='comment'}}">
+        <block wx:if='{{recommendCaseList.length<1}}'>
+            <view class='noShop'>
+                <image class='noShopimg' src='../mini-offcial-web/image/wei_icon_empty.png'></image>
+                <view class='noShoptxt'>空空如也~</view>
+            </view>
+        </block>
+        <block wx:if='{{recommendCaseList.length>0}}'>
+            <view class='house-case' style='height:{{caseListheight}};overflow:{{caseListOverflow}}'>
+                <view class='goods-details-case'>
+                    <view class='case-list'>
+                        <view class='case-item' wx:for='{{recommendCaseList}}' wx:key='{{index}}'>
+                            <view class='case-image'>
+                                <image class='bigPth' src='{{resourcePath + item.designPlanCoverPath}}' data-url='{{resourcePath + item.designPlanCoverPath}}' data-item='{{item}}' data-type='photo' bindtap='toThreeD'></image>
+                                <block wx:if='{{selectNumber==2}}'>
+                                    <view class='Renovation-house' bindtap='putInMyhouse' data-item='{{item}}'>
+                                        装进我家
+                                        <image class='arrow' src='./image/page_icon_more_white@2x.png'></image>
+                                    </view>
+                                </block>
+                                <view class='seven-two-ico clearfix'>
+                                    <view class='video identical-class'>
+                                        <image src='./image/place_icon_vedio@2x.png' data-item='{{item}}' data-type='video' bindtap='toThreeD'></image>
+                                    </view>
+                                    <view class='single-point identical-class' data-item='{{item}}' data-type='720' bindtap='toThreeD'>
+                                        <image src='./image/place_icon_720@2x.png'></image>
+                                    </view>
+                                    <view class='multi-point identical-class' data-item='{{item}}' data-type='roam' bindtap='toThreeD'>
+                                        <image src='./image/place_icon_morepoint@2x.png'></image>
+                                    </view>
+                                </view>
+                            </view>
+                            <view class='case-text'>
+                                <view class='case-mes clearfix'>
+                                    <view class='case-mes-name fl'>
+                                        {{item.designPlanName}}
+                                    </view>
+                                    <view class='case-mes-function fr clearfix'>
+                                        <view class='collet fl clearfix' data-index='{{index}}' bindtap='collectCase' data-item='{{item}}'>
+                                            <image src='{{item.isFavorite!=1?"./image/page_icon_collect_nor@2x.png":"./image/page_icon_collect_sct@2x.png"}}'>
+                                            </image>
+                                            <text>{{item.collectNum || 0}}</text>
+                                        </view>
+
+                                        <view class='thumbs-up fl clearfix' data-index='{{index}}' data-item='{{item}}' bindtap='likeCase'>
+                                            <image src='{{item.isLike != 1?"./image/page_icon_like_nor@2x.png":"./image/page_icon_like_sct@2x.png"}}'>
+                                            </image>
+                                            <text>{{item.likeNum || 0}}</text>
+                                        </view>
+                                    </view>
+                                </view>
+                                <view class='case-style'>{{item.spaceStyleName}}</view>
+                            </view>
+                        </view>
+                    </view>
+                </view>
+            </view>
+        </block>
+    </view>
+</block>
+
+<block wx:if='{{selectNumber==4}}'>
+    <view class='gary'></view>
+    <view class='bck'>
+        <block wx:for='{{caseList}}'>
+            <view class='cases' bindtap='toWorkCase' data-id='{{item.caseId}}'>
+                <image src='{{resourcePath+item.picPath}}' class='img' mode='aspectFill'></image>
+                <view class='content'>
+                    <view class='title'>{{item.caseTitle}}</view>
+                    <!-- <view class='txt'>{{item.content}}</view> -->
+                    <view class='more'>
+                        <view class='text fl'>查看详情</view>
+                        <image class='icon fr' src='/pages/personal-center/image/list_icon_more.png'></image>
+                    </view>
+                </view>
+            </view>
+            <view class='gary'></view>
+        </block>
+    </view>
+</block>
+<!--<view class='comment' wx:if="{{type=='comment'}}">
+  <view class='score'>
+    <view class=''></view>
+  </view>
+</view>-->
+<view class='space'></view>
+
+<view class='contactview'>
+    <view class='contact' bindtap='call' data-phone='{{List.contactPhone}}'>
+        立即沟通
+    </view>
+</view>
+
+<import src="../../component/quick-navigation/quick-navigation.wxml" />
+<template is="quickNavigation" data="{{ ...quickNavigation }}" />

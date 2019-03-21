@@ -1,0 +1,110 @@
+package com.sandu.user.service.impl;
+
+import com.sandu.cache.service.RedisService;
+import com.sandu.common.util.StringUtils;
+import com.sandu.user.dao.UserBehaviorMapper;
+import com.sandu.user.model.UserBehavior;
+import com.sandu.user.model.view.UserBehaviorVO;
+import com.sandu.user.service.UserBehaviorService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.lang.reflect.Field;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
+@Service("userBehaviorService")
+@Slf4j
+public class UserBehaviorServiceImpl implements UserBehaviorService {
+
+    @Autowired
+    private RedisService redisService;
+
+    @Autowired
+    private UserBehaviorMapper userBehaviorMapper;
+
+    private final String key = "user_behavior_map";
+
+    private final String lockKey = "user_behavior_map:lockKey";
+
+    @Override
+    public boolean cacheCount(String type) {
+        log.info("start cache");
+        String s = redisService.getMap(key, type);
+        if (StringUtils.isBlank(s)) {
+            redisService.addMap(key, UserBehaviorVO.keyMap);
+            s = UserBehaviorVO.keyMap.get(type);
+        }
+
+        String cur = Integer.valueOf(s) + 1 + "";
+        //更新cache
+        syncCacheOperation(() -> redisService.addMap(key, type, cur));
+        log.info("end cache");
+        return true;
+    }
+
+    @Override
+    public boolean syncToDB() {
+        log.info("start  sync db");
+        String id = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+        UserBehavior behavior = userBehaviorMapper.selectByPrimaryKey(id);
+        if (behavior == null) {
+            UserBehavior userBehavior = new UserBehavior();
+            userBehavior.setId(id);
+            userBehavior.setGmt_create(new Date());
+            userBehaviorMapper.insertSelective(userBehavior);
+            behavior = userBehaviorMapper.selectByPrimaryKey(id);
+        }
+        Map<String, String> map = new HashMap<>(UserBehaviorVO.keyMap.size());
+        syncCacheOperation(() -> {
+            //get cache
+            map.putAll(redisService.getMap(key));
+            //reset cache
+            return redisService.addMap(key, UserBehaviorVO.keyMap);
+        });
+
+
+        //save db
+        Field[] fields = UserBehavior.class.getDeclaredFields();
+        for (Field field : fields) {
+            if (!UserBehaviorVO.keyMap.containsKey(field.getName())) {
+                continue;
+            }
+            field.setAccessible(true);
+            String count = map.get(field.getName());
+            try {
+                if (field.getType().equals(Integer.class)) {
+                    Integer o = (Integer) field.get(behavior);
+                    field.set(behavior, o + Integer.valueOf(count));
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        int i = userBehaviorMapper.updateByPrimaryKey(behavior);
+        log.info("end  sync db");
+        return i > 0;
+    }
+
+    private void syncCacheOperation(Supplier<Boolean> supplier) {
+        //get lock
+        String lock = redisService.get(lockKey);
+        while (lock != null && lock.equalsIgnoreCase("locked")) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            lock = redisService.get(lockKey);
+        }
+        redisService.set(lockKey, "locked");
+        supplier.get();
+        //release lock
+        redisService.set(lockKey, "unlock");
+    }
+}

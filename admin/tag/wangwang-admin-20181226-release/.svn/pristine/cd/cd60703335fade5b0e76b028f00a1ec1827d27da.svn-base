@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.order.dao.OrderManageMapper">
+  <resultMap id="BaseResultMap" type="com.sandu.api.order.model.OrderManage">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="intermediary_id" jdbcType="INTEGER" property="intermediaryId" />
+    <result column="intermediary_name" jdbcType="VARCHAR" property="intermediaryName" />
+    <result column="trade_partner" jdbcType="VARCHAR" property="tradePartner" />
+    <result column="trade_price" jdbcType="DECIMAL" property="tradePrice" />
+    <result column="trade_date" jdbcType="TIMESTAMP" property="tradeDate" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, intermediary_id, intermediary_name, trade_partner, trade_price, trade_date, creator, 
+    gmt_create, modifier, gmt_modified, is_deleted
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from order_manage
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="queryAll" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from order_manage
+    where is_deleted = 0
+    <if test="queryParam != null">
+      and (intermediary_name like concat ('%',#{queryParam},'%') or
+      trade_partner like concat  ('%',#{queryParam},'%') or
+      trade_price like concat  ('%',#{queryParam},'%')
+      )
+    </if>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from order_manage
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.order.model.OrderManage">
+    insert into order_manage (id, intermediary_id, intermediary_name, 
+      trade_partner, trade_price, trade_date, 
+      creator, gmt_create, modifier, 
+      gmt_modified, is_deleted)
+    values (#{id,jdbcType=INTEGER}, #{intermediaryId,jdbcType=INTEGER}, #{intermediaryName,jdbcType=VARCHAR}, 
+      #{tradePartner,jdbcType=VARCHAR}, #{tradePrice,jdbcType=DECIMAL}, #{tradeDate,jdbcType=TIMESTAMP}, 
+      #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.order.model.OrderManage">
+    insert into order_manage
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="intermediaryId != null">
+        intermediary_id,
+      </if>
+      <if test="intermediaryName != null">
+        intermediary_name,
+      </if>
+      <if test="tradePartner != null">
+        trade_partner,
+      </if>
+      <if test="tradePrice != null">
+        trade_price,
+      </if>
+      <if test="tradeDate != null">
+        trade_date,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="intermediaryId != null">
+        #{intermediaryId,jdbcType=INTEGER},
+      </if>
+      <if test="intermediaryName != null">
+        #{intermediaryName,jdbcType=VARCHAR},
+      </if>
+      <if test="tradePartner != null">
+        #{tradePartner,jdbcType=VARCHAR},
+      </if>
+      <if test="tradePrice != null">
+        #{tradePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="tradeDate != null">
+        #{tradeDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.order.model.OrderManage">
+    update order_manage
+    <set>
+      <if test="intermediaryId != null">
+        intermediary_id = #{intermediaryId,jdbcType=INTEGER},
+      </if>
+      <if test="intermediaryName != null">
+        intermediary_name = #{intermediaryName,jdbcType=VARCHAR},
+      </if>
+      <if test="tradePartner != null">
+        trade_partner = #{tradePartner,jdbcType=VARCHAR},
+      </if>
+      <if test="tradePrice != null">
+        trade_price = #{tradePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="tradeDate != null">
+        trade_date = #{tradeDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.order.model.OrderManage">
+    update order_manage
+    set intermediary_id = #{intermediaryId,jdbcType=INTEGER},
+      intermediary_name = #{intermediaryName,jdbcType=VARCHAR},
+      trade_partner = #{tradePartner,jdbcType=VARCHAR},
+      trade_price = #{tradePrice,jdbcType=DECIMAL},
+      trade_date = #{tradeDate,jdbcType=TIMESTAMP},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

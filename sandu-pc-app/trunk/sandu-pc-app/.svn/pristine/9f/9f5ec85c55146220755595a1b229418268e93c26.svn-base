@@ -1,0 +1,70 @@
+package com.sandu.design.service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+
+import com.sandu.common.model.LoginUser;
+import com.sandu.design.model.DesignPlan;
+import com.sandu.design.model.DesignPlanModel;
+import com.sandu.design.model.DesignPlanProduct;
+import com.sandu.design.model.UnityDesignPlan;
+import com.sandu.design.model.UnityPlanProduct;
+import com.sandu.system.model.ResDesign;
+
+public interface OptimizePlanService {
+
+	/**
+	 * 获取进入设计方案信息
+	 * @param designPlanId
+	 * @param newFlag
+	 * @param houseId
+	 * @param livingId
+	 * @param residentialUnitsName
+	 * @param request
+	 * @return Object
+	 */
+	public Object getDesignPlanInfoForOneKey(Integer designPlanId,Integer newFlag,String houseId,String livingId,String residentialUnitsName, Boolean isRelease, LoginUser loginUser, String mediaType);
+	
+	public UnityDesignPlan wrapperData(Integer designPlanId, UnityDesignPlan unityDesignPlan);
+	
+	public int addPlanProduct(DesignPlanProduct designPlanProduct);
+
+	public int add(DesignPlan designPlan) ;
+	
+	public DesignPlanProduct getPlanProduct(Integer id);
+	
+	/**
+	 *    根据设计方案id，获取designPlan表中的所有数据详情
+	 *
+	 * @param id
+	 * @return  DesignPlan 
+	 */
+	public DesignPlan getPlan(Integer id);
+	
+	/**
+	 *    更新数据
+	 * @param designPlan
+	 * @return  int 
+	 */
+	public int update(DesignPlan designPlan);
+	
+	public int add(ResDesign resDesign);
+	
+	/**
+	 *    更新数据
+	 *
+	 * @param designPlanProduct
+	 * @return  int 
+	 */
+	public int updatePlanProduct(DesignPlanProduct designPlanProduct);
+
+	List<DesignPlanProduct> getList(DesignPlanProduct designPlan);
+
+	List<UnityPlanProduct> getDecorationNavigationInfo(List<UnityPlanProduct> unityPlanProductList,
+			List<UnityPlanProduct> newUnityPlanProductList, TreeSet<String> productTypeCodeSet,
+			Map<String, UnityPlanProduct> unityPlanProductMap_p);
+
+	DesignPlanModel selectDesignPlanInfo(Integer id);
+	
+}

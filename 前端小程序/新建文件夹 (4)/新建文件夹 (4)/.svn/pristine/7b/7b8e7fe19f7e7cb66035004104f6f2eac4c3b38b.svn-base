@@ -1,0 +1,105 @@
+<view class="list" wx:if="{{contentlist.length>0}}">
+  <view class="list-item" wx:for="{{contentlist}}" wx:key='{{index}}'   bindtap='cancelFlag' data-key='{{listIndex}}'>
+    <view class="item-img">
+      
+      <view class="operate" bindtap='showOperateBox' data-index="{{index}}">...</view>
+      <view class="operate-box" wx:if="{{listIndex == index}}">
+        <view bindtap='delete' data-item='{{item}}'>删除方案</view>
+        <view style="border-top: 1rpx solid #e8e8e8" bindtap='goRechristen' data-item="{{item}}">
+          重新命名
+        </view>
+      </view>
+      <image class="btn" src="/static/image/home_icon_3d.png" 
+        bindtap='toThreeD' 
+        data-type='seven' 
+        data-item='{{item}}' wx:if='{{item.planRenderType==1?(item.isSuccess==2 || item.state==2):(item.vrResourceUuid)}}'></image>
+      <image src="{{item.planPicPath? resourcePath + item.planPicPath : '/static/image/design_def.png'}}"></image>
+
+      <view class='taskType'>{{item.taskType==0?'由装进我家生成':'由产品替换生成'}}</view>
+      <view class='renderState' wx:if='{{(item.planHouseType!=3&&item.state!=1) || (item.planHouseType==3 && (item.isSuccess==1 || item.isSuccess==0))}}'>正在渲染中...</view>
+
+      <view class='background'></view>
+    </view>
+    <view class="bottom-box">
+      <view class="left">
+        <view class="name ellipsis">{{item.designName}}</view>
+        <view class="date ellipsis">{{item.gmtCreate}}</view>
+      </view>
+      <!-- <view class="price-btn">装修询价</view> -->
+      <view class="continue-btn" wx:if='{{item.planHouseType==3 && item.houseId!=null}}' bindtap='toHouseDeatil' data-item='{{item}}'>继续装修</view>
+    </view>
+  </view>
+</view>
+<view class="rechristen" wx:if="{{isShowRechristen}}">
+  <view class="rechristen-box">
+    <view class="title">方案重命名</view>
+    <input placeholder-style='color: #999999;' placeholder='不超过15个字' bindinput='getRename' maxlength='15'></input>
+    <view class="btn-box">
+      <view class="cancel" bindtap='cancel'>取消</view>
+      <view class="confirm" bindtap='rename' data->确定</view>
+    </view>
+  </view>
+</view>
+<empty-page emptyPageObj="{{emptyPageObj}}" wx:if="{{!contentlist.length>0}}"></empty-page>
+
+
+
+<!-- <view class="main" >
+    <view class="con">
+        <view class="product-list" wx:if="contentlist.length>0">
+            <view class="product-iteam" wx:for="{{contentlist}}" wx:key='{{index}}'>
+                <view class="product-image">
+                    
+                    <block wx:if='{{item.renderPic}}'>
+                    <image class="productImage" bindtap='toThreeD' data-type='seven' data-id='{{item.cpId}}' data-item='{{item}}' src="{{resourcePath}}/{{item.pic}}"></image>
+                    </block>
+                    <block wx:if='{{item.render720}}'>
+                    <image class="productImage" bindtap='toThreeD' data-type='seven' data-item='{{item}}' src="{{resourcePath}}/{{item.pic}}"></image>
+                    </block>
+                    <block wx:if='{{item.renderRoam}}'>
+                    <image class="productImage" bindtap='toThreeD' data-type='roam' data-item='{{item}}' src="{{resourcePath}}/{{item.pic}}"></image>
+                    </block>
+                    <block wx:if='{{item.renderVideo}}'>
+                    <image class="productImage" bindtap='toThreeD' data-type='video' data-item='{{item}}' src="{{resourcePath}}/{{item.pic}}"></image>
+                    </block>
+                    <image wx:if='{{item.render720}}' class="iconIMG0"  bindtap='toThreeD' data-type='seven' data-item='{{item}}' src="/static/image/3.png"></image>
+                    <image wx:if='{{item.renderRoam}}' class="iconIMG1" data-type='roam' bindtap='toThreeD' data-item='{{item}}' src="/static/image/4.png"></image>
+                    <image wx:if='{{item.renderVideo}}' class="iconIMG2" data-type='video' bindtap='toThreeD' data-item='{{item}}' src="/static/image/5.png"></image>
+                </view>
+                <view class="product-info">
+                    <view class="product-info-top clearfix">
+                        <view class="product-info-left">
+                            {{item.name}}
+                        </view>
+                        <view class="product-info-right">
+                            {{item.ctime}}
+                        </view>
+                    </view>
+                    <view class="product-info-bottom clearfix">
+                        <view class="fr" bindtap='deletebtn' data-index='{{index}}'>
+                          <image src='/static/image/mydesign_icon_more.png' class='ellipsis'></image>
+                        </view>
+                        <view class="{{deleteFlag && deleteIndex==index?'black fr':'none'}}" bindtap='delete' data-id='{{item.cpId}}'>
+                          <view>
+                            <image src='/static/image/me_icon_delete.png' class='deleteIcon'></image>
+                          </view>
+                          <view class='deletetxt'>删除</view>
+                        </view>
+                    </view>
+                </view>
+            </view>
+        </view>
+        <empty-page emptyPageObj="{{emptyPageObj}}" wx:if="{{!contentlist.length>0}}"></empty-page> -->
+        <!-- <block wx:if="{{!contentlist.length>0}}">
+          <view class="empty_tip ">
+            <image class="image" src="/static/image/me_pic_no_02.png"></image>
+            <view class="txt">您还没有渲染过方案</view>
+            <button class='goRenderBtn' bindtap='tohousetype'>去装修</button>
+          </view>
+        </block> -->
+        
+    <!-- </view>
+</view> -->
+  <!-- 快速导航 -->
+  <!-- <import src="../../component/quick-navigation/quick-navigation.wxml"/>
+  <template is="quickNavigation" data="{{ ...quickNavigation }}"/>     -->

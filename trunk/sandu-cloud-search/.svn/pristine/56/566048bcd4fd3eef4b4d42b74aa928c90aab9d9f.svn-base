@@ -1,0 +1,98 @@
+package com.sandu.search.storage.company;
+
+import com.sandu.search.entity.elasticsearch.po.metadate.CompanyCategoryRelPo;
+import com.sandu.search.exception.MetaDataException;
+import com.sandu.search.service.metadata.MetaDataService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.*;
+
+/**
+ * 公司分类关联元数据存储
+ *
+ * @date 20171218
+ * @auth pengxuangang
+ */
+@Slf4j
+@Component
+public class CompanyCategoryRelMetaDataStorage {
+
+    private final static String CLASS_LOG_PREFIX = "公司分类关联元数据存储:";
+
+    @Autowired
+    private MetaDataService metaDataService;
+    @Autowired
+    private CompanyMetaDataStorage companyMetaDataStorage;
+
+    //公司对应分类map元数据Map<companyId, List<categoryId>>
+    private static Map<Integer, List<Integer>> companyCategoryRelMap = new HashMap<>();
+
+    /**
+     * 更新数据
+     * @param isEnforceLoad 是否强制更新
+     */
+    public void updateData(boolean isEnforceLoad) {
+
+        //若无强制更新则更新前判断是否已有数据
+        if (!isEnforceLoad) {
+            if (null != companyCategoryRelMap && 0 < companyCategoryRelMap.size()) {
+                return;
+            }
+        }
+
+        //公司分类关联元数据
+        List<CompanyCategoryRelPo> companyCategoryRelPoList;
+        try {
+            //获取数据
+            log.info(CLASS_LOG_PREFIX + "开始获取公司分类关联元数据....");
+            companyCategoryRelPoList = metaDataService.queryCompanyCategoryRelMetaData();
+            log.info(CLASS_LOG_PREFIX + "获取公司分类关联元数据完成,总条数:{}", (null == companyCategoryRelPoList ? 0 : companyCategoryRelPoList.size()));
+        } catch (MetaDataException e) {
+            log.error(CLASS_LOG_PREFIX + "获取公司分类关联元数据失败: MetaDataException:{}", e);
+            throw new NullPointerException(CLASS_LOG_PREFIX + "获取公司分类关联元数据失败,List<CompanyCategoryRelPo> is null.MetaDataException:" + e);
+        }
+
+        //临时对象
+        Map<Integer, List<Integer>> tempCompanyCategoryRelMap = new HashMap<>();
+
+        //转换为Map元数据
+        if (null != companyCategoryRelPoList && 0 != companyCategoryRelPoList.size()) {
+            companyCategoryRelPoList.forEach(companyPo -> {
+                int companyId = companyPo.getCompanyId();
+                if (tempCompanyCategoryRelMap.containsKey(companyId)) {
+                    List<Integer> categoryList = new ArrayList<>();
+                    categoryList.add(companyPo.getCategoryId());
+                    categoryList.addAll(tempCompanyCategoryRelMap.get(companyId));
+                    tempCompanyCategoryRelMap.put(companyId, categoryList);
+                } else {
+                    tempCompanyCategoryRelMap.put(companyId, Arrays.asList(companyPo.getCategoryId()));
+                }
+            });
+        }
+
+        //装回对象
+        companyCategoryRelMap = null;
+        companyCategoryRelMap = tempCompanyCategoryRelMap;
+    }
+
+    /**
+     * 根据公司ID查询公司分类ID列表
+     *
+     * @param companyId 公司ID
+     * @return
+     */
+    public List<Integer> queryCategoryIdListByCompanyId(Integer companyId) {
+        if (null == companyCategoryRelMap || 0 >= companyCategoryRelMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        if (null == companyId || companyId == 0 || (!companyCategoryRelMap.containsKey(companyId))) {
+            return null;
+        }
+
+        return companyCategoryRelMap.get(companyId);
+    }
+}

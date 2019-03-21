@@ -1,0 +1,36 @@
+-- 添加小程序首页弹窗管理表
+DROP TABLE IF EXISTS `mini_pro_index_dialog`;
+CREATE TABLE `mini_pro_index_dialog` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `dialog_name` varchar(512) NOT NULL COMMENT '弹窗名称',
+  `url` varchar(512) DEFAULT NULL COMMENT '跳转url',
+  `dialog_image_res_pic_id` varchar(512) NOT NULL COMMENT '弹窗图片',
+  `is_enable` tinyint(1) NOT NULL COMMENT '启用状态(0:未启用;1:启用),每次只能启用一个弹窗',
+  `dialog_code` varchar(20) DEFAULT NULL COMMENT '弹窗编码(sxw:随选网小程序)',
+  creator VARCHAR(32) DEFAULT NULL COMMENT '创建者',
+  gmt_create TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间', -- 固定字段
+  modifier VARCHAR(32) NOT NULL DEFAULT '' COMMENT '更新者', -- 固定字段
+  gmt_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  COMMENT '修改时间，自动更新', -- 固定字段
+  is_deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除字段,0:正常 1:已删除', -- 固定字段
+  remark VARCHAR(200) NOT NULL DEFAULT '' COMMENT '备注', -- 固定字段
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='小程序弹窗管理';
+
+
+-- 添加小程序活动分享图片管理表
+
+DROP TABLE IF EXISTS `act_share_img_admin`;
+CREATE TABLE `act_share_img_admin` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `banner_id` bigint(20) NOT NULL COMMENT '对应base_banner_ad表中id',
+  `banner_name` varchar(512) NOT NULL COMMENT 'banner名称',
+  `share_img_res_pic_id` varchar(512) DEFAULT NULL COMMENT '分享图片路径',
+  `share_text` varchar(512) DEFAULT NULL COMMENT '分享文案',
+  creator VARCHAR(32) DEFAULT NULL COMMENT '创建者',
+  gmt_create TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间', -- 固定字段
+  modifier VARCHAR(32) NOT NULL DEFAULT '' COMMENT '更新者', -- 固定字段
+  gmt_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  COMMENT '修改时间，自动更新', -- 固定字段
+  is_deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除字段,0:正常 1:已删除', -- 固定字段
+  remark VARCHAR(200) NOT NULL DEFAULT '' COMMENT '备注', -- 固定字段
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='小程序活动分享图片管理表';

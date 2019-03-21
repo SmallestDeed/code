@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.pay.base.dao.BaseCompanyMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.pay.base.model.BaseCompany" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+    <result column="company_code" property="companyCode" jdbcType="VARCHAR" />
+    <result column="company_name" property="companyName" jdbcType="VARCHAR" />
+    <result column="company_url" property="companyUrl" jdbcType="VARCHAR" />
+    <result column="company_desc" property="companyDesc" jdbcType="VARCHAR" />
+    <result column="company_address" property="companyAddress" jdbcType="VARCHAR" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    <result column="att1" property="att1" jdbcType="VARCHAR" />
+    <result column="att2" property="att2" jdbcType="VARCHAR" />
+    <result column="att3" property="att3" jdbcType="VARCHAR" />
+    <result column="att4" property="att4" jdbcType="VARCHAR" />
+    <result column="att5" property="att5" jdbcType="VARCHAR" />
+    <result column="att6" property="att6" jdbcType="VARCHAR" />
+    <result column="date_att1" property="dateAtt1" jdbcType="TIMESTAMP" />
+    <result column="date_att2" property="dateAtt2" jdbcType="TIMESTAMP" />
+    <result column="company_logo" property="companyLogo" jdbcType="INTEGER" />
+    <result column="num_att2" property="numAtt2" jdbcType="INTEGER" />
+    <result column="num_att3" property="numAtt3" jdbcType="DECIMAL" />
+    <result column="num_att4" property="numAtt4" jdbcType="DECIMAL" />
+    <result column="company_identify" property="companyIdentify" jdbcType="VARCHAR" />
+    <result column="industry" property="industry" jdbcType="INTEGER" />
+    <result column="small_type" property="smallType" jdbcType="VARCHAR" />
+    <result column="num_att1" property="numAtt1" jdbcType="INTEGER" />
+    <result column="business_type" property="businessType" jdbcType="INTEGER" />
+    <result column="company_domain_name" property="companyDomainName" jdbcType="VARCHAR" />
+    <result column="company_customer_qq" property="companyCustomerQq" jdbcType="VARCHAR" />
+    <result column="category_ids" property="categoryIds" jdbcType="VARCHAR" />
+    <result column="business_scope" property="businessScope" jdbcType="VARCHAR" />
+    <result column="product_visibility_range" property="productVisibilityRange" jdbcType="VARCHAR" />
+    <result column="pc_count" property="pcCount" jdbcType="INTEGER" />
+    <result column="mobile_count" property="mobileCount" jdbcType="INTEGER" />
+    <result column="internal_user_count" property="internalUserCount" jdbcType="INTEGER" />
+    <result column="contract_effective_time" property="contractEffectiveTime" jdbcType="TIMESTAMP" />
+    <result column="contract_failure_time" property="contractFailureTime" jdbcType="TIMESTAMP" />
+    <result column="admin_user_id" property="adminUserId" jdbcType="INTEGER" />
+    <result column="pid" property="pid" jdbcType="INTEGER" />
+    <result column="brand_id" property="brandId" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="contract_number" property="contractNumber" jdbcType="VARCHAR" />
+    <result column="company_main_category" property="companyMainCategory" jdbcType="VARCHAR" />
+    <result column="app_id" property="appId" jdbcType="VARCHAR" />
+    <result column="app_secret" property="appSecret" jdbcType="VARCHAR" />
+    <result column="mch_id" property="mchId" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="LONGVARCHAR" />
+    <result column="mch_key" property="mchKey" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, sys_code, company_code, company_name, company_url, company_desc, company_address, 
+    creator, gmt_create, modifier, gmt_modified, is_deleted, att1, att2, att3, att4, 
+    att5, att6, date_att1, date_att2, company_logo, num_att2, num_att3, num_att4, company_identify, 
+    industry, small_type, num_att1, business_type, company_domain_name, company_customer_qq, 
+    category_ids, business_scope, product_visibility_range, pc_count, mobile_count, internal_user_count, 
+    contract_effective_time, contract_failure_time, admin_user_id, pid, brand_id, phone, 
+    email, contract_number, company_main_category, app_id, app_secret, mch_id, remark, mch_key
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from base_company
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByIdAndAppId" resultType="com.sandu.pay.base.model.BaseCompany">
+    SELECT
+        *
+    FROM
+       base_company_mini_program_config
+    WHERE
+       company_id = #{companyId} AND
+       app_id = #{appId} AND
+       is_deleted = 0
+  </select>
+</mapper>

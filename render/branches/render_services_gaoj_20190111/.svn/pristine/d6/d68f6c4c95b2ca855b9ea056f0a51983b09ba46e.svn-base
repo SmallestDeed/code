@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.payAccount.dao.PayAccountDao">
+
+    <select id="selectPayAccountByUserId" resultType="com.nork.payAccount.model.PayAccount">
+        SELECT
+           id as id,
+           consum_amount as consumAmount,
+           balance_amount as balanceAmount,
+           user_id as userId,
+           platform_id as platformId,
+           is_deleted as isDeleted
+        FROM
+          pay_account
+        WHERE
+          user_id = #{userId} AND
+          is_deleted = 0 AND
+          platform_bussiness_type = #{platformBussinessType}
+    </select>
+
+    <update id="updateBalanceAmount">
+        UPDATE
+          pay_account
+        SET
+          balance_amount = balance_amount - #{balanceAmount},
+          consum_amount = consum_amount + #{balanceAmount}
+        WHERE
+          user_id = #{userId} AND
+          is_deleted = 0 AND
+          platform_bussiness_type = #{platformBussinessType}
+    </update>
+
+</mapper>

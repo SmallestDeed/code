@@ -1,0 +1,556 @@
+package com.sandu.product.service.impl;
+
+import com.google.gson.Gson;
+import com.nork.common.model.LoginUser;
+import com.sandu.common.model.PageModel;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.common.util.NumberUtil;
+import com.sandu.common.util.Utils;
+import com.sandu.common.util.collections.Lists;
+import com.sandu.designconfig.service.DesignRulesService;
+import com.sandu.designplan.service.DesignPlanService;
+import com.sandu.designtemplate.service.DesignTempletService;
+import com.sandu.goods.dao.BaseGoodsSPUMapper;
+import com.sandu.goods.model.BO.GoodsBO;
+import com.sandu.goods.output.GoodsVO;
+import com.sandu.goods.service.BaseGoodsSPUService;
+import com.sandu.product.dao.UserProductCollectMapper;
+import com.sandu.product.model.*;
+import com.sandu.product.model.SplitTextureDTO.ResTextureDTO;
+import com.sandu.product.model.search.UserProductCollectSearch;
+import com.sandu.product.service.*;
+import com.sandu.system.model.ResTexture;
+import com.sandu.system.model.SysDictionary;
+import com.sandu.system.service.ResFileService;
+import com.sandu.system.service.ResModelService;
+import com.sandu.system.service.ResTextureService;
+import com.sandu.system.service.SysDictionaryService;
+import com.sandu.user.model.SysUser;
+import com.sandu.user.model.UserSO;
+import com.sandu.user.service.SysUserService;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.Map.Entry;
+
+/**
+ * @version V1.0
+ * @Title: UserProductCollectServiceImpl.java
+ * @Package com.sandu.product.service.impl
+ * @Description:产品模块-我的产品收藏ServiceImpl
+ * @createAuthor pandajun
+ * @CreateDate 2015-06-15 18:27:21
+ */
+@Service("userProductCollectService")
+public class UserProductCollectServiceImpl implements UserProductCollectService {
+
+
+    private static final Logger logger = LoggerFactory.getLogger(UserProductCollectServiceImpl.class);
+    private static Gson GSON = new Gson();
+    @Autowired
+    private CollectCatalogService collectCatalogService;
+    @Autowired
+    private ProductAttributeService productAttributeService;
+    @Autowired
+    private ResModelService resModelService;
+    @Autowired
+    private ResFileService resFileService;
+    @Autowired
+    DesignTempletService designTempletService;
+    @Autowired
+    DesignPlanService designPlanService;
+    @Autowired
+    private BaseProductService baseProductService;
+    @Autowired
+    private SysDictionaryService sysDictionaryService;
+    @Autowired
+    private ResTextureService resTextureService;
+    @Autowired
+    private DesignRulesService designRulesService;
+    @Autowired
+    private UserProductCollectMapper userProductCollectMapper;
+    @Autowired
+    private SysUserService sysUserService;
+    @Autowired
+    private UserProductCollectService userProductCollectService;
+    @Autowired
+    private ProductCategoryRelService productCategoryRelService;
+    @Autowired
+    private BaseGoodsSPUMapper baseGoodsSPUMapper;
+
+
+    /**
+     * 新增数据
+     *
+     * @param userProductCollect
+     * @return int
+     */
+    @Override
+    public int add(UserProductCollect userProductCollect) {
+        userProductCollectMapper.insertSelective(userProductCollect);
+        return userProductCollect.getId();
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param userProductCollect
+     * @return int
+     */
+    @Override
+    public int update(UserProductCollect userProductCollect) {
+        return userProductCollectMapper.updateByPrimaryKeySelective(userProductCollect);
+    }
+
+    /**
+     * 删除数据
+     *
+     * @param id
+     * @return int
+     */
+    @Override
+    public int delete(Integer id) {
+        return userProductCollectMapper.deleteByPrimaryKey(id);
+    }
+
+    /**
+     * 所有数据
+     *
+     * @param userProductCollect
+     * @return List<UserProductCollect>
+     */
+    @Override
+    public List<UserProductCollect> getList(UserProductCollect userProductCollect) {
+        return userProductCollectMapper.selectList(userProductCollect);
+    }
+
+    /**
+     * 获取数据详情
+     *
+     * @param id
+     * @return UserProductCollect
+     */
+    @Override
+    public UserProductCollect get(Integer id) {
+        return userProductCollectMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public int getUserProductsConllectCount(UserProductsConllect userProductsConllect) {
+        return userProductCollectMapper.getUserProductsConllectCount(userProductsConllect);
+    }
+
+    @Override
+    public List<UserProductsConllect> getAllList(UserProductsConllect userProductsConllect) {
+        return userProductCollectMapper.getAllList(userProductsConllect);
+    }
+
+    @Override
+    public int getUserProductsConllectCountAll(UserProductsConllect userProductsCollect) {
+        return userProductCollectMapper.getUserProductsConllectCountAll(userProductsCollect);
+    }
+
+    @Override
+    public List<UserProductsConllect> getAllListAll(UserProductsConllect userProductsCollect) {
+        return userProductCollectMapper.getAllListAll(userProductsCollect);
+    }
+
+
+    @Override
+    public ResponseEnvelope collectionList(CollectionQueryModel model) {
+        int total = 0;
+        List<UserProductsConllect> list = null;
+        LoginUser loginUser = model.getLoginUser();
+        UserProductsConllect userProductsConllect = new UserProductsConllect();
+        userProductsConllect.setIsSort(null == model.getIsSort() ? 0 : model.getIsSort());
+        userProductsConllect.setStart(null == model.getStart() ? -1 : model.getStart());
+        userProductsConllect.setLimit(null == model.getPageSize() ? PageModel.DEFAULT_PAGE_PAGESIZE : model.getPageSize());
+        userProductsConllect.setProductCategoryCode(model.getProductCategoryCode());
+        userProductsConllect.setUserId(loginUser.getId());
+        total = this.getUserProductsConllectCountAll(userProductsConllect);
+        if (total > 0) {
+            list = this.getAllListAll(userProductsConllect);
+
+            for (UserProductsConllect productsConllect : list){
+                Integer companyId = model.getCompanyId();
+                //产品不是所属登录公司的话把价格设置为0
+                if (companyId != null && !companyId.equals(productsConllect.getCompanyId()) ) {
+                    productsConllect.setSalePrice(0.0);
+                }
+            }
+
+        }
+
+
+        return new ResponseEnvelope(true, "", list, total);
+    }
+
+    /**
+     * 查看品牌是否被绑定状态 决定是否显示产品价格
+     *
+     * @param baseProduct
+     * @param productCollect
+     */
+    public void isBinding(BaseProduct baseProduct, UserProductsConllect productCollect) {
+        if (baseProduct == null || productCollect == null) {
+            return;
+        }
+        if (baseProduct.getId() == null || StringUtils.isEmpty(productCollect.getProductId())) {
+            return;
+        }
+        int productId = Integer.parseInt(productCollect.getProductId());
+        if (baseProduct.getId().intValue() != productId) {
+            return;
+        }
+        /*
+		 * boolean isBinding = true; String productBrandId = "," +
+		 * baseProduct.getBrandId() + ","; 品牌是否被绑定状态 if (StringUtils.isEmpty(brandIds))
+		 * { isBinding = false; } if (("," + brandIds).indexOf(productBrandId) == -1) {
+		 * isBinding = false; } if (!isBinding) { productCollect.setSalePrice(-1.0); }
+		 * if (isBinding) {// 带上销售价格单位 Integer spvValue =
+		 * baseProduct.getSalePriceValue(); if (spvValue != null) { SysDictionary
+		 * dictionary = sysDictionaryService.getSysDictionaryByValue("productUnitPrice",
+		 * spvValue); productCollect.setSalePriceValueName(dictionary == null ? "" :
+		 * dictionary.getName()); } }
+		 */
+        Integer spvValue = baseProduct.getSalePriceValue();
+        if (spvValue != null) {
+            SysDictionary dictionary = sysDictionaryService.getSysDictionaryByValue("productUnitPrice", spvValue);
+            productCollect.setSalePriceValueName(dictionary == null ? "" : dictionary.getName());
+        }
+    }
+
+    /**
+     * 产品大类
+     *
+     * @param baseProduct
+     * @param productCollect
+     */
+    public void getProductType(BaseProduct baseProduct, UserProductsConllect productCollect) {
+        if (baseProduct == null || productCollect == null) {
+            return;
+        }
+        if (baseProduct.getId() == null || StringUtils.isEmpty(productCollect.getProductId())) {
+            return;
+        }
+        String productType = baseProduct.getProductTypeValue();// 产品大类
+        SysDictionary dictionary = new SysDictionary();
+        if (StringUtils.isNotEmpty(productType)) {
+            dictionary = sysDictionaryService.getSysDictionaryByValue("productType", new Integer(productType));
+            productCollect.setProductType(dictionary.getName());
+            productCollect.setProductTypeKey(dictionary.getValuekey());
+            productCollect.setProductTypeCode(dictionary.getValuekey());
+            productCollect.setProductTypeName(dictionary.getName());
+        }
+        if (StringUtils.isNotBlank(productType) && baseProduct.getProductSmallTypeValue() != null) {
+            SysDictionary sd = sysDictionaryService.getSysDictionaryByValue(dictionary.getValuekey(),
+                    baseProduct.getProductSmallTypeValue());
+            productCollect.setProductSmallTypeCode(sd.getValuekey());
+            productCollect.setProductSmallTypeName(sd.getName());
+            productCollect.setProductSmallTypeValue(baseProduct.getProductSmallTypeValue());
+            String rootType = StringUtils.isEmpty(sd.getAtt1()) ? "2" : sd.getAtt1().trim();
+            productCollect.setRootType(rootType);
+        }
+    }
+
+    /**
+     * 获取产品材质
+     *
+     * @param baseProduct
+     * @param productCollect
+     */
+    public void getProductTextures(BaseProduct baseProduct, UserProductsConllect productCollect) {
+        if (baseProduct == null || productCollect == null) {
+            return;
+        }
+        if (baseProduct.getId() == null || StringUtils.isEmpty(productCollect.getProductId())) {
+            return;
+        }
+		/* 处理拆分材质产品返回默认材质 */
+        String splitTexturesInfo = baseProduct.getSplitTexturesInfo();
+        Integer isSplit = 0;
+        List<com.sandu.product.model.SplitTextureDTO> splitTextureDTOList = null;
+        if (StringUtils.isNotEmpty(splitTexturesInfo)) {// 多材质产品
+            Map<String, Object> map = baseProductService.dealWithSplitTextureInfo(baseProduct.getId(),
+                    splitTexturesInfo, "choose");
+            isSplit = (Integer) map.get("isSplit");
+            splitTextureDTOList = (List<com.sandu.product.model.SplitTextureDTO>) map.get("splitTexturesChoose");
+        }
+
+        if (StringUtils.isEmpty(splitTexturesInfo)) {// 普通产品
+            Integer materialId = 0;
+            String materialIds = baseProduct.getMaterialPicIds();
+            if (StringUtils.isNotBlank(materialIds)) {
+                List<String> materialIdStrList = Utils.getListFromStr(materialIds);
+                if (materialIdStrList != null && materialIdStrList.size() > 0) {
+                    materialId = Integer.valueOf(materialIdStrList.get(0));
+                }
+            }
+            if (materialId != null && materialId > 0) {
+                ResTexture resTexture = resTextureService.get(materialId);
+                if (resTexture != null) {
+                    splitTextureDTOList = new ArrayList<com.sandu.product.model.SplitTextureDTO>();
+                    List<ResTextureDTO> resTextureDTOList = new ArrayList<ResTextureDTO>();
+                    com.sandu.product.model.SplitTextureDTO splitTextureDTO = new com.sandu.product.model.SplitTextureDTO(
+                            "1", "", null);
+                    ResTextureDTO resTextureDTO = resTextureService.fromResTexture(resTexture);
+                    resTextureDTO.setKey(splitTextureDTO.getKey());
+                    resTextureDTO.setProductId(baseProduct.getId());
+                    resTextureDTOList.add(resTextureDTO);
+                    splitTextureDTO.setList(resTextureDTOList);
+                    splitTextureDTOList.add(splitTextureDTO);
+					/* 同时存一份数据在老的数据结构上 */
+                    productCollect.setTextureWidth(resTexture.getFileWidth() + "");
+                    productCollect.setTextureHeight(resTexture.getFileHeight() + "");
+                    productCollect.setTextureAttrValue(resTexture.getTextureAttrValue());
+                    productCollect.setLaymodes(resTexture.getLaymodes());
+                    String[] materialPathList = new String[]{resTextureDTO.getPath()};
+                    productCollect.setMaterialPicPaths(materialPathList);
+					/* 同时存一份数据在老的数据结构上->end */
+                }
+            }
+        }
+        productCollect.setIsSplit(isSplit);
+        productCollect.setSplitTexturesChoose(splitTextureDTOList);
+    }
+
+    @Override
+    public ResponseEnvelope collecProduct(UserProductCollect userProductCollect,
+                                          com.nork.common.model.LoginUser loginUser) {
+        String msg = "";
+        if (loginUser == null || loginUser.getId() <= 0) {
+            return new ResponseEnvelope(false, "登录超时，请重新登录!");
+        }
+
+        if (userProductCollect.getUserId() == null || userProductCollect.getUserId() == 0) {
+            msg = "参数userId不能为空";
+            return new ResponseEnvelope(false, msg);
+        }
+        if (userProductCollect.getProductId() != null) {
+            BaseProduct bp = baseProductService.get(userProductCollect.getProductId());
+            if (bp == null) {
+                msg = "该产品不存在";
+                return new ResponseEnvelope(false, msg);
+            }
+        }
+        // 检查用户是否有收藏夹---构造数据
+        CollectCatalog collectCatalog = new CollectCatalog();
+        collectCatalog.setUserId(loginUser.getId());
+        collectCatalog.setIsDeleted(0);
+        List<CollectCatalog> collectCatalogList = collectCatalogService.getList(collectCatalog);
+        if (null == collectCatalogList || collectCatalogList.size() == 0) {
+            SysUser user = sysUserService.get(loginUser.getId());
+            userProductCollect.setCollectCatalogId(newCollectCatalogController(user));
+        } else {
+            // 若查询已有收藏夹则默认使用第一个
+            userProductCollect.setCollectCatalogId(collectCatalogList.get(0).getId());
+        }
+        Integer collectCatalogId = userProductCollect.getCollectCatalogId();
+		/* 检测是否收藏过该产品(不分收藏夹) */
+        userProductCollect.setCollectCatalogId(null);
+        List<UserProductCollect> list = this.getList(userProductCollect);
+        if (Lists.isNotEmpty(list)) {
+            msg = "你已收藏该产品！";
+            return new ResponseEnvelope(false, msg);
+        }
+        userProductCollect.setCollectCatalogId(collectCatalogId);
+		/* 检测是否收藏过该产品(不分收藏夹)->end */
+        try {
+            sysSave(userProductCollect, loginUser);
+            if (userProductCollect.getId() == null) {
+                this.add(userProductCollect);
+            } else {
+                int id = this.update(userProductCollect);
+                BaseProductCacher.remove(id);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEnvelope(false, "数据异常!");
+        }
+
+        return new ResponseEnvelope(true, "添加成功");
+    }
+
+    /**
+     * 自动存储系统字段
+     */
+    private void sysSave(UserProductCollect model, com.nork.common.model.LoginUser loginUser) {
+        if (model != null && loginUser != null) {
+            if (model.getId() == null) {
+                model.setGmtCreate(new Date());
+                model.setCreator(loginUser.getLoginName());
+                model.setIsDeleted(0);
+                if (model.getSysCode() == null || "".equals(model.getSysCode())) {
+                    model.setSysCode(
+                            Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+                }
+            }
+            model.setGmtModified(new Date());
+            model.setModifier(loginUser.getLoginName());
+        }
+    }
+
+    /**
+     * 获取数据数量
+     *
+     * @return int
+     */
+    @Override
+    public int getCount(UserProductCollectSearch userProductCollectSearch) {
+        return userProductCollectMapper.selectCount(userProductCollectSearch);
+    }
+
+    @Override
+    public void transferCollection(UserProductCollectSearch userProductCollectSearch) {
+        userProductCollectMapper.transferCollection(userProductCollectSearch);
+
+    }
+
+    /**
+     * 新建一个默认文件夹
+     *
+     * @param user
+     */
+    public int newCollectCatalogController(SysUser user) {
+        String sysCode = System.currentTimeMillis() + "_" + randomNumber();
+
+        CollectCatalog catalog = new CollectCatalog();
+        catalog.setCatalogName("默认");
+        catalog.setIsLocked(1);
+        catalog.setUserId(user.getId());
+        catalog.setIsDeleted(0);
+        catalog.setSysCode(sysCode);
+
+        catalog.setModifier(user.getMobile());
+        catalog.setCreator(user.getNickName());
+        collectCatalogService.add(catalog);
+
+        CollectCatalog collectCatalog = new CollectCatalog();
+        collectCatalog.setSysCode(sysCode);
+        return collectCatalogService.getList(collectCatalog).get(0).getId();
+    }
+
+    public int randomNumber() {
+        Set<Integer> m = new HashSet<Integer>();
+        int a;
+        do {
+            a = (int) (Math.random() * 1000000);
+        } while (m.contains(a));
+        m.add(a);
+        return a;
+    }
+
+    @Override
+    public Integer getCollectCatalogId(Integer userId) {
+        // 通过用户ID查找用户收藏夹ID
+        return userProductCollectMapper.selectCollectCatalogId(userId);
+    }
+
+
+		 @Override
+		    public List<Integer> collectionList2(CollectionQueryModel model) {
+		        int total = 0;
+		        List<UserProductsConllect> list = null;
+		        LoginUser loginUser = model.getLoginUser();
+		        UserProductsConllect userProductsConllect = new UserProductsConllect();
+		        userProductsConllect.setIsInternalUser("yes");
+		        userProductsConllect.setProductCategoryCode(model.getProductCategoryCode());
+		        userProductsConllect.setUserId(loginUser.getId());
+		        return userProductCollectMapper.getAllListAll2(userProductsConllect);
+		    }
+
+		@Override
+		public HashMap<Integer, Integer> getProductFavoriteMap(List<Integer> productIdList,UserSO userSo) {
+			HashMap<Integer, Integer> map = new HashMap<>();
+			for (Integer id : productIdList) {
+				map.put(id, 0);
+			}
+			if(userSo==null) {
+				return map;
+			}
+			//查询所有产品是否被当前登录用户收藏
+			List<Integer> productFavortiteIds = userProductCollectMapper.selectProductIsFavorite(productIdList,userSo.getUserId());
+			//根据收藏结果修改map的value
+			if(productFavortiteIds!=null &&!productFavortiteIds.isEmpty()) {
+				for (Integer productFavortiteId : productFavortiteIds) {
+					if(map.containsKey(productFavortiteId)) {
+						map.put(productFavortiteId, 1);
+					}
+				}
+			}
+			return map;
+		}
+
+
+    @Override
+    public HashMap<Integer, Integer> getSpuFavoriteMap(List<Integer> productIdList,UserSO userSo) {
+        HashMap<Integer, Integer> map = new HashMap<>();
+        for (Integer id : productIdList) {
+            map.put(id, 0);
+        }
+        if(userSo==null) {
+            return map;
+        }
+        //查询所有产品是否被当前登录用户收藏
+        List<Integer> spuFavortiteIds = userProductCollectMapper.selectSpuIsFavorite(productIdList,userSo.getUserId());
+        //根据收藏结果修改map的value
+        if(spuFavortiteIds!=null &&!spuFavortiteIds.isEmpty()) {
+            for (Integer spuFavortiteId : spuFavortiteIds) {
+                if(map.containsKey(spuFavortiteId)) {
+                    map.put(spuFavortiteId, 1);
+                }
+            }
+        }
+        return map;
+    }
+
+    /**
+     * @Author: zhangchengda
+     * @Description: 收藏的spu列表
+     * @Date: 14:48 2018/6/21
+     */
+    @Override
+    public ResponseEnvelope collectionList3(CollectionQueryModel model)
+    {
+        int total = 0;
+        List<GoodsVO> list = new ArrayList<>();
+        LoginUser loginUser = model.getLoginUser();
+        UserProductsConllect userProductsConllect = new UserProductsConllect();
+        userProductsConllect.setIsSort(null == model.getIsSort() ? 0 : model.getIsSort());
+        userProductsConllect.setStart(null == model.getStart() ? -1 : model.getStart());
+        userProductsConllect.setLimit(null == model.getPageSize() ? PageModel.DEFAULT_PAGE_PAGESIZE : model.getPageSize());
+        userProductsConllect.setProductCategoryCode(model.getProductCategoryCode());
+        userProductsConllect.setUserId(loginUser.getId());
+        total = userProductCollectMapper.getCollectCount(userProductsConllect);
+        if (total > 0) {
+            List<Integer> spuIds = userProductCollectMapper.getSpuIdList(userProductsConllect);
+            List<GoodsBO> spuList = baseGoodsSPUMapper.getGoodsSpuList(spuIds);
+            for (GoodsBO spuBO : spuList)
+            {
+                List<BigDecimal> prices = new ArrayList<>();
+                try
+                {
+                    prices = NumberUtil.convertStrToNumList(spuBO.getPrices(), BigDecimal.class);
+                } catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+                GoodsVO vo = new GoodsVO();
+                vo.setSpuId(spuBO.getId());
+                vo.setSalePrice(""+(NumberUtil.findMin(prices,new BigDecimal(0),false)==null?"0":
+                        NumberUtil.findMin(prices,new BigDecimal(0),false).setScale(2,BigDecimal.ROUND_DOWN).toString()));
+                vo.setProductName(spuBO.getGoodsName());
+                vo.setPicPath(spuBO.getPic());
+                list.add(vo);
+            }
+        }
+        return new ResponseEnvelope(true, "", list, total);
+    }
+}

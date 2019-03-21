@@ -1,0 +1,68 @@
+package com.sandu.job;
+
+import com.sandu.api.springFestivalActivity.model.WxSpringActivity;
+import com.sandu.api.springFestivalActivity.service.WxSpringActivityService;
+import com.sandu.api.springFestivalActivity.service.WxUserSigninService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
+
+/**
+ * @ClassName: UserSignInActivityJob
+ * @Auther: gaoj
+ * @Date: 2019/2/18 16:42
+ * @Description:
+ * @Version 1.0
+ */
+@EnableScheduling
+@Component
+@Slf4j
+public class UserSignInActivityJob {
+
+    private static final String CLASS_LOG_PREFIX = "用户签到定时活动任务";
+    private final Long activityId = FilmTicketActivityJob.getActivityId();
+    private final WxSpringActivityService wxSpringActivityService;
+    private final WxUserSigninService wxUserSigninService;
+
+    public UserSignInActivityJob(WxSpringActivityService wxSpringActivityService,
+                                 WxUserSigninService wxUserSigninService) {
+        this.wxSpringActivityService = wxSpringActivityService;
+        this.wxUserSigninService = wxUserSigninService;
+    }
+
+    public void createRedPacket() {
+        if (null != activityId) {
+            WxSpringActivity wxSpringActivity = wxSpringActivityService.selectByPrimaryKey(activityId);
+            BigDecimal redPacketDayNum = wxSpringActivity.getRedPacketDayNum();
+            BigDecimal redPacketMaxAmount = wxSpringActivity.getRedPacketMaxAmount();
+            BigDecimal redPacketMinAmount = wxSpringActivity.getRedPacketMinAmount();
+
+            if (redPacketDayNum.compareTo(redPacketMaxAmount) > 0) {
+                //初始化红包剩余金额
+                BigDecimal redPacketRemainNum = redPacketDayNum;
+                ArrayList<BigDecimal> redPacketAmountList = new ArrayList<>();
+                //生成所有的红包金额
+                while (redPacketRemainNum.compareTo(redPacketMaxAmount) > 0) {
+                    //随机生成最大值和最小值中间的数值
+                    DecimalFormat df = new DecimalFormat("#.00");
+                    //多线程并发使用的随机数生成器(有边界)
+                    double doubleAmount = ThreadLocalRandom.current().nextDouble(redPacketMinAmount.doubleValue(), redPacketMaxAmount.doubleValue());
+                    log.info(CLASS_LOG_PREFIX + "随机生成红包金额：原随机数：{}", doubleAmount);
+                    //格式化为2位小数
+                    BigDecimal amount = new BigDecimal(df.format(doubleAmount));
+                    log.info(CLASS_LOG_PREFIX + "随机生成红包金额：最终的红包金额：{}", amount);
+
+                    redPacketAmountList.add(amount);
+                    //修改红包剩余金额
+                    redPacketRemainNum = redPacketRemainNum.subtract(amount);
+                }
+                log.info(CLASS_LOG_PREFIX + "剩余金额小于红包最大值，红包分配完毕,redPacketRemainNum={}",redPacketRemainNum);
+            }
+        }
+    }
+}

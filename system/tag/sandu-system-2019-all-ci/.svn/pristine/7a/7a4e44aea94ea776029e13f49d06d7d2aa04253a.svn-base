@@ -1,0 +1,145 @@
+package com.sandu.web.banner;
+
+import com.github.pagehelper.PageInfo;
+import com.sandu.api.banner.input.ActShareImgAdminAdd;
+import com.sandu.api.banner.model.ActShareImgAdmin;
+import com.sandu.api.banner.service.ActShareImgAdminService;
+import com.sandu.common.LoginContext;
+import com.sandu.commons.LoginUser;
+import com.sandu.commons.ResponseEnvelope;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Objects;
+
+@RestController
+@RequestMapping(value = "/v1/sxw/share")
+@Slf4j
+public class SXWActShareImgAdminController {
+
+    @Autowired
+    private ActShareImgAdminService actShareImgAdminService;
+
+    /**
+     * 新增活动分享接口
+     * @param actShareImgAdminAdd
+     * @return
+     */
+    @RequestMapping("/add")
+    public Object insert(ActShareImgAdminAdd actShareImgAdminAdd){
+
+        Assert.notNull(actShareImgAdminAdd.getBannerId(),"bannerId不能为空");
+        Assert.notNull(actShareImgAdminAdd.getShareImgResPicId(),"shareImgResPicId不能为空");
+        Assert.notNull(actShareImgAdminAdd.getShareText(),"shareText不能为空");
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+
+        try{
+            int row = actShareImgAdminService.addActShareImgAdmin(actShareImgAdminAdd,loginUser);
+            if (row > 0){
+                return new ResponseEnvelope<>(true,"新增分享文案成功");
+            }
+        }catch (IllegalArgumentException ill){
+            return new ResponseEnvelope<>(false,ill.getMessage());
+        }catch (Exception e){
+            log.error("系统异常",e);
+            return new ResponseEnvelope<>(false,"系统异常");
+        }
+        return new ResponseEnvelope<>(false,"新增分享文案失败");
+    }
+
+    /**
+     * 更新活动分享图片信息
+     * @param actShareImgAdmin
+     * @return
+     */
+    @RequestMapping(value = "/update")
+    public Object update(ActShareImgAdmin actShareImgAdmin){
+
+        if (Objects.isNull(actShareImgAdmin.getId())){
+            return new ResponseEnvelope<>(false,"分享图片id不能为空");
+        }
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+
+        try {
+           int row = actShareImgAdminService.updateActShareImgAdmin(actShareImgAdmin,loginUser);
+           return new ResponseEnvelope<>(true,"修改成功");
+        }catch (Exception e){
+            log.error("系统异常",e);
+            return new ResponseEnvelope<>(false,"系统异常");
+        }
+    }
+
+    /**
+     * 增加删除活动分享图片问题
+     * @param id
+     * @return
+     */
+    @RequestMapping(value = "/del")
+    public Object deltedActShareImg(Long id){
+
+        Assert.notNull(id,"参数异常");
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+
+        try {
+            int row = actShareImgAdminService.deltedActShareImg(id,loginUser);
+            return new ResponseEnvelope<>(true,"删除成功");
+        }catch (IllegalArgumentException ill){
+            return new ResponseEnvelope<>(false,ill.getMessage());
+        }catch (Exception e){
+            log.error("系统异常",e);
+            return new ResponseEnvelope<>(false,"系统异常");
+        }
+    }
+
+    /**
+     * 获取分享图片列表
+     * @param page
+     * @param limit
+     * @return
+     */
+    @RequestMapping(value = "/list")
+    public Object list(Integer page,Integer limit){
+
+        if (Objects.isNull(page)){
+            page = 1;
+        }
+
+        if (Objects.isNull(limit)){
+            limit = 10;
+        }
+
+        try{
+            PageInfo<ActShareImgAdmin> pageInfo = actShareImgAdminService.getList(page,limit);
+            return new ResponseEnvelope<>(true,pageInfo.getTotal(),pageInfo.getList());
+        }catch (Exception e){
+            log.error("系统异常",e);
+            return new ResponseEnvelope<>(false,"获取列表异常");
+        }
+    }
+
+    /**
+     * 根据bannerId获取随选网活动转发图片
+     * @param bannerId
+     * @return
+     */
+    @RequestMapping("/getActShareImg")
+    public Object getSXWActShareImg(Long bannerId){
+
+        Assert.notNull(bannerId,"参数错误");
+
+        try {
+            List<ActShareImgAdmin> actShareImgAdmin = actShareImgAdminService.getSXWActShareImg(bannerId);
+            return new ResponseEnvelope<>(true,actShareImgAdmin);
+        }catch (Exception e){
+            log.error("系统异常",e);
+            return new ResponseEnvelope<>(false,"获取活动转发图片异常");
+        }
+    }
+}

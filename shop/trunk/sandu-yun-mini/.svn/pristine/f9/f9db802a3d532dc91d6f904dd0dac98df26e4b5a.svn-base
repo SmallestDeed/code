@@ -1,0 +1,38 @@
+package com.sandu.company.service.impl;
+
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.sandu.common.constant.SysDictionaryConstant;
+import com.sandu.common.utils.StringUtils;
+import com.sandu.company.dao.CompanyDesignerDao;
+import com.sandu.company.model.vo.CompanyDesignerVo;
+import com.sandu.company.service.CompanyDesignerService;
+import com.sandu.sys.model.vo.SysDictionaryVo;
+import com.sandu.sys.service.SysDictionaryService;
+
+@Service("companyDesignerService")
+@Transactional(readOnly = true)
+public class CompanyDesignerServiceImpl implements CompanyDesignerService {
+	private static final Logger logger = LoggerFactory.getLogger(CompanyShopServiceImpl.class.getName());
+    @Autowired
+    private CompanyDesignerDao companyDesignerDao;
+    
+	@Override
+	public List<CompanyDesignerVo> getTopDesigner(Long id) {
+		List<CompanyDesignerVo> lstVo = companyDesignerDao.getTopDesigner(id);
+		
+		return lstVo;
+	}
+
+	@Override
+	public int getDesignerCount(Long companyId) {
+		return companyDesignerDao.getDesignerCount(companyId);
+	}
+
+}

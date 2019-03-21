@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.gift.dao.GiftDao">
+
+    <insert id="insert" parameterType="com.sandu.api.gift.model.Gift" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO `imall_gifts`
+        (`name`,`explain`,`introduce`,`is_putaway`,`inventory`,`price`,`point`,`express_fee`,`creator`,`gmt_create`,modifier,gmt_modified,is_deleted,sys_code,code)
+        VALUES
+        (#{name},#{explain},#{introduce},#{isPutaway},#{inventory},#{price},#{point},#{expressFee},#{creator},CURRENT_TIMESTAMP,#{modifier},CURRENT_TIMESTAMP,0,#{sysCode},#{code})
+    </insert>
+
+    <update id="update" parameterType="com.sandu.api.gift.model.Gift">
+        UPDATE `imall_gifts`
+        <set>
+            <if test="name != null">`name` = #{name},</if>
+            <if test="explain != null">`explain` = #{explain},</if>
+            <if test="introduce != null">`introduce` = #{introduce},</if>
+            <if test="isPutaway != null">`is_putaway` = #{isPutaway},</if>
+            <if test="inventory != null">`inventory` = #{inventory},</if>
+            <if test="price != null">`price` = #{price},</if>
+            <if test="point != null">`point` = #{point},</if>
+            <if test="expressFee != null">`express_fee` = #{expressFee},</if>
+            modifier=#{modifier},
+            `gmt_modified` = CURRENT_TIMESTAMP
+        </set>
+        WHERE `id` = #{id}
+    </update>
+
+    <!--修改上架状态-->
+    <update id="updatePutaway">
+      UPDATE imall_gifts
+      set is_putaway=#{isPutaway},modifier=#{modifier},`gmt_modified` = CURRENT_TIMESTAMP
+      where `id` in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="delete">
+        UPDATE`imall_gifts`
+        SET `is_deleted` = 1,modifier=#{modifier},`gmt_modified` = CURRENT_TIMESTAMP
+        WHERE `id` IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="getById" resultType="com.sandu.api.gift.model.Gift">
+      SELECT `id`,`name`,`explain`,`introduce`,`is_putaway`,`gmt_create`,inventory,price,point,express_fee
+      FROM `imall_gifts` WHERE id=#{id}
+    </select>
+
+    <select id="findAll" resultType="com.sandu.api.gift.model.Gift" parameterType="com.sandu.api.gift.model.GiftPO">
+        SELECT DISTINCT `id`,code,`name`,`explain`,`introduce`,`is_putaway` ,inventory,price,point,express_fee
+        ,creator,`gmt_create`,modifier,gmt_modified
+        ,(select filename from imall_gift_image where small=1 and gift_id=imall_gifts.id and is_deleted=0 limit 1) as small
+        FROM `imall_gifts`
+        <where>
+            1=1
+            <if test="isPutaway != null"> and is_putaway=#{isPutaway}</if>
+            <if test="name != ''"> AND name LIKE CONCAT('%', #{name},'%')</if>
+            <if test="code != ''"> AND code LIKE CONCAT('%', #{code},'%')</if>
+            and is_deleted=0
+        </where>
+        ORDER BY gmt_create DESC
+    </select>
+
+
+
+    <!--插入礼品图片-->
+    <insert id="insertGiftImage" parameterType="com.sandu.api.gift.model.GiftImage" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO `imall_gift_image`
+        (gift_id,filename,`order`,cover,small,creator,`gmt_create`,modifier,gmt_modified,is_deleted)
+        VALUES
+        (#{giftId},#{fileName},#{order},#{cover},#{small},#{creator},CURRENT_TIMESTAMP,#{modifier},CURRENT_TIMESTAMP,0)
+    </insert>
+    <!-- 获取礼品图片 -->
+    <select id="getGiftImages" resultType="com.sandu.api.gift.model.GiftImage">
+        SELECT id,gift_id,filename,`order`,cover,small FROM imall_gift_image
+        <where>
+            gift_id=#{id}
+            and is_deleted=0
+        </where>
+    </select>
+
+    <!-- 删除图片 -->
+    <update id="deleteGiftImageByGiftId" >
+        update imall_gift_image
+        set is_deleted = 1
+        <where>
+            gift_id=#{id}
+        </where>
+    </update>
+
+    <update id="deleteGiftImageById" >
+        update imall_gift_image
+        set is_deleted = 1
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!--封面-->
+    <update id="updateCoverDefault">
+      UPDATE imall_gift_image
+      set `cover` = 0,modifier=#{modifier},gmt_modified=CURRENT_TIMESTAMP
+      where `gift_id` = #{giftId}
+    </update>
+
+    <update id="updateCover">
+      UPDATE imall_gift_image
+      set `cover` = 1,modifier=#{modifier},gmt_modified=CURRENT_TIMESTAMP
+      where `id` = #{id}
+    </update>
+
+    <!--缩略图-->
+    <update id="updateSmallDefault">
+      UPDATE imall_gift_image
+      set `small` = 0,modifier=#{modifier},gmt_modified=CURRENT_TIMESTAMP
+      where `gift_id` = #{giftId}
+    </update>
+
+    <update id="updateSmall">
+      UPDATE imall_gift_image
+      set `small` = 1,modifier=#{modifier},gmt_modified=CURRENT_TIMESTAMP
+      where `id` = #{id}
+    </update>
+
+
+    <!-- 库存变动记录 -->
+    <insert id="addImallGiftInout" parameterType="com.sandu.api.gift.model.GiftInout" keyProperty="id" useGeneratedKeys="true">
+         insert into imall_gift_inout(gift_id,oper_type,order_id,price,point,`count`,inventory,remark,creator,gmt_create)
+         values(#{giftId},#{operType},#{orderId},#{price},#{point},#{count},#{inventory},#{remark},#{creator},CURRENT_TIMESTAMP)
+     </insert>
+
+    <!--添加库存-->
+    <update id="addGiftInventory">
+        update imall_gifts
+        set inventory=inventory+#{count}
+        where id=#{id}
+    </update>
+
+    <select id="getGiftByCode" resultType="java.lang.String">
+        SELECT
+		code
+		FROM imall_gifts
+		WHERE is_deleted = 0
+		AND code LIKE CONCAT('%', #{code},'%')
+		ORDER BY code DESC
+		LIMIT 1
+    </select>
+</mapper>

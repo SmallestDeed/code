@@ -1,0 +1,28 @@
+package com.sandu.api.solution.input;
+
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.Range;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * @author Sandu
+ */
+@Data
+public class DesignControlUpdate implements Serializable {
+
+    @ApiModelProperty(value = "方案id集合", required = true)
+    @NotNull(message = "方案id不能为空")
+    @Size(min = 1, message = "方案ID最少为一个")
+    private List<Integer> planIds;
+
+    @ApiModelProperty(value = "方案公开状态:0:非公开,1公开", required = true)
+    @NotNull(message = "方案公开状态不能为空")
+    @Range(max = 1, min = 0, message = "请输入正确的公开状态参数")
+    private Integer secrecyFlag;
+}

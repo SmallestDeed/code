@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.basesupplydemand.dao.SupplyDemandPicMapper">
+  <resultMap id="BaseResultMap" type="com.sandu.api.basesupplydemand.model.SupplyDemandPic">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="pic_name" jdbcType="VARCHAR" property="picName" />
+    <result column="pic_size" jdbcType="INTEGER" property="picSize" />
+    <result column="pic_weight" jdbcType="VARCHAR" property="picWeight" />
+    <result column="pic_high" jdbcType="VARCHAR" property="picHigh" />
+    <result column="pic_format" jdbcType="VARCHAR" property="picFormat" />
+    <result column="pic_path" jdbcType="VARCHAR" property="picPath" />
+    <result column="sys_code" jdbcType="VARCHAR" property="sysCode" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, pic_name, pic_size, pic_weight, pic_high, pic_format, pic_path, sys_code, creator, 
+    gmt_create, modifier, gmt_modified, is_deleted, remark
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from supply_demand_pic
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from supply_demand_pic
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.basesupplydemand.model.SupplyDemandPic">
+    insert into supply_demand_pic (id, pic_name, pic_size, 
+      pic_weight, pic_high, pic_format, 
+      pic_path, sys_code, creator, 
+      gmt_create, modifier, gmt_modified, 
+      is_deleted, remark)
+    values (#{id,jdbcType=BIGINT}, #{picName,jdbcType=VARCHAR}, #{picSize,jdbcType=INTEGER}, 
+      #{picWeight,jdbcType=VARCHAR}, #{picHigh,jdbcType=VARCHAR}, #{picFormat,jdbcType=VARCHAR}, 
+      #{picPath,jdbcType=VARCHAR}, #{sysCode,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{isDeleted,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.basesupplydemand.model.SupplyDemandPic">
+    insert into supply_demand_pic
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="picName != null">
+        pic_name,
+      </if>
+      <if test="picSize != null">
+        pic_size,
+      </if>
+      <if test="picWeight != null">
+        pic_weight,
+      </if>
+      <if test="picHigh != null">
+        pic_high,
+      </if>
+      <if test="picFormat != null">
+        pic_format,
+      </if>
+      <if test="picPath != null">
+        pic_path,
+      </if>
+      <if test="sysCode != null">
+        sys_code,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="picName != null">
+        #{picName,jdbcType=VARCHAR},
+      </if>
+      <if test="picSize != null">
+        #{picSize,jdbcType=INTEGER},
+      </if>
+      <if test="picWeight != null">
+        #{picWeight,jdbcType=VARCHAR},
+      </if>
+      <if test="picHigh != null">
+        #{picHigh,jdbcType=VARCHAR},
+      </if>
+      <if test="picFormat != null">
+        #{picFormat,jdbcType=VARCHAR},
+      </if>
+      <if test="picPath != null">
+        #{picPath,jdbcType=VARCHAR},
+      </if>
+      <if test="sysCode != null">
+        #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.basesupplydemand.model.SupplyDemandPic">
+    update supply_demand_pic
+    <set>
+      <if test="picName != null">
+        pic_name = #{picName,jdbcType=VARCHAR},
+      </if>
+      <if test="picSize != null">
+        pic_size = #{picSize,jdbcType=INTEGER},
+      </if>
+      <if test="picWeight != null">
+        pic_weight = #{picWeight,jdbcType=VARCHAR},
+      </if>
+      <if test="picHigh != null">
+        pic_high = #{picHigh,jdbcType=VARCHAR},
+      </if>
+      <if test="picFormat != null">
+        pic_format = #{picFormat,jdbcType=VARCHAR},
+      </if>
+      <if test="picPath != null">
+        pic_path = #{picPath,jdbcType=VARCHAR},
+      </if>
+      <if test="sysCode != null">
+        sys_code = #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.basesupplydemand.model.SupplyDemandPic">
+    update supply_demand_pic
+    set pic_name = #{picName,jdbcType=VARCHAR},
+      pic_size = #{picSize,jdbcType=INTEGER},
+      pic_weight = #{picWeight,jdbcType=VARCHAR},
+      pic_high = #{picHigh,jdbcType=VARCHAR},
+      pic_format = #{picFormat,jdbcType=VARCHAR},
+      pic_path = #{picPath,jdbcType=VARCHAR},
+      sys_code = #{sysCode,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

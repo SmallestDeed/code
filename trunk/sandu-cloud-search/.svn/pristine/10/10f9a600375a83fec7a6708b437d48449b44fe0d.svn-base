@@ -1,0 +1,69 @@
+import com.sandu.search.SearchProvider;
+import com.sandu.search.entity.elasticsearch.index.CategoryProductIndexMappingData;
+import com.sandu.search.entity.elasticsearch.response.SearchObjectResponse;
+import com.sandu.search.exception.*;
+import com.sandu.search.service.product.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.Arrays;
+
+/**
+ * 所有搜索服务测试类
+ *
+ * @date 20171213
+ * @auth pengxuangang
+ */
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = SearchProvider.class)
+public class AllSearchServiceTest {
+
+    @Autowired
+    private ProductBrandSearchService productBrandSearchService;
+    @Autowired
+    private ProductNameSearchService productNameSearchService;
+    @Autowired
+    private ProductTextureSearchService productTextureSearchService;
+    @Autowired
+    private ProductStyleSearchService productStyleSearchService;
+    @Autowired
+    private ProductManyConditionSearchService productManyConditionSearchService;
+
+    @Test
+    public void queryProductListByBrandNameTest() throws BrandSearchException {
+        SearchObjectResponse searchObjectResponse = productBrandSearchService.queryProductListByBrandName("乐居", 20);
+        String a = "";
+    }
+
+    @Test
+    public void queryProductListByProductNameTest() throws ProductNameSearchException {
+        SearchObjectResponse searchObjectResponse = productNameSearchService.queryProductListByProductName("陶瓷", 30);
+        String a = "";
+    }
+
+
+    @Test
+    public void queryProductListByProductTextureNameTest() throws ProductTextureSearchException {
+        SearchObjectResponse searchObjectResponse = productTextureSearchService.queryProductListByProductTextureName("lib_tul_80X80_0002-4", 30);
+        String a = "";
+    }
+
+    @Test
+    public void queryProductListByProductStyleNameTest() throws ProductStyleSearchException {
+        SearchObjectResponse searchObjectResponse = productStyleSearchService.queryProductListByProductStyleName("现代奢华", 30);
+        String a = "";
+    }
+
+    @Test
+    public void queryProductListByConditionTest() throws ProductManyConditionSearchException {
+        CategoryProductIndexMappingData categoryProductIndexMappingData = new CategoryProductIndexMappingData();
+        categoryProductIndexMappingData.setStyleNameList(Arrays.asList("北欧", "LOFT工业风"));
+        categoryProductIndexMappingData.setProductName("地板");
+        categoryProductIndexMappingData.setProductBrandName("大自然");
+        SearchObjectResponse searchObjectResponse = productManyConditionSearchService.queryProductListByCondition(categoryProductIndexMappingData, 10);
+        String a = "";
+    }
+}

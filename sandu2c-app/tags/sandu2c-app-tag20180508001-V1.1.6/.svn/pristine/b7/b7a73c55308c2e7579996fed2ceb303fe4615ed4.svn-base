@@ -1,0 +1,207 @@
+package com.sandu.web.designplan.controller;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.sandu.system.service.BasePlatformService;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.google.gson.Gson;
+import com.nork.common.model.LoginUser;
+import com.sandu.cache.service.RedisService;
+import com.sandu.common.LoginContext;
+import com.sandu.common.model.PageModel;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.common.properties.ResProperties;
+import com.sandu.common.tool.EscapeUnescape;
+import com.sandu.design.model.ResRenderPicQO;
+import com.sandu.design.model.ThumbData;
+import com.sandu.designplan.model.DesignPlanRenderScene;
+import com.sandu.designplan.model.ResRenderPic;
+import com.sandu.designplan.service.DesignPlanRenderSceneService;
+import com.sandu.platform.BasePlatform;
+import com.sandu.render.model.RenderTypeCode;
+import com.sandu.render.model.RenderingModel;
+import com.sandu.system.service.ResRenderPicService;
+import com.sandu.user.service.UserSessionService;
+
+@RestController
+@RequestMapping("/v1/miniprogram/autorender")
+public class MyDesignPlanController {
+    private final static Gson GSON = new Gson();
+    private final static String CLASS_LOG_PREFIX = "[我的设计]:";
+    private final static Logger logger = LogManager.getLogger(MyDesignPlanController.class);
+
+    @Value("${miniprogram.latform.code}")
+    private String miniprogramLatformCode;
+
+    private final static Gson gson = new Gson();
+
+    @Autowired
+    private DesignPlanRenderSceneService designPlanRenderSceneService;
+    @Autowired
+    private ResRenderPicService resRenderPicService;
+    @Autowired 
+    private BasePlatformService basePlatformService;
+    /**
+     * 查询该用户渲染成功的案列/我的设计
+     *
+     * @date 20171103
+     * @auth pengxuangang
+     */
+    @RequestMapping(value = "/mydesignplan", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEnvelope getThumbList(@ModelAttribute RenderingModel thumbData, @ModelAttribute PageModel pageModel, HttpServletRequest request) {
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        logger.info(CLASS_LOG_PREFIX + "获取登录用户信息:getUserFromCache:{}.", null == loginUser ? null : loginUser.toString());
+        if(loginUser==null){
+            return new ResponseEnvelope(false, "请登录!");
+        }
+        DesignPlanRenderScene designPlanRenderScene = new DesignPlanRenderScene();
+        designPlanRenderScene.setUserId(loginUser.getId());
+        if (StringUtils.isNotBlank(thumbData.getName())) {
+            designPlanRenderScene.setPlanName(EscapeUnescape.unescape(thumbData.getName()));
+        }
+        if (null != thumbData.getSpaceFunctionId() && thumbData.getSpaceFunctionId() > 0) {
+            designPlanRenderScene.setSpaceFunctionId(thumbData.getSpaceFunctionId());
+        }
+        if(null != thumbData.getHouseId()&&thumbData.getHouseId()>0) {
+        	designPlanRenderScene.setHouseId(thumbData.getHouseId());
+        }
+        if (null != pageModel && 0 != pageModel.getPageSize()) {
+            designPlanRenderScene.setStart(pageModel.getStart());
+            designPlanRenderScene.setLimit(pageModel.getPageSize());
+        } else {
+            designPlanRenderScene.setLimit(PageModel.DEFAULT_PAGE_PAGESIZE);
+        }
+        if(null!=thumbData.getIsSort()) {
+        	designPlanRenderScene.setIsSort(thumbData.getIsSort());
+        }
+    	if (StringUtils.isNotBlank(thumbData.getAreaValue())) {
+    		designPlanRenderScene.setSpaceAreas(thumbData.getAreaValue());// 空间面积
+		}
+		if (StringUtils.isNotBlank(thumbData.getSpaceStyleId())) {
+			designPlanRenderScene.setSpaceStyleId(thumbData.getSpaceStyleId());// 空间风格
+		}
+		
+		//从获取当前平台
+        BasePlatform basePlatform = basePlatformService.getBasePlatform(miniprogramLatformCode);
+        if (basePlatform == null) {
+            return new ResponseEnvelope(false, "未知的平台");
+        }
+        designPlanRenderScene.setPlatformBussinessType(basePlatform.getPlatformBussinessType());
+
+        List<ThumbData> resList = new ArrayList<ThumbData>();
+        List<DesignPlanRenderScene> list = null;
+        int count = 0;
+
+
+        count = designPlanRenderSceneService.selectVendorCountV2(designPlanRenderScene);
+
+        if (count > 0) {
+            list = designPlanRenderSceneService.selectVendorListV2(designPlanRenderScene);
+        }
+
+        if (list == null || list.size() <= 0) {
+        	return new ResponseEnvelope(true,"您还没有渲染过方案",null);
+        }
+
+        for (DesignPlanRenderScene scene : list) {
+            ThumbData thumbData2 = new ThumbData();
+            thumbData2.setCpId(scene.getId());
+            thumbData2.setFailCause(scene.getFailCause());
+            thumbData2.setCheckUserName(scene.getCheckUserName());
+            thumbData2.setName(scene.getPlanName());
+            this.coverPicHandling(scene, thumbData2);
+            resList.add(thumbData2);
+        }
+        return new ResponseEnvelope(true, "success", resList, count);
+    }
+    
+    /**
+     * 图片封面处理
+     *
+     * @param scene
+     * @param thumbData
+     */
+    public void coverPicHandling(DesignPlanRenderScene scene, ThumbData thumbData) {
+        if (scene == null || thumbData == null) {
+            return;
+        }
+        if (scene.getCoverPicId() != null && scene.getCoverPicId().intValue() > 0) {
+            ResRenderPic coverPic = resRenderPicService.get(scene.getCoverPicId());
+            if (coverPic != null) {
+                this.dataFilling(coverPic, thumbData);
+                return;
+            }
+        }
+        List<ResRenderPic> picList = new ArrayList<>(); //查询该设计方案的全部渲染缩略图列表
+        ResRenderPicQO resRenderPicQO = new ResRenderPicQO();
+        resRenderPicQO.setCreateUserId(scene.getUserId());
+        resRenderPicQO.setDesignSceneId(scene.getId());
+        resRenderPicQO.setIsDeleted(0);
+        List<String> fileKeyLists = new ArrayList<String>();
+        fileKeyLists.add(ResProperties.DESIGNPLAN_RENDER_PIC_SMALL_FILEKEY);
+        fileKeyLists.add(ResProperties.DESIGNPLAN_RENDER_VIDEO_COVER);
+        resRenderPicQO.setFileKeys(fileKeyLists);
+        picList = resRenderPicService.selectListByFileKeys(resRenderPicQO);
+        if (picList != null && picList.size() > 0) {
+            int id = 0;
+            for (ResRenderPic resRenderPic : picList) {
+                if (id > resRenderPic.getId().intValue()) {
+                    continue;
+                }
+                thumbData.setName(scene.getPlanName());
+                this.dataFilling(resRenderPic, thumbData);
+                id = resRenderPic.getId();
+            }
+        }
+    }
+
+    /**
+     * 对thumbData 进行数据填充
+     *
+     * @param resRenderPic
+     * @param thumbData
+     */
+    public void dataFilling(ResRenderPic resRenderPic, ThumbData thumbData) {
+        if (resRenderPic == null || thumbData == null) {
+            return;
+        }
+        thumbData.setThumbId(resRenderPic.getId());
+        //thumbData.setName(resRenderPic.getDesignPlanName());
+        thumbData.setPic(resRenderPic.getPicPath());
+        thumbData.setType(resRenderPic.getSpaceType());
+        thumbData.setArea(resRenderPic.getArea());
+        thumbData.setPlanId(resRenderPic.getBusinessId());
+        if (resRenderPic.getGmtCreate() != null) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            thumbData.setCtime(simpleDateFormat.format(resRenderPic.getGmtCreate()));
+        }
+        if (RenderTypeCode.COMMON_PICTURE_LEVEL == resRenderPic.getRenderingType().intValue()) {
+            thumbData.setRenderPic(true);
+        }
+        if (RenderTypeCode.COMMON_720_LEVEL == resRenderPic.getRenderingType().intValue()) {
+            thumbData.setRender720(true);
+        }
+        if (RenderTypeCode.ROAM_720_LEVEL == resRenderPic.getRenderingType().intValue()) {
+            thumbData.setRenderRoam(true);
+        }
+        if (RenderTypeCode.COMMON_VIDEO == resRenderPic.getRenderingType().intValue()) {
+            thumbData.setRenderVideo(true);
+        }
+    }
+
+}

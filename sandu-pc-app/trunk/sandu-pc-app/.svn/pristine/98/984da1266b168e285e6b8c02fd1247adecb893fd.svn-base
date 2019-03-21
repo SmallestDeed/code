@@ -1,0 +1,46 @@
+package com.sandu.product.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.product.dao.StructureProductDetailsMapper;
+import com.sandu.product.model.StructureProductDetails;
+import com.sandu.product.model.search.StructureProductDetailsSearch;
+import com.sandu.product.service.StructureProductDetailsService;
+
+@Service("structureProductDetailsService")
+public class StructureProductDetailsServiceImpl implements StructureProductDetailsService {
+
+	@Autowired
+	private StructureProductDetailsMapper structureProductDetailsMapper;
+	
+	/**
+	 * 通过structureId查找StructureProductDetails
+	 * @author huangsongbo
+	 * @param id
+	 * @return
+	 */
+	@Override
+	public List<StructureProductDetails> findAllByStructureId(Integer structureId) {
+		StructureProductDetailsSearch structureProductDetailsSearch=new StructureProductDetailsSearch();
+		structureProductDetailsSearch.setStart(new Integer(-1));
+		structureProductDetailsSearch.setLimit(new Integer(-1));
+		structureProductDetailsSearch.setStructureId(structureId);
+		return this.getPaginatedList(structureProductDetailsSearch);
+	}
+
+	/**
+	 *    分页获取数据
+	 *
+	 * @param  structureProductDetails
+	 * @return   List<StructureProductDetails>
+	 */
+	@Override
+	public List<StructureProductDetails> getPaginatedList(
+			StructureProductDetailsSearch structureProductDetailsSearch) {
+		return structureProductDetailsMapper.selectPaginatedList(structureProductDetailsSearch);
+	}
+	
+}

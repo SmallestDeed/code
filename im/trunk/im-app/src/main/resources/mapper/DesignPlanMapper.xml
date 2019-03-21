@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.im.dao.DesignPlanDao">
+
+    <select id="selectSingleDesinPlanInfo" resultType="com.sandu.im.model.DesignPlanInfo">
+			SELECT
+		state.id,
+		state.task_id AS taskId,
+		state.plan_id AS planId,
+		art.operation_source AS operationSource,
+		state.operation_user_id AS operationUserId,
+		state.render_pic AS renderPic,
+		state.render_720 AS render720,
+		state.render_n720 AS renderN720,
+		state.render_video AS renderVideo,
+		state.fail_reason AS failReason,
+		state.creator AS creator,
+		state.gmt_modified AS gmtCreate,
+		state.is_deleted AS isDeleted,
+		state.design_code AS designCode,
+		state.design_name AS designName,
+		state.template_code AS templateCode,
+		state.new_design_code AS newDesignCode,
+		state.task_source AS taskSource,
+		state.host_ip AS hostIp,
+		state.render_types_str AS renderTypesStr,
+		state.task_type AS taskType,
+		state.render_time_consuming AS renderTimeConsuming,
+		state.is_valid AS isValid,
+		CASE
+		WHEN state.id IS NULL THEN
+		1
+		WHEN state.render_pic = 1
+		OR state.render_720 = 1
+		OR state.render_n720 = 1
+		OR state.render_video = 1 THEN
+		4
+		WHEN state.render_pic = 2
+		OR state.render_720 = 2
+		OR state.render_n720 = 2
+		OR state.render_video = 2 THEN
+		2
+		WHEN state.render_pic = 3
+		OR state.render_720 = 3
+		OR state.render_n720 = 3
+		OR state.render_video = 3 THEN
+		1
+		WHEN state.render_pic = 0
+		OR state.render_720 = 0
+		OR state.render_n720 = 0
+		OR state.render_video = 0 THEN
+		3
+		ELSE
+		5
+		END renderState,
+		state.business_id AS businessId,
+		state.fail_type AS failType,
+		state.platform_id AS platformId,
+		state.template_id AS templateId,
+		state.plan_house_type AS planHouseType,
+		state.new_full_house_plan_id AS newFullHousePlanId,
+		state.main_task_id AS mainTaskId,
+		state.house_id AS houseId,
+		bh.living_id AS livingId,
+		state.gmt_modified as gmtModified,
+		state.state AS state,
+		state.house_id AS houseId,
+		bps.name AS planStyleName,
+		sc.space_areas AS spaceArea,
+		sd.name AS spaceTypeName,
+		dprs.living_id AS  livingId
+		FROM
+		auto_render_task_state state
+		LEFT JOIN auto_render_task art ON state.task_id = art.id and art.is_deleted = 0
+		left join design_plan_render_scene dprs on dprs.id = state.business_id
+		left join space_common sc on sc.id = dprs.space_common_id
+		left join sys_dictionary sd on sd.value = sc.space_function_id and type = 'houseType'
+		left join base_product_style bps on bps.id = dprs.design_recommended_style_id
+		LEFT JOIN base_house bh on bh.id = state.house_id
+		WHERE
+		state.state = 1
+		and state.plan_house_type = 1
+		and state.is_deleted = 0
+		and state.business_id in
+		<foreach collection="singlePlanIds" item="planId" open="(" separator="," close=")">
+			#{planId}
+		</foreach>
+    </select>
+
+	<select id="selectResRenderCoverPicByDesignSceneId" resultType="com.sandu.im.model.ResRenderPic">
+		select
+        	*
+        from res_render_pic
+        where file_key in ('design.designPlan.render.small.pic')
+        and design_scene_id = #{businessId}
+        and rendering_type = 4
+        and is_deleted = 0
+        ORDER BY gmt_create desc
+        limit 1
+	</select>
+
+	<select id="selectResRenderCoverPics" resultType="com.sandu.im.model.ResRenderPic">
+		select
+        	*
+        from res_render_pic
+        where file_key in ('design.designPlan.render.small.pic')
+        and rendering_type = 4
+        and is_deleted = 0
+        and design_scene_id in
+        <foreach collection="businessIds" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+        ORDER BY gmt_create desc
+	</select>
+
+	<select id="selectDesianPlanArea" resultType="string">
+		select
+		sc.space_areas as spaceAreas
+		from design_templet dt
+		left join space_common sc on sc.id = dt.space_common_id
+		where dt.id = #{templateId}
+	</select>
+
+	<select id="selectselectFullHouseDesignPlanDetail" resultType="com.sandu.im.model.DesignPlanRecommendedResult">
+		 select
+    fh.id as id,
+    fh.id as planRecommendedId,
+    fh.plan_name as planName,
+    fh.plan_style_name as styleName,
+    fh.gmt_create as gmtCreate,
+    fh.vr_resource_uuid as fullHousePlanUUID,
+    rrp.pic_path as coverPath,
+    sd.value as spaceFunctionId,
+    sd.name AS spaceTypeName,
+	arts.plan_house_type as planHouseType,
+    fh.desc_file_id as descFileId,
+    su.user_name designerName,
+    su.id userId,
+    su.pic_id designerHeadPic,
+    IFNULL(arts.house_id,0) AS houseId,
+    IFNULL(bh.living_id,0) AS livingId,
+    arts.main_task_id AS mainTaskId,
+	arts.template_id as templateId
+    from
+    full_house_design_plan fh
+    left join auto_render_task_state arts on arts.new_full_house_plan_id = fh.id and arts.task_id = arts.main_task_id
+    LEFT JOIN base_house bh on bh.id = arts.house_id
+    left join design_plan_2c_platform dpp on dpp.plan_id = fh.id and dpp.design_plan_type = 3
+    left join res_render_pic rrp on rrp.id = fh.plan_pic_id
+    left join sys_dictionary sd on sd.type = 'houseType' and sd.valuekey = 'fullroom'
+    left join plan_decorate_price pdp on pdp.full_house_id = fh.id and pdp.is_deleted = 0
+    left join sys_user su on su.id = fh.user_id and su.is_deleted = 0
+    where
+    fh.is_deleted = 0
+    and fh.id  in
+    <foreach collection="fullHouseIds" item="fullHouseId" open="(" separator="," close=")">
+		#{fullHouseId}
+	</foreach>
+	</select>
+
+    <select id="getFullHouseInfo" resultType="com.sandu.im.model.DesignPlanRecommendedResult">
+        select
+        DISTINCT
+        fh.id as houseId,
+        fh.plan_name as planName,
+        fh.plan_style_name as styleName,
+        fh.gmt_create as gmtCreate,
+        fh.vr_resource_uuid as fullHousePlanUUID,
+        rrp.pic_path as coverPath,
+        sd.value as spaceFunctionId,
+        sd.name AS spaceTypeName,
+        2 as planHouseType,
+        fh.desc_file_id as descFileId,
+        su.user_name designerName,
+        su.id userId,
+        su.pic_id designerHeadPic,
+        arts.main_task_id AS mainTaskId,
+        dpsr.house_id AS houseId,
+        bh.living_id AS livingId
+        from full_house_design_plan fh
+        left join design_plan_store_release dpsr on dpsr.uuid = fh.vr_resource_uuid
+        left join base_house bh on bh.id = dpsr.house_id
+        left join auto_render_task_state arts on arts.new_full_house_plan_id = fh.id and arts.task_id =
+        arts.main_task_id
+        left join res_render_pic rrp on rrp.id = fh.plan_pic_id
+        left join sys_dictionary sd on sd.type = 'houseType' and sd.valuekey = 'fullroom'
+        left join sys_user su on su.id = fh.user_id and su.is_deleted = 0
+        and fh.id = #{fullHouseId}
+        order by fh.open_time DESC
+        limit 1
+    </select>
+
+    <select id="selectDesignPlanRenderSceneInfo" resultType="com.sandu.im.model.DesignPlanRenderScene">
+        SELECT
+          id,
+          plan_name as planName,
+          gmt_create as gmtCreate
+        FROM
+          design_plan_render_scene
+          WHERE
+          id = #{planId} AND
+          is_deleted = 0
+    </select>
+
+	<select id="selectMianTaskInfo" resultType="com.sandu.im.model.FullHouseMainTaskInfo">
+		SELECT
+			template_id  as  templateId,
+			business_id  as  businessId,
+			main_task_id as  mainTaskId,
+			house_id  as houseId,
+			plan_house_type as planHouseType,
+			new_full_house_plan_id as fullHouseId,
+			design_name as planName
+		from
+			auto_render_task_state
+		where
+		    is_deleted = 0 AND
+			new_full_house_plan_id = #{fullHouseId} AND
+			main_task_id = task_id
+	</select>
+
+	<select id="getFullHouseCoverPicture" resultType="string">
+		SELECT
+		  r.pic_path
+		FROM
+		  full_house_design_plan f,res_render_pic r
+		WHERE
+		   f.plan_pic_id = r.id  AND
+		   f.is_deleted = 0 AND r.is_deleted = 0
+		   AND f.id = #{fullHouseId}
+	</select>
+
+</mapper>

@@ -1,0 +1,38 @@
+package com.sandu.api.springFestivalActivity.service.biz;
+
+import com.sandu.api.springFestivalActivity.input.UserInviteRecordSearch;
+import com.sandu.api.springFestivalActivity.output.GiveMeFiveVo;
+import com.sandu.api.springFestivalActivity.output.RedPointFlagVo;
+import com.sandu.api.springFestivalActivity.output.UserInviteRecordVo;
+
+import java.util.List;
+
+public interface FilmTicketActivityService {
+    /**
+     * 获取红点标识
+     *
+     * @param userId     用户ID
+     * @param activityId 活动ID
+     * @return hasTaskFlag 是否有可领取的任务，activityOverFlag 活动是否结束，cardNumFlag 今日是否还有可领的卡片
+     */
+    RedPointFlagVo getRedPointFlag(Long userId, Long activityId);
+
+    /**
+     * 助力
+     *
+     * @param giveUserId    助力的用户ID
+     * @param getUserId     获得助力的用户ID
+     * @param activityId    活动ID
+     * @param isLoginBefore 助力用户是否第一次登陆
+     * @return success 助力是否成功, message 助力消息
+     */
+    GiveMeFiveVo giveMeFive(Long giveUserId, Long getUserId, Long activityId, Integer isLoginBefore);
+
+    /**
+     * 获取邀请好友记录列表
+     *
+     * @param search 查询参数
+     * @return 邀请记录列表
+     */
+    List<UserInviteRecordVo> getInviteRecord(UserInviteRecordSearch search);
+}

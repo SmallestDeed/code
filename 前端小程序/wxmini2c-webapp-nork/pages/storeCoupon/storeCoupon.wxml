@@ -1,0 +1,52 @@
+<!--pages/brandHall/storeCoupon/storeCoupon.wxml-->
+<view class="yhq_main_body" style="{{!isFromPersonal?'margin-bottom: 100rpx;':''}}">
+    <view class='main_body_list' style='{{targetData.length>0?"min-height:604rpx;":""}}'>
+    <view class="yhq_liebiao"
+       wx:for="{{targetData}}" wx:for-item="couponItem" >
+       <!-- {{couponItem.effectiveDateMode==2&&couponItem.receiveState==1?(couponItem.isEffectiveDate!=1?1:aaaa}}):1 -->
+      <view class="liebiao_left_xrzx" wx:if="{{couponItem.couponType==1}}">新人专享</view>
+			<view class="yhq_liebiao_left">
+				<view class="liebiao_left_xrzx" wx:if="{{couponItem.couponType==1}}">新人专享</view>
+				<view class="liebiao_left_title" wx:if="{{couponItem.discountMode==1}}"><text class="unit">￥</text>{{couponItem.discountAmount}}</view>
+        <view class="liebiao_left_title" wx:if="{{couponItem.discountMode==2}}">{{couponItem.rebateFactor}}<text class="rebate">折</text></view>
+         <view class="liebiao_left_text" >{{couponItem.orderAmount==0?"无门槛":"满"+couponItem.orderAmount+"元立减"}}</view> 
+			</view>
+			<view class="yhq_liebiao_right">
+				<view class="liebiao_right_title">使用范围：{{couponItem.scopeDesc}}</view>
+        <view class="liebiao_right_text">使用期限：{{couponItem.useDuration}}</view>
+        <view wx:if="{{couponItem.receiveState==1}}" 
+          bindtap="{{(couponItem.isEffectiveDate==0&&couponItem.receiveState==1&&couponItem.effectiveDateMode==2)?'':'goUrls'}}"
+          class="liebiao_button02 {{(couponItem.isEffectiveDate==0&&couponItem.receiveState==1&&couponItem.effectiveDateMode==2)?'galy':''}}">
+          立即使用
+        </view>
+        <view wx:else class="liebiao_button01" data-couid="{{couponItem.id}}" data-shopid="" bindtap="receiveCoupon">立即领取</view>
+			</view>
+      <view class='yhq_liebiao_image' wx:if="{{couponItem.receiveState==1}}"><image src='{{staticImageUrl}}coupons_label_01.png'></image></view>
+		</view>
+    </view>
+    <view  wx:if="{{targetData.length==0}}" class="coupon-noData">
+      <image  src="{{staticImageUrl}}me_pic_no_03.png"></image>
+      <view class="noData-tip">空空如也~</view>
+    </view>
+
+    <view class="yhq_rxsp" wx:if="{{introList.length>0}}">
+			<view class="yhq_rxsp_h1">热销商品
+				<view class="yhq_rxsp_more" bindtap="toHref">
+          查看更多 <image class='iconimg'  src="{{staticImageUrl}}home_icon_more.png"></image>
+        </view>
+			</view>
+      <view class="rxsp_item" 
+        wx:for="{{introList}}" wx:for-item="proItem" 
+        wx:key='{{index}}' data-id='{{proItem.goodsId}}'
+        bindtap='goGoodsInfo'
+      >
+        <image src="{{proItem.picPath?(resourcePath + proItem.picPath):staticImageUrl+'goods_pic_no.png'}}"></image>
+        <text class="yhq_rxsp_title">{{proItem.spuName}}</text>
+        <text class="yhq_rxsp_text">￥{{proItem.price}}</text>
+      </view>
+		</view>
+
+    <view class="yhq_wdkq" wx:if="{{!isFromPersonal}}">
+      <view class="foot-link" bindtap="toHref2">我的卡券</view>
+    </view>
+	</view>

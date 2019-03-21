@@ -1,0 +1,269 @@
+package com.sandu.web.user;/**
+ * @ Author     ：weisheng.
+ * @ Date       ：Created in PM 5:33 2018/5/29 0029
+ * @ Description：${description}
+ * @ Modified By：
+ * @Version: $version$
+ */
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.sandu.base.ORCode;
+import com.sandu.common.file.util.file.FilePathUtil;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.common.util.StringUtils;
+import com.sandu.common.util.Utils;
+import com.sandu.pay.alipay.util.WXChatRequest;
+import com.sandu.pay.alipay.util.httpClient.AccessTokenSuccess;
+import com.sandu.user.model.SysUser;
+import com.sandu.user.model.UserInvite;
+import com.sandu.user.model.view.UserInviteTopListVo;
+import com.sandu.user.service.SysUserService;
+import com.sandu.user.service.UserInviteService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * @author weisheng
+ * @Title: 用户邀请
+ * @Package
+ * @Description:
+ * @date 2018/5/29 0029PM 5:33
+ */
+@Slf4j
+@RestController
+@RequestMapping("/v1/union/invite")
+public class UserInviteController {
+
+    @Autowired
+    private UserInviteService userInviteService;
+    @Autowired
+    private SysUserService sysUserService;
+
+    private static Gson gson = new Gson();
+
+    @Value("${file.storage.path}")
+    private String storagePath;
+
+    @Value("${company.access.token.url}")
+    private String accessTokenUrl;
+
+    @Value("${QRCode.url}")
+    private String QRCodeUrl;
+
+    @Value("${page}")
+    private String page;
+
+    @Value("${width}")
+    private String width;
+
+    @Value("${auto.color}")
+    private String autoColor;
+
+    @Value("${line.color}")
+    private String lineColor;
+
+    @Value("${is.hyaline}")
+    private String isHyaline;
+
+    @Value("${share.Sign}")
+    private String shareSign;
+
+    /**
+     * @Title: 用户发起分享XZ微信小程序
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/sharexzchat", method = RequestMethod.GET)
+    @ResponseBody
+    @ApiOperation(value = "用户发起分享XZ微信小程序", response = ResponseEnvelope.class)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "shareType", value = "分享类型:'1:微信朋友圈,2:微信好友,3:QQ好友,4:QQ空间,5:微博'", required = true, paramType = "query", dataType = "int"),
+    })
+    public ResponseEnvelope getUserPrivateMessageList(@RequestParam(value = "shareType", required = true) Integer shareType, HttpServletRequest request) {
+        /*LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, "请先登录");
+        }*/
+        //生成唯一标识
+        String uuid = Utils.generateRandomDigitString(32);
+
+        String sceneStr = "inviteId=" + /*loginUser.getId()*/823 + "shareSign=" + shareSign + "uuid=" + uuid;
+        //获取微信accessToken
+        String accessTokenJson = WXChatRequest.httpsRequest(accessTokenUrl, "GET", null);
+        String accessToken = null;
+        if (accessTokenJson.contains("access_token")) {
+            Type type = new TypeToken<AccessTokenSuccess>() {
+            }.getType();
+            AccessTokenSuccess accessTokenSuccess = gson.fromJson(accessTokenJson, type);
+            accessToken = accessTokenSuccess.getAccess_token();
+        } else {
+            return new ResponseEnvelope(false, "获取微信accessToken失败", accessTokenJson);
+        }
+        //生成二维码保存路径
+        String absolutePath = FilePathUtil.absolutePath(storagePath, "xzmini", "shareSign", "image", LocalDateTime.now(), "wxchat.png");
+
+        //封装微信图片参数
+        ORCode orCode = new ORCode();
+        orCode.setORUrl(QRCodeUrl);
+        orCode.setScene(sceneStr);
+        orCode.setPage(page);
+        orCode.setWidth(Integer.parseInt(width));
+        orCode.setAutoColor(Boolean.parseBoolean(autoColor));
+        orCode.setLineColor(lineColor);
+        orCode.setIsHyaline(Boolean.parseBoolean(isHyaline));
+        //调用微信API获取二维码
+        String miniqrQrPicPath = null;
+        try {
+            miniqrQrPicPath = WXChatRequest.getminiqrQr(accessToken, absolutePath, orCode);
+            if (StringUtils.isEmpty(miniqrQrPicPath)) {
+                return new ResponseEnvelope(false, "生成二维码失败");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEnvelope(false, "微信参数配置错误,无法获取二维码");
+        }
+
+        //封装参数保存到数据库
+        String returnPath = FilePathUtil.formatPath(FilePathUtil.serverPath()) + FilePathUtil.removeStartSlash(FilePathUtil.relativePath(storagePath, absolutePath));
+        UserInvite userInvite = new UserInvite();
+        userInvite.setInviteId( /*loginUser.getId()*/823);
+        userInvite.setSharePicPath(returnPath);
+        userInvite.setInviteTime(new Date());
+        userInvite.setShareSign(shareSign);
+        userInvite.setUuid(uuid);
+        userInvite.setShareType(shareType);//'1:微信朋友圈,2:微信好友,3:QQ好友,4:QQ空间,5:微博',
+        userInvite.setStatus(0); //'邀请状态0:未注册,1:已注册'
+        Integer keyId = userInviteService.saveUserInviteInfo(userInvite);
+        if (keyId == 0) {
+            return new ResponseEnvelope(false, "保存邀请数据失败");
+        }
+
+        return new ResponseEnvelope(true, "", keyId);
+    }
+
+
+    /**
+     * @Title: 邀请人注册后回调
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/invitecallback", method = RequestMethod.GET)
+    @ResponseBody
+    @ApiOperation(value = "邀请人注册后回调", response = ResponseEnvelope.class)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "uuid", value = "uuid'", required = true, paramType = "query", dataType = "String")
+    })
+    public ResponseEnvelope inviteCallBack(
+            @RequestParam(value = "uuid", required = true) String uuid,
+                                           HttpServletRequest request) {
+        /*LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, "请先登录");
+        }*/
+        //获取当前用户注册时间
+        SysUser sysUser = sysUserService.get(/*loginUser.getId()*/823);
+
+        UserInvite userInvite = userInviteService.getUserInviteByUuid(uuid);
+
+        UserInvite newUserInvite = new UserInvite();
+        newUserInvite.setRegisterTime(sysUser.getGmtCreate());
+        newUserInvite.setStatus(1); //'邀请状态0:未注册,1:已注册'
+        newUserInvite.setFid(/*sysUser.getId()*/823);
+        Integer keyId = userInviteService.updateUserInviteStatus(newUserInvite);
+        if (keyId == 0) {
+            return new ResponseEnvelope(false, "修改邀请数据失败");
+        }
+
+        return new ResponseEnvelope(true, "", keyId);
+
+    }
+
+
+
+
+
+    /**
+     * @Title: 获取邀请排行榜信息
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/invitetoplist", method = RequestMethod.GET)
+    @ResponseBody
+    @ApiOperation(value = "获取邀请排行榜信息", response = ResponseEnvelope.class)
+    @ApiImplicitParams({
+
+    })
+    public ResponseEnvelope getInviteTopList(HttpServletRequest request) {
+        //List<UserInviteTopListVo>  userInviteVoList = userInviteService.getInviteTopList();
+
+
+        return new ResponseEnvelope(true, "", null);
+
+    }
+
+
+
+
+    /**
+     * @Title: 获取用户信息
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/userinvitelist", method = RequestMethod.GET)
+    @ResponseBody
+    @ApiOperation(value = "获取用户信息", response = ResponseEnvelope.class)
+    @ApiImplicitParams({
+
+    })
+    public ResponseEnvelope getUserInviteList(HttpServletRequest request) {
+
+
+
+        return new ResponseEnvelope(true, "", null);
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}

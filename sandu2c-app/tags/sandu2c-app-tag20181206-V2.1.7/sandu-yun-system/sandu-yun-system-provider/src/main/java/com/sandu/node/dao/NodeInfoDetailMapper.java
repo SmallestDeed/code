@@ -1,0 +1,29 @@
+package com.sandu.node.dao;
+
+import com.sandu.node.model.NodeInfoDetail;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface NodeInfoDetailMapper {
+    int deleteByPrimaryKey(Integer id);
+
+    int insert(NodeInfoDetail record);
+
+    int insertSelective(NodeInfoDetail record);
+
+    NodeInfoDetail selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(NodeInfoDetail record);
+
+    int updateByPrimaryKey(NodeInfoDetail record);
+
+    List<NodeInfoDetail> getNodeInfoDetail(@Param("start") Integer start,
+                                           @Param("size") Integer size);
+
+    Integer updateNodeInfoDetailByUnique(NodeInfoDetail nodeInfoDetail);
+
+    List<NodeInfoDetail> getNodeInfoDetailSelective(NodeInfoDetail nodeInfoDetail);
+}

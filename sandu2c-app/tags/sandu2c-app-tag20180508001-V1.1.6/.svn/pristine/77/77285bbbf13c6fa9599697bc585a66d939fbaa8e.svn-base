@@ -1,0 +1,39 @@
+package com.sandu.analyze.queue.handle;
+
+import com.sandu.amqp.entity.queue.DesignPlanMessage;
+import com.sandu.analyze.common.tool.JsonUtil;
+import com.sandu.analyze.exception.MessageHandleException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+/**
+ * 设计方案消息处理
+ *
+ * @date 2018/5/3
+ * @auth pengxuangang
+ * @mail xuangangpeng@gmail.com
+ */
+@Slf4j
+@Component
+public class DesignplanHandle {
+
+    private static final String CLASS_PREFIX_LOG = "[设计方案消息处理]:";
+
+    /**
+     * 处理消息
+     *
+     * @param message 消息体
+     */
+    public void handle(String message) throws MessageHandleException {
+
+        DesignPlanMessage designPlanMessage;
+        try {
+            designPlanMessage = JsonUtil.fromJson(message, DesignPlanMessage.class);
+        } catch (Exception e) {
+            log.error(CLASS_PREFIX_LOG + "处理消息异常，格式化对象错误,Str:{}.", message);
+            return;
+        }
+
+        log.info(CLASS_PREFIX_LOG + "处理设计方案消息完成:DesignPlan:{}.", designPlanMessage);
+    }
+}

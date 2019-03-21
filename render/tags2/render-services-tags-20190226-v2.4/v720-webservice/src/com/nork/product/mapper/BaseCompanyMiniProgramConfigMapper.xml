@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nork.product.dao.BaseCompanyMiniProgramConfigMapper">
+  <resultMap id="BaseResultMap" type="com.nork.product.model.BaseCompanyMiniProgramConfig">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="app_id" jdbcType="VARCHAR" property="appId" />
+    <result column="app_secret" jdbcType="VARCHAR" property="appSecret" />
+    <result column="mch_id" jdbcType="VARCHAR" property="mchId" />
+    <result column="mch_key" jdbcType="VARCHAR" property="mchKey" />
+    <result column="company_id" jdbcType="INTEGER" property="companyId" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+    <result column="enable_brands" jdbcType="VARCHAR" property="enableBrands" />
+    <result column="min_pro_name" jdbcType="VARCHAR" property="minProName" />
+    <result column="api_cert_path" jdbcType="VARCHAR" property="apiCertPath" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, app_id, app_secret, mch_id, mch_key, company_id, creator, gmt_create, modifier, 
+    gmt_modified, is_deleted, enable_brands, min_pro_name, api_cert_path
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from base_company_mini_program_config
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from base_company_mini_program_config
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.nork.product.model.BaseCompanyMiniProgramConfig">
+    insert into base_company_mini_program_config (id, app_id, app_secret, 
+      mch_id, mch_key, company_id, 
+      creator, gmt_create, modifier, 
+      gmt_modified, is_deleted, enable_brands, 
+      min_pro_name, api_cert_path)
+    values (#{id,jdbcType=BIGINT}, #{appId,jdbcType=VARCHAR}, #{appSecret,jdbcType=VARCHAR}, 
+      #{mchId,jdbcType=VARCHAR}, #{mchKey,jdbcType=VARCHAR}, #{companyId,jdbcType=INTEGER},
+      #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER}, #{enableBrands,jdbcType=VARCHAR}, 
+      #{minProName,jdbcType=VARCHAR}, #{apiCertPath,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.nork.product.model.BaseCompanyMiniProgramConfig">
+    insert into base_company_mini_program_config
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="appId != null">
+        app_id,
+      </if>
+      <if test="appSecret != null">
+        app_secret,
+      </if>
+      <if test="mchId != null">
+        mch_id,
+      </if>
+      <if test="mchKey != null">
+        mch_key,
+      </if>
+      <if test="companyId != null">
+        company_id,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+      <if test="enableBrands != null">
+        enable_brands,
+      </if>
+      <if test="minProName != null">
+        min_pro_name,
+      </if>
+      <if test="apiCertPath != null">
+        api_cert_path,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="appId != null">
+        #{appId,jdbcType=VARCHAR},
+      </if>
+      <if test="appSecret != null">
+        #{appSecret,jdbcType=VARCHAR},
+      </if>
+      <if test="mchId != null">
+        #{mchId,jdbcType=VARCHAR},
+      </if>
+      <if test="mchKey != null">
+        #{mchKey,jdbcType=VARCHAR},
+      </if>
+      <if test="companyId != null">
+        #{companyId,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="enableBrands != null">
+        #{enableBrands,jdbcType=VARCHAR},
+      </if>
+      <if test="minProName != null">
+        #{minProName,jdbcType=VARCHAR},
+      </if>
+      <if test="apiCertPath != null">
+        #{apiCertPath,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.nork.product.model.BaseCompanyMiniProgramConfig">
+    update base_company_mini_program_config
+    <set>
+      <if test="appId != null">
+        app_id = #{appId,jdbcType=VARCHAR},
+      </if>
+      <if test="appSecret != null">
+        app_secret = #{appSecret,jdbcType=VARCHAR},
+      </if>
+      <if test="mchId != null">
+        mch_id = #{mchId,jdbcType=VARCHAR},
+      </if>
+      <if test="mchKey != null">
+        mch_key = #{mchKey,jdbcType=VARCHAR},
+      </if>
+      <if test="companyId != null">
+        company_id = #{companyId,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="enableBrands != null">
+        enable_brands = #{enableBrands,jdbcType=VARCHAR},
+      </if>
+      <if test="minProName != null">
+        min_pro_name = #{minProName,jdbcType=VARCHAR},
+      </if>
+      <if test="apiCertPath != null">
+        api_cert_path = #{apiCertPath,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.nork.product.model.BaseCompanyMiniProgramConfig">
+    update base_company_mini_program_config
+    set app_id = #{appId,jdbcType=VARCHAR},
+      app_secret = #{appSecret,jdbcType=VARCHAR},
+      mch_id = #{mchId,jdbcType=VARCHAR},
+      mch_key = #{mchKey,jdbcType=VARCHAR},
+      company_id = #{companyId,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      enable_brands = #{enableBrands,jdbcType=VARCHAR},
+      min_pro_name = #{minProName,jdbcType=VARCHAR},
+      api_cert_path = #{apiCertPath,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="selectList" parameterType="com.nork.product.model.BaseCompanyMiniProgramConfig" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from base_company_mini_program_config
+    WHERE 1=1
+    <if test="companyId != null">
+      and company_id = #{companyId,jdbcType=INTEGER}
+    </if>
+    <if test="isDeleted != null">
+      and is_deleted = #{isDeleted,jdbcType=INTEGER}
+    </if>
+    order by id desc
+  </select>
+</mapper>

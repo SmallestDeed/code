@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.decorateorderscore.dao.DecorateOrderScoreMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.decorateorderscore.model.DecorateOrderScore" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="order_id" property="orderId" jdbcType="BIGINT" />
+    <result column="company_id" property="companyId" jdbcType="BIGINT" />
+    <result column="score" property="score" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="pic_ids" property="picIds" jdbcType="VARCHAR" />
+    <result column="is_anonymous" property="isAnonymous" jdbcType="TINYINT" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, order_id, company_id, score, remark, pic_ids, is_anonymous, user_id, creator, 
+    gmt_create, modifier, gmt_modified, is_deleted
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from decorate_order_score
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from decorate_order_score
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.decorateorderscore.model.DecorateOrderScore"  useGeneratedKeys="true" keyProperty="id">
+    insert into decorate_order_score (id, order_id, company_id, 
+      score, remark, pic_ids, 
+      is_anonymous, user_id, creator, 
+      gmt_create, modifier, gmt_modified, 
+      is_deleted)
+    values (#{id,jdbcType=BIGINT}, #{orderId,jdbcType=BIGINT}, #{companyId,jdbcType=BIGINT}, 
+      #{score,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{picIds,jdbcType=VARCHAR}, 
+      #{isAnonymous,jdbcType=TINYINT}, #{userId,jdbcType=BIGINT}, #{creator,jdbcType=VARCHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{isDeleted,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.decorateorderscore.model.DecorateOrderScore" useGeneratedKeys="true" keyProperty="id" >
+    insert into decorate_order_score
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="orderId != null" >
+        order_id,
+      </if>
+      <if test="companyId != null" >
+        company_id,
+      </if>
+      <if test="score != null" >
+        score,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="picIds != null" >
+        pic_ids,
+      </if>
+      <if test="isAnonymous != null" >
+        is_anonymous,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="orderId != null" >
+        #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="companyId != null" >
+        #{companyId,jdbcType=BIGINT},
+      </if>
+      <if test="score != null" >
+        #{score,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="picIds != null" >
+        #{picIds,jdbcType=VARCHAR},
+      </if>
+      <if test="isAnonymous != null" >
+        #{isAnonymous,jdbcType=TINYINT},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  
+  <select id="selectDecorateOrderById" resultType="com.sandu.decorateorderscore.model.DecorateOrder">
+	SELECT 
+	  a.id,
+	  a.company_id AS companyId,
+	  b.company_name AS companyName 
+	FROM
+	  decorate_order a 
+	  LEFT JOIN base_company b 
+	    ON a.company_id = b.id 
+  	  where a.id = #{id}
+  </select>
+  
+  
+  <select id="selectDecorateOrderCount" resultType="java.lang.Integer">
+  	  select count(1) from (
+  	  	SELECT 
+  	  		distinct 
+		    c.user_name AS userName,
+		    c.mobile,
+		    c.house_acreage AS houseAcreage,
+		    b.company_name AS companyName,
+		    IFNULL(a.sign_time,a.gmt_create) AS gmtCreate,
+		    CASE WHEN
+		      IFNULL(a.order_status,-1) IN(5,6,7) 
+		      THEN 1 
+		      ELSE 2 
+		    END AS orderNum,
+		    a.`order_status`,
+		    c.province_code,
+		    c.city_code 
+		  FROM
+		    proprietor_info c
+		    LEFT JOIN decorate_order a 
+		      ON a.`proprietor_info_id` = c.id 
+		    LEFT JOIN base_company b 
+		      ON a.`company_id` = b.id 
+		  WHERE c.business_type = 0 
+		    AND c.customer_type IN (1, 2)
+		    AND c.is_deleted= 0 
+  	  ) as t
+  </select>
+  
+  <select id="selectDecorateOrderList" resultType="com.sandu.decorateorderscore.model.DecorateOrderVO"
+   parameterType="com.sandu.decorateorderscore.model.DecorateOrderQuery">
+  		SELECT 
+  		  distinct 
+		  t.userName,
+		  t.mobile,
+		  t.houseAcreage,
+		  t.companyName,
+		  CONCAT(d.area_name, e.area_name) AS cityName,
+		  t.orderNum as statusStr
+		FROM
+		  (SELECT 
+		    c.user_name AS userName,
+		    c.mobile,
+		    c.house_acreage AS houseAcreage,
+		    b.company_name AS companyName,
+		    IFNULL(a.sign_time,a.gmt_create) AS gmtCreate,
+		    CASE WHEN
+		      IFNULL(a.order_status,-1) IN(5,6,7) 
+		      THEN 1 
+		      ELSE 2 
+		    END AS orderNum,
+		    a.`order_status`,
+		    c.province_code,
+		    c.city_code 
+		  FROM
+		    proprietor_info c
+		    LEFT JOIN decorate_order a 
+		      ON a.`proprietor_info_id` = c.id 
+		    LEFT JOIN base_company b 
+		      ON a.`company_id` = b.id 
+		  WHERE c.business_type = 0 
+		    AND c.customer_type IN (1, 2)
+		    AND c.is_deleted= 0 ) t 
+		  LEFT JOIN base_area d 
+		    ON t.province_code = d.area_code 
+		  LEFT JOIN base_area e 
+		    ON t.city_code = e.area_code 
+		    where 1=1
+		   <!-- 第一页取已签约的数据 --> 
+		   <if test="status != null">
+   				AND t.orderNum = #{status}
+		   </if> 
+		   <if test="orderBy!=null and orderBy !=''">
+		    	${orderBy}
+		   </if>
+		   <if test="pageNo != null and pageSize != null">
+		        limit #{pageNo},#{pageSize}
+		   </if> 
+  </select>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.decorateorderscore.model.DecorateOrderScore" >
+    update decorate_order_score
+    <set >
+      <if test="orderId != null" >
+        order_id = #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="companyId != null" >
+        company_id = #{companyId,jdbcType=BIGINT},
+      </if>
+      <if test="score != null" >
+        score = #{score,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="picIds != null" >
+        pic_ids = #{picIds,jdbcType=VARCHAR},
+      </if>
+      <if test="isAnonymous != null" >
+        is_anonymous = #{isAnonymous,jdbcType=TINYINT},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.decorateorderscore.model.DecorateOrderScore" >
+    update decorate_order_score
+    set order_id = #{orderId,jdbcType=BIGINT},
+      company_id = #{companyId,jdbcType=BIGINT},
+      score = #{score,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR},
+      pic_ids = #{picIds,jdbcType=VARCHAR},
+      is_anonymous = #{isAnonymous,jdbcType=TINYINT},
+      user_id = #{userId,jdbcType=BIGINT},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

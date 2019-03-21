@@ -1,0 +1,160 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<html>
+<head>
+	<title>${vo.panoramaVo.title}</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<meta http-equiv="x-ua-compatible" content="IE=edge" />
+	<link href="${pageContext.request.contextPath}/pages/vr720/custom/css/720stylePc.css" type="text/css" rel="stylesheet">
+	<link href="${pageContext.request.contextPath}/pages/vr720/custom/css/sidebar-menu.css" type="text/css" rel="stylesheet">
+	<link href="${pageContext.request.contextPath}/pages/vr720/custom/css/font-awesome.min.css" type="text/css" rel="stylesheet">
+	<script src="${pageContext.request.contextPath}/pages/vr720/custom/js/jquery-2.1.1.min.js" type="text/javascript"></script>
+	<script src="${pageContext.request.contextPath}/pages/vr720/custom/js/sidebar-menu.js"></script>
+	<script src="${pageContext.request.contextPath}/pages/vr720/custom/js/720.js"></script>
+	<script src="${pageContext.request.contextPath}/pages/vr720/custom/js/vr720.js"></script>
+	<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+	<!-- <script type="text/javascript" src="${pageContext.request.contextPath}/pages/vr720/custom/js/share.js"></script>-->
+	<style>
+		@-ms-viewport { width:device-width; }
+		@media only screen and (min-device-width:800px) { html { overflow:hidden; } }
+		html { height:100%; }
+		body { height:100%; overflow:hidden; margin:0; padding:0; font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#FFFFFF; background-color:#000000; }
+		#pano{
+			position:absolute;
+			top:50%;
+			left:50%;
+			transform:translate(-50%,-50%);
+		}
+	</style>
+</head>
+<body>
+	<script src="${pageContext.request.contextPath}/pages/vr720/tour.js"></script>
+	<input type="hidden" value="${code}" id="code"/>
+	<input type="hidden" value="${vo.panoramaVo.thumbUrl}" id="shareImgUrl"/>
+	<input type="hidden" value="${vo.panoramaVo.title}" id="shareTitle"/>
+	<input type="hidden" value="${vo.panoramaVo.desc}" id="shareDesc"/>
+	<div id="pano" style="${vo.panoramaVo.windowsPercent}">
+		<noscript>
+			<table style="width:100%;height:100%;">
+				<tr style="vertical-align:middle;">
+					<td>
+						<div style="text-align:center;">ERROR:<br/><br/>Javascript not activated<br/><br/></div>
+					</td>
+				</tr>
+			</table>
+		</noscript>
+		<div>
+			<ul class="nameInfo">
+				<li><img id="companyLogoUrl" src="${vo.panoramaVo.companyLogoPath}" alt=""></li>
+				<br>
+				<li>
+					<h4 id="userName">${vo.panoramaVo.userName}</h4>
+					<h5 id="companyName">${vo.panoramaVo.companyName}</h5>
+				</li>
+			</ul>			
+			<!-- 三度logo转到插件里了 -->
+			<!-- <div class="sanduLogo"></div>		 --> 
+			<div class="productList"></div>
+			<div class="musicOff"></div>
+			<div class="infoPlane">
+				<div class="closeInfo"></div>
+				<div class="productImg">
+					<img id="productOriginalPicPath" src="" alt="" width="570" height="570">
+				</div>
+				<ul class="productInfo">
+					<li><h4>品名：</h4><p id="productName"></p></li>
+					<li><h4>品牌：</h4><p id="brandName"></p></li>
+					<li><h4>型号：</h4><p id="productModelNumber"></p></li>
+					<li><h4>规格：</h4><p id="productSpec"></p></li>
+					<li><h4>数量：</h4><p id="count"></p></li>
+					<li><h4>价格：</h4><p id="totalPrice"></p></li>
+					<li><h4>描述：</h4><p class="miaoSu" id="productDesc"></p></li>
+				</ul>
+			</div>
+			<div class="productPlane">
+				<aside class="main-sidebar">
+					<section  class="sidebar">
+						<div class="closeList"></div>
+						<h4 class="saleTitle">费用清单</h4>
+						<ul class="sidebar-menu">
+							<li class="treeview active">
+								<a href="#" class="titleText">
+									总计：<span>￥<fmt:formatNumber type="number" value="${vo.totalPrice}" pattern="0.00" maxFractionDigits="2"/>元</span>
+									<i class="fa fa-angle-left pull-right"></i>
+								</a>
+								<ul id="productCostDiv" class="treeview-menu">
+									<c:forEach items="${vo.productsCostTypeList}" var="cost">
+										<li class="treeview ">
+											<a href="#">
+												<span class="fa_title">${cost.costTypeName}：</span>
+												<span class="fa_content">￥<fmt:formatNumber type="number" value="${cost.totalPrice}" pattern="0.00" maxFractionDigits="2"/>${cost.salePriceValueName}</span>
+												<i class="fa_icon "></i>
+												<i class="fa fa-angle-left pull-right"></i>
+											</a>
+											<ul class="treeview-menu">
+												<c:forEach items="${cost.detailList}" var="productCost">
+													<li>
+														<a href="#">
+															<span class="fa_title">${productCost.costTypeName}：</span>
+															<span class="fa_content">￥<fmt:formatNumber type="number" value="${productCost.totalPrice}" pattern="0.00" maxFractionDigits="2"/>${salePriceValueName}</span>
+															<i class="fa_icon "></i>
+															<i class="fa fa-angle-left pull-right"></i>
+														</a>
+														<ul class="treeview-menu">
+															<c:forEach items="${productCost.detailList}" var="productCostDetail">
+																<dl class="list_menu">
+																	<dt><img src="${vo.resourceUrl}${productCostDetail.productPicPath}" alt="" class="" ></dt>
+																	<dd><p class="menu_left">品名：</p><p class="menu_right" name="productName">${productCostDetail.productName}</p></dd></br>
+																	<dd><p class="menu_left">品牌：</p><p class="menu_right" name="brandName">${productCostDetail.brandName}</p></dd></br>
+																	<dd><p class="menu_left">单价：</p><p class="menu_right" name="unitPrice"><fmt:formatNumber type="number" value="${productCostDetail.unitPrice}" pattern="0.00" maxFractionDigits="2"/>${productCostDetail.productUnit}</p></dd></br>
+																	<dd><p class="menu_left">数量：</p><p class="menu_right" name="count">${productCostDetail.count}</p></dd></br>
+																	<dd><p class="menu_left">金额：</p><p class="menu_right" name="totalPrice"><fmt:formatNumber type="number" value="${productCostDetail.totalPrice}" pattern="0.00" maxFractionDigits="2"/>元</p></dd>
+																	<input type="hidden" name="productModelNumber" value="${productCostDetail.productModelNumber}"/>
+																	<input type="hidden" name="productSpec" value="${productCostDetail.productSpec}"/>
+																	<input type="hidden" name="productDesc" value="${productCostDetail.productDesc}"/>
+																	<input type="hidden" name="productOriginalPicPath" value="${vo.resourceUrl}${productCostDetail.productOriginalPicPath}"/>
+																</dl><div class="clear"></div>
+															</c:forEach>
+														</ul>
+													</li>
+												</c:forEach>
+											</ul>
+										</li>
+									</c:forEach>
+								</ul>
+							</li>
+						</ul>
+					</section>
+				</aside>
+
+				<div class="bz_info">
+					<div class="wrap">
+						<i class="fa_icon"></i>
+						<p>标注了这个特殊符号的产品，只提供单价作为参考，暂时无法估算金额，不算入总价中。</p>
+					</div>
+					<div class="close_bz_Info"></div>
+				</div>
+			</div>
+			<div class="clear"></div>
+			<%--<div class="share"></div>
+			<div class="sharePlane">
+				<img src="${pageContext.request.contextPath}/pages/vr720/custom/images/code.jpg" alt="">
+			</div>--%>
+		</div>
+		<script>
+            $.sidebarMenu($('.sidebar-menu'));
+            $('.closeInfo').css({display:'block'});
+			var url = '<%=request.getContextPath()%>';
+            var config = {xml:"tour.xml", target:"pano", html5:"only", mobilescale:1.0, passQueryParameters:true, onready:krpanoReady};
+            embedpano(config);
+		</script>
+	</div>
+	
+
+	</body>
+</html> 

@@ -1,0 +1,56 @@
+#DateSource
+datasource:
+  url: jdbc:mysql://predb.mysql.sanduspace.com:3306/app_online_30?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=true&verifyServerCertificate=false
+  username: dbuser
+  password: Adbuser*$@sandu
+
+#Log System
+logging:
+  config: classpath:log4j2.xml
+
+#RPC Servive
+dubbo:
+  applicationName: sandu-cloud-search-provider
+  registryAddress: prezookeeper01.sanduspace.com:2181
+  transProtocolName: dubbo
+  transProtocolPort: 20104
+  providerServicesList:
+    - com.sandu.search.service.product.ProductBrandSearchService-productBrandSearchService-dubbo-3000-1.0.0
+    - com.sandu.search.service.product.ProductNameSearchService-productNameSearchService-dubbo-3000-1.0.0
+    - com.sandu.search.service.product.ProductStyleSearchService-productStyleSearchService-dubbo-3000-1.0.0
+    - com.sandu.search.service.product.ProductTextureSearchService-productTextureSearchService-dubbo-3000-1.0.0
+
+#Elasticsearch Service
+elasticsearch:
+  uri:
+    - 192.168.1.101:9200
+    - 192.168.1.113:9200
+    - 192.168.1.114:9200
+    - 192.168.1.207:9200
+  initProductCategoryIndex: false
+  initGroupProductIndex: false
+
+#Login Redis
+redis:
+  #格式：redis://:[密码]@[服务器地址]:[端口]/[db index]
+  uri: redis://:presanduspace@preredis.sanduspace.com:33434/0
+  pool:
+    maxActive: 10
+    maxIdle: 5
+    minIdle: 10
+    maxWaitMillis: 20000
+    maxWait: 300
+
+#Tomcat
+server:
+  port: 49080
+  session:
+    timeout: 7200
+
+#返回信息
+message:
+  messageMap:
+    #成功
+    "000000": "success"
+    "000001": "必需参数不能为空!"
+    "000002": "搜索产品列表失败!"

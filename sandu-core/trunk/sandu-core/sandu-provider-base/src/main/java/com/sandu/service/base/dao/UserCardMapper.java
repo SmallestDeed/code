@@ -1,0 +1,49 @@
+package com.sandu.service.base.dao;
+
+import com.sandu.api.base.input.UserCardStatisticsQuery;
+import com.sandu.api.base.model.UserCard;
+import com.sandu.api.base.output.UserCardStatisticsVo;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface UserCardMapper {
+    /**
+     * @mbggenerated
+     */
+    int deleteByPrimaryKey(Integer id);
+
+    /**
+     * @mbggenerated
+     */
+    int insert(UserCard record);
+
+    /**
+     * @mbggenerated
+     */
+    int insertSelective(UserCard record);
+
+    /**
+     * @mbggenerated
+     */
+    UserCard selectByPrimaryKey(Integer id);
+
+    /**
+     * @mbggenerated
+     */
+    int updateByPrimaryKeySelective(UserCard record);
+
+    /**
+     * @mbggenerated
+     */
+    int updateByPrimaryKey(UserCard record);
+
+    UserCard getUserCardByUserId(Integer userId);
+
+    int updateByUserIdSelective(UserCard record);
+
+    List<UserCardStatisticsVo> getAllUserCardOfCompany(UserCardStatisticsQuery userCardStatisticsQuery);
+
+    Integer getAllUserCardCount(UserCardStatisticsQuery userCardStatisticsQuery);
+}

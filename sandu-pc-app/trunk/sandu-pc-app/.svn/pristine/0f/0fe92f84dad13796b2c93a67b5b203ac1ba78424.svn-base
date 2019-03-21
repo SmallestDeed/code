@@ -1,0 +1,39 @@
+package com.sandu.home.cache.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.common.cache.CacheManager;
+import com.sandu.common.cache.util.KeyGenerator;
+import com.sandu.common.metadata.ModuleType;
+import com.sandu.home.cache.service.SpaceCommonCacherService;
+import com.sandu.home.model.SpaceCommon;
+import com.sandu.home.service.SpaceCommonService;
+
+@Service("spaceCommonCacherService")
+public class SpaceCommonCacherServiceImpl implements SpaceCommonCacherService {
+
+	@Autowired
+	private SpaceCommonService spaceCommonService;
+	
+	/***
+	 * 获取单个通用空间
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@Override
+	public SpaceCommon get(int id) {
+		SpaceCommon common = null;
+		String key = KeyGenerator.getIdKey(ModuleType.SpaceCommon, id);
+		common = (SpaceCommon) CacheManager.getInstance().getCacher().getObject(key);
+		if (common == null) {
+			common = spaceCommonService.get(id);
+			if (common != null) {
+				CacheManager.getInstance().getCacher().setObject(key, common, 0);
+			}
+		}
+		return common;
+	}
+	
+}

@@ -1,0 +1,403 @@
+package com.sandu.service.base.impl;
+
+import com.sandu.api.base.common.LoginUser;
+import com.sandu.api.base.common.Utils;
+import com.sandu.api.base.common.exception.BizException;
+import com.sandu.api.base.common.tool.WXACodeParams;
+import com.sandu.api.base.common.util.WXUtils;
+import com.sandu.api.base.model.*;
+import com.sandu.api.base.output.ResPicVo;
+import com.sandu.api.base.output.UserCardVo;
+import com.sandu.api.base.service.BaseCompanyService;
+import com.sandu.api.base.service.ResPicService;
+import com.sandu.api.base.service.SysUserService;
+import com.sandu.api.base.service.UserCardService;
+import com.sandu.service.base.dao.UserCardMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service("userCardService")
+public class UserCardServiceImpl implements UserCardService {
+
+    private final String CLASS_LOG_PREFIX = "【用户电子名片服务】";
+    @Value("${file.storage.path}")
+    private String storagePath;
+    @Value("${app.server.url}")
+    private String appResourceUrl;
+    @Value("${user.card.page}")
+    private String userCardPage;
+    private final String USER_CARD_QR_CODE = "user_card_qr_code";
+    private final Integer POSTER_SHARE_TYPE = 3;
+    private final String USER_CARD_PAGE_SIGN = "u_c_p";
+    /**
+     * 独立经销商用户类型
+     */
+    private final Integer INDEPENDENT_DEALER_USER_TYPE = 14;
+    /**
+     * 厂商内部用户类型
+     */
+    private final Integer MANUFACTURER_USER_TYPE = 2;
+    /**
+     * 厂商经销商用户类型
+     */
+    private final Integer MANUFACTURER_DEALER_USER_TYPE = 3;
+    /**
+     * 厂商业务类型
+     */
+    private final Integer MANUFACTURER_BUSINESS_TYPE = 1;
+    /**
+     * 经销商业务类型
+     */
+    private final Integer DEALER_BUSINESS_TYPE = 2;
+
+    private final UserCardMapper userCardMapper;
+    private final ResPicService resPicService;
+    private final SysUserService sysUserService;
+    private final BaseCompanyService baseCompanyService;
+
+    @Autowired
+    public UserCardServiceImpl(UserCardMapper userCardMapper,
+                               ResPicService resPicService,
+                               SysUserService sysUserService,
+                               BaseCompanyService baseCompanyService) {
+        this.userCardMapper = userCardMapper;
+        this.resPicService = resPicService;
+        this.sysUserService = sysUserService;
+        this.baseCompanyService = baseCompanyService;
+    }
+
+    @Override
+    public UserCardVo getUserCardByUserId(Integer userId) throws BizException {
+        if (null == userId || 0 >= userId) {
+            log.warn(CLASS_LOG_PREFIX + "获取名片，userId为空：{}", userId);
+            throw new BizException(CLASS_LOG_PREFIX + "获取电子名片，登录用户为空");
+        }
+        log.info(CLASS_LOG_PREFIX + "通过userId获取名片,userId={}", userId);
+        UserCard userCard = userCardMapper.getUserCardByUserId(userId);
+        if (null == userCard) {
+            log.warn(CLASS_LOG_PREFIX + "通过userId获取名片信息为空，userId：{}", userId);
+            return null;
+        }
+        log.info(CLASS_LOG_PREFIX + "通过userId获取名片完成,userCard={}", userCard);
+        this.propertyDecoding(userCard);
+        log.info(CLASS_LOG_PREFIX + "通过userId获取名片解码完成,userCard={}", userCard);
+
+        UserCardVo userCardVo = new UserCardVo();
+        BeanUtils.copyProperties(userCard, userCardVo);
+        userCardVo.setUserCardId(userCard.getId());
+
+        //获取用户照片路径集合
+        // 前端说这个集合不能为null，所以如果没有数据就返回空集合
+        List<ResPicVo> resPicVoList = new ArrayList<>();
+        String userPicIds = userCard.getUserPicIds();
+        if (StringUtils.isNotBlank(userPicIds)) {
+            List<String> strIdList = Arrays.asList(userPicIds.split(","));
+            if (!CollectionUtils.isEmpty(strIdList)) {
+                List<Integer> idList = strIdList.stream().map(Integer::parseInt).collect(Collectors.toList());
+                if (!CollectionUtils.isEmpty(idList)) {
+                    resPicVoList = resPicService.getByIdList(idList);
+                }
+            }
+        }
+        userCardVo.setResPicVoList(resPicVoList);
+
+        //获取用户企业logo
+        SysUser sysUser = sysUserService.selectByPrimaryKey(userId.longValue());
+        if (null != sysUser) {
+            Integer userType = sysUser.getUserType();
+            Integer businessAdministrationId = sysUser.getBusinessAdministrationId();
+            if (null != businessAdministrationId) {
+                int companyId = businessAdministrationId.intValue();
+                BaseCompany baseCompany;
+                if (MANUFACTURER_DEALER_USER_TYPE.equals(userType)) {
+                    baseCompany = baseCompanyService.get(companyId);
+                    if (null != baseCompany) {
+                        companyId = baseCompany.getPid();
+                    }
+                }
+                log.info(CLASS_LOG_PREFIX + "获取电子名片，获取公司logo，companyId={}", companyId);
+                baseCompany = baseCompanyService.get(companyId);
+                if (null != baseCompany) {
+                    Integer companyLogoId = baseCompany.getCompanyLogo();
+                    log.info(CLASS_LOG_PREFIX + "获取电子名片，获取公司logo，companyLogoId={}", companyLogoId);
+                    ResPic logoResPic = resPicService.getResPicById(companyLogoId);
+                    if (null != logoResPic) {
+                        userCardVo.setCompanyLogoPath(logoResPic.getPicPath());
+                    }
+                }
+            }
+        }
+        return userCardVo;
+    }
+
+    @Override
+    public boolean insertOrUpdate(UserCard userCard) throws BizException {
+        if (null == userCard) {
+            log.warn(CLASS_LOG_PREFIX + "添加或修改名片，参数为空");
+            throw new BizException(CLASS_LOG_PREFIX + "添加或修改名片参数为空");
+        }
+
+        Integer userId = userCard.getUserId();
+        if (null == userId || 0 >= userId) {
+            log.warn(CLASS_LOG_PREFIX + "添加或修改名片，用户id为空 userId:{}", userId);
+            throw new BizException(CLASS_LOG_PREFIX + "添加或修改名片，用户id为空");
+        }
+
+        // 属性编码
+        this.propertyEncoding(userCard);
+
+        UserCard cardByUserId = userCardMapper.getUserCardByUserId(userId);
+        log.info(CLASS_LOG_PREFIX + "添加或修改名片，用户id：{}，查询到card信息：{}", userId, cardByUserId);
+        int result;
+        if (null == cardByUserId) {
+            userCard.setCreator(userId + "");
+            userCard.setModifier(userId + "");
+            userCard.setGmtCreate(new Date());
+            result = userCardMapper.insertSelective(userCard);
+            log.info(CLASS_LOG_PREFIX + "添加名片，userCard:{}, result:{}", userCard, result);
+        } else {
+            result = userCardMapper.updateByUserIdSelective(userCard);
+            log.info(CLASS_LOG_PREFIX + "修改名片，userCard:{}, result:{}", userCard, result);
+        }
+
+        if (result > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean checkUserHaveUserCard(LoginUser loginUser) throws BizException {
+        if (null == loginUser || null == loginUser.getId() || 0 == loginUser.getId()) {
+            log.error(CLASS_LOG_PREFIX + "校验用户是否有电子名片权限，loginUser为空:{}", loginUser);
+            throw new BizException(CLASS_LOG_PREFIX + "校验用户是否有电子名片权限，loginUser为空");
+        }
+        log.info(CLASS_LOG_PREFIX + "校验用户是否有电子名片权限，loginUser={}", loginUser);
+
+        Integer companyId;
+        SysUser sysUser = null;
+        Integer userType = loginUser.getUserType();
+        if (null == userType || 0 == userType) {
+            //如果登陆获取的用户类型为空则去数据库查询一次
+            log.warn(CLASS_LOG_PREFIX + "检验用户是否有电子名片权限，从登陆用户获取userType为空：{}", userType);
+            sysUser = sysUserService.selectByPrimaryKey(loginUser.getId().longValue());
+            userType = sysUser.getUserType();
+        }
+
+        Long businessAdministrationId = loginUser.getBusinessAdministrationId();
+        if (null == businessAdministrationId || 0 == businessAdministrationId) {
+            if (null == sysUser) {
+                sysUser = sysUserService.selectByPrimaryKey(loginUser.getId().longValue());
+            }
+            companyId = sysUser.getBusinessAdministrationId();
+        } else {
+            companyId = businessAdministrationId.intValue();
+        }
+        log.info(CLASS_LOG_PREFIX + "检验用户是否有电子名片权限，userType={}", userType);
+        if (INDEPENDENT_DEALER_USER_TYPE.equals(userType)
+                || MANUFACTURER_USER_TYPE.equals(userType)) {
+            //用户为独立经销商用户或者厂商内部用户，再判断是否开通小程序，是则可以看到电子名片
+            log.info(CLASS_LOG_PREFIX + "检验用户是否有电子名片权限,厂商或者独立经销商用户，companyId={}", companyId);
+        } else if (MANUFACTURER_DEALER_USER_TYPE.equals(userType)) {
+            //用户为厂商经销商用户，获取companyId方式不同
+            BaseCompany baseCompany = baseCompanyService.get(companyId);
+            companyId = baseCompany.getPid();
+            log.info(CLASS_LOG_PREFIX + "检验用户是否有电子名片权限,经销商用户，companyId={}", companyId);
+        } else {
+            return false;
+        }
+
+
+        log.info(CLASS_LOG_PREFIX + "检验用户是否有电子名片权限，companyId={}", companyId);
+        if (null == companyId || 0 == companyId) {
+            return false;
+        }
+
+        //如果企业id不为空，表示之前的条件都满足，只需验证该企业是否开通小程序
+        List<CompanyMiniProgramConfig> programConfigList = baseCompanyService.getMiniProgramConfigByCompanyId(companyId);
+        if (CollectionUtils.isEmpty(programConfigList)) {
+            return false;
+        } else {
+            return true;
+        }
+
+
+    }
+
+    @Override
+    public String getWXACode(Integer companyId, LoginUser loginUser, Integer userCardId) throws BizException {
+
+        List<CompanyMiniProgramConfig> miniProgramConfigList;
+        if (null != companyId && 0 != companyId) {
+            miniProgramConfigList = baseCompanyService.getMiniProgramConfigByCompanyId(companyId);
+            if (CollectionUtils.isEmpty(miniProgramConfigList)) {
+                //根据companyId找不到对应的小程序，则从登录用户获取所属公司
+                companyId = getCompanyIdByLoginUser(loginUser);
+                miniProgramConfigList = baseCompanyService.getMiniProgramConfigByCompanyId(companyId);
+            }
+        } else {
+            //如果companyId为空，则从登录用户获取所属公司
+            companyId = getCompanyIdByLoginUser(loginUser);
+            miniProgramConfigList = baseCompanyService.getMiniProgramConfigByCompanyId(companyId);
+        }
+
+        if (CollectionUtils.isEmpty(miniProgramConfigList)) {
+            log.warn(CLASS_LOG_PREFIX + "获取不到公司和用户对应的小程序，companyId={}，userId={}", companyId, loginUser.getId());
+            throw new BizException(CLASS_LOG_PREFIX + "获取不到公司和用户对应的小程序，companyId=" + companyId + "，userId=" + loginUser.getId());
+        }
+
+        UserCard userCard = userCardMapper.selectByPrimaryKey(userCardId);
+        if (null == userCard) {
+            log.info(CLASS_LOG_PREFIX + "生成小程序二维码，userCard==null,userCardId={}", userCardId);
+            throw new BizException(CLASS_LOG_PREFIX + "生成小程序二维码，userCard==null,userCardId="+userCardId);
+        }
+        Integer userId = userCard.getUserId();
+
+        CompanyMiniProgramConfig miniProgramConfig = miniProgramConfigList.get(0);
+        if (null != miniProgramConfig) {
+            String appId = miniProgramConfig.getAppId();
+            String appSecret = miniProgramConfig.getAppSecret();
+            //获取access_token
+            String access_token = WXUtils.getAccessToken(appId, appSecret);
+
+            //生成二维码保存路径
+            String absolutePath = Utils.absolutePath(storagePath, "miniProgram", "shareSign", "image", LocalDateTime.now(), USER_CARD_QR_CODE + "_" + LocalDateTime.now().format(Utils.nameFormatter) + ".png");
+            log.info(CLASS_LOG_PREFIX + "生成小程序二维码图片路径:{}", absolutePath);
+
+            //封装其他参数
+            WXACodeParams wxaCodeParams = new WXACodeParams();
+            //scene 和前端雨康约定按照这种格式传输，格式为：：：电子名片标识,电子名片所属用户id,电子名片id,名片分享方式
+            String scene = USER_CARD_PAGE_SIGN + "," + userId + "," + userCardId + "," + POSTER_SHARE_TYPE;
+            wxaCodeParams.setScene(scene);
+            wxaCodeParams.setPage(userCardPage);
+            //生成小程序码并保存到服务器，返回地址
+            absolutePath = WXUtils.getWXACodeUnlimit(access_token, wxaCodeParams, absolutePath);
+            log.info(CLASS_LOG_PREFIX + "生成小程序二维码，微信工具类返回 absolutePath={}", absolutePath);
+
+            String relativePath = Utils.relativePath(storagePath, absolutePath);
+            String returnPath = Utils.getRelativeUrlByAbsolutePath(relativePath, appResourceUrl);
+            log.info(CLASS_LOG_PREFIX + "生成小程序二维码，访问地址：{}", returnPath);
+            return returnPath;
+        }
+        return null;
+    }
+
+    @Override
+    public UserCard getById(Integer userCardId) throws BizException {
+        if (null == userCardId || 0 >= userCardId) {
+            log.error(CLASS_LOG_PREFIX + "通过id获取电子名片，userCardId为空：{}", userCardId);
+            throw new BizException(CLASS_LOG_PREFIX + "通过id获取电子名片，userCardId为空：" + userCardId);
+        }
+        log.info(CLASS_LOG_PREFIX + "通过id获取电子名片，userCardId={}", userCardId);
+        UserCard userCard = userCardMapper.selectByPrimaryKey(userCardId);
+        log.info(CLASS_LOG_PREFIX + "通过id获取电子名片完成，userCard={}", userCard);
+        this.propertyDecoding(userCard);
+        log.info(CLASS_LOG_PREFIX + "通过id获取电子名片解码完成，userCard={}", userCard);
+
+        return userCard;
+    }
+
+
+    /**
+     * 根据登录用户获取所属的公司id
+     *
+     * @param loginUser
+     * @return
+     */
+    private Integer getCompanyIdByLoginUser(LoginUser loginUser) {
+        Integer companyId;
+        if (null == loginUser || null == loginUser.getId() || 0 == loginUser.getId()) {
+            log.warn(CLASS_LOG_PREFIX + "获取二维码，未获取到登录用户");
+            throw new BizException(CLASS_LOG_PREFIX + "获取二维码，未获取到登录用户");
+        }
+        Long businessAdministrationId = loginUser.getBusinessAdministrationId();
+        if (null == businessAdministrationId || 0L == businessAdministrationId) {
+            SysUser sysUser = sysUserService.selectByPrimaryKey(loginUser.getId().longValue());
+            if (null == sysUser) {
+                log.warn(CLASS_LOG_PREFIX + "获取二维码，根据loginUser.id获取不到用户，userId={}", loginUser.getId());
+                throw new BizException(CLASS_LOG_PREFIX + "根据loginUser.id获取不到用户，userId=" + loginUser.getId());
+            }
+            companyId = sysUser.getBusinessAdministrationId();
+        } else {
+            companyId = businessAdministrationId.intValue();
+        }
+        return companyId;
+    }
+
+    private void propertyEncoding(UserCard userCard) {
+        if (null == userCard) {
+            return;
+        }
+
+        String userName = userCard.getUserName();
+        if (StringUtils.isNotBlank(userName)) {
+            try {
+                userName = URLEncoder.encode(userName, "utf-8");
+                if (StringUtils.isNotBlank(userName)) {
+                    userCard.setUserName(userName);
+                }
+            } catch (UnsupportedEncodingException e) {
+                log.error(CLASS_LOG_PREFIX + "userName转换编码异常:{}", e);
+            }
+        }
+
+        String resume = userCard.getResume();
+        if (StringUtils.isNotBlank(resume)) {
+            try {
+                resume = URLEncoder.encode(resume, "utf-8");
+                if (StringUtils.isNotBlank(resume)) {
+                    userCard.setResume(resume);
+                }
+            } catch (UnsupportedEncodingException e) {
+                log.error(CLASS_LOG_PREFIX + "resume转换编码异常:{}", e);
+            }
+        }
+    }
+
+    private void propertyDecoding(UserCard userCard) {
+        if (null == userCard) {
+            return;
+        }
+
+        String userName = userCard.getUserName();
+        if (StringUtils.isNotBlank(userName)) {
+            try {
+                userName = URLDecoder.decode(userName, "utf-8");
+                if (StringUtils.isNotBlank(userName)) {
+                    userCard.setUserName(userName);
+                }
+            } catch (UnsupportedEncodingException e) {
+                log.error(CLASS_LOG_PREFIX + "userName转换编码异常:{}", e);
+            }
+        }
+
+        String resume = userCard.getResume();
+        if (StringUtils.isNotBlank(resume)) {
+            try {
+                resume = URLDecoder.decode(resume, "utf-8");
+                if (StringUtils.isNotBlank(resume)) {
+                    userCard.setResume(resume);
+                }
+            } catch (UnsupportedEncodingException e) {
+                log.error(CLASS_LOG_PREFIX + "resume转换编码异常:{}", e);
+            }
+        }
+    }
+}

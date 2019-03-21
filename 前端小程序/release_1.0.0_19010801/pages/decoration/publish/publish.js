@@ -1,0 +1,92 @@
+// pages/decoration/publish/publish.js
+let $App = getApp();
+Page({
+
+  /**
+   * 页面的初始数据
+   */
+  data: {
+    typeList: [
+      {
+        imgUrl: $App.staticImageUrl+'furnishing.png',
+         title: '家装服务', 
+         content: '寻求装修设计、房屋测绘、房屋改造、现场施工、施工监理服务',
+         id: 2
+      },
+      {
+        imgUrl: $App.staticImageUrl+'brandList2.png',
+        title: '建材家居',
+        content: '求购建材、家居、电器',
+        id: 3
+      },
+      {
+        imgUrl: $App.staticImageUrl+'brandList4.png',
+        title: '人力服务',
+        content: '寻找设计师、工长、水电工、木工、漆工专业人力',
+        id: 4
+      }
+    ]
+  },
+
+  /**
+   * 生命周期函数--监听页面加载
+   */
+  onLoad: function (options) {
+    wx.hideShareMenu();
+      new $App.newNav() // 注册快速导航组件
+  },
+
+  /**
+   * 生命周期函数--监听页面初次渲染完成
+   */
+  onReady: function () {
+  
+  },
+
+  /**
+   * 生命周期函数--监听页面显示
+   */
+  onShow: function () {
+  
+  },
+
+  /**
+   * 生命周期函数--监听页面隐藏
+   */
+  onHide: function () {
+  
+  },
+
+  /**
+   * 生命周期函数--监听页面卸载
+   */
+  onUnload: function () {
+  
+  },
+
+  /**
+   * 页面相关事件处理函数--监听用户下拉动作
+   */
+  onPullDownRefresh: function () {
+  
+  },
+
+  /**
+   * 页面上拉触底事件的处理函数
+   */
+  onReachBottom: function () {
+  
+  },
+
+  /**
+   * 用户点击右上角分享
+   */
+  onShareAppMessage: function () {
+  
+  },
+  toDetail(e){
+    wx.navigateTo({
+      url: '../publishDetail/publishDetail?supplyId=' + e.currentTarget.dataset.id,
+    })
+  }
+})

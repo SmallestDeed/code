@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.interaction.dao.TradeCommentDao">
+	<insert id="insert"  parameterType="com.sandu.interaction.model.Comment">
+ 		insert into interaction_trade_comment (obj_id,score,comment_content,tag_ids,
+ 		user_id,user_name,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted)
+    	 values (#{objId},#{score},#{commentContent},#{tagIds},
+    	 #{userId},#{userName},#{sysCode},#{creator},#{gmtCreate},
+    	 #{modifier},#{gmtModified},#{isDeleted})
+	</insert>
+
+	<delete id="delete" parameterType="com.sandu.interaction.model.Comment">
+		delete from interaction_trade_comment 
+		where id=#{id}
+	</delete>
+
+	<select id="findFontPageList"  resultType="com.sandu.interaction.model.vo.CommentVo"
+      parameterType="com.sandu.interaction.model.query.CommentQuery">
+		SELECT a.id,a.obj_id,a.score,a.comment_content,a.tag_ids,a.user_id,a.user_name,
+		c.pic_path as header_url,d.shop_name as obj_name
+		FROM  interaction_trade_comment a left join sys_user b on a.user_id=b.id 
+		left join res_pic c on b.pic_id=c.id 
+		inner join company_shop d on a.obj_id=d.id
+		WHERE a.is_deleted = #{DEL_FLAG_NORMAL} 
+	  	<if test="objId != null and  objId != '' ">
+			AND a.obj_id = #{objId}
+		</if>
+		 <if test="userId != null and  userId !='' ">
+			AND a.user_id = #{userId}
+		</if>
+		 <if test="orderBy != null and  orderBy !=''  ">order by #{orderBy}</if>
+        <if test="orderBy == null and  orderBy == null ">order by a.id desc</if>
+        limit #{start},#{pageSize} 
+	</select>
+	
+	<select id="findFontCount"  resultType="long"
+      parameterType="com.sandu.interaction.model.query.CommentQuery">
+		SELECT count(a.id)
+		FROM  interaction_trade_comment a 
+		WHERE a.is_deleted = #{DEL_FLAG_NORMAL} 
+	    <if test="objId != null and  objId != '' ">
+			AND a.obj_id = #{objId}
+		</if>
+		 <if test="userId != null and  userId !='' ">
+			AND a.user_id = #{userId}
+		</if>
+	</select>
+      <select id="count"  parameterType="com.sandu.interaction.model.query.CommentQuery" resultType="int">
+		SELECT count(a.id)
+		FROM  interaction_trade_comment a 
+		WHERE a.is_deleted = #{DEL_FLAG_NORMAL} 
+	    	    <if test="objId != null and  objId != '' ">
+			AND a.obj_id = #{objId}
+		</if>
+		<if test="userId != null and  userId != '' ">
+			AND a.user_id = #{userId}
+		</if>
+	</select>
+</mapper>

@@ -1,0 +1,42 @@
+package com.sandu.product.cache.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.common.cache.CacheManager;
+import com.sandu.common.cache.util.KeyGenerator;
+import com.sandu.common.metadata.ModuleType;
+import com.sandu.product.cache.service.BaseProductCacheService;
+import com.sandu.product.model.BaseProduct;
+import com.sandu.product.service.BaseProductService;
+
+@Service("baseProductCacheService")
+public class BaseProductCacheServiceImpl implements BaseProductCacheService {
+
+	@Autowired
+	private BaseProductService baseProductService;
+	
+	/***
+	 * 获取单个产品的信息
+	 * 
+	 * @param id
+	 * @return BaseProduct
+	 */
+	@Override
+	public BaseProduct get(int id) {
+		BaseProduct pro = null;
+		String key = KeyGenerator.getIdKey(ModuleType.Product, id);
+		if (CacheManager.getInstance().getCacher() != null) {
+			pro = (BaseProduct) CacheManager.getInstance().getCacher().getObject(key);
+			if (pro == null) {
+				pro = baseProductService.get(id);
+				if (pro != null) {
+					CacheManager.getInstance().getCacher().setObject(key, pro, 0);
+				}
+			}
+		}
+
+		return pro;
+	}
+	
+}

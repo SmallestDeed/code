@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.resource.dao.ResPicDao">
+	<sql id="authColumns">
+		a.id,
+		a.company_id,
+		a.credential_type,
+		a.credential_file_url,
+		a.auth_state,
+		a.auth_date,
+		a.auth_remark,
+		a.auth_id
+	</sql>
+	
+	<sql id="resPicListColumns">
+		a.id,
+		a.pic_path,
+		a.pic_name
+	</sql>
+	
+  <select id="findCompanyPlan"  resultType="com.sandu.resource.model.vo.ResPicVo"
+      parameterType="com.sandu.resource.model.query.ResPicQuery">
+		SELECT c.pic_name,c.pic_path,c.id
+		from design_plan_brand a INNER JOIN design_plan_recommended b 
+		on a.company_id=b.company_id 
+        INNER JOIN res_pic c on b.pic_id=c.id 
+		WHERE a.is_deleted = #{DEL_FLAG_NORMAL} 
+	    <if test="companyId != null and  companyId != '' ">
+			AND a.company_id = #{companyId}
+		</if>
+		<if test="orderBy != null and  orderBy !='' ">order by #{orderBy}</if>
+        <if test="orderBy == null and  orderBy == null ">ORDER BY b.gmt_modified desc</if>
+        LIMIT 0,4
+	</select>
+	
+	  <!--<select id="findStoreFigure"  resultType="com.sandu.resource.model.vo.ResPicVo"-->
+      <!--parameterType="com.sandu.resource.model.query.ResPicQuery">-->
+		<!--SELECT c.pic_name,c.pic_path,c.id-->
+		<!--from company_shop_pic a -->
+        <!--INNER JOIN res_pic c on a.pic_id=c.id -->
+		<!--WHERE a.is_deleted = #{DEL_FLAG_NORMAL} -->
+	    <!--<if test="companyId != null and  companyId != '' ">-->
+			<!--AND a.company_id = #{companyId}-->
+		<!--</if>-->
+		<!--<if test="shopId != null and  shopId != '' ">-->
+			<!--AND a.shop_id = #{shopId}-->
+		<!--</if>-->
+		<!--<if test="orderBy != null and  orderBy !='' ">order by #{orderBy}</if>-->
+        <!--<if test="orderBy == null and  orderBy == null ">ORDER BY c.gmt_modified desc</if>-->
+        <!--LIMIT 0,4-->
+	<!--</select>-->
+
+	<select id="findStoreFigure"  resultType="com.sandu.resource.model.vo.ResPicVo"
+			parameterType="com.sandu.resource.model.query.ResPicQuery">
+		SELECT c.pic_name,c.pic_path,c.id
+		from res_pic c
+		WHERE c.is_deleted = #{DEL_FLAG_NORMAL}
+			AND c.id = #{shopId}
+		<if test="orderBy != null and  orderBy !='' ">order by #{orderBy}</if>
+		<if test="orderBy == null and  orderBy == null ">ORDER BY c.gmt_modified desc</if>
+		LIMIT 0,4
+	</select>
+
+
+	<select id="findPicPathByIds" resultType="java.lang.String">
+		select pic_path FROM res_pic
+		where 1=1
+		<choose>
+			<when test="idList != null and idList.size() > 0">
+				and id IN
+				<foreach item="item" collection="idList" separator="," open="(" close=")" index="">
+					#{item}
+				</foreach>
+			</when>
+			<otherwise>
+				and id = -1
+			</otherwise>
+		</choose>
+	</select>
+
+	<!--通过Id获取图片资源信息 add by WangHaiLin-->
+	<select id="findPicById" resultType="com.sandu.resource.model.vo.ResPicVo">
+		SELECT c.pic_name,c.pic_path,c.id
+		from res_pic c
+		WHERE c.is_deleted = 0
+		AND c.id = #{id}
+	</select>
+	
+</mapper>

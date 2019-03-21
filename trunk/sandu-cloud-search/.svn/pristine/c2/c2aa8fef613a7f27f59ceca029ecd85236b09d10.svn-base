@@ -1,0 +1,372 @@
+package com.sandu.search.storage.system;
+
+import com.sandu.search.common.constant.SystemDictionaryType;
+import com.sandu.search.entity.elasticsearch.po.ProductCategoryPo;
+import com.sandu.search.entity.elasticsearch.po.metadate.SystemDictionaryPo;
+import com.sandu.search.entity.product.dto.ProductTypeCategory;
+import com.sandu.search.exception.MetaDataException;
+import com.sandu.search.service.metadata.MetaDataService;
+import com.sandu.search.storage.product.ProductCategoryMetaDataStorage;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * 系统字典值元数据存储
+ *
+ * @date 20180104
+ * @auth pengxuangang
+ */
+@Slf4j
+@Component
+public class SystemDictionaryMetaDataStorage {
+
+    private final static String CLASS_LOG_PREFIX = "系统字典值元数据存储:";
+    //字典列表
+    private static List<SystemDictionaryPo> systemDictionaryPoList = new ArrayList<>();
+    //系统字典值元数据Map<type,dictionaryList>
+    private static Map<String, List<SystemDictionaryPo>> systemDictionaryTypeMap = new HashMap<>();
+    //元数据服务
+    @Autowired
+    private MetaDataService metaDataService;
+    @Autowired
+    private ProductCategoryMetaDataStorage productCategoryMetaDataStorage;
+
+    /**
+     * 更新数据
+     * @param isEnforceLoad 是否强制更新
+     */
+    public void updateData(boolean isEnforceLoad) {
+
+        //若无强制更新则更新前判断是否已有数据
+        if (!isEnforceLoad) {
+            if (null != systemDictionaryTypeMap && 0 < systemDictionaryTypeMap.size()) {
+                return;
+            }
+        }
+
+        try {
+            //获取数据
+            log.info(CLASS_LOG_PREFIX + "开始获取系统字典值元数据....");
+            systemDictionaryPoList = metaDataService.querySystemDictionaryMetaData();
+            log.info(CLASS_LOG_PREFIX + "获取系统字典值元数据完成,总条数:{}", (null == systemDictionaryPoList ? 0 : systemDictionaryPoList.size()));
+        } catch (MetaDataException e) {
+            log.error(CLASS_LOG_PREFIX + "获取系统字典值元数据失败: MetaDataException:{}", e);
+            throw new NullPointerException(CLASS_LOG_PREFIX + "获取系统字典值元数据失败,List<SystemDictionaryPo> is null.MetaDataException:" + e);
+        }
+
+        //临时对象
+        Map<String, List<SystemDictionaryPo>> tempSystemDictionaryTypeMap = new HashMap<>();
+
+        //转换Map
+        if (null != systemDictionaryPoList && 0 != systemDictionaryPoList.size()) {
+            systemDictionaryPoList.forEach(systemDictionaryPo -> {
+                //字典类型
+                String dictionaryType = systemDictionaryPo.getDictionaryType();
+                if (tempSystemDictionaryTypeMap.containsKey(dictionaryType)) {
+                    List<SystemDictionaryPo> systemDictionaryList = new ArrayList<>();
+                    systemDictionaryList.add(systemDictionaryPo);
+                    systemDictionaryList.addAll(tempSystemDictionaryTypeMap.get(dictionaryType));
+                    tempSystemDictionaryTypeMap.put(dictionaryType, systemDictionaryList);
+                } else {
+                    tempSystemDictionaryTypeMap.put(dictionaryType, Arrays.asList(systemDictionaryPo));
+                }
+            });
+        }
+
+        //装回对象
+        systemDictionaryTypeMap = null;
+        systemDictionaryTypeMap = tempSystemDictionaryTypeMap;
+    }
+
+    /**
+     * 通过类型查询系统字典数据
+     *
+     * @param dictionaryType 字典类型
+     * @return
+     */
+    public List<SystemDictionaryPo> querySystemDictionaryListByType(String dictionaryType) {
+        if (StringUtils.isEmpty(dictionaryType)) {
+            return null;
+        }
+
+        if (null == systemDictionaryTypeMap || 0 >= systemDictionaryTypeMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        return systemDictionaryTypeMap.get(dictionaryType);
+    }
+
+    /**
+     * 通过类型列表查询系统字典数据
+     *
+     * @param dictionaryTypeList 字典类型列表
+     * @return
+     */
+    public List<SystemDictionaryPo> querySystemDictionaryListByType(List<String> dictionaryTypeList) {
+        if (null == dictionaryTypeList || 0 >= dictionaryTypeList.size()) {
+            return null;
+        }
+
+        if (null == systemDictionaryTypeMap || 0 >= systemDictionaryTypeMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        //结果集
+        List<SystemDictionaryPo> systemDictionaryPoList = new ArrayList<>();
+        dictionaryTypeList.forEach(dictionaryType -> {
+            if (systemDictionaryTypeMap.containsKey(dictionaryType)) {
+                systemDictionaryPoList.addAll(systemDictionaryTypeMap.get(dictionaryType));
+            }
+        });
+
+        return systemDictionaryPoList;
+    }
+
+    /**
+     * 通过Key查询系统字典数据
+     *
+     * @param valueKeyList Key列表
+     * @return
+     */
+    public ProductTypeCategory querySystemDictionaryValueListByKeyList(List<String> valueKeyList) {
+        if (null == valueKeyList || 0 >= valueKeyList.size()) {
+            return null;
+        }
+
+        if (null == systemDictionaryTypeMap || 0 >= systemDictionaryTypeMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        //值列表
+        List<Integer> valueList = new ArrayList<>(valueKeyList.size());
+        //分类编码
+        String categoryCodeKey = null;
+
+        for (String valueKey : valueKeyList) {
+            if (!StringUtils.isEmpty(valueKey)) {
+                //获取分类编码
+                ProductCategoryPo productCategoryPo = productCategoryMetaDataStorage.getProductCategoryByCategoryCode(valueKey);
+                //检查分类级别(3级的分类CODE直接对应小类VALUEKEY，不需要转换)
+                switch (productCategoryPo.getCategoryLevel()) {
+                    case 3:
+                        //直接赋值
+                        categoryCodeKey = valueKey;
+                        break;
+                    case 4:
+                        //查询3级分类
+                        ProductCategoryPo thereLevelProductCategoryPo = productCategoryMetaDataStorage.getProductCategory(productCategoryPo.getParentCategoryId());
+                        categoryCodeKey = thereLevelProductCategoryPo.getProductCategoryCode();
+                        break;
+                    case 5:
+                        //查询4级分类
+                        ProductCategoryPo fourLevelProductCategoryPo = productCategoryMetaDataStorage.getProductCategory(productCategoryPo.getParentCategoryId());
+                        //查询3级分类
+                        ProductCategoryPo newThereLevelProductCategoryPo = productCategoryMetaDataStorage.getProductCategory(fourLevelProductCategoryPo.getParentCategoryId());
+                        categoryCodeKey = newThereLevelProductCategoryPo.getProductCategoryCode();
+                        break;
+                }
+                //遍历List
+                for (SystemDictionaryPo systemDictionaryPo : systemDictionaryPoList) {
+                    if (categoryCodeKey.equals(systemDictionaryPo.getDictionaryKey())) {
+                        valueList.add(systemDictionaryPo.getDictionaryValue());
+                        break;
+                    }
+                }
+            }
+        }
+
+        return new ProductTypeCategory(categoryCodeKey, valueList);
+    }
+
+    /**
+     * 排除非同产品大类的小类ID列表(并将字典valuekey转换为字典值)
+     *
+     * @param valueKeyList Key列表
+     * @param productType  产品大类
+     * @return
+     */
+    public List<Integer> excludeProductSmallTypeByKeyList(List<String> valueKeyList, int productType) {
+        if (null == valueKeyList || 0 >= valueKeyList.size() || 0 == productType) {
+            return null;
+        }
+
+        if (null == systemDictionaryTypeMap || 0 >= systemDictionaryTypeMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        //获取产品分类字典数据
+        List<SystemDictionaryPo> systemDictionaryPoList = querySystemDictionaryListByType(SystemDictionaryType.SYSTEM_DICTIONARY_TYPE_PRODUCTTYPE);
+        //获取大类字典类型名
+        String dictionaryType = systemDictionaryPoList.stream().filter(systemDictionaryPo -> productType == systemDictionaryPo.getDictionaryValue()).collect(Collectors.toList()).get(0).getDictionaryKey();
+        //获取大类的子类集合
+        List<SystemDictionaryPo> productSmallTypeSystemDictionaryPoList = querySystemDictionaryListByType(dictionaryType);
+        //转换为Map对象
+        Map<String, Integer> productSmallTypeKeyAndValueMap = new HashMap<>(productSmallTypeSystemDictionaryPoList.size());
+        productSmallTypeSystemDictionaryPoList.forEach(productSmallTypeSystemDictionaryPo -> productSmallTypeKeyAndValueMap.put(productSmallTypeSystemDictionaryPo.getDictionaryKey(), productSmallTypeSystemDictionaryPo.getDictionaryValue()));
+
+        //返回值列表
+        List<Integer> valueList = new ArrayList<>(valueKeyList.size());
+        valueKeyList.forEach(valueKey -> {
+            if (!StringUtils.isEmpty(valueKey)) {
+                //遍历List
+                for (SystemDictionaryPo systemDictionaryPo : SystemDictionaryMetaDataStorage.systemDictionaryPoList) {
+                    //Key
+                    String dictionaryKey = systemDictionaryPo.getDictionaryKey();
+                    //检查当前小类是否存在于已知大类
+                    if (valueKey.equals(dictionaryKey) && productSmallTypeKeyAndValueMap.containsKey(dictionaryKey)) {
+                        valueList.add(systemDictionaryPo.getDictionaryValue());
+                        break;
+                    }
+                }
+            }
+        });
+
+        return valueList;
+    }
+
+    /**
+     * 根据小类ValueKey获取所有的大小类(并将字典valuekey转换为字典值)
+     *
+     * @param valueKeyList Key列表
+     * @return Map<大类,List<小类>>
+     */
+    public Map<Integer, List<Integer>> queryProductTypeByKeyList(List<String> valueKeyList) {
+        if (null == valueKeyList || 0 >= valueKeyList.size()) {
+            return null;
+        }
+
+        if (null == systemDictionaryTypeMap || 0 >= systemDictionaryTypeMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        //产品小类valuekey对应大小类(Map<小类ValueKey, 大类Value-小类Value>)
+        Map<String, String> productSmallTypeValueKeyMap = new HashMap<>();
+        //所有大小类
+        Map<Integer, List<Integer>> productTypeMap = new HashMap<>();
+
+        //获取产品分类字典数据
+        List<SystemDictionaryPo> systemDictionaryPoList = querySystemDictionaryListByType(SystemDictionaryType.SYSTEM_DICTIONARY_TYPE_PRODUCTTYPE);
+        systemDictionaryPoList.forEach(systemDictionaryPo -> {
+            //当前大类的小类
+            List<SystemDictionaryPo> smallTypeSystemDictionaryPoList = querySystemDictionaryListByType(systemDictionaryPo.getDictionaryKey());
+            smallTypeSystemDictionaryPoList.forEach(smallTypeSystemDictionaryPo ->
+                    productSmallTypeValueKeyMap.put(
+                            smallTypeSystemDictionaryPo.getDictionaryKey()
+                            , systemDictionaryPo.getDictionaryValue() + "-" + smallTypeSystemDictionaryPo.getDictionaryValue()
+                    )
+            );
+        });
+
+        //匹配数据
+        if (0 < productSmallTypeValueKeyMap.size()) {
+            valueKeyList.forEach(valueKey -> {
+                if (productSmallTypeValueKeyMap.containsKey(valueKey)) {
+                    //解析当前对象
+                    String productAndSamllTypeValue = productSmallTypeValueKeyMap.get(valueKey);
+                    //大小类值对象
+                    String[] productAndSmallTypes = productAndSamllTypeValue.split("-");
+                    //产品大类
+                    Integer productTypeValue = Integer.parseInt(productAndSmallTypes[0]);
+                    //产品小类
+                    Integer productSmallTypeValue = Integer.parseInt(productAndSmallTypes[1]);
+
+                    List<Integer> productSmallTypeList = new ArrayList<>();
+                    productSmallTypeList.add(productSmallTypeValue);
+                    //将原值加回
+                    if (productTypeMap.containsKey(productTypeValue)) {
+                        productSmallTypeList.addAll(productTypeMap.get(productTypeValue));
+                    }
+                    //装回对象
+                    productTypeMap.put(productTypeValue, productSmallTypeList);
+                }
+            });
+
+            return productTypeMap;
+        }
+
+        return null;
+    }
+
+    /**
+     * 通过产品编码获取产品大小类(List第一个是产品大类，第二个是小类)
+     *
+     * @param productCode 产品编码
+     * @return
+     */
+    public List[] getProductTypeByProductCode(String productCode) {
+
+        if (StringUtils.isEmpty(productCode)) {
+            return null;
+        }
+
+        if (null == systemDictionaryTypeMap || 0 >= systemDictionaryTypeMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        //结果集
+        List[] productTypeListResult = new List[2];
+        //大类集合
+        List<Integer> productTypeList = new ArrayList<>(1);
+        //小类集合
+        List<Integer> productSmallTypeList = new ArrayList<>();
+
+        //若包含此编码的类型则是产品大类
+        if (systemDictionaryTypeMap.containsKey(productCode)) {
+            //查询出大类ID值
+            for (SystemDictionaryPo systemDictionaryPo : systemDictionaryPoList) {
+                if (SystemDictionaryType.SYSTEM_DICTIONARY_TYPE_PRODUCTTYPE.equals(systemDictionaryPo.getDictionaryType())
+                        && productCode.equals(systemDictionaryPo.getDictionaryKey())) {
+                    //加入大类
+                    productTypeList.add(systemDictionaryPo.getDictionaryValue());
+                    break;
+                }
+            }
+
+            //查询出小类集合
+            for (SystemDictionaryPo systemDictionary : systemDictionaryTypeMap.get(productCode)) {
+                productSmallTypeList.add(systemDictionary.getDictionaryValue());
+            }
+        } else {
+            //不包含的则是小类
+            //根据分类code查询小类ID
+            ProductTypeCategory productTypeCategory = querySystemDictionaryValueListByKeyList(Arrays.asList(productCode.split(",")));
+            productSmallTypeList = productTypeCategory.getProductSmallTypeValueList();
+            if (null == productSmallTypeList || 0 >= productSmallTypeList.size()) {
+                return null;
+            }
+
+            //根据小类第一个值查询出大类
+            String productCategoryCode = productTypeCategory.getProductCategoryCode();
+            for (SystemDictionaryPo systemDictionaryPo : systemDictionaryPoList) {
+                if (productCategoryCode.equals(systemDictionaryPo.getDictionaryKey())) {
+                    //获取到小类的Type去反查大类
+                    for (SystemDictionaryPo parentSystemDictionaryPo : systemDictionaryTypeMap.get(SystemDictionaryType.SYSTEM_DICTIONARY_TYPE_PRODUCTTYPE)) {
+                        //检查父类valuekey相同和子类类型是否
+                        if (parentSystemDictionaryPo.getDictionaryKey().equals(systemDictionaryPo.getDictionaryType())) {
+                            productTypeList.add(parentSystemDictionaryPo.getDictionaryValue());
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        //组合数据
+        productTypeListResult[0] = productTypeList;
+        productTypeListResult[1] = productSmallTypeList;
+
+        return productTypeListResult;
+    }
+}

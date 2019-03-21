@@ -1,0 +1,1499 @@
+package com.nork.design.controller.web;
+
+import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.concurrent.FutureTask;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.nork.aes.model.AESFileConstant;
+import com.nork.common.async.Result;
+import com.nork.common.async.TaskExecutor;
+import com.nork.common.async.UpdateDesignPlanCacheParameter;
+import com.nork.common.async.UpdateDesignPlanCacheTask;
+import com.nork.common.cache.CommonCacher;
+import com.nork.common.constant.SystemCommonConstant;
+import com.nork.common.constant.util.SystemCommonUtil;
+import com.nork.common.metadata.ModuleType;
+import com.nork.common.model.LoginUser;
+import com.nork.common.model.ResponseEnvelope;
+import com.nork.common.util.FileUploadUtils;
+import com.nork.common.util.FtpUploadUtils;
+import com.nork.common.util.Tools;
+import com.nork.common.util.Utils;
+import com.nork.design.cache.DesignCacher;
+import com.nork.design.common.RecommendedDecorateState;
+import com.nork.design.model.DesignPlan;
+import com.nork.design.model.DesignPlanOperationLog;
+import com.nork.design.model.DesignPlanProduct;
+import com.nork.design.model.DesignPlanProductRenderScene;
+import com.nork.design.model.DesignPlanRecommended;
+import com.nork.design.model.DesignPlanRecommendedProduct;
+import com.nork.design.model.DesignPlanRenderScene;
+import com.nork.design.model.DesignPlanRes;
+import com.nork.design.model.DesignTemplet;
+import com.nork.design.model.ProductDTO;
+import com.nork.design.model.SpellingFlowerModel;
+import com.nork.design.model.TransformAndCopyPlanModel;
+import com.nork.design.model.UnityDesignPlan;
+import com.nork.design.model.UnityPlanProduct;
+import com.nork.design.model.constant.DesignPlanBusinessTypeConstant;
+import com.nork.design.service.DesignPlanOperationLogService;
+import com.nork.design.service.DesignPlanProductRenderSceneService;
+import com.nork.design.service.DesignPlanProductService;
+import com.nork.design.service.DesignPlanRecommendedProductServiceV2;
+import com.nork.design.service.DesignPlanRecommendedService;
+import com.nork.design.service.DesignPlanRecommendedServiceV2;
+import com.nork.design.service.DesignPlanRenderSceneService;
+import com.nork.design.service.DesignPlanRenderService;
+import com.nork.design.service.DesignPlanService;
+import com.nork.design.service.DesignTempletService;
+import com.nork.home.service.BaseHouseService;
+import com.nork.home.service.SpaceCommonService;
+import com.nork.mobile.dao.MobileRenderRecordMapper;
+import com.nork.mobile.model.ProductReplaceTaskDetail;
+import com.nork.product.model.small.SearchProCategorySmall;
+import com.nork.product.service.AuthorizedConfigService;
+import com.nork.system.model.ResDesign;
+import com.nork.system.model.ResDesignRenderScene;
+import com.nork.system.model.ResModel;
+import com.nork.system.model.ResPic;
+import com.nork.system.model.SysUser;
+import com.nork.system.service.ResDesignRenderSceneService;
+import com.nork.system.service.ResDesignService;
+import com.nork.system.service.ResModelService;
+import com.nork.system.service.ResPicService;
+import com.nork.system.service.SysDictionaryService;
+import com.nork.system.service.SysUserService;
+
+/**
+ * @version V1.0
+ * @Title: DesignPlanController.java
+ * @Package com.nork.design.controller
+ * @Description:设计模块-设计方案Controller
+ * @createAuthor pandajun
+ * @CreateDate 2015-07-03 17:09:51
+ */
+@Controller
+@RequestMapping("/{style}/web/design/designPlanV2")
+public class WebDesignPlanControllerV2 {
+	
+    public static  final Integer OP_SOURCE_MYDESIGN = 0;
+    public static  final Integer OP_SOURCE_ONKEY = 1;
+    public static  final Integer OP_SOURCE_RECOMMEND = 2;
+    
+	@InitBinder
+	public void initBinder(WebDataBinder binder) throws Exception {
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		dateFormat.setLenient(true);
+		binder.registerCustomEditor(Date.class, new CustomDateEditor(
+				dateFormat, true));
+	}
+	private static Logger logger = Logger.getLogger(WebDesignPlanControllerV2.class);
+	private final static ResourceBundle app = ResourceBundle.getBundle("app");
+	private final String SERVERURL = Utils.getValue("app.server.url", "http://localhost:18080/onlineDecorate");
+	private final String RESOURCESURL = Utils.getValue("app.resources.url",
+			"http://localhost:18080/onlineDecorate/upload");
+	public final static String SYSTEM_FORMAT = Utils.getValue("app.system.format", "linux").trim();
+	@Autowired
+	private DesignPlanService designPlanService;
+	@Autowired
+	private DesignTempletService designTempletService;
+	@Resource
+	private BaseHouseService baseHouseService;
+	@Resource
+	private DesignPlanProductService designPlanProductService;
+	@Resource
+	private SysUserService sysUserService;
+	@Resource
+	private ResModelService resModelService;
+	@Resource
+	private ResPicService resPicService;
+	@Resource
+	private ResDesignService resDesignService;
+	
+	@Resource
+	private DesignPlanRecommendedService designPlanRecommendedService;
+	@Autowired
+	private DesignPlanOperationLogService designPlanOperationLogService;
+	@Autowired
+	private DesignPlanRenderService designPalnRenderService;
+	@Autowired
+	DesignPlanRecommendedServiceV2 designPlanRecommendedServiceV2;
+	@Autowired
+	DesignPlanRecommendedProductServiceV2 designPlanRecommendedProductServiceV2;
+	@Autowired
+	AuthorizedConfigService authorizedConfigService;
+	@Autowired
+	SysDictionaryService sysDictionaryService;
+	
+	@Autowired
+    private MobileRenderRecordMapper mobileRenderRecordMapper;
+	
+	@Autowired
+	private DesignPlanRenderSceneService designPlanRenderSceneService;
+	
+	@Autowired
+	private DesignPlanProductRenderSceneService designPlanProductRenderSceneService;
+	
+	@Autowired
+	private ResDesignRenderSceneService resDesignRenderSceneService;
+	/**
+	 * 保存 设计方案 接口
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@RequestMapping(value = "/planSave")
+	@ResponseBody
+	public Object planSave(@PathVariable String style, @RequestParam(value = "templateId") Integer templateId,@RequestParam(value = "planSource",required=false) String planSource,
+			@RequestParam(value = "msgId") String msgId,@RequestParam(value="livingId",required=false) String livingId,@RequestParam(value="houseId",required=false) String houseId, 
+			HttpServletRequest request, HttpServletResponse response)throws Exception {
+		Long startTime = System.currentTimeMillis();
+		String msg = "";
+		final LoginUser loginUser = com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request);
+
+
+		String requestUri = request.getRequestURI();
+
+		if(requestUri.startsWith("/your-owner-uri/")){
+			request.setAttribute("com.tingyun.agent.APPLICATION_NAME", "CustomApplicationName");
+		}
+		
+		/*一：参数验证*/
+		if (StringUtils.isBlank(msgId)) {
+			msg = "参数msgId不能为空";
+			return new ResponseEnvelope<DesignPlan>(false, msg, msgId);
+		}
+		if (templateId == null) {
+			msg = "参数templateId不能为空";
+			return new ResponseEnvelope<DesignPlan>(false, msg, msgId);
+		}
+		/*if(planSource == null){
+			msg = "参数planSource不能为空";
+			return new ResponseEnvelope<DesignPlan>(false,msg,msgId);
+		}*/
+		
+		Map<String,Object> paramMap = new HashMap<String,Object>();
+		paramMap.put("houseId", houseId);
+		paramMap.put("livingId", livingId);
+
+		String unitName = baseHouseService.selectUnitsName(paramMap);
+		
+		DesignPlan designPlan = new DesignPlan();
+		designPlan.setPlanSource(planSource);
+		designPlan.setResidentialUnitsName(unitName);
+		if(houseId != null && livingId != null ){
+			designPlan.setHouseId(Integer.valueOf(houseId));
+			designPlan.setLivingId(Integer.valueOf(livingId));
+		}
+		
+		DesignTemplet designTemplet = designTempletService.getV2(templateId);
+		
+		if (designTemplet == null) {
+			return new ResponseEnvelope<DesignTemplet>(false, "数据异常", msgId);
+		}
+
+		Map map = new HashMap();
+		map.put("templetId", designTemplet.getId());
+		/* 媒介类型.如果没有值，则表示为web前端（2）*/
+		//String mediaType = (com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request) == null || request.getSession().getAttribute("mediaType") == null)? "2" : (String) request.getSession().getAttribute("mediaType");
+		String mediaType = SystemCommonUtil.getMediaType(request);
+		boolean isNewPlan = isNewPlan(request, map);/*二： 校验是否可以存储,间隔时间由配置文件决定*/
+		Integer newFlag = 0;
+
+		if (isNewPlan){
+			newFlag = 1;
+			Integer id=designPlanService.CopyDesignTemplet(mediaType,designPlan,designTemplet,loginUser,request);/*三：从样板房中拷贝数据到设计方案中  创建新的设计方案信息*/
+			if (id == null || id <= 0) {
+				return new ResponseEnvelope<DesignPlan>(false, "数据异常", msgId);
+			}
+			Boolean flag=designPlanService.CopyDesignTempletProduct(id,designTemplet,request);/*四：拷贝一份 样板房的产品到  到设计方案产品表中*/
+			if(!flag){
+				return new ResponseEnvelope<DesignPlan>(false, "数据异常", msgId);
+			}
+			
+			
+		}
+		if(!isNewPlan){/*从数据库中读取最大值的数据,进入*/
+			if (map != null && map.size() > 0) {
+				designPlan=designPlanService.getMaxList(map);
+			}
+		}
+		final int designPlanId = designPlan.getId();
+		//TODO:创建设计方案操作日志记录的数据>>start
+		Tools.fixExecutorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                DesignPlanOperationLog designPlanOperationLog = new DesignPlanOperationLog();
+                //LoginUser loginUser = SystemCommonUtil.getLoginUserFromSession(request);
+                designPlanOperationLog.setUserId(loginUser.getId());
+                designPlanOperationLog.setDesignPlanId(designPlanId);
+                designPlanOperationLog.setStatus(0);
+                designPlanOperationLog.setBusinessKey(SystemCommonConstant.CREARE_DESIGN_PLAN);
+                designPlanOperationLog.setGmtCreate(new Date());
+                designPlanOperationLog.setIsDeleted(0);
+                designPlanOperationLog.setCreator(loginUser.getLoginName());
+                designPlanOperationLog.setSysCode(Utils
+                                    .getCurrentDateTime(Utils.DATETIMESSS)
+                                    + "_"
+                                    + Utils.generateRandomDigitString(6));
+                designPlanOperationLog.setModifier(loginUser.getLoginName());
+                designPlanOperationLog.setGmtModified(new Date());
+                designPlanOperationLogService.insertSelective(designPlanOperationLog);
+                
+            }
+        });
+		
+		//添加数据结束<<end
+		
+		Long endTime = System.currentTimeMillis();
+		logger.info("复制样板房消耗时间："+(endTime - startTime));
+		return getDesignPlan(houseId,livingId,designPlan.getId(),unitName, newFlag, msgId, request,true);
+	}
+
+	/* 是否需要创建新的方案 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private boolean isNewPlan(HttpServletRequest request, Map map) {
+		boolean isNewPlan = false;
+		if (map == null) {
+			map = new HashMap();
+		}
+		Integer templetId = (Integer) map.get("templetId");
+		Map paraMap = new HashMap();
+		paraMap.put("designId", templetId);
+		int times = Integer.parseInt(app.getString("design.designPlan.interval.times").trim());
+		paraMap.put("times", times);
+		LoginUser loginUser = new LoginUser();
+
+		if (com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request) == null || com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request) == null) {
+			loginUser.setId(-1);
+			loginUser.setLoginName("nologin");
+		} else {
+			loginUser = com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request);
+		}
+
+		paraMap.put("userId", loginUser.getId());
+		List list = designPlanService.getUserMaxPlan(paraMap);
+		if (list != null && list.size() > 0) {
+			map.put("list", list);
+			isNewPlan = false;
+		} else {
+			map = new HashMap();
+			isNewPlan = true;
+		}
+		return isNewPlan;
+	}
+
+
+	/****
+	 * 通过设计方案id查询U3D设计方案对象(设计方案-获取设计方案进入模型)
+	   
+	 * getDesignPlan(这里用一句话描述这个方法的作用)        
+	   
+	 * @param houseId
+	 * @param livingId
+	 * @param designPlanId
+	 * @param residentialUnitsName
+	 * @param newFlag
+	 * @param msgId
+	 * @param request
+	 * @param isRelease
+	 * @return
+	 * @throws Exception 
+	
+	 * @return Object    返回类型   
+	   
+	 * @Exception 异常对象    
+	   
+	 * @since  CodingExample　Ver(编码范例查看) 1.1
+	 */
+	@RequestMapping(value = {"/getDesignPlan","/getDesignPlanWeb"})
+	@ResponseBody
+	public Object getDesignPlan(@RequestParam(value = "houseId",required = false) String houseId,
+			@RequestParam(value = "livingId",required = false) String livingId,
+			@RequestParam(value = "designPlanId", required = false) Integer designPlanId,@RequestParam(value = "residentialUnitsName",required = false) String residentialUnitsName, 
+			Integer newFlag, @RequestParam(value = "msgId", required = false) String msgId, HttpServletRequest request,Boolean isRelease)
+			throws Exception {
+		Long startTime = System.currentTimeMillis();
+		LoginUser loginUser = com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request);
+		String mediaType = loginUser.getMediaType();
+		String msg = "";
+		if (StringUtils.isBlank(msgId)) {
+			msg = "参数msgId不能为空";
+			return new ResponseEnvelope<SearchProCategorySmall>(false, msg, msgId);
+		}
+		if (designPlanId == null) {
+			msg = "参数designPlanId不能为空";
+			return new ResponseEnvelope<UnityDesignPlan>(false, msg, msgId);
+		}
+		logger.error("getDesignPlan==>" + designPlanId);
+		//TODO:创建设计方案操作日志记录的数据>>start
+		DesignPlanOperationLog designPlanOperationLog = new DesignPlanOperationLog();
+		//LoginUser loginUser = SystemCommonUtil.getLoginUserFromSession(request);
+		designPlanOperationLog.setUserId(loginUser.getId());
+		designPlanOperationLog.setDesignPlanId(designPlanId);
+		designPlanOperationLog.setStatus(0);
+		designPlanOperationLog.setBusinessKey(SystemCommonConstant.MODIFIED_DESIGN_PLAN);
+		designPlanOperationLog.setGmtCreate(new Date());
+		designPlanOperationLog.setIsDeleted(0);
+		designPlanOperationLog.setCreator(loginUser.getLoginName());
+		designPlanOperationLog.setSysCode(Utils
+							.getCurrentDateTime(Utils.DATETIMESSS)
+							+ "_"
+							+ Utils.generateRandomDigitString(6));
+		designPlanOperationLog.setModifier(loginUser.getLoginName());
+		designPlanOperationLog.setGmtModified(new Date());
+		designPlanOperationLogService.insertSelective(designPlanOperationLog);
+		//添加数据结束<<end
+		
+		Map<Object,Object>	paramsMap = new HashMap<>();
+		paramsMap.put("designPlanId", designPlanId);
+		DesignPlan designPlan = designPlanService.get(designPlanId);	
+		//测试发布中 、发布中 、待审核的方案不能删除、修改,点击删除提示用户"请先取消发布!" 
+		if(isRelease!=null && !isRelease){  //不是 复制或者 拷贝 的 都需要走里面的方法
+			if(designPlan!=null && designPlan.getIsRelease()!=null ){
+				boolean flag = designPlanRecommendedService.isDesignPlanCheck(loginUser,null);
+				if(flag){
+					if(designPlan.getIsRelease().intValue() == RecommendedDecorateState.IS_RELEASEING){
+						return new ResponseEnvelope<>(false,"该方案正在发布!  ","none");
+					}
+				}else{
+					if(designPlan.getIsRelease().intValue() == RecommendedDecorateState.IS_RELEASEING 
+							|| designPlan.getIsRelease().intValue() == RecommendedDecorateState.IS_TEST_RELEASE
+								||designPlan.getIsRelease().intValue() == RecommendedDecorateState.WAITING_CHECK_RELEASE){
+						return new ResponseEnvelope<>(false,"请取消发布后编辑!  ","none");
+					}
+				}	
+			}
+		}
+
+		//设计方案信息
+		UnityDesignPlan unityDesignPlan = new UnityDesignPlan();
+		ResponseEnvelope responseEnvelopeInfo = (ResponseEnvelope)designPlanService.getDesignPlanInfo(designPlanId,newFlag,houseId,livingId,residentialUnitsName,isRelease,loginUser,mediaType, null);
+		if( responseEnvelopeInfo.isSuccess() ){
+			unityDesignPlan = (UnityDesignPlan)responseEnvelopeInfo.getObj();
+			unityDesignPlan.setEffectsConfig(designPlan.getEffectsConfig());
+		}else{
+			logger.error(responseEnvelopeInfo.getMessage());
+			return responseEnvelopeInfo;
+		}
+		
+		unityDesignPlan = wrapperData(designPlanId, unityDesignPlan);
+
+		logger.info("创建设计方案消耗时间:" + (System.currentTimeMillis() - startTime));
+		ResponseEnvelope responseEnvelope = new  ResponseEnvelope<UnityDesignPlan>(unityDesignPlan, msgId, true);
+		
+		if(Utils.enableRedisCache()){
+			CommonCacher.addAll(ModuleType.DesignPlan, "getDesignPlanWeb", paramsMap, responseEnvelope);
+		}
+		return responseEnvelope;
+	}
+	
+	private UnityDesignPlan wrapperData(Integer designPlanId, UnityDesignPlan unityDesignPlan) {
+		List<UnityPlanProduct> dataList = unityDesignPlan.getDatalist();
+		List<ProductDTO> list = designPlanService.getProductDTOList(designPlanId);
+		for(UnityPlanProduct upp : dataList) {
+			Integer upp_productId = upp.getProductId();
+			for(ProductDTO productDTO : list) {
+				Integer productId = productDTO.getProductId();
+				if(upp_productId.equals(productId) && upp.getPosIndexPath().equals(productDTO.getPosIndexPath())) {
+					String valueKey = productDTO.getValueKey();
+					if(StringUtils.isNotBlank(valueKey)) {
+						if(valueKey.indexOf("_") != -1) {
+							String[] split = valueKey.split("_");
+							upp.setBasicModelType(split[1]);
+						} else {
+							upp.setBasicModelType(valueKey);
+						}
+					}
+				}
+			}
+		}
+		
+		return unityDesignPlan;
+	}
+	
+	
+
+
+	/**
+	 * 更新进入设计方案缓存
+	 */
+	@RequestMapping(value = "/updateDesignPlanCache")
+	@ResponseBody
+	public Object updateDesignPlanCache(
+			@RequestParam(value = "houseId",required = false) String houseId,
+			@RequestParam(value = "livingId",required = false) String livingId,
+			@RequestParam(value = "designPlanId", required = false) Integer designPlanId,
+			@RequestParam(value = "residentialUnitsName",required = false) String residentialUnitsName,
+			Integer newFlag, @RequestParam(value = "msgId", required = false) String msgId, HttpServletRequest request)
+			throws Exception {
+
+		UpdateDesignPlanCacheParameter parameter = new UpdateDesignPlanCacheParameter(designPlanId,houseId,livingId,residentialUnitsName,newFlag,request);
+		UpdateDesignPlanCacheTask task = new UpdateDesignPlanCacheTask(parameter);
+		FutureTask<Result> futureTask = new FutureTask<Result>(task);
+		TaskExecutor.getInstance().addTask(futureTask);
+
+		return new ResponseEnvelope("",msgId, true);
+	}
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * 拷贝或者改造设计方案
+	 * @param request
+	 * @return
+	 * @throws Exception 
+	 */
+	@RequestMapping("/transformAndCopyPlan_old")
+	@ResponseBody
+	public Object transformAndCopyPlan	(@RequestParam(value = "houseId",required = false) String houseId,
+			@RequestParam(value = "livingId",required = false) String livingId,
+			@RequestParam(value = "designPlanId", required = false) Integer designPlanId,
+			@RequestParam(value = "residentialUnitsName",required = false) String residentialUnitsName,Integer newFlag, 
+			@RequestParam(value = "msgId", required = false) String msgId, HttpServletRequest request) throws Exception{
+		String type = request.getParameter("type");	//1复制 2改造
+		Integer newPlanId = null;
+		try{
+			/*参数校验*/
+			LoginUser loginUser = com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request);
+			if(loginUser == null){
+				return new ResponseEnvelope<DesignPlan>(false,"登录超时,请重新登录",msgId);
+			}
+			if(StringUtils.isBlank(type)){
+				return new ResponseEnvelope<DesignPlan>(false,"缺少参数type",msgId);
+			}
+			if(!"1".equals(type)&&!"2".equals(type)){
+				return new ResponseEnvelope<DesignPlan>(false,"参数type错误",msgId);
+			}
+			DesignPlan plan =  designPlanService.get(designPlanId);
+			if(plan == null){
+				return new ResponseEnvelope<DesignPlan>(false,"设计方案不存在planId："+designPlanId,msgId);
+			}
+			
+			/*开始复制*/
+			DesignPlan desPlan = plan;
+			String creator =  null;
+			String modifier = null;
+			if("1".equals(type)){  
+				creator = plan.getCreator();
+				modifier = plan.getModifier();
+			}
+
+			if("2".equals(type)){
+				/* 改造设计方案需要校验的条件*/
+				//Map<String, String> resMap = designPlanRecommendedServiceV2.planFormalIsReleaseCheck(DesignPlanConstants.FUNCTION_TYPE_TRANSFORM,plan, null);
+//				if ("false".equals(resMap.get("success")) || !"true".equals(resMap.get("success"))) {
+//					return new ResponseEnvelope<DesignPlanRecommendedResult>(false, resMap.get("data"), msgId);
+//				}
+				/* end */
+				SysUser sysUser = sysUserService.get(loginUser.getId());
+				if(sysUser==null){
+					return new ResponseEnvelope<DesignPlan>(false,"用户不存在,请联系客服",msgId);
+				}else{
+					creator = sysUser.getNickName();
+					modifier = sysUser.getNickName();
+					desPlan.setUserId(sysUser.getId());
+				}
+			}
+			Integer planId = plan.getId();
+			desPlan.setId(null);
+			if (plan.getPlanCode() != null) {
+				desPlan.setPlanCode(plan.getPlanCode().substring(0, plan.getPlanCode().length() - 6)+ Utils.generateRandomDigitString(6));
+			}
+			desPlan.setDesignSourceType(6);/*来源*/
+			desPlan.setDesignId(planId);
+			desPlan.setIsChange(0);
+			desPlan.setIsOpen(0);
+			desPlan.setSysCode(plan.getSysCode().substring(0, plan.getSysCode().length() - 6) + Utils.generateRandomDigitString(6));
+			sysSave(desPlan, request);
+			desPlan.setCreator(creator);
+			desPlan.setModifier(modifier);
+			desPlan.setIsRelease(RecommendedDecorateState.NO_RELEASE);
+			desPlan.setCoverPicId(null);
+			if (plan.getConfigFileId() != null) {
+				Integer resFileId = this.planCopyFile(plan.getConfigFileId().toString(), "file", "design.designPlan.u3dconfig", null,request, desPlan.getPlanCode());
+				desPlan.setConfigFileId(resFileId);/*设计方案配置文件*/
+			} else {
+				desPlan.setConfigFileId(-1);/*设计方案配置文件*/
+			}
+
+			newPlanId = designPlanService.add(desPlan);
+			if( planId != null && newPlanId !=null){
+				DesignPlanProduct desPlanProduct = new DesignPlanProduct();/*设计方案的产品列表代入*/
+				desPlanProduct.setIsDeleted(0);
+				desPlanProduct.setPlanId(planId);
+				List<DesignPlanProduct> planProductList = designPlanProductService.getList(desPlanProduct);
+				for (DesignPlanProduct dpProduct : planProductList) {
+					DesignPlanProduct planProduct = new DesignPlanProduct();
+					planProduct = dpProduct;
+					planProduct.setId(null);
+					planProduct.setPlanId(newPlanId);
+					sysSave(planProduct, request);
+					designPlanProductService.add(planProduct);
+				}
+			}else{
+				return new ResponseEnvelope<DesignPlan>(true,"操作失败",msgId);
+			}
+			DesignCacher.removePlan(planId);
+		}catch (Exception e) {
+			logger.error("transformAndCopyPlan  methods the error  :" + e);
+			return new ResponseEnvelope<DesignPlan>(true,"操作失败",msgId);
+		}
+		return getDesignPlan(houseId,livingId,newPlanId,residentialUnitsName,newFlag,msgId,request,false);
+	}
+	
+ 
+	
+	
+	/**
+	 * DesignPlan自动存储系统字段
+	 */
+	private void sysSave(DesignPlan model, HttpServletRequest request) {
+		if (model != null) {
+			LoginUser loginUser = new LoginUser();
+			if (com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request) == null || com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request) == null) {
+				loginUser.setLoginName("nologin");
+			} else {
+				loginUser = com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request);
+			}
+
+			if (model.getId() == null) {
+				model.setGmtCreate(new Date());
+				model.setCreator(loginUser.getLoginName());
+				model.setIsDeleted(0);
+				if (model.getSysCode() == null || "".equals(model.getSysCode())) {
+					model.setSysCode(
+							Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+				}
+			}
+
+			model.setGmtModified(new Date());
+			model.setModifier(loginUser.getLoginName());
+		}
+	}
+	
+	/**
+	 * DesignPlan自动存储系统字段
+	 */
+	private void sysSave(DesignPlanRecommended model, HttpServletRequest request) {
+		if (model != null) {
+			LoginUser loginUser = new LoginUser();
+			if (com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request) == null || com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request) == null) {
+				loginUser.setLoginName("nologin");
+			} else {
+				loginUser = com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request);
+			}
+
+			if (model.getId() == null) {
+				model.setGmtCreate(new Date());
+				model.setCreator(loginUser.getLoginName());
+				model.setIsDeleted(0);
+				if (model.getSysCode() == null || "".equals(model.getSysCode())) {
+					model.setSysCode(
+							Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+				}
+			}
+
+			model.setGmtModified(new Date());
+			model.setModifier(loginUser.getLoginName());
+		}
+	}
+	
+	
+	/**
+	 * DesignPlanProduct自动存储系统字段
+	 */
+	private void sysSave(DesignPlanProduct model, HttpServletRequest request) {
+		if (model != null) {
+			LoginUser loginUser = new LoginUser();
+			if (com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request) == null || com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request) == null) {
+				loginUser.setLoginName("nologin");
+			} else {
+				loginUser = com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request);
+			}
+
+			if (model.getId() == null) {
+				model.setGmtCreate(new Date());
+				model.setCreator(loginUser.getLoginName());
+				model.setIsDeleted(0);
+				if (model.getSysCode() == null || "".equals(model.getSysCode())) {
+					model.setSysCode(
+							Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+				}
+			}
+
+			model.setGmtModified(new Date());
+			model.setModifier(loginUser.getLoginName());
+		}
+	}
+	
+	
+	
+	/*
+	 * 自动存储(加code)
+	 */
+	public Integer planCopyFile(String resId, String resType, String fileKey, Integer bussniess, HttpServletRequest request,
+			String code) {
+		logger.info("resId=" + resId + ";resType=" + resType + ";fileKey=" + fileKey + ";bussniess=" + bussniess
+				+ ";code=" + code);
+		String resFilePath = "";
+		Integer newResId = -1;
+
+		ResDesign resDesign = new ResDesign();
+		ResModel resModel = new ResModel();
+		ResPic resPic = new ResPic();
+		if (!StringUtils.isEmpty(resId)) {
+			if ("file".equals(resType)) {
+				ResDesign file = resDesignService.get(new Integer(resId));
+				if (file != null && !StringUtils.isEmpty(file.getFilePath())) {
+					resFilePath = file.getFilePath();
+					resDesign = file.resDesignCopy();
+				}
+			}
+			if ("model".equals(resType)) {
+				ResModel model = resModelService.get(new Integer(resId));
+				if (model != null && !StringUtils.isEmpty(model.getModelPath())) {
+					resFilePath = model.getModelPath();
+					resModel = model.copy();
+				}
+
+			}
+			if ("pic".equals(resType)){
+				ResPic pic = resPicService.get(new Integer(resId));
+				if (pic != null && !StringUtils.isEmpty(pic.getPicPath())) {
+					resFilePath = pic.getPicPath();
+					resPic = pic.copy();
+				}
+
+			}
+			if (!StringUtils.isEmpty(resFilePath)) {
+				// String uploadRoot = "";
+				/*String local_uploadRoot = Constants.UPLOAD_ROOT;*/
+				String srcPath = Utils.dealWithPath(Utils.getAbsolutePath(resFilePath, null), null);
+				/*if ("linux".equals(FileUploadUtils.SYSTEM_FORMAT)) {
+					srcPath = local_uploadRoot + resFilePath;
+				} else {
+					srcPath = local_uploadRoot + resFilePath.replace("/", "\\");
+				}*/
+
+				File srcresourcesFile = new File(srcPath);
+
+				if (!srcresourcesFile.getParentFile().exists()) {
+					srcresourcesFile.getParentFile().mkdirs();
+				}
+				String resourcesName = resFilePath.substring(resFilePath.replace("/", "\\").lastIndexOf("\\") + 1,
+						resFilePath.length());
+				if ("linux".equals(FileUploadUtils.SYSTEM_FORMAT)) {
+					resourcesName = resFilePath.substring(resFilePath.lastIndexOf("/") + 1, resFilePath.length());
+				}
+
+				String newPath = Utils.getPropertyName("config/res", fileKey + ".upload.path", "").trim();
+				newPath = Utils.replaceDate(newPath);
+				String tarName = resourcesName.substring(resourcesName.lastIndexOf("/") + 1,
+						resourcesName.lastIndexOf("_")) + "_" + Utils.getCurrentDateTime(Utils.DATETIMESSS)
+						+ resourcesName.substring(resourcesName.indexOf("."));
+				String targetName = newPath + tarName;
+				targetName = targetName.replace(".txt", AESFileConstant.AES_FIRST+".txt");//复制的配置文件因为源文件已经加密，要在文件后面加个标识
+				/*String local_targetPath = local_uploadRoot + targetName.replace("/", "\\");
+				if ("linux".equals(FileUploadUtils.SYSTEM_FORMAT)) {
+					local_targetPath = local_uploadRoot + targetName;
+				}*/
+				String local_targetPath = Utils.dealWithPath(Utils.getAbsolutePath(targetName, null), null);
+				
+				File local_targetFile = new File(local_targetPath);
+
+				if (!local_targetFile.getParentFile().exists()) {
+					local_targetFile.getParentFile().mkdirs();
+				}
+				boolean flag = false;
+				String resPath = resFilePath.substring(0, resFilePath.lastIndexOf("/") + 1);
+				/*String dbFilePath = Constants.UPLOAD_ROOT.replace("\\", "/") + newPath + tarName;*/
+				String dbFilePath = Utils.getAbsolutePath(newPath + tarName, null);
+				if (Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD) == 1) {
+					if (srcresourcesFile.isFile() && srcresourcesFile.exists()) { // 判断文件是否存在
+						flag = FileUploadUtils.fileCopy(srcresourcesFile, local_targetFile);
+					} else {
+						logger.error("srcresourcesFile is not  exists !srcresourcesFile="+srcresourcesFile);
+					}
+				} else if (Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD) == 2) {
+					// 下载到本地
+					flag = FtpUploadUtils.downFile(resPath, resourcesName);
+					if (FileUploadUtils.fileCopy(srcresourcesFile, local_targetFile)) {
+						if (flag) {
+							// 上传ftp服务器
+							flag = FtpUploadUtils.uploadFile(tarName, dbFilePath, newPath);
+							if (flag) {
+								// 删除本地
+								FileUploadUtils.deleteFile(newPath + tarName);
+							} else {
+								return newResId;
+							}
+						} else {
+							return newResId;
+						}
+					} else {
+						logger.error("copy file is error");
+						return -1;
+					}
+
+				} else {
+					// 3 本地和ftp同时上传(默认是本地上传)
+					// resPath：FTP服务器上的相对路径，resourcesName：要下载的文件名，newPath+tarName：下载到本地文件路径+文件名称
+					flag = FtpUploadUtils.downFile(resPath, resourcesName);// 下载到本地
+					if (!flag || FileUploadUtils.fileCopy(srcresourcesFile, local_targetFile)) {
+						logger.error("copy file is error");
+						return -1;
+					}
+					if (flag) {
+						// tarName:文件名称，dbFilePath:本地文件路径，newPath:ftp服务器存放文件路径
+						flag = FtpUploadUtils.uploadFile(tarName, dbFilePath, newPath);// 上传ftp服务器
+						if (!flag) {
+							return newResId;
+						}
+					} else {
+						return newResId;
+					}
+				}
+
+				if (flag) {
+					if ("file".equals(resType)) {
+						resDesign.setSysCode(code);
+						resDesign.setFilePath(targetName);
+						resDesign.setFileKey(fileKey);
+						resDesign.setBusinessId(bussniess);
+						resDesign.setFileCode(code);
+						sysSave(resDesign, request);
+						newResId = resDesignService.add(resDesign);
+					}
+					if ("model".equals(resType)) {
+						resModel.setSysCode(code);
+						resModel.setModelPath(targetName);
+						resModel.setFileKey(fileKey);
+						resModel.setBusinessId(bussniess);
+						resModel.setModelCode(code);
+						sysSave(resModel, request);
+						newResId = resModelService.add(resModel);
+					}
+					if ("pic".equals(resType)) {
+						resPic.setPicPath(targetName);
+						resPic.setFileKey(fileKey);
+						resPic.setSysCode(code);
+						resPic.setBusinessId(bussniess);
+						resPic.setPicCode(code);
+						sysSave(resPic, request);
+						newResId = resPicService.add(resPic);
+					}
+				}
+			}
+		}
+
+		return newResId;
+	}
+	
+	/**
+	 * 处理副本配置文件
+	 * @param resId
+	 * @param resType
+	 * @param fileKey
+	 * @param bussniess
+	 * @param request
+	 * @param code
+	 * @return
+	 */
+	public Integer planCopyFileFromResDesignScene(String resId, String fileKey, Integer bussniess, HttpServletRequest request,
+			String code) {
+		String resFilePath = "";
+		Integer newResId = -1;
+		ResDesign resDesign = new ResDesign();
+		if (!StringUtils.isEmpty(resId)) {
+			ResDesignRenderScene file = resDesignRenderSceneService.get(new Integer(resId));
+			if (file != null && !StringUtils.isEmpty(file.getFilePath())) {
+				resFilePath = file.getFilePath();
+				resDesign = file.resDesignCopy();
+			}
+			if (!StringUtils.isEmpty(resFilePath)) {
+				String srcPath = Utils.dealWithPath(Utils.getAbsolutePath(resFilePath, null), null);
+				File srcresourcesFile = new File(srcPath);
+				if (!srcresourcesFile.getParentFile().exists()) {
+					srcresourcesFile.getParentFile().mkdirs();
+				}
+				String resourcesName = resFilePath.substring(resFilePath.replace("/", "\\").lastIndexOf("\\") + 1,
+						resFilePath.length());
+				if ("linux".equals(FileUploadUtils.SYSTEM_FORMAT)) {
+					resourcesName = resFilePath.substring(resFilePath.lastIndexOf("/") + 1, resFilePath.length());
+				}
+				String newPath = Utils.getPropertyName("config/res", fileKey + ".upload.path", "").trim();
+				newPath = Utils.replaceDate(newPath);
+				String tarName = resourcesName.substring(resourcesName.lastIndexOf("/") + 1,
+						resourcesName.lastIndexOf("_")) + "_" + Utils.getCurrentDateTime(Utils.DATETIMESSS)
+						+ resourcesName.substring(resourcesName.indexOf("."));
+				String targetName = newPath + tarName;
+				targetName = targetName.replace(".txt", AESFileConstant.AES_FIRST+".txt");//复制的配置文件因为源文件已经加密，要在文件后面加个标识
+				String local_targetPath = Utils.dealWithPath(Utils.getAbsolutePath(targetName, null), null);
+				
+				File local_targetFile = new File(local_targetPath);
+
+				if (!local_targetFile.getParentFile().exists()) {
+					local_targetFile.getParentFile().mkdirs();
+				}
+				boolean flag = false;
+				String resPath = resFilePath.substring(0, resFilePath.lastIndexOf("/") + 1);
+				String dbFilePath = Utils.getAbsolutePath(newPath + tarName, null);
+				if (Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD) == 1) {
+					if (srcresourcesFile.isFile() && srcresourcesFile.exists()) { // 判断文件是否存在
+						flag = FileUploadUtils.fileCopy(srcresourcesFile, local_targetFile);
+					} else {
+						logger.error("srcresourcesFile is not  exists !srcresourcesFile="+srcresourcesFile);
+					}
+				} else if (Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD) == 2) {
+					// 下载到本地
+					flag = FtpUploadUtils.downFile(resPath, resourcesName);
+					if (FileUploadUtils.fileCopy(srcresourcesFile, local_targetFile)) {
+						if (flag) {
+							// 上传ftp服务器
+							flag = FtpUploadUtils.uploadFile(tarName, dbFilePath, newPath);
+							if (flag) {
+								// 删除本地
+								FileUploadUtils.deleteFile(newPath + tarName);
+							} else {
+								return newResId;
+							}
+						} else {
+							return newResId;
+						}
+					} else {
+						logger.error("copy file is error");
+						return -1;
+					}
+
+				} else {
+					// 3 本地和ftp同时上传(默认是本地上传) resPath：FTP服务器上的相对路径，resourcesName：要下载的文件名，newPath+tarName：下载到本地文件路径+文件名称
+					flag = FtpUploadUtils.downFile(resPath, resourcesName);// 下载到本地
+					if (!flag || FileUploadUtils.fileCopy(srcresourcesFile, local_targetFile)) {
+						logger.error("copy file is error");
+						return -1;
+					}
+					if (flag) {
+						// tarName:文件名称，dbFilePath:本地文件路径，newPath:ftp服务器存放文件路径
+						flag = FtpUploadUtils.uploadFile(tarName, dbFilePath, newPath);// 上传ftp服务器
+						if (!flag) {
+							return newResId;
+						}
+					} else {
+						return newResId;
+					}
+				}
+
+				if (flag) {
+					resDesign.setSysCode(code);
+					resDesign.setFilePath(targetName);
+					resDesign.setFileKey(fileKey);
+					resDesign.setBusinessId(bussniess);
+					resDesign.setFileCode(code);
+					sysSave(resDesign, request);
+					newResId = resDesignService.add(resDesign);
+				}
+			}
+		}
+
+		return newResId;
+	}
+	
+	
+	/**
+	 * ResPic自动存储系统字段
+	 */
+	private void sysSave(ResPic model, HttpServletRequest request) {
+		if (model != null) {
+			LoginUser loginUser = new LoginUser();
+			if (com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request) == null || com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request) == null) {
+				loginUser.setLoginName("nologin");
+			} else {
+				loginUser = com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request);
+			}
+
+			if (model.getId() == null) {
+				model.setGmtCreate(new Date());
+				model.setCreator(loginUser.getLoginName());
+				model.setIsDeleted(0);
+				if (model.getSysCode() == null || "".equals(model.getSysCode())) {
+					model.setSysCode(
+							Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+				}
+			}
+
+			model.setGmtModified(new Date());
+			model.setModifier(loginUser.getLoginName());
+		}
+	}
+	
+	/**
+	 * DesignPlan自动存储系统字段
+	 */
+	private void sysSave(ResDesign model, HttpServletRequest request) {
+		if (model != null) {
+			LoginUser loginUser = new LoginUser();
+			if (com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request) == null || com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request) == null) {
+				loginUser.setLoginName("nologin");
+			} else {
+				loginUser = com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request);
+			}
+
+			if (model.getId() == null) {
+				model.setGmtCreate(new Date());
+				model.setCreator(loginUser.getLoginName());
+				model.setIsDeleted(0);
+				if (model.getSysCode() == null || "".equals(model.getSysCode())) {
+					model.setSysCode(
+							Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+				}
+			}
+
+			model.setGmtModified(new Date());
+			model.setModifier(loginUser.getLoginName());
+		}
+	}
+	
+	
+	/**
+	 * ResModel自动存储系统字段
+	 */
+	private void sysSave(ResModel model, HttpServletRequest request) {
+		if (model != null) {
+			LoginUser loginUser = new LoginUser();
+			if (com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request) == null || com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request) == null) {
+				loginUser.setLoginName("nologin");
+			} else {
+				loginUser = com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request);
+			}
+
+			if (model.getId() == null) {
+				model.setGmtCreate(new Date());
+				model.setCreator(loginUser.getLoginName());
+				model.setIsDeleted(0);
+				if (model.getSysCode() == null || "".equals(model.getSysCode())) {
+					model.setSysCode(
+							Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+				}
+			}
+
+			model.setGmtModified(new Date());
+			model.setModifier(loginUser.getLoginName());
+		}
+	}
+
+	/**
+	 * 
+	   
+	 * delRenderRes删除渲染资源        
+	   
+	 * @return 
+	
+	 * @return ResponseEnvelope    返回类型   
+	   
+	 * @Exception 异常对象 
+	 *    
+	    http://localhost:8080/timeSpace/online/web/design/designPlanV2/deltemp.htm?temp=11
+	 * @since  CodingExample　Ver(编码范例查看) 1.1
+	 */
+	@RequestMapping(method=RequestMethod.POST,value="/deltemp")
+	@ResponseBody
+    public ResponseEnvelope delTempDesignPaln(HttpServletRequest request, HttpServletResponse response) {
+        ResponseEnvelope envelope = new ResponseEnvelope<>();
+        String tempDesignPalnId = request.getParameter("temp");// 临时设计方案id
+        String msgId = request.getParameter("msgId");
+        envelope.setMsgId(msgId);
+
+        if (StringUtils.isEmpty(tempDesignPalnId) || !StringUtils.isNumeric(tempDesignPalnId)) {
+            envelope.setSuccess(false);
+            envelope.setMessage("params error");
+            return envelope;
+        }
+
+        if (StringUtils.isEmpty(msgId)) {
+            envelope.setSuccess(false);
+            envelope.setMessage("params error");
+            return envelope;
+        }
+
+        LoginUser loginUser = SystemCommonUtil.getLoginUserFromSession(request);
+        if (loginUser==null) {
+            envelope.setSuccess(false);
+            envelope.setMessage(SystemCommonConstant.PLEASE_LOGIN);
+            return envelope;
+        }
+        int userId = loginUser.getId();
+
+//        designPalnRenderService.deleteTempDesignPaln4RenderBakScene( Long.valueOf(tempDesignPalnId),userId);
+        return envelope;
+    }
+	
+	/**
+	 * 改造 和 复制设计方案
+	 * @param houseId
+	 * @param type
+	 * @param livingId
+	 * @param designPlanId
+	 * @param planRecommendedId
+	 * @param residentialUnitsName
+	 * @param newFlag
+	 * @param msgId
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/transformAndCopyPlan")
+	@ResponseBody
+	public Object transformAndCopyPlan	(@RequestParam(value = "houseId",required = false) String houseId,
+			@RequestParam(value = "type",required = false) String type,
+			@RequestParam(value = "livingId",required = false) String livingId,
+			@RequestParam(value = "designPlanId", required = false) Integer designPlanId,
+			@RequestParam(value = "planRecommendedId", required = false) Integer planRecommendedId,
+			@RequestParam(value = "residentialUnitsName",required = false) String residentialUnitsName,Integer newFlag, 
+			@RequestParam(value = "msgId", required = false) String msgId, HttpServletRequest request,
+			@RequestParam(value = "taskId",required = false) Integer taskId,
+			@RequestParam(value = "operationSource",required = false) Integer operationSource
+	      ) throws Exception{
+		LoginUser loginUser = SystemCommonUtil.getLoginUserFromSession(request);
+		if(loginUser == null || loginUser.getId() == null || loginUser.getId().intValue() <= 0){
+			return new ResponseEnvelope<DesignPlan>(false,"请重新登录",msgId);
+		}
+		if (operationSource == OP_SOURCE_MYDESIGN) {  
+			logger.error("transformAndCopyPlan planRecommendedId=====>"+planRecommendedId);
+			DesignPlanRenderScene designPlanRenderScene = designPlanRenderSceneService.get(planRecommendedId);//this id is designPlanRenderScene id
+			if(designPlanRenderScene == null){
+				return new ResponseEnvelope<DesignPlan>(false,"方案推荐不存在，或已被下架",msgId);
+			}
+			return transformByDesignPlanRenderScene(designPlanRenderScene,houseId,livingId,residentialUnitsName,newFlag,msgId,loginUser.getId(),request,taskId);
+		} else {  //方案推荐改造
+			DesignPlanRecommended  designPlanRecommended = designPlanRecommendedServiceV2.get(planRecommendedId);
+			if(designPlanRecommended == null){
+				return new ResponseEnvelope<DesignPlan>(false,"方案推荐不存在，或已被下架",msgId);
+			}
+			return transformBydesigPlanRecommended(designPlanRecommended,houseId,livingId,residentialUnitsName,newFlag,msgId,loginUser.getId(),request,taskId);
+		}
+	}
+	
+ 
+	/**
+	 * 改造设计方案 数据从方案推荐中 获取
+	 * 
+	 * @param planRecommendedId
+	 * @param houseId
+	 * @param livingId
+	 * @param residentialUnitsName
+	 * @param newFlag
+	 * @param msgId
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	public Object transformBydesigPlanRecommended(DesignPlanRecommended designPlanRecommended, String houseId,
+			String livingId, String residentialUnitsName, Integer newFlag, String msgId, Integer userId,
+			HttpServletRequest request, Integer taskId) throws Exception {
+		LoginUser loginUser = SystemCommonUtil.getLoginUserFromSession(request);
+		if (userId == null || userId.intValue() == 1 || userId.intValue() == 0) {
+			return new ResponseEnvelope<DesignPlan>(false, "请重新登录", msgId);
+		}
+		Integer newPlanId = null;
+
+		if (designPlanRecommended == null) {
+			return new ResponseEnvelope<DesignPlan>(false, "方案推荐不存在，或已被下架", msgId);
+		}
+		DesignPlan designPlan = designPlanRecommended.recommendedCopy();
+
+		designPlan.setId(null);
+		if (designPlanRecommended.getPlanCode() != null) {
+			designPlan.setPlanCode(
+					designPlanRecommended.getPlanCode().substring(0, designPlanRecommended.getPlanCode().length() - 6)
+							+ Utils.generateRandomDigitString(6));
+		}
+		designPlan.setUserId(userId);
+		designPlan.setIsChange(0);
+		designPlan.setIsOpen(0);
+		designPlan.setSysCode(
+				designPlanRecommended.getSysCode().substring(0, designPlanRecommended.getSysCode().length() - 6)
+						+ Utils.generateRandomDigitString(6));
+		//存储设计方案业务来源 为改造方案
+        designPlan.setBusinessType(DesignPlanBusinessTypeConstant.TYPE_TRANSFORM);
+		sysSave(designPlan, request);
+		designPlan.setCoverPicId(null);
+		if (designPlanRecommended.getConfigFileId() != null) {
+			Integer resFileId = this.planCopyFile(designPlanRecommended.getConfigFileId().toString(), "file",
+					"design.designPlan.u3dconfig", null, request, designPlanRecommended.getPlanCode());
+			designPlan.setConfigFileId(resFileId);/* 设计方案配置文件 */
+		} else {
+			designPlan.setConfigFileId(-1);/* 设计方案配置文件 */
+		}
+		
+		/*拷贝效果图拼花配置文件*/
+		if (designPlanRecommended.getSpellingFlowerFileId() != null) {
+			Integer resFileId = designPlanService.planCopyFileFromResDesignScene(designPlanRecommended.getSpellingFlowerFileId().toString(),
+					"design.designPlan.spellingFlowerFile","/AA/d_userdesign/[yyyy]/[MM]/[dd]/[HH]/design/designPlan/spellingFlowerFile/",
+					null, designPlan.getPlanCode(),loginUser);
+			designPlan.setSpellingFlowerFileId(resFileId);
+		} else {
+			designPlan.setSpellingFlowerFileId(-1);
+		}
+		
+		newPlanId = designPlanService.add(designPlan);
+		if (newPlanId != null) {
+			List<ProductReplaceTaskDetail> replaceProductList = null;
+			List<ProductReplaceTaskDetail> replaceTextureList = null;
+			if (taskId != null) {
+				logger.error("transformByDesignPlanRecommended taskId =>" + taskId);
+				replaceProductList = mobileRenderRecordMapper.selectListByTaskId(taskId);
+				// 材质替换
+				replaceTextureList = mobileRenderRecordMapper.selectTextureListByTaskId(taskId);
+			}
+			DesignPlanRecommendedProduct designPlanRecommendedProduct = new DesignPlanRecommendedProduct();/*
+																											 * 设计方案的产品列表代入
+																											 */
+			designPlanRecommendedProduct.setIsDeleted(0);
+			designPlanRecommendedProduct.setPlanRecommendedId(designPlanRecommended.getId());
+			List<DesignPlanRecommendedProduct> planProductList = designPlanRecommendedProductServiceV2
+					.getList(designPlanRecommendedProduct);
+			for (DesignPlanRecommendedProduct dprProduct : planProductList) {
+				DesignPlanProduct planProduct = new DesignPlanProduct();
+				planProduct = dprProduct.recommendedProductCopy();
+				if (replaceProductList != null) {
+					for (ProductReplaceTaskDetail replaceProduct : replaceProductList) {
+						if (replaceProduct.getSourceProductId().intValue() == dprProduct.getProductId().intValue()) {
+							planProduct.setProductId(replaceProduct.getDestProductId());
+						}
+					}
+				}
+				// 材质
+				if (replaceTextureList != null && replaceTextureList.size() > 0) {
+					for (ProductReplaceTaskDetail replaceTextureProduct : replaceTextureList) {
+						// if(replaceTextureProduct.getPosIndexPath().equals(dprProduct.getPosIndexPath()))
+						// {
+						if (replaceTextureProduct.getSourceProductId().intValue() == dprProduct.getProductId()
+								.intValue()) {
+							planProduct.setSplitTexturesChooseInfo(
+									replaceTextureProduct.getReplaceSplitTexturesChooseInfo());
+							planProduct.setIsReplaceTexture(taskId);
+						}
+					}
+				}
+				planProduct.setId(null);
+				planProduct.setPlanId(newPlanId);
+				sysSave(planProduct, request);
+
+				designPlanProductService.add(planProduct);
+			}
+		}
+		return getDesignPlan(houseId, livingId, newPlanId, residentialUnitsName, newFlag, msgId, request, false);
+
+	}
+	
+	/**
+	 * 效果图改造
+	 * @param designPlanRenderScene
+	 * @param houseId
+	 * @param livingId
+	 * @param residentialUnitsName
+	 * @param newFlag
+	 * @param msgId
+	 * @param userId
+	 * @param request
+	 * @param taskId
+	 * @return
+	 * @throws Exception
+	 */
+	public Object transformByDesignPlanRenderScene(DesignPlanRenderScene designPlanRenderScene,String houseId,String livingId,String residentialUnitsName,
+			Integer newFlag,String msgId,Integer userId,HttpServletRequest request, Integer taskId) throws Exception{
+		LoginUser loginUser = SystemCommonUtil.getLoginUserFromSession(request);
+		if(userId ==null || userId.intValue() == 1 || userId.intValue() == 0){
+			return new ResponseEnvelope<DesignPlan>(false,"请重新登录",msgId);
+		}
+		Integer newPlanId = null;
+		if(designPlanRenderScene == null){
+			return new ResponseEnvelope<DesignPlan>(false,"方案推荐不存在，或已被下架",msgId);
+		}
+		DesignPlan designPlan = designPlanRenderScene.designPlanCopy();
+			 
+		designPlan.setId(null);
+		if (designPlanRenderScene.getPlanCode() != null) {
+			designPlan.setPlanCode(designPlanRenderScene.getPlanCode().substring(0, designPlanRenderScene.getPlanCode().length() - 6)+ Utils.generateRandomDigitString(6));
+		}
+		designPlan.setUserId(userId);
+		designPlan.setIsChange(0);
+		designPlan.setIsOpen(0);
+		designPlan.setSysCode(designPlanRenderScene.getSysCode().substring(0, designPlanRenderScene.getSysCode().length() - 6) + Utils.generateRandomDigitString(6));
+		sysSave(designPlan, request);
+		designPlan.setCoverPicId(null);
+		if (designPlanRenderScene.getConfigFileId() != null) {
+			Integer resFileId = this.planCopyFileFromResDesignScene(designPlanRenderScene.getConfigFileId().toString(), "design.designPlan.u3dconfig", null,request, designPlanRenderScene.getPlanCode());
+			designPlan.setConfigFileId(resFileId);/*设计方案配置文件*/
+		} else {
+			designPlan.setConfigFileId(-1);/*设计方案配置文件*/
+		}
+
+		/*拷贝效果图拼花配置文件*/
+		if (designPlanRenderScene.getSpellingFlowerFileId() != null) {
+			Integer resFileId = designPlanService.planCopyFileFromResDesignScene(designPlanRenderScene.getSpellingFlowerFileId().toString(),
+					"design.designPlan.spellingFlowerFile","/AA/d_userdesign/[yyyy]/[MM]/[dd]/[HH]/design/designPlan/spellingFlowerFile/",
+					null, designPlan.getPlanCode(),loginUser);
+			designPlan.setSpellingFlowerFileId(resFileId);
+		} else {
+			designPlan.setSpellingFlowerFileId(-1);
+		}
+
+		newPlanId = designPlanService.add(designPlan);
+		if(newPlanId !=null){
+			 List<ProductReplaceTaskDetail> replaceProductList = null;
+			 List<ProductReplaceTaskDetail> replaceTextureList = null;
+			 if(taskId != null) {
+				  //单品替换
+				logger.error("transformByDesignPlanRenderScene taskId =>"+taskId);
+			    replaceProductList = mobileRenderRecordMapper.selectListByTaskId(taskId);
+			    logger.error("transformByDesignPlanRenderScene replaceProductList =>"+replaceProductList.size());
+			    //材质替换
+			    replaceTextureList = mobileRenderRecordMapper.selectTextureListByTaskId(taskId);
+			  }
+			  DesignPlanProductRenderScene designPlanProductRenderScene = new DesignPlanProductRenderScene();/*设计方案的产品列表代入*/
+			  designPlanProductRenderScene.setIsDeleted(0);
+			  designPlanProductRenderScene.setPlanProductId(designPlanRenderScene.getId());//TODO : Check what the id?
+			  List<DesignPlanProductRenderScene> planProductList = designPlanProductRenderSceneService.getListByPlanId(designPlanRenderScene.getId());
+			  for (DesignPlanProductRenderScene dprProduct : planProductList) {
+					DesignPlanProduct planProduct = new DesignPlanProduct();
+					planProduct = dprProduct.designPlanProductCopy();
+					logger.error("transformByDesignPlanRenderScene planProduct =>"+planProduct.getProductCode());
+					//单品
+					if (replaceProductList != null && replaceProductList.size() > 0) {
+		                   for(ProductReplaceTaskDetail replaceProduct : replaceProductList) {
+		                     if(replaceProduct.getSourceProductId().intValue() == dprProduct.getProductId().intValue()) {
+		                    	 logger.error("transformByDesignPlanRenderScene replaceProduct.getDestProductId() =>"+replaceProduct.getDestProductId());
+		                       planProduct.setProductId(replaceProduct.getDestProductId());
+		                     }
+		                   }
+		                }
+					// 材质
+					if (replaceTextureList != null && replaceTextureList.size() > 0) {
+		                  for(ProductReplaceTaskDetail replaceTextureProduct : replaceTextureList) {
+		                	  if(replaceTextureProduct.getSourceProductId().intValue() == dprProduct.getProductId().intValue()) {
+		                		  planProduct.setSplitTexturesChooseInfo(replaceTextureProduct.getReplaceSplitTexturesChooseInfo());
+		                		  planProduct.setIsReplaceTexture(taskId);
+		                	  }
+		                  }
+		             }
+
+					planProduct.setId(null);
+					planProduct.setPlanId(newPlanId);
+					sysSave(planProduct, request);
+					logger.error("transformByDesignPlanRenderScene planProduct =>"+planProduct.getProductCode());
+					designPlanProductService.add(planProduct);
+				}
+			  
+			}
+			return getDesignPlan(houseId,livingId,newPlanId,residentialUnitsName,newFlag,msgId,request,false);
+	}
+
+	/**
+	 * 
+	   
+	 * enterRenderScene 进入渲染时的场景      
+	   
+	 * @return 
+	
+	 * @return ResponseEnvelope    返回类型   
+	   
+	 * @Exception 异常对象    
+	   http://localhost:8080/timeSpace/online/web/design/designPlanV2/enterscene.htm?thid=11
+	 * @since  CodingExample　Ver(编码范例查看) 1.1
+	 */
+    @RequestMapping(method=RequestMethod.POST,value="/enterscene")
+    @ResponseBody
+	public ResponseEnvelope enterRenderScene(HttpServletRequest request,HttpServletResponse response ){
+        ResponseEnvelope envelope = new ResponseEnvelope<>();
+        String thumbId=request.getParameter("thid");
+        String msgId = request.getParameter("msgId");
+        envelope.setMsgId(msgId);
+        
+        if(StringUtils.isEmpty(msgId)){
+            envelope.setSuccess(false);
+            envelope.setMessage("params error");
+            return envelope;
+        }
+        
+        if(StringUtils.isEmpty(thumbId) || !StringUtils.isNumeric(thumbId)){
+            envelope.setSuccess(false);
+            envelope.setMessage("params error");
+            return envelope;
+        }
+        
+        LoginUser loginUser = SystemCommonUtil.getLoginUserFromSession(request);
+        if (loginUser==null) {
+            envelope.setSuccess(false);
+            envelope.setMessage(SystemCommonConstant.PLEASE_LOGIN);
+            return envelope;
+        }
+        int userId = loginUser.getId();
+        
+        long thumbPicId = Long.valueOf(thumbId);
+        
+        //用户已经创建了该副本，不在创建
+        long tempDesignPlanId =  designPalnRenderService.existTempDesignPaln(thumbPicId, userId);
+        if(tempDesignPlanId>0)
+        {
+            envelope.setSuccess(true);
+            envelope.setObj(tempDesignPlanId);
+            return envelope; 
+        }
+        
+        DesignPlanRes designPlanRes=  designPalnRenderService.getRenderBakScene(thumbPicId);
+        if(!designPalnRenderService.verifyDesignPlanRes(thumbPicId, designPlanRes)){
+            envelope.setSuccess(false);
+            envelope.setMessage("params error");
+            return envelope;
+        }
+        tempDesignPlanId = designPalnRenderService.saveAsTempDesignPaln4RenderBakScene(designPlanRes,userId);
+        envelope.setSuccess(true);
+        envelope.setObj(tempDesignPlanId);
+        return envelope;
+    }
+	
+	/**
+	 * 改造 和 复制 设计方案
+	 * @param houseId
+	 * @param livingId
+	 * @param residentialUnitsName
+	 * @param newFlag
+	 * @param msgId
+	 * @param request
+	 * @return
+	 */
+	public Object designPlanCopy(DesignPlan plan ,String houseId,String livingId,String residentialUnitsName,
+			Integer newFlag,String msgId,Integer userId,HttpServletRequest request){
+		Integer newPlanId = null;
+		try{
+			if(plan == null){
+				return new ResponseEnvelope<DesignPlan>(false,"方案不存在，或已被删除",msgId);
+			}
+			DesignPlan desPlan = plan;
+			desPlan.setId(null);
+			if (plan.getPlanCode() != null) {
+				desPlan.setPlanCode(plan.getPlanCode().substring(0, plan.getPlanCode().length() - 6)+ Utils.generateRandomDigitString(6));
+			}
+			desPlan.setDesignSourceType(6);/*来源*/
+			desPlan.setDesignId(plan.getId());
+			desPlan.setIsChange(0);
+			desPlan.setIsOpen(0);
+			desPlan.setSysCode(plan.getSysCode().substring(0, plan.getSysCode().length() - 6) + Utils.generateRandomDigitString(6));
+			desPlan.setCoverPicId(null);
+			sysSave(desPlan, request);
+			if(plan.getConfigFileId() != null) {
+				Integer resFileId = this.planCopyFile(plan.getConfigFileId().toString(), "file", "design.designPlan.u3dconfig", null,request, desPlan.getPlanCode());
+				desPlan.setConfigFileId(resFileId);/*设计方案配置文件*/
+			} else {
+				desPlan.setConfigFileId(-1);/*设计方案配置文件*/
+			}
+			if(userId !=null && userId.intValue() != 1 && userId.intValue() != 0){
+				desPlan.setUserId(userId);
+			}
+			newPlanId = designPlanService.add(desPlan);
+			if(newPlanId !=null){
+				DesignPlanProduct desPlanProduct = new DesignPlanProduct();/*设计方案的产品列表代入*/
+				desPlanProduct.setIsDeleted(0);
+				desPlanProduct.setPlanId(plan.getId());
+				List<DesignPlanProduct> planProductList = designPlanProductService.getList(desPlanProduct);
+				for (DesignPlanProduct dpProduct : planProductList) {
+					DesignPlanProduct planProduct = new DesignPlanProduct();
+					planProduct = dpProduct;
+					planProduct.setId(null);
+					planProduct.setPlanId(newPlanId);
+					sysSave(planProduct, request);
+					designPlanProductService.add(planProduct);
+				}
+			}
+			DesignCacher.removePlan(plan.getId());
+			return getDesignPlan(houseId,livingId,newPlanId,residentialUnitsName,newFlag,msgId,request,false);
+		}catch (Exception e) {
+			return new ResponseEnvelope<DesignPlan>(false,"操作失败",msgId);
+		}
+	}
+	
+	
+	
+	
+	
+	/**
+	 * 保存设计方案拼花信息
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value="/spellingFlower")
+	@ResponseBody
+	public Object spellingFlower(HttpServletRequest request,HttpServletResponse response) {
+		String msgId = request.getParameter("msgId");
+		LoginUser loginUser = com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request);
+		if(loginUser == null || loginUser.getId().intValue() < 1) {
+			return new ResponseEnvelope<DesignPlan>(false,"请重新登录",msgId);
+		}
+		String planId = request.getParameter("planId");
+		String spellingFlowerProduct = request.getParameter("spellingFlowerProduct");  //拼花  产品ids 
+		String spellingFlower = request.getParameter("spellingFlower");  // app 需要保存的拼花文本信息，具体干什么用不知道
+		if(!checkParam(msgId, planId)) {
+			return new ResponseEnvelope<DesignPlan>(false,"缺少参数",msgId);  
+		}
+		SpellingFlowerModel model = new SpellingFlowerModel();
+		model.setMsgId(msgId);
+		model.setLoginUser(loginUser);
+		model.setSpellingFlower(spellingFlower);
+		model.setSpellingFlowerProduct(spellingFlowerProduct);
+		model.setPlanId(planId);
+		return designPlanService.spellingFlower(model);
+	}
+ 
+	
+	/**
+	 * 参数完整性判断
+	 * @param args
+	 * @return
+	 */
+	private boolean checkParam(String... args) {
+		boolean result = true;
+		for(String arg :args) {
+			if(StringUtils.isEmpty(arg)) {
+				result = false;
+				return result;
+			}
+		}
+		return result;
+	}
+	
+	
+
+}

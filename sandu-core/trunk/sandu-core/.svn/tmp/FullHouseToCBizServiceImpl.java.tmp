@@ -1,0 +1,825 @@
+package com.sandu.service.fullhouse.impl.biz;
+
+import com.google.gson.Gson;
+import com.sandu.api.base.common.util.EntityCopyUtils;
+import com.sandu.api.base.model.BaseBrand;
+import com.sandu.api.base.model.SysUser;
+import com.sandu.api.base.service.BaseBrandService;
+import com.sandu.api.base.service.SysUserService;
+import com.sandu.api.designplan.common.constants.ResRenderPicConstant;
+import com.sandu.api.designplan.model.ResRenderPic;
+import com.sandu.api.designplan.service.ResRenderPicService;
+import com.sandu.api.fullhouse.common.constant.FullHouseConstant;
+import com.sandu.api.fullhouse.common.exception.BizException;
+import com.sandu.api.fullhouse.common.exception.FullHouseException;
+import com.sandu.api.fullhouse.input.FullHouseDesignPlanAdd;
+import com.sandu.api.fullhouse.input.FullHouseDesignPlanCopy;
+import com.sandu.api.fullhouse.input.FullHouseDesignPlanSceneUpdate;
+import com.sandu.api.fullhouse.model.BaseHousePicFullHousePlanRel;
+import com.sandu.api.fullhouse.model.FullHouseDesignPlan;
+import com.sandu.api.fullhouse.model.FullHouseDesignPlanDetail;
+import com.sandu.api.fullhouse.service.FullHouseDesignPlanDetailService;
+import com.sandu.api.fullhouse.service.FullHouseDesignPlanService;
+import com.sandu.api.fullhouse.service.biz.FullHouseToCBizService;
+import com.sandu.api.task.model.AutoRenderTask;
+import com.sandu.api.task.model.AutoRenderTaskState;
+import com.sandu.api.task.service.AutoRenderTaskService;
+import com.sandu.api.task.service.AutoRenderTaskStateService;
+import com.sandu.service.fullhouse.impl.abstracts.AbstractFullHouseBizService;
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Log4j2(topic = "[全屋方案ToC端业务服务]")
+@Service("fullHouseToCBizService")
+public class FullHouseToCBizServiceImpl extends AbstractFullHouseBizService implements FullHouseToCBizService {
+    @Autowired
+    private FullHouseDesignPlanService fullHouseDesignPlanService;
+    @Autowired
+    private FullHouseDesignPlanDetailService fullHouseDesignPlanDetailService;
+    @Autowired
+    private SysUserService sysUserService;
+    @Autowired
+    private ResRenderPicService resRenderPicService;
+    @Autowired
+    private BaseBrandService baseBrandService;
+    @Autowired
+    private AutoRenderTaskService autoRenderTaskService;
+    @Autowired
+    private AutoRenderTaskStateService autoRenderTaskStateService;
+    private static final Gson gson = new Gson();
+
+    /**
+     * created by zhangchengda
+     * 2018/8/27 16:14
+     * 装进我家时新建全屋方案
+     *
+     * @param fullHouseDesignPlanAdd 新增对象（效果图方案）
+     * @return 全屋方案ID
+     */
+    @Transactional
+    @Override
+    public String addFullHouseDesignPlan(FullHouseDesignPlanAdd fullHouseDesignPlanAdd) {
+        //------------------------- 新建全屋方案数据 -------------------------//
+        // 开始时间
+        long startTime = System.currentTimeMillis();
+        // 查询当前登录用户
+        SysUser user = sysUserService.selectByPrimaryKey(fullHouseDesignPlanAdd.getUserId().longValue());
+        if (user == null) {
+            throw new FullHouseException("找不到用户信息");
+        }
+        // 构造全屋方案模型
+        FullHouseDesignPlan fullHouseDesignPlan = new FullHouseDesignPlan();
+        fullHouseDesignPlan = this.setBaseAttribute(fullHouseDesignPlan, fullHouseDesignPlanAdd, user);
+        // 创建全屋方案
+        log.info("创建全屋方案，fullHouseDesignPlan:{}", gson.toJson(fullHouseDesignPlan));
+        int influenced = fullHouseDesignPlanService.insertSelective(fullHouseDesignPlan);
+        if (influenced <= 0) {
+            throw new FullHouseException("创建全屋方案失败");
+        }
+        log.info("创建全屋方案耗时:{}ms", System.currentTimeMillis() - startTime);
+        //------------------------- end -------------------------//
+        //------------------------- 新建全屋方案详情数据 -------------------------//
+        // 开始时间
+        startTime = System.currentTimeMillis();
+        // 获取全屋方案ID
+        fullHouseDesignPlan = fullHouseDesignPlanService.selectFullHouseDesignPlanByUuid(fullHouseDesignPlan.getUuid());
+        int fullHouseDesignPlanId = fullHouseDesignPlan.getId();
+        log.info("全屋方案ID:{}", fullHouseDesignPlanId);
+        // 获取需要插入详情表的条数
+        int listSize = (fullHouseDesignPlanAdd.getLivingDiningRoom() == null ? 0 : fullHouseDesignPlanAdd.getLivingDiningRoom().size()) +
+                (fullHouseDesignPlanAdd.getBedroom() == null ? 0 : fullHouseDesignPlanAdd.getBedroom().size()) +
+                (fullHouseDesignPlanAdd.getKitchen() == null ? 0 : fullHouseDesignPlanAdd.getKitchen().size()) +
+                (fullHouseDesignPlanAdd.getToilet() == null ? 0 : fullHouseDesignPlanAdd.getToilet().size()) +
+                (fullHouseDesignPlanAdd.getSchoolroom() == null ? 0 : fullHouseDesignPlanAdd.getSchoolroom().size());
+        // 待插入集合
+        List<FullHouseDesignPlanDetail> detailList = new ArrayList<>(listSize);
+        // 将各个空间的方案放入待插入集合中
+        if (fullHouseDesignPlanAdd.getLivingDiningRoom() != null) {
+            for (int livingDiningRoomId : fullHouseDesignPlanAdd.getLivingDiningRoom()) {
+                addFullHouseDesignPlanDetailRenderScene(detailList,
+                        fullHouseDesignPlanId,
+                        livingDiningRoomId,
+                        FullHouseConstant.SPACE_TYPE_LIVING_DINING_ROOM,
+                        user);
+            }
+        }
+        if (fullHouseDesignPlanAdd.getBedroom() != null) {
+            for (int bedroomId : fullHouseDesignPlanAdd.getBedroom()) {
+                addFullHouseDesignPlanDetailRenderScene(detailList,
+                        fullHouseDesignPlanId,
+                        bedroomId,
+                        FullHouseConstant.SPACE_TYPE_BEDROOM,
+                        user);
+            }
+        }
+        if (fullHouseDesignPlanAdd.getKitchen() != null) {
+            for (int kitchenId : fullHouseDesignPlanAdd.getKitchen()) {
+                addFullHouseDesignPlanDetailRenderScene(detailList,
+                        fullHouseDesignPlanId,
+                        kitchenId,
+                        FullHouseConstant.SPACE_TYPE_KITCHEN,
+                        user);
+            }
+        }
+        if (fullHouseDesignPlanAdd.getToilet() != null) {
+            for (int toiletId : fullHouseDesignPlanAdd.getToilet()) {
+                addFullHouseDesignPlanDetailRenderScene(detailList,
+                        fullHouseDesignPlanId,
+                        toiletId,
+                        FullHouseConstant.SPACE_TYPE_TOILET,
+                        user);
+            }
+        }
+        if (fullHouseDesignPlanAdd.getSchoolroom() != null) {
+            for (int schoolroomId : fullHouseDesignPlanAdd.getSchoolroom()) {
+                addFullHouseDesignPlanDetailRenderScene(detailList,
+                        fullHouseDesignPlanId,
+                        schoolroomId,
+                        FullHouseConstant.SPACE_TYPE_SCHOOLROOM,
+                        user);
+            }
+        }
+        // 插入数据
+        influenced = fullHouseDesignPlanDetailService.insertList(detailList);
+        if (influenced != listSize) {
+            throw new FullHouseException("创建全屋方案详情失败");
+        }
+        log.info("创建全屋方案详情耗时:{}ms", System.currentTimeMillis() - startTime);
+        //------------------------- end -------------------------//
+        //------------------------- 更新全屋方案的720UUID -------------------------//
+        // 开始时间
+        startTime = System.currentTimeMillis();
+        // 720UUID
+        String vrUuid = getVrUuid(detailList, user, ResRenderPicConstant.FILE_KEY_DESIGN_DESIGNPLAN_RENDER_PIC, fullHouseDesignPlanAdd.getHouseId());
+        if (vrUuid == null || "".equals(vrUuid)) {
+            throw new FullHouseException("720制作失败,UUID为空");
+        }
+        fullHouseDesignPlan.setVrResourceUuid(vrUuid);
+        influenced = fullHouseDesignPlanService.updateByPrimaryKeySelective(fullHouseDesignPlan);
+        if (influenced <= 0) {
+            throw new FullHouseException("保存720UUID失败");
+        }
+        log.info("获取720UUID耗时:{}ms", System.currentTimeMillis() - startTime);
+        //------------------------- end -------------------------//
+        return fullHouseDesignPlanId + "," + vrUuid;
+    }
+
+    /**
+     * 复制全屋方案
+     *
+     * @param fullHouseDesignPlanCopy
+     * @param userId
+     * @return
+     * @throws BizException
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String copyFullHouseDesignPlan(FullHouseDesignPlanCopy fullHouseDesignPlanCopy, Integer userId) throws BizException {
+
+        Integer fullHouseDesignPlanId = fullHouseDesignPlanCopy.getFullHouseDesignPlanId();
+        //查询原方案
+        FullHouseDesignPlan fullHouseDesignPlan = fullHouseDesignPlanService.selectByPrimaryKey(fullHouseDesignPlanId);
+        if (null == fullHouseDesignPlan) {
+            log.error("copyFullHouseDesignPlan 根据id查询全屋方案为空");
+            throw new BizException("根据id查询全屋方案为空,fullHouseDesignPlanId=" + fullHouseDesignPlanId);
+        }
+        // ----------------------   创建全屋方案主方案start  ----------------------
+        long startTime = System.currentTimeMillis();
+
+        fullHouseDesignPlan.setId(null);
+        String uuid = UUID.randomUUID().toString();
+        fullHouseDesignPlan.setUuid(uuid);
+        fullHouseDesignPlan.setPlanCode(generateCode(userId + System.currentTimeMillis()));
+
+        if (StringUtils.isNotEmpty(fullHouseDesignPlanCopy.getMsgId())){
+            fullHouseDesignPlan.setMsgId(fullHouseDesignPlanCopy.getMsgId());
+        }
+
+        // 用户，公司，品牌
+        SysUser user = sysUserService.selectByPrimaryKey(userId.longValue());
+        if (null == user) {
+            throw new BizException("找不到用户信息,userId=" + userId);
+        }
+        fullHouseDesignPlan.setUserId(user.getId().intValue());
+        if (null != user.getCompanyId() && 0 != user.getCompanyId()) {
+            fullHouseDesignPlan.setCompanyId(user.getCompanyId());
+            List<BaseBrand> brandList = baseBrandService.selectByCompanyId(user.getCompanyId().longValue());
+            StringBuilder sb = new StringBuilder();
+            brandList.forEach(baseBrand -> sb.append(baseBrand.getId() + ","));
+            if (!StringUtils.isBlank(sb)) {
+                fullHouseDesignPlan.setBrandIds(sb.toString().substring(0, sb.toString().length() - 1));
+            }
+        } else {
+            fullHouseDesignPlan.setCompanyId(0);
+        }
+        // 系统信息
+        Date date = new Date();
+        fullHouseDesignPlan.setGmtCreate(date);
+        fullHouseDesignPlan.setGmtModified(date);
+        String nickName = user.getNickName();
+        fullHouseDesignPlan.setCreator(nickName);
+        fullHouseDesignPlan.setModifier(nickName);
+
+        // 方案类型为复制，修改状态为否
+        fullHouseDesignPlan.setSourceType(5);
+        fullHouseDesignPlan.setIsUpdate(0);
+
+        log.info("新增全屋方案主方案：{}", gson.toJson(fullHouseDesignPlan));
+        int influenced = fullHouseDesignPlanService.insert(fullHouseDesignPlan);
+        if (influenced <= 0) {
+            throw new BizException("新增全屋方案主方案失败");
+        }
+        log.info("新增全屋方案主方案耗时：{}ms", System.currentTimeMillis() - startTime);
+        // --------------------------   新增全屋方案主方案end    ---------------------
+
+        // --------------------------   复制全屋方案子方案start  ---------------------
+        startTime = System.currentTimeMillis();
+        // 新全屋方案主方案
+        fullHouseDesignPlan = fullHouseDesignPlanService.selectFullHouseDesignPlanByUuid(uuid);
+        Integer newFullHouseDesignPlanId = fullHouseDesignPlan.getId();
+        log.info("复制完成新的全屋方案主方案id：{}", newFullHouseDesignPlanId);
+
+        List<FullHouseDesignPlanDetail> fullHouseDesignPlanDetails =
+                fullHouseDesignPlanDetailService.selectListByFullHouseDesignPlanId(fullHouseDesignPlanId);
+        if (null == fullHouseDesignPlanDetails || fullHouseDesignPlanDetails.size() <= 0) {
+            throw new BizException("查询全屋方案子方案失败，fullHouseDesignPlanId=" + fullHouseDesignPlanId);
+        }
+        for (FullHouseDesignPlanDetail fullHouseDesignPlanDetail : fullHouseDesignPlanDetails) {
+            fullHouseDesignPlanDetail.setId(null);
+            fullHouseDesignPlanDetail.setUuid(UUID.randomUUID().toString());
+            fullHouseDesignPlanDetail.setFullHousePlanId(newFullHouseDesignPlanId);
+
+            // 系统字段
+            date = new Date();
+            fullHouseDesignPlanDetail.setGmtCreate(date);
+            fullHouseDesignPlanDetail.setGmtModified(date);
+            fullHouseDesignPlanDetail.setCreator(nickName);
+            fullHouseDesignPlanDetail.setModifier(nickName);
+        }
+
+        influenced = fullHouseDesignPlanDetailService.insertList(fullHouseDesignPlanDetails);
+        if (influenced != fullHouseDesignPlanDetails.size()) {
+            throw new BizException("新增全屋方案子方案集合失败");
+        }
+        log.info("复制全屋方案子方案集合完成，耗时：{}ms", System.currentTimeMillis() - startTime);
+        // -------------------------------  复制全屋方案子方案end  -----------------------
+
+        // -------------------------------  生成720UUID并回填start   --------------------
+        startTime = System.currentTimeMillis();
+        // 生成720UUID
+        String vrUuid = getVrUuid(fullHouseDesignPlanDetails, user, ResRenderPicConstant.FILE_KEY_DESIGN_DESIGNPLAN_RENDER_PIC, null);
+        if (StringUtils.isEmpty(vrUuid)) {
+            throw new BizException("制作720失败");
+        }
+
+        // 回填720uuid
+        fullHouseDesignPlan = new FullHouseDesignPlan();
+        fullHouseDesignPlan.setId(newFullHouseDesignPlanId);
+        fullHouseDesignPlan.setVrResourceUuid(vrUuid);
+        influenced = fullHouseDesignPlanService.updateByPrimaryKeySelective(fullHouseDesignPlan);
+        if (influenced <= 0) {
+            throw new BizException("回填720UUID失败,fullHouseDesignPlan=" + newFullHouseDesignPlanId + "vrUuid=" + vrUuid);
+        }
+
+        log.info("生成720UUID并回填，fullHouseDesignPlan={},vrUuid={},共耗时：{}", newFullHouseDesignPlanId, vrUuid, System.currentTimeMillis() - startTime);
+        // ------------------------------   生成720UUID并回填end    -----------------------
+
+        // ------------------------------   复制全屋方案渲染空间信息start   --------------------
+        startTime = System.currentTimeMillis();
+        // 查询原全屋方案渲染空间信息
+        List<BaseHousePicFullHousePlanRel> baseHousePicFullHousePlanRelList =
+                fullHouseDesignPlanService.getBaseHousePicFullHousePlanRel(fullHouseDesignPlanId);
+
+        if (null != baseHousePicFullHousePlanRelList && 0 < baseHousePicFullHousePlanRelList.size()) {
+
+            for (BaseHousePicFullHousePlanRel baseHousePicFullHousePlanRel : baseHousePicFullHousePlanRelList) {
+                // 修改相关属性
+                baseHousePicFullHousePlanRel.setId(null);
+                baseHousePicFullHousePlanRel.setFullHousePlanId(newFullHouseDesignPlanId);
+                baseHousePicFullHousePlanRel.setMainTaskId(0);
+                baseHousePicFullHousePlanRel.setTaskId(0);
+                baseHousePicFullHousePlanRel.setCreator(userId + "");
+                baseHousePicFullHousePlanRel.setModifier(userId + "");
+                date = new Date();
+                baseHousePicFullHousePlanRel.setGmtCreate(date);
+                baseHousePicFullHousePlanRel.setGmtModified(date);
+            }
+
+            // 批量插入已渲染空间数据
+            influenced = fullHouseDesignPlanService.insertBatchBaseHousePicFullHousePlanRel(baseHousePicFullHousePlanRelList);
+            if (baseHousePicFullHousePlanRelList.size() != influenced) {
+                throw new BizException("复制全屋方案渲染空间数据失败，influenced=" + influenced +
+                        ",baseHousePicFullHousePlanRelList.size()=" + baseHousePicFullHousePlanRelList.size());
+            }
+
+        }
+
+        log.info("复制全屋方案渲染空间数据完成，耗时：{}ms", System.currentTimeMillis() - startTime);
+        // ------------------------------   复制全屋方案渲染空间数据end   ------------------------
+
+        // ------------------------------   复制主任务start  --------------------------------
+        startTime = System.currentTimeMillis();
+        Integer mainTaskId = fullHouseDesignPlanCopy.getMainTaskId();
+        Integer supplyDemandId = fullHouseDesignPlanCopy.getSupplyDemandId();
+        // 复制主任务
+        AutoRenderTask autoRenderTask = autoRenderTaskService.getById(mainTaskId);
+        autoRenderTask.setId(null);
+        date = new Date();
+        autoRenderTask.setGmtCreate(date);
+        autoRenderTask.setGmtModified(date);
+        autoRenderTask.setCreator(nickName);
+        autoRenderTask.setModifier(nickName);
+        autoRenderTask.setOperationUserId(userId);
+        autoRenderTask.setOperationUserName(nickName);
+        autoRenderTask.setMainTaskId(null);
+        autoRenderTask.setFullHousePlanId(newFullHouseDesignPlanId);
+        autoRenderTask.setNewFullHousePlanId(newFullHouseDesignPlanId);
+        autoRenderTask.setSupplyDemandId(supplyDemandId);
+        Integer newMainTaskId = autoRenderTaskService.insertSelective(autoRenderTask);
+        log.info("复制全屋方案复制完新的主任务id为：{}", newMainTaskId);
+        if (null == newMainTaskId || 0 >= newMainTaskId) {
+            throw new BizException("复制主任务失败，mainTaskId=" + mainTaskId);
+        }
+
+<<<<<<< .working
+        // 复制主任务状态
+||||||| .merge-left.r65069
+        // ------------------------------   复制所有子任务start  --------------------------------
+        List<AutoRenderTask> subTaskList = autoRenderTaskService.getSubTaskByMainTaskId(mainTaskId);
+        if (!CollectionUtils.isEmpty(subTaskList)) {
+            for (AutoRenderTask subTask : subTaskList) {
+                subTask.setId(null);
+                subTask.setGmtCreate(date);
+                subTask.setGmtModified(date);
+                subTask.setCreator(nickName);
+                subTask.setModifier(nickName);
+                subTask.setOperationUserId(userId);
+                subTask.setOperationUserName(nickName);
+                subTask.setMainTaskId(newMainTaskId);
+                subTask.setFullHousePlanId(newFullHouseDesignPlanId);
+                subTask.setNewFullHousePlanId(newFullHouseDesignPlanId);
+                subTask.setSupplyDemandId(supplyDemandId);
+            }
+            influenced = autoRenderTaskService.insertSubTaskBatch(subTaskList);
+            if (subTaskList.size() != influenced) {
+                throw new BizException("复制所有子任务失败，mainTaskId=" + mainTaskId);
+            }
+        }
+        // ------------------------------   复制所有子任务end  --------------------------------
+
+        // ------------------------------   复制主任务状态start  --------------------------------
+=======
+        // ------------------------------   复制主任务状态start  --------------------------------
+>>>>>>> .merge-right.r65660
+        AutoRenderTaskState autoRenderTaskState = autoRenderTaskStateService.getMainTaskStateByTaskId(mainTaskId);
+        autoRenderTaskState.setId(null);
+        date = new Date();
+        autoRenderTaskState.setGmtCreate(date);
+        autoRenderTaskState.setGmtModified(date);
+        autoRenderTaskState.setCreator(nickName);
+        autoRenderTaskState.setModifier(nickName);
+        autoRenderTaskState.setOrderNumber(null);
+        autoRenderTaskState.setTaskId(newMainTaskId);
+        autoRenderTaskState.setMainTaskId(newMainTaskId);
+        autoRenderTaskState.setOperationUserId(userId);
+        autoRenderTaskState.setIsValid(1);
+        autoRenderTaskState.setFullHousePlanId(newFullHouseDesignPlanId);
+        autoRenderTaskState.setNewFullHousePlanId(newFullHouseDesignPlanId);
+        autoRenderTaskState.setFullHousePlanUUID(vrUuid);
+        autoRenderTaskState.setSupplyDemandId(supplyDemandId);
+        influenced = autoRenderTaskStateService.insertSelective(autoRenderTaskState);
+        if (influenced != 1) {
+            throw new BizException("复制主任务状态失败，newMainTaskId=" + newMainTaskId);
+        }
+<<<<<<< .working
+||||||| .merge-left.r65069
+        // ------------------------------   复制主任务状态end  --------------------------------
+
+        // ------------------------------   复制所有子任务状态start  --------------------------------
+        List<AutoRenderTaskState> autoRenderTaskStateList = autoRenderTaskStateService.getAllTaskStateByMainTaskId(mainTaskId);
+        if (!CollectionUtils.isEmpty(autoRenderTaskStateList)) {
+            for (AutoRenderTaskState taskState : autoRenderTaskStateList) {
+                taskState.setId(null);
+                date = new Date();
+                taskState.setGmtCreate(date);
+                taskState.setGmtModified(date);
+                taskState.setCreator(nickName);
+                taskState.setModifier(nickName);
+                taskState.setOrderNumber(null);
+                taskState.setTaskId(null);
+                taskState.setMainTaskId(newMainTaskId);
+                taskState.setOperationUserId(userId);
+                taskState.setIsValid(0);
+                taskState.setFullHousePlanId(newFullHouseDesignPlanId);
+                taskState.setNewFullHousePlanId(newFullHouseDesignPlanId);
+                taskState.setSupplyDemandId(supplyDemandId);
+            }
+            influenced = autoRenderTaskStateService.insertBatch(autoRenderTaskStateList);
+            if (autoRenderTaskStateList.size() != influenced) {
+                throw new BizException("复制主任务状态失败，newMainTaskId=" + newMainTaskId);
+            }
+        }
+        // ------------------------------   复制所有子任务状态end  --------------------------------
+=======
+        // ------------------------------   复制主任务状态end  --------------------------------
+
+        // ------------------------------   复制所有子任务及子任务状态start  --------------------------------
+        List<AutoRenderTask> subTaskList = autoRenderTaskService.getSubTaskByMainTaskId(mainTaskId);
+        if (!CollectionUtils.isEmpty(subTaskList)) {
+            Integer taskId = null;
+            Integer newTaskId = null;
+            AutoRenderTaskState subTaskState = null;
+            for (AutoRenderTask subTask : subTaskList) {
+                // 这里必须要单独每条分开插入，因为必须要把子任务状态和子任务一一对应，所以就是每条先复制子任务，再复制子任务状态
+                taskId = subTask.getId();
+                subTask.setId(null);
+                subTask.setGmtCreate(date);
+                subTask.setGmtModified(date);
+                subTask.setCreator(nickName);
+                subTask.setModifier(nickName);
+                subTask.setOperationUserId(userId);
+                subTask.setOperationUserName(nickName);
+                subTask.setMainTaskId(newMainTaskId);
+                subTask.setFullHousePlanId(newFullHouseDesignPlanId);
+                subTask.setNewFullHousePlanId(newFullHouseDesignPlanId);
+                subTask.setSupplyDemandId(supplyDemandId);
+                newTaskId = autoRenderTaskService.insertSelective(subTask);
+                if (null == newTaskId || 0 >= newTaskId) {
+                    throw new BizException("复制子任务失败，mainTaskId="+mainTaskId+",subTaskId="+taskId);
+                }
+
+                subTaskState = autoRenderTaskStateService.getMainTaskStateByTaskId(taskId);
+                if (null != subTaskState) {
+                    subTaskState.setId(null);
+                    date = new Date();
+                    subTaskState.setGmtCreate(date);
+                    subTaskState.setGmtModified(date);
+                    subTaskState.setCreator(nickName);
+                    subTaskState.setModifier(nickName);
+                    subTaskState.setOrderNumber(null);
+                    subTaskState.setTaskId(newTaskId);
+                    subTaskState.setMainTaskId(newMainTaskId);
+                    subTaskState.setOperationUserId(userId);
+                    subTaskState.setIsValid(0);
+                    subTaskState.setFullHousePlanId(newFullHouseDesignPlanId);
+                    subTaskState.setNewFullHousePlanId(newFullHouseDesignPlanId);
+                    subTaskState.setSupplyDemandId(supplyDemandId);
+                    influenced = autoRenderTaskStateService.insertSelective(subTaskState);
+                    if (influenced != 1) {
+                        throw new BizException("复制子任务状态失败，newMainTaskId=" + newMainTaskId + ",subTaskId="+ taskId);
+                    }
+                }
+            }
+        }
+        // ------------------------------   复制所有子任务及子任务状态end  --------------------------------
+>>>>>>> .merge-right.r65660
+        log.info("复制主任务及状态数据完成，耗时：{}ms", System.currentTimeMillis() - startTime);
+        //  --------------------------------    复制主任务及状态end     ------------------------------
+
+        return newFullHouseDesignPlanId + "," + newMainTaskId;
+    }
+
+
+    @Override
+    public Map<String, Object> copyMsgFullHouseExist(String historyMsgId, Integer userId) {
+        Map<String,Object> resultMap = new HashMap<>();
+        Integer fullHouseId = fullHouseDesignPlanService.checkHistoryCopyHouseExits(historyMsgId,userId);
+        if (Objects.nonNull(fullHouseId)){
+            //查询主任务id返回
+            resultMap.put("copyFlag",0);
+            //查询主任务id返回
+            Integer mainTaskId= fullHouseDesignPlanService.selectMainTaskId(fullHouseId);
+            resultMap.put("fullHouseId",fullHouseId);
+            resultMap.put("mainTaskId",mainTaskId);
+            return resultMap;
+        }
+        resultMap.put("copyFlag",1);
+        return resultMap;
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/9/20 12:37
+     * 单空间装进我家时临时创建的全屋方案，用于在移动端创建全屋方案(先占坑)
+     *
+     * @param userId                   当前用户ID
+     * @param oldFullHouseDesignPlanId 旧的全屋方案ID
+     * @return
+     */
+    @Transactional
+    @Override
+    public Integer addTempFullHouseDesignPlan(Integer userId, Integer oldFullHouseDesignPlanId, Integer houseId) {
+        // 查询当前登录用户
+        SysUser user = sysUserService.selectByPrimaryKey(userId.longValue());
+        if (user == null) {
+            throw new FullHouseException("找不到用户信息");
+        }
+        // 构造全屋方案模型
+        FullHouseDesignPlan fullHouseDesignPlan = new FullHouseDesignPlan();
+        fullHouseDesignPlan = this.setBaseAttribute(fullHouseDesignPlan, houseId, oldFullHouseDesignPlanId, user);
+        // 创建全屋方案
+        log.info("创建全屋方案，fullHouseDesignPlan:{}", gson.toJson(fullHouseDesignPlan));
+        int influenced = fullHouseDesignPlanService.insertSelective(fullHouseDesignPlan);
+        if (influenced <= 0) {
+            throw new FullHouseException("创建全屋方案失败");
+        }
+        FullHouseDesignPlan fullHouse = fullHouseDesignPlanService.selectFullHouseDesignPlanByUuid(fullHouseDesignPlan.getUuid());
+        if (fullHouse == null) {
+            throw new FullHouseException("创建全屋方案失败,没有查到创建的全屋方案");
+        }
+        // 如果是从旧方案复制过来，复制detail数据
+        if (oldFullHouseDesignPlanId != null) {
+            Date date = new Date();
+            List<FullHouseDesignPlanDetail> detailList = fullHouseDesignPlanDetailService.selectListByFullHouseDesignPlanId(oldFullHouseDesignPlanId);
+            if (detailList != null && detailList.size() > 0) {
+                for (FullHouseDesignPlanDetail fullHouseDesignPlanDetail : detailList) {
+                    fullHouseDesignPlanDetail.setId(null);
+                    fullHouseDesignPlanDetail.setUuid(UUID.randomUUID().toString());
+                    fullHouseDesignPlanDetail.setFullHousePlanId(fullHouse.getId());
+                    fullHouseDesignPlanDetail.setCreator(user.getUserName());
+                    fullHouseDesignPlanDetail.setModifier(user.getUserName());
+                    fullHouseDesignPlanDetail.setGmtCreate(date);
+                    fullHouseDesignPlanDetail.setGmtModified(date);
+                }
+                int num = fullHouseDesignPlanDetailService.insertList(detailList);
+                if (num != detailList.size()) {
+                    throw new FullHouseException("复制全屋方案详情数据失败");
+                }
+            }
+        }
+        return fullHouse.getId();
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/9/19 17:40
+     * 装进我家时修改全屋方案
+     *
+     * @param obj 修改数据对象
+     * @return
+     */
+    @Transactional
+    @Override
+    public String updateFullHouseDesignPlan(Object obj) {
+        FullHouseDesignPlanSceneUpdate update = new FullHouseDesignPlanSceneUpdate();
+        if (obj instanceof FullHouseDesignPlanSceneUpdate) {
+            EntityCopyUtils.copyData(obj, update);
+        } else {
+            throw new FullHouseException("更新参数异常，obj:" + gson.toJson(obj));
+        }
+        //--------------------------- 装填数据 -------------------------//
+        FullHouseDesignPlan fullHouseDesignPlan = new FullHouseDesignPlan();
+        List<FullHouseDesignPlanDetail> detailList = fullHouseDesignPlanDetailService.selectListByFullHouseDesignPlanId(update.getFullHouseId());
+        if (detailList == null) {
+            detailList = new ArrayList<>();
+        }
+        // 要update或insert的数据
+        FullHouseDesignPlanDetail fullHouseDesignPlanDetail = new FullHouseDesignPlanDetail();
+        // 全屋方案ID
+        fullHouseDesignPlanDetail.setFullHousePlanId(update.getFullHouseId());
+        // uuid
+        UUID uuid = UUID.randomUUID();
+        fullHouseDesignPlanDetail.setUuid(uuid.toString());
+        // 推荐方案和效果图方案ID
+        fullHouseDesignPlanDetail.setRenderScenePlanId(update.getNewPlanId());
+        fullHouseDesignPlanDetail.setRecommendedPlanGroupPrimaryId(0);
+        // 空间类型
+        fullHouseDesignPlanDetail.setSpaceType(update.getSpaceFunctionId());
+        // 效果图方案和推荐方案的720资源
+        List<ResRenderPic> resRenderPicList = resRenderPicService.selectBySceneIdAndKeyAndRenderType(update.getNewPlanId(),
+                ResRenderPicConstant.FILE_KEY_DESIGN_DESIGNPLAN_RENDER_PIC,
+                ResRenderPicConstant.RES_RENDER_PIC_REDERING_TYPE_720_SINGLE_POINT);
+        fullHouseDesignPlanDetail.setPlanRenderResourceId(resRenderPicList.get(0).getId());
+        fullHouseDesignPlanDetail.setPlanRecommendedResourceId(0);
+        // 系统字段
+        SysUser user = sysUserService.selectByPrimaryKey(update.getUserId().longValue());
+        Date now = new Date();
+        fullHouseDesignPlanDetail.setGmtModified(now);
+        fullHouseDesignPlanDetail.setModifier(user.getUserName());
+        fullHouseDesignPlanDetail.setIsDeleted(FullHouseConstant.FULL_HOUSE_IS_DELETED_NO);
+        //--------------------------- 更新数据 --------------------------//
+        if (update.getNewPlanId() != 0) {
+            // 新方案ID不为0则更新数据
+            if (update.getSourcePlanId() == 0) {
+                // 如果源方案为0，则insert
+                // 设置系统字段
+                fullHouseDesignPlanDetail.setGmtCreate(now);
+                fullHouseDesignPlanDetail.setCreator(user.getUserName());
+                // 优先级
+                // 查找当前全屋方案中是否有同空间类型的全屋方案详情数据，第一条加进来的数据优先级最高，第二条其次，依次递减
+                setPriorityLevel(detailList, update.getSpaceFunctionId(), fullHouseDesignPlanDetail);
+                // 插入数据
+                log.info("插入全屋详情数据,fullHouseDesignPlanDetail:{}", gson.toJson(fullHouseDesignPlanDetail));
+                int result = fullHouseDesignPlanDetailService.insertSelective(fullHouseDesignPlanDetail);
+                if (result <= 0) {
+                    throw new FullHouseException("插入全屋详情数据失败");
+                }
+                // 插入的第一个方案的封面图设置为全屋方案的封面图
+                if (detailList.size() == 0) {
+                    List<ResRenderPic> picList = resRenderPicService.selectBySceneIdAndKeyAndRenderType(update.getNewPlanId(),
+                            ResRenderPicConstant.FILE_KEY_DESIGN_DESIGNPLAN_RENDER_SMALL_PIC,
+                            ResRenderPicConstant.RES_RENDER_PIC_REDERING_TYPE_720_SINGLE_POINT);
+                    if (picList == null || picList.size() <= 0) {
+                        throw new FullHouseException("没有找到效果图方案缩略图");
+                    }
+                    fullHouseDesignPlan.setPlanPicId(picList.get(0).getId());
+                }
+                // 更新全屋方案集合
+                detailList.add(fullHouseDesignPlanDetail);
+            } else {
+                // 如果源方案不为0，则update
+                // 根据源方案ID找到原来的那条数据
+                List<FullHouseDesignPlanDetail> sourceDetailList = detailList.stream()
+                        .filter(detail -> detail.getRenderScenePlanId().equals(update.getSourcePlanId()))
+                        .collect(Collectors.toList());
+                if (sourceDetailList == null || sourceDetailList.size() == 0) {
+                    throw new FullHouseException("没有找到源方案");
+                }
+                FullHouseDesignPlanDetail sourceDetail = sourceDetailList.get(0);
+                // 如果更新的是第一条方案，更新全屋方案的封面图
+                int index = detailList.indexOf(sourceDetail);
+                if (index == 0) {
+                    List<ResRenderPic> picList = resRenderPicService.selectBySceneIdAndKeyAndRenderType(update.getNewPlanId(),
+                            ResRenderPicConstant.FILE_KEY_DESIGN_DESIGNPLAN_RENDER_SMALL_PIC,
+                            ResRenderPicConstant.RES_RENDER_PIC_REDERING_TYPE_720_SINGLE_POINT);
+                    if (picList == null || picList.size() <= 0) {
+                        throw new FullHouseException("没有找到效果图方案缩略图");
+                    }
+                    fullHouseDesignPlan.setPlanPicId(picList.get(0).getId());
+                }
+                // 填入ID，更新数据
+                fullHouseDesignPlanDetail.setId(sourceDetail.getId());
+                log.info("更新全屋详情数据,fullHouseDesignPlanDetail:{}", gson.toJson(fullHouseDesignPlanDetail));
+                int result = fullHouseDesignPlanDetailService.updateByPrimaryKeySelective(fullHouseDesignPlanDetail);
+                if (result <= 0) {
+                    throw new FullHouseException("更新全屋详情数据失败");
+                }
+                // 更新全屋方案集合
+                detailList.remove(sourceDetail);
+                detailList.add(fullHouseDesignPlanDetail);
+            }
+        } else {
+            // 新方案ID为0则删除数据
+            throw new FullHouseException("新方案ID为0");
+        }
+        //--------------------------- 更新全屋方案720ID -------------------------//
+        String vrUuid = getVrUuid(detailList, user, ResRenderPicConstant.FILE_KEY_DESIGN_DESIGNPLAN_RENDER_PIC, update.getHouseId());
+        fullHouseDesignPlan.setId(update.getFullHouseId());
+        fullHouseDesignPlan.setVrResourceUuid(vrUuid);
+        fullHouseDesignPlan.setGmtModified(now);
+        fullHouseDesignPlan.setModifier(user.getUserName());
+        log.info("更新全屋方案，fullHouseDesignPlan:{}", gson.toJson(fullHouseDesignPlan));
+        int result = fullHouseDesignPlanService.updateByPrimaryKeySelective(fullHouseDesignPlan);
+        if (result <= 0) {
+            throw new FullHouseException("保存720UUID失败");
+        }
+        return vrUuid;
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/8/21 14:36
+     * 增加效果图到全屋方案详情中
+     *
+     * @param detailList              插入集合
+     * @param fullHouseDesignPlanId   全屋方案ID
+     * @param designPlanRenderSceneId 效果图方案ID
+     * @param spaceType               空间类型
+     * @param user                    当前用户
+     */
+    private void addFullHouseDesignPlanDetailRenderScene(List<FullHouseDesignPlanDetail> detailList,
+                                                         int fullHouseDesignPlanId,
+                                                         int designPlanRenderSceneId,
+                                                         int spaceType,
+                                                         SysUser user) {
+        FullHouseDesignPlanDetail fullHouseDesignPlanDetail = new FullHouseDesignPlanDetail();
+        // UUID
+        UUID uuid = UUID.randomUUID();
+        fullHouseDesignPlanDetail.setUuid(uuid.toString());
+        // 全屋方案ID
+        fullHouseDesignPlanDetail.setFullHousePlanId(fullHouseDesignPlanId);
+        // 单空间推荐方案ID
+        fullHouseDesignPlanDetail.setRecommendedPlanGroupPrimaryId(0);
+        // 推荐方案对应的效果图方案ID，推荐方案表中的plan_id就是效果图方案ID
+        fullHouseDesignPlanDetail.setRenderScenePlanId(designPlanRenderSceneId);
+        // 空间类型
+        fullHouseDesignPlanDetail.setSpaceType(spaceType);
+        // 优先级
+        // 查找当前集合中是否有同空间类型的全屋方案详情数据，第一条加进来的数据优先级最高，第二条其次，依次递减
+        setPriorityLevel(detailList, spaceType, fullHouseDesignPlanDetail);
+        // 效果图方案的720ID
+        List<ResRenderPic> resRenderPicList = resRenderPicService.selectBySceneIdAndKeyAndRenderType(designPlanRenderSceneId,
+                ResRenderPicConstant.FILE_KEY_DESIGN_DESIGNPLAN_RENDER_PIC,
+                ResRenderPicConstant.RES_RENDER_PIC_REDERING_TYPE_720_SINGLE_POINT);
+        fullHouseDesignPlanDetail.setPlanRenderResourceId(resRenderPicList.get(0).getId());
+        // 推荐方案的720ID
+        fullHouseDesignPlanDetail.setPlanRecommendedResourceId(0);
+        // 系统信息
+        Date date = new Date();
+        fullHouseDesignPlanDetail.setCreator(user.getNickName());
+        fullHouseDesignPlanDetail.setGmtCreate(date);
+        fullHouseDesignPlanDetail.setModifier(user.getNickName());
+        fullHouseDesignPlanDetail.setGmtModified(date);
+        fullHouseDesignPlanDetail.setIsDeleted(FullHouseConstant.FULL_HOUSE_IS_DELETED_NO);
+        fullHouseDesignPlanDetail.setRemark("");
+        // 加入到集合中
+        log.info("增加全屋方案详情到待插入集合中，fullHouseDesignPlanDetail:{}", gson.toJson(fullHouseDesignPlanDetail));
+        detailList.add(fullHouseDesignPlanDetail);
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/11/27 12:33
+     * 设置全屋方案的基础属性
+     *
+     * @param fullHouseDesignPlan    全屋方案对象
+     * @param fullHouseDesignPlanAdd 新增全屋方案的参数对象
+     * @param user                   当前登录用户
+     * @return
+     */
+    private FullHouseDesignPlan setBaseAttribute(FullHouseDesignPlan fullHouseDesignPlan,
+                                                 FullHouseDesignPlanAdd fullHouseDesignPlanAdd,
+                                                 SysUser user) {
+        Integer renderSceneId = null;
+        if (fullHouseDesignPlanAdd.getLivingDiningRoom() != null && fullHouseDesignPlanAdd.getLivingDiningRoom().size() > 0) {
+            renderSceneId = fullHouseDesignPlanAdd.getLivingDiningRoom().get(0);
+        } else if (fullHouseDesignPlanAdd.getBedroom() != null && fullHouseDesignPlanAdd.getBedroom().size() > 0) {
+            renderSceneId = fullHouseDesignPlanAdd.getBedroom().get(0);
+        } else if (fullHouseDesignPlanAdd.getToilet() != null && fullHouseDesignPlanAdd.getToilet().size() > 0) {
+            renderSceneId = fullHouseDesignPlanAdd.getToilet().get(0);
+        } else if (fullHouseDesignPlanAdd.getKitchen() != null && fullHouseDesignPlanAdd.getKitchen().size() > 0) {
+            renderSceneId = fullHouseDesignPlanAdd.getKitchen().get(0);
+        } else if (fullHouseDesignPlanAdd.getSchoolroom() != null && fullHouseDesignPlanAdd.getSchoolroom().size() > 0) {
+            renderSceneId = fullHouseDesignPlanAdd.getSchoolroom().get(0);
+        }
+        if (renderSceneId == null) {
+            throw new FullHouseException("没有找到效果图方案");
+        }
+        List<ResRenderPic> picList = resRenderPicService.selectBySceneIdAndKeyAndRenderType(renderSceneId,
+                ResRenderPicConstant.FILE_KEY_DESIGN_DESIGNPLAN_RENDER_SMALL_PIC,
+                ResRenderPicConstant.RES_RENDER_PIC_REDERING_TYPE_720_SINGLE_POINT);
+        if (picList == null || picList.size() <= 0) {
+            throw new FullHouseException("没有找到效果图方案缩略图");
+        }
+        setBaseAttribute(fullHouseDesignPlan,
+                fullHouseDesignPlanAdd.getDesignPlanName(),
+                null,
+                picList.get(0).getId(),
+                FullHouseConstant.FULL_HOUSE_SOURCE_TYPE_DECORATION_MY_HOME,
+                fullHouseDesignPlanAdd.getFullHousePlanSourceId(),
+                user);
+        return fullHouseDesignPlan;
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/11/27 12:34
+     * 设置全屋方案的基础属性
+     *
+     * @param fullHouseDesignPlan      全屋方案对象
+     * @param houseId                  户型ID
+     * @param oldFullHouseDesignPlanId 旧的全屋方案ID
+     * @param user                     当前登录用户
+     * @return
+     */
+    private FullHouseDesignPlan setBaseAttribute(FullHouseDesignPlan fullHouseDesignPlan,
+                                                 Integer houseId,
+                                                 Integer oldFullHouseDesignPlanId,
+                                                 SysUser user) {
+        // 方案名称，用户型名称,没有户型名称就取旧方案名称,实在不行只能叫未命名方案了
+        String houseName = baseBrandService.getHouseNameByPrimaryKey(houseId);
+        if (houseName == null || "".equals(houseName)) {
+            if (oldFullHouseDesignPlanId != null) {
+                FullHouseDesignPlan old = fullHouseDesignPlanService.selectByPrimaryKey(oldFullHouseDesignPlanId);
+                if (old != null) {
+                    houseName = old.getPlanName();
+                } else {
+                    houseName = "未命名方案";
+                }
+            } else {
+                houseName = "未命名方案";
+            }
+        }
+        // 方案缩略图
+        Integer planPicId = 0;
+        if (oldFullHouseDesignPlanId != null) {
+            FullHouseDesignPlan old = fullHouseDesignPlanService.selectByPrimaryKey(oldFullHouseDesignPlanId);
+            if (old != null) {
+                planPicId = old.getPlanPicId();
+            }
+        }
+        return setBaseAttribute(fullHouseDesignPlan,
+                houseName,
+                null,
+                planPicId,
+                FullHouseConstant.FULL_HOUSE_SOURCE_TYPE_DECORATION_MY_HOME,
+                oldFullHouseDesignPlanId == null ? 0 : oldFullHouseDesignPlanId,
+                user);
+    }
+}

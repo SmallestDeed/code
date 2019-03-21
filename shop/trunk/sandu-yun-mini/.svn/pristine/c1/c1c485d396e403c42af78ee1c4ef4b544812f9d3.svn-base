@@ -1,0 +1,50 @@
+package com.sandu.company.model.vo;
+
+import io.swagger.annotations.ApiModel;
+import lombok.Data;
+
+import java.io.Serializable;
+
+/**
+ * 店铺人气列表Vo
+ */
+@Data
+public class ShopPopularityListVo implements Serializable{
+
+    private static final long serialVersionUID = 1919065560605659510L;
+
+    //店铺Id
+    private Integer shopId;
+    //店铺名称
+    private String shopName;
+    //店铺logo路径
+    private String picPath;
+    //店铺案例
+    private String casePicIds;
+	//店铺案例第一个图片路径
+	private String caseCoverPath;
+
+	private Long casePicId;
+
+	private Integer businessType;
+
+	public Integer getShopId() {
+		return shopId;
+	}
+	public void setShopId(Integer shopId) {
+		this.shopId = shopId;
+	}
+	public String getShopName() {
+		return shopName;
+	}
+	public void setShopName(String shopName) {
+		this.shopName = shopName;
+	}
+	public String getPicPath() {
+		return picPath;
+	}
+	public void setPicPath(String picPath) {
+		this.picPath = picPath;
+	}
+
+}

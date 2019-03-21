@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nork.decorateOrder.dao.ProprietorInfoMapper">
+
+	<resultMap id="BaseResultMap" type="com.nork.decorateOrder.model.ProprietorInfo">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="type" jdbcType="TINYINT" property="type" />
+		<result column="user_name" jdbcType="VARCHAR" property="userName" />
+		<result column="mobile" jdbcType="VARCHAR" property="mobile" />
+		<result column="business_type" jdbcType="TINYINT" property="businessType" />
+		<result column="company_type" jdbcType="TINYINT" property="companyType" />
+		<result column="company_name" jdbcType="VARCHAR" property="companyName" />
+		<result column="province_code" jdbcType="VARCHAR" property="provinceCode" />
+		<result column="city_code" jdbcType="VARCHAR" property="cityCode" />
+		<result column="area_name" jdbcType="VARCHAR" property="areaName" />
+		<result column="house_acreage" jdbcType="VARCHAR" property="houseAcreage" />
+		<result column="source_type" jdbcType="INTEGER" property="sourceType" />
+		<result column="house_type" jdbcType="VARCHAR" property="houseType" />
+		<result column="process" jdbcType="INTEGER" property="process" />
+		<result column="creator" jdbcType="VARCHAR" property="creator" />
+		<result column="gmt_created" jdbcType="TIMESTAMP" property="gmtCreated" />
+		<result column="modifier" jdbcType="VARCHAR" property="modifier" />
+		<result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+		<result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+		<result column="is_init" jdbcType="INTEGER" property="isInit" />
+		<result column="designplan_id" jdbcType="BIGINT" property="designplanId" />
+		<result column="address" jdbcType="VARCHAR" property="address" />
+		<result column="bedroom_num" jdbcType="TINYINT" property="bedroomNum" />
+		<result column="living_room_num" jdbcType="TINYINT" property="livingRoomNum" />
+		<result column="toilet_num" jdbcType="TINYINT" property="toiletNum" />
+		<result column="decorate_type" jdbcType="TINYINT" property="decorateType" />
+		<result column="decorate_budget" jdbcType="TINYINT" property="decorateBudget" />
+		<result column="decorate_style" jdbcType="INTEGER" property="decorateStyle" />
+		<result column="decorate_house_type" jdbcType="TINYINT"
+			property="decorateHouseType" />
+		<result column="customer_type" jdbcType="TINYINT" property="customerType" />
+		<result column="revisit_time" jdbcType="DATE" property="revisitTime" />
+		<result column="remark" jdbcType="VARCHAR" property="remark" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		id, type, user_name, mobile, business_type, company_type, company_name,
+		province_code,
+		city_code, area_name, house_acreage, source_type, house_type, process, creator,
+		gmt_created,
+		modifier, gmt_modified, is_deleted, is_init, designplan_id, address,
+		bedroom_num,
+		living_room_num, toilet_num, decorate_type, decorate_budget, decorate_style,
+		decorate_house_type,
+		customer_type, revisit_time, remark
+	</sql>
+	
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from proprietor_info
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from proprietor_info
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	
+	<insert id="insert" parameterType="com.nork.decorateOrder.model.ProprietorInfo">
+		insert into proprietor_info (id, type, user_name,
+		mobile, business_type, company_type,
+		company_name, province_code, city_code,
+		area_name, house_acreage, source_type,
+		house_type, process, creator,
+		gmt_created, modifier, gmt_modified,
+		is_deleted, is_init, designplan_id,
+		address, bedroom_num, living_room_num,
+		toilet_num, decorate_type, decorate_budget,
+		decorate_style, decorate_house_type, customer_type,
+		revisit_time)
+		values (#{id,jdbcType=INTEGER}, #{type,jdbcType=TINYINT},
+		#{userName,jdbcType=VARCHAR},
+		#{mobile,jdbcType=VARCHAR}, #{businessType,jdbcType=TINYINT}, #{companyType,jdbcType=TINYINT},
+		#{companyName,jdbcType=VARCHAR}, #{provinceCode,jdbcType=VARCHAR},
+		#{cityCode,jdbcType=VARCHAR},
+		#{areaName,jdbcType=VARCHAR}, #{houseAcreage,jdbcType=VARCHAR}, #{sourceType,jdbcType=INTEGER},
+		#{houseType,jdbcType=VARCHAR}, #{process,jdbcType=INTEGER},
+		#{creator,jdbcType=VARCHAR},
+		#{gmtCreated,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP},
+		#{isDeleted,jdbcType=INTEGER}, #{isInit,jdbcType=INTEGER},
+		#{designplanId,jdbcType=BIGINT},
+		#{address,jdbcType=VARCHAR}, #{bedroomNum,jdbcType=TINYINT}, #{livingRoomNum,jdbcType=TINYINT},
+		#{toiletNum,jdbcType=TINYINT}, #{decorateType,jdbcType=TINYINT},
+		#{decorateBudget,jdbcType=TINYINT},
+		#{decorateStyle,jdbcType=INTEGER}, #{decorateHouseType,jdbcType=TINYINT},
+		#{customerType,jdbcType=TINYINT},
+		#{revisitTime,jdbcType=DATE})
+	</insert>
+	
+	<insert id="insertSelective" parameterType="com.nork.decorateOrder.model.ProprietorInfo">
+		insert into proprietor_info
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="type != null">
+				type,
+			</if>
+			<if test="userName != null">
+				user_name,
+			</if>
+			<if test="mobile != null">
+				mobile,
+			</if>
+			<if test="businessType != null">
+				business_type,
+			</if>
+			<if test="companyType != null">
+				company_type,
+			</if>
+			<if test="companyName != null">
+				company_name,
+			</if>
+			<if test="provinceCode != null">
+				province_code,
+			</if>
+			<if test="cityCode != null">
+				city_code,
+			</if>
+			<if test="areaName != null">
+				area_name,
+			</if>
+			<if test="houseAcreage != null">
+				house_acreage,
+			</if>
+			<if test="sourceType != null">
+				source_type,
+			</if>
+			<if test="houseType != null">
+				house_type,
+			</if>
+			<if test="process != null">
+				process,
+			</if>
+			<if test="creator != null">
+				creator,
+			</if>
+			<if test="gmtCreated != null">
+				gmt_created,
+			</if>
+			<if test="modifier != null">
+				modifier,
+			</if>
+			<if test="gmtModified != null">
+				gmt_modified,
+			</if>
+			<if test="isDeleted != null">
+				is_deleted,
+			</if>
+			<if test="isInit != null">
+				is_init,
+			</if>
+			<if test="designplanId != null">
+				designplan_id,
+			</if>
+			<if test="address != null">
+				address,
+			</if>
+			<if test="bedroomNum != null">
+				bedroom_num,
+			</if>
+			<if test="livingRoomNum != null">
+				living_room_num,
+			</if>
+			<if test="toiletNum != null">
+				toilet_num,
+			</if>
+			<if test="decorateType != null">
+				decorate_type,
+			</if>
+			<if test="decorateBudget != null">
+				decorate_budget,
+			</if>
+			<if test="decorateStyle != null">
+				decorate_style,
+			</if>
+			<if test="decorateHouseType != null">
+				decorate_house_type,
+			</if>
+			<if test="customerType != null">
+				customer_type,
+			</if>
+			<if test="revisitTime != null">
+				revisit_time,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="type != null">
+				#{type,jdbcType=TINYINT},
+			</if>
+			<if test="userName != null">
+				#{userName,jdbcType=VARCHAR},
+			</if>
+			<if test="mobile != null">
+				#{mobile,jdbcType=VARCHAR},
+			</if>
+			<if test="businessType != null">
+				#{businessType,jdbcType=TINYINT},
+			</if>
+			<if test="companyType != null">
+				#{companyType,jdbcType=TINYINT},
+			</if>
+			<if test="companyName != null">
+				#{companyName,jdbcType=VARCHAR},
+			</if>
+			<if test="provinceCode != null">
+				#{provinceCode,jdbcType=VARCHAR},
+			</if>
+			<if test="cityCode != null">
+				#{cityCode,jdbcType=VARCHAR},
+			</if>
+			<if test="areaName != null">
+				#{areaName,jdbcType=VARCHAR},
+			</if>
+			<if test="houseAcreage != null">
+				#{houseAcreage,jdbcType=VARCHAR},
+			</if>
+			<if test="sourceType != null">
+				#{sourceType,jdbcType=INTEGER},
+			</if>
+			<if test="houseType != null">
+				#{houseType,jdbcType=VARCHAR},
+			</if>
+			<if test="process != null">
+				#{process,jdbcType=INTEGER},
+			</if>
+			<if test="creator != null">
+				#{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtCreated != null">
+				#{gmtCreated,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifier != null">
+				#{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null">
+				#{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDeleted != null">
+				#{isDeleted,jdbcType=INTEGER},
+			</if>
+			<if test="isInit != null">
+				#{isInit,jdbcType=INTEGER},
+			</if>
+			<if test="designplanId != null">
+				#{designplanId,jdbcType=BIGINT},
+			</if>
+			<if test="address != null">
+				#{address,jdbcType=VARCHAR},
+			</if>
+			<if test="bedroomNum != null">
+				#{bedroomNum,jdbcType=TINYINT},
+			</if>
+			<if test="livingRoomNum != null">
+				#{livingRoomNum,jdbcType=TINYINT},
+			</if>
+			<if test="toiletNum != null">
+				#{toiletNum,jdbcType=TINYINT},
+			</if>
+			<if test="decorateType != null">
+				#{decorateType,jdbcType=TINYINT},
+			</if>
+			<if test="decorateBudget != null">
+				#{decorateBudget,jdbcType=TINYINT},
+			</if>
+			<if test="decorateStyle != null">
+				#{decorateStyle,jdbcType=INTEGER},
+			</if>
+			<if test="decorateHouseType != null">
+				#{decorateHouseType,jdbcType=TINYINT},
+			</if>
+			<if test="customerType != null">
+				#{customerType,jdbcType=TINYINT},
+			</if>
+			<if test="revisitTime != null">
+				#{revisitTime,jdbcType=DATE},
+			</if>
+		</trim>
+	</insert>
+	
+	<update id="updateByPrimaryKeySelective" parameterType="com.nork.decorateOrder.model.ProprietorInfo">
+		update proprietor_info
+		<set>
+			<if test="type != null">
+				type = #{type,jdbcType=TINYINT},
+			</if>
+			<if test="userName != null">
+				user_name = #{userName,jdbcType=VARCHAR},
+			</if>
+			<if test="mobile != null">
+				mobile = #{mobile,jdbcType=VARCHAR},
+			</if>
+			<if test="businessType != null">
+				business_type = #{businessType,jdbcType=TINYINT},
+			</if>
+			<if test="companyType != null">
+				company_type = #{companyType,jdbcType=TINYINT},
+			</if>
+			<if test="companyName != null">
+				company_name = #{companyName,jdbcType=VARCHAR},
+			</if>
+			<if test="provinceCode != null">
+				province_code = #{provinceCode,jdbcType=VARCHAR},
+			</if>
+			<if test="cityCode != null">
+				city_code = #{cityCode,jdbcType=VARCHAR},
+			</if>
+			<if test="areaName != null">
+				area_name = #{areaName,jdbcType=VARCHAR},
+			</if>
+			<if test="houseAcreage != null">
+				house_acreage = #{houseAcreage,jdbcType=VARCHAR},
+			</if>
+			<if test="sourceType != null">
+				source_type = #{sourceType,jdbcType=INTEGER},
+			</if>
+			<if test="houseType != null">
+				house_type = #{houseType,jdbcType=VARCHAR},
+			</if>
+			<if test="process != null">
+				process = #{process,jdbcType=INTEGER},
+			</if>
+			<if test="creator != null">
+				creator = #{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtCreated != null">
+				gmt_created = #{gmtCreated,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifier != null">
+				modifier = #{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null">
+				gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDeleted != null">
+				is_deleted = #{isDeleted,jdbcType=INTEGER},
+			</if>
+			<if test="isInit != null">
+				is_init = #{isInit,jdbcType=INTEGER},
+			</if>
+			<if test="designplanId != null">
+				designplan_id = #{designplanId,jdbcType=BIGINT},
+			</if>
+			<if test="address != null">
+				address = #{address,jdbcType=VARCHAR},
+			</if>
+			<if test="bedroomNum != null">
+				bedroom_num = #{bedroomNum,jdbcType=TINYINT},
+			</if>
+			<if test="livingRoomNum != null">
+				living_room_num = #{livingRoomNum,jdbcType=TINYINT},
+			</if>
+			<if test="toiletNum != null">
+				toilet_num = #{toiletNum,jdbcType=TINYINT},
+			</if>
+			<if test="decorateType != null">
+				decorate_type = #{decorateType,jdbcType=TINYINT},
+			</if>
+			<if test="decorateBudget != null">
+				decorate_budget = #{decorateBudget,jdbcType=TINYINT},
+			</if>
+			<if test="decorateStyle != null">
+				decorate_style = #{decorateStyle,jdbcType=INTEGER},
+			</if>
+			<if test="decorateHouseType != null">
+				decorate_house_type = #{decorateHouseType,jdbcType=TINYINT},
+			</if>
+			<if test="customerType != null">
+				customer_type = #{customerType,jdbcType=TINYINT},
+			</if>
+			<if test="revisitTime != null">
+				revisit_time = #{revisitTime,jdbcType=DATE},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	
+	<update id="updateByPrimaryKey" parameterType="com.nork.decorateOrder.model.ProprietorInfo">
+		update proprietor_info
+		set type = #{type,jdbcType=TINYINT},
+		user_name = #{userName,jdbcType=VARCHAR},
+		mobile = #{mobile,jdbcType=VARCHAR},
+		business_type = #{businessType,jdbcType=TINYINT},
+		company_type = #{companyType,jdbcType=TINYINT},
+		company_name = #{companyName,jdbcType=VARCHAR},
+		province_code = #{provinceCode,jdbcType=VARCHAR},
+		city_code = #{cityCode,jdbcType=VARCHAR},
+		area_name = #{areaName,jdbcType=VARCHAR},
+		house_acreage = #{houseAcreage,jdbcType=VARCHAR},
+		source_type = #{sourceType,jdbcType=INTEGER},
+		house_type = #{houseType,jdbcType=VARCHAR},
+		process = #{process,jdbcType=INTEGER},
+		creator = #{creator,jdbcType=VARCHAR},
+		gmt_created = #{gmtCreated,jdbcType=TIMESTAMP},
+		modifier = #{modifier,jdbcType=VARCHAR},
+		gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+		is_deleted = #{isDeleted,jdbcType=INTEGER},
+		is_init = #{isInit,jdbcType=INTEGER},
+		designplan_id = #{designplanId,jdbcType=BIGINT},
+		address = #{address,jdbcType=VARCHAR},
+		bedroom_num = #{bedroomNum,jdbcType=TINYINT},
+		living_room_num = #{livingRoomNum,jdbcType=TINYINT},
+		toilet_num = #{toiletNum,jdbcType=TINYINT},
+		decorate_type = #{decorateType,jdbcType=TINYINT},
+		decorate_budget = #{decorateBudget,jdbcType=TINYINT},
+		decorate_style = #{decorateStyle,jdbcType=INTEGER},
+		decorate_house_type = #{decorateHouseType,jdbcType=TINYINT},
+		customer_type = #{customerType,jdbcType=TINYINT},
+		revisit_time = #{revisitTime,jdbcType=DATE}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	
+</mapper>

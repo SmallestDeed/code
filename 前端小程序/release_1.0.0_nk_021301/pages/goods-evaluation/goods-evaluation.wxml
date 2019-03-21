@@ -1,0 +1,35 @@
+<view class='evaluation'>
+  <view class='nav'>
+    <text bindtap='switchover' 
+      data-type='0' 
+      class='{{isPicComment=="0"?"color":""}}'>全部({{allTotal}})</text>
+    <text bindtap='switchover' 
+      data-type='1' 
+      wx-if="{{picTotal>0}}"
+      class='{{isPicComment=="1"?"color":""}}' wx:if="{{picTotal>0}}">有图({{picTotal}})</text>
+  </view>
+  <view class='evaluation-list'>
+    <view class='evaluation-item' 
+        wx:for='{{isPicComment == 0? allEvaluationList : picEvaluationList}}' 
+        wx:key='{{index}}'>
+      <view class='evaluation-message'>
+        <image src='{{item.headPath?resourcePath+item.headPath:staticImageUrl+"index (2).png"}}'></image>
+        <view class='right-box'>
+          <view class='evaluation-name'>{{item.nickName}}</view>
+          <view class='evaluation-date'>{{item.gmtCreate}}  {{item.skuInfo}}</view>
+        </view>
+      </view>
+      <view class='evaluation-content'>{{item.comment}}</view>
+      <view class='evaluation-img-box'>
+        <image src='{{resourcePath + imgItem}}' 
+          wx:for='{{item.commentPics}}' 
+          wx:for-item='imgItem'
+          wx:for-index='imgIndex'
+          wx:key='{{imgIndex}}' 
+          data-item='{{imgItem}}'
+          bindtap='examineImg'
+          class='{{(imgIndex + 1)%4 == 0?"evaluation-img": ""}}'></image>
+      </view>
+    </view>
+  </view>
+</view>

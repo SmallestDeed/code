@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.companyshop.dao.CompanyshopofflineMapper">
+    <select id="query" resultType="com.sandu.api.companyshop.model.Companyshopoffline">
+        select * from company_shop_offline where id = #{id}
+    </select>
+
+    <select id="listShopOffline" resultType="com.sandu.api.companyshop.model.Companyshopoffline">
+        select
+        id,
+        contact_name,
+        contact_phone,
+        logo_pic_id,
+        cover_pic_id,
+        shop_name,
+        province_code,
+        city_code,
+        area_code,
+        street_code,
+        shop_address
+        from
+        company_shop_offline
+        where is_deleted = 0
+        <include refid="listShopOfflineWhereSql"/>
+    </select>
+
+    <sql id="listShopOfflineWhereSql">
+        <if test="shopName != null and shopName != ''">and shop_name like concat('%', '#{shopName}', '%')</if>
+        <if test="provinceCode != null and provinceCode != ''">and province_code = #{provinceCode}</if>
+        <if test="cityCode != null and cityCode != ''">and city_code = #{cityCode}</if>
+        <if test="areaCode != null and areaCode != ''">and area_code = #{areaCode}</if>
+        <if test="streetCode != null and streetCode != ''">and street_code = #{streetCode}</if>
+    </sql>
+
+    <resultMap id="BaseResultMap" type="com.sandu.api.companyshop.model.Companyshopoffline">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="company_id" jdbcType="INTEGER" property="companyId"/>
+        <result column="shop_name" jdbcType="VARCHAR" property="shopName"/>
+        <result column="province_code" jdbcType="VARCHAR" property="provinceCode"/>
+        <result column="city_code" jdbcType="VARCHAR" property="cityCode"/>
+        <result column="area_code" jdbcType="VARCHAR" property="areaCode"/>
+        <result column="street_code" jdbcType="VARCHAR" property="streetCode"/>
+        <result column="long_area_code" jdbcType="VARCHAR" property="longAreaCode"/>
+        <result column="contact_name" jdbcType="VARCHAR" property="contactName"/>
+        <result column="contact_phone" jdbcType="VARCHAR" property="contactPhone"/>
+        <result column="shop_address" jdbcType="VARCHAR" property="shopAddress"/>
+        <result column="logo_pic_id" jdbcType="INTEGER" property="logoPicId"/>
+        <result column="cover_pic_id" jdbcType="VARCHAR" property="coverPicId"/>
+        <result column="claim_status" jdbcType="TINYINT" property="claimStatus"/>
+        <result column="claim_time" jdbcType="TIMESTAMP" property="claimTime"/>
+        <result column="claim_user_id" jdbcType="INTEGER" property="claimUserId"/>
+        <result column="claim_company_id" jdbcType="INTEGER" property="claimCompanyId"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="is_release" jdbcType="INTEGER" property="isRelease"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified"/>
+        <result column="introduced_file_id" jdbcType="INTEGER" property="introducedFileId"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,company_id,shop_name,province_code,city_code,area_code,street_code,long_area_code,contact_name,
+        contact_phone,shop_address,logo_pic_id,cover_pic_id,claim_status,claim_time,claim_user_id,claim_company_id,
+        is_deleted,is_release,creator,gmt_create,modifier,gmt_modified,introduced_file_id
+    </sql>
+
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true" parameterType="com.sandu.api.companyshop.model.Companyshopoffline">
+        insert into company_shop_offline
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="companyId != null">
+                company_id,
+            </if>
+            <if test="shopName != null">
+                shop_name,
+            </if>
+            <if test="provinceCode != null">
+                province_code,
+            </if>
+            <if test="cityCode != null">
+                city_code,
+            </if>
+            <if test="areaCode != null">
+                area_code,
+            </if>
+            <if test="streetCode != null">
+                street_code,
+            </if>
+            <if test="longAreaCode != null">
+                long_area_code,
+            </if>
+            <if test="contactName != null">
+                contact_name,
+            </if>
+            <if test="contactPhone != null">
+                contact_phone,
+            </if>
+            <if test="shopAddress != null">
+                shop_address,
+            </if>
+            <if test="logoPicId != null">
+                logo_pic_id,
+            </if>
+            <if test="coverPicId != null">
+                cover_pic_id,
+            </if>
+            <if test="claimStatus != null">
+                claim_status,
+            </if>
+            <if test="claimTime != null">
+                claim_time,
+            </if>
+            <if test="claimUserId != null">
+                claim_user_id,
+            </if>
+            <if test="claimCompanyId != null">
+                claim_company_id,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="isRelease != null">
+                is_release,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="introducedFileId != null">
+                introduced_file_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="companyId != null">
+                #{companyId,jdbcType=INTEGER},
+            </if>
+            <if test="shopName != null">
+                #{shopName,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceCode != null">
+                #{provinceCode,jdbcType=VARCHAR},
+            </if>
+            <if test="cityCode != null">
+                #{cityCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaCode != null">
+                #{areaCode,jdbcType=VARCHAR},
+            </if>
+            <if test="streetCode != null">
+                #{streetCode,jdbcType=VARCHAR},
+            </if>
+            <if test="longAreaCode != null">
+                #{longAreaCode,jdbcType=VARCHAR},
+            </if>
+            <if test="contactName != null">
+                #{contactName,jdbcType=VARCHAR},
+            </if>
+            <if test="contactPhone != null">
+                #{contactPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="shopAddress != null">
+                #{shopAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="logoPicId != null">
+                #{logoPicId,jdbcType=INTEGER},
+            </if>
+            <if test="coverPicId != null">
+                #{coverPicId,jdbcType=VARCHAR},
+            </if>
+            <if test="claimStatus != null">
+                #{claimStatus,jdbcType=TINYINT},
+            </if>
+            <if test="claimTime != null">
+                #{claimTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="claimUserId != null">
+                #{claimUserId,jdbcType=INTEGER},
+            </if>
+            <if test="claimCompanyId != null">
+                #{claimCompanyId,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="isRelease != null">
+                #{isRelease,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="introducedFileId != null">
+                #{introducedFileId,jdbcType = INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKey" parameterType="com.sandu.api.companyshop.model.Companyshopoffline">
+        update company_shop_offline
+        <set>
+            <if test="id != null">
+                id = #{id,jdbcType=INTEGER},
+            </if>
+            <if test="companyId != null">
+                company_id = #{companyId,jdbcType=INTEGER},
+            </if>
+            <if test="shopName != null">
+                shop_name = #{shopName,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceCode != null">
+                province_code = #{provinceCode,jdbcType=VARCHAR},
+            </if>
+            <if test="cityCode != null">
+                city_code = #{cityCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaCode != null">
+                area_code = #{areaCode,jdbcType=VARCHAR},
+            </if>
+            <if test="streetCode != null">
+                street_code = #{streetCode,jdbcType=VARCHAR},
+            </if>
+            <if test="longAreaCode != null">
+                long_area_code = #{longAreaCode,jdbcType=VARCHAR},
+            </if>
+            <if test="contactName != null">
+                contact_name = #{contactName,jdbcType=VARCHAR},
+            </if>
+            <if test="contactPhone != null">
+                contact_phone = #{contactPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="shopAddress != null">
+                shop_address = #{shopAddress,jdbcType=VARCHAR},
+            </if>
+                logo_pic_id = #{logoPicId,jdbcType=INTEGER},
+                cover_pic_id = #{coverPicId,jdbcType=VARCHAR},
+            <if test="claimStatus != null">
+                claim_status = #{claimStatus,jdbcType=TINYINT},
+            </if>
+            <if test="claimTime != null">
+                claim_time = #{claimTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="claimUserId != null">
+                claim_user_id = #{claimUserId,jdbcType=INTEGER},
+            </if>
+            <if test="claimCompanyId != null">
+                claim_company_id = #{claimCompanyId,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="isRelease != null">
+                is_release = #{isRelease,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="introducedFileId != null">
+                introduced_file_id =#{introducedFileId,jdbcType= INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from company_shop_offline
+        where id IN
+        <foreach separator="," open="(" close=")" collection="companyshopofflineIds" item="companyshopofflineId">
+            #{companyshopofflineId}
+        </foreach>
+    </update>
+    <update id="toRelease">
+        update company_shop_offline
+        set is_release = #{isRelease}
+        where id = #{id}
+    </update>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from company_shop_offline
+        where id = #{companyshopofflineId,jdbcType=INTEGER}
+    </select>
+
+    <select id="findAll" resultMap="BaseResultMap"
+            parameterType="com.sandu.api.companyshop.input.CompanyshopofflineQuery">
+        select
+        <include refid="Base_Column_List"/>
+        from company_shop_offline
+        where is_deleted=0 and claim_status = 0
+        <if test="shopName != null">
+            and shop_name like concat ('%', #{shopName}, '%')
+        </if>
+        <if test="isRelease != null">
+            and is_release = #{isRelease}
+        </if>
+        <if test="provinceCode != null and provinceCode != ''">
+            and province_code = #{provinceCode}
+        </if>
+        <if test="cityCode != null and cityCode != ''">
+            and city_code = #{cityCode}
+        </if>
+        <if test="areaCode != null and areaCode != ''">
+            and area_code = #{areaCode}
+        </if>
+        <if test="streetCode != null and streetCode != ''">
+            and street_code = #{streetCode}
+        </if>
+        <if test="claimStatus != null">
+            and claim_status = #{claimStatus}
+        </if>
+        <if test="companyId != null">
+            and company_id = #{companyId}
+        </if>
+        order by gmt_create desc
+    </select>
+    <select id="checkShopName" resultMap="BaseResultMap">
+        select * from company_shop_offline
+        where shop_name = #{shopName}
+        and is_deleted = 0
+    </select>
+</mapper>

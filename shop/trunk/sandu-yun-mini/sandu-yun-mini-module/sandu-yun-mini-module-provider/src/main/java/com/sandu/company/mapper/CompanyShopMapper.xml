@@ -1,0 +1,1062 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.company.dao.CompanyShopDao">
+    <sql id="shopListColumns">
+		a.id,a.business_type,
+		a.company_id,a.shop_name,
+		a.company_pid,
+		a.long_area_code,
+		a.contact_phone,
+		a.first_category_ids,
+		a.category_ids,a.user_id,
+		a.shop_address,a.visit_count,
+		a.praise_rate,
+		a.gmt_create as create_date,
+		a.cover_res_ids,
+		a.cover_res_type,
+		a.longitude,
+		a.latitude,
+		a.design_fee_starting,
+		a.design_fee_ending,
+		rp.pic_path as logo_url,
+		rf.file_path,
+		b.member_year,b.auth_grade,b.deposit,
+		d.area_name AS cityName,
+		d1.area_name as provinceName,
+		d2.area_name as areaName,
+		d3.area_name as streerName,
+		su.user_name,su.nick_name,
+		su.uuid as sessionId,
+        su.is_deleted as userDeleted,
+		su.use_type,su.show_sandu_plan,
+		a.design_fee_starting as designFeeStarting,
+		a.design_fee_ending as designFeeEnding,
+		a.decoration_price_start as decorationPriceStart,
+		a.decoration_price_end as decorationPriceEnd,
+		a.decoration_type as decorationType,
+		a.working_years as workingYears,
+		a.service_area as serviceArea,
+		a.business_shop_decoration_type as businessShopDecorationType
+	</sql>
+	
+	 <sql id="shopListOfflineColumns">
+		a.id,a.business_type,
+		a.company_id,a.shop_name,
+		a.company_pid,
+		a.long_area_code,
+		a.contact_phone,
+		a.first_category_ids,
+		a.category_ids,a.user_id,
+		a.shop_address,a.visit_count,
+		a.praise_rate,
+		a.gmt_create as create_date,
+		a.cover_res_ids,
+		a.cover_res_type,
+		a.longitude,
+		a.latitude,
+		a.design_fee_starting,
+		a.design_fee_ending,
+		rp.pic_path as logo_url,
+		rf.file_path,
+		b.member_year,b.auth_grade,b.deposit,
+		d.area_name AS cityName,
+		d1.area_name as provinceName,
+		d2.area_name as areaName,
+		d3.area_name as streerName,
+		su.user_name,su.nick_name,
+		su.uuid as sessionId,
+        su.is_deleted as userDeleted,
+		su.use_type,su.show_sandu_plan,
+		a.design_fee_starting as designFeeStarting,
+		a.design_fee_ending as designFeeEnding,
+		a.decoration_price_start as decorationPriceStart,
+		a.decoration_price_end as decorationPriceEnd,
+		a.decoration_type as decorationType,
+		a.working_years as workingYears
+	</sql>
+
+    <select id="getDetail"
+            resultType="com.sandu.company.model.vo.CompanyShopDetailVo"
+            parameterType="long">
+        SELECT
+        <include refid="shopListColumns"/>
+        FROM company_shop a INNER JOIN base_company b on a.company_id=b.id
+        left join res_pic rp on rp.id = a.logo_pic_id
+        left join res_file rf on rf.id = a.introduced_file_id
+        LEFT JOIN base_area d ON d.area_code = a.city_code
+        LEFT JOIN base_area d1 ON d1.area_code = a.province_code
+        LEFT JOIN base_area d2 ON d2.area_code = a.area_code
+        LEFT JOIN base_area d3 ON d3.area_code = a.street_code
+        left join sys_user su on su.id = a.user_id
+        WHERE a.id=#{id}
+    </select>
+    <select id="getRecommendList"
+            resultType="com.sandu.company.model.vo.CompanyShopVo">
+        SELECT
+        <include refid="shopListColumns"/>
+        FROM company_shop a INNER JOIN base_company b on a.company_id=b.id
+        left join res_pic rp on rp.id = a.logo_pic_id
+        left join res_file rf on rf.id=a.introduced_file_id
+        LEFT JOIN base_area d ON d.area_code = a.city_code
+        LEFT JOIN base_area d1 ON d1.area_code = a.province_code
+        LEFT JOIN base_area d2 ON d2.area_code = a.area_code
+        LEFT JOIN base_area d3 ON d3.area_code = a.street_code
+        left join sys_user su on su.id = a.user_id
+        order by a.visit_count desc limit 0,5;
+    </select>
+    <select id="findFontPageList"
+            resultType="com.sandu.company.model.vo.CompanyShopVo"
+            parameterType="com.sandu.company.model.query.CompanyShopQuery">
+        SELECT
+        <include refid="shopListColumns"/>
+        <if test="latitude != null and latitude != '' and longitude != null and longitude !=''">
+            ,ROUND(6378.138*2*ASIN(SQRT(POW(SIN((${latitude}*PI()/180-a.latitude*PI()/180)/2),2)+COS(${latitude}*PI()/180)*COS(a.latitude*PI()/180)*POW(SIN((${longitude}*PI()/180-a.longitude*PI()/180)/2),2)))*1000)/1000
+            AS distance
+        </if>
+        FROM company_shop a INNER JOIN base_company b on a.company_id=b.id
+        left join res_pic rp on rp.id = a.logo_pic_id
+        left join res_file rf on rf.id=a.introduced_file_id
+        LEFT JOIN base_area d ON d.area_code = a.city_code
+        LEFT JOIN base_area d1 ON d1.area_code = a.province_code
+        LEFT JOIN base_area d2 ON d2.area_code = a.area_code
+        LEFT JOIN base_area d3 ON d3.area_code = a.street_code
+        left join sys_user su on su.id = a.user_id
+        left join node_info ni on a.id = ni.content_id and ni.node_type = 6
+        left join node_info_detail nid on nid.node_id = ni.id and nid.detail_type = 7
+        WHERE su.is_deleted = 0
+        <if test="shopIdList != null and shopIdList.size > 0">
+            AND a.id IN
+            <foreach collection="shopIdList" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="exceptShopIdList != null and exceptShopIdList.size > 0">
+            AND a.id NOT IN
+            <foreach collection="exceptShopIdList" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="businessTypeList != null and businessTypeList.size > 0">
+            AND a.business_type IN
+            <foreach collection="businessTypeList" item="businessType" open="(" separator="," close=")">
+                #{businessType}
+            </foreach>
+        </if>
+        <if test="companyId != null and  companyId != '' ">
+            AND a.company_pid = #{companyId}
+        </if>
+        <if test="businessType != null and  businessType != '' ">
+            AND a.business_type = #{businessType}
+        </if>
+
+        <if test="platformType != null and  platformType != '' ">
+            AND FIND_IN_SET(#{platformType},a.release_platform_values)
+        </if>
+        <if test="firstCategoryIds != null and  firstCategoryIds != '' ">
+            AND FIND_IN_SET(#{firstCategoryIds},a.first_category_ids)
+        </if>
+        <if test="categoryIds != null and  categoryIds != '' ">
+            AND FIND_IN_SET(#{categoryIds},a.category_ids)
+        </if>
+        <if test="shopName != null and  shopName != '' ">
+            AND a.shop_name like CONCAT(CONCAT('%',#{shopName}),'%')
+        </if>
+        <if test="companyName != null and  companyName != '' ">
+            AND b.company_name like CONCAT(CONCAT('%',#{companyName}),'%')
+        </if>
+        <if test="provinceCode != null and  provinceCode != '' ">
+            AND a.province_code = #{provinceCode}
+        </if>
+        <if test="cityCode != null and  cityCode != '' ">
+            AND a.city_code = #{cityCode}
+        </if>
+        <if test="areaCode != null and  areaCode != '' ">
+            AND a.area_code = #{areaCode}
+        </if>
+        <if test="streetCode != null and  streetCode != '' ">
+            AND a.street_code = #{streetCode}
+        </if>
+        <if test="displayType != null and displayType != ''">
+            AND a.logo_pic_id <![CDATA[ <> 0 ]]>
+        </if>
+        <if test="userType != null and  userType != '' ">
+            AND su.user_type = #{userType}
+        </if>
+        <if test="decorationPriceStart != null">
+            AND  <![CDATA[a.decoration_price_start >= #{decorationPriceStart} ]]>
+        </if>
+        <if test="decorationPriceEnd!= null">
+            AND  <![CDATA[a.decoration_price_end <= #{decorationPriceEnd} ]]>
+        </if>
+        <if test="designFeeStarting != null">
+            AND  <![CDATA[a.design_fee_starting >= #{designFeeStarting} ]]>
+        </if>
+        <if test="designFeeEnding != null">
+            AND  <![CDATA[a.design_fee_ending <= #{designFeeEnding} ]]>
+        </if>
+        <if test="decorationType != null">
+            AND a.decoration_type = #{decorationType}
+        </if>
+        <if test="shopType != null">
+            AND a.shop_type = #{shopType}
+        </if>
+        <!--add by WangHaiLin-->
+        <if test="userTypeList != null and userTypeList.size()>0">
+            AND	su.user_type in
+            <foreach collection="userTypeList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        AND a.display_status = 1
+        AND a.is_deleted = #{DEL_FLAG_NORMAL}
+        <choose>
+            <when test="orderBySql !=null and orderBySql != ''">
+                order by a.recommended_time desc,${orderBySql}
+                <if test="latitude != null and latitude != '' and longitude != null and longitude != ''">
+                    ,distance IS NULL, distance ASC
+                </if>
+            </when>
+            <otherwise>
+                order by a.recommended_time desc,
+                <if test="latitude != null and latitude != '' and longitude != null and longitude != ''">
+                   distance IS NULL,distance ASC,
+                </if>
+                a.id desc
+            </otherwise>
+        </choose>
+        limit #{start},#{pageSize}
+    </select>
+
+    <select id="findFontCount" resultType="long"
+            parameterType="com.sandu.company.model.query.CompanyShopQuery">
+        SELECT count(a.id)
+        FROM company_shop a INNER JOIN base_company b on a.company_id=b.id
+        left join sys_user su on su.id = a.user_id
+        WHERE su.is_deleted = 0
+        <if test="shopIdList != null and shopIdList.size > 0">
+            AND a.id IN
+            <foreach collection="shopIdList" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="exceptShopIdList != null and exceptShopIdList.size > 0">
+            AND a.id NOT IN
+            <foreach collection="exceptShopIdList" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="businessTypeList != null and businessTypeList.size > 0">
+            AND a.business_type IN
+            <foreach collection="businessTypeList" item="businessType" open="(" separator="," close=")">
+                #{businessType}
+            </foreach>
+        </if>
+        <if test="companyId != null and  companyId != '' ">
+            AND a.company_pid = #{companyId}
+        </if>
+        <if test="businessType != null and  businessType != '' ">
+            AND a.business_type = #{businessType}
+        </if>
+        <if test="platformType != null and  platformType != '' ">
+            AND
+            FIND_IN_SET(#{platformType},a.`release_platform_values`)
+        </if>
+        <if test="firstCategoryIds != null and  firstCategoryIds != '' ">
+            AND FIND_IN_SET(#{firstCategoryIds},a.first_category_ids)
+        </if>
+        <if test="categoryIds != null and  categoryIds != '' ">
+            AND FIND_IN_SET(#{categoryIds},a.category_ids)
+        </if>
+        <if test="shopName != null and  shopName != '' ">
+            AND a.shop_name like CONCAT(CONCAT('%',#{shopName}),'%')
+        </if>
+        <if test="companyName != null and  companyName != '' ">
+            AND b.company_name like CONCAT(CONCAT('%',#{companyName}),'%')
+        </if>
+        <if test="provinceCode != null and  provinceCode != '' ">
+            AND a.province_code = #{provinceCode}
+        </if>
+        <if test="cityCode != null and  cityCode != '' ">
+            AND a.city_code = #{cityCode}
+        </if>
+        <if test="areaCode != null and  areaCode != '' ">
+            AND a.area_code = #{areaCode}
+        </if>
+        <if test="streetCode != null and  streetCode != '' ">
+            AND a.street_code = #{streetCode}
+        </if>
+        <if test="decorationPriceStart != null">
+            AND  <![CDATA[a.decoration_price_start >= #{decorationPriceStart} ]]>
+        </if>
+        <if test="decorationPriceEnd!= null">
+            AND  <![CDATA[a.decoration_price_end <= #{decorationPriceEnd} ]]>
+        </if>
+        <if test="designFeeStarting != null">
+            AND  <![CDATA[a.design_fee_starting >= #{designFeeStarting} ]]>
+        </if>
+        <if test="designFeeEnding != null">
+            AND  <![CDATA[a.design_fee_ending <= #{designFeeEnding} ]]>
+        </if>
+        <if test="decorationType != null">
+            AND a.decoration_type = #{decorationType}
+        </if>
+        <if test="userType != null and  userType != '' ">
+            AND su.user_type = #{userType}
+        </if>
+        <if test="shopType != null">
+            AND a.shop_type = #{shopType}
+        </if>
+        <!--add by WangHaiLin-->
+        <if test="userTypeList != null and userTypeList.size()>0">
+            AND	su.user_type in
+            <foreach collection="userTypeList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        AND display_status = 1
+        AND a.is_deleted = #{DEL_FLAG_NORMAL}
+    </select>
+
+    <select id="findShopPopularityList"
+            resultType="com.sandu.company.model.vo.ShopPopularityListVo"
+            parameterType="com.sandu.company.model.query.CompanyShopQuery">
+        SELECT
+        a.id as shopId,
+        a.shop_name as shopName,
+        rp.pic_path as picPath,
+        a.cover_res_ids AS casePicIds,
+        a.business_type AS businessType
+        FROM company_shop a
+        left join res_pic rp on a.logo_pic_id=rp.id
+        left join sys_user su on su.id = a.user_id
+        left join node_info ni on ni.content_id = a.id and ni.node_type = 6
+        left join node_info_detail nid on nid.node_id = ni.id and nid.detail_type = 7
+        WHERE su.is_deleted = 0
+        <if test="businessType != null and  businessType != '' ">
+            AND a.business_type = #{businessType}
+        </if>
+        <if test="platformType != null and  platformType != '' ">
+            AND FIND_IN_SET(#{platformType},a.`release_platform_values`)
+        </if>
+        <if test="displayType != null and displayType != ''">
+            AND a.logo_pic_id <![CDATA[ <> 0 ]]>
+        </if>
+        <if test="userTypeList != null and userTypeList.size()>0">
+            AND	su.user_type in
+            <foreach collection="userTypeList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        AND a.display_status = 1
+        AND a.is_deleted = #{DEL_FLAG_NORMAL}
+        GROUP BY a.id
+        order by a.recommended_time desc,(a.visit_count + if(nid.value is null, 0, nid.value)) desc
+        limit 0,6
+    </select>
+    <update id="updateLikeCount"
+            parameterType="com.sandu.company.model.CompanyShop">
+		update company_shop set
+		like_count=like_count+#{likeCount},gmt_modified=#{gmtModified}
+		where id=#{id}
+	</update>
+    <update id="updateCollectionCount"
+            parameterType="com.sandu.company.model.CompanyShop">
+		update company_shop set
+		collection_count=collection_count+#{collectionCount},gmt_modified=#{gmtModified}
+		where id=#{id}
+	</update>
+    <update id="updateCommentCount"
+            parameterType="com.sandu.company.model.CompanyShop">
+		update company_shop set
+		comment_count=comment_count+#{commentCount},gmt_modified=#{gmtModified}
+		where id=#{id}
+	</update>
+    <update id="updateSalesVolume"
+            parameterType="com.sandu.company.model.CompanyShop">
+		update company_shop set
+		sales_volume=sales_volume+#{salesVolume},gmt_modified=#{gmtModified}
+		where id=#{id}
+	</update>
+    <update id="updateVisitCount"
+            parameterType="com.sandu.company.model.CompanyShop">
+		update company_shop set
+		visit_count=visit_count+1,gmt_modified=#{gmtModified}
+		where id=#{id}
+	</update>
+
+    <select id="findShopProjectCaseList"
+            resultType="com.sandu.company.model.vo.ProjectCaseVo">
+        SELECT
+        a.id as case_id,a.case_title,a.gmt_create as create_date,
+        cs.shop_name,rf.file_path,a.pic_ids as picIds,a.browse_count as browseCount,rp.pic_path as shopLogo,
+        cs.id as shopId,
+        a.sid as sid
+        FROM project_case a
+        left join res_file rf on rf.id = a.file_id
+        LEFT join company_shop cs on cs.id = a.shop_id
+        left join res_pic rp on rp.id = cs.logo_pic_id and rp.is_deleted = 0
+        WHERE 1=1
+        <if test="caseId != null and  caseId != 0 ">
+            AND a.id = #{caseId}
+        </if>
+        <if test="shopId != null and  shopId != 0 ">
+            AND a.shop_id = #{shopId}
+        </if>
+        <if test="companyId != null and companyId != 0">
+            AND cs.company_id = #{companyId}
+        </if>
+        AND a.release_status = 1
+        AND a.is_deleted = #{DEL_FLAG_NORMAL}
+        order by a.gmt_modified desc
+        limit #{start},#{pageSize}
+    </select>
+
+    <select id="getShopProjectCaseCount"
+            resultType="java.lang.Integer">
+        SELECT
+        count(1)
+        FROM project_case a
+        left join res_file rf on rf.id = a.file_id
+        LEFT join company_shop cs on cs.id = a.shop_id
+        left join res_pic rp on rp.id = cs.logo_pic_id and rp.is_deleted = 0
+        WHERE 1=1
+        <if test="caseId != null and  caseId != 0 ">
+            AND a.id = #{caseId}
+        </if>
+        <if test="shopId != null and  shopId != 0 ">
+            AND a.shop_id = #{shopId}
+        </if>
+        <if test="companyId != null and companyId != 0">
+            AND cs.company_id = #{companyId}
+        </if>
+        AND a.release_status = 1
+        AND a.is_deleted = #{DEL_FLAG_NORMAL}
+    </select>
+
+    <!--修改浏览数量-->
+    <update id="updateBrowseCount">
+		UPDATE project_case SET
+		browse_count = #{browseCount}
+		WHERE id = #{caseId}
+	</update>
+
+    <select id="CountProjectCase" resultType="com.sandu.company.model.vo.ProjectCaseVo">
+             SELECT
+                count(*) as count,
+                shop_id as shopId
+             FROM
+                project_case
+             WHERE
+               shop_id = #{shopId} AND
+               is_deleted = 0 AND
+               release_status = 1
+    </select>
+
+    <select id="CountCompanyShopArticle" resultType="com.sandu.company.model.CompanyShopArticle">
+            SELECT
+                COUNT(*) as count,
+                shop_id as shopId
+            FROM
+                company_shop_article
+            WHERE
+                shop_id = #{shopId} AND
+                is_deleted = 0 AND
+                release_status = 1
+    </select>
+
+    <select id="CountCompanyShopPlanInfo" resultType="com.sandu.company.model.vo.ShopPlanInfo">
+            SELECT
+                COUNT(*) as planCount,
+                shop_id as shopId
+            FROM
+                company_shop_design_plan
+            WHERE
+                shop_id = #{shopId} AND
+                is_deleted = 0
+    </select>
+
+    <select id="CountDesigner" resultType="com.sandu.company.model.CompanyDesigner">
+            SELECT
+              COUNT(*) as designerCount,
+              b.id as companyId
+            FROM
+               base_company b,sys_user s
+            WHERE
+               s.business_administration_id = b.id AND
+               b.id = #{companyId} AND
+               b.is_deleted = 0 AND
+               s.is_deleted = 0 AND
+               s.user_type = 5
+    </select>
+
+    <select id="getShopInfo" resultType="com.sandu.company.model.vo.ShopInfoVo">
+        <foreach collection="queryMap" index="keyShopId" item="valueCompanyId" open="" separator=" union all " close="">
+            SELECT
+              ${keyShopId} AS shopId,
+              (SELECT COUNT(1) FROM project_case WHERE shop_id = ${keyShopId} AND is_deleted = 0 AND release_status = 1) AS projectCaseCount,
+              (SELECT COUNT(1) FROM company_shop_article WHERE shop_id = ${keyShopId} AND is_deleted = 0 AND release_status = 1) AS companyShopArticleCount,
+              (select  COUNT(distinct c.user_id) FROM company_shop c LEFT JOIN base_company b ON c.company_id=b.id
+                LEFT JOIN sys_user u ON u.id=c.user_id WHERE c.is_deleted = 0 AND b.is_deleted = 0 AND u.is_deleted = 0
+                AND c.company_id= ${valueCompanyId} AND u.user_type=5 AND c.business_type !=3
+                AND FIND_IN_SET(${platformType},c.release_platform_values)) AS companyDesignerCount
+            FROM company_shop
+            WHERE id = ${keyShopId}
+        </foreach>
+    </select>
+
+    <resultMap id="findFontPageListNewResultMap" type="com.sandu.company.model.vo.CompanyShopVo">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="business_type" property="businessType" jdbcType="INTEGER"/>
+        <result column="company_id" property="companyId" jdbcType="INTEGER"/>
+        <result column="shop_name" property="shopName" jdbcType="VARCHAR"/>
+        <result column="company_pid" property="companyPid" jdbcType="INTEGER"/>
+        <result column="long_area_code" property="longAreaCode" jdbcType="VARCHAR"/>
+        <result column="contact_phone" property="contactPhone" jdbcType="VARCHAR"/>
+        <result column="first_category_ids" property="firstCategoryIds" jdbcType="VARCHAR"/>
+        <result column="category_ids" property="categoryIds" jdbcType="VARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="shop_address" property="shopAddress" jdbcType="VARCHAR"/>
+        <result column="visit_count" property="visitCount" jdbcType="INTEGER"/>
+        <result column="praise_rate" property="praiseRate" jdbcType="DOUBLE"/>
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="cover_res_ids" property="coverResIds" jdbcType="VARCHAR"/>
+        <result column="cover_res_type" property="coverResType" jdbcType="INTEGER"/>
+        <result column="longitude" property="longitude" jdbcType="DOUBLE"/>
+        <result column="latitude" property="latitude" jdbcType="DOUBLE"/>
+        <result column="design_fee_starting" property="designFeeStarting" jdbcType="DOUBLE"/>
+        <result column="design_fee_ending" property="designFeeEnding" jdbcType="DOUBLE"/>
+        <result column="logo_url" property="logoUrl" jdbcType="VARCHAR"/>
+        <result column="file_path" property="filePath" jdbcType="VARCHAR"/>
+        <result column="auth_grade" property="authGrade" jdbcType="INTEGER"/>
+        <result column="deposit" property="deposit" jdbcType="DOUBLE"/>
+        <result column="cityName" property="cityName" jdbcType="VARCHAR"/>
+        <result column="provinceName" property="provinceName" jdbcType="VARCHAR"/>
+        <result column="areaName" property="areaName" jdbcType="VARCHAR"/>
+        <result column="streerName" property="streerName" jdbcType="VARCHAR"/>
+        <result column="nick_name" property="nickName" jdbcType="VARCHAR"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="use_type" property="useType" jdbcType="INTEGER"/>
+        <result column="show_sandu_plan" property="showSanduPlan" jdbcType="INTEGER"/>
+        <result column="designFeeStarting" property="designFeeStarting" jdbcType="DOUBLE"/>
+        <result column="designFeeEnding" property="designFeeEnding" jdbcType="DOUBLE"/>
+        <result column="decorationPriceStart" property="decorationPriceStart" jdbcType="DOUBLE"/>
+        <result column="decorationPriceEnd" property="decorationPriceEnd" jdbcType="DOUBLE"/>
+        <result column="decorationType" property="decorationType" jdbcType="INTEGER"/>
+        <result column="workingYears" property="workingYears" jdbcType="INTEGER"/>
+        <result column="projectCaseCount" property="projectCaseCount" jdbcType="INTEGER"/>
+        <result column="companyShopArticleCount" property="companyShopArticleCount" jdbcType="INTEGER"/>
+        <result column="companyDesignerCount" property="companyDesignerCount" jdbcType="INTEGER"/>
+    </resultMap>
+    <select id="findFontPageListNew"
+            resultMap="findFontPageListNewResultMap"
+            parameterType="com.sandu.company.model.query.CompanyShopQuery">
+        SELECT
+        <include refid="shopListColumns"/>
+        ,pc.projectCaseCount
+        ,csa.companyShopArticleCount
+        ,uc.companyDesignerCount
+        <if test="latitude != null and latitude != '' and longitude != null and longitude !=''">
+            ,ROUND(6378.138*2*ASIN(SQRT(POW(SIN((${latitude}*PI()/180-a.latitude*PI()/180)/2),2)+COS(${latitude}*PI()/180)*COS(a.latitude*PI()/180)*POW(SIN((${longitude}*PI()/180-a.longitude*PI()/180)/2),2)))*1000)/1000
+            AS distance
+        </if>
+        FROM company_shop a INNER JOIN base_company b on a.company_id=b.id
+        left join res_pic rp on rp.id = a.logo_pic_id
+        left join res_file rf on rf.id=a.introduced_file_id
+        LEFT JOIN base_area d ON d.area_code = a.city_code
+        LEFT JOIN base_area d1 ON d1.area_code = a.province_code
+        LEFT JOIN base_area d2 ON d2.area_code = a.area_code
+        LEFT JOIN base_area d3 ON d3.area_code = a.street_code
+        left join sys_user su on su.id = a.user_id
+        left join (SELECT shop_id,COUNT(1) projectCaseCount FROM project_case WHERE is_deleted = 0 AND release_status = 1 group by shop_id)
+            pc on pc.shop_id = a.id
+        left join (SELECT shop_id,COUNT(1) companyShopArticleCount FROM company_shop_article WHERE is_deleted = 0 AND release_status = 1 group by shop_id)
+            csa on csa.shop_id = a.id
+        LEFT JOIN (select  c.company_id,COUNT(distinct c.user_id) companyDesignerCount FROM company_shop c LEFT JOIN base_company b ON c.company_id=b.id
+        LEFT JOIN sys_user u ON u.id=c.user_id WHERE c.is_deleted = 0 AND b.is_deleted = 0 AND u.is_deleted = 0 AND u.user_type=5 AND c.business_type !=3
+            AND FIND_IN_SET(${platformType},c.release_platform_values) group by c.company_id) uc on uc.company_id = a.company_id
+        WHERE su.is_deleted = 0
+        <if test="companyId != null and  companyId != '' ">
+            AND a.company_pid = #{companyId}
+        </if>
+        <if test="businessType != null and  businessType != '' ">
+            AND a.business_type = #{businessType}
+        </if>
+
+        <if test="platformType != null and  platformType != '' ">
+            AND FIND_IN_SET(#{platformType},a.release_platform_values)
+        </if>
+        <if test="firstCategoryIds != null and  firstCategoryIds != '' ">
+            AND FIND_IN_SET(#{firstCategoryIds},a.first_category_ids)
+        </if>
+        <if test="categoryIds != null and  categoryIds != '' ">
+            AND FIND_IN_SET(#{categoryIds},a.category_ids)
+        </if>
+        <if test="shopName != null and  shopName != '' ">
+            AND a.shop_name like CONCAT(CONCAT('%',#{shopName}),'%')
+        </if>
+        <if test="companyName != null and  companyName != '' ">
+            AND b.company_name like CONCAT(CONCAT('%',#{companyName}),'%')
+        </if>
+        <if test="provinceCode != null and  provinceCode != '' ">
+            AND a.province_code = #{provinceCode}
+        </if>
+        <if test="cityCode != null and  cityCode != '' ">
+            AND a.city_code = #{cityCode}
+        </if>
+        <if test="areaCode != null and  areaCode != '' ">
+            AND a.area_code = #{areaCode}
+        </if>
+        <if test="streetCode != null and  streetCode != '' ">
+            AND a.street_code = #{streetCode}
+        </if>
+        <if test="displayType != null and displayType != ''">
+            AND a.logo_pic_id <![CDATA[ <> 0 ]]>
+        </if>
+        <if test="userType != null and  userType != '' ">
+            AND su.user_type = #{userType}
+        </if>
+        <if test="decorationPriceStart != null">
+            AND  <![CDATA[a.decoration_price_start >= #{decorationPriceStart} ]]>
+        </if>
+        <if test="decorationPriceEnd!= null">
+            AND  <![CDATA[a.decoration_price_end <= #{decorationPriceEnd} ]]>
+        </if>
+        <if test="designFeeStarting != null">
+            AND  <![CDATA[a.design_fee_starting >= #{designFeeStarting} ]]>
+        </if>
+        <if test="designFeeEnding != null">
+            AND  <![CDATA[a.design_fee_ending <= #{designFeeEnding} ]]>
+        </if>
+        <if test="decorationType != null">
+            AND a.decoration_type = #{decorationType}
+        </if>
+        <if test="shopType != null">
+            AND a.shop_type = #{shopType}
+        </if>
+        <!--add by WangHaiLin-->
+        <if test="userTypeList != null and userTypeList.size()>0">
+            AND	su.user_type in
+            <foreach collection="userTypeList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        AND a.display_status = 1
+        AND a.is_deleted = #{DEL_FLAG_NORMAL}
+        <choose>
+            <when test="orderBySql !=null and orderBySql != ''">
+                order by a.recommended_time desc,${orderBySql}
+                <if test="latitude != null and latitude != '' and longitude != null and longitude != ''">
+                    ,distance IS NULL, distance ASC
+                </if>
+            </when>
+            <otherwise>
+                order by a.recommended_time desc,
+                <if test="latitude != null and latitude != '' and longitude != null and longitude != ''">
+                    distance IS NULL,distance ASC,
+                </if>
+                a.id desc
+            </otherwise>
+        </choose>
+        limit #{start},#{pageSize}
+    </select>
+    <select id="selectPlanPicPath" parameterType="java.util.List" resultType="com.sandu.designer.po.ShopPlanInfoPo$PlanPicInfo">
+        select
+            csdp.shop_id,
+            IFNULL(dpr.id,fhdp.id) plan_id,
+            IFNULL(rrp1.pic_path,rrp2.pic_path) pic_path,
+            IF(csdp.plan_recommended_type = 3,2,1) plan_table_type
+        from
+            company_shop_design_plan csdp
+            left join design_plan_recommended dpr on dpr.id = csdp.plan_id and csdp.plan_recommended_type != 3 and dpr.is_deleted = 0
+            left join res_render_pic rrp1 on rrp1.plan_recommended_id = dpr.id and rrp1.file_key = 'design.designPlanRecommended.render.small.pic' and rrp1.rendering_type = 4 and rrp1.is_deleted = 0
+            left join full_house_design_plan fhdp on fhdp.id = csdp.plan_id and csdp.plan_recommended_type = 3 and fhdp.is_deleted = 0
+            left join res_render_pic rrp2 on rrp2.id = fhdp.plan_pic_id and rrp2.is_deleted = 0
+        where
+            csdp.is_deleted = 0
+            <if test="shopIds != null and shopIds.size > 0">
+                and csdp.shop_id in
+                <foreach collection="shopIds" item="shopId" index="index" open="(" separator="," close=")">
+                    #{shopId}
+                </foreach>
+            </if>
+        group by csdp.id
+    </select>
+
+    <select id="countShopOffline" resultType="java.lang.Long">
+        SELECT
+            count(a.id)
+        FROM
+          <include refid="listShopOfflineTable"/> a
+          INNER JOIN base_company b on a.company_id=b.id
+          LEFT JOIN sys_user su on su.id = a.user_id
+        WHERE display_status = 1
+            AND a.is_deleted = #{DEL_FLAG_NORMAL}
+            <if test="companyId != null and  companyId != '' ">
+                AND a.company_pid = #{companyId}
+            </if>
+            <if test="businessType != null and  businessType != '' ">
+                AND a.business_type = #{businessType}
+            </if>
+            <if test="platformType != null and  platformType != '' ">
+                AND
+                FIND_IN_SET(#{platformType},a.`release_platform_values`)
+            </if>
+            <if test="firstCategoryIds != null and  firstCategoryIds != '' ">
+                AND FIND_IN_SET(#{firstCategoryIds},a.first_category_ids)
+            </if>
+            <if test="categoryIds != null and  categoryIds != '' ">
+                AND FIND_IN_SET(#{categoryIds},a.category_ids)
+            </if>
+            <if test="shopName != null and  shopName != '' ">
+                AND a.shop_name like CONCAT(CONCAT('%',#{shopName}),'%')
+            </if>
+            <if test="companyName != null and  companyName != '' ">
+                AND b.company_name like CONCAT(CONCAT('%',#{companyName}),'%')
+            </if>
+            <if test="provinceCode != null and  provinceCode != '' ">
+                AND a.province_code = #{provinceCode}
+            </if>
+            <if test="cityCode != null and  cityCode != '' ">
+                AND a.city_code = #{cityCode}
+            </if>
+            <if test="areaCode != null and  areaCode != '' ">
+                AND a.area_code = #{areaCode}
+            </if>
+            <if test="streetCode != null and  streetCode != '' ">
+                AND a.street_code = #{streetCode}
+            </if>
+            <if test="decorationPriceStart != null">
+                AND  <![CDATA[a.decoration_price_start >= #{decorationPriceStart} ]]>
+            </if>
+            <if test="decorationPriceEnd!= null">
+                AND  <![CDATA[a.decoration_price_end <= #{decorationPriceEnd} ]]>
+            </if>
+            <if test="designFeeStarting != null">
+                AND  <![CDATA[a.design_fee_starting >= #{designFeeStarting} ]]>
+            </if>
+            <if test="designFeeEnding != null">
+                AND  <![CDATA[a.design_fee_ending <= #{designFeeEnding} ]]>
+            </if>
+            <if test="decorationType != null">
+                AND a.decoration_type = #{decorationType}
+            </if>
+            <!--<if test="userType != null and  userType != '' ">-->
+                <!--AND su.user_type = #{userType}-->
+            <!--</if>-->
+            <!--add by WangHaiLin-->
+            <!--<if test="userTypeList != null and userTypeList.size()>0">-->
+                <!--AND	su.user_type in-->
+                <!--<foreach collection="userTypeList" index="index" item="item" open="(" separator="," close=")">-->
+                    <!--#{item}-->
+                <!--</foreach>-->
+            <!--</if>-->
+    </select>
+
+    <select id="listShopOffline" resultType="com.sandu.company.model.vo.CompanyShopVo">
+        SELECT
+          <include refid="shopListOfflineColumns"/>,
+          a.shop_type
+          <if test="latitude != null and latitude != '' and longitude != null and longitude !=''">
+            <include refid="distance_column"/>
+          </if>
+        FROM <include refid="listShopOfflineTable"/> a
+          INNER JOIN base_company b on a.company_id=b.id
+          left join res_pic rp on rp.id = a.logo_pic_id
+          left join res_file rf on rf.id=a.introduced_file_id
+          LEFT JOIN base_area d ON d.area_code = a.city_code
+          LEFT JOIN base_area d1 ON d1.area_code = a.province_code
+          LEFT JOIN base_area d2 ON d2.area_code = a.area_code
+          LEFT JOIN base_area d3 ON d3.area_code = a.street_code
+          left join sys_user su on su.id = a.user_id
+        WHERE a.display_status = 1
+          AND a.is_deleted = #{DEL_FLAG_NORMAL}
+          <if test="companyId != null and  companyId != '' ">
+              AND a.company_pid = #{companyId}
+          </if>
+          <if test="businessType != null and  businessType != '' ">
+              AND a.business_type = #{businessType}
+          </if>
+          <if test="platformType != null and  platformType != '' ">
+              AND FIND_IN_SET(#{platformType},a.release_platform_values)
+          </if>
+          <if test="firstCategoryIds != null and  firstCategoryIds != '' ">
+              AND FIND_IN_SET(#{firstCategoryIds},a.first_category_ids)
+          </if>
+          <if test="categoryIds != null and  categoryIds != '' ">
+              AND FIND_IN_SET(#{categoryIds},a.category_ids)
+          </if>
+          <if test="shopName != null and  shopName != '' ">
+              AND a.shop_name like CONCAT(CONCAT('%',#{shopName}),'%')
+          </if>
+          <if test="companyName != null and  companyName != '' ">
+              AND b.company_name like CONCAT(CONCAT('%',#{companyName}),'%')
+          </if>
+          <if test="provinceCode != null and  provinceCode != '' ">
+              AND a.province_code = #{provinceCode}
+          </if>
+          <if test="cityCode != null and  cityCode != '' ">
+              AND a.city_code = #{cityCode}
+          </if>
+          <if test="areaCode != null and  areaCode != '' ">
+              AND a.area_code = #{areaCode}
+          </if>
+          <if test="streetCode != null and  streetCode != '' ">
+              AND a.street_code = #{streetCode}
+          </if>
+          <if test="displayType != null and displayType != ''">
+              AND a.logo_pic_id <![CDATA[ <> 0 ]]>
+            </if>
+          <if test="userType != null and  userType != '' ">
+              AND su.user_type = #{userType}
+          </if>
+          <if test="decorationPriceStart != null">
+              AND  <![CDATA[a.decoration_price_start >= #{decorationPriceStart} ]]>
+            </if>
+          <if test="decorationPriceEnd!= null">
+              AND  <![CDATA[a.decoration_price_end <= #{decorationPriceEnd} ]]>
+            </if>
+          <if test="designFeeStarting != null">
+              AND  <![CDATA[a.design_fee_starting >= #{designFeeStarting} ]]>
+            </if>
+          <if test="designFeeEnding != null">
+              AND  <![CDATA[a.design_fee_ending <= #{designFeeEnding} ]]>
+            </if>
+          <if test="decorationType != null">
+              AND a.decoration_type = #{decorationType}
+          </if>
+          <!--add by WangHaiLin-->
+          <!--<if test="userTypeList != null and userTypeList.size()>0">-->
+              <!--AND	su.user_type in-->
+              <!--<foreach collection="userTypeList" index="index" item="item" open="(" separator="," close=")">-->
+                  <!--#{item}-->
+              <!--</foreach>-->
+          <!--</if>-->
+          <choose>
+              <when test="orderBySql !=null and orderBySql != ''">
+                  <choose>
+                      <when test="latitude != null and latitude != '' and longitude != null and longitude != ''">
+                          order by distance IS NULL, distance ASC, a.gmt_create desc, ${orderBySql}
+                      </when>
+                      <otherwise>
+                          order by a.gmt_create desc, ${orderBySql}
+                      </otherwise>
+                  </choose>
+              </when>
+              <otherwise>
+                  <choose>
+                      <when test="latitude != null and latitude != '' and longitude != null and longitude != ''">
+                          order by distance IS NULL, distance ASC, a.gmt_create desc
+                      </when>
+                      <otherwise>
+                          order by a.gmt_create desc
+                      </otherwise>
+                  </choose>
+                  <!--a.id desc-->
+              </otherwise>
+          </choose>
+        limit #{start}, #{pageSize}
+    </select>
+
+    <select id="getOfflineDetail" resultType="com.sandu.company.model.vo.CompanyShopDetailVo">
+        select
+          cso.id,
+          2 business_type,
+          cso.company_id,
+          cso.shop_name,
+          cso.company_id company_pid,
+          cso.long_area_code,
+          cso.contact_phone,
+          '' first_category_ids,
+          '' category_ids,
+          0 user_id,
+          cso.shop_address,
+          0 visit_count,
+          0 praise_rate,
+          cso.gmt_create,
+          cso.cover_pic_id cover_res_ids,
+          1 cover_res_type,
+          NULL longitude,
+          NULL latitude,
+          NULL design_fee_starting,
+          NULL design_fee_ending,
+          NULL decoration_price_start,
+          NULL decoration_price_end,
+          NULL decoration_type,
+          NULL working_years,
+          cso.introduced_file_id,
+          rf.file_path,
+          '1' release_platform_values,
+          1 display_status,
+          cso.is_deleted,
+          0 recommended_time,
+          cso.logo_pic_id,
+          cso.city_code,
+          cso.province_code,
+          cso.area_code,
+          cso.street_code,
+          d.area_name AS cityName,
+		  d1.area_name as provinceName,
+		  d2.area_name as areaName,
+		  d3.area_name as streerName,
+          1 shop_type,
+          rp.pic_path as logo_url
+        from
+          company_shop_offline cso
+          inner join base_company b
+            on cso.company_id = b.id
+          left join res_pic rp
+            on rp.id = cso.logo_pic_id
+          left join res_file rf
+            on rf.id = cso.introduced_file_id
+          left join base_area d
+            on d.area_code = cso.city_code
+          left join base_area d1
+            on d1.area_code = cso.province_code
+          left join base_area d2
+            on d2.area_code = cso.area_code
+          left join base_area d3
+            on d3.area_code = cso.street_code
+        where cso.id = #{id}
+    </select>
+
+    <sql id="listShopOfflineTable">
+      (SELECT
+        cs.id,
+        cs.business_type,
+        cs.company_id,
+        cs.shop_name,
+        cs.company_pid,
+        cs.long_area_code,
+        cs.contact_phone,
+        cs.first_category_ids,
+        cs.category_ids,
+        cs.user_id,
+        cs.shop_address,
+        cs.visit_count,
+        cs.praise_rate,
+        cs.gmt_create,
+        cs.cover_res_ids,
+        cs.cover_res_type,
+        cs.longitude,
+        cs.latitude,
+        cs.design_fee_starting,
+        cs.design_fee_ending,
+        cs.decoration_price_start,
+        cs.decoration_price_end,
+        cs.decoration_type,
+        cs.working_years,
+        cs.introduced_file_id,
+        cs.release_platform_values,
+        cs.display_status,
+        cs.is_deleted,
+        cs.recommended_time,
+        cs.logo_pic_id,
+        cs.city_code,
+        cs.province_code,
+        cs.area_code,
+        cs.street_code,
+        0 shop_type
+      FROM
+        company_shop cs
+      UNION
+      ALL
+      SELECT
+        cso.id,
+        2 business_type,
+        cso.company_id,
+        cso.shop_name,
+        cso.company_id company_pid,
+        cso.long_area_code,
+        cso.contact_phone,
+        '' first_category_ids,
+        '' category_ids,
+        0 user_id,
+        cso.shop_address,
+        0 visit_count,
+        0 praise_rate,
+        cso.gmt_create,
+        cso.cover_pic_id cover_res_ids,
+        1 cover_res_type,
+        NULL longitude,
+        NULL latitude,
+        NULL design_fee_starting,
+        NULL design_fee_ending,
+        NULL decoration_price_start,
+        NULL decoration_price_end,
+        NULL decoration_type,
+        NULL working_years,
+        0 introduced_file_id,
+        '1' release_platform_values,
+        1 display_status,
+        cso.is_deleted,
+        0 recommended_time,
+        cso.logo_pic_id,
+        cso.city_code,
+        cso.province_code,
+        cso.area_code,
+        cso.street_code,
+        1 shop_type
+      FROM
+        company_shop_offline cso
+      WHERE cso.is_release = 1
+        AND cso.claim_status = 0)
+    </sql>
+
+    <sql id="distance_column">
+        ,ROUND(
+          6378.138 * 2 * ASIN(
+          SQRT(
+            POW( SIN((${latitude} * PI() / 180 - a.latitude * PI() / 180) / 2), 2)
+            + COS(${latitude} * PI() / 180) * COS(a.latitude * PI() / 180)
+            * POW(SIN(( ${longitude} * PI() / 180 - a.longitude * PI() / 180) / 2), 2)
+          )) * 1000) / 1000 AS distance
+    </sql>
+
+    <select id="getProjectCaseDetail"
+            resultType="com.sandu.company.model.vo.ProjectCaseVo">
+        SELECT
+        a.id as case_id,a.case_title,a.gmt_create as create_date,
+        cs.shop_name,rf.file_path,a.pic_ids as picIds,a.browse_count as browseCount,rp.pic_path as shopLogo,
+        cs.id as shopId,
+        a.sid as sid
+        FROM
+            project_case a
+            left join res_file rf on rf.id = a.file_id
+            INNER join company_shop cs on cs.id = a.shop_id
+            left join res_pic rp on rp.id = cs.logo_pic_id and rp.is_deleted = 0
+            inner join sys_user su on su.id = cs.user_id and su.is_deleted = 0
+        WHERE 1=1
+            AND a.id = #{caseId}
+            AND a.release_status = 1
+            AND a.is_deleted = 0
+    </select>
+
+    <select id="getNearestContactShopId" resultType="java.lang.Integer">
+        SELECT
+            t1.related_obj_id
+        FROM
+            msg_history_message t1,
+            sys_user t2,
+            company_shop t3
+        WHERE
+            t2.uuid = t1.from_user_session_id
+            AND t3.id = t1.related_obj_id
+            AND t2.id = #{userId}
+            AND t1.related_obj_type = 1
+            AND t1.is_deleted = 0
+            <if test="businessTypeList != null and businessTypeList.size > 0">
+                AND t3.business_type IN
+                <foreach collection="businessTypeList" item="businessType" open="(" separator="," close=")" index="index">
+                    #{businessType}
+                </foreach>
+            </if>
+            AND find_in_set(2, t3.release_platform_values)
+        GROUP BY
+            t1.related_obj_id
+        ORDER BY
+            max(t1.send_time) DESC
+        LIMIT #{start}, #{limit}
+    </select>
+</mapper>

@@ -1,0 +1,50 @@
+<view class='purchase-car'>
+  <checkbox-group class="radio-group" bindchange="checkboxChange">
+    <view class="purchase-car-radio clearfix" 
+    wx:for="{{carList}}" data-index='{{index}}' wx:key='{{index}}' 
+    bindtouchstart='carTouchStart' bindtouchmove='carTouchMove'>
+      <view class='car-radio-box {{item.isMove?"car-radio-box-active":""}}'>
+        <view class='car-message fl'>
+          <view class='radio-box fl' ><checkbox color='#ff6419' value="{{index}}" checked="{{item.checked}}"/></view>    
+          <view class='radio-image fl'><image src='{{resourcePath + item.productPicPath}}'></image></view>
+          <view class='radio-text fl'>
+            <view class='name'>{{item.productName}}</view>
+            <view class='style'>{{item.productStyleName || '暂无'}}</view>        
+            <view class='count clearfix'>
+              <view class='price fl'>￥{{item.productPrice}}</view>                
+              <view class='add-number clearfix fr'>
+                <view class='fl' bindtap='changeGoodsCount' data-type='reduce' data-index='{{index}}'>-</view>
+                <view class='fl number'>{{singleGoodsCount[index]}}</view>
+                <view class='fl' bindtap='changeGoodsCount' data-type='add' data-index='{{index}}'>+</view>         
+              </view>  
+            </view>                      
+          </view>
+        </view>
+        <view class='car-delete fl' data-index='{{index}}' data-item='{{item}}' bindtap='deleteAloneCar'>删除</view>
+      </view>
+    </view>
+  </checkbox-group>
+  <view class='car-footer clearfix'  wx:if="{{carList.length>=1 && singleGoodsCount.length>=1}}">
+    <view class='footer-left fl clearfix'>
+      <view class='checkbox fl'>
+        <checkbox-group bindchange="isCheckAll"><checkbox checked='{{btnIscheckAll}}' color='#ff6419'/></checkbox-group>
+      </view>
+      <view class='text fl'>全选</view>
+      <view class='price fr'>￥{{totalPrice}}</view>
+    </view>
+    <view class='footer-right fl' bindtap='settlement'>结算</view>
+  </view>
+</view>
+
+<empty-page emptyPageObj="{{emptyPageObj}}" wx:if="{{carList.length<1 && singleGoodsCount.length<1}}"></empty-page>
+<!-- <block wx:if="{{carList.length<1 && singleGoodsCount.length<1}}">
+<view class="empty_tip ">
+  <image class="image" src="{{staticImageUrl}}me_pic_no_02.png"></image>
+  <view class="txt">您的购物车空空如也~</view>
+</view>
+</block> -->
+<!-- 快速导航模块 -->
+  <!-- <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav" data="{{ ...newNav }}"/> -->
+
+  <jdNav></jdNav>

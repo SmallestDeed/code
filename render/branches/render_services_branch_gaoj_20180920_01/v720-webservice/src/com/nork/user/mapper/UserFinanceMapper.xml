@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.user.dao.UserFinanceMapper">
+
+    <!-- 检查用户户型是否可用(已购买的户型不算入户型数计算) -->
+    <select id="checkUserHouseIsAbleUse" parameterType="int" resultType="boolean">
+        SELECT
+            alearyCount > 0
+              OR
+            U.usable_house_number - COUNT(DISTINCT house_id) > 0
+        FROM
+            sys_user U,
+            pay_order P,
+            (
+                SELECT
+                  COUNT(1) AS alearyCount
+                FROM
+                  pay_order
+                WHERE
+                  pay_state = "SUCCESS"
+                AND biz_type = "Buy"
+                AND is_deleted = 0
+                AND house_id &lt;&gt; 0
+                AND user_id = #{userId}
+                AND house_id = #{houseId}
+            ) AS C
+        WHERE
+            U.id = #{userId}
+        AND P.pay_state = "SUCCESS"
+        AND P.biz_type = "Buy"
+        AND P.is_deleted = 0
+        AND P.house_id &lt;&gt; 0
+        AND P.user_id = #{userId}
+
+    </select>
+
+</mapper>

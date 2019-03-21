@@ -1,0 +1,139 @@
+package com.sandu.company.dao;
+
+import com.sandu.company.model.CompanyDesigner;
+import com.sandu.company.model.CompanyShopArticle;
+import com.sandu.company.model.query.ProjectCaseQuery;
+<<<<<<< .working
+import com.sandu.company.model.vo.*;
+||||||| .merge-left.r46676
+import com.sandu.company.model.vo.ProjectCaseVo;
+import com.sandu.company.model.vo.ShopPopularityListVo;
+=======
+import com.sandu.company.model.vo.*;
+import com.sandu.designer.po.ShopPlanInfoPo;
+>>>>>>> .merge-right.r59125
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+import com.sandu.common.persistence.CrudDao;
+import com.sandu.company.model.CompanyShop;
+import com.sandu.company.model.query.CompanyShopQuery;
+
+import java.util.List;
+import java.util.Map;
+
+@Repository
+public interface CompanyShopDao extends 
+CrudDao<CompanyShop,CompanyShopQuery,CompanyShopVo>{
+	CompanyShopDetailVo getDetail(long id);
+	
+	/***
+	 * 更新点赞数量
+	 * @param id
+	 * @return
+	 */
+	int updateLikeCount(CompanyShop shop);
+	/***
+	 * 更新收藏数量
+	 * @param id
+	 * @return
+	 */
+    int updateCollectionCount(CompanyShop shop);
+    
+	/***
+	 * 更新收藏数量
+	 * @param id
+	 * @return
+	 */
+    int updateCommentCount(CompanyShop shop);
+	/***
+	 * 更新销量
+	 * @param id
+	 * @return
+	 */
+    int updateSalesVolume(CompanyShop shop);
+    
+    /***
+     * 更新访问次数
+     * @param shop
+     * @return
+     */
+    int updateVisitCount(CompanyShop shop);
+    
+	/**
+	 * 查询店铺人气列表
+	 * @param query
+	 * @return
+	 */
+	List<ShopPopularityListVo> findShopPopularityList(CompanyShopQuery query);
+	
+	List<CompanyShopVo> getRecommendList();
+
+	/**
+	 * 店铺工程案例列表
+	 * @param query
+	 * @return
+	 */
+	List<ProjectCaseVo> findShopProjectCaseList(ProjectCaseQuery query);
+<<<<<<< .working
+
+	/**
+	 * 修改工程案例浏览数量
+	 * @param caseId 案例Id
+	 * @param browseCount 案例数量
+	 * @return int
+	 */
+	int updateBrowseCount(@Param("caseId") Long caseId,@Param("browseCount") Integer browseCount);
+
+    ProjectCaseVo CountProjectCase(Long shopId);
+
+	CompanyShopArticle CountCompanyShopArticle(Long shopId);
+
+	ShopPlanInfo CountCompanyShopPlanInfo(Long shopId);
+
+	CompanyDesigner CountDesigner(Long companyId);
+
+	/**
+	 * @desc 获取店铺信息数量
+	 * @auth xiaoxc
+	 * @param queryMap
+	 * @return
+	 */
+	List<ShopInfoVo> getShopInfo(@Param("queryMap") Map<Long, Long> queryMap, @Param("platformType") Integer platformType);
+
+    long countShopOffline(CompanyShopQuery query);
+
+	List<CompanyShopVo> listShopOffline(CompanyShopQuery query);
+
+	CompanyShopDetailVo getOfflineDetail(Long shopId);
+||||||| .merge-left.r46676
+=======
+
+	/**
+	 * 修改工程案例浏览数量
+	 * @param caseId 案例Id
+	 * @param browseCount 案例数量
+	 * @return int
+	 */
+	int updateBrowseCount(@Param("caseId") Long caseId,@Param("browseCount") Integer browseCount);
+
+    ProjectCaseVo CountProjectCase(Long shopId);
+
+	CompanyShopArticle CountCompanyShopArticle(Long shopId);
+
+	ShopPlanInfo CountCompanyShopPlanInfo(Long shopId);
+
+	CompanyDesigner CountDesigner(Long companyId);
+
+	/**
+	 * @desc 获取店铺信息数量
+	 * @auth xiaoxc
+	 * @param queryMap
+	 * @return
+	 */
+	List<ShopInfoVo> getShopInfo(@Param("queryMap") Map<Long, Long> queryMap, @Param("platformType") Integer platformType);
+
+    List<CompanyShopVo> findFontPageListNew(CompanyShopQuery query);
+
+    List<ShopPlanInfoPo.PlanPicInfo> selectPlanPicPath(@Param("shopIds") List<Long> shopIds);
+>>>>>>> .merge-right.r59125
+}

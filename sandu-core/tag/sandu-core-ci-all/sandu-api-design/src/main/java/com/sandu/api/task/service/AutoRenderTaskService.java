@@ -1,0 +1,25 @@
+package com.sandu.api.task.service;
+
+import com.sandu.api.task.model.AutoRenderTask;
+import com.sandu.api.user.model.SysUser;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+@Component
+public interface AutoRenderTaskService {
+
+    AutoRenderTask getById(Integer mainTaskId);
+
+    int insertSelective(AutoRenderTask autoRenderTask);
+
+    List<AutoRenderTask> getSubTaskByMainTaskId(Integer mainTaskId);
+
+    int insertSubTaskBatch(List<AutoRenderTask> subTaskList);
+
+    int updateMainTaskId(Integer newMainTaskId);
+
+    Integer getUserHouseCount(Integer userId, Integer houseId, String houseName);
+
+    Integer addMainTask(Integer fullHouseId, Integer houseId, SysUser user);
+}

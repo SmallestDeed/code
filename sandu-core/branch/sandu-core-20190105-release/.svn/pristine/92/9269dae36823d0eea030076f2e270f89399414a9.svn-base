@@ -1,0 +1,321 @@
+package com.sandu.web.user;/**
+ * @ Author     ：weisheng.
+ * @ Date       ：Created in AM 11:19 2019/1/5 0005
+ * @ Description：${description}
+ * @ Modified By：
+ * @Version: $version$
+ */
+
+import com.google.gson.Gson;
+import com.sandu.api.banner.common.Utils;
+import com.sandu.api.base.common.LoginUser;
+import com.sandu.api.base.common.ResponseEnvelope;
+import com.sandu.api.base.input.UserCardAccessOperationLogAdd;
+import com.sandu.api.base.input.UserCardAccessRecordAdd;
+import com.sandu.api.base.model.UserCardAccessOperationLog;
+import com.sandu.api.base.model.UserCardAccessRecordCount;
+import com.sandu.api.base.output.UserCardAccessRecordVo;
+import com.sandu.api.base.service.UserCardAccessService;
+import com.sandu.common.LoginContext;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @author weisheng
+ * @Title: 用户名片访问
+ * @Package
+ * @Description:
+ * @date 2019/1/5 0005AM 11:19
+ */
+@RestController
+@Slf4j
+@RequestMapping("/v1/core/usercardaccess")
+public class UserCardAccessRecordController {
+
+    private final static String CLASS_LOG_PREFIX = "[用户名片访问服务]:";
+    private final static Gson gson = new Gson();
+
+    @Autowired
+    private UserCardAccessService userCardAccessService;
+
+    /*记录用户访问记录*/
+    @PostMapping("/addaccessrecord")
+    public ResponseEnvelope addAccessRecord(@RequestBody @Validated UserCardAccessRecordAdd userCardAccessRecordAdd, BindingResult bindingResult) {
+        //登录用户校验
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, CLASS_LOG_PREFIX + "请登录!");
+        }
+
+        log.info(CLASS_LOG_PREFIX + "登录用户:" + gson.toJson(loginUser));
+
+        // 校验参数
+        if (bindingResult.hasErrors()) {
+            String errorMessages = Utils.getErrorMessages(bindingResult);
+            return new ResponseEnvelope(false, CLASS_LOG_PREFIX + errorMessages);
+        }
+        log.info(CLASS_LOG_PREFIX + "UserCardAccessRecordAdd:" + gson.toJson(userCardAccessRecordAdd));
+
+
+        //向数据库插入数据
+        int userCardAccessRecordId = 0;
+        try {
+            userCardAccessRecordId = userCardAccessService.addUserCardAccessRecord(userCardAccessRecordAdd, loginUser);
+            if (userCardAccessRecordId == 0) {
+                log.error(CLASS_LOG_PREFIX, "保存用户名片访问数据失败" + gson.toJson(userCardAccessRecordAdd));
+                return new ResponseEnvelope(false, CLASS_LOG_PREFIX + "保存用户名片访问数据失败");
+            }
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + e);
+            return new ResponseEnvelope(false, CLASS_LOG_PREFIX + "保存用户名片访问数据异常");
+        }
+
+
+        return new ResponseEnvelope(true, "保存用户名片访问数据成功", userCardAccessRecordId);
+    }
+
+    /*记录用户访问操作记录*/
+    @PostMapping("/addaccessoperation")
+    public ResponseEnvelope addAccessOperation(@RequestBody @Validated UserCardAccessOperationLogAdd userCardAccessOperationLogAdd, BindingResult bindingResult) {
+        //登录用户校验
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, CLASS_LOG_PREFIX + "请登录!");
+        }
+
+        log.info(CLASS_LOG_PREFIX + "登录用户:" + gson.toJson(loginUser));
+
+        // 校验参数
+        if (bindingResult.hasErrors()) {
+            String errorMessages = Utils.getErrorMessages(bindingResult);
+            return new ResponseEnvelope(false, CLASS_LOG_PREFIX + errorMessages);
+        }
+        log.info(CLASS_LOG_PREFIX + "userCardAccessOperationLogAdd:" + gson.toJson(userCardAccessOperationLogAdd));
+
+        if (UserCardAccessOperationLog.OperationType.PUT_PHONE_NUMBER.equals(userCardAccessOperationLogAdd.getOperationType())) {
+            // 如果是留下手机号，先校验验证码
+            boolean flag = userCardAccessService.checkPhoneAndCode(userCardAccessOperationLogAdd);
+            if (!flag) {
+                return new ResponseEnvelope(false, "验证码不匹配,请重新输入");
+            }
+        }
+
+        //向数据库插入数据
+        int userCardAccessOperationLogId = 0;
+        try {
+            userCardAccessOperationLogId = userCardAccessService.addUserCardAccessOperationLog(userCardAccessOperationLogAdd, loginUser);
+            if (userCardAccessOperationLogId == 0) {
+                log.error(CLASS_LOG_PREFIX, "保存用户访问操作记录失败" + gson.toJson(userCardAccessOperationLogAdd));
+                return new ResponseEnvelope(false, CLASS_LOG_PREFIX + "保存用户访问操作记录失败");
+            }
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + e);
+            return new ResponseEnvelope(false, CLASS_LOG_PREFIX + "保存用户访问操作记录数据异常");
+        }
+
+
+        return new ResponseEnvelope(true, "保存用户访问操作记录数据成功", userCardAccessOperationLogId);
+    }
+
+
+    /*获取用户访问记录*/
+    @GetMapping("/getaccessrecord")
+    public ResponseEnvelope getAccessRecord(@RequestParam(required = false, name = "userAccessId") Integer userAccessId,
+                                            @RequestParam(required = false, name = "currPage") Integer currPage,
+                                            @RequestParam(required = false, name = "pageSzie") Integer pageSzie) {
+
+        //登录用户校验
+      LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, CLASS_LOG_PREFIX + "请登录!");
+        }
+
+
+        log.info(CLASS_LOG_PREFIX + "登录用户:" + gson.toJson(loginUser));
+
+        //校验参数
+        if (null == userAccessId || 0 == userAccessId) {
+            log.error(CLASS_LOG_PREFIX + "缺少参数userAccessId" + userAccessId);
+            return new ResponseEnvelope(false, "缺少参数userAccessId");
+        }
+        log.info(CLASS_LOG_PREFIX + "userAccessId:" + userAccessId);
+
+        //分页参数处理
+        HandlePage handlePage = new HandlePage(currPage, pageSzie).invoke();
+        int start = handlePage.getStart();
+        int limit = handlePage.getLimit();
+
+        int count = 0;
+        try {
+            count = userCardAccessService.getUserCardAccessCount(userAccessId, loginUser);
+            if (count == 0) {
+                log.info("获取用户访问记录为空");
+                return new ResponseEnvelope(true, "获取用户访问记录成功,数量为0", null);
+            }
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + e);
+            return new ResponseEnvelope(false, "获取用户访问记录数据异常");
+        }
+
+        List<UserCardAccessRecordVo> userCardAccessRecordVoList = new ArrayList<>(16);
+        try {
+            userCardAccessRecordVoList = userCardAccessService.getUserCardAccessList(userAccessId, loginUser, start, limit);
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + e);
+            return new ResponseEnvelope(false, "获取用户访问记录数据异常");
+        }
+
+        //将用户访问记录置为已读
+        int isReadCount = 0;
+        try {
+            isReadCount = userCardAccessService.updateUserCardAccessRecordToIsRead(userAccessId, loginUser, start, limit);
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + e);
+        }
+        log.info("成功将用户访问记录置为已读,数量为" + isReadCount);
+
+
+        return new ResponseEnvelope(true, count, userCardAccessRecordVoList);
+    }
+
+    /*获取用户访问操作记录*/
+    @GetMapping("/getaccessoperation")
+    public ResponseEnvelope getAccessOperation(@RequestParam(required = false, name = "userAccessId") Integer userAccessId,
+                                               @RequestParam(required = false, name = "currPage") Integer currPage,
+                                               @RequestParam(required = false, name = "pageSzie") Integer pageSzie,
+                                               @RequestParam(required = false, name = "purposeType") Integer purposeType) {
+        //登录用户校验
+       LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, CLASS_LOG_PREFIX + "请登录!");
+        }
+
+        log.info(CLASS_LOG_PREFIX + "登录用户:" + gson.toJson(loginUser));
+
+        //校验参数
+        if (null == userAccessId || 0 == userAccessId) {
+            log.error(CLASS_LOG_PREFIX + "缺少参数userAccessId" + userAccessId);
+            return new ResponseEnvelope(false, "缺少参数userAccessId");
+        }
+        log.info(CLASS_LOG_PREFIX + "userAccessId:" + userAccessId);
+
+        //分页参数处理
+        HandlePage handlePage = new HandlePage(currPage, pageSzie).invoke();
+        int start = handlePage.getStart();
+        int limit = handlePage.getLimit();
+        int count = 0;
+        try {
+            count = userCardAccessService.getUserCardAccessOperationLogCount(userAccessId, loginUser, purposeType);
+            if (count == 0) {
+                log.info("获取用户访问名片操作记录为空");
+                return new ResponseEnvelope(true, "获取用户访问名片操作记录成功，数量为0", null);
+            }
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + e);
+            return new ResponseEnvelope(false, "获取用户访问名片操作记录数据异常");
+        }
+
+        List<UserCardAccessRecordVo> userCardAccessRecordVoList = new ArrayList<>(16);
+        try {
+            userCardAccessRecordVoList = userCardAccessService.getUserCardAccessOperationLogList(userAccessId, loginUser, purposeType, start, limit);
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + e);
+            return new ResponseEnvelope(false, "获取用户访问名片操作记录数据异常");
+        }
+
+
+        //将用户访问操作记录置为已读
+        int isReadCount = 0;
+        try {
+            isReadCount = userCardAccessService.updateUserCardAccessOperationLogToIsRead(userAccessId, loginUser, purposeType, start, limit);
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + e);
+        }
+        log.info("将用户访问操作记录置为已读,数量为" + isReadCount);
+
+
+        return new ResponseEnvelope(true, count, userCardAccessRecordVoList);
+
+    }
+
+
+    /*统计用户次数*/
+    @GetMapping("/getAccessCount")
+    public ResponseEnvelope getAccessCount(@RequestParam(required = false, name = "userAccessId") Integer userAccessId) {
+        //登录用户校验
+       LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, CLASS_LOG_PREFIX + "请登录!");
+        }
+
+        log.info(CLASS_LOG_PREFIX + "登录用户:" + gson.toJson(loginUser));
+
+        //校验参数
+        if (null == userAccessId || 0 == userAccessId) {
+            log.error(CLASS_LOG_PREFIX + "缺少参数userAccessId" + userAccessId);
+            return new ResponseEnvelope(false, "缺少参数userAccessId");
+        }
+        log.info(CLASS_LOG_PREFIX + "userAccessId:" + userAccessId);
+
+        //查询数据库访问次数
+        UserCardAccessRecordCount userCardAccessRecordCount;
+        try {
+            userCardAccessRecordCount = userCardAccessService.getUserCardAccessRecordCountInfo(userAccessId);
+            if (userCardAccessRecordCount == null) {
+                log.warn("统计用户访问次数失败");
+                return new ResponseEnvelope(true, "统计用户次数失败", null);
+            }
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + e);
+            return new ResponseEnvelope(false, "统计用户访问次数数据异常");
+        }
+
+
+        return new ResponseEnvelope(true, "统计用户访问次数成功", userCardAccessRecordCount);
+
+
+    }
+
+
+    private class HandlePage {
+        private Integer currPage;
+        private Integer pageSzie;
+        private int start;
+        private int limit;
+
+        public HandlePage(Integer currPage, Integer pageSzie) {
+            this.currPage = currPage;
+            this.pageSzie = pageSzie;
+        }
+
+        public int getStart() {
+            return start;
+        }
+
+        public int getLimit() {
+            return limit;
+        }
+
+        public HandlePage invoke() {
+            start = 0;
+            limit = 0;
+            if (null == pageSzie || 0 == pageSzie) {
+                limit = 10;
+            } else {
+                limit = pageSzie;
+            }
+            if (null == currPage || 0 == currPage) {
+                start = 0;
+            } else {
+                start = (currPage - 1) / pageSzie;
+            }
+            return this;
+        }
+    }
+}

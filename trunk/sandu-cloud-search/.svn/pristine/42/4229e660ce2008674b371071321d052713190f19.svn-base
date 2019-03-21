@@ -1,0 +1,155 @@
+import com.sandu.search.SearchProvider;
+import com.sandu.search.common.util.ProductTypeMatchStrategy;
+import com.sandu.search.entity.elasticsearch.po.*;
+import com.sandu.search.entity.elasticsearch.po.metadate.ProductGroupPo;
+import com.sandu.search.entity.elasticsearch.po.metadate.ProductGroupRelPo;
+import com.sandu.search.entity.elasticsearch.po.metadate.ResPicPo;
+import com.sandu.search.entity.elasticsearch.po.metadate.SystemDictionaryPo;
+import com.sandu.search.exception.MetaDataException;
+import com.sandu.search.service.metadata.MetaDataService;
+import com.sandu.search.storage.system.SystemDictionaryMetaDataStorage;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.List;
+
+/**
+ * 元数据服务测试类
+ *
+ * @date 20171213
+ * @auth pengxuangang
+ */
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = SearchProvider.class)
+public class MetaDataServiceTest {
+
+    @Autowired
+    private MetaDataService metaDataService;
+    @Autowired
+    private ProductTypeMatchStrategy productTypeMatchStrategy;
+    @Autowired
+    private SystemDictionaryMetaDataStorage systemDictionaryMetaDataStorage;
+
+    @Test
+    public void queryProductCategoryMetaDataTest() throws MetaDataException {
+        List<ProductCategoryPo> productCategoryPoList = metaDataService.queryProductCategoryMetaData();
+        String a = "";
+    }
+
+    @Test
+    public void queryProductStyleMetaDataTest() throws MetaDataException {
+        List<ProductStylePo> productStylePoList = metaDataService.queryProductStyleMetaData();
+        String a = "";
+    }
+
+    @Test
+    public void queryProductTextureMetaDataTest() throws MetaDataException {
+        List<ProductTexturePo> productTexturePoList = metaDataService.queryProductTextureMetaData();
+        String a = "";
+    }
+
+    @Test
+    public void queryBrandMetaDataTest() throws MetaDataException {
+        List<BrandPo> brandPoList = metaDataService.queryBrandMetaData();
+        String a = "";
+    }
+
+    @Test
+    public void queryProductCategoryRelMetaDataTest() throws MetaDataException {
+        List<ProductCategoryRelPo> productCategoryRelPoList = metaDataService.queryProductCategoryRelMetaData();
+        String a = "";
+    }
+
+    @Test
+    public void queryRePicMetaDataTest() throws MetaDataException {
+        List<ResPicPo> resPicList = metaDataService.queryResPicMetaData();
+        String a = "";
+    }
+
+    @Test
+    public void queryProductGroupRelMetaDataTest() throws MetaDataException {
+        List<ProductGroupRelPo> productGroupRelPoList = metaDataService.queryProductGroupRelMetaData();
+        String a = "";
+    }
+
+    @Test
+    public void queryProductGroupMetaDataTest() throws MetaDataException {
+        List<ProductGroupPo> productGroupPoList = metaDataService.queryProductGroupMetaData();
+        String a = "";
+    }
+
+    @Test
+    public void queryDesignPlanProductMetaDataTest() throws MetaDataException {
+        long startTime = System.currentTimeMillis();
+        //List<DesignPlanProductPo> designPlanProductPoList = metaDataService.queryDesignPlanProductMetaData();
+        System.out.println((System.currentTimeMillis() - startTime) + "ms");
+        String a = "";
+    }
+
+    @Test
+    public void querySystemDictionaryMetaDataTest() throws MetaDataException {
+        List<SystemDictionaryPo> systemDictionaryPoList = metaDataService.querySystemDictionaryMetaData();
+        String a = "";
+    }
+
+    @Test
+    public void queryProductTypeMatchStrategy() throws MetaDataException {
+
+        /*************************** 排除分类类型 *******************************//*
+        //大类
+        List<SystemDictionaryPo> productTypePoList = systemDictionaryMetaDataStorage.querySystemDictionaryListByType(SystemDictionaryType.SYSTEM_DICTIONARY_TYPE_PRODUCTTYPE);
+        //排除类
+        Map<String, String[]> excludeTypeMap = productTypeMatchStrategy.getExcludeTypeMap();
+        System.out.println("############## 排除分类类型 ###############");
+        for (Map.Entry<String, String[]> entry : excludeTypeMap.entrySet()) {
+            //当前大类名
+            String nowProductTypeName = null;
+            for (SystemDictionaryPo productTypePo : productTypePoList) {
+                if (productTypePo.getDictionaryKey().equals(entry.getKey())) {
+                    nowProductTypeName = productTypePo.getDictionaryName();
+                    break;
+                }
+            }
+            //该大类所有小类
+            List<SystemDictionaryPo> productSmallTypePoList = systemDictionaryMetaDataStorage.querySystemDictionaryListByType(entry.getKey());
+            Map<String, String> nameMap = new HashMap<>(productSmallTypePoList.size());
+            productSmallTypePoList.forEach(productSmallTypePo -> nameMap.put(productSmallTypePo.getDictionaryKey(), productSmallTypePo.getDictionaryName()));
+            //小类集合名
+            StringBuffer productSmallTypeName = new StringBuffer();
+            for (String productSmallTypeValue : entry.getValue()) {
+                productSmallTypeName.append(" [").append(nameMap.get(productSmallTypeValue)).append("]");
+            }
+
+            System.out.println("搜索[" + nowProductTypeName + "]大类时排除小类:" + productSmallTypeName.toString());
+        }
+
+
+        *//*************************** 显示多个小分类类型 *******************************//*
+        System.out.println();
+        System.out.println("############## 显示多个小分类类型 ###############");
+        //查询所有大类的小类
+        List<String> productTypeAllList = new ArrayList<>(productTypePoList.size());
+        productTypePoList.forEach(productTypePo -> productTypeAllList.add(productTypePo.getDictionaryKey()));
+        List<SystemDictionaryPo> productTypePoAllList = systemDictionaryMetaDataStorage.querySystemDictionaryListByType(productTypeAllList);
+        Map<String, String> nameAllMap = new HashMap<>(productTypePoAllList.size());
+        productTypePoAllList.forEach(productSmallTypePo -> nameAllMap.put(productSmallTypePo.getDictionaryKey(), productSmallTypePo.getDictionaryName()));
+
+        //包含小类
+        Map<String, String> showMoreSmallTypeMap = productTypeMatchStrategy.getShowMoreSmallTypeMap();
+        for (Map.Entry<String, String> entry : showMoreSmallTypeMap.entrySet()) {
+            //当前小类名
+            String nowProductSmallTypeName = nameAllMap.get(entry.getKey());
+            //对应小类名
+            StringBuffer nowProductSmallTypeNameSb = new StringBuffer();
+            for (String mappingSmallTypeKey : entry.getValue().split(",")) {
+                nowProductSmallTypeNameSb.append(" [").append(nameAllMap.get(mappingSmallTypeKey)).append("]");
+            }
+            System.out.println("搜索[" + nowProductSmallTypeName + "]小类同时搜索" + nowProductSmallTypeNameSb.toString() + "小类");
+        }
+
+        String a = "";*/
+    }
+}

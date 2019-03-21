@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.onekeydesign.dao.DesignPlanProductDao">
+
+	<resultMap id="DesignProductResultMap" type="com.nork.product.model.result.DesignProductResult">
+		<id column="id" property="productId" jdbcType="INTEGER" />
+		<result  column="product_code" property="productCode" jdbcType="VARCHAR" />
+		<result  column="product_name" property="productName" jdbcType="VARCHAR" />
+		<result  column="product_length" property="productLength" jdbcType="VARCHAR" />
+		<result  column="product_width" property="productWidth" jdbcType="VARCHAR" />
+		<result  column="product_height" property="productHeight" jdbcType="VARCHAR" />
+		<result  column="min_height" property="minHeight" jdbcType="VARCHAR" />
+		<result  column="full_pave_length" property="fullPaveLength" jdbcType="VARCHAR" />
+		<result  column="product_type_value" property="bigTypeValue" jdbcType="VARCHAR" />
+		<result  column="bigTypeKey" property="bigTypeKey" jdbcType="VARCHAR" />
+		<result  column="product_small_type_value" property="smallTypeValue" jdbcType="INTEGER" />
+		<result  column="smallTypeKey" property="smallTypeKey" jdbcType="VARCHAR" />
+		<result  column="bmSmallTypeValue" property="bmSmallTypeValue" jdbcType="INTEGER" />
+		<result  column="product_index" property="productIndex" jdbcType="INTEGER" />
+		<result  column="style_id" property="styleId" jdbcType="INTEGER" />
+		<result  column="color_id" property="colorId" jdbcType="INTEGER" />
+		<result  column="product_style_id_info" property="productStyleIdInfo" jdbcType="VARCHAR" />
+		<result  column="is_standard" property="isStandard" jdbcType="INTEGER" />
+		<result  column="center" property="center" jdbcType="VARCHAR" />
+		<result  column="region_mark" property="regionMark" jdbcType="VARCHAR" />
+		<result  column="measure_code" property="measureCode" jdbcType="VARCHAR" />
+		<result  column="is_main_structure_product" property="isMainStructureProduct" jdbcType="INTEGER" />
+		<result  column="is_group_replace_way" property="isGroupReplaceWay" jdbcType="INTEGER" />
+		<result  column="wall_orientation" property="wallOrientation" jdbcType="VARCHAR" />
+		<result  column="wall_type" property="wallType" jdbcType="VARCHAR" />
+		<result  column="pos_name" property="posName" jdbcType="VARCHAR" />
+		<result  column="split_textures_choose_info" property="splitTexturesChooseInfo" jdbcType="VARCHAR" />
+		<result  column="model_product_id" property="modelProductId" jdbcType="INTEGER" />
+		<result  column="is_main_product" property="isMainProduct" jdbcType="INTEGER" />
+		<result  column="plan_group_id" property="planGroupId" jdbcType="VARCHAR" />
+		<result  column="product_group_id" property="productGroupId" jdbcType="INTEGER" />
+		<result  column="group_type" property="groupType" jdbcType="INTEGER" />
+		<result  column="bind_parent_productId" property="bindParentProductId" jdbcType="VARCHAR" />
+		<result  column="pro_style_id" property="proStyleId" jdbcType="INTEGER" />
+		<result  column="product_model_number" property="productModelNumber" jdbcType="INTEGER" />
+		<result  column="series_sign" property="seriesSign" jdbcType="VARCHAR" />
+	</resultMap>
+
+
+	<select id="findPlanSeriesProductByPlanProuctIds" resultMap="DesignProductResultMap">
+		SELECT
+		bp1.id,bp1.product_code,bp1.product_length,bp1.product_width,bp1.`product_height`,bp1.`product_small_type_value`,bp1.product_type_value,
+		bp2.`product_small_type_value` as bmSmallTypeValue,bp1.style_id as pro_style_id,b.type AS bigTypeKey,b.valuekey as smallTypeKey,
+		dpp.pos_name,dpp.group_type,dpp.`split_textures_choose_info`,dpp.model_product_id,bp2.full_pave_length
+		FROM design_plan_product dpp
+		LEFT JOIN base_product bp1 ON bp1.id = dpp.product_id AND bp1.`is_deleted` = 0
+		LEFT JOIN base_product bp2 ON bp2.id = dpp.`init_product_id` AND bp2.`is_deleted` = 0
+		LEFT JOIN sys_dictionary a ON a.is_deleted = 0 AND a.type ='productType' AND a.value = bp2.product_type_value
+		LEFT JOIN sys_dictionary b ON b.is_deleted = 0 AND b.type = a.valuekey AND b.value =bp2.product_small_type_value
+		WHERE 1 = 1
+		<if test="planProductIdList != null and planProductIdList.size > 0">
+			AND dpp.id IN
+			<foreach collection="planProductIdList" index="index" item="item" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		order by dpp.id ASC
+	</select>
+
+</mapper>

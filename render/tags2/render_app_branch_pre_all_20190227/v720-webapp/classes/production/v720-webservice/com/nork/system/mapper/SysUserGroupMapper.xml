@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.system.dao.SysUserGroupMapper">
+
+	<insert id="insertSysuserGroup" parameterType="com.nork.system.model.SysUserGroup" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO sys_business_group(bid,name,userId,description) VALUE(#{bid},#{name},#{userId},#{description})
+	</insert>
+
+	<update id="updateSysuserGroup" parameterType="com.nork.system.model.SysUserGroup">
+		UPDATE sys_business_group SET  name=#{name} ,utime=NOW() ,description = #{description} WHERE bid=#{bid} AND userId=#{userId} 
+
+	</update>
+
+	<delete id="deleteSysuserGroup" parameterType="com.nork.system.model.SysUserGroup">
+		DELETE FROM sys_business_group WHERE bid=#{bid} AND userId=#{userId} 
+	</delete>
+
+	<delete id="deleteSysuserGroupByBid" parameterType="com.nork.system.model.SysUserGroup">
+		DELETE FROM sys_business_group WHERE bid=#{bid}
+	</delete>
+	
+	<delete id="deleteSysuserGroupRef" parameterType="com.nork.system.model.SysUserGroup">
+		DELETE FROM res_render_pic_group_ref WHERE gid=#{bid}
+	</delete>
+	
+	<select id="listSysuserGroup" parameterType="com.nork.system.model.SysUserGroup"
+		resultType="com.nork.design.model.ThumbData">
+		SELECT C.id AS thumbId, C.pic_path AS pic, A.name AS name, date_format(C.gmt_create, '%Y-%m-%d %H:%m') AS ctime, B.spaceType AS type
+		, C.area AS area,A.shareTimes AS shareTimes,A.bid AS bid,C.design_scene_id as 'sceneId',A.description
+		FROM (SELECT id,bid,shareTimes,name,description
+		FROM sys_business_group
+		WHERE userId = #{userId}
+		<if test="name != null and name!='' ">
+			AND (name LIKE CONCAT('%',#{name},'%') OR description LIKE CONCAT('%',#{name},'%'))
+		</if>
+		) A INNER JOIN res_render_pic_group_ref B ON A.bid = B.gid INNER JOIN res_render_pic C ON B.thumbId = C.id
+		GROUP BY A.id DESC
+<!-- 		ORDER BY C.id DESC -->
+		LIMIT #{start}, #{pageSize}
+	</select>
+	
+	<select id="getGidBySceneId" parameterType="com.nork.system.model.SysUserGroup" resultType="com.nork.system.model.SysUserGroup">
+		SELECT DISTINCT gid  bid FROM res_render_pic_group_ref WHERE sceneId=#{sceneId}
+	</select>
+	
+	<select id="countByGid" parameterType="com.nork.system.model.SysUserGroup" resultType="int">
+		SELECT COUNT(1)   FROM res_render_pic_group_ref WHERE gid=#{bid}
+	</select>
+	
+	<delete id="deleteBySceneId" parameterType="com.nork.system.model.SysUserGroup">
+		DELETE FROM res_render_pic_group_ref WHERE sceneId=#{sceneId}
+	</delete>
+
+	<select id="countSysuserGroup" parameterType="com.nork.system.model.SysUserGroup"
+		resultType="int">
+		SELECT COUNT(1) FROM
+		(
+		SELECT A.id
+		FROM (SELECT id,bid
+		FROM sys_business_group
+		WHERE userId = #{userId}
+		<if test="name != null and name!='' ">
+			AND (name LIKE CONCAT('%',#{name},'%') OR description LIKE CONCAT('%',#{name},'%'))
+		</if>
+		) A INNER JOIN res_render_pic_group_ref B ON A.bid = B.gid INNER JOIN res_render_pic C ON B.thumbId = C.id
+
+		GROUP BY A.id ORDER BY C.id DESC
+<!-- 		LIMIT #{start}, #{pageSize} -->
+		) D
+	</select>
+	
+	<select id="getSysuserGroupByBid" parameterType="com.nork.system.model.SysUserGroup"
+		resultType="com.nork.design.model.ThumbData">
+		SELECT C.id AS thumbId, C.pic_path AS pic, C.design_plan_name AS name, date_format(C.gmt_create, '%Y-%m-%d %H:%m') AS ctime, B.spaceType AS type
+				, C.area AS area
+		FROM (SELECT id,bid
+			FROM sys_business_group
+			WHERE userId = #{userId}
+			AND bid = #{bid}
+			) A INNER JOIN res_render_pic_group_ref B ON A.bid = B.gid INNER JOIN res_render_pic C ON B.thumbId = C.id
+		<if test="name != null and name!='' ">
+			WHERE C.design_plan_name  LIKE CONCAT('%' ,#{name}, '%')
+		</if>
+		GROUP BY A.id ORDER BY C.id DESC
+		LIMIT #{start}, #{pageSize}
+	</select>
+
+	<select id="countSysuserGroupByBid" parameterType="com.nork.system.model.SysUserGroup"
+		resultType="int">
+		SELECT  COUNT(1)
+		FROM
+		(
+			SELECT A.id
+			FROM (SELECT id,bid
+			FROM sys_business_group
+			WHERE userId = #{userId}
+			AND bid = #{bid}
+			) A INNER JOIN res_render_pic_group_ref B ON A.bid = B.gid INNER JOIN res_render_pic C ON B.thumbId = C.id
+			<if test="name != null and name!='' ">
+				WHERE C.design_plan_name LIKE CONCAT('%' ,#{name}, '%')
+			</if>
+			GROUP BY A.id ORDER BY C.id DESC
+		) D
+	</select>
+	
+	<insert id="movein" parameterType="com.nork.design.model.DesignPlanGroup">
+		INSERT INTO res_render_pic_group_ref(bid,gid,thumbId,spaceType,sceneId) VALUE(#{bid},#{gid},#{thumbId},#{spaceType},#{sceneId})
+	</insert>
+	
+  
+  	<delete id="moveout" parameterType="com.nork.design.model.DesignPlanGroup">
+		DELETE FROM res_render_pic_group_ref WHERE bid=#{bid}
+	</delete>
+	
+	<select id="getDesignPlans" parameterType="com.nork.design.model.DesignPlanGroup"
+		resultType="com.nork.design.model.DesignPlanGroup">
+		SELECT bid,gid,thumbId,sceneId FROM res_render_pic_group_ref WHERE gid=#{gid} 
+		<if test="thumbId != null and thumbId!='' ">
+			AND thumbId=#{thumbId}
+		</if>
+		ORDER BY id
+	</select>
+	
+	
+	 <select id="get720ResRenderPicByGid" parameterType="string" resultType="com.nork.system.model.ResRenderPic">
+	SELECT 
+			A.id,rendering_type renderingType,file_key fileKey,pic_path picPath,pid pid,sys_task_pic_id sysTaskPicId,roam roam,design_scene_id designSceneId,C.name picName ,C.description remark
+		FROM 
+			res_render_pic A 
+		INNER  JOIN 
+			(SELECT 
+				thumbId,spaceType,gid
+			FROM 
+					res_render_pic_group_ref B  
+			WHERE B.gid=#{gid}) B 
+			ON A.id=B.thumbId 
+    INNER JOIN
+           sys_business_group C
+    ON B.gid=C.bid
+			WHERE 
+				A.is_deleted=0 AND A.rendering_type IN (8,4)
+	ORDER BY A.id DESC
+	</select>
+	
+	<select id="getHouseTypeBydesignPlanId" parameterType="int" resultType="com.nork.system.model.SysDictionary" >
+		SELECT C.`name` FROM design_plan A ,space_common B, sys_dictionary C WHERE A.id=#{desingnPlanId} AND A.space_common_id=B.id  AND B.space_function_id=C.`value`  AND C.type="houseType"
+	</select>
+	
+	<select id="countList720" parameterType="com.nork.design.model.ThumbData" resultType="int" >
+		SELECT COUNT(1)
+		FROM res_render_pic A
+		WHERE create_user_id =  #{userId}
+			AND rendering_type IN (4, 8)
+			AND file_key="design.designPlan.render.small.pic"
+			
+		<if test="thumbId >0 ">
+				AND  NOT EXISTS (SELECT 1 FROM res_render_pic_group_ref B WHERE B.gid=#{thumbId} AND B.thumbId=A.id)
+		</if>
+		
+		<if test="name != null and name!='' ">
+				AND design_plan_name LIKE  CONCAT('%' ,#{name}, '%')
+		</if>
+	</select>
+	<select id="list720" parameterType="com.nork.design.model.ThumbData" resultType="com.nork.design.model.ThumbData" >
+		SELECT id AS thumbId, pic_path AS pic, design_plan_name AS name, date_format(gmt_create, '%Y-%m-%d %H:%m') AS ctime, rendering_type AS type
+			, area AS area
+		FROM res_render_pic A
+		WHERE create_user_id =  #{userId}
+			AND rendering_type IN (4, 8)
+			AND file_key="design.designPlan.render.small.pic"
+		<if test="thumbId >0 ">
+				AND  NOT EXISTS (SELECT 1 FROM res_render_pic_group_ref B WHERE B.gid=#{thumbId} AND B.thumbId=A.id)
+		</if>
+		
+		<if test="name != null and name!='' ">
+				AND design_plan_name LIKE  CONCAT('%' ,#{name}, '%')
+		</if>
+		
+		
+		ORDER BY id DESC
+		LIMIT #{start}, #{pageSize}
+	</select>
+	
+	<update id="addShareTimes" parameterType="com.nork.design.model.SysBusinessGroup" >
+		UPDATE sys_business_group SET shareTimes =IFNULL(shareTimes,0)+1 WHERE bid=#{bid} AND shareTimes=#{shareTimes};
+	</update>
+	
+	<select id="countListShare" parameterType="string" resultType="int">
+		SELECT IFNULL(shareTimes,0) from sys_business_group  WHERE bid=#{group_businessId}
+	</select>
+	
+	
+	<select id="getBusinessGroupByBid" parameterType="string" resultType="com.nork.design.model.SysBusinessGroup">
+		SELECT id,bid,name,userId,type,ctime,utime,shareTimes,description from sys_business_group  WHERE bid=#{bid}
+	</select>
+	
+	<select id="getCount" parameterType="com.nork.design.model.SysBusinessGroup" resultType="int">
+		SELECT COUNT(*) FROM  sys_business_group  
+		WHERE 1 = 1
+		<if test="name != null and name!='' ">
+			AND name = #{name}
+		</if>
+		<if test="userId != null">
+			AND userId = #{userId}
+		</if>
+	</select>
+	
+	<select id="getGroupRefByBid" parameterType="string" resultType="com.nork.design.model.ResRenderPicGroupRef">
+		SELECT id,bid,gid,thumbId,ctime,utime,spaceType,shareTimes,sceneId from res_render_pic_group_ref  WHERE bid=#{designPlanGroupBid}
+	</select>
+
+	<select id="getGroupDetail" resultType="com.nork.system.model.vo.ShareDetailVo" parameterType="com.nork.system.model.SysUserGroup">
+		SELECT
+		NAME AS groupName,
+		description AS description,
+		shareTimes AS shareTimes,
+		ctime AS ctime
+		FROM
+			sys_business_group
+		WHERE
+			userId = #{userId}
+		AND bid =#{bid}
+	</select>
+
+	<select id="getOnePicDetail" parameterType="int" resultType="com.nork.system.model.vo.GroupPicVo">
+		SELECT
+			A.pic_path AS screenPicPath,
+			C.plan_name AS sceneName,
+			C.remark AS description,
+			C.id AS bid,
+			A.rendering_type AS renderingType,
+			B.pid AS picId,
+			B.id AS smallPicId
+		FROM
+			res_render_pic A
+		INNER JOIN (
+			SELECT
+				sys_task_pic_id,
+				design_scene_id,
+				pid,
+				id
+			FROM
+				res_render_pic
+			WHERE
+				id = #{thumId}
+		) B ON B.sys_task_pic_id = A.id LEFT JOIN design_plan_render_scene C ON C.id=B.design_scene_id
+	</select>
+	
+	 <select id="selectRenderList"  resultType="com.nork.design.model.ThumbData"
+		parameterType="com.nork.design.model.ResRenderPicGroupRef">
+						SELECT
+			bid,
+			gid,
+			thumbId,
+			sceneId,
+			rrp.id AS thumbId,
+			rrp.pic_path AS pic,
+			date_format(
+				rrp.gmt_create,
+				'%Y-%m-%d %H:%i'
+			) AS ctime,
+			rrp.space_type AS type,
+			rrp.area AS area,
+			rrp.business_id AS planId,
+			rrp.design_scene_id AS cpId,
+			dprs.plan_name AS NAME
+		FROM
+			res_render_pic_group_ref AS rrpg
+		LEFT JOIN res_render_pic AS rrp ON (rrpg.thumbId = rrp.id)
+		LEFT JOIN design_plan_render_scene AS dprs ON (
+			rrp.design_scene_id = dprs.id
+		)
+		WHERE
+			gid = #{gid} 
+
+	</select>
+
+	<!-- 根据主键Id查询方案组合信息 -->
+	<select id="selectPlanGroupByPrimaryKey" parameterType="int" resultType="com.nork.system.model.SysUserGroup">
+		select id,bid,shareTimes from sys_business_group where  id = #{id,jdbcType = INTEGER}
+	</select>
+
+</mapper>
+

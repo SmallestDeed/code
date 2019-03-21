@@ -1,0 +1,832 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.product.dao.BaseProductMapper">
+    <!--<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>-->
+    <!-- **插入定义** -->
+    <insert id="insertSelective" parameterType="com.sandu.product.model.BaseProduct" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into base_product
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sysCode!= null">sys_code,</if>
+            <if test="splitTexturesInfo!= null">split_textures_info,</if>
+            <if test="creator!= null">creator,</if>
+            <if test="gmtCreate!= null">gmt_create,</if>
+            <if test="modifier!= null">modifier,</if>
+            <if test="gmtModified!= null">gmt_modified,</if>
+            <if test="isDeleted!= null">is_deleted,</if>
+            <if test="productCode!= null">product_code,</if>
+            <if test="productName!= null">product_name,</if>
+            <if test="brandId!= null">brand_id,</if>
+            <if test="parentId!= null">parent_id,</if>
+            <if test="materialFileId!= null">material_file_id,</if>
+            <if test="spaceComonId!= null">spaceComon_id,</if>
+            <if test="proStyleId!= null">pro_style_id,</if>
+            <if test="productSpec!= null">product_spec,</if>
+            <if test="colorId!= null">color_id,</if>
+            <if test="productLength!= null">product_length,</if>
+            <if test="productWidth!= null">product_width,</if>
+            <if test="productHeight!= null">product_height,</if>
+            <if test="salePrice!= null">sale_price,</if>
+            <if test="picId!= null">pic_id,</if>
+            <if test="modelId!= null">model_id,</if>
+            <if test="productDesc!= null">product_desc,</if>
+            <if test="picIds!= null">pic_ids,</if>
+            <if test="materialPicIds!= null">material_pic_ids,</if>
+            <if test="material3dPicIds!= null">material3d_pic_ids,</if>
+            <if test="houseTypeValues!= null">house_type_values,</if>
+            <if test="productTypeValue!= null">product_type_value,</if>
+            <if test="productTypeMark!= null">product_type_mark,</if>
+            <if test="productSmallTypeMark!= null">product_small_type_mark,</if>
+
+            <if test="productShortCode!= null">product_short_code,</if>
+            <if test="originalProductCode!= null">original_product_code,</if>
+            <if test="bmIds!= null">bm_ids,</if>
+            <if test="codeNumber!= null">code_number,</if>
+            <if test="designTempletId!= null">designTemplet_id,</if>
+
+            <if test="u3dModelId!= null">u3dmodel_Id,</if>
+            <if test="ipadU3dModelId!= null">ipad_u3dmodel_id,</if>
+            <if test="iosU3dModelId!= null">ios_u3dmodel_id,</if>
+            <if test="androidU3dModelId!= null">android_u3dmodel_id,</if>
+            <if test="macBookU3dModelId!= null">macbook_u3dmodel_id,</if>
+            <if test="windowsU3dModelId!= null">windows_u3dmodel_id,</if>
+            <if test="mergeProductIds!= null">merge_product_ids,</if>
+            <if test="decorationId!= null">decoration_id,</if>
+            <if test="designerId!= null">designer_id,</if>
+            <if test="modelingId!= null">modeling_id,</if>
+            <if test="renderingId!= null">rendering_id,</if>
+            <if test="putawayModified!= null">putaway_modified,</if>
+            <if test="dateAtt2!= null">date_att2,</if>
+            <if test="productSmallTypeValue!= null">product_small_type_value,</if>
+            <if test="putawayState!= null">putaway_state,</if>
+            <if test="fbx_state!= null">#{fbxState,jdbcType=INTEGER},</if>
+            <if test="fbx_file_id!= null">#{fbxFileId,jdbcType=INTEGER},</if>
+            <if test="fbx_texture!= null">#{fbxTexture,jdbcType=VARCHAR},</if>
+            <if test="numAtt3!= null">num_att3,</if>
+            <if test="numAtt4!= null">num_att4,</if>
+            <if test="productMaterialDesc!= null">product_material_desc,</if>
+            <if test="remark!= null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sysCode!= null">#{sysCode,jdbcType=VARCHAR},</if>
+            <if test="splitTexturesInfo!= null">#{splitTexturesInfo,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">#{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">#{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER},</if>
+            <if test="productCode!= null">#{productCode,jdbcType=VARCHAR},</if>
+            <if test="productName!= null">#{productName,jdbcType=VARCHAR},</if>
+            <if test="brandId!= null">#{brandId,jdbcType=INTEGER},</if>
+            <if test="parentId!= null">#{parentId,jdbcType=INTEGER},</if>
+            <if test="materialFileId!= null">#{materialFileId,jdbcType=INTEGER},</if>
+            <if test="spaceComonId!= null">#{spaceComonId,jdbcType=INTEGER},</if>
+            <if test="proStyleId!= null">#{proStyleId,jdbcType=INTEGER},</if>
+            <if test="productSpec!= null">#{productSpec,jdbcType=VARCHAR},</if>
+            <if test="colorId!= null">#{colorId,jdbcType=INTEGER},</if>
+            <if test="productLength!= null">#{productLength,jdbcType=VARCHAR},</if>
+            <if test="productWidth!= null">#{productWidth,jdbcType=VARCHAR},</if>
+            <if test="productHeight!= null">#{productHeight,jdbcType=VARCHAR},</if>
+            <if test="salePrice!= null">#{salePrice,jdbcType=DOUBLE},</if>
+            <if test="picId!= null">#{picId,jdbcType=INTEGER},</if>
+            <if test="modelId!= null">#{modelId,jdbcType=INTEGER},</if>
+            <if test="productDesc!= null">#{productDesc,jdbcType=VARCHAR},</if>
+            <if test="picIds!= null">#{picIds,jdbcType=VARCHAR},</if>
+            <if test="materialPicIds!= null">#{materialPicIds,jdbcType=VARCHAR},</if>
+            <if test="material3dPicIds!= null">#{material3dPicIds,jdbcType=VARCHAR},</if>
+            <if test="houseTypeValues!= null">#{houseTypeValues,jdbcType=VARCHAR},</if>
+            <if test="productTypeValue!= null">#{productTypeValue,jdbcType=VARCHAR},</if>
+            <if test="productTypeMark!= null">#{productTypeMark,jdbcType=VARCHAR},</if>
+            <if test="productSmallTypeMark!= null">#{productSmallTypeMark,jdbcType=VARCHAR},</if>
+
+            <if test="productShortCode!= null">#{productShortCode,jdbcType=VARCHAR},</if>
+            <if test="originalProductCode!= null">#{originalProductCode,jdbcType=VARCHAR},</if>
+            <if test="bmIds!= null">#{bmIds,jdbcType=VARCHAR},</if>
+            <if test="codeNumber!= null">#{codeNumber,jdbcType=INTEGER},</if>
+            <if test="designTempletId!= null">#{designTempletId,jdbcType=INTEGER},</if>
+
+            <if test="u3dModelId!= null">#{u3dModelId,jdbcType=VARCHAR},</if>
+            <if test="ipadU3dModelId!= null">#{ipadU3dModelId,jdbcType=INTEGER},</if>
+            <if test="iosU3dModelId!= null">#{iosU3dModelId,jdbcType=INTEGER},</if>
+            <if test="androidU3dModelId!= null">#{androidU3dModelId,jdbcType=INTEGER},</if>
+            <if test="macBookU3dModelId!= null">#{macBookU3dModelId,jdbcType=INTEGER},</if>
+            <if test="windowsU3dModelId!= null">#{windowsU3dModelId,jdbcType=INTEGER},</if>
+            <if test="mergeProductIds!= null">#{mergeProductIds,jdbcType=VARCHAR},</if>
+            <if test="decorationId!= null">#{decorationId,jdbcType=VARCHAR},</if>
+            <if test="designerId!= null">#{designerId,jdbcType=INTEGER},</if>
+            <if test="modelingId!= null">#{modelingId,jdbcType=INTEGER},</if>
+            <if test="renderingId!= null">#{renderingId,jdbcType=INTEGER},</if>
+            <if test="putawayModified!= null">#{putawayModified,jdbcType=TIMESTAMP},</if>
+            <if test="dateAtt2!= null">#{dateAtt2,jdbcType=TIMESTAMP},</if>
+            <if test="productSmallTypeValue!= null">#{productSmallTypeValue,jdbcType=INTEGER},</if>
+            <if test="putawayState!= null">#{putawayState,jdbcType=INTEGER},</if>
+            <if test="fbx_state!= null">#{fbxState,jdbcType=INTEGER},</if>
+            <if test="fbx_file_id!= null">#{fbxFileId,jdbcType=INTEGER},</if>
+            <if test="fbx_texture!= null">#{fbxTexture,jdbcType=VARCHAR},</if>
+            <if test="numAtt3!= null">#{numAtt3,jdbcType=DOUBLE},</if>
+            <if test="numAtt4!= null">#{numAtt4,jdbcType=DOUBLE},</if>
+            <if test="productMaterialDesc!= null">#{productMaterialDesc,jdbcType=VARCHAR},</if>
+            <if test="remark!= null">#{remark,jdbcType=VARCHAR},</if>
+        </trim>
+    </insert>
+
+    <insert id="insertEntity" parameterType="com.sandu.sync.model.ProductEntity" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into base_product
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sysCode!= null">sys_code,</if>
+            <if test="splitTexturesInfo!= null">split_textures_info,</if>
+            <if test="creator!= null">creator,</if>
+            <if test="gmtCreate!= null">gmt_create,</if>
+            <if test="modifier!= null">modifier,</if>
+            <if test="gmtModified!= null">gmt_modified,</if>
+            <if test="isDeleted!= null">is_deleted,</if>
+            <if test="productCode!= null">product_code,</if>
+            <if test="productName!= null">product_name,</if>
+            <if test="brandId!= null">brand_id,</if>
+            <if test="parentId!= null">parent_id,</if>
+            <if test="materialFileId!= null">material_file_id,</if>
+            <if test="spaceComonId!= null">spaceComon_id,</if>
+            <if test="proStyleId!= null">pro_style_id,</if>
+            <if test="productSpec!= null">product_spec,</if>
+            <if test="colorId!= null">color_id,</if>
+            <if test="productLength!= null">product_length,</if>
+            <if test="productWidth!= null">product_width,</if>
+            <if test="productHeight!= null">product_height,</if>
+            <if test="salePrice!= null">sale_price,</if>
+            <if test="picId!= null">pic_id,</if>
+            <if test="modelId!= null">model_id,</if>
+            <if test="productDesc!= null">product_desc,</if>
+            <if test="picIds!= null">pic_ids,</if>
+            <if test="materialPicIds!= null">material_pic_ids,</if>
+            <if test="material3dPicIds!= null">material3d_pic_ids,</if>
+            <if test="houseTypeValues!= null">house_type_values,</if>
+            <if test="productTypeValue!= null">product_type_value,</if>
+            <if test="productTypeMark!= null">product_type_mark,</if>
+            <if test="productSmallTypeMark!= null">product_small_type_mark,</if>
+
+            <if test="productShortCode!= null">product_short_code,</if>
+            <if test="originalProductCode!= null">original_product_code,</if>
+            <if test="bmIds!= null">bm_ids,</if>
+            <if test="codeNumber!= null">code_number,</if>
+            <if test="designTempletId!= null">designTemplet_id,</if>
+
+            <if test="u3dModelId!= null">u3dmodel_Id,</if>
+            <if test="ipadU3dModelId!= null">ipad_u3dmodel_id,</if>
+            <if test="iosU3dModelId!= null">ios_u3dmodel_id,</if>
+            <if test="androidU3dModelId!= null">android_u3dmodel_id,</if>
+            <if test="macBookU3dModelId!= null">macbook_u3dmodel_id,</if>
+            <if test="windowsU3dModelId!= null">windows_u3dmodel_id,</if>
+            <if test="mergeProductIds!= null">merge_product_ids,</if>
+            <if test="decorationId!= null">decoration_id,</if>
+            <if test="designerId!= null">designer_id,</if>
+            <if test="modelingId!= null">modeling_id,</if>
+            <if test="renderingId!= null">rendering_id,</if>
+            <if test="putawayModified!= null">putaway_modified,</if>
+            <if test="dateAtt2!= null">date_att2,</if>
+            <if test="productSmallTypeValue!= null">product_small_type_value,</if>
+            <if test="putawayState!= null">putaway_state,</if>
+            <if test="numAtt3!= null">num_att3,</if>
+            <if test="numAtt4!= null">num_att4,</if>
+            <if test="remark!= null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sysCode!= null">#{sysCode,jdbcType=VARCHAR},</if>
+            <if test="splitTexturesInfo!= null">#{splitTexturesInfo,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">#{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">#{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER},</if>
+            <if test="productCode!= null">#{productCode,jdbcType=VARCHAR},</if>
+            <if test="productName!= null">#{productName,jdbcType=VARCHAR},</if>
+            <if test="brandId!= null">#{brandId,jdbcType=INTEGER},</if>
+            <if test="parentId!= null">#{parentId,jdbcType=INTEGER},</if>
+            <if test="materialFileId!= null">#{materialFileId,jdbcType=INTEGER},</if>
+            <if test="spaceComonId!= null">#{spaceComonId,jdbcType=INTEGER},</if>
+            <if test="proStyleId!= null">#{proStyleId,jdbcType=INTEGER},</if>
+            <if test="productSpec!= null">#{productSpec,jdbcType=VARCHAR},</if>
+            <if test="colorId!= null">#{colorId,jdbcType=INTEGER},</if>
+            <if test="productLength!= null">#{productLength,jdbcType=VARCHAR},</if>
+            <if test="productWidth!= null">#{productWidth,jdbcType=VARCHAR},</if>
+            <if test="productHeight!= null">#{productHeight,jdbcType=VARCHAR},</if>
+            <if test="salePrice!= null">#{salePrice,jdbcType=DOUBLE},</if>
+            <if test="picId!= null">#{picId,jdbcType=INTEGER},</if>
+            <if test="modelId!= null">#{modelId,jdbcType=INTEGER},</if>
+            <if test="productDesc!= null">#{productDesc,jdbcType=VARCHAR},</if>
+            <if test="picIds!= null">#{picIds,jdbcType=VARCHAR},</if>
+            <if test="materialPicIds!= null">#{materialPicIds,jdbcType=VARCHAR},</if>
+            <if test="material3dPicIds!= null">#{material3dPicIds,jdbcType=VARCHAR},</if>
+            <if test="houseTypeValues!= null">#{houseTypeValues,jdbcType=VARCHAR},</if>
+            <if test="productTypeValue!= null">#{productTypeValue,jdbcType=VARCHAR},</if>
+            <if test="productTypeMark!= null">#{productTypeMark,jdbcType=VARCHAR},</if>
+            <if test="productSmallTypeMark!= null">#{productSmallTypeMark,jdbcType=VARCHAR},</if>
+
+            <if test="productShortCode!= null">#{productShortCode,jdbcType=VARCHAR},</if>
+            <if test="originalProductCode!= null">#{originalProductCode,jdbcType=VARCHAR},</if>
+            <if test="bmIds!= null">#{bmIds,jdbcType=VARCHAR},</if>
+            <if test="codeNumber!= null">#{codeNumber,jdbcType=INTEGER},</if>
+            <if test="designTempletId!= null">#{designTempletId,jdbcType=INTEGER},</if>
+
+            <if test="u3dModelId!= null">#{u3dModelId,jdbcType=VARCHAR},</if>
+            <if test="ipadU3dModelId!= null">#{ipadU3dModelId,jdbcType=INTEGER},</if>
+            <if test="iosU3dModelId!= null">#{iosU3dModelId,jdbcType=INTEGER},</if>
+            <if test="androidU3dModelId!= null">#{androidU3dModelId,jdbcType=INTEGER},</if>
+            <if test="macBookU3dModelId!= null">#{macBookU3dModelId,jdbcType=INTEGER},</if>
+            <if test="windowsU3dModelId!= null">#{windowsU3dModelId,jdbcType=INTEGER},</if>
+            <if test="mergeProductIds!= null">#{mergeProductIds,jdbcType=VARCHAR},</if>
+            <if test="decorationId!= null">#{decorationId,jdbcType=VARCHAR},</if>
+            <if test="designerId!= null">#{designerId,jdbcType=INTEGER},</if>
+            <if test="modelingId!= null">#{modelingId,jdbcType=INTEGER},</if>
+            <if test="renderingId!= null">#{renderingId,jdbcType=INTEGER},</if>
+            <if test="putawayModified!= null">#{putawayModified,jdbcType=TIMESTAMP},</if>
+            <if test="dateAtt2!= null">#{dateAtt2,jdbcType=TIMESTAMP},</if>
+            <if test="productSmallTypeValue!= null">#{productSmallTypeValue,jdbcType=INTEGER},</if>
+            <if test="putawayState!= null">#{putawayState,jdbcType=INTEGER},</if>
+            <if test="numAtt3!= null">#{numAtt3,jdbcType=DOUBLE},</if>
+            <if test="numAtt4!= null">#{numAtt4,jdbcType=DOUBLE},</if>
+            <if test="remark!= null">#{remark,jdbcType=VARCHAR},</if>
+        </trim>
+    </insert>
+
+    <!-- **更新定义** -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.product.model.BaseProduct">
+        update base_product
+        <set>
+            <if test="sysCode!= null">sys_code = #{sysCode,jdbcType=VARCHAR},</if>
+            <if test="splitTexturesInfo!= null">split_textures_info = #{splitTexturesInfo,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">creator = #{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">modifier = #{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">is_deleted = #{isDeleted,jdbcType=INTEGER},</if>
+            <if test="productCode!= null">product_code = #{productCode,jdbcType=VARCHAR},</if>
+            <if test="productName!= null">product_name = #{productName,jdbcType=VARCHAR},</if>
+            <if test="brandId!= null">brand_id = #{brandId,jdbcType=INTEGER},</if>
+            <if test="parentId!= null">parent_id = #{parentId,jdbcType=INTEGER},</if>
+            <if test="materialFileId!= null">material_file_id = #{materialFileId,jdbcType=INTEGER},</if>
+            <if test="spaceComonId!= null">spaceComon_id = #{spaceComonId,jdbcType=INTEGER},</if>
+            <if test="proStyleId!= null">pro_style_id = #{proStyleId,jdbcType=INTEGER},</if>
+            <if test="productSpec!= null">product_spec = #{productSpec,jdbcType=VARCHAR},</if>
+            <if test="colorId!= null">color_id = #{colorId,jdbcType=INTEGER},</if>
+            <if test="productLength!= null">product_length = #{productLength,jdbcType=VARCHAR},</if>
+            <if test="productWidth!= null">product_width = #{productWidth,jdbcType=VARCHAR},</if>
+            <if test="productHeight!= null">product_height = #{productHeight,jdbcType=VARCHAR},</if>
+            <if test="salePrice!= null">sale_price = #{salePrice,jdbcType=DOUBLE},</if>
+            <if test="picId!= null">pic_id = #{picId,jdbcType=INTEGER},</if>
+            <if test="modelId!= null">model_id = #{modelId,jdbcType=INTEGER},</if>
+            <if test="productDesc!= null">product_desc = #{productDesc,jdbcType=VARCHAR},</if>
+            <if test="picIds!= null">pic_ids = #{picIds,jdbcType=VARCHAR},</if>
+            <if test="materialPicIds!= null">material_pic_ids = #{materialPicIds,jdbcType=VARCHAR},</if>
+            <if test="material3dPicIds!= null">material3d_pic_ids = #{material3dPicIds,jdbcType=VARCHAR},</if>
+            <if test="houseTypeValues!= null">house_type_values = #{houseTypeValues,jdbcType=VARCHAR},</if>
+            <if test="productTypeValue!= null">product_type_value = #{productTypeValue,jdbcType=VARCHAR},</if>
+            <if test="productTypeMark!= null">product_type_mark = #{productTypeMark,jdbcType=VARCHAR},</if>
+            <if test="productSmallTypeMark!= null">product_small_type_mark = #{productSmallTypeMark,jdbcType=VARCHAR},
+            </if>
+
+            <if test="productShortCode!= null">product_short_code = #{productShortCode,jdbcType=VARCHAR},</if>
+            <if test="originalProductCode!= null">original_product_code = #{originalProductCode,jdbcType=VARCHAR},</if>
+            <if test="bmIds!= null">bm_ids = #{bmIds,jdbcType=VARCHAR},</if>
+            <if test="codeNumber!= null">code_number = #{codeNumber,jdbcType=INTEGER},</if>
+            <if test="designTempletId!= null">designTemplet_id = #{designTempletId,jdbcType=INTEGER},</if>
+
+            <if test="u3dModelId!= null">u3dmodel_Id = #{u3dModelId,jdbcType=VARCHAR},</if>
+            <if test="ipadU3dModelId!= null">ipad_u3dmodel_id = #{ipadU3dModelId,jdbcType=INTEGER},</if>
+            <if test="iosU3dModelId!= null">ios_u3dmodel_id = #{iosU3dModelId,jdbcType=INTEGER},</if>
+            <if test="androidU3dModelId!= null">android_u3dmodel_id = #{androidU3dModelId,jdbcType=INTEGER},</if>
+            <if test="macBookU3dModelId!= null">macbook_u3dmodel_id = #{macBookU3dModelId,jdbcType=INTEGER},</if>
+            <if test="windowsU3dModelId!= null">windows_u3dmodel_id = #{windowsU3dModelId,jdbcType=INTEGER},</if>
+            <if test="mergeProductIds!= null">merge_product_ids = #{mergeProductIds,jdbcType=VARCHAR},</if>
+            <if test="decorationId!= null">decoration_id = #{decorationId,jdbcType=VARCHAR},</if>
+            <if test="designerId!= null">designer_id = #{designerId,jdbcType=INTEGER},</if>
+            <if test="modelingId!= null">modeling_id = #{modelingId,jdbcType=INTEGER},</if>
+            <if test="renderingId!= null">rendering_id = #{renderingId,jdbcType=INTEGER},</if>
+            <if test="putawayModified!= null">putaway_modified = #{putawayModified,jdbcType=TIMESTAMP},</if>
+            <if test="dateAtt2!= null">date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},</if>
+            <if test="productSmallTypeValue!= null">product_small_type_value =
+                #{productSmallTypeValue,jdbcType=INTEGER},
+            </if>
+            <if test="putawayState!= null">putaway_state = #{putawayState,jdbcType=INTEGER},</if>
+            <if test="configId!=null">config_id = #{configId,jdbcType=INTEGER},</if>
+            <if test="fbxState!= null">fbx_state = #{fbxState,jdbcType=INTEGER},</if>
+            <if test="fbxFileId!= null">fbx_file_id = #{fbxFileId,jdbcType=INTEGER},</if>
+            <if test="fbxTexture!= null">fbx_texture = #{fbxTexture,jdbcType=VARCHAR},</if>
+            <if test="numAtt3!= null">num_att3 = #{numAtt3,jdbcType=DOUBLE},</if>
+            <if test="numAtt4!= null">num_att4 = #{numAtt4,jdbcType=DOUBLE},</if>
+            <if test="remark!= null">remark = #{remark,jdbcType=VARCHAR},</if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!-- **更新定义** -->
+    <update id="updateEntity" parameterType="com.sandu.sync.model.ProductEntity">
+        update base_product
+        <set>
+            <if test="sysCode!= null">sys_code = #{sysCode,jdbcType=VARCHAR},</if>
+            <if test="splitTexturesInfo!= null">split_textures_info = #{splitTexturesInfo,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">creator = #{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">modifier = #{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">is_deleted = #{isDeleted,jdbcType=INTEGER},</if>
+            <if test="productCode!= null">product_code = #{productCode,jdbcType=VARCHAR},</if>
+            <if test="productName!= null">product_name = #{productName,jdbcType=VARCHAR},</if>
+            <if test="brandId!= null">brand_id = #{brandId,jdbcType=INTEGER},</if>
+            <if test="parentId!= null">parent_id = #{parentId,jdbcType=INTEGER},</if>
+            <if test="materialFileId!= null">material_file_id = #{materialFileId,jdbcType=INTEGER},</if>
+            <if test="spaceComonId!= null">spaceComon_id = #{spaceComonId,jdbcType=INTEGER},</if>
+            <if test="proStyleId!= null">pro_style_id = #{proStyleId,jdbcType=INTEGER},</if>
+            <if test="productSpec!= null">product_spec = #{productSpec,jdbcType=VARCHAR},</if>
+            <if test="colorId!= null">color_id = #{colorId,jdbcType=INTEGER},</if>
+            <if test="productLength!= null">product_length = #{productLength,jdbcType=VARCHAR},</if>
+            <if test="productWidth!= null">product_width = #{productWidth,jdbcType=VARCHAR},</if>
+            <if test="productHeight!= null">product_height = #{productHeight,jdbcType=VARCHAR},</if>
+            <if test="salePrice!= null">sale_price = #{salePrice,jdbcType=DOUBLE},</if>
+            <if test="picId!= null">pic_id = #{picId,jdbcType=INTEGER},</if>
+            <if test="modelId!= null">model_id = #{modelId,jdbcType=INTEGER},</if>
+            <if test="productDesc!= null">product_desc = #{productDesc,jdbcType=VARCHAR},</if>
+            <if test="picIds!= null">pic_ids = #{picIds,jdbcType=VARCHAR},</if>
+            <if test="materialPicIds!= null">material_pic_ids = #{materialPicIds,jdbcType=VARCHAR},</if>
+            <if test="material3dPicIds!= null">material3d_pic_ids = #{material3dPicIds,jdbcType=VARCHAR},</if>
+            <if test="houseTypeValues!= null">house_type_values = #{houseTypeValues,jdbcType=VARCHAR},</if>
+            <if test="productTypeValue!= null">product_type_value = #{productTypeValue,jdbcType=VARCHAR},</if>
+            <if test="productTypeMark!= null">product_type_mark = #{productTypeMark,jdbcType=VARCHAR},</if>
+            <if test="productSmallTypeMark!= null">product_small_type_mark = #{productSmallTypeMark,jdbcType=VARCHAR},
+            </if>
+
+            <if test="productShortCode!= null">product_short_code = #{productShortCode,jdbcType=VARCHAR},</if>
+            <if test="originalProductCode!= null">original_product_code = #{originalProductCode,jdbcType=VARCHAR},</if>
+            <if test="bmIds!= null">bm_ids = #{bmIds,jdbcType=VARCHAR},</if>
+            <if test="codeNumber!= null">code_number = #{codeNumber,jdbcType=INTEGER},</if>
+            <if test="designTempletId!= null">designTemplet_id = #{designTempletId,jdbcType=INTEGER},</if>
+
+            <if test="u3dModelId!= null">u3dmodel_Id = #{u3dModelId,jdbcType=VARCHAR},</if>
+            <if test="ipadU3dModelId!= null">ipad_u3dmodel_id = #{ipadU3dModelId,jdbcType=INTEGER},</if>
+            <if test="iosU3dModelId!= null">ios_u3dmodel_id = #{iosU3dModelId,jdbcType=INTEGER},</if>
+            <if test="androidU3dModelId!= null">android_u3dmodel_id = #{androidU3dModelId,jdbcType=INTEGER},</if>
+            <if test="macBookU3dModelId!= null">macbook_u3dmodel_id = #{macBookU3dModelId,jdbcType=INTEGER},</if>
+            <if test="windowsU3dModelId!= null">windows_u3dmodel_id = #{windowsU3dModelId,jdbcType=INTEGER},</if>
+            <if test="mergeProductIds!= null">merge_product_ids = #{mergeProductIds,jdbcType=VARCHAR},</if>
+            <if test="decorationId!= null">decoration_id = #{decorationId,jdbcType=VARCHAR},</if>
+            <if test="designerId!= null">designer_id = #{designerId,jdbcType=INTEGER},</if>
+            <if test="modelingId!= null">modeling_id = #{modelingId,jdbcType=INTEGER},</if>
+            <if test="renderingId!= null">rendering_id = #{renderingId,jdbcType=INTEGER},</if>
+            <if test="putawayModified!= null">putaway_modified = #{putawayModified,jdbcType=TIMESTAMP},</if>
+            <if test="dateAtt2!= null">date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},</if>
+            <if test="productSmallTypeValue!= null">product_small_type_value =
+                #{productSmallTypeValue,jdbcType=INTEGER},
+            </if>
+            <if test="putawayState!= null">putaway_state = #{putawayState,jdbcType=INTEGER},</if>
+            <if test="configId!=null">config_id = #{configId,jdbcType=INTEGER},</if>
+            <if test="numAtt3!= null">num_att3 = #{numAtt3,jdbcType=DOUBLE},</if>
+            <if test="numAtt4!= null">num_att4 = #{numAtt4,jdbcType=DOUBLE},</if>
+            <if test="remark!= null">remark = #{remark,jdbcType=VARCHAR},</if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!-- **删除定义** -->
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from base_product
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <delete id="deleteByCode" parameterType="java.lang.String">
+        delete from base_product
+        where product_code = #{productCode,jdbcType=VARCHAR}
+    </delete>
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">id,sys_code,<!-- is_reduction,design_plan_id, -->
+        split_textures_info,creator,gmt_create,modifier,gmt_modified,is_deleted,product_code,product_name,decoration_id,spaceComon_id,designer_id,modeling_id,min_height,full_pave_length,rendering_id,brand_id,parent_id,material_file_id,pro_style_id,product_spec,color_id,product_length,product_width,product_height,sale_price,pic_id,model_id,product_desc,pic_ids,material_pic_ids,material3d_pic_ids,house_type_values,product_type_value,product_type_mark,product_small_type_mark,product_short_code,original_product_code,bm_ids,code_number,designTemplet_id,u3dmodel_Id,ipad_u3dmodel_id,ios_u3dmodel_id,android_u3dmodel_id,macbook_u3dmodel_id,windows_u3dmodel_id,merge_product_ids,putaway_modified,date_att2,product_small_type_value,putaway_state,num_att3,num_att4,remark,product_model_number,sale_price_value,product_material_desc,colors_long_code,base_product.fbx_state,base_product.fbx_file_id,base_product.fbx_texture,base_product.config_id,product_style_id_info,style_id,product_smallpox_identify
+    </sql>
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.sandu.product.model.BaseProduct">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="sys_code" property="sysCode" jdbcType="VARCHAR"/>
+        <result column="split_textures_info" property="splitTexturesInfo" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="product_code" property="productCode" jdbcType="VARCHAR"/>
+        <result column="product_name" property="productName" jdbcType="VARCHAR"/>
+        <result column="brand_id" property="brandId" jdbcType="INTEGER"/>
+        <result column="parent_id" property="parentId" jdbcType="INTEGER"/>
+        <result column="material_file_id" property="materialFileId" jdbcType="INTEGER"/>
+        <result column="spaceComon_id" property="spaceComonId" jdbcType="INTEGER"/>
+        <result column="pro_style_id" property="proStyleId" jdbcType="INTEGER"/>
+        <result column="product_spec" property="productSpec" jdbcType="VARCHAR"/>
+        <result column="color_id" property="colorId" jdbcType="INTEGER"/>
+        <result column="product_length" property="productLength" jdbcType="VARCHAR"/>
+        <result column="product_width" property="productWidth" jdbcType="VARCHAR"/>
+        <result column="product_height" property="productHeight" jdbcType="VARCHAR"/>
+        <result column="min_height" property="minHeight" jdbcType="VARCHAR"/>
+        <result column="full_pave_length" property="fullPaveLength" jdbcType="VARCHAR"/>
+        <result column="sale_price" property="salePrice" jdbcType="DOUBLE"/>
+        <result column="pic_id" property="picId" jdbcType="INTEGER"/>
+        <result column="model_id" property="modelId" jdbcType="INTEGER"/>
+        <result column="product_desc" property="productDesc" jdbcType="VARCHAR"/>
+        <result column="pic_ids" property="picIds" jdbcType="VARCHAR"/>
+        <result column="material_pic_ids" property="materialPicIds" jdbcType="VARCHAR"/>
+        <result column="material3d_pic_ids" property="material3dPicIds" jdbcType="VARCHAR"/>
+        <result column="house_type_values" property="houseTypeValues" jdbcType="VARCHAR"/>
+        <result column="product_type_value" property="productTypeValue" jdbcType="VARCHAR"/>
+        <result column="product_type_mark" property="productTypeMark" jdbcType="VARCHAR"/>
+        <result column="product_small_type_mark" property="productSmallTypeMark" jdbcType="VARCHAR"/>
+        <result column="product_short_code" property="productShortCode" jdbcType="VARCHAR"/>
+        <result column="original_product_code" property="originalProductCode" jdbcType="VARCHAR"/>
+        <result column="bm_ids" property="bmIds" jdbcType="VARCHAR"/>
+        <result column="code_number" property="codeNumber" jdbcType="INTEGER"/>
+        <result column="designTemplet_id" property="designTempletId" jdbcType="INTEGER"/>
+        <result column="u3dmodel_Id" property="u3dModelId" jdbcType="VARCHAR"/>
+        <result column="ipad_u3dmodel_id" property="ipadU3dModelId" jdbcType="INTEGER"/>
+        <result column="ios_u3dmodel_id" property="iosU3dModelId" jdbcType="INTEGER"/>
+        <result column="android_u3dmodel_id" property="androidU3dModelId" jdbcType="INTEGER"/>
+        <result column="macbook_u3dmodel_id" property="macBookU3dModelId" jdbcType="INTEGER"/>
+        <result column="windows_u3dmodel_id" property="windowsU3dModelId" jdbcType="INTEGER"/>
+        <result column="merge_product_ids" property="mergeProductIds" jdbcType="VARCHAR"/>
+        <result column="decoration_id" property="decorationId" jdbcType="VARCHAR"/>
+        <result column="designer_id" property="designerId" jdbcType="INTEGER"/>
+        <result column="modeling_id" property="modelingId" jdbcType="INTEGER"/>
+        <result column="rendering_id" property="renderingId" jdbcType="INTEGER"/>
+        <result column="putaway_modified" property="putawayModified" jdbcType="TIMESTAMP"/>
+        <result column="date_att2" property="dateAtt2" jdbcType="TIMESTAMP"/>
+        <result column="product_small_type_value" property="productSmallTypeValue" jdbcType="INTEGER"/>
+        <result column="putaway_state" property="putawayState" jdbcType="INTEGER"/>
+        <result column="fbx_state" property="fbxState" jdbcType="INTEGER"/>
+        <result column="fbx_file_id" property="fbxFileId" jdbcType="INTEGER"/>
+        <result column="fbx_texture" property="fbxTexture" jdbcType="VARCHAR"/>
+        <result column="config_id" property="configId" jdbcType="INTEGER"/>
+        <result column="file_path" property="filePath" jdbcType="VARCHAR"/>
+        <result column="num_att3" property="numAtt3" jdbcType="DOUBLE"/>
+        <result column="num_att4" property="numAtt4" jdbcType="DOUBLE"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="product_material_desc" property="productMaterialDesc" jdbcType="VARCHAR"/>
+        <result column="product_model_number" property="productModelNumber" jdbcType="VARCHAR"/>
+        <result column="sale_price_value" property="salePriceValue" jdbcType="INTEGER"/>
+        <result column="colors_long_code" property="colorsLongCode" jdbcType="VARCHAR"/>
+        <result column="product_style_id_info" property="productStyleIdInfo" jdbcType="VARCHAR"/>
+        <result column="style_id" property="styleId" jdbcType="INTEGER"/>
+        <result column="prop_info" property="propInfo" jdbcType="VARCHAR"/>
+        <result column="product_type_code" property="productTypeCode" jdbcType="VARCHAR"/>
+        <result column="product_small_type_code" property="productSmallTypeCode" jdbcType="VARCHAR"/>
+        <result column="product_index" property="productIndex" jdbcType="INTEGER"/>
+        <result column="design_plan_product_id" property="designPlanProductId" jdbcType="INTEGER"/>
+        <result column="att1" property="att1" jdbcType="VARCHAR"/>
+        <result column="product_smallpox_identify" property="productSmallpoxIdentify" jdbcType="INTEGER"/>
+        <result column="big_type_valuekey" property="bigTypeValueKey" jdbcType="VARCHAR"/>
+        <result column="small_type_valuekey" property="smallTypeValueKey" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap2" type="com.sandu.product.model.BaseProduct">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="sys_code" property="sysCode" jdbcType="VARCHAR"/>
+        <result column="split_textures_info" property="splitTexturesInfo" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="product_code" property="productCode" jdbcType="VARCHAR"/>
+        <result column="product_name" property="productName" jdbcType="VARCHAR"/>
+        <result column="brand_id" property="brandId" jdbcType="INTEGER"/>
+        <result column="parent_id" property="parentId" jdbcType="INTEGER"/>
+        <result column="material_file_id" property="materialFileId" jdbcType="INTEGER"/>
+        <result column="spaceComon_id" property="spaceComonId" jdbcType="INTEGER"/>
+        <result column="pro_style_id" property="proStyleId" jdbcType="INTEGER"/>
+        <result column="product_spec" property="productSpec" jdbcType="VARCHAR"/>
+        <result column="color_id" property="colorId" jdbcType="INTEGER"/>
+        <result column="product_length" property="productLength" jdbcType="VARCHAR"/>
+        <result column="product_width" property="productWidth" jdbcType="VARCHAR"/>
+        <result column="product_height" property="productHeight" jdbcType="VARCHAR"/>
+        <result column="min_height" property="minHeight" jdbcType="VARCHAR"/>
+        <result column="full_pave_length" property="fullPaveLength" jdbcType="VARCHAR"/>
+        <result column="sale_price" property="salePrice" jdbcType="DOUBLE"/>
+        <result column="pic_id" property="picId" jdbcType="INTEGER"/>
+        <result column="model_id" property="modelId" jdbcType="INTEGER"/>
+        <result column="product_desc" property="productDesc" jdbcType="VARCHAR"/>
+        <result column="pic_ids" property="picIds" jdbcType="VARCHAR"/>
+        <result column="material_pic_ids" property="materialPicIds" jdbcType="VARCHAR"/>
+        <result column="material3d_pic_ids" property="material3dPicIds" jdbcType="VARCHAR"/>
+        <result column="house_type_values" property="houseTypeValues" jdbcType="VARCHAR"/>
+        <result column="product_type_value" property="productTypeValue" jdbcType="VARCHAR"/>
+        <result column="product_type_mark" property="productTypeMark" jdbcType="VARCHAR"/>
+        <result column="product_small_type_mark" property="productSmallTypeMark" jdbcType="VARCHAR"/>
+        <result column="product_short_code" property="productShortCode" jdbcType="VARCHAR"/>
+        <result column="original_product_code" property="originalProductCode" jdbcType="VARCHAR"/>
+        <result column="bm_ids" property="bmIds" jdbcType="VARCHAR"/>
+        <result column="code_number" property="codeNumber" jdbcType="INTEGER"/>
+        <result column="designTemplet_id" property="designTempletId" jdbcType="INTEGER"/>
+        <result column="u3dmodel_Id" property="u3dModelId" jdbcType="VARCHAR"/>
+        <result column="ipad_u3dmodel_id" property="ipadU3dModelId" jdbcType="INTEGER"/>
+        <result column="ios_u3dmodel_id" property="iosU3dModelId" jdbcType="INTEGER"/>
+        <result column="android_u3dmodel_id" property="androidU3dModelId" jdbcType="INTEGER"/>
+        <result column="macbook_u3dmodel_id" property="macBookU3dModelId" jdbcType="INTEGER"/>
+        <result column="windows_u3dmodel_id" property="windowsU3dModelId" jdbcType="INTEGER"/>
+        <result column="merge_product_ids" property="mergeProductIds" jdbcType="VARCHAR"/>
+        <result column="decoration_id" property="decorationId" jdbcType="VARCHAR"/>
+        <result column="designer_id" property="designerId" jdbcType="INTEGER"/>
+        <result column="modeling_id" property="modelingId" jdbcType="INTEGER"/>
+        <result column="rendering_id" property="renderingId" jdbcType="INTEGER"/>
+        <result column="putaway_modified" property="putawayModified" jdbcType="TIMESTAMP"/>
+        <result column="date_att2" property="dateAtt2" jdbcType="TIMESTAMP"/>
+        <result column="product_small_type_value" property="productSmallTypeValue" jdbcType="INTEGER"/>
+        <result column="putaway_state" property="putawayState" jdbcType="INTEGER"/>
+        <result column="fbx_state" property="fbxState" jdbcType="INTEGER"/>
+        <result column="fbx_file_id" property="fbxFileId" jdbcType="INTEGER"/>
+        <result column="fbx_texture" property="fbxTexture" jdbcType="VARCHAR"/>
+        <result column="config_id" property="configId" jdbcType="INTEGER"/>
+        <result column="file_path" property="filePath" jdbcType="VARCHAR"/>
+        <result column="num_att3" property="numAtt3" jdbcType="DOUBLE"/>
+        <result column="num_att4" property="numAtt4" jdbcType="DOUBLE"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="product_material_desc" property="productMaterialDesc" jdbcType="VARCHAR"/>
+        <result column="product_model_number" property="productModelNumber" jdbcType="VARCHAR"/>
+        <result column="sale_price_value" property="salePriceValue" jdbcType="INTEGER"/>
+        <result column="colors_long_code" property="colorsLongCode" jdbcType="VARCHAR"/>
+        <result column="product_style_id_info" property="productStyleIdInfo" jdbcType="VARCHAR"/>
+        <result column="style_id" property="styleId" jdbcType="INTEGER"/>
+        <result column="prop_info" property="propInfo" jdbcType="VARCHAR"/>
+        <result column="materialConfigPath" property="materialConfigPath" jdbcType="VARCHAR"/>
+        <result column="dicSmallTypeValue" property="dicSmallTypeValue" jdbcType="INTEGER"/>
+        <result column="product_smallpox_identify" property="productSmallpoxIdentify" jdbcType="INTEGER"/>
+    </resultMap>
+    <select id="selectByProductCode" resultMap="AllResultMap" parameterType="java.lang.String">
+        select
+        <include refid="All_Column_List"/>
+        from base_product where product_code = #{code,jdbcType=VARCHAR}
+    </select>
+
+
+    <!-- **查询定义** -->
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="AllResultMap"
+            parameterType="java.lang.Integer">
+        select
+        <include refid="All_Column_List"/>
+        from base_product
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    
+    
+    <!--   根据厂商查询他所有的分类 -->
+   <select id="selectAllProductCategory" resultMap="AllResultMap4"
+            parameterType="java.lang.Integer">
+		SELECT
+			pc.id,
+			pc.pid,
+			pc.name,
+			pc.level,
+			pc.long_code,
+			pc.code,
+			pc.pic_path
+		FROM
+			pro_category pc
+		LEFT JOIN company_category_rel cc ON pc.id = cc.category_id
+		where
+		 cc.company_id = #{companyId,jdbcType=INTEGER} 
+		and
+			cc.is_deleted = 0
+		and
+			pc.is_deleted = 0
+			ORDER BY pc.ordering ASC
+    </select>
+   
+    
+        <!--   查询所有的分类 -->
+   <select id="selectAllProductCategoryByids" resultMap="AllResultMap4"
+            parameterType="list">
+		SELECT
+			pc.id,
+			pc.pid,
+			pc.name,
+			pc.level,
+			pc.long_code,
+			pc.code
+		FROM
+			pro_category pc
+		WHERE
+			pc.pid in 
+		   <foreach collection="list" item="item" index="index"
+		    open="(" close=")" separator=",">
+		    #{item,jdbcType=INTEGER}
+           </foreach>   
+		AND pc.is_deleted = 0
+    </select>
+    
+    
+    
+    
+         <!-- **结果定义** -->
+	<resultMap id="AllResultMap4" type="com.sandu.product.model.ProCategoryPo">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="code" property="code" jdbcType="VARCHAR" />
+		<result  column="long_code" property="longCode" jdbcType="VARCHAR" />
+		<result  column="pid" property="pid" jdbcType="INTEGER" />
+		<result  column="name" property="name" jdbcType="VARCHAR" />
+		<result  column="level" property="level" jdbcType="INTEGER" />
+        <result  column="pic_path" property="picPath" jdbcType="VARCHAR" />
+
+	</resultMap>
+    
+    
+     <!--   根据PID查询他所有的分类 -->
+    <select id="selectAllProductCategoryByPid" resultMap="AllResultMap3"
+            parameterType="java.lang.Integer">
+     SELECT * from pro_category WHERE pid = #{id,jdbcType=INTEGER}  AND is_deleted = 0
+    </select>
+    
+   
+         <!--   根据PID查询他所有的分类 -->
+    <select id="selectAllChildNodesByPid" resultMap="AllResultMap3" parameterType="list">
+     SELECT * from pro_category WHERE 
+      long_code like
+    <foreach collection="list" item="item" index="index"
+    open="" close="" separator="or">
+    CONCAT(CONCAT('%',#{item,jdbcType=VARCHAR}),'%','or',)
+    </foreach>         
+     AND is_deleted = 0
+    </select>
+    
+   
+     <!-- **结果定义** -->
+	<resultMap id="AllResultMap3" type="com.sandu.product.model.ProCategory">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="code" property="code" jdbcType="VARCHAR" />
+		<result  column="long_code" property="longCode" jdbcType="VARCHAR" />
+		<result  column="pid" property="pid" jdbcType="INTEGER" />
+		<result  column="name" property="name" jdbcType="VARCHAR" />
+		<result  column="is_leaf" property="isLeaf" jdbcType="INTEGER" />
+		<result  column="level" property="level" jdbcType="INTEGER" />
+		<result  column="ordering" property="ordering" jdbcType="INTEGER" />
+		<result  column="state" property="state" jdbcType="VARCHAR" />
+		<result  column="att2" property="att2" jdbcType="VARCHAR" />
+		<result  column="att3" property="att3" jdbcType="VARCHAR" />
+		<result  column="att4" property="att4" jdbcType="VARCHAR" />
+		<result  column="att5" property="att5" jdbcType="VARCHAR" />
+		<result  column="att6" property="att6" jdbcType="VARCHAR" />
+		<result  column="date_att1" property="dateAtt1" jdbcType="TIMESTAMP" />
+		<result  column="date_att2" property="dateAtt2" jdbcType="TIMESTAMP" />
+		<result  column="num_att1" property="numAtt1" jdbcType="INTEGER" />
+		<result  column="num_att2" property="numAtt2" jdbcType="INTEGER" />
+		<result  column="num_att3" property="numAtt3" jdbcType="DOUBLE" />
+		<result  column="num_att4" property="numAtt4" jdbcType="DOUBLE" />
+		<result  column="remark" property="remark" jdbcType="VARCHAR" />
+		<result  column="name_first_letter" property="nameFirstLetter" jdbcType="VARCHAR" />
+		 
+	</resultMap>
+    
+    <!--     查询单个产品的详情 -->
+    <select id="selectProductDetail" resultType="com.sandu.product.model.ProducDetail" parameterType="java.lang.Integer">
+    	SELECT
+			bp.id AS product_id,
+			bb.brand_name,
+			bp.product_name,
+			bp.product_desc,
+			bp.product_spec,
+			bp.product_type_value,
+			bp.product_style_id_info,
+			bp.pic_ids,
+			bp.sale_price,
+			bp.split_textures_info,
+			bp.product_model_number,
+			bp.brand_id,
+			sd.name productColorName,
+			ps.style_name productStyleName,
+			bb.company_id
+		FROM
+			base_product bp
+		LEFT JOIN base_brand bb ON bp.brand_id = bb.id and bb.is_deleted = 0
+		LEFT JOIN sys_dictionary sd ON sd.type = "productColor" and sd.value = bp.color_id
+		LEFT JOIN product_style ps ON ps.id = bp.style_id and ps.is_deleted = 0 
+		WHERE
+			bp.id = #{id,jdbcType=INTEGER}
+		AND bp.is_deleted = 0
+		AND bp.putaway_state = 3
+    </select>
+    
+      <!-- 根据ID集合查询出产品数量 -->     
+     <select id="selectAllProductCountByIds" resultType="int" parameterType="list">
+    	SELECT
+			count(*)
+		FROM
+			base_product bp
+		WHERE
+		bp.id in
+	    <foreach collection="list" item="item" index="index"
+        open="(" close=")" separator=",">
+        #{item,jdbcType=INTEGER}
+        </foreach>  			 
+		AND bp.is_deleted = 0
+		AND bp.putaway_state = 3
+    </select>
+	 <!-- 根据ID集合查询出产品信息--> 
+	  <select id="selectAllProductByIds" resultMap="AllResultMap6" parameterType="Object">
+       SELECT DISTINCT bp.id as product_id,bp.product_name,bb.brand_name,bp.sale_price,
+	    rp.pic_path,bp.product_style_id_info
+			FROM
+			base_product bp 
+			LEFT JOIN base_brand bb ON bb.id = bp.brand_id and bb.is_deleted = 0
+			LEFT JOIN res_pic rp ON bp.pic_id = rp.id and rp.is_deleted = 0
+			WHERE bp.id in
+	        <foreach collection="ids" item="item" index="index"
+	        open="(" close=")" separator=",">
+	        #{item,jdbcType=INTEGER}
+	        </foreach>  
+			AND  bp.is_deleted = 0
+			AND  bp.putaway_state =3
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+    </select>
+    
+	<resultMap id="AllResultMap6" type="com.sandu.product.model.ProductListVo">
+		<id column="product_id" property="productId" jdbcType="INTEGER" />
+		<result  column="product_name" property="productName" jdbcType="VARCHAR" />
+		<result  column="brand_name" property="brandName" jdbcType="VARCHAR" />
+		<result  column="sale_price" property="salePrice" jdbcType="VARCHAR" />
+		<result  column="pic_path" property="picPath" jdbcType="VARCHAR" />
+		<result  column="product_style_id_info" property="productStyleIdInfo" jdbcType="VARCHAR" />			 
+	</resultMap>
+
+
+
+
+    <!--   根据公司ID查询它的主营分类 -->
+    <select id="selectAllCompanyMainCategory" resultType="java.lang.String"
+            parameterType="java.lang.Integer">
+        SELECT company_main_category from base_company WHERE id = #{conpanyId,jdbcType=INTEGER}  AND is_deleted = 0
+    </select>
+
+
+
+    <!--   根据公司ID查询它的主营分类 -->
+    <select id="selectAllSameTypeProduct" resultMap="AllResultMap2"
+            parameterType="java.lang.Integer">
+        SELECT * from base_product
+         WHERE
+             parent_id = #{parentId,jdbcType=INTEGER}
+             AND is_deleted = 0
+    </select>
+
+    <!-- 根据可见范围查询到所有可见的分类编码 -->
+    <select id="getCodeListByIdList" parameterType = "java.util.List" resultType = "java.lang.String">
+        SELECT
+        code
+        FROM
+        pro_category
+        WHERE is_deleted = 0
+        <if test="visibilityRangeIdList != null and visibilityRangeIdList.size > 0">
+            and id IN
+            <foreach collection="visibilityRangeIdList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <!-- 根据可见范围查询到第四级以及第五级分类-->
+    <select id="selectExactProductCategory" parameterType= "java.lang.Integer"  resultMap="AllResultMap4">
+        SELECT
+        pc.id,
+        pc.pid,
+        pc.name,
+        pc.level,
+        pc.long_code,
+        pc.code
+        FROM
+        pro_category pc
+        WHERE
+        pc.pid IN (
+        SELECT
+        id
+        FROM
+        pro_category
+        WHERE
+        pid = #{pid,jdbcType=INTEGER}
+        )
+        OR pc.pid = #{pid,jdbcType=INTEGER}
+        AND pc.is_deleted = 0
+
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

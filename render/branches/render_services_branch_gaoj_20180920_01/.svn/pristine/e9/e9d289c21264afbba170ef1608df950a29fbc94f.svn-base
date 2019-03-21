@@ -1,0 +1,1108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.design.dao.DesignPlanAutoRenderMapper">
+	<!--<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/> -->
+	<!-- 插入任务表 -->
+	<insert id="insertSelective" parameterType="com.nork.design.model.AutoRenderTask"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into auto_render_task
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="planId!= null">plan_id, </if>
+			<if test="templateId!= null">template_id, </if>
+			<if test="priority!= null">priority, </if>
+			<if test="renderPic!= null">render_pic, </if>
+			<if test="render720!= null">render_720, </if>
+			<if test="renderN720!= null">render_n720, </if>
+			<if test="renderVideo!= null">render_video, </if>
+			<if test="isDeleted!= null">is_deleted, </if>
+			<if test="creator!= null">creator, </if>
+			<if test="gmtCreate!= null">gmt_create, </if>
+			<if test="modifier!= null">modifier, </if>
+			<if test="gmtModified!= null">gmt_modified, </if>
+			<if test="designPlanId != null">design_plan_id, </if>
+			<if test="spaceCode != null">space_code, </if>
+			<if test="operationUserId != null">operation_user_id, </if>
+			<if test="operationUserName != null">operation_user_name, </if>
+			<if test="orderNumber != null">order_number, </if>
+			<if test="renderTypesStr != null">render_types_str, </if>
+			<if test="operationSource != null">operation_source, </if>
+			<if test="taskType != null">task_type, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="planId!= null"> #{planId,jdbcType=INTEGER}, </if>
+			<if test="templateId!= null"> #{templateId,jdbcType=INTEGER}, </if>
+			<if test="priority!= null"> #{priority,jdbcType=INTEGER}, </if>
+			<if test="renderPic!= null"> #{renderPic,jdbcType=INTEGER}, </if>
+			<if test="render720!= null"> #{render720,jdbcType=INTEGER}, </if>
+			<if test="renderN720!= null"> #{renderN720,jdbcType=INTEGER}, </if>
+			<if test="renderVideo!= null"> #{renderVideo,jdbcType=INTEGER}, </if>
+			<if test="isDeleted!= null"> #{isDeleted,jdbcType=INTEGER}, </if>
+			<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+			<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+			<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+			<if test="designPlanId != null"> #{designPlanId,jdbcType=INTEGER}, </if>
+			<if test="spaceCode != null"> #{spaceCode,jdbcType=VARCHAR}, </if>
+			<if test="operationUserId != null"> #{operationUserId,jdbcType=INTEGER}, </if>
+			<if test="operationUserName != null"> #{operationUserName,jdbcType=VARCHAR}, </if>
+			<if test="orderNumber != null"> #{orderNumber,jdbcType=VARCHAR}, </if>
+			<if test="renderTypesStr != null"> #{renderTypesStr,jdbcType=VARCHAR}, </if>
+			<if test="operationSource != null"> #{operationSource,jdbcType=INTEGER}, </if>
+			<if test="taskType != null"> #{taskType,jdbcType=INTEGER}, </if>
+		</trim>
+	</insert>
+
+	<insert id="insertList" parameterType="com.nork.design.model.AutoRenderTask"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into auto_render_task
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="planId!= null">plan_id, </if>
+			<if test="templateId!= null">template_id, </if>
+			<if test="priority!= null">priority, </if>
+			<if test="renderPic!= null">render_pic, </if>
+			<if test="render720!= null">render_720, </if>
+			<if test="renderN720!= null">render_n720, </if>
+			<if test="renderVideo!= null">render_video, </if>
+			<if test="isDeleted!= null">is_deleted, </if>
+			<if test="creator!= null">creator, </if>
+			<if test="gmtCreate!= null">gmt_create, </if>
+			<if test="modifier!= null">modifier, </if>
+			<if test="gmtModified!= null">gmt_modified, </if>
+			<if test="designPlanId != null">design_plan_id, </if>
+			<if test="spaceCode != null">space_code, </if>
+			<if test="operationUserId != null">operation_user_id, </if>
+			<if test="operationUserName != null">operation_user_name, </if>
+			<if test="orderNumber != null">order_number, </if>
+			<if test="renderTypesStr != null">render_types_str, </if>
+			<if test="taskType != null">task_type, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="planId!= null"> #{planId,jdbcType=INTEGER}, </if>
+			<if test="templateId!= null"> #{templateId,jdbcType=INTEGER}, </if>
+			<if test="priority!= null"> #{priority,jdbcType=INTEGER}, </if>
+			<if test="renderPic!= null"> #{renderPic,jdbcType=INTEGER}, </if>
+			<if test="render720!= null"> #{render720,jdbcType=INTEGER}, </if>
+			<if test="renderN720!= null"> #{renderN720,jdbcType=INTEGER}, </if>
+			<if test="renderVideo!= null"> #{renderVideo,jdbcType=INTEGER}, </if>
+			<if test="isDeleted!= null"> #{isDeleted,jdbcType=INTEGER}, </if>
+			<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+			<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+			<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+			<if test="designPlanId != null"> #{designPlanId,jdbcType=INTEGER}, </if>
+			<if test="spaceCode != null"> #{spaceCode,jdbcType=VARCHAR}, </if>
+			<if test="operationUserId != null"> #{operationUserId,jdbcType=INTEGER}, </if>
+			<if test="operationUserName != null"> #{operationUserName,jdbcType=VARCHAR}, </if>
+			<if test="orderNumber != null"> #{orderNumber,jdbcType=VARCHAR}, </if>
+			<if test="renderTypesStr != null"> #{renderTypesStr,jdbcType=VARCHAR}, </if>
+			<if test="taskType != null"> #{taskType,jdbcType=INTEGER}, </if>
+		</trim>
+	</insert>
+
+	<!-- 查询 任务-->
+	<select id="getAutoRenderTaskList" resultMap="AllResultMap2"
+		parameterType="com.nork.design.model.AutoRenderTask">
+		select
+		<include refid="All_Column_List" />
+		from auto_render_task
+		where 1=1
+		<if test="autoRenderTask.planId!= null"> and plan_id = #{autoRenderTask.planId,jdbcType=INTEGER} </if>
+		<if test="autoRenderTask.templateId!= null"> and template_id = #{autoRenderTask.templateId,jdbcType=INTEGER} </if>
+			 and is_deleted =  0
+		 	order by priority desc
+			LIMIT 0, #{autoRenderTask.maxSize}
+	</select>
+
+	<select id="getRenderTaskById" resultMap="AllResultMap2"
+		parameterType="com.nork.design.model.AutoRenderTask">
+		select
+		<include refid="All_Column_List" />
+		from auto_render_task
+		where 1=1
+			 AND id = #{taskId,jdbcType=INTEGER}
+			LIMIT 0, 1
+	</select>
+	<!-- 通过方案ID获取任务数据 -->
+	<select id="getRenderTaskListByPlanId" resultMap="AllResultMap2"
+		parameterType="com.nork.design.model.AutoRenderTask">
+		select
+		<include refid="All_Column_List" />
+		from auto_render_task
+		where plan_id = #{planId,jdbcType=INTEGER} and is_deleted =  0
+		order by priority desc
+	</select>
+	<!--  通过样板房ID获取任务数据 -->
+	<select id="getRenderTaskListBytemplateId" resultMap="AllResultMap2"
+		parameterType="com.nork.design.model.AutoRenderTask">
+		select
+		<include refid="All_Column_List" />
+		from auto_render_task
+		where template_id = #{templateId,jdbcType=INTEGER} and is_deleted =  0
+		order by priority desc
+	</select>
+	<!-- 查询 状态-->
+	<select id="getTaskStateList" resultMap="AllResultMap3"
+		parameterType="com.nork.design.model.AutoRenderTaskState">
+		select
+		id,plan_id,template_id,render_pic,render_720,render_n720,render_video,
+		is_deleted,state,remark,fail_type,fail_reason,host_name,business_id,design_plan_id,task_id
+		from auto_render_task_state
+			where is_deleted =  0 
+		 		order by id desc
+			
+	</select>
+	<!-- 插入状态表 -->
+	<insert id="addTaskStateToDB" parameterType="com.nork.design.model.AutoRenderTaskState"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into auto_render_task_state
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="planId!= null">plan_id, </if>
+			 <if test="templateId!= null">template_id, </if>
+			<if test="renderPic!= null">render_pic, </if>
+			<if test="render720!= null">render_720, </if>
+			<if test="renderN720!= null">render_n720, </if>
+			<if test="renderVideo!= null">render_video, </if>
+			<if test="isDeleted!= null">is_deleted, </if>
+			<if test="state!= null">state, </if>
+			<if test="remark!= null">remark, </if>
+			<if test="failType!= null">fail_type, </if>
+			<if test="failReason!= null">fail_reason, </if>
+			<if test="hostName!= null">host_name, </if>
+			<if test="businessId!= null">business_id, </if>
+			<if test="creator!= null">creator, </if>
+			<if test="gmtCreate!= null">gmt_create, </if>
+			<if test="modifier!= null">modifier, </if>
+			<if test="gmtModified!= null">gmt_modified, </if>
+			<if test="designPlanId != null">design_plan_id, </if>
+			<if test="orderNumber != null">order_number, </if>
+			<if test="operationUserId != null">operation_user_id, </if>
+			<if test="taskType != null">task_type, </if>
+			<if test="renderTypesStr != null">render_types_str, </if>
+			<if test="taskId != null">task_id, </if>
+			<if test="taskSource!= null">task_source, </if>
+			<if test="designCode!= null">design_code, </if>
+			<if test="designName!= null">design_name, </if>
+			<if test="hostIp!= null">host_ip, </if>
+			<if test="templateCode!= null">template_code, </if>
+			<if test="renderMachineIp != null">render_machine_ip, </if>
+			<if test="renderLevel != null">render_level, </if>
+			<if test="platformId != null">Platform_id, </if>
+			<if test="renderProgramVersion != null">render_program_version, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="planId!= null"> #{planId,jdbcType=INTEGER}, </if>
+			<if test="templateId!= null"> #{templateId,jdbcType=INTEGER}, </if>
+			<if test="renderPic!= null"> #{renderPic,jdbcType=INTEGER}, </if>
+			<if test="render720!= null"> #{render720,jdbcType=INTEGER}, </if>
+			<if test="renderN720!= null"> #{renderN720,jdbcType=INTEGER}, </if>
+			<if test="renderVideo!= null"> #{renderVideo,jdbcType=INTEGER}, </if>
+			<if test="isDeleted!= null"> #{isDeleted,jdbcType=INTEGER}, </if>
+			<if test="state!= null"> #{state,jdbcType=INTEGER}, </if>
+			<if test="remark!= null"> #{remark,jdbcType=VARCHAR}, </if>
+			<if test="failType!= null"> #{failType,jdbcType=INTEGER}, </if>
+			<if test="failReason!= null"> #{failReason,jdbcType=VARCHAR}, </if>
+			<if test="hostName!= null"> #{hostName,jdbcType=VARCHAR}, </if>
+			<if test="businessId!= null"> #{businessId,jdbcType=INTEGER}, </if>
+			<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+			<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+			<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+			<if test="designPlanId != null"> #{designPlanId,jdbcType=INTEGER}, </if>
+			<if test="orderNumber != null"> #{orderNumber,jdbcType=VARCHAR}, </if>
+			<if test="operationUserId != null"> #{operationUserId,jdbcType=INTEGER}, </if>
+			<if test="taskType != null"> #{taskType,jdbcType=INTEGER}, </if>
+			<if test="renderTypesStr != null"> #{renderTypesStr,jdbcType=VARCHAR}, </if>
+			<if test="taskId != null"> #{taskId,jdbcType=INTEGER}, </if>
+			<if test="taskSource != null"> #{taskSource,jdbcType=INTEGER}, </if>
+			<if test="designCode != null"> #{designCode,jdbcType=VARCHAR}, </if>
+			<if test="designName != null"> #{designName,jdbcType=VARCHAR}, </if>
+			<if test="hostIp != null"> #{hostIp,jdbcType=VARCHAR}, </if>
+			<if test="templateCode != null"> #{templateCode,jdbcType=VARCHAR}, </if>
+			<if test="renderMachineIp != null"> #{renderMachineIp,jdbcType=VARCHAR}, </if>
+			<if test="renderLevel != null"> #{renderLevel,jdbcType=INTEGER}, </if>
+			<if test="platformId != null"> #{platformId,jdbcType=INTEGER}, </if>
+			<if test="renderProgramVersion != null"> #{renderProgramVersion,jdbcType=VARCHAR}, </if>
+		</trim>
+	</insert>
+	<!-- 更新定义 -->
+	<update id="updateAutoRenderTaskState" parameterType="com.nork.design.model.AutoRenderTaskState">
+		update auto_render_task_state
+
+		<set>
+			<if test="renderPic!= null">render_pic = #{renderPic,jdbcType=INTEGER}, </if>
+			<if test="render720!= null">render_720 = #{render720,jdbcType=INTEGER}, </if>
+			<if test="renderN720!= null">render_n720 = #{renderN720,jdbcType=INTEGER}, </if>
+			<if test="renderVideo!= null">render_video = #{renderVideo,jdbcType=INTEGER}, </if>
+			<if test="state!= null"> state = #{state,jdbcType=INTEGER}, </if>
+			<if test="remark!= null"> remark = #{remark,jdbcType=VARCHAR}, </if>
+			<if test="failType!= null"> fail_type = #{failType,jdbcType=INTEGER}, </if>
+			<if test="failReason!= null"> fail_reason = #{failReason,jdbcType=VARCHAR}, </if>
+			<if test="hostName!= null"> host_name = #{hostName,jdbcType=VARCHAR}, </if>
+			<if test="businessId!= null">business_id = #{businessId,jdbcType=INTEGER}, </if>
+			<if test="creator!= null">  creator = #{creator,jdbcType=VARCHAR}, </if>
+			<if test="gmtCreate!= null">  gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifier!= null">  modifier = #{modifier,jdbcType=VARCHAR}, </if>
+			<if test="gmtModified!= null">  gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+			<if test="designPlanId!= null">  design_plan_id = #{designPlanId,jdbcType=INTEGER}, </if>
+			<if test="taskId!= null">  task_id = #{taskId,jdbcType=INTEGER}, </if>
+		</set>
+		where 1 = 1
+			AND is_deleted = 0
+			AND plan_id = #{planId,jdbcType=INTEGER}
+			AND template_id = #{templateId,jdbcType=VARCHAR}
+	</update>
+	<!-- 更新定义 -->
+	<update id="updateTaskStateByPlanId" parameterType="com.nork.design.model.AutoRenderTaskState">
+		update auto_render_task_state
+		<set>
+			<if test="renderPic!= null">render_pic = #{renderPic,jdbcType=INTEGER}, </if>
+			<if test="render720!= null">render_720 = #{render720,jdbcType=INTEGER}, </if>
+			<if test="renderN720!= null">render_n720 = #{renderN720,jdbcType=INTEGER}, </if>
+			<if test="renderVideo!= null">render_video = #{renderVideo,jdbcType=INTEGER}, </if>
+			<if test="state!= null"> state = #{state,jdbcType=INTEGER}, </if>
+			<if test="remark!= null"> remark = #{remark,jdbcType=VARCHAR}, </if>
+			<if test="failType!= null"> fail_type = #{failType,jdbcType=INTEGER}, </if>
+			<if test="failReason!= null"> fail_reason = #{failReason,jdbcType=VARCHAR}, </if>
+			<if test="hostName!= null"> host_name = #{hostName,jdbcType=VARCHAR}, </if>
+			<if test="businessId!= null">business_id = #{businessId,jdbcType=INTEGER}, </if>
+			<if test="creator!= null">  creator = #{creator,jdbcType=VARCHAR}, </if>
+			<if test="gmtCreate!= null">  gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifier!= null">  modifier = #{modifier,jdbcType=VARCHAR}, </if>
+			<if test="gmtModified!= null">  gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+			<if test="designPlanId!= null">  design_plan_id = #{designPlanId,jdbcType=INTEGER}, </if>
+			<if test="taskId!= null">  task_id = #{taskId,jdbcType=INTEGER}, </if>
+		</set>
+		where 1 = 1
+		and is_deleted = 0
+		and plan_id = #{planId,jdbcType=INTEGER}
+	</update>
+	<update id="updateTaskStateByTaskId" parameterType="com.nork.design.model.AutoRenderTaskState">
+		update auto_render_task_state
+		<set>
+			<if test="isDeleted != null">is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+			<if test="businessId!= null">business_id = #{businessId,jdbcType=INTEGER}, </if>
+			<if test="renderPic!= null">render_pic = #{renderPic,jdbcType=INTEGER}, </if>
+			<if test="render720!= null">render_720 = #{render720,jdbcType=INTEGER}, </if>
+			<if test="renderN720!= null">render_n720 = #{renderN720,jdbcType=INTEGER}, </if>
+			<if test="renderVideo!= null">render_video = #{renderVideo,jdbcType=INTEGER}, </if>
+			<if test="state!= null"> state = #{state,jdbcType=INTEGER}, </if>
+			<if test="failType!= null"> fail_type = #{failType,jdbcType=INTEGER}, </if>
+			<if test="failReason!= null"> fail_reason = #{failReason,jdbcType=VARCHAR}, </if>
+			<if test="designCode!= null"> design_code = #{designCode,jdbcType=VARCHAR}, </if>
+			<if test="templateCode!= null"> template_code = #{templateCode,jdbcType=VARCHAR}, </if>
+			<if test="newDesignCode!= null"> new_design_code = #{newDesignCode,jdbcType=VARCHAR}, </if>
+			<if test="designName!= null"> design_name = #{designName,jdbcType=VARCHAR}, </if>
+			<if test="taskSource!= null">task_source = #{taskSource,jdbcType=INTEGER}, </if>
+			<if test="hostIp!= null"> host_ip = #{hostIp,jdbcType=VARCHAR}, </if>
+			<if test="renderTimeConsuming!= null"> render_time_consuming = #{renderTimeConsuming,jdbcType=VARCHAR}, </if>
+			<if test="platformId!= null">platform_id = #{platformId,jdbcType=INTEGER}, </if>
+		</set>
+		where
+		task_id = #{taskId,jdbcType=INTEGER}
+	</update>
+
+	<!-- 删除 -->
+	<update id="deleteRenderTaskByTaskId" parameterType="java.lang.Integer">
+		update auto_render_task
+		<set>
+			is_deleted = 1
+		</set>
+		where id = #{taskId,jdbcType=INTEGER}
+	</update>
+
+	<!-- 常量定义 -->
+	<sql id="All_Column_List">
+		id,plan_id,template_id,priority,render_pic,render_720,render_n720,render_video,is_deleted,creator,gmt_create,modifier,gmt_modified,design_plan_id,space_code,operation_user_id,operation_user_name,order_number,render_types_str,task_type,operation_source,design_code,template_code,design_name,task_source,host_ip,platform_id
+	</sql>
+
+	<!-- 结果定义 -->
+	<resultMap id="AllResultMap" type="com.nork.design.model.AutoRenderTask">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="plan_id" property="planId" jdbcType="INTEGER" />
+		<result column="template_id" property="templateId" jdbcType="INTEGER" />
+		<result column="render_pic" property="renderPic" jdbcType="INTEGER" />
+		<result column="render_720" property="render720" jdbcType="INTEGER" />
+		<result column="render_n720" property="renderN720" jdbcType="INTEGER" />
+		<result column="render_video" property="renderVideo" jdbcType="INTEGER" />
+ 		<result column="priority" property="priority" jdbcType="INTEGER" />
+		<result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result column="design_plan_id" property="designPlanId" jdbcType="INTEGER" />
+		<result column="space_code" property="spaceCode" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<resultMap id="AllResultMap2" type="com.nork.design.model.AutoRenderTask">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="plan_id" property="planId" jdbcType="INTEGER" />
+		<result column="template_id" property="templateId" jdbcType="INTEGER" />
+		<result column="render_pic" property="renderPic" jdbcType="INTEGER" />
+		<result column="render_720" property="render720" jdbcType="INTEGER" />
+		<result column="render_n720" property="renderN720" jdbcType="INTEGER" />
+		<result column="render_video" property="renderVideo" jdbcType="INTEGER" />
+ 		<result column="priority" property="priority" jdbcType="INTEGER" />
+		<result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result column="design_plan_id" property="designPlanId" jdbcType="INTEGER" />
+		<result column="space_code" property="spaceCode" jdbcType="VARCHAR" />
+		<result column="operation_user_id" property="operationUserId" jdbcType="INTEGER" />
+		<result column="operation_user_name" property="operationUserName" jdbcType="VARCHAR" />
+		<result column="order_number" property="orderNumber" jdbcType="VARCHAR" />
+		<result column="render_types_str" property="renderTypesStr" jdbcType="VARCHAR" />
+		<result column="task_type" property="taskType" jdbcType="INTEGER" />
+		<result column="operation_source" property="operationSource" jdbcType="INTEGER" />
+		<result column="task_source" property="taskSource" jdbcType="INTEGER" />
+		<result column="design_code" property="designCode" jdbcType="VARCHAR" />
+		<result column="template_code" property="templateCode" jdbcType="VARCHAR" />
+		<result column="host_ip" property="hostIp" jdbcType="VARCHAR" />
+		<result column="design_name" property="designName" jdbcType="VARCHAR" />
+		<result column="planName" property="planName" jdbcType="VARCHAR" />
+		<result column="task_id" property="taskId" jdbcType="INTEGER" />
+
+		<result column="fail_type" property="failType" jdbcType="INTEGER" />
+		<result column="fail_reason" property="failReason" jdbcType="VARCHAR" />
+
+		<result column="business_id" property="businessId" jdbcType="INTEGER" />
+		<result column="platform_id" property="platformId" jdbcType="INTEGER" />
+	</resultMap>
+	<resultMap id="AllResultMap3" type="com.nork.design.model.AutoRenderTaskState">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="plan_id" property="planId" jdbcType="INTEGER" />
+		<result column="template_id" property="templateId" jdbcType="INTEGER" />
+		<result column="render_pic" property="renderPic" jdbcType="INTEGER" />
+		<result column="render_720" property="render720" jdbcType="INTEGER" />
+		<result column="render_n720" property="renderN720" jdbcType="INTEGER" />
+		<result column="render_video" property="renderVideo" jdbcType="INTEGER" />
+ 		<result column="state" property="state" jdbcType="INTEGER" />
+		<result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="fail_type" property="failType" jdbcType="INTEGER" />
+		<result column="fail_reason" property="failReason" jdbcType="VARCHAR" />
+		<result column="host_name" property="hostName" jdbcType="VARCHAR" />
+		<result column="business_id" property="businessId" jdbcType="INTEGER" />
+		<result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result column="design_plan_id" property="designPlanId" jdbcType="INTEGER" />
+		<result column="order_number" property="orderNumber" jdbcType="VARCHAR" />
+		<result column="operation_user_id" property="operationUserId" jdbcType="INTEGER" />
+		<result column="task_type" property="taskType" jdbcType="INTEGER" />
+		<result column="render_types_str" property="renderTypesStr" jdbcType="VARCHAR" />
+		<result column="planName" property="planName" jdbcType="VARCHAR" />
+		<result column="task_id" property="taskId" jdbcType="INTEGER" />
+		<result column="platform_id" property="platformId" jdbcType="INTEGER" />
+		<result column="operation_source" property="operationSource" jdbcType="INTEGER" />
+		<result column="overlap_resolve" property="overlapResolve" jdbcType="INTEGER" />
+
+		<result column="full_house_plan_id" property="fullHousePlanId" jdbcType="INTEGER" />
+		<result column="plan_house_type" property="planHouseType" jdbcType="INTEGER" />
+		<result column="main_task_id" property="mainTaskId" jdbcType="INTEGER" />
+		<result column="house_id" property="houseId" jdbcType="INTEGER" />
+		<result column="subtask_count" property="subtaskCount" jdbcType="INTEGER" />
+		<result column="space_function_id" property="spaceFunctionId" jdbcType="INTEGER" />
+		<result column="new_full_house_plan_id" property="newFullHousePlanId" jdbcType="INTEGER" />
+	</resultMap>
+
+
+	<!-- 通过方案Id从任务状态表里查 -->
+	<select id="getTaskStateListByDesignPlanId" resultMap="AllResultMap3" parameterType="java.lang.Integer">
+	select 
+			plan_id,template_id,render_pic,render_720,render_n720,render_video
+	from
+			auto_render_task_state
+		where plan_id = #{planId,jdbcType=INTEGER} 
+	</select>
+	<!-- 通过样板房Id从任务状态表里查 -->
+	<select id="getTaskStateListByTemplateId" resultMap="AllResultMap3" parameterType="java.lang.Integer">
+	select 
+			plan_id,template_id,render_pic,render_720,render_n720,render_video
+	from
+		auto_render_task_state
+	where template_id = #{templateId,jdbcType=INTEGER} 
+	
+	</select>
+	<!-- 批量插入 -->
+	<insert id="batchInsertDataList" parameterType="java.util.List">
+		insert into auto_render_task
+		(plan_id,template_id,creator,gmt_create,modifier,gmt_modified,design_plan_id,space_code)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.planId},
+			#{item.templateId},
+			#{item.creator},
+			#{item.gmtCreate},
+			#{item.modifier},
+			#{item.gmtModified},
+			#{item.designPlanId},
+			#{item.spaceCode}
+				)
+		</foreach>
+	</insert>
+	<!-- 通过方案ID 和 样板房ID 获取任务状态 -->
+	<select id="getTaskStateByPlanIdAndTemplateId" resultMap="AllResultMap3" parameterType="java.lang.Integer">
+	select 
+			id,plan_id,template_id,render_pic,render_720,render_n720,render_video,
+			is_deleted,state,remark,fail_type,fail_reason,host_name,business_id,design_plan_id,task_id
+	from
+			auto_render_task_state
+		where 1 = 1 
+		and plan_id = #{planId,jdbcType=INTEGER} 
+		and template_id = #{templateId,jdbcType=INTEGER}
+	</select>
+
+
+	<!-- 根据样板房id 查询 所有自动渲染成功的  任务状态-->
+	<select id="getSuccessTaskStateList" resultMap="AllResultMap3"
+		parameterType="java.lang.Integer">
+		select
+			id,plan_id,template_id,render_pic,render_720,render_n720,render_video,
+			is_deleted,state,remark,fail_type,fail_reason,host_name,business_id,design_plan_id,task_id
+		from 
+			auto_render_task_state
+		where
+			template_id = #{templateId,jdbcType=INTEGER}
+			and is_deleted = 0 
+			and fail_type is null
+		order by id desc
+			
+	</select>
+	<!-- ==============================替换渲染======================================= -->
+	<resultMap id="AllResultMapReplace" type="com.nork.design.model.AutoRenderTask">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="plan_id" property="planId" jdbcType="INTEGER" />
+		<result column="template_id" property="templateId" jdbcType="INTEGER" />
+ 		<result column="priority" property="priority" jdbcType="INTEGER" />
+		<result column="space_code" property="spaceCode" jdbcType="VARCHAR" />
+		<result column="operation_user_id" property="operationUserId" jdbcType="INTEGER" />
+		<result column="operation_user_name" property="operationUserName" jdbcType="VARCHAR" />
+		<result column="order_number" property="orderNumber" jdbcType="VARCHAR" />
+		<result column="render_types_str" property="renderTypesStr" jdbcType="VARCHAR" />
+		<result column="task_type" property="taskType" jdbcType="INTEGER" />
+		<result column="operation_source" property="operationSource" jdbcType="INTEGER" />
+		<result column="platform_id" property="platformId" jdbcType="INTEGER" />
+	</resultMap>
+	<sql id="All_Column_List_replace">
+		id,plan_id,template_id,priority,space_code,operation_user_id,operation_user_name,order_number,render_types_str,task_type,operation_source,platform_id
+	</sql>
+	<!-- 插入替换渲染任务 -->
+	<insert id="createTask" parameterType="com.nork.design.model.AutoRenderTask"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into auto_render_task
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="planId!= null">plan_id, </if>
+			<if test="templateId!= null">template_id, </if>
+			<if test="priority!= null">priority, </if>
+			<if test="spaceCode != null">space_code, </if>
+			<if test="operationUserId != null">operation_user_id, </if>
+			<if test="operationUserName != null">operation_user_name, </if>
+			<if test="orderNumber != null">order_number, </if>
+			<if test="renderTypesStr != null">render_types_str, </if>
+			<if test="taskType != null">task_type, </if>
+			<if test="operationSource != null">operation_source, </if>
+			<if test="creator!= null">creator, </if>
+			<if test="gmtCreate!= null">gmt_create, </if>
+			<if test="modifier!= null">modifier, </if>
+			<if test="gmtModified!= null">gmt_modified, </if>
+			<if test="taskSource!= null">task_source, </if>
+			<if test="designCode!= null">design_code, </if>
+			<if test="designName!= null">design_name, </if>
+			<if test="hostIp!= null">host_ip, </if>
+			<if test="templateCode!= null">template_code, </if>
+			<if test="renderPic !=null">render_pic, </if>
+			<if test="render720!= null">render_720, </if>
+			<if test="renderN720!= null">render_n720, </if>
+			<if test="renderVideo!= null">render_video, </if>
+			<if test="platformId!= null">platform_id, </if>
+			<if test="overlapResolve!= null">overlap_resolve, </if>
+			<if test="fullHousePlanId!= null">full_house_plan_id, </if>
+			<if test="planHouseType!= null">plan_house_type, </if>
+			<if test="mainTaskId!= null">main_task_id, </if>
+			<if test="houseId!= null">house_id, </if>
+			<if test="subtaskCount!= null">subtask_count, </if>
+			<if test="groupPrimaryId!= null">group_primary_id, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="planId!= null"> #{planId,jdbcType=INTEGER}, </if>
+			<if test="templateId!= null"> #{templateId,jdbcType=INTEGER}, </if>
+			<if test="priority!= null"> #{priority,jdbcType=INTEGER}, </if>
+			<if test="spaceCode != null"> #{spaceCode,jdbcType=VARCHAR}, </if>
+			<if test="operationUserId != null"> #{operationUserId,jdbcType=INTEGER}, </if>
+			<if test="operationUserName != null"> #{operationUserName,jdbcType=VARCHAR}, </if>
+			<if test="orderNumber != null"> #{orderNumber,jdbcType=VARCHAR}, </if>
+			<if test="renderTypesStr != null"> #{renderTypesStr,jdbcType=VARCHAR}, </if>
+			<if test="taskType != null"> #{taskType,jdbcType=INTEGER}, </if>
+			<if test="operationSource != null"> #{operationSource,jdbcType=INTEGER}, </if>
+			<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+			<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+			<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+			<if test="taskSource != null"> #{taskSource,jdbcType=INTEGER}, </if>
+			<if test="designCode != null"> #{designCode,jdbcType=VARCHAR}, </if>
+			<if test="designName != null"> #{designName,jdbcType=VARCHAR}, </if>
+			<if test="hostIp != null"> #{hostIp,jdbcType=VARCHAR}, </if>
+			<if test="templateCode != null"> #{templateCode,jdbcType=VARCHAR}, </if>
+			<if test="renderPic != null"> #{renderPic,jdbcType=VARCHAR}, </if>
+			<if test="render720 != null"> #{render720,jdbcType=VARCHAR}, </if>
+			<if test="renderN720 != null"> #{renderN720,jdbcType=VARCHAR}, </if>
+			<if test="renderVideo != null"> #{renderVideo,jdbcType=VARCHAR}, </if>
+			<if test="platformId != null"> #{platformId,jdbcType=INTEGER}, </if>
+			<if test="overlapResolve!= null">#{overlapResolve,jdbcType=INTEGER}, </if>
+			<if test="fullHousePlanId!= null">#{fullHousePlanId,jdbcType=INTEGER}, </if>
+			<if test="planHouseType!= null">#{planHouseType,jdbcType=INTEGER}, </if>
+			<if test="mainTaskId!= null">#{mainTaskId,jdbcType=INTEGER}, </if>
+			<if test="houseId!= null">#{houseId,jdbcType=INTEGER}, </if>
+			<if test="subtaskCount!= null">#{subtaskCount,jdbcType=INTEGER}, </if>
+			<if test="groupPrimaryId!= null"> #{groupPrimaryId,jdbcType=INTEGER}, </if>
+		</trim>
+	</insert>
+
+	<!-- 获取替换渲染任务 -->
+	<select id="getReplaceTaskList" resultMap="AllResultMapReplace"
+		parameterType="com.nork.design.model.AutoRenderTask">
+		select
+		<include refid="All_Column_List_replace" />
+		from auto_render_task
+		where 1=1
+			 and is_deleted =  0
+			 and task_type = 1
+		 	order by priority desc
+			LIMIT 0, #{autoRenderTask.maxSize}
+	</select>
+
+	<!-- 查询该用户的所有替换记录和方案名称的list    未开始渲染的任务队列 -->
+	<select id="getALLReplaceRecordByUserId" resultMap="AllResultMap2"
+		parameterType="com.nork.design.model.AutoRenderTask">
+		select
+			arts.*,dp.plan_name as planName
+		from
+			auto_render_task arts
+			LEFT JOIN design_plan dp ON dp.id = arts.`plan_id`
+		where 1=1
+			<if test="isDeleted != null">  and arts.is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+			<if test="taskType != null">  and arts.task_type = #{taskType,jdbcType=INTEGER} </if>
+			<if test="operationUserId != null">  and arts.operation_user_id = #{operationUserId,jdbcType=INTEGER} </if>
+		 	<if test="planId != null">  and arts.plan_id = #{planId,jdbcType=INTEGER} </if>
+			<if test="templateId != null">  and arts.template_id = #{templateId,jdbcType=INTEGER} </if>
+		 	order by arts.gmt_create desc
+			<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+	<!-- 查询该用户的所有替换记录和方案名称的list    已经开始渲染的任务 -->
+	<select id="getAllReplaceRecordByUserId2" resultMap="AllResultMap2"
+		parameterType="com.nork.design.model.AutoRenderTask">
+		select
+			arts.*,dp.plan_name as planName,art.operation_source
+		from
+			auto_render_task_state arts
+		    LEFT JOIN auto_render_task art on arts.task_id = art.id
+			LEFT JOIN design_plan dp ON dp.id = arts.`plan_id`
+		where 1=1
+			<if test="isDeleted != null">  and arts.is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+			<if test="taskType != null">  and arts.task_type = #{taskType,jdbcType=INTEGER} </if>
+			<if test="operationUserId != null">  and arts.operation_user_id = #{operationUserId,jdbcType=INTEGER} </if>
+			<if test="planId != null">  and arts.plan_id = #{planId,jdbcType=INTEGER} </if>
+			<if test="templateId != null">  and arts.template_id = #{templateId,jdbcType=INTEGER} </if>
+			<if test="state != null">  and arts.state = #{state,jdbcType=INTEGER} </if>
+			<if test=" stateList != null and stateList.size > 0 ">
+				and arts.state in
+				<foreach collection="stateList" index="index" item="item" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+		 	order by arts.gmt_create desc
+			<if test="start !=-1 and limit !=-1 and start != null and limit != null"> LIMIT #{start}, #{limit}</if>
+	</select>
+	<!-- 获取渲染任务的状态 -->
+	<select id="getTaskType" resultMap="AllResultMap3"
+		parameterType="com.nork.design.model.AutoRenderTaskState">
+		select
+			id,plan_id,template_id,render_pic,render_720,render_n720,render_video,
+			is_deleted,state,remark,fail_type,fail_reason,host_name,business_id,design_plan_id,task_id,order_number
+			,operation_user_id,task_type,render_types_str
+		from
+			auto_render_task_state
+		where 1=1
+			<if test="isDeleted != null"> and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+			<if test="taskType != null"> and task_type = #{taskType,jdbcType=INTEGER} </if>
+			<if test="planId != null"> and plan_id = #{planId,jdbcType=INTEGER} </if>
+			<if test="renderTypesStr != null"> and render_types_str = #{renderTypesStr,jdbcType=INTEGER} </if>
+			<if test="operationUserId != null"> and operation_user_id = #{operationUserId,jdbcType=INTEGER} </if>
+			<if test="taskId != null"> and task_id = #{taskId,jdbcType=INTEGER} </if>
+	</select>
+	<select id="getStateByTaskId" resultMap="AllResultMap3"
+		parameterType="java.lang.Integer">
+		select
+			id,plan_id,template_id,render_pic,render_720,render_n720,render_video,
+			is_deleted,state,remark,fail_type,fail_reason,host_name,business_id,design_plan_id,task_id,order_number
+			,operation_user_id,task_type,render_types_str,gmt_create,gmt_modified,modifier,creator,platform_id
+		from 
+			auto_render_task_state
+		where
+			task_id = #{taskId,jdbcType=INTEGER}
+	</select>
+
+		<!-- 获取替换渲染任务 -->
+	<select id="getTaskList" resultMap="AllResultMap2"
+		parameterType="com.nork.design.model.AutoRenderTask">
+		select
+		<include refid="All_Column_List_replace" />
+		from auto_render_task
+		where 1=1
+		and   is_deleted =  0
+	 	order by priority desc
+	</select>
+
+	<insert id="batchInsertProductReplaceTaskDataList">
+    <!-- 批量插入 -->
+        insert into product_replace_task_detail
+        (task_id,source_product_id,source_product_code,dest_product_id,dest_product_code,creator,gmt_create,modifier,gmt_modified,source_pos_index_path)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.taskId},
+            #{item.sourceProductId},
+            #{item.sourceProductCode},
+            #{item.destProductId},
+            #{item.destProductCode},
+            #{item.creator},
+            #{item.gmtCreate},
+            #{item.modifier},
+            #{item.gmtModified},
+            #{item.posIndexPath}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertGroupProductReplace" parameterType="com.nork.mobile.model.ProductGroupReplaceTaskDetail"
+            useGeneratedKeys="true" keyProperty="id">
+        insert into product_group_replace_task_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="taskId!= null">task_id, </if>
+            <if test="sourceGroupProductId!= null">source_group_product_id, </if>
+            <if test="sourceGroupProductCode!= null">source_group_product_code, </if>
+            <if test="replaceGroupId != null">replace_group_id, </if>
+            <if test="replaceGroupCode!= null">replace_group_code, </if>
+            <if test="sourceProductId!= null">source_product_id, </if>
+            <if test="sourcePosIndexPath!= null">source_pos_index_path, </if>
+            <if test="sourceProductGroupId!= null">source_product_group_id, </if>
+            <if test="sourcePlanGroupId!= null">source_plan_group_id, </if>
+            <if test="sourceGroupProductUniqueId!= null">source_group_product_unique_id, </if>
+            <if test="creator != null">creator, </if>
+            <if test="gmtCreate != null">gmt_create, </if>
+            <if test="modifier!= null">modifier, </if>
+            <if test="gmtModified!= null">gmt_modified, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="taskId!= null"> #{taskId,jdbcType=INTEGER}, </if>
+            <if test="sourceGroupProductId!= null"> #{sourceGroupProductId,jdbcType=INTEGER}, </if>
+            <if test="sourceGroupProductCode!= null"> #{sourceGroupProductCode,jdbcType=VARCHAR}, </if>
+            <if test="replaceGroupId!= null"> #{replaceGroupId,jdbcType=INTEGER}, </if>
+            <if test="replaceGroupCode!= null"> #{replaceGroupCode,jdbcType=VARCHAR}, </if>
+            <if test="sourceProductId!= null"> #{sourceProductId,jdbcType=INTEGER}, </if>
+            <if test="sourcePosIndexPath!= null"> #{sourcePosIndexPath,jdbcType=VARCHAR}, </if>
+            <if test="sourceProductGroupId!= null"> #{sourceProductGroupId,jdbcType=INTEGER}, </if>
+            <if test="sourcePlanGroupId!= null"> #{sourcePlanGroupId,jdbcType=INTEGER}, </if>
+            <if test="sourceGroupProductUniqueId!= null"> #{sourceGroupProductUniqueId,jdbcType=INTEGER}, </if>
+            <if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+            <if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+            <if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+            <if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+        </trim>
+    </insert>
+
+    <!-- 批量插入材质产品 -->
+    <insert id="batchInsertTextureList" parameterType="java.util.List">
+        insert into texture_replace_task_detail
+        (task_id,source_plan_product_id,source_product_id,pos_index_path,source_split_textures_choose_info,replace_split_textures_choose_info,replace_split_textures_param,creator,gmt_create,modifier,gmt_modified)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.taskId},
+            #{item.sourcePlanProductId},
+            #{item.sourceProductId},
+            #{item.posIndexPath},
+            #{item.sourceSplitTexturesChooseInfo},
+            #{item.replaceSplitTexturesChooseInfo},
+            #{item.replaceSplitTexturesParam},
+            #{item.creator},
+            #{item.gmtCreate},
+            #{item.modifier},
+            #{item.gmtModified}
+            )
+        </foreach>
+    </insert>
+    <!-- 查询用户所有记录 -->
+    <select id="selectUnionList" resultType="com.nork.design.model.AutoRenderTask"
+		parameterType="com.nork.design.model.AutoRenderTask">
+		select DISTINCT t.* FROM (
+			SELECT
+			id,
+			id as taskId,
+			plan_id as planId,
+			operation_source as operationSource,
+			operation_user_id as operationUserId,
+			render_pic as renderPic,
+			render_720 as render720,
+			render_n720 as renderN720,
+			render_video as renderVideo,
+			'' as failReason,
+			creator as creator,
+			gmt_create as gmtCreate,
+			is_deleted as isDeleted,
+			design_code as designCode,
+			design_name as designName,
+			template_code as templateCode,
+			'' as newDesignCode,
+			task_source as taskSource,
+			task_type as hostIp,
+			render_types_str as renderTypesStr ,
+			task_type as taskType,
+			'' as renderTimeConsuming,
+			is_valid as isValid,
+			6 as render_state,
+			'' as businessId,
+			'' as failType,
+			platform_id as platformId,
+			template_id as templateId,
+			plan_house_type as planHouseType,
+			0 as newFullHousePlanId,
+			'' as fullHousePlanUUID
+
+			FROM
+			auto_render_task
+			WHERE
+			1 = 1
+			AND is_deleted = 0
+		    AND ((plan_house_type = 1 or plan_house_type = 0) or (plan_house_type = 2 and id = main_task_id))
+            and operation_user_id = #{operationUserId,jdbcType=INTEGER}
+
+			UNION ALL
+
+			SELECT
+			state.id,
+			state.task_id as taskId,
+			state.plan_id as planId,
+			art.operation_source as operationSource,
+			state.operation_user_id as operationUserId,
+			state.render_pic as renderPic,
+			state.render_720 as render720,
+			state.render_n720 as renderN720,
+			state.render_video as renderVideo,
+			state.fail_reason as failReason,
+			state.creator as creator,
+			state.gmt_create as gmtCreate,
+			state.is_deleted as isDeleted,
+			state.design_code as designCode,
+			state.design_name as designName,
+			state.template_code as templateCode,
+			state.new_design_code as newDesignCode,
+			state.task_source as taskSource,
+			state.host_ip as hostIp,
+			state.render_types_str as renderTypesStr ,
+			state.task_type as taskType,
+			state.render_time_consuming as renderTimeConsuming,
+			state.is_valid as isValid,
+			CASE
+			WHEN state.id IS NULL THEN
+			1
+			WHEN state.render_pic = 1
+			OR state.render_720 = 1
+			OR state.render_n720 = 1
+			OR state.render_video = 1 THEN
+			4
+			WHEN state.render_pic = 2
+			OR state.render_720 = 2
+			OR state.render_n720 = 2
+			OR state.render_video = 2 THEN
+			2
+			WHEN state.render_pic = 3
+			OR state.render_720 = 3
+			OR state.render_n720 = 3
+			OR state.render_video = 3 THEN
+			1
+			WHEN state.render_pic = 0
+			OR state.render_720 = 0
+			OR state.render_n720 = 0
+			OR state.render_video = 0 THEN
+			3
+			ELSE
+			5
+			END render_state,
+			state.business_id as businessId,
+			state.fail_type as failType,
+			state.platform_id as platformId,
+			state.template_id as templateId,
+			state.plan_house_type as planHouseType,
+			state.new_full_house_plan_id as newFullHousePlanId,
+			state.full_house_plan_uuid as fullHousePlanUUID
+
+			FROM
+			auto_render_task_state state
+				LEFT JOIN auto_render_task art on state.task_id = art.id
+			WHERE
+			1 = 1
+			and state.is_deleted = '0'
+            and state.operation_user_id = #{operationUserId,jdbcType=INTEGER}
+			and ((state.plan_house_type = 1 or state.plan_house_type = 0) or (state.plan_house_type = 2 and state.task_id = state.main_task_id))
+
+
+		) t
+		where 1 = 1
+
+			<!-- and t.platformId = #{platformId,jdbcType=INTEGER} -->
+			and t.platformId in (select id from base_platform where platform_bussiness_type =#{platformBussinessType,jdbcType=VARCHAR} )
+			and t.isValid = 0
+		 	ORDER BY gmtCreate
+        <if test="isSort != 1 or isSort == null">DESC</if>
+		<if test="isSort == 1">ASC</if>
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+	<!-- 查询总条数 -->
+	<select id="selectUnionCount" resultType="java.lang.Integer"
+		parameterType="com.nork.design.model.AutoRenderTask">
+		SELECT DISTINCT
+			count(1)
+		FROM
+			(
+				SELECT
+					id
+				FROM
+					auto_render_task
+				WHERE
+					is_deleted = 0
+				AND operation_user_id = #{operationUserId,jdbcType=INTEGER}
+				AND is_valid = 0
+				AND ((plan_house_type = 1 or plan_house_type = 0) or (plan_house_type = 2 and id = main_task_id))
+				AND platform_id IN (
+					SELECT
+						id
+					FROM
+						base_platform
+					WHERE
+						platform_bussiness_type = #{platformBussinessType,jdbcType=VARCHAR}
+				)
+				UNION ALL
+					SELECT
+						state.id
+					FROM
+						auto_render_task_state state
+					WHERE
+						state.is_deleted = '0'
+					AND state.operation_user_id = #{operationUserId,jdbcType=INTEGER}
+					AND state.is_valid = 0
+					AND ((state.plan_house_type = 1 or state.plan_house_type = 0) or (state.plan_house_type = 2 and state.task_id = state.main_task_id))
+					AND state.platform_id IN (
+						SELECT
+							id
+						FROM
+							base_platform
+						WHERE
+							platform_bussiness_type = #{platformBussinessType,jdbcType=VARCHAR}
+					)
+			) t
+	</select>
+
+	<!-- 查询所有渲染成功的任务 -->
+	<select id="getAllRenderTypesStr" parameterType="com.nork.design.model.AutoRenderTask" resultType="java.lang.String">
+		SELECT
+		GROUP_CONCAT(S.render_types_str SEPARATOR ',')
+		FROM
+		auto_render_task_state S
+		<where>
+			AND (S.state = 1 or S.state = 2)
+			AND S.is_deleted = 0
+			<if test="operationUserId != null"> and S.operation_user_id = #{operationUserId,jdbcType=INTEGER}</if>
+			<if test="planId!= null"> AND S.plan_id = #{planId,jdbcType=INTEGER}  </if>
+			<if test="templateId!= null"> AND S.template_id = #{templateId ,jdbcType=INTEGER} </if>
+		</where>
+	</select>
+
+	<!-- 删除渲染任务 -->
+	<update id="delRederTaskStateByDesignPlanId" parameterType="java.lang.Integer">
+		update auto_render_task_state S
+		<set>
+			S.is_deleted = 1
+		</set>
+		<where>
+			S.is_deleted = 0
+			<if test="id != null"> and S.task_id = #{id,jdbcType=INTEGER}</if>
+			<if test="operationUserId != null"> and S.operation_user_id = #{operationUserId,jdbcType=INTEGER}</if>
+		</where>
+	</update>
+
+	<!-- 将任务致为无效，只是在前端不显示 -->
+	<update id="updateAutoRenderTaskById">
+		update auto_render_task
+		<set>
+			is_valid = 1
+		</set>
+		where id = #{id,jdbcType=INTEGER} and operation_user_id = #{userId,jdbcType=INTEGER}
+	</update>
+
+	<!-- 查询用户我的方案中已使用户型
+	##这里有个坑，户型名字不是从户型表house_name字段查出，而是从house_common_code字段查出，
+	##是因为后台管理系统输入INSERT时字段插入出错。我尝试推动解决此问题根源，但人言轻微，
+	##不被重视，推不动了还得把我好的代码改错来适配错的代码，特地吐槽，望后人引以为鉴 -->
+	<select id="queryUsedHouseInMyRenderPlan" parameterType="int" resultType="com.nork.home.model.BaseHouse">
+        SELECT
+            id,
+            houseName
+        FROM
+        (
+            SELECT
+                H.id AS id,
+                H.house_common_code AS houseName
+            FROM
+                base_house H
+            WHERE
+                H.id IN (
+                    SELECT
+                      P.house_id
+                    FROM
+                      pay_order P
+                      LEFT JOIN auto_render_task_state S ON P.order_no = S.order_number
+                    WHERE
+                        P.is_deleted = 0
+                    AND P.house_id &lt;&gt; 0
+                    AND P.user_id = #{userId}
+                    AND S.is_deleted = 0
+                    GROUP BY
+                      P.house_id
+            )
+            UNION ALL
+            SELECT
+                H.id AS id,
+                H.house_common_code AS houseName
+            FROM
+                base_house H
+            WHERE
+                H.id IN (
+                    SELECT
+                      P.house_id
+                    FROM
+                      pay_order P
+                      LEFT JOIN auto_render_task T ON T.order_number = P.order_no
+                    WHERE
+                        P.is_deleted = 0
+                    AND P.house_id &lt;&gt; 0
+                    AND P.user_id = #{userId}
+                    AND T.is_deleted = 0
+                    GROUP BY
+                    P.house_id
+            )
+        ) AS T
+    </select>
+
+    <!-- 根据business_id 逻辑删除任务状态 -->
+	<update id="updateAutoRenderTaskStateByBusinessId" parameterType="java.lang.Integer">
+		update auto_render_task_state
+		set
+			<!-- is_deleted = 1 -->
+			is_valid = 1
+		where 1 = 1
+			AND business_id = #{businessId,jdbcType=INTEGER}
+	</update>
+
+	<!-- 根据business_id查询任务状态 -->
+	<select id="selectTaskStateByBusinessId" resultMap="AllResultMap3"
+		parameterType="java.lang.Integer">
+		select
+			id,plan_id,template_id,render_pic,render_720,render_n720,render_video,
+			is_deleted,state,remark,fail_type,fail_reason,host_name,business_id,design_plan_id,task_id,order_number
+			,operation_user_id,task_type,render_types_str,gmt_create,gmt_modified,modifier,creator
+		from 
+			auto_render_task_state
+		where is_deleted = 0
+			and business_id = #{businessId,jdbcType=INTEGER}
+	</select>
+
+	<!-- 根据id查询任务状态 -->
+	<select id="selectAuroRenderTaskStateById" resultMap="AllResultMap3"
+			parameterType="java.lang.Integer">
+		select
+		id,plan_id,template_id,render_pic,render_720,render_n720,render_video,
+		is_deleted,state,remark,fail_type,fail_reason,host_name,business_id,design_plan_id,task_id,order_number
+		,operation_user_id,task_type,render_types_str,gmt_create,gmt_modified,modifier,creator
+		from
+		auto_render_task_state
+		where is_deleted = 0
+		and is_valid = 0
+		and task_id = #{id,jdbcType=INTEGER}
+	</select>
+
+	<!-- 批量插入 -->
+	<insert id="addSubtaskList" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+		insert into auto_render_task
+		(plan_id,template_id,render_pic,render_720,render_n720,render_video,creator,gmt_create,modifier,
+		gmt_modified,design_plan_id,space_code,operation_source,operation_user_id,operation_user_name,task_type,
+		order_number,render_types_str,design_code,design_name,task_source,host_ip,platform_id,overlap_resolve,
+		full_house_plan_id,plan_house_type,main_task_id,house_id,subtask_count,space_function_id)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.planId},
+			#{item.templateId},
+			#{item.renderPic},
+			#{item.render720},
+			#{item.renderN720},
+			#{item.renderVideo},
+			#{item.creator},
+			#{item.gmtCreate},
+			#{item.modifier},
+			#{item.gmtModified},
+			#{item.designPlanId},
+			#{item.spaceCode},
+			#{item.operationSource},
+			#{item.operationUserId},
+			#{item.operationUserName},
+			#{item.taskType},
+			#{item.orderNumber},
+			#{item.renderTypesStr},
+			#{item.designCode},
+			#{item.designName},
+			#{item.taskSource},
+			#{item.hostIp},
+			#{item.platformId},
+			#{item.overlapResolve},
+			#{item.fullHousePlanId},
+			#{item.planHouseType},
+			#{item.mainTaskId},
+			#{item.houseId},
+			#{item.subtaskCount},
+			#{item.spaceFunctionId}
+			)
+		</foreach>
+	</insert>
+
+    <update id="updateAutoRenderTask" parameterType="com.nork.design.model.AutoRenderTask">
+        UPDATE auto_render_task
+        <set>
+            <if test="mainTaskId != null">main_task_id = #{mainTaskId,jdbcType=INTEGER},</if>
+            <if test="subtaskCount != null">subtask_count = #{subtaskCount,jdbcType=INTEGER}</if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+	<select id="getFullHouseMainTaskByNewFullHouseId" parameterType="integer" resultMap="AllResultMap3">
+		select
+		id,plan_id,template_id,render_pic,render_720,render_n720,render_video,is_deleted,state,remark,fail_type,
+		fail_reason,host_name,business_id,design_plan_id,task_id,order_number,operation_user_id,task_type,
+		render_types_str,gmt_create,gmt_modified,modifier,creator,full_house_plan_id,plan_house_type,main_task_id,
+		house_id,subtask_count,space_function_id,new_full_house_plan_id
+		from
+		auto_render_task_state
+		where new_full_house_plan_id = #{fullHouseId} and is_deleted = 0
+	</select>
+
+	<update id="deleteSubTask" parameterType="integer">
+		UPDATE auto_render_task_state SET is_deleted = 1
+		where plan_house_type = 2 and main_task_id != task_id and main_task_id = #{taskId}
+	</update>
+
+</mapper>

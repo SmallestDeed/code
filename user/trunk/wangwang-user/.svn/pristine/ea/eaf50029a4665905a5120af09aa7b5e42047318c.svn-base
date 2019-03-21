@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.system.dao.AuthorizedConfigDao">
+
+	<select id="selectCount" resultType="int"
+		parameterType="com.sandu.api.system.input.AuthorizedConfigSearch">
+		select count(*)
+		from authorized_config
+		where 1=1
+		<if test="activityIds != null  and activityIds !='' ">and activity_ids = #{activityIds,jdbcType=VARCHAR}  </if>
+        <if test="validDay != null">and  valid_day = #{validDay,jdbcType=INTEGER}  </if>
+		<if test="priceStrategy != null  and priceStrategy !='' ">and  price_strategy  = #{priceStrategy,jdbcType=VARCHAR}  </if>
+		<if test="validStrategy != null  and validStrategy !='' ">and valid_strategy = #{validStrategy,jdbcType=VARCHAR}  </if>
+		 <if test="validTimeBegin !=  null and validTimeEnd !=  ''   ">
+			and valid_time between  #{validTimeBegin,jdbcType=VARCHAR}   and   #{validTimeEnd,jdbcType=VARCHAR} 
+		 </if>
+		 <if test="startTimeBegin !=  null and startTimeEnd !=  ''   ">
+			and start_time between  #{startTimeBegin,jdbcType=VARCHAR}   and   #{startTimeEnd,jdbcType=VARCHAR} 
+		 </if>
+        <if test="activityDetails != null"> and activity_details = #{activityDetails,jdbcType=VARCHAR} </if>
+        <if test="isOpen != null"> and is_open = #{isOpen,jdbcType=INTEGER} </if>
+        <if test="authorizedCodeType != null"> and authorized_code_type = #{authorizedCodeType,jdbcType=INTEGER} </if>
+		<if test="authorizedCode !=  null and authorizedCode !=  ''   "> and authorized_code  = #{authorizedCode,jdbcType=VARCHAR} </if>
+		<if test="sch_AuthorizedCode_ !=  null and sch_AuthorizedCode_ !=  ''   ">
+			and authorized_code  like CONCAT(CONCAT('%',#{sch_AuthorizedCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_AuthorizedCode !=  null and sch_AuthorizedCode !=  ''   ">
+			and authorized_code  like CONCAT('%',#{sch_AuthorizedCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAuthorizedCode_ !=  null and schAuthorizedCode_ !=  ''   ">
+			and authorized_code  like CONCAT(#{schAuthorizedCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="authorizedCodeStart !=  null and authorizedCodeEnd!= null  ">
+			and authorized_code between #{authorizedCodeStart,jdbcType=VARCHAR} and #{authorizedCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="password !=  null and password !=  ''   "> and password  = #{password,jdbcType=VARCHAR} </if>
+		<if test="sch_Password_ !=  null and sch_Password_ !=  ''   ">
+			and password  like CONCAT(CONCAT('%',#{sch_Password_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Password !=  null and sch_Password !=  ''   ">
+			and password  like CONCAT('%',#{sch_Password,jdbcType=VARCHAR})
+		 </if>
+		<if test="schPassword_ !=  null and schPassword_ !=  ''   ">
+			and password  like CONCAT(#{schPassword_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="passwordStart !=  null and passwordEnd!= null  ">
+			and password between #{passwordStart,jdbcType=VARCHAR} and #{passwordEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="companyId !=  null and companyId !=  ''   "> and company_id  = #{companyId,jdbcType=VARCHAR} </if>
+		<if test="sch_CompanyId_ !=  null and sch_CompanyId_ !=  ''   ">
+			and company_id  like CONCAT(CONCAT('%',#{sch_CompanyId_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_CompanyId !=  null and sch_CompanyId !=  ''   ">
+			and company_id  like CONCAT('%',#{sch_CompanyId,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCompanyId_ !=  null and schCompanyId_ !=  ''   ">
+			and company_id  like CONCAT(#{schCompanyId_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="companyIdStart !=  null and companyIdEnd!= null  ">
+			and company_id between #{companyIdStart,jdbcType=VARCHAR} and #{companyIdEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="brandIds !=  null and brandIds !=  ''   "> and brand_ids  = #{brandIds,jdbcType=VARCHAR} </if>
+		<if test="sch_BrandIds_ !=  null and sch_BrandIds_ !=  ''   ">
+			and brand_ids  like CONCAT(CONCAT('%',#{sch_BrandIds_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_BrandIds !=  null and sch_BrandIds !=  ''   ">
+			and brand_ids  like CONCAT('%',#{sch_BrandIds,jdbcType=VARCHAR})
+		 </if>
+		<if test="schBrandIds_ !=  null and schBrandIds_ !=  ''   ">
+			and brand_ids  like CONCAT(#{schBrandIds_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="brandIdsStart !=  null and brandIdsEnd!= null  ">
+			and brand_ids between #{brandIdsStart,jdbcType=VARCHAR} and #{brandIdsEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="bigType !=  null and bigType !=  ''   "> and big_type  = #{bigType,jdbcType=VARCHAR} </if>
+		<if test="sch_BigType_ !=  null and sch_BigType_ !=  ''   ">
+			and big_type  like CONCAT(CONCAT('%',#{sch_BigType_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_BigType !=  null and sch_BigType !=  ''   ">
+			and big_type  like CONCAT('%',#{sch_BigType,jdbcType=VARCHAR})
+		 </if>
+		<if test="schBigType_ !=  null and schBigType_ !=  ''   ">
+			and big_type  like CONCAT(#{schBigType_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="bigTypeStart !=  null and bigTypeEnd!= null  ">
+			and big_type between #{bigTypeStart,jdbcType=VARCHAR} and #{bigTypeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="smallType !=  null and smallType !=  ''   "> and small_type  = #{smallType,jdbcType=VARCHAR} </if>
+		<if test="sch_SmallType_ !=  null and sch_SmallType_ !=  ''   ">
+			and small_type  like CONCAT(CONCAT('%',#{sch_SmallType_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_SmallType !=  null and sch_SmallType !=  ''   ">
+			and small_type  like CONCAT('%',#{sch_SmallType,jdbcType=VARCHAR})
+		 </if>
+		<if test="schSmallType_ !=  null and schSmallType_ !=  ''   ">
+			and small_type  like CONCAT(#{schSmallType_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="smallTypeStart !=  null and smallTypeEnd!= null  ">
+			and small_type between #{smallTypeStart,jdbcType=VARCHAR} and #{smallTypeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="smallTypeIds !=  null and smallTypeIds !=  ''   "> and small_type_ids  = #{smallTypeIds,jdbcType=VARCHAR} </if>
+		<if test="sch_SmallTypeIds_ !=  null and sch_SmallTypeIds_ !=  ''   ">
+			and small_type_ids  like CONCAT(CONCAT('%',#{sch_SmallTypeIds_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_SmallTypeIds !=  null and sch_SmallTypeIds !=  ''   ">
+			and small_type_ids  like CONCAT('%',#{sch_SmallTypeIds,jdbcType=VARCHAR})
+		 </if>
+		<if test="schSmallTypeIds_ !=  null and schSmallTypeIds_ !=  ''   ">
+			and small_type_ids  like CONCAT(#{schSmallTypeIds_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="smallTypeIdsStart !=  null and smallTypeIdsEnd!= null  ">
+			and small_type_ids between #{smallTypeIdsStart,jdbcType=VARCHAR} and #{smallTypeIdsEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="productIds !=  null and productIds !=  ''   "> and product_ids  = #{productIds,jdbcType=VARCHAR} </if>
+		<if test="sch_ProductIds_ !=  null and sch_ProductIds_ !=  ''   ">
+			and product_ids  like CONCAT(CONCAT('%',#{sch_ProductIds_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_ProductIds !=  null and sch_ProductIds !=  ''   ">
+			and product_ids  like CONCAT('%',#{sch_ProductIds,jdbcType=VARCHAR})
+		 </if>
+		<if test="schProductIds_ !=  null and schProductIds_ !=  ''   ">
+			and product_ids  like CONCAT(#{schProductIds_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="productIdsStart !=  null and productIdsEnd!= null  ">
+			and product_ids between #{productIdsStart,jdbcType=VARCHAR} and #{productIdsEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="state !=  null  ">			and state  = #{state,jdbcType=INTEGER} </if>
+		<if test="userId !=  null  ">			and user_id  = #{userId,jdbcType=INTEGER} </if>
+		<if test="unitPrice !=  null  ">			and unit_price  = #{unitPrice,jdbcType=DOUBLE} </if>
+		<if test="payStatusValue !=  null  ">			and pay_status_value  = #{payStatusValue,jdbcType=INTEGER} </if>
+		<if test="payModelValue !=  null  ">			and pay_model_value  = #{payModelValue,jdbcType=INTEGER} </if>
+		<if test="terminalImei !=  null and terminalImei !=  ''   "> and terminal_imei  = #{terminalImei,jdbcType=VARCHAR} </if>
+		<if test="sch_TerminalImei_ !=  null and sch_TerminalImei_ !=  ''   ">
+			and terminal_imei  like CONCAT(CONCAT('%',#{sch_TerminalImei_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_TerminalImei !=  null and sch_TerminalImei !=  ''   ">
+			and terminal_imei  like CONCAT('%',#{sch_TerminalImei,jdbcType=VARCHAR})
+		 </if>
+		<if test="schTerminalImei_ !=  null and schTerminalImei_ !=  ''   ">
+			and terminal_imei  like CONCAT(#{schTerminalImei_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="terminalImeiStart !=  null and terminalImeiEnd!= null  ">
+			and terminal_imei between #{terminalImeiStart,jdbcType=VARCHAR} and #{terminalImeiEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="sysCode !=  null and sysCode !=  ''   "> and sys_code  = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+			and sys_code  like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+			and sys_code  like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+			and sys_code  like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+			and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="creator !=  null and creator !=  ''   "> and creator  = #{creator,jdbcType=VARCHAR} </if>
+		<if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+			and creator  like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+			and creator  like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+			and creator  like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="creatorStart !=  null and creatorEnd!= null  ">
+			and creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtCreate !=  null  ">
+			and gmt_create  = #{gmtCreate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="modifier !=  null and modifier !=  ''   "> and modifier  = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and modifier  like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and modifier  like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		 </if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and modifier  like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtModified !=  null  ">
+			and gmt_modified  = #{gmtModified,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="isDeleted !=  null  ">			and is_deleted  = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1 !=  null and att1 !=  ''   "> and att1  = #{att1,jdbcType=VARCHAR} </if>
+		<if test="sch_Att1_ !=  null and sch_Att1_ !=  ''   ">
+			and att1  like CONCAT(CONCAT('%',#{sch_Att1_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att1 !=  null and sch_Att1 !=  ''   ">
+			and att1  like CONCAT('%',#{sch_Att1,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt1_ !=  null and schAtt1_ !=  ''   ">
+			and att1  like CONCAT(#{schAtt1_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att1Start !=  null and att1End!= null  ">
+			and att1 between #{att1Start,jdbcType=VARCHAR} and #{att1End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att2 !=  null and att2 !=  ''   "> and att2  = #{att2,jdbcType=VARCHAR} </if>
+		<if test="sch_Att2_ !=  null and sch_Att2_ !=  ''   ">
+			and att2  like CONCAT(CONCAT('%',#{sch_Att2_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att2 !=  null and sch_Att2 !=  ''   ">
+			and att2  like CONCAT('%',#{sch_Att2,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt2_ !=  null and schAtt2_ !=  ''   ">
+			and att2  like CONCAT(#{schAtt2_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att2Start !=  null and att2End!= null  ">
+			and att2 between #{att2Start,jdbcType=VARCHAR} and #{att2End,jdbcType=VARCHAR}
+		 </if>
+		 <if test="validState!= null">and  valid_state = #{validState,jdbcType=INTEGER}</if>
+		<if test="numa1 !=  null  ">			and numa1  = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2 !=  null  ">			and numa2  = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark !=  null and remark !=  ''   "> and remark  = #{remark,jdbcType=VARCHAR} </if>		<if test="sch_Remark_ !=  null and sch_Remark_ !=  ''   ">
+			and remark  like CONCAT(CONCAT('%',#{sch_Remark_,jdbcType=VARCHAR}),'%')
+		 </if>		<if test="sch_Remark !=  null and sch_Remark !=  ''   ">
+			and remark  like CONCAT('%',#{sch_Remark,jdbcType=VARCHAR})
+		 </if>		<if test="schRemark_ !=  null and schRemark_ !=  ''   ">
+			and remark  like CONCAT(#{schRemark_,jdbcType=VARCHAR},'%')
+		 </if>		<if test="remarkStart !=  null and remarkEnd!= null  ">
+			and remark between #{remarkStart,jdbcType=VARCHAR} and #{remarkEnd,jdbcType=VARCHAR}
+		 </if>
+	</select>
+	
+	
+	<select id="selectByUserId" resultType="com.sandu.api.system.model.AuthorizedConfig">
+		select *
+			from authorized_config
+			where user_id=#{userId}
+			and is_deleted = 0 limit 1;
+	</select>
+	
+	<!-- 查询所有，可排序 -->
+    <select id="selectList" resultType="com.sandu.api.system.model.AuthorizedConfig"
+		parameterType="com.sandu.api.system.model.AuthorizedConfig">
+		select
+		*
+		from authorized_config
+        where 1=1
+        <if test="activityIds != null  and activityIds !='' ">and activity_ids = #{activityIds,jdbcType=VARCHAR}  </if>
+        <if test="validDay != null">and  valid_day = #{validDay,jdbcType=INTEGER}  </if>
+		<if test="priceStrategy != null  and priceStrategy !='' ">and  price_strategy  = #{priceStrategy,jdbcType=VARCHAR}  </if>
+		<if test="validStrategy != null  and validStrategy !='' ">and valid_strategy = #{validStrategy,jdbcType=VARCHAR}  </if>
+		
+        <if test="validTimeBegin !=  null and validTimeEnd !=  ''   ">
+			and valid_time between  #{validTimeBegin,jdbcType=VARCHAR}   and   #{validTimeEnd,jdbcType=VARCHAR} 
+		 </if>
+		 <if test="startTimeBegin !=  null and startTimeEnd !=  ''   ">
+			and start_time between  #{startTimeBegin,jdbcType=VARCHAR}   and   #{startTimeEnd,jdbcType=VARCHAR} 
+		 </if>
+        <if test="activityDetails != null"> and activity_details = #{activityDetails,jdbcType=VARCHAR} </if>
+        <if test="isOpen != null"> and is_open = #{isOpen,jdbcType=INTEGER} </if>
+        <if test="authorizedCodeType != null"> and authorized_code_type = #{authorizedCodeType,jdbcType=INTEGER} </if>
+		<if test="authorizedCode!= null">  and authorized_code = #{authorizedCode,jdbcType=VARCHAR} </if>
+		<if test="password!= null">  and password = #{password,jdbcType=VARCHAR} </if>
+		<if test="companyId!= null">  and company_id = #{companyId,jdbcType=VARCHAR} </if>
+		<if test="brandIds!= null">  and brand_ids = #{brandIds,jdbcType=VARCHAR} </if>
+		<if test="bigType!= null">  and big_type = #{bigType,jdbcType=VARCHAR} </if>
+		<if test="smallType!= null">  and small_type = #{smallType,jdbcType=VARCHAR} </if>
+		<if test="smallTypeIds!= null">  and small_type_ids = #{smallTypeIds,jdbcType=VARCHAR} </if>
+		<if test="productIds!= null">  and product_ids = #{productIds,jdbcType=VARCHAR} </if>
+		<if test="state!= null">  and state = #{state,jdbcType=INTEGER} </if>
+		<if test="userId!= null">  and user_id = #{userId,jdbcType=INTEGER} </if>
+		<if test="unitPrice!= null">  and unit_price = #{unitPrice,jdbcType=DOUBLE} </if>
+		<if test="payStatusValue!= null">  and pay_status_value = #{payStatusValue,jdbcType=INTEGER} </if>
+		<if test="payModelValue!= null">  and pay_model_value = #{payModelValue,jdbcType=INTEGER} </if>
+		<if test="terminalImei!= null">  and terminal_imei = #{terminalImei,jdbcType=VARCHAR} </if>
+		<if test="sysCode!= null">  and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="creator!= null">  and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="gmtCreate!= null">  and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+		<if test="modifier!= null">  and modifier = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="gmtModified!= null">  and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP} </if>
+		<if test="isDeleted!= null">  and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1!= null">  and att1 = #{att1,jdbcType=VARCHAR} </if>
+		<if test="att2!= null">  and att2 = #{att2,jdbcType=VARCHAR} </if>
+		<if test="numa1!= null">  and numa1 = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2!= null">  and numa2 = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark!= null">  and remark = #{remark,jdbcType=VARCHAR} </if>
+		<if test="validState!= null">and  valid_state = #{validState,jdbcType=INTEGER}</if>
+		
+	</select>
+</mapper>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+					http://www.springframework.org/schema/beans/spring-beans.xsd
+                    http://code.alibabatech.com/schema/dubbo
+                    http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <!-- 提供方应用信息，用于计算依赖关系 -->
+    <dubbo:application name="${spring.application.name}" />
+
+    <!-- 使用zookeeper注册中心暴露服务地址 -->
+    <dubbo:registry protocol="zookeeper" address="${dubbo.registery.address}">
+        <dubbo:parameter key="qos.port" value="22202" />
+    </dubbo:registry>
+
+    <!-- 设置使用的协议与端口进行暴露服务 -->
+    <dubbo:protocol name="${dubbo.protocol.name}" port="${dubbo.protocol.port}"/>
+
+    <!-- 注册服务验证 -->
+    <dubbo:consumer check="false" timeout="5000"/>
+
+<!--     <dubbo:provider filter="catProviderFilter" />
+ -->
+    <!--服务提供-->
+    <dubbo:service timeout="30000" interface="com.sandu.api.solution.service.DesignPlanRecommendedService" ref="designPlanRecommendedService" version="20.18.0"/>
+
+    <dubbo:service timeout="10000" interface="com.sandu.api.solution.service.biz.DesignPlanBizService" ref="designPlanBizService" version="20.18.0"/>
+
+    <dubbo:service timeout="10000" interface="com.sandu.api.solution.service.DesignPlanService" ref="designPlanService" version="20.18.0"/>
+
+    <dubbo:service interface="com.sandu.api.solution.service.biz.SolutionCopyService" ref="solutionCopyService" version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.solution.service.FullHouseDesignPlanService" ref="fullHouseDesignPlanService" version="20.18.0" />
+
+    <dubbo:service interface="com.sandu.api.solution.service.PlanDecoratePriceService" ref="planDecoratePriceService" version="20.18.0" />
+
+
+    <dubbo:service   interface="com.sandu.api.solution.service.MiniProgramDashboardService" ref="miniProgramDashboardService" version="20.18.0"/>
+    <!--服务引用-->
+    <!--<dubbo:reference id="designPlanRecommendedService" interface="com.sandu.api.solution.service.DesignPlanRecommendedService" version="20.18.0"/>-->
+
+    <dubbo:reference id="baseProductStyleService" interface="com.sandu.api.product.service.BaseProductStyleService" version="20.18.0"/>
+
+    <dubbo:reference id="platformService" interface="com.sandu.api.platform.service.PlatformService" version="20.18.0"/>
+
+    <dubbo:reference id="productService" interface="com.sandu.api.product.service.ProductService" version="20.18.0"/>
+
+    <dubbo:reference id="resModelService" interface="com.sandu.api.resmodel.service.ResModelService" version="20.18.0"/>
+
+    <dubbo:reference id="brandService" interface="com.sandu.api.brand.service.BrandService" version="20.18.0"/>
+
+    <dubbo:reference id="dictionaryService" interface="com.sandu.api.dictionary.service.DictionaryService" version="20.18.0"/>
+
+    <dubbo:reference id="resPicService" interface="com.sandu.api.storage.service.ResPicService" version="20.18.0"/>
+    <dubbo:reference id="resFileService" interface="com.sandu.api.storage.service.ResFileService" version="20.18.0"/>
+    <dubbo:reference id="userService" interface="com.sandu.api.user.service.UserService" version="20.18.0"/>
+
+    <dubbo:reference id="productBizService" interface="com.sandu.api.product.service.biz.ProductBizService" version="20.18.0"/>
+
+    <dubbo:reference id="authorizedConfigService" interface="com.sandu.api.user.service.AuthorizedConfigService" version="20.18.0"/>
+    <dubbo:reference id="companyService" interface="com.sandu.api.company.service.CompanyService" version="20.18.0"/>
+    <dubbo:reference id="queueService" interface="com.sandu.api.queue.service.QueueService" check="false" version="20.18.0"/>
+    <dubbo:reference id="sysRoleService" interface="com.sandu.api.user.service.SysRoleService"  check="false"  version="20.18.0" />
+
+
+</beans>

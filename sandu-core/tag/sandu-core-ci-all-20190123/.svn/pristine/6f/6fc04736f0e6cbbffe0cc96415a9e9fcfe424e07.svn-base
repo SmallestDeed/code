@@ -1,0 +1,35 @@
+package com.sandu.interceptor;
+
+import com.sandu.api.base.common.ResponseEnvelope;
+import com.sandu.api.base.common.exception.BizException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@Slf4j
+@ControllerAdvice
+public class ControllerExceptionHandler {
+    private static final String CLASS_LOG_PREFIX = "[异常处理]";
+
+    @ExceptionHandler(BizException.class)
+    @ResponseBody
+    @ResponseStatus(value= HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEnvelope handlerBizException(BizException e) {
+        log.warn(CLASS_LOG_PREFIX + e.getMessage(), e);
+        ResponseEnvelope res = new ResponseEnvelope(false, e.getMessage());
+        res.setStatusCode(e.getCode() + "");
+        return res;
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseBody
+    @ResponseStatus(value= HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEnvelope handlerRuntimeException(RuntimeException e) {
+        log.error(CLASS_LOG_PREFIX + e.getMessage(), e);
+        ResponseEnvelope res = new ResponseEnvelope(false, "系统异常");
+        return res;
+    }
+}

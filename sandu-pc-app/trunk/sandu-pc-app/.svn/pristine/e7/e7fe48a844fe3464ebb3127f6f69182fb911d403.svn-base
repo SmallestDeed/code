@@ -1,0 +1,37 @@
+package com.sandu.design.model.output;
+
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
+
+@Data
+public class DesignPlanRenderSceneVo implements Serializable {
+
+    @ApiModelProperty(value = "效果图方案ID", dataType = "Integer")
+    private Integer id;
+    @ApiModelProperty(value = "方案名称", dataType = "String")
+    private String planName;
+    @ApiModelProperty(value = "空间类型", dataType = "Integer")
+    private Integer designPlanType;
+    @ApiModelProperty(value = "方案风格ID", dataType = "Integer", hidden = true)
+    private Integer designStyleId;
+    @ApiModelProperty(value = "方案风格", dataType = "String")
+    private String designStyle;
+    @ApiModelProperty(value = "修改时间", dataType = "Date")
+    private Date gmtModified;
+    @ApiModelProperty(value = "方案封面图ID", dataType = "Integer", hidden = true)
+    private Integer coverPicId;
+    @ApiModelProperty(value = "方案封面图", dataType = "String")
+    private String coverPicPath;
+    @ApiModelProperty(value = "照片级渲染资源ID", dataType = "Integer")
+    private Integer normalRenderId;
+    @ApiModelProperty(value = "720全景渲染资源ID", dataType = "Integer")
+    private Integer panoramaRenderId;
+    @ApiModelProperty(value = "720多点全景渲染资源ID", dataType = "Integer")
+    private Integer RoamRenderId;
+    @ApiModelProperty(value = "视频渲染资源ID", dataType = "Integer")
+    private Integer videoRenderId;
+
+}

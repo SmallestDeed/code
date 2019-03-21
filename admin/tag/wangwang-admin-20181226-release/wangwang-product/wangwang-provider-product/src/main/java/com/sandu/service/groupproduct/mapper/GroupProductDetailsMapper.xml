@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.groupproduct.dao.GroupProductDetailsDao">
+    <resultMap id="BaseResultMap" type="com.sandu.api.groupproducct.model.GroupProductDetails">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="group_id" jdbcType="INTEGER" property="groupId"/>
+        <result column="product_id" jdbcType="INTEGER" property="productId"/>
+        <result column="is_main" jdbcType="INTEGER" property="isMain"/>
+        <result column="sys_code" jdbcType="VARCHAR" property="sysCode"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="att1" jdbcType="VARCHAR" property="att1"/>
+        <result column="att2" jdbcType="VARCHAR" property="att2"/>
+        <result column="numa1" jdbcType="INTEGER" property="numa1"/>
+        <result column="numa2" jdbcType="INTEGER" property="numa2"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="sorting" jdbcType="VARCHAR" property="sorting"/>
+        <result column="chartlet_product_model_Id" jdbcType="INTEGER" property="chartletProductModelId"/>
+        <result column="camera_view" jdbcType="VARCHAR" property="cameraView"/>
+        <result column="camera_look" jdbcType="VARCHAR" property="cameraLook"/>
+        <result column="pos_index_path" jdbcType="VARCHAR" property="posIndexPath"/>
+        <result column="product_index" jdbcType="INTEGER" property="productIndex"/>
+        <result column="split_textures_choose_info" jdbcType="VARCHAR" property="splitTexturesChooseInfo"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, group_id, product_id, is_main, sys_code, creator, gmt_create, modifier, gmt_modified, 
+    is_deleted, att1, att2, numa1, numa2, remark, sorting, chartlet_product_model_Id, 
+    camera_view, camera_look, pos_index_path, product_index, split_textures_choose_info
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from group_product_details
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <select id="getProductIdsByGroupId" resultType="java.lang.String">
+        SELECT GROUP_CONCAT(product_id) from group_product_details where group_id =
+            #{id}
+    </select>
+    <select id="getMainProductIdWithGroupId" resultType="java.lang.Integer">
+        select product_id from group_product_details where group_id = #{groupId} and is_main = 1 limit 1;
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from group_product_details
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <delete id="deleteByGroupIds">
+        delete from group_product_details
+        where group_id in
+        <foreach collection="ids" item="id" separator="," close=")" open="(">
+            #{id}
+        </foreach>
+    </delete>
+    <insert id="insert" parameterType="com.sandu.api.groupproducct.model.GroupProductDetails">
+    insert into group_product_details (id, group_id, product_id, 
+      is_main, sys_code, creator, 
+      gmt_create, modifier, gmt_modified, 
+      is_deleted, att1, att2, 
+      numa1, numa2, remark, 
+      sorting, chartlet_product_model_Id, camera_view, 
+      camera_look, pos_index_path, product_index, 
+      split_textures_choose_info)
+    values (#{id,jdbcType=BIGINT}, #{groupId,jdbcType=INTEGER}, #{productId,jdbcType=INTEGER}, 
+      #{isMain,jdbcType=INTEGER}, #{sysCode,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{isDeleted,jdbcType=INTEGER}, #{att1,jdbcType=VARCHAR}, #{att2,jdbcType=VARCHAR}, 
+      #{numa1,jdbcType=INTEGER}, #{numa2,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, 
+      #{sorting,jdbcType=VARCHAR}, #{chartletProductModelId,jdbcType=INTEGER}, #{cameraView,jdbcType=VARCHAR}, 
+      #{cameraLook,jdbcType=VARCHAR}, #{posIndexPath,jdbcType=VARCHAR}, #{productIndex,jdbcType=INTEGER}, 
+      #{splitTexturesChooseInfo,jdbcType=VARCHAR})
+  </insert>
+    <insert id="insertSelective" parameterType="com.sandu.api.groupproducct.model.GroupProductDetails">
+        insert into group_product_details
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="groupId != null">
+                group_id,
+            </if>
+            <if test="productId != null">
+                product_id,
+            </if>
+            <if test="isMain != null">
+                is_main,
+            </if>
+            <if test="sysCode != null">
+                sys_code,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="att1 != null">
+                att1,
+            </if>
+            <if test="att2 != null">
+                att2,
+            </if>
+            <if test="numa1 != null">
+                numa1,
+            </if>
+            <if test="numa2 != null">
+                numa2,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="sorting != null">
+                sorting,
+            </if>
+            <if test="chartletProductModelId != null">
+                chartlet_product_model_Id,
+            </if>
+            <if test="cameraView != null">
+                camera_view,
+            </if>
+            <if test="cameraLook != null">
+                camera_look,
+            </if>
+            <if test="posIndexPath != null">
+                pos_index_path,
+            </if>
+            <if test="productIndex != null">
+                product_index,
+            </if>
+            <if test="splitTexturesChooseInfo != null">
+                split_textures_choose_info,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="groupId != null">
+                #{groupId,jdbcType=INTEGER},
+            </if>
+            <if test="productId != null">
+                #{productId,jdbcType=INTEGER},
+            </if>
+            <if test="isMain != null">
+                #{isMain,jdbcType=INTEGER},
+            </if>
+            <if test="sysCode != null">
+                #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="att1 != null">
+                #{att1,jdbcType=VARCHAR},
+            </if>
+            <if test="att2 != null">
+                #{att2,jdbcType=VARCHAR},
+            </if>
+            <if test="numa1 != null">
+                #{numa1,jdbcType=INTEGER},
+            </if>
+            <if test="numa2 != null">
+                #{numa2,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="sorting != null">
+                #{sorting,jdbcType=VARCHAR},
+            </if>
+            <if test="chartletProductModelId != null">
+                #{chartletProductModelId,jdbcType=INTEGER},
+            </if>
+            <if test="cameraView != null">
+                #{cameraView,jdbcType=VARCHAR},
+            </if>
+            <if test="cameraLook != null">
+                #{cameraLook,jdbcType=VARCHAR},
+            </if>
+            <if test="posIndexPath != null">
+                #{posIndexPath,jdbcType=VARCHAR},
+            </if>
+            <if test="productIndex != null">
+                #{productIndex,jdbcType=INTEGER},
+            </if>
+            <if test="splitTexturesChooseInfo != null">
+                #{splitTexturesChooseInfo,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <insert id="insertList">
+        insert into group_product_details
+        <trim prefix="(" suffix=") values" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="groupId != null">
+                group_id,
+            </if>
+            <if test="productId != null">
+                product_id,
+            </if>
+            <if test="isMain != null">
+                is_main,
+            </if>
+            <if test="sysCode != null">
+                sys_code,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="att1 != null">
+                att1,
+            </if>
+            <if test="att2 != null">
+                att2,
+            </if>
+            <if test="numa1 != null">
+                numa1,
+            </if>
+            <if test="numa2 != null">
+                numa2,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="sorting != null">
+                sorting,
+            </if>
+            <if test="chartletProductModelId != null">
+                chartlet_product_model_Id,
+            </if>
+            <if test="cameraView != null">
+                camera_view,
+            </if>
+            <if test="cameraLook != null">
+                camera_look,
+            </if>
+            <if test="posIndexPath != null">
+                pos_index_path,
+            </if>
+            <if test="productIndex != null">
+                product_index,
+            </if>
+            <if test="splitTexturesChooseInfo != null">
+                split_textures_choose_info,
+            </if>
+        </trim>
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">
+                    #{id,jdbcType=BIGINT},
+                </if>
+                <if test="groupId != null">
+                    #{groupId,jdbcType=INTEGER},
+                </if>
+                <if test="productId != null">
+                    #{productId,jdbcType=INTEGER},
+                </if>
+                <if test="isMain != null">
+                    #{isMain,jdbcType=INTEGER},
+                </if>
+                <if test="sysCode != null">
+                    #{sysCode,jdbcType=VARCHAR},
+                </if>
+                <if test="creator != null">
+                    #{creator,jdbcType=VARCHAR},
+                </if>
+                <if test="gmtCreate != null">
+                    #{gmtCreate,jdbcType=TIMESTAMP},
+                </if>
+                <if test="modifier != null">
+                    #{modifier,jdbcType=VARCHAR},
+                </if>
+                <if test="gmtModified != null">
+                    #{gmtModified,jdbcType=TIMESTAMP},
+                </if>
+                <if test="isDeleted != null">
+                    #{isDeleted,jdbcType=INTEGER},
+                </if>
+                <if test="att1 != null">
+                    #{att1,jdbcType=VARCHAR},
+                </if>
+                <if test="att2 != null">
+                    #{att2,jdbcType=VARCHAR},
+                </if>
+                <if test="numa1 != null">
+                    #{numa1,jdbcType=INTEGER},
+                </if>
+                <if test="numa2 != null">
+                    #{numa2,jdbcType=INTEGER},
+                </if>
+                <if test="remark != null">
+                    #{remark,jdbcType=VARCHAR},
+                </if>
+                <if test="sorting != null">
+                    #{sorting,jdbcType=VARCHAR},
+                </if>
+                <if test="chartletProductModelId != null">
+                    #{chartletProductModelId,jdbcType=INTEGER},
+                </if>
+                <if test="cameraView != null">
+                    #{cameraView,jdbcType=VARCHAR},
+                </if>
+                <if test="cameraLook != null">
+                    #{cameraLook,jdbcType=VARCHAR},
+                </if>
+                <if test="posIndexPath != null">
+                    #{posIndexPath,jdbcType=VARCHAR},
+                </if>
+                <if test="productIndex != null">
+                    #{productIndex,jdbcType=INTEGER},
+                </if>
+                <if test="splitTexturesChooseInfo != null">
+                    #{splitTexturesChooseInfo,jdbcType=VARCHAR},
+                </if>
+            </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.groupproducct.model.GroupProductDetails">
+        update group_product_details
+        <set>
+            <if test="groupId != null">
+                group_id = #{groupId,jdbcType=INTEGER},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId,jdbcType=INTEGER},
+            </if>
+            <if test="isMain != null">
+                is_main = #{isMain,jdbcType=INTEGER},
+            </if>
+            <if test="sysCode != null">
+                sys_code = #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="att1 != null">
+                att1 = #{att1,jdbcType=VARCHAR},
+            </if>
+            <if test="att2 != null">
+                att2 = #{att2,jdbcType=VARCHAR},
+            </if>
+            <if test="numa1 != null">
+                numa1 = #{numa1,jdbcType=INTEGER},
+            </if>
+            <if test="numa2 != null">
+                numa2 = #{numa2,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="sorting != null">
+                sorting = #{sorting,jdbcType=VARCHAR},
+            </if>
+            <if test="chartletProductModelId != null">
+                chartlet_product_model_Id = #{chartletProductModelId,jdbcType=INTEGER},
+            </if>
+            <if test="cameraView != null">
+                camera_view = #{cameraView,jdbcType=VARCHAR},
+            </if>
+            <if test="cameraLook != null">
+                camera_look = #{cameraLook,jdbcType=VARCHAR},
+            </if>
+            <if test="posIndexPath != null">
+                pos_index_path = #{posIndexPath,jdbcType=VARCHAR},
+            </if>
+            <if test="productIndex != null">
+                product_index = #{productIndex,jdbcType=INTEGER},
+            </if>
+            <if test="splitTexturesChooseInfo != null">
+                split_textures_choose_info = #{splitTexturesChooseInfo,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.sandu.api.groupproducct.model.GroupProductDetails">
+    update group_product_details
+    set group_id = #{groupId,jdbcType=INTEGER},
+      product_id = #{productId,jdbcType=INTEGER},
+      is_main = #{isMain,jdbcType=INTEGER},
+      sys_code = #{sysCode,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      att1 = #{att1,jdbcType=VARCHAR},
+      att2 = #{att2,jdbcType=VARCHAR},
+      numa1 = #{numa1,jdbcType=INTEGER},
+      numa2 = #{numa2,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR},
+      sorting = #{sorting,jdbcType=VARCHAR},
+      chartlet_product_model_Id = #{chartletProductModelId,jdbcType=INTEGER},
+      camera_view = #{cameraView,jdbcType=VARCHAR},
+      camera_look = #{cameraLook,jdbcType=VARCHAR},
+      pos_index_path = #{posIndexPath,jdbcType=VARCHAR},
+      product_index = #{productIndex,jdbcType=INTEGER},
+      split_textures_choose_info = #{splitTexturesChooseInfo,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <update id="defaultMainProduct">
+        update group_product_details
+        set is_main = 0
+        where group_id = #{id}
+    </update>
+    <update id="alterMainProduct">
+        update group_product_details
+        set is_main = 1
+        where group_id = #{id} and product_id = #{productBatchId}
+    </update>
+</mapper>

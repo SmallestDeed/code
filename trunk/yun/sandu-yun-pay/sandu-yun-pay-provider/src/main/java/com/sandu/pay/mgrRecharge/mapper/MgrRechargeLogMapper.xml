@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.pay.mgrRecharge.dao.MgrRechargeLogMapper">
+	<!-- **插入定义** -->
+	<insert id="insertSelective" parameterType="com.sandu.pay.mgrRecharge.model.MgrRechargeLog"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into mgr_recharge_log
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="userId!= null">user_id, </if>
+			<if test="rechargeAmount!= null">recharge_amount, </if>
+			<if test="currentBalance!= null">current_balance, </if>
+			<if test="rechargeType!= null">recharge_type, </if>
+			<if test="rechargeStatus!= null">recharge_status, </if>
+			<if test="administratorId!= null">administrator_id, </if>
+			<if test="sysCode!= null">sys_code, </if>
+			<if test="creator!= null">creator, </if>
+			<if test="gmtCreate!= null">gmt_create, </if>
+			<if test="modifier!= null">modifier, </if>
+			<if test="gmtModified!= null">gmt_modified, </if>
+			<if test="isDeleted!= null">is_deleted, </if>
+			<if test="att1!= null">att1, </if>
+			<if test="att2!= null">att2, </if>
+			<if test="numa1!= null">numa1, </if>
+			<if test="numa2!= null">numa2, </if>
+			<if test="remark!= null">remark, </if>
+			
+			<if test="orderNo != null">order_no, </if>
+			<if test="platformBussinessType != null">
+				platform_bussiness_type,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="userId!= null"> #{userId,jdbcType=INTEGER}, </if>
+			<if test="rechargeAmount!= null"> #{rechargeAmount,jdbcType=DOUBLE}, </if>
+			<if test="currentBalance!= null"> #{currentBalance,jdbcType=DOUBLE}, </if>
+			<if test="rechargeType!= null"> #{rechargeType,jdbcType=INTEGER}, </if>
+			<if test="rechargeStatus!= null"> #{rechargeStatus,jdbcType=INTEGER}, </if>
+			<if test="administratorId!= null"> #{administratorId,jdbcType=INTEGER}, </if>
+			<if test="sysCode!= null"> #{sysCode,jdbcType=VARCHAR}, </if>
+			<if test="creator!= null"> #{creator,jdbcType=VARCHAR}, </if>
+			<if test="gmtCreate!= null"> #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifier!= null"> #{modifier,jdbcType=VARCHAR}, </if>
+			<if test="gmtModified!= null"> #{gmtModified,jdbcType=TIMESTAMP}, </if>
+			<if test="isDeleted!= null"> #{isDeleted,jdbcType=INTEGER}, </if>
+			<if test="att1!= null"> #{att1,jdbcType=VARCHAR}, </if>
+			<if test="att2!= null"> #{att2,jdbcType=VARCHAR}, </if>
+			<if test="numa1!= null"> #{numa1,jdbcType=INTEGER}, </if>
+			<if test="numa2!= null"> #{numa2,jdbcType=INTEGER}, </if>
+			<if test="remark!= null"> #{remark,jdbcType=VARCHAR}, </if>
+			
+			<if test="orderNo != null">#{orderNo,jdbcType=VARCHAR}, </if>
+			<if test="platformBussinessType != null">
+				#{platformBussinessType,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+
+	<!-- **更新定义** -->
+	<update id="updateByPrimaryKeySelective" parameterType="com.sandu.pay.mgrRecharge.model.MgrRechargeLog">
+		update mgr_recharge_log
+		<set>
+			<if test="userId!= null"> user_id = #{userId,jdbcType=INTEGER}, </if>
+			<if test="rechargeAmount!= null"> recharge_amount = #{rechargeAmount,jdbcType=DOUBLE},
+			</if>
+			<if test="currentBalance!= null"> current_balance = #{currentBalance,jdbcType=DOUBLE},
+			</if>
+			<if test="rechargeType!= null"> recharge_type = #{rechargeType,jdbcType=INTEGER}, </if>
+			<if test="rechargeStatus!= null"> recharge_status = #{rechargeStatus,jdbcType=INTEGER},
+			</if>
+			<if test="administratorId!= null"> administrator_id = #{administratorId,jdbcType=INTEGER},
+			</if>
+			<if test="sysCode!= null"> sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+			<if test="creator!= null"> creator = #{creator,jdbcType=VARCHAR}, </if>
+			<if test="gmtCreate!= null"> gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifier!= null"> modifier = #{modifier,jdbcType=VARCHAR}, </if>
+			<if test="gmtModified!= null"> gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+			<if test="isDeleted!= null"> is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+			<if test="att1!= null"> att1 = #{att1,jdbcType=VARCHAR}, </if>
+			<if test="att2!= null"> att2 = #{att2,jdbcType=VARCHAR}, </if>
+			<if test="numa1!= null"> numa1 = #{numa1,jdbcType=INTEGER}, </if>
+			<if test="numa2!= null"> numa2 = #{numa2,jdbcType=INTEGER}, </if>
+			<if test="remark!= null"> remark = #{remark,jdbcType=VARCHAR}, </if>
+			<if test="orderNo != null"> order_no = #{orderNo,jdbcType=VARCHAR}, </if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<!-- **删除定义** -->
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		mgr_recharge_log
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+
+	<!-- **常量定义** -->
+	<sql id="All_Column_List">
+		id,user_id,order_no,recharge_amount,current_balance,recharge_type,recharge_status,administrator_id,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,att1,att2,numa1,numa2,remark
+	</sql>
+
+	<!-- **结果定义** -->
+	<resultMap id="AllResultMap" type="com.sandu.pay.mgrRecharge.model.MgrRechargeLog">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="user_id" property="userId" jdbcType="INTEGER" />
+		<result column="recharge_amount" property="rechargeAmount"
+			jdbcType="DOUBLE" />
+		<result column="current_balance" property="currentBalance"
+			jdbcType="DOUBLE" />
+		<result column="recharge_type" property="rechargeType"
+			jdbcType="INTEGER" />
+		<result column="recharge_status" property="rechargeStatus"
+			jdbcType="INTEGER" />
+		<result column="administrator_id" property="administratorId"
+			jdbcType="INTEGER" />
+		<result column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result column="creator" property="creator" jdbcType="VARCHAR" />
+		<result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result column="att1" property="att1" jdbcType="VARCHAR" />
+		<result column="att2" property="att2" jdbcType="VARCHAR" />
+		<result column="numa1" property="numa1" jdbcType="INTEGER" />
+		<result column="numa2" property="numa2" jdbcType="INTEGER" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="recharge_type_info" property="rechargeTypeInfo" jdbcType="VARCHAR" />
+		<result column="recharge_status_info" property="rechargeStatusInfo" jdbcType="VARCHAR" />
+		<result column="user_name" property="username" jdbcType="VARCHAR" />
+		<result column="administrator_name" property="administratorName" jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		
+		<result column="order_no" property="orderNo" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<!-- 按订单号查询 -->
+	<select id="getReChargeByOrderNo" resultMap="AllResultMap"
+			parameterType="java.lang.String">
+		select
+		<include refid="All_Column_List" />
+		from mgr_recharge_log
+		where order_no = #{orderNo}
+	</select>
+</mapper>

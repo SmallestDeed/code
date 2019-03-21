@@ -1,0 +1,217 @@
+
+<view class='case-details' style='height:{{caseListheight}};overflow:{{caseListOverflow}}'>
+    <scroll-view scroll-y='true' style='height:{{windowHeight}}px;' scroll-with-animation='true' scroll-into-view='{{scrollId}}'>
+    <!-- 头部 -->
+    <view class='case-details-header' id='banner'>
+        <view class='details-header-image'>
+            <!-- <image src='{{caseDetails.designPlanCoverPath? resourcePath + caseDetails.designPlanCoverPath: staticImageUrl+"goods_pic_no.png"}}'>
+            </image> -->
+            <image class='bigPth' wx:if="{{caseDetails.designPlanCoverPath}}" 
+                src='{{resourcePath + caseDetails.designPlanCoverPath}}'></image>
+            <image class='bigPth' wx:if="{{caseDetails.coverPath&&!caseDetails.designPlanCoverPath}}" src='{{resourcePath + caseDetails.coverPath}}'></image>
+            <image wx:if="{{!caseDetails.coverPath&&!caseDetails.designPlanCoverPath}}" 
+                class='bigPth' src='{{staticImageUrl}}home_pic_no.png'></image>
+        </view>
+        
+    </view>
+    <!--方案基本信息-->
+    <view class='planInfo'>
+      <view class='planName'>{{caseDetails.designPlanName}}</view>
+      <view class='other'>
+        <view class='style'>{{caseDetails.spaceStyleName}} | {{caseDetails.spaceArea}} m²</view>
+        <view class='viewCount'>浏览 {{caseDetails.useCount||caseDetails.viewNum}}</view>
+      </view>
+    </view>
+    <!-- 视频漫游效果 -->
+    <view wx:if='{{isWholeHouse != 2}}' class='case-details-video' data-type='video' data-item='{{caseDetails}}' catchtap='toThreeD'>
+        <view class='details-video-title'>视频漫游效果</view>
+        <view class='details-video-message'>
+            <view class='video-message-image'>
+                <image src='{{caseDetails.designPlanCoverPath? resourcePath + caseDetails.designPlanCoverPath: staticImageUrl+"goods_pic_no.png"}}'>
+                </image>
+            </view>
+            <view class='video-message-logo'>
+                <image src='{{staticImageUrl}}place_icon_vedio_02.png'></image>
+            </view>
+        </view>
+    </view>
+    <!-- 720效果 -->
+    <view class='case-details-seven' data-type='seven' data-item='{{caseDetails}}' catchtap='toThreeD'>
+        <view class='details-seven-title'>720漫游效果</view>
+        <view class='details-seven-message'>
+            <view class='seven-message-image'>
+                <image src='{{caseDetails.designPlanCoverPath? resourcePath + caseDetails.designPlanCoverPath: staticImageUrl+"goods_pic_no.png"}}'>
+                </image>
+                <view class='seven-message-logo'>
+                    <image src='{{staticImageUrl}}place_icon_720_02.png'></image>
+                </view>
+            </view>
+            
+        </view>
+    </view>
+    <!-- 多点效果 -->
+    <view wx:if='{{isWholeHouse != 2}}' class='case-details-roam' data-type='roam' data-item='{{caseDetails}}' catchtap='toThreeD'>
+        <view class='details-roam-title'>多点漫游效果</view>
+        <view class='details-roam-message'>
+            <view class='roam-message-image'>
+                <image src='{{caseDetails.designPlanCoverPath? resourcePath + caseDetails.designPlanCoverPath: staticImageUrl+"goods_pic_no.png"}}'>
+                </image>
+            </view>
+            <view class='roam-message-logo'>
+                <image src='{{staticImageUrl}}place_icon_morepoint_02.png'></image>
+            </view>
+        </view>
+    </view>       
+    <!-- 方案信息富文本 -->
+    <view class='case-details-message'>
+        <import src="../../utils/wxParse/wxParse.wxml" />
+        <view class='g-m-table'>
+            <template is="wxParse" data="{{wxParseData:article.nodes}}" />
+        </view>
+    </view>
+    
+    <view class='likeNcollect'>
+        <view class='lCTop' catchtap='collectCase' data-type='collect' data-status='{{caseDetails.isFavorite}}' data-item='{{caseDetail}}'>
+          <view class='center-box' style='margin:0 auto;'>
+            <image src='{{caseDetails.isFavorite!=1?imgUrl+"news_icon_collect_nor.png":imgUrl+"news_icon_collect_sct.png"}}'>
+            </image>
+            <text class='{{caseDetails.isFavorite!=1?"txt":"txtActive"}}' wx:if='{{caseDetails.isFavorite==1||(caseDetails.collectNumStr!=null && caseDetails.collectNumStr >0)}}'>{{caseDetails.collectNumStr}}</text>
+            <text class='{{caseDetails.isFavorite!=1 ?"txt":"txtActive"}}' wx:if='{{caseDetails.isFavorite!=1&&(caseDetails.collectNumStr==null || caseDetails.collectNumStr<=0)}}'>收藏</text>
+          </view>
+        </view>
+        <view class='lCTop' catchtap='likeCase' data-type='like' data-status='{{caseDetails.isLike}}'>
+          <view class='center-box' style='margin:0 auto;'>
+            <image src='{{caseDetails.isLike!=1?imgUrl+"news_icon_like_nor.png":imgUrl+"news_icon_like_sct.png"}}'>
+            </image>
+            <text class='{{caseDetails.isLike!=1?"txt":"txtActive"}}' wx:if='{{caseDetails.isLike==1||(caseDetails.likeNumStr!=null && caseDetails.likeNumStr >0)}}'>{{caseDetails.likeNumStr}}</text>
+            <text class='{{caseDetails.isLike!=1?"txt":"txtActive"}}' wx:if='{{caseDetails.isLike!=1&&(caseDetails.likeNumStr==null || caseDetails.likeNumStr<=0)}}'>点赞</text>
+          </view>
+        </view>
+    </view>
+
+    <view class='gary'></view>
+    <!-- 评论 -->
+    <view class='comment'>
+      <view class='top' id='comment'>
+        <view class='left fl'>评论 {{totalCount>999?'999+':(totalCount || 0)}}</view>
+        <view class='head_tab'>
+          <view class="{{sort=='0'? 'head_tab_item_act': 'head_tab_item'}}" bindtap='changeCmtSort' data-sort='0'>
+            最新
+          <text class='line' wx:if="{{sort=='0'}}"></text>
+          </view>
+          <view class="{{sort=='1'? 'head_tab_item_act': 'head_tab_item'}}" bindtap='changeCmtSort' data-sort='1'>
+            最热
+          <text class='line' wx:if="{{sort=='1'}}"></text>
+          </view>
+        </view>
+      </view>
+      
+      <view class='noComment' wx:if='{{commentList.length<=0}}'>
+        暂无评论，来抢个沙发吧~
+      </view> 
+      
+      <view class='content' wx:for='{{commentList}}' wx:if='{{commentList.length>0}}'>
+        <view class='info' bindtap='answerCmt' data-id='{{item.id}}' data-name="{{item.nickName?item.nickName:'匿名用户'}}">
+          <view class='personal'>
+            <image class='head' src='{{item.headPath?item.headPath:staticImageUrl+"index (2).png"}}'></image>
+            <view class='other'>
+              <view class='username'>{{item.nickName?item.nickName:'匿名用户'}}</view>
+            </view>
+          </view>
+          <view class='like' catchtap='commentLike' data-id='{{item.id}}' data-status='{{item.praiseStatus}}' data-index='{{index}}'>
+            <image src='{{item.praiseStatus!=1?imgUrl+"news_icon_like_nor.png":imgUrl+"news_icon_like_sct.png"}}'></image>
+            <view class='{{item.praiseStatus!=1?"txt":"txtActive"}}' wx:if='{{item.praiseCount>0}}'>{{item.praiseCount>999?'999+':item.praiseCount}}</view>
+            <view class='{{item.praiseStatus!=1?"txt":"txtActive"}}' wx:if='{{item.praiseCount<=0}}'>0</view>
+          </view>
+        </view>  
+        <view class='textCot' bindtap='answerCmt' data-id='{{item.id}}' data-name="{{item.nickName?item.nickName:'匿名用户'}}">
+          {{item.comment}}
+        </view>
+        <view class='textCot2' wx:if='{{item.initComment}}' bindtap='answerCmt' data-id='{{item.id}}' data-name="{{item.nickName?item.nickName:'匿名用户'}}">
+          <view class='initComment'><text>{{item.initNickName?item.initNickName:'匿名用户'}}：</text>{{item.initComment}}</view>
+        </view>
+        <view class='delNtime' bindtap='answerCmt' data-id='{{item.id}}' data-name="{{item.nickName?item.nickName:'匿名用户'}}">
+          <view>{{item.gmtCreate}} · 回复</view>
+          <view catchtap='deleteCmt' data-id='{{item.id}}' wx:if='{{item.userId==nowUserId}}'>删除</view>
+        </view>
+      </view>
+    </view>
+    
+</scroll-view>
+
+
+<image class='putIn' src='{{staticImageUrl}}page_icon_home_02.png' bindtap='putInMyhouse'></image>
+
+
+
+
+<view class='bottomBar'>
+  <view class='top'>
+  <view class='placeholder' wx:if='{{commentTxt==""}}'>{{placeholderTxt}}</view>
+    <!-- 输入框 -->
+    <view class="ppg_search2">
+      <image class='search_icon_pen' src='{{imgUrl}}comment_icon_pen.png'></image>
+      <!-- <view class='answer'>回复 赵钱孙:</view> -->
+      <input maxlength='50' class="{{commentTxt==''?'input2':'input'}}" value='{{commentTxt}}' focus='{{textFocus}}' type='text' 
+      show-confirm-bar='' maxlength='-1' bindinput='textareaInput' bindblur='textBlur' bindfocus='textF' cursor-spacing='20'fixed="{{true}}"></input>
+      
+    </view>
+    <view class='toCommentTop' wx:if='{{!submitFlag}}'>
+      <image class='addMore' src='{{staticImageUrl}}page_icon_comment.png' bindtap='scrollView'></image>
+      <view class='commentNum' wx:if='{{totalCount>0}}'>{{totalCount}}</view>
+    </view>
+    <view class='submitBtn' bindtap='submitComment' wx:if='{{submitFlag}}'>发布</view>
+  </view>
+</view>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <view class='zzzcs' wx:if="{{getPhone}}">
+        <view class='showView'>
+            <image src='{{staticImageUrl}}zhuce02@2x.png' class='bgImg'></image>
+            <view class='items' style='margin-top:50rpx;'>
+                <input placeholder='手机号' maxlength='11' type='number' value='{{getObj.phone}}' bindinput='changeInput' data-type="phone"></input>
+            </view>
+            <view class='items code'>
+                <input placeholder='验证码' data-type="code" maxlength='8' type='number' disabled='{{!inputFlag2}}' bindinput='changeInput' value='{{getObj.code}}'></input>
+                <view class='pubCode  {{inputFlag?"":"disableds"}}' bindtap='{{inputFlag&&message=="获取验证码"?"getCodeFun":""}}'>
+                    {{message?message:"获取验证码"}}
+                </view>
+            </view>
+            <view class='items btns {{inputFlag2?"":"disableds"}}' bindtap='{{inputFlag2?"submitFun":""}}'>确认</view>
+            <image src='{{staticImageUrl}}home_pop_close.png' class='close' bindtap='closeFun'></image>
+        </view>
+    </view>
+    <!-- 装修报价说明弹框 -->
+    <view class='decorate-mask' wx:if='{{decoratePriceBox}}'>
+        <view class='decorate-price-box'>
+            <view class='price-box-title'>装修报价</view>
+            <view class='price-box-list'>
+                <view class='price-box-item' wx:for='{{decoratePriceList}}' wx:key='{{index}}'>
+                    <view class='box-item-main clearfix'>
+                        <view class='fl'>{{item.decorateTypeName}}</view>
+                        <view class='fr'>￥{{item.decoratePrice}}/m²</view>
+                    </view>
+                    <view class='box-item-secondary'>{{item.text}}</view>
+                </view>
+            </view>
+            <view class='price-box-confirm' catchtap='showDecoratePriceBox'>我知道了</view>
+        </view>
+    </view>
+</view>
+

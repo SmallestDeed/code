@@ -1,0 +1,94 @@
+<!-- <view class='bindingphone' bindtap='showBIndingPhoneBox' wx:if='{{!issBindingMobile}}'>
+  快去绑定手机号吧！<view class='phone-btn'>去绑定</view>  
+</view>  -->
+<view class="head-portrait">
+    <view class="head-info" bindtap='toMyAccount'>
+      <image src="{{wxInfo.userInfo?wxInfo.userInfo.avatarUrl:'/static/image/index.png'}}" class='userImg'></image>
+      <view class='p1'>{{wxInfo.userInfo.nickName}}</view>
+      <view class='p2'>
+        <image src="/static/image/money.png"></image>
+        <text>度币：</text>
+        {{userInfo.balanceIntegral|Int}}
+      </view>
+      <image class='goNext' src='/static/image/list_icon_more.png'></image>
+    </view>
+</view>
+
+<view class="person-nav flex">
+    <navigator class='items' url="/pages/mine/purchase-car/purchase-car" hover-class='none'>
+      <image src='/static/image/cart.png'></image>
+      <view>购物车</view>
+    </navigator>
+    <navigator class='items' url="/pages/mine/my-order/my-order" hover-class='none'> 
+      <image src='/static/image/order.png'></image>
+      <view>我的订单</view>
+    </navigator>
+    <navigator class='items' url="/pages/mine/my-card/my-card" hover-class='none'>
+      <image src='/static/image/package.png'></image>
+      <view>我的卡包</view>
+    </navigator>
+    <navigator class='items' hover-class='none'>
+      <image src='/static/image/shop.png'></image>
+      <view>积分商城</view>
+    </navigator>
+</view>
+<view class="bindingphone" bindtap='showBIndingPhoneBox' wx:if='{{!issBindingMobile}}'>
+  <image src="{{staticImage}}me_pic_200.png" ></image>
+</view>
+<view class="list-cells ">
+    <navigator class="list-cell clearfix" url='/pages/search-houseType/search-houseType?type=search' hover-class='none'>
+        <view class="list-cell__bd">搜索户型</view>
+        <view class="list-cell__ft"><image src="/static/image/list_icon_more.png"></image></view>
+    </navigator>
+    <view class='line'></view>
+    <!-- <navigator class="list-cell clearfix" url='/pages/mine/my-house-type/my-house-type' hover-class='none'>
+        <view class="list-cell__bd">我的户型</view>
+        <view class="list-cell__ft"><image src="/static/image/list_icon_more.png"></image></view>
+    </navigator> -->
+    <navigator class="list-cell clearfix" url='/pages/mine/my-favorite-fitment/my-favorite-fitment' hover-class='none'>
+        <view class="list-cell__bd">我的方案</view>
+        <view class="list-cell__ft"><image src="/static/image/list_icon_more.png"></image></view>
+    </navigator>
+    <!-- <navigator class="list-cell clearfix" url='/pages/my-tasks/my-tasks' hover-class='none'>
+        <view class="list-cell__bd">渲染任务</view>
+        <view class="list-cell__ft"><image src="/static/image/list_icon_more.png"></image></view>
+    </navigator> -->
+    <view class="list-cell clearfix" catchtap='routerToMyModule' data-type='news' data-url='/pages/my-news/my-news' hover-class='none'>
+        <view class="list-cell__bd">我的消息</view>
+        <view class="list-cell__ft"><image src="/static/image/list_icon_more.png"></image></view>
+        <view class='list-cell__count fr' wx:if='{{renderMessageIsRead == 0 || unreadMsg > 0 || systemNewObj.isRead == 0}}'></view>
+    </view>
+    <navigator class="list-cell clearfix" url='/pages/mine/my-favorite/my-favorite' hover-class='none'>
+        <view class="list-cell__bd" >我的收藏</view>
+        <view class="list-cell__ft"><image src="/static/image/list_icon_more.png"></image></view>
+    </navigator>
+</view>
+<view class="list-cells ">
+    <navigator class="list-cell clearfix" url='/pages/mine/myPublish/myPublish' hover-class='none'>
+        <view class="list-cell__bd">我的发布</view>
+        <view class="list-cell__ft"><image src="/static/image/list_icon_more.png"></image></view>
+    </navigator>
+    <view class='line'></view>
+    <!-- <navigator class="list-cell clearfix" hover-class='none'>
+        <view class="list-cell__bd">求报价</view>
+        <view class="list-cell__ft"> 剩余5套  <image src="/static/image/list_icon_more.png"></image></view>
+    </navigator>-->
+    <navigator class="list-cell clearfix" url='/pages/mine/address-list/address-list' hover-class='none'>
+        <view class="list-cell__bd">地址管理</view>
+        <view class="list-cell__ft"><image src="/static/image/list_icon_more.png"></image></view>
+    </navigator>
+    <!-- <navigator class="list-cell clearfix">
+        <view class="list-cell__bd">客户服务</view>
+        <view class="list-cell__ft"><image src="/static/image/list_icon_more.png"></image></view>
+    </navigator> -->
+</view>
+
+<!-- <view class="list-cells ">
+    <navigator url="/pages/my-about/my-about" class="list-cell about clearfix" hover-class="list-cell_active">
+        <view class="list-cell__bd">关于</view>
+        <view class="list-cell__ft"></view>
+    </navigator>
+</view> -->
+<!-- 绑定手机号 -->
+  <import src="../../../component/binding-phone/binding-phone.wxml"/>
+  <template is="bindingPhone" data="{{ ...bindingPhone }}"/>

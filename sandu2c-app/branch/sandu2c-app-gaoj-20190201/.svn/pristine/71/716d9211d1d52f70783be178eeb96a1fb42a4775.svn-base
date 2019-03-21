@@ -1,0 +1,305 @@
+package com.sandu.web.home.controller;
+
+import com.google.gson.Gson;
+import com.sandu.common.exception.BizException;
+import com.sandu.common.model.PageModel;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.common.objectconvert.home.BaseSpaceCommonObject;
+import com.sandu.common.util.Utils;
+import com.sandu.common.util.collections.CustomerListUtils;
+import com.sandu.design.model.DesignTemplet;
+import com.sandu.design.model.search.DesignTempletSearch;
+import com.sandu.designplan.model.DesignPlanRecommendedResult;
+import com.sandu.designplan.model.DesignPlanRecommendedVo;
+import com.sandu.designplan.service.DesignPlanRecommendedService;
+import com.sandu.designtemplate.model.DesignTempletPutawayState;
+import com.sandu.designtemplate.service.DesignTempletService;
+import com.sandu.home.constant.SpaceCommonConstant;
+import com.sandu.home.model.HouseSpaceResult;
+import com.sandu.home.model.SpaceCommon;
+import com.sandu.home.model.SpaceCommonStatus;
+import com.sandu.home.model.search.SpaceCommonSearchVo;
+import com.sandu.home.service.SpaceCommonService;
+import com.sandu.system.model.ResPic;
+import com.sandu.system.service.ResPicService;
+import com.sandu.system.service.SysDictionaryService;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * @version V1.0
+ * @Title: WebSpaceCommonController.java
+ * @Package com.sandu.home.web.controller
+ * @Description:户型房型-通用空间表Controller
+ * @createAuthor xiaoxc
+ * @CreateDate 2015-09-17 19:48:39
+ */
+@Controller
+@RequestMapping("/v1/miniprogram/home/spacecommon")
+public class SpaceCommonController {
+    private final static Gson gson = new Gson();
+    private final static String CLASS_LOG_PREFIX = "[空间布局展示服务]";
+    private static Logger logger = LoggerFactory.getLogger(SpaceCommonController.class);
+    @Autowired
+    private SpaceCommonService spaceCommonService;
+    @Autowired
+    private SysDictionaryService sysDictionaryService;
+    @Autowired
+    private ResPicService resPicService;
+    @Autowired
+    private DesignPlanRecommendedService designPlanRecommendedService;
+    @Autowired
+    private DesignTempletService designTempletService;
+
+    /**
+     * 通过户型搜索空间布局图
+     *
+     * @param request
+     * @return
+     */
+    @SuppressWarnings("rawtypes")
+    @RequestMapping(value = "/housespacelist")
+    @ResponseBody
+    public ResponseEnvelope houseSpaceList(@ModelAttribute SpaceCommonSearchVo spaceCommonSearchVo,
+                                           @ModelAttribute PageModel pageModel, HttpServletRequest request) {
+        String msg = "";
+        if (spaceCommonSearchVo.getHouseId() == null || spaceCommonSearchVo.getHouseId() == 0) {
+            msg = "参数houseId不能为空!";
+            logger.warn(CLASS_LOG_PREFIX + "houseId不能为空,houseId is null");
+            return new ResponseEnvelope(false, msg);
+        }
+        int total = 0;
+        List<HouseSpaceResult> list = new ArrayList<>();
+
+        try {
+
+            String spaceFunctionId = spaceCommonSearchVo.getSpaceFunctionId();
+            Integer houseId = spaceCommonSearchVo.getHouseId();
+            if (SpaceCommonConstant.FULL_HOUSE_SPACE_FUNCTION_ID.equals(spaceFunctionId)) {
+                //如果是全屋空间类型
+                HouseSpaceResult fullHouseSpace = spaceCommonService.getFullHouseSpace(houseId);
+                list.add(fullHouseSpace);
+            } else {
+                SpaceCommon spaceCommonTemporary = new SpaceCommon();
+                if (!"".equals(spaceFunctionId) && spaceFunctionId != null) {
+                    Integer spaceTypeValue = Integer.valueOf(spaceFunctionId);
+                    spaceCommonTemporary.setSpaceFunctionId(spaceTypeValue);
+                }
+
+                spaceCommonTemporary.setHouseId(houseId);
+                spaceCommonTemporary.setIsDeleted(0);
+                logger.info(CLASS_LOG_PREFIX + "通过户型查找的空间总数:{}", total);
+                total = spaceCommonService.getHouseSpaceListCount(spaceCommonTemporary);
+                logger.info(CLASS_LOG_PREFIX + "通过户型查找的空间总数完成:{}", total);
+                /* 设置分页查询条件 */
+                /* 设置分页查询条件->end */
+                if (total > 0) {
+                    logger.info(CLASS_LOG_PREFIX + "通过户型查找的空间数据:{}", gson.toJson(list));
+                    list = spaceCommonService.getPaginatedHouseSpaceList(spaceCommonTemporary);
+                    logger.info(CLASS_LOG_PREFIX + "通过户型查找的空间数据完成:{}", gson.toJson(list));
+                    if (null == list || list.size() == 0) {
+                        return new ResponseEnvelope(false, "查询数据异常!");
+                    }
+
+                }
+
+                for (HouseSpaceResult houseSpace : list) {
+//					SpaceCommon spaceCommon = spaceCommonService.get(houseSpace.getSpaceId());
+//					logger.info(CLASS_LOG_PREFIX + "通过空间查找的布局数据:{}", gson.toJson(spaceCommon));
+                    List<DesignTemplet> designTemplets = this.getDesignTempletsFromSpaceCommon(houseSpace.getSpaceId(),
+                            spaceCommonSearchVo.getDesignPlanRecommendId(), spaceCommonSearchVo.getGroupPrimaryId());
+                    logger.info(CLASS_LOG_PREFIX + "通过空间查找的布局数据完成:{}", gson.toJson(designTemplets));
+                    houseSpace.setDesignTemplets(designTemplets);
+//					SysDictionary sysDictionary = new SysDictionary();
+//					sysDictionary.setType("houseType");
+//					sysDictionary.setValue(houseSpace.getSpaceFunctionId());
+//					List<SysDictionary> sdList = sysDictionaryService.getList(sysDictionary);
+//					logger.info(CLASS_LOG_PREFIX + "从数据字典查询空间的名称完成:{}", gson.toJson(sdList));
+//					if (sdList!=null&&sdList.size() > 0) {
+//						houseSpace.setFunctionAreas(sdList.get(0).getName() + houseSpace.getSpaceAreas() + "平");
+//					}
+                    houseSpace.setFunctionAreas(houseSpace.getDictionaryName() + houseSpace.getSpaceAreas() + "平");
+                    /* 首页图 */
+                    SpaceCommon spaceCommon = new SpaceCommon();
+                    spaceCommon.setId(houseSpace.getSpaceId());
+                    SpaceCommon spaceCommon2 = spaceCommonService.setPicParams(spaceCommon);
+                    if (null != spaceCommon2) {
+                        houseSpace.setViewPlanPath(spaceCommon2.getViewPlanPath());
+                        houseSpace.setViewPlanSmallPath(spaceCommon2.getViewPlanSmallPath());
+                    }
+                }
+
+                //如果有户型绘制的新空间图就显示新的,如果没有就显示旧的.
+                List<HouseSpaceResult> newSpaceList = list.stream().filter((HouseSpaceResult h) -> h.getOrigin() == 1).collect(Collectors.toList());
+                if (newSpaceList != null && newSpaceList.size() > 0) {
+                    return new ResponseEnvelope(true, "success", newSpaceList, newSpaceList.size());
+                }
+
+            }
+
+        } catch (Exception e) {
+            logger.error(CLASS_LOG_PREFIX, e);
+            return new ResponseEnvelope(false, "数据异常!"+e.getMessage());
+        }
+
+        return new ResponseEnvelope(true, "success", list, total);
+    }
+
+
+    public List<DesignTemplet> getDesignTempletsFromSpaceCommon(Integer spaceCommonIdText,
+                                                                Integer designPlanRecommendId, Integer groupPrimaryId) throws Exception{
+        int total = 0;
+        List<DesignTemplet> list = new ArrayList<DesignTemplet>();
+        DesignTempletSearch designTempletSearch = new DesignTempletSearch();
+
+            // 发布条件
+            designTempletSearch.setPutawayState(DesignTempletPutawayState.IS_RELEASE.intValue());
+            designTempletSearch.setSpaceCommonId(spaceCommonIdText);
+            /* 根据登录用户类型(内部用户,普通用户)决定查询条件putawayState->end */
+            total = designTempletService.getCount(designTempletSearch);
+            if (logger.isInfoEnabled()) {
+                logger.info(CLASS_LOG_PREFIX + "根据空间查询出样板房列表总记录:{}", total);
+            }
+
+            if (total > 0) {
+                list = designTempletService.getPaginatedList(designTempletSearch);
+                if (logger.isInfoEnabled()) {
+                    logger.info(CLASS_LOG_PREFIX + "根据空间查询出样板房列表:{}", gson.toJson(list));
+                }
+            }
+			/* 关联查询spaceName和spaceAreas */
+            if (CustomerListUtils.isNotEmpty(list)) {
+                for (DesignTemplet templet : list) {
+                    setPicUrl(templet);
+
+                    try {
+                        if (null != designPlanRecommendId && null != groupPrimaryId &&
+                                designPlanRecommendId.equals(groupPrimaryId)) {
+                            logger.error("designPlanRecommendId={},templateId={}",designPlanRecommendId,templet.getId());
+                            DesignPlanRecommendedVo designPlanRecommendedVo = new DesignPlanRecommendedVo();
+                            designPlanRecommendedVo.setTemplateId(templet.getId());
+                            designPlanRecommendedVo.setDesignPlanRecommendId(designPlanRecommendId);
+                            DesignPlanRecommendedResult designPlanRecommended =
+                                    designPlanRecommendedService.getMatchPlan(designPlanRecommendedVo);
+                            logger.error(CLASS_LOG_PREFIX+"获取最适配的推荐方案："+designPlanRecommended);
+                            templet.setDesignPlanRecommended(designPlanRecommended);
+                        }
+                    } catch (Exception e) {
+                        logger.error(CLASS_LOG_PREFIX + "获取最适合方案exception："+e);
+                    }
+                }
+            }
+
+        return list;
+    }
+
+
+    private void setPicUrl(DesignTemplet templet) {
+		/* 关联查询平面效果图url及对应缩略图url */
+        String effectPlanIds = templet.getEffectPlanIds();
+        if (StringUtils.isNotBlank(effectPlanIds)) {
+            Integer effectPlanId = 0;
+            if (effectPlanIds.split(",").length > 1) {
+                effectPlanId = Integer.valueOf(effectPlanIds.split(",")[0]);
+            } else {
+                effectPlanId = Integer.valueOf(effectPlanIds);
+            }
+            ResPic resPic = resPicService.get(effectPlanId);
+            if (resPic != null && StringUtils.isNotBlank(resPic.getPicPath())) {
+                templet.setEffectPlanUrl(resPic.getPicPath());
+                ResPic smallResPic = resPicService.get(Utils.getSmallPicId(resPic, "ipad"));
+                templet.setEffectPlanSmallUrl(smallResPic == null ? ""
+                        : (Utils.isBlank(smallResPic.getPicPath()) ? "" : smallResPic.getPicPath()));
+
+            }
+        }
+        Integer spaceCommonId = templet.getSpaceCommonId();
+        SpaceCommon spacecommon = null;
+        spacecommon = spaceCommonService.get(spaceCommonId);
+
+        templet.setSpaceCommonName(spacecommon == null ? "" : spacecommon.getSpaceName());
+        templet.setSpaceAreas(spacecommon == null ? "" : spacecommon.getSpaceAreas());
+        templet.setSpaceFunctionId(spacecommon == null ? null : spacecommon.getSpaceFunctionId());
+        templet.setSpaceShape(spacecommon == null ? "" : spacecommon.getSpaceShape());
+    }
+
+
+    /**
+     * 通过面积空间形状搜索空间
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/spacesearch")
+    @ResponseBody
+    public ResponseEnvelope spaceSearch(@ModelAttribute SpaceCommonSearchVo spaceCommonSearchVo, PageModel pageModel,
+                                        HttpServletRequest request) {
+        String msg = "";
+        if (spaceCommonSearchVo == null) {
+            logger.warn(CLASS_LOG_PREFIX + "spaceCommonSearchVo is null");
+            msg = "传参异常";
+            return new ResponseEnvelope(false, msg);
+        }
+        SpaceCommon spaceCommon = new SpaceCommon();
+        spaceCommon.setIsDeleted(0);
+        int total = 0;
+        List<SpaceCommon> list = new ArrayList<SpaceCommon>();
+        try {
+            if (StringUtils.isNotBlank(spaceCommonSearchVo.getSpaceFunctionId())) {
+                spaceCommon.setSpaceFunctionId(Integer.valueOf(spaceCommonSearchVo.getSpaceFunctionId()));// 空间功能类型
+            }
+            if (StringUtils.isNotBlank(spaceCommonSearchVo.getAreaValue())) {
+                spaceCommon.setSpaceAreas(spaceCommonSearchVo.getAreaValue());// 空间面积
+            }
+            if (StringUtils.isNotBlank(spaceCommonSearchVo.getSpaceShape())) {
+                spaceCommon.setSpaceShape(spaceCommonSearchVo.getSpaceShape());// 空间形状
+            }
+            // 只查询标准空间(下面两个条件为标准空间)
+            spaceCommon.setPid(0);// 缩略图
+            spaceCommon.setIsStandardSpace(1);// 是否是标准空间
+            if (null != pageModel && 0 != pageModel.getPageSize()) {
+                spaceCommon.setStart(pageModel.getStart());
+                spaceCommon.setLimit(pageModel.getPageSize());
+            } else {
+                spaceCommon.setLimit(PageModel.DEFAULT_PAGE_PAGESIZE);
+            }
+            spaceCommon.setStatus(SpaceCommonStatus.IS_RELEASE);
+            logger.info(CLASS_LOG_PREFIX + "查询空间总记录数：{}", total);
+            total = spaceCommonService.getSpaceSearchCount(spaceCommon);
+            logger.info(CLASS_LOG_PREFIX + "查询空间总记录数完成：{}", total);
+            if (total > 0) {
+                logger.info(CLASS_LOG_PREFIX + "查询空间总数据：{}", gson.toJson(list));
+                list = spaceCommonService.getSpaceSearchList(spaceCommon);
+                logger.info(CLASS_LOG_PREFIX + "查询空间总数据完成：{}", gson.toJson(list));
+            }
+            if (CustomerListUtils.isNotEmpty(list)) {
+                for (SpaceCommon spaceCommonSingle : list) {
+                    //关联空间的平面图
+                    SpaceCommon spaceCommon2 = spaceCommonService.setPicParams(spaceCommonSingle);
+                    if (null != spaceCommon2) {
+                        spaceCommonSingle.setViewPlanPath(spaceCommon2.getViewPlanPath());
+                        spaceCommonSingle.setViewPlanSmallPath(spaceCommon2.getViewPlanSmallPath());
+                    }
+
+                }
+            }
+        } catch (Exception e) {
+            logger.error(CLASS_LOG_PREFIX, e);
+            return new ResponseEnvelope(false, "数据异常");
+        }
+        return new ResponseEnvelope(true, "success", BaseSpaceCommonObject.parseToSpaceCommonVoList(list), total);
+    }
+
+
+}

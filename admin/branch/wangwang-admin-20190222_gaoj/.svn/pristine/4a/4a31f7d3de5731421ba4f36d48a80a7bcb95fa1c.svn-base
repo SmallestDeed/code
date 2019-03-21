@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.product.dao.BaseGoodsSpuDao">
+
+    <insert id="insertBaseGoodsSpu" parameterType="com.sandu.api.product.model.BaseGoodsSpu" useGeneratedKeys="true"
+        keyProperty="id" keyColumn="id">
+        INSERT INTO `base_goods_spu`
+        (
+        <trim suffixOverrides=",">
+            <if test="id!=null">
+                `id`,
+            </if>
+            <if test="spuId!=null">
+                `spu_id`,
+            </if>
+            <if test="spuCode!=null">
+                `spu_code`,
+            </if>
+            <if test="productName!=null">
+                `product_name`,
+            </if>
+            <if test="productModelNumber!=null">
+                `product_model_number`,
+            </if>
+            <if test="smallTypeMark!=null">
+                `small_Type_Mark`,
+            </if>
+            <if test="productDesc!=null">
+                `product_desc`,
+            </if>
+            <if test="spuName!=null">
+                `spu_name`,
+            </if>
+            <if test="purhaseLimitation!=null">
+                `purhase_limitation`,
+            </if>
+            <if test="transportId!=null">
+                `transport_id`,
+            </if>
+            <if test="fixTransportExpense!=null">
+                `fix_transport_expense`,
+            </if>
+            <if test="integral!=null">
+                `integral`,
+            </if>
+            <if test="isPresell!=null">
+                `is_presell`,
+            </if>
+            <if test="presellDeadline!=null">
+                `presell_deadline`,
+            </if>
+            <if test="balancePaymentStarttime!=null">
+                `balance_payment_starttime`,
+            </if>
+            <if test="balancePaymentEndtime!=null">
+                `balance_payment_endtime`,
+            </if>
+            <if test="deposit!=null">
+                `deposit`,
+            </if>
+            <if test="deliveryTime!=null">
+                `delivery_time`,
+            </if>
+            <if test="spuIntroduce!=null">
+                `spu_introduce`,
+            </if>
+            <if test="picId!=null">
+                `pic_id`,
+            </if>
+            <if test="picIds!=null">
+                `pic_ids`,
+            </if>
+            <if test="totalInventory!=null">
+                `total_inventory`,
+            </if>
+            <if test="getTime!=null">
+                `get_time`,
+            </if>
+            <if test="isPutaway!=null">
+                `is_putaway`,
+            </if>
+            <if test="creator!=null">
+                `creator`,
+            </if>
+            <if test="gmtCreate!=null">
+                `gmt_create`,
+            </if>
+            <if test="modifier!=null">
+                `modifier`,
+            </if>
+            <if test="gmtModified!=null">
+                `gmt_modified`,
+            </if>
+            <if test="isDeleted!=null">
+                `is_deleted`,
+            </if>
+            <if test="companyId!=null">
+                `company_id`,
+            </if>
+        </trim>
+        )
+        VALUES
+        (
+        <trim suffixOverrides=",">
+            <if test="id!=null">
+                #{id},
+            </if>
+            <if test="spuId!=null">
+                #{spuId},
+            </if>
+            <if test="spuCode!=null">
+                #{spuCode},
+            </if>
+            <if test="productName!=null">
+                #{productName},
+            </if>
+            <if test="productModelNumber!=null">
+                #{productModelNumber},
+            </if>
+            <if test="smallTypeMark!=null">
+                #{smallTypeMark},
+            </if>
+            <if test="productDesc!=null">
+                #{productDesc},
+            </if>
+            <if test="spuName!=null">
+                #{spuName},
+            </if>
+            <if test="purhaseLimitation!=null">
+                #{purhaseLimitation},
+            </if>
+            <if test="transportId!=null">
+                #{transportId},
+            </if>
+            <if test="fixTransportExpense!=null">
+                #{fixTransportExpense},
+            </if>
+            <if test="integral!=null">
+                #{integral},
+            </if>
+            <if test="isPresell!=null">
+                #{isPresell},
+            </if>
+            <if test="presellDeadline!=null">
+                #{presellDeadline},
+            </if>
+            <if test="balancePaymentStarttime!=null">
+                #{balancePaymentStarttime},
+            </if>
+            <if test="balancePaymentEndtime!=null">
+                #{balancePaymentEndtime},
+            </if>
+            <if test="deposit!=null">
+                #{deposit},
+            </if>
+            <if test="deliveryTime!=null">
+                #{deliveryTime},
+            </if>
+            <if test="spuIntroduce!=null">
+                #{spuIntroduce},
+            </if>
+            <if test="picId!=null">
+                #{picId},
+            </if>
+            <if test="picIds!=null">
+                #{picIds},
+            </if>
+            <if test="totalInventory!=null">
+                #{totalInventory},
+            </if>
+            <if test="getTime!=null">
+                #{getTime},
+            </if>
+            <if test="isPutaway!=null">
+                #{isPutaway},
+            </if>
+            <if test="creator!=null">
+                #{creator},
+            </if>
+            <if test="gmtCreate!=null">
+                #{gmtCreate},
+            </if>
+            <if test="modifier!=null">
+                #{modifier},
+            </if>
+            <if test="gmtModified!=null">
+                #{gmtModified},
+            </if>
+            <if test="isDeleted!=null">
+                #{isDeleted},
+            </if>
+            <if test="companyId!=null">
+                #{companyId}
+            </if>
+        </trim>
+        )
+    </insert>
+
+
+
+    <select id="getById" resultType="com.sandu.api.product.model.BaseGoodsSpu">
+        select * from base_goods_spu where id = #{id};
+    </select>
+    <select id="getMaxId" resultType="java.lang.String">
+        select max(id) from base_goods_spu
+    </select>
+
+
+    <update id="updateBaseGoodsSpu">
+        UPDATE `base_goods_spu`
+        SET
+        <trim suffixOverrides=",">
+            <if test="spuId != null">
+                `spu_id` = #{spuId},
+            </if>
+            <if test="spuCode != null and spuCode!=''">
+                `spu_code` = #{spuCode},
+            </if>
+            <if test="productName != null and productName!=''">
+                `product_name` = #{productName},
+            </if>
+            <if test="productModelNumber != null and productModelNumber!=''">
+                `product_model_number` = #{productModelNumber},
+            </if>
+            <if test="smallTypeMark != null and smallTypeMark!=''">
+                `small_Type_Mark` = #{smallTypeMark},
+            </if>
+            <if test="productDesc != null and productDesc!=''">
+                `product_desc` = #{productDesc},
+            </if>
+            <if test="spuName != null and spuName!=''">
+                `spu_name` = #{spuName},
+            </if>
+            <if test="purhaseLimitation != null">
+                `purhase_limitation` = #{purhaseLimitation},
+            </if>
+            <if test="transportId != null">
+                `transport_id` = #{transportId},
+            </if>
+            <if test="fixTransportExpense != null">
+                `fix_transport_expense` = #{fixTransportExpense},
+            </if>
+            <if test="integral != null">
+                `integral` = #{integral},
+            </if>
+            <if test="isPresell != null">
+                `is_presell` = #{isPresell},
+            </if>
+            <if test="presellDeadline != null">
+                `presell_deadline` = #{presellDeadline},
+            </if>
+            <if test="balancePaymentStarttime != null">
+                `balance_payment_starttime` = #{balancePaymentStarttime},
+            </if>
+            <if test="balancePaymentEndtime != null">
+                `balance_payment_endtime` = #{balancePaymentEndtime},
+            </if>
+            <if test="deposit != null">
+                `deposit` = #{deposit},
+            </if>
+            <if test="deliveryTime != null">
+                `delivery_time` = #{deliveryTime},
+            </if>
+            <if test="spuIntroduce != null and spuIntroduce!=''">
+                `spu_introduce` = #{spuIntroduce},
+            </if>
+            <if test="picId != null">
+                `pic_id` = #{picId},
+            </if>
+            <if test="totalInventory != null">
+                `total_inventory` = #{totalInventory},
+            </if>
+            <if test="getTime != null">
+                `get_time` = #{getTime},
+            </if>
+            <if test="isPutaway != null">
+                `is_putaway` = #{isPutaway},
+            </if>
+            <if test="creator != null and creator!=''">
+                `creator` = #{creator},
+            </if>
+            <if test="gmtCreate != null">
+                `gmt_create` = #{gmtCreate},
+            </if>
+            <if test="modifier != null and modifier!=''">
+                `modifier` = #{modifier},
+            </if>
+            <if test="gmtModified != null">
+                `gmt_modified` = #{gmtModified},
+            </if>
+            <if test="isDeleted != null">
+                `is_deleted` = #{isDeleted},
+            </if>
+        </trim>
+        WHERE
+        <trim suffixOverrides="and">
+            `id` = #{id} and
+        </trim>
+    </update>
+
+
+    <sql id="allResult">
+        <trim suffixOverrides=",">
+            `id`,
+            `spu_id`,
+            `spu_code`,
+            `product_name`,
+            `product_model_number`,
+            `small_Type_Mark`,
+            `product_desc`,
+            `spu_name`,
+            `purhase_limitation`,
+            `transport_id`,
+            `fix_transport_expense`,
+            `integral`,
+            `is_presell`,
+            `presell_deadline`,
+            `balance_payment_starttime`,
+            `balance_payment_endtime`,
+            `deposit`,
+            `delivery_time`,
+            `spu_introduce`,
+            `pic_id`,
+            `total_inventory`,
+            `get_time`,
+            `is_putaway`,
+            `creator`,
+            `gmt_create`,
+            `modifier`,
+            `gmt_modified`,
+            `is_deleted`,
+        </trim>
+    </sql>
+
+
+
+    <sql id="baseResult">
+        <trim suffixOverrides=",">
+            <if test = "(_parameter instanceof .BaseGoodsSpu$QueryBuilder) == true">
+
+                <if test="fetchFields==null">
+                    <include refid="allResult"></include>
+                </if>
+                <if test="fetchFields!=null">
+                    <if test="fetchFields.AllFields !=null">
+                        <include refid="allResult"></include>
+                    </if>
+                    <if test="fetchFields.AllFields ==null and fetchFields.fetchFields==null and fetchFields.excludeFields==null and fetchFields.otherFields==null">
+                        <include refid="allResult"></include>
+                    </if>
+                    <if test="fetchFields.AllFields==null and fetchFields.fetchFields!=null">
+                        <if test="fetchFields.fetchFields.id==true">
+                            `id`,
+                        </if>
+                        <if test="fetchFields.fetchFields.spuId==true">
+                            `spu_id`,
+                        </if>
+                        <if test="fetchFields.fetchFields.spuCode==true">
+                            `spu_code`,
+                        </if>
+                        <if test="fetchFields.fetchFields.productName==true">
+                            `product_name`,
+                        </if>
+                        <if test="fetchFields.fetchFields.productModelNumber==true">
+                            `product_model_number`,
+                        </if>
+                        <if test="fetchFields.fetchFields.smallTypeMark==true">
+                            `small_Type_Mark`,
+                        </if>
+                        <if test="fetchFields.fetchFields.productDesc==true">
+                            `product_desc`,
+                        </if>
+                        <if test="fetchFields.fetchFields.spuName==true">
+                            `spu_name`,
+                        </if>
+                        <if test="fetchFields.fetchFields.purhaseLimitation==true">
+                            `purhase_limitation`,
+                        </if>
+                        <if test="fetchFields.fetchFields.transportId==true">
+                            `transport_id`,
+                        </if>
+                        <if test="fetchFields.fetchFields.fixTransportExpense==true">
+                            `fix_transport_expense`,
+                        </if>
+                        <if test="fetchFields.fetchFields.integral==true">
+                            `integral`,
+                        </if>
+                        <if test="fetchFields.fetchFields.isPresell==true">
+                            `is_presell`,
+                        </if>
+                        <if test="fetchFields.fetchFields.presellDeadline==true">
+                            `presell_deadline`,
+                        </if>
+                        <if test="fetchFields.fetchFields.balancePaymentStarttime==true">
+                            `balance_payment_starttime`,
+                        </if>
+                        <if test="fetchFields.fetchFields.balancePaymentEndtime==true">
+                            `balance_payment_endtime`,
+                        </if>
+                        <if test="fetchFields.fetchFields.deposit==true">
+                            `deposit`,
+                        </if>
+                        <if test="fetchFields.fetchFields.deliveryTime==true">
+                            `delivery_time`,
+                        </if>
+                        <if test="fetchFields.fetchFields.spuIntroduce==true">
+                            `spu_introduce`,
+                        </if>
+                        <if test="fetchFields.fetchFields.picId==true">
+                            `pic_id`,
+                        </if>
+                        <if test="fetchFields.fetchFields.totalInventory==true">
+                            `total_inventory`,
+                        </if>
+                        <if test="fetchFields.fetchFields.getTime==true">
+                            `get_time`,
+                        </if>
+                        <if test="fetchFields.fetchFields.isPutaway==true">
+                            `is_putaway`,
+                        </if>
+                        <if test="fetchFields.fetchFields.creator==true">
+                            `creator`,
+                        </if>
+                        <if test="fetchFields.fetchFields.gmtCreate==true">
+                            `gmt_create`,
+                        </if>
+                        <if test="fetchFields.fetchFields.modifier==true">
+                            `modifier`,
+                        </if>
+                        <if test="fetchFields.fetchFields.gmtModified==true">
+                            `gmt_modified`,
+                        </if>
+                        <if test="fetchFields.fetchFields.isDeleted==true">
+                            `is_deleted`,
+                        </if>
+                    </if>
+                    <if test="fetchFields.AllFields==null and fetchFields.excludeFields!=null">
+                        <if test="fetchFields.excludeFields.id==null">
+                            `id`,
+                        </if>
+                        <if test="fetchFields.excludeFields.spuId==null">
+                            `spu_id`,
+                        </if>
+                        <if test="fetchFields.excludeFields.spuCode==null">
+                            `spu_code`,
+                        </if>
+                        <if test="fetchFields.excludeFields.productName==null">
+                            `product_name`,
+                        </if>
+                        <if test="fetchFields.excludeFields.productModelNumber==null">
+                            `product_model_number`,
+                        </if>
+                        <if test="fetchFields.excludeFields.smallTypeMark==null">
+                            `small_Type_Mark`,
+                        </if>
+                        <if test="fetchFields.excludeFields.productDesc==null">
+                            `product_desc`,
+                        </if>
+                        <if test="fetchFields.excludeFields.spuName==null">
+                            `spu_name`,
+                        </if>
+                        <if test="fetchFields.excludeFields.purhaseLimitation==null">
+                            `purhase_limitation`,
+                        </if>
+                        <if test="fetchFields.excludeFields.transportId==null">
+                            `transport_id`,
+                        </if>
+                        <if test="fetchFields.excludeFields.fixTransportExpense==null">
+                            `fix_transport_expense`,
+                        </if>
+                        <if test="fetchFields.excludeFields.integral==null">
+                            `integral`,
+                        </if>
+                        <if test="fetchFields.excludeFields.isPresell==null">
+                            `is_presell`,
+                        </if>
+                        <if test="fetchFields.excludeFields.presellDeadline==null">
+                            `presell_deadline`,
+                        </if>
+                        <if test="fetchFields.excludeFields.balancePaymentStarttime==null">
+                            `balance_payment_starttime`,
+                        </if>
+                        <if test="fetchFields.excludeFields.balancePaymentEndtime==null">
+                            `balance_payment_endtime`,
+                        </if>
+                        <if test="fetchFields.excludeFields.deposit==null">
+                            `deposit`,
+                        </if>
+                        <if test="fetchFields.excludeFields.deliveryTime==null">
+                            `delivery_time`,
+                        </if>
+                        <if test="fetchFields.excludeFields.spuIntroduce==null">
+                            `spu_introduce`,
+                        </if>
+                        <if test="fetchFields.excludeFields.picId==null">
+                            `pic_id`,
+                        </if>
+                        <if test="fetchFields.excludeFields.totalInventory==null">
+                            `total_inventory`,
+                        </if>
+                        <if test="fetchFields.excludeFields.getTime==null">
+                            `get_time`,
+                        </if>
+                        <if test="fetchFields.excludeFields.isPutaway==null">
+                            `is_putaway`,
+                        </if>
+                        <if test="fetchFields.excludeFields.creator==null">
+                            `creator`,
+                        </if>
+                        <if test="fetchFields.excludeFields.gmtCreate==null">
+                            `gmt_create`,
+                        </if>
+                        <if test="fetchFields.excludeFields.modifier==null">
+                            `modifier`,
+                        </if>
+                        <if test="fetchFields.excludeFields.gmtModified==null">
+                            `gmt_modified`,
+                        </if>
+                        <if test="fetchFields.excludeFields.isDeleted==null">
+                            `is_deleted`,
+                        </if>
+                    </if>
+                    <if test="fetchFields.otherFields!=null and fetchFields.otherFields.size>0">
+                        <foreach collection="fetchFields.otherFields" index="index" item="item" separator=",">
+                            `#{item}`
+                        </foreach>
+                    </if>
+                </if>
+            </if>
+            <if test="(_parameter instanceof .BaseGoodsSpu$QueryBuilder) == false" >
+                <include refid="allResult"></include>
+            </if>
+
+        </trim>
+    </sql>
+
+
+</mapper>

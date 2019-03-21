@@ -1,0 +1,9 @@
+package com.sandu.service.springFestivalActivity.aspect;
+
+import java.lang.annotation.*;
+
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface CheckMethodArgs {
+}

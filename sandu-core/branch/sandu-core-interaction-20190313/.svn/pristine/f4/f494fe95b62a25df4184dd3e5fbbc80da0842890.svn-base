@@ -1,0 +1,171 @@
+package com.sandu.job;
+
+import com.sandu.api.base.common.cache.RedisKeyConstans;
+import com.sandu.api.base.common.exception.BizException;
+import com.sandu.api.base.common.util.GsonUtil;
+import com.sandu.api.base.service.RedisService;
+import com.sandu.api.springFestivalActivity.model.WxRedPacketSummary;
+import com.sandu.api.springFestivalActivity.model.WxSpringActivity;
+import com.sandu.api.springFestivalActivity.model.WxUserSignin;
+import com.sandu.api.springFestivalActivity.output.DateVo;
+import com.sandu.api.springFestivalActivity.service.WxRedPacketSummaryService;
+import com.sandu.api.springFestivalActivity.service.WxSpringActivityService;
+import com.sandu.api.springFestivalActivity.service.WxUserSigninService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+
+/**
+ * @ClassName: UserSignInActivityJob
+ * @Auther: gaoj
+ * @Date: 2019/2/18 16:42
+ * @Description:
+ * @Version 1.0
+ */
+@EnableScheduling
+@Component
+@Slf4j
+public class UserSignInActivityJob {
+
+    private static final String CLASS_LOG_PREFIX = "用户签到定时活动任务";
+    // private final Long activityId = FilmTicketActivityJob.getActivityId();
+    private final Long activityId = 6L;
+    private final WxSpringActivityService wxSpringActivityService;
+    private final WxUserSigninService wxUserSigninService;
+    private final RedisService redisService;
+    private final WxRedPacketSummaryService wxRedPacketSummaryService;
+
+    @Autowired
+    public UserSignInActivityJob(WxSpringActivityService wxSpringActivityService,
+                                 WxUserSigninService wxUserSigninService,
+                                 RedisService redisService,
+                                 WxRedPacketSummaryService wxRedPacketSummaryService) {
+        this.wxSpringActivityService = wxSpringActivityService;
+        this.wxUserSigninService = wxUserSigninService;
+        this.redisService = redisService;
+        this.wxRedPacketSummaryService = wxRedPacketSummaryService;
+    }
+
+    // @Scheduled(cron = "0 10 14 * * ?")
+    public void createRedPacket() {
+        if (null != activityId) {
+            this.checkActivityDate();
+            WxSpringActivity wxSpringActivity = wxSpringActivityService.selectByPrimaryKey(activityId);
+            BigDecimal redPacketDayNum = wxSpringActivity.getRedPacketDayNum();
+            BigDecimal redPacketMaxAmount = wxSpringActivity.getRedPacketMaxAmount();
+            BigDecimal redPacketMinAmount = wxSpringActivity.getRedPacketMinAmount();
+
+            if (redPacketDayNum.compareTo(redPacketMaxAmount) > 0) {
+                //初始化红包剩余金额
+                BigDecimal redPacketRemainNum = redPacketDayNum;
+                ArrayList<BigDecimal> redPacketAmountList = new ArrayList<>();
+                //生成所有的红包金额
+                while (redPacketRemainNum.compareTo(redPacketMaxAmount) > 0) {
+                    //随机生成最大值和最小值中间的数值
+                    DecimalFormat df = new DecimalFormat("#.00");
+                    //多线程并发使用的随机数生成器(有边界)
+                    double doubleAmount = ThreadLocalRandom.current().nextDouble(redPacketMinAmount.doubleValue(), redPacketMaxAmount.doubleValue());
+                    log.info(CLASS_LOG_PREFIX + "随机生成红包金额：原随机数：{}", doubleAmount);
+                    //格式化为2位小数
+                    BigDecimal amount = new BigDecimal(df.format(doubleAmount));
+                    log.info(CLASS_LOG_PREFIX + "随机生成红包金额：最终的红包金额：{}", amount);
+
+                    redPacketAmountList.add(amount);
+                    //修改红包剩余金额
+                    redPacketRemainNum = redPacketRemainNum.subtract(amount);
+                }
+                log.info(CLASS_LOG_PREFIX + "剩余金额小于红包最大值，红包分配完毕,redPacketRemainNum={}", redPacketRemainNum);
+
+                //处理插入数据库数据
+                ArrayList<WxUserSignin> wxUserSignInList = new ArrayList<>();
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(new Date());
+                // calendar.add(Calendar.DAY_OF_MONTH, 1);
+                int day = calendar.get(Calendar.DAY_OF_MONTH);
+                for (BigDecimal redPacketAmount : redPacketAmountList) {
+                    WxUserSignin wxUserSignIn = WxUserSignin.builder()
+                            .activityId(activityId)
+                            .redPacketNum(redPacketAmount)
+                            .signinDay(day)
+                            .creator("system")
+                            .gmtCreate(new Date())
+                            .isDeleted(0)
+                            .receiveStatus(WxUserSignin.ReceviceStatus.RECEIVE_NO)
+                            .build();
+                    wxUserSignInList.add(wxUserSignIn);
+                }
+                int result = wxUserSigninService.insertRedPacketBatch(wxUserSignInList);
+
+                List<WxUserSignin> allBySignInDay = wxUserSigninService.getAllBySignInDay(activityId, day);
+                redisService.del(RedisKeyConstans.SIGN_IN_ACTIVITY_LIST);
+                if (!CollectionUtils.isEmpty(allBySignInDay)) {
+                    for (WxUserSignin wxUserSignin : allBySignInDay) {
+                        String json = GsonUtil.bean2Json(wxUserSignin);
+                        redisService.listLAdd(RedisKeyConstans.SIGN_IN_ACTIVITY_LIST, json);
+                    }
+                }
+            }
+        }
+    }
+
+    private void checkActivityDate() {
+        DateVo signInDate = wxSpringActivityService.getSignInDate(activityId);
+        Date beginDate = signInDate.getBeginDate();
+        Date endDate = signInDate.getEndDate();
+        Date now = new Date();
+        if (now.before(beginDate)) {
+            throw new BizException("活动未开始");
+        }
+        if (now.after(endDate)) {
+            throw new BizException("活动已结束");
+        }
+    }
+
+    // @Scheduled(cron = "0 0 20 * * *")
+    public void redPacketSummary() {
+        if (null != activityId) {
+            this.checkActivityDate();
+            WxSpringActivity wxSpringActivity = wxSpringActivityService.selectByPrimaryKey(activityId);
+            BigDecimal total = wxUserSigninService.getTodayTotalRedPacketNum(activityId);
+            // 修改每日红包汇总表数据
+            WxRedPacketSummary wxRedPacketSummary = wxRedPacketSummaryService.getBySignInDate(activityId, new Date());
+            if (null != wxRedPacketSummary) {
+                wxRedPacketSummary.setPreRedPackRemainNum(wxRedPacketSummary.getRedPacketRemainNum());
+                wxRedPacketSummary.setRedPacketUseNum(total);
+                wxRedPacketSummary.setRedPacketRemainNum(wxRedPacketSummary.getRedPacketRemainNum().subtract(total));
+                wxRedPacketSummaryService.updateByRedPacketRemainNum(wxRedPacketSummary);
+            } else {
+                wxRedPacketSummary = WxRedPacketSummary.builder()
+                        .activityId(activityId)
+                        .signinDate(new Date())
+                        .redPacketDayNum(wxSpringActivity.getRedPacketDayNum())
+                        .redPacketRemainNum(wxSpringActivity.getRedPacketDayNum())
+                        .redPacketUseNum(new BigDecimal(0))
+                        .creator("system")
+                        .modifier("system")
+                        .gmtCreate(new Date())
+                        .gmtModified(new Date())
+                        .isDeleted(0)
+                        .build();
+                wxRedPacketSummaryService.insert(wxRedPacketSummary);
+            }
+            //修改总红包剩余金额
+            WxSpringActivity wxSpringActivityUpdate = WxSpringActivity.builder().build();
+            wxSpringActivityUpdate.setPreRedPacketRemainNum(wxSpringActivity.getRedPacketRemainNum());
+            wxSpringActivityUpdate.setId(activityId);
+            wxSpringActivityUpdate.setRedPacketRemainNum(total);
+            wxSpringActivityService.decrRedPacketRemainNum(wxSpringActivityUpdate);
+        }
+    }
+}

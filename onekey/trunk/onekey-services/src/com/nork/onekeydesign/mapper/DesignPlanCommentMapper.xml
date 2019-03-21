@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.onekeydesign.dao.DesignPlanCommentMapper">
+<!--<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>-->
+	<!-- **插入定义** -->
+	<insert id="insertSelective" parameterType="com.nork.onekeydesign.model.DesignPlanComment" useGeneratedKeys="true" keyProperty="id">
+		insert into design_plan_comment
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		<if test="userId!= null">user_id, </if>
+		<if test="designPlanId!= null">design_plan_id, </if>
+		<if test="content!= null">content, </if>
+		<if test="discussionprogram!= null">discussionprogram, </if>
+		<if test="date!= null">date, </if>
+		<if test="sysCode!= null">sys_code, </if>
+		<if test="creator!= null">creator, </if>
+		<if test="gmtCreate!= null">gmt_create, </if>
+		<if test="modifier!= null">modifier, </if>
+		<if test="gmtModified!= null">gmt_modified, </if>
+		<if test="isDeleted!= null">is_deleted, </if>
+		<if test="att1!= null">att1, </if>
+		<if test="att2!= null">att2, </if>
+		<if test="numa1!= null">numa1, </if>
+		<if test="numa2!= null">numa2, </if>
+		<if test="remark!= null">remark, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="userId!= null">  #{userId,jdbcType=INTEGER}, </if>
+		<if test="designPlanId!= null">  #{designPlanId,jdbcType=INTEGER}, </if>
+		<if test="content!= null">  #{content,jdbcType=VARCHAR}, </if>
+		<if test="discussionprogram!= null">  #{discussionprogram,jdbcType=VARCHAR}, </if>
+		<if test="date!= null">  #{date,jdbcType=TIMESTAMP}, </if>
+		<if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="att1!= null">  #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  #{att2,jdbcType=VARCHAR}, </if>
+		<if test="numa1!= null">  #{numa1,jdbcType=INTEGER}, </if>
+		<if test="numa2!= null">  #{numa2,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>	
+		</trim>
+	</insert>
+
+	<!-- **更新定义** -->
+	<update id="updateByPrimaryKeySelective" parameterType="com.nork.onekeydesign.model.DesignPlanComment">
+		update design_plan_comment
+		<set>
+		<if test="userId!= null">  user_id = #{userId,jdbcType=INTEGER}, </if>
+		<if test="designPlanId!= null">  design_plan_id = #{designPlanId,jdbcType=INTEGER}, </if>
+		<if test="content!= null">  content = #{content,jdbcType=VARCHAR}, </if>
+		<if test="discussionprogram!= null">  discussionprogram = #{discussionprogram,jdbcType=VARCHAR}, </if>
+		<if test="date!= null">  date = #{date,jdbcType=TIMESTAMP}, </if>
+		<if test="sysCode!= null">  sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  creator = #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  modifier = #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="att1!= null">  att1 = #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  att2 = #{att2,jdbcType=VARCHAR}, </if>
+		<if test="numa1!= null">  numa1 = #{numa1,jdbcType=INTEGER}, </if>
+		<if test="numa2!= null">  numa2 = #{numa2,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  remark = #{remark,jdbcType=VARCHAR}, </if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<!-- **删除定义** -->
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from design_plan_comment
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	
+	<!-- **常量定义** -->
+	<sql id="All_Column_List">
+		id,user_id,design_plan_id,content,discussionprogram,date,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,att1,att2,numa1,numa2,remark
+	</sql>
+	
+	<!-- **结果定义** -->
+	<resultMap id="AllResultMap" type="com.nork.onekeydesign.model.DesignPlanComment">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="user_id" property="userId" jdbcType="INTEGER" />
+		<result  column="design_plan_id" property="designPlanId" jdbcType="INTEGER" />
+		<result  column="content" property="content" jdbcType="VARCHAR" />
+		<result  column="discussionprogram" property="discussionprogram" jdbcType="VARCHAR" />
+		<result  column="date" property="date" jdbcType="TIMESTAMP" />
+		<result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="att1" property="att1" jdbcType="VARCHAR" />
+		<result  column="att2" property="att2" jdbcType="VARCHAR" />
+		<result  column="numa1" property="numa1" jdbcType="INTEGER" />
+		<result  column="numa2" property="numa2" jdbcType="INTEGER" />
+		<result  column="remark" property="remark" jdbcType="VARCHAR" />
+		<result  column="pic" property="pic" jdbcType="VARCHAR" />
+		<result  column="tomorrow" property="tomorrow" jdbcType="TIMESTAMP" />
+		<result  column="nick_name" property="userName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- **查询定义** -->
+	<!-- 按主键查询 -->
+	<select id="selectByPrimaryKey" resultMap="AllResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="All_Column_List" />
+		from design_plan_comment
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+		parameterType="com.nork.onekeydesign.model.DesignPlanComment">
+		select
+		<include refid="All_Column_List" />
+		from design_plan_comment
+        where 1=1
+		<if test="userId!= null">  and user_id = #{userId,jdbcType=INTEGER} </if>
+		<if test="designPlanId!= null">  and design_plan_id = #{designPlanId,jdbcType=INTEGER} </if>
+		<if test="content!= null">  and content = #{content,jdbcType=VARCHAR} </if>
+		<if test="discussionprogram!= null">  and discussionprogram = #{discussionprogram,jdbcType=VARCHAR} </if>
+		<if test="date!= null">  and date = #{date,jdbcType=TIMESTAMP} </if>
+		<if test="sysCode!= null">  and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="creator!= null">  and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="gmtCreate!= null">  and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+		<if test="modifier!= null">  and modifier = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="gmtModified!= null">  and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP} </if>
+		<if test="isDeleted!= null">  and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1!= null">  and att1 = #{att1,jdbcType=VARCHAR} </if>
+		<if test="att2!= null">  and att2 = #{att2,jdbcType=VARCHAR} </if>
+		<if test="numa1!= null">  and numa1 = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2!= null">  and numa2 = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark!= null">  and remark = #{remark,jdbcType=VARCHAR} </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order}
+			<if test="orderNum != null and  orderNum !='' ">
+				${orderNum}
+			</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">
+		   order by ${orders}
+		</if>
+	</select>
+	
+	<!-- 分页汇总 -->
+	<select id="selectCount" resultType="int"
+		parameterType="com.nork.onekeydesign.model.search.DesignPlanCommentSearch">
+		select count(*)
+		from design_plan_comment
+		where 1=1
+		<if test="designPlanId !=  null  ">			and design_plan_id  = #{designPlanId,jdbcType=INTEGER} </if>
+		<if test="userId !=  null  ">			and user_id  = #{userId,jdbcType=INTEGER} </if>
+		<if test="content !=  null and content !=  ''   "> and content  = #{content,jdbcType=VARCHAR} </if>
+		<if test="sch_Content_ !=  null and sch_Content_ !=  ''   ">
+			and content  like CONCAT(CONCAT('%',#{sch_Content_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Content !=  null and sch_Content !=  ''   ">
+			and content  like CONCAT('%',#{sch_Content,jdbcType=VARCHAR})
+		 </if>
+		<if test="schContent_ !=  null and schContent_ !=  ''   ">
+			and content  like CONCAT(#{schContent_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="contentStart !=  null and contentEnd!= null  ">
+			and content between #{contentStart,jdbcType=VARCHAR} and #{contentEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="discussionprogram !=  null and discussionprogram !=  ''   "> and discussionprogram  = #{discussionprogram,jdbcType=VARCHAR} </if>
+		<if test="sch_Discussionprogram_ !=  null and sch_Discussionprogram_ !=  ''   ">
+			and discussionprogram  like CONCAT(CONCAT('%',#{sch_Discussionprogram_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Discussionprogram !=  null and sch_Discussionprogram !=  ''   ">
+			and discussionprogram  like CONCAT('%',#{sch_Discussionprogram,jdbcType=VARCHAR})
+		 </if>
+		<if test="schDiscussionprogram_ !=  null and schDiscussionprogram_ !=  ''   ">
+			and discussionprogram  like CONCAT(#{schDiscussionprogram_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="discussionprogramStart !=  null and discussionprogramEnd!= null  ">
+			and discussionprogram between #{discussionprogramStart,jdbcType=VARCHAR} and #{discussionprogramEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="date !=  null and tomorrow != null  ">
+			and date between #{date,jdbcType=TIMESTAMP} and #{tomorrow,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="dateStart !=  null and dateEnd!= null  ">
+			and date between #{dateStart,jdbcType=TIMESTAMP} and #{dateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="sysCode !=  null and sysCode !=  ''   "> and sys_code  = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+			and sys_code  like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+			and sys_code  like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+			and sys_code  like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+			and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="creator !=  null and creator !=  ''   "> and creator  = #{creator,jdbcType=VARCHAR} </if>
+		<if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+			and creator  like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+			and creator  like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+			and creator  like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="creatorStart !=  null and creatorEnd!= null  ">
+			and creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtCreate !=  null  ">
+			and gmt_create  = #{gmtCreate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="modifier !=  null and modifier !=  ''   "> and modifier  = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and modifier  like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and modifier  like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		 </if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and modifier  like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtModified !=  null  ">
+			and gmt_modified  = #{gmtModified,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="isDeleted !=  null  ">			and is_deleted  = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1 !=  null and att1 !=  ''   "> and att1  = #{att1,jdbcType=VARCHAR} </if>
+		<if test="sch_Att1_ !=  null and sch_Att1_ !=  ''   ">
+			and att1  like CONCAT(CONCAT('%',#{sch_Att1_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att1 !=  null and sch_Att1 !=  ''   ">
+			and att1  like CONCAT('%',#{sch_Att1,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt1_ !=  null and schAtt1_ !=  ''   ">
+			and att1  like CONCAT(#{schAtt1_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att1Start !=  null and att1End!= null  ">
+			and att1 between #{att1Start,jdbcType=VARCHAR} and #{att1End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att2 !=  null and att2 !=  ''   "> and att2  = #{att2,jdbcType=VARCHAR} </if>
+		<if test="sch_Att2_ !=  null and sch_Att2_ !=  ''   ">
+			and att2  like CONCAT(CONCAT('%',#{sch_Att2_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att2 !=  null and sch_Att2 !=  ''   ">
+			and att2  like CONCAT('%',#{sch_Att2,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt2_ !=  null and schAtt2_ !=  ''   ">
+			and att2  like CONCAT(#{schAtt2_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att2Start !=  null and att2End!= null  ">
+			and att2 between #{att2Start,jdbcType=VARCHAR} and #{att2End,jdbcType=VARCHAR}
+		 </if>
+		<if test="numa1 !=  null  ">			and numa1  = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2 !=  null  ">			and numa2  = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark !=  null and remark !=  ''   "> and remark  = #{remark,jdbcType=VARCHAR} </if>		<if test="sch_Remark_ !=  null and sch_Remark_ !=  ''   ">
+			and remark  like CONCAT(CONCAT('%',#{sch_Remark_,jdbcType=VARCHAR}),'%')
+		 </if>		<if test="sch_Remark !=  null and sch_Remark !=  ''   ">
+			and remark  like CONCAT('%',#{sch_Remark,jdbcType=VARCHAR})
+		 </if>		<if test="schRemark_ !=  null and schRemark_ !=  ''   ">
+			and remark  like CONCAT(#{schRemark_,jdbcType=VARCHAR},'%')
+		 </if>		<if test="remarkStart !=  null and remarkEnd!= null  ">
+			and remark between #{remarkStart,jdbcType=VARCHAR} and #{remarkEnd,jdbcType=VARCHAR}
+		 </if>
+	</select>
+	
+	<!-- 分页查询 ,可在DesignPlanCommentSearch中自定义查询条件-->
+	<select id="selectPaginatedList" resultMap="AllResultMap"
+		parameterType="com.nork.onekeydesign.model.search.DesignPlanCommentSearch">
+		select
+		<include refid="All_Column_List" />
+	    from design_plan_comment
+		where 1=1	
+		<if test="userId !=  null  ">			and user_id  = #{userId,jdbcType=INTEGER} </if>
+		<if test="designPlanId !=  null  ">			and design_plan_id  = #{designPlanId,jdbcType=INTEGER} </if>
+		<if test="content !=  null and content !=  ''   "> and content  = #{content,jdbcType=VARCHAR} </if>
+		<if test="sch_Content_ !=  null and sch_Content_ !=  ''   ">
+			and content  like CONCAT(CONCAT('%',#{sch_Content_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Content !=  null and sch_Content !=  ''   ">
+			and content  like CONCAT('%',#{sch_Content,jdbcType=VARCHAR})
+		 </if>
+		<if test="schContent_ !=  null and schContent_ !=  ''   ">
+			and content  like CONCAT(#{schContent_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="contentStart !=  null and contentEnd!= null  ">
+			and content between #{contentStart,jdbcType=VARCHAR} and #{contentEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="discussionprogram !=  null and discussionprogram !=  ''   "> and discussionprogram  = #{discussionprogram,jdbcType=VARCHAR} </if>
+		<if test="sch_Discussionprogram_ !=  null and sch_Discussionprogram_ !=  ''   ">
+			and discussionprogram  like CONCAT(CONCAT('%',#{sch_Discussionprogram_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Discussionprogram !=  null and sch_Discussionprogram !=  ''   ">
+			and discussionprogram  like CONCAT('%',#{sch_Discussionprogram,jdbcType=VARCHAR})
+		 </if>
+		<if test="schDiscussionprogram_ !=  null and schDiscussionprogram_ !=  ''   ">
+			and discussionprogram  like CONCAT(#{schDiscussionprogram_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="discussionprogramStart !=  null and discussionprogramEnd!= null  ">
+			and discussionprogram between #{discussionprogramStart,jdbcType=VARCHAR} and #{discussionprogramEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="date !=  null and tomorrow != null  ">
+			and date between #{date,jdbcType=TIMESTAMP} and #{tomorrow,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="dateStart !=  null and dateEnd!= null  ">
+			and date between #{dateStart,jdbcType=TIMESTAMP} and #{dateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="sysCode !=  null and sysCode !=  ''   "> and sys_code  = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+			and sys_code  like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+			and sys_code  like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+			and sys_code  like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+			and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="creator !=  null and creator !=  ''   "> and creator  = #{creator,jdbcType=VARCHAR} </if>
+		<if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+			and creator  like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+			and creator  like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+			and creator  like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="creatorStart !=  null and creatorEnd!= null  ">
+			and creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtCreate !=  null  ">
+			and gmt_create  = #{gmtCreate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="modifier !=  null and modifier !=  ''   "> and modifier  = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and modifier  like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and modifier  like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		 </if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and modifier  like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtModified !=  null  ">
+			and gmt_modified  = #{gmtModified,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="isDeleted !=  null  ">			and is_deleted  = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1 !=  null and att1 !=  ''   "> and att1  = #{att1,jdbcType=VARCHAR} </if>
+		<if test="sch_Att1_ !=  null and sch_Att1_ !=  ''   ">
+			and att1  like CONCAT(CONCAT('%',#{sch_Att1_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att1 !=  null and sch_Att1 !=  ''   ">
+			and att1  like CONCAT('%',#{sch_Att1,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt1_ !=  null and schAtt1_ !=  ''   ">
+			and att1  like CONCAT(#{schAtt1_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att1Start !=  null and att1End!= null  ">
+			and att1 between #{att1Start,jdbcType=VARCHAR} and #{att1End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att2 !=  null and att2 !=  ''   "> and att2  = #{att2,jdbcType=VARCHAR} </if>
+		<if test="sch_Att2_ !=  null and sch_Att2_ !=  ''   ">
+			and att2  like CONCAT(CONCAT('%',#{sch_Att2_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att2 !=  null and sch_Att2 !=  ''   ">
+			and att2  like CONCAT('%',#{sch_Att2,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt2_ !=  null and schAtt2_ !=  ''   ">
+			and att2  like CONCAT(#{schAtt2_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att2Start !=  null and att2End!= null  ">
+			and att2 between #{att2Start,jdbcType=VARCHAR} and #{att2End,jdbcType=VARCHAR}
+		 </if>
+		<if test="numa1 !=  null  ">			and numa1  = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2 !=  null  ">			and numa2  = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark !=  null and remark !=  ''   "> and remark  = #{remark,jdbcType=VARCHAR} </if>		<if test="sch_Remark_ !=  null and sch_Remark_ !=  ''   ">
+			and remark  like CONCAT(CONCAT('%',#{sch_Remark_,jdbcType=VARCHAR}),'%')
+		 </if>		<if test="sch_Remark !=  null and sch_Remark !=  ''   ">
+			and remark  like CONCAT('%',#{sch_Remark,jdbcType=VARCHAR})
+		 </if>		<if test="schRemark_ !=  null and schRemark_ !=  ''   ">
+			and remark  like CONCAT(#{schRemark_,jdbcType=VARCHAR},'%')
+		 </if>		<if test="remarkStart !=  null and remarkEnd!= null  ">
+			and remark between #{remarkStart,jdbcType=VARCHAR} and #{remarkEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order} <if test="orderNum != null and  orderNum !='' ">${orderNum}</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">  order by #{orders}</if>
+		<if test="order == null and  orders == null ">  order by id desc</if>
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+
+    <!-- 其他Map等查询方式 -->
+    <resultMap id="AllUDPC" type="com.nork.onekeydesign.model.UserDesignPlanComment">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="user_id" property="userId" jdbcType="INTEGER" />
+		<result  column="design_plan_id" property="designPlanId" jdbcType="INTEGER" />
+		<result  column="content" property="content" jdbcType="VARCHAR" />
+		<result  column="pic" property="pic" jdbcType="VARCHAR" />
+		<result  column="discussionprogram" property="discussionprogram" jdbcType="VARCHAR" />
+		<result  column="date" property="date" jdbcType="TIMESTAMP" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="tomorrow" property="tomorrow" jdbcType="TIMESTAMP" />
+		<result  column="nick_name" property="userName" jdbcType="VARCHAR" />
+	</resultMap>
+    <select id="getUDPCList" resultMap="AllResultMap"
+		parameterType="com.nork.onekeydesign.model.search.DesignPlanCommentSearch">
+		SELECT
+		d.*,
+		u.nick_name,u.pic_id AS pic
+		FROM design_plan_comment d
+		LEFT JOIN sys_user u ON d.user_id = u.id
+        WHERE 1=1
+		<if test="id != null  and  id !='' ">  and d.id = #{id,jdbcType=INTEGER} </if>
+		<if test="designPlanId!= null  and  designPlanId !='' ">  and design_plan_id = #{designPlanId,jdbcType=INTEGER} </if>
+		<if test="discussionprogram !=  null and discussionprogram !=  ''   "> and d.discussionprogram  like CONCAT(CONCAT('%',#{discussionprogram,jdbcType=VARCHAR}),'%') </if>
+		 <if test="gmtCreate !=  null and tomorrow != null  ">
+			and d.gmt_create between #{gmtCreate,jdbcType=TIMESTAMP} and #{tomorrow,jdbcType=TIMESTAMP}
+		 </if>
+		 <if test="userName !=  null and userName !=  ''   ">
+			and u.user_name  like CONCAT(CONCAT('%',#{userName,jdbcType=VARCHAR}),'%')
+		 </if>
+		 ORDER BY d.gmt_create DESC
+		 <!-- <if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if> -->
+	</select>
+	<!-- 按主键查询 -->
+	<select id="selectByPrimaryId" resultMap="AllUDPC"
+		parameterType="java.lang.Integer">
+		SELECT
+		u.user_name AS userName,u.pic_id AS pic,
+		d.content AS content,
+		d.discussionprogram AS discussionprogram,
+		d.date AS date,d.id AS id
+		FROM design_plan_comment d
+		LEFT JOIN sys_user u on d.user_id = u.id
+		WHERE d.id = #{id,jdbcType=INTEGER}
+	</select>
+	<!-- 查询总数 -->
+	<select id="getCount" resultMap="AllResultMap" parameterType="java.lang.Integer">
+		SELECT  COUNT(id)	FROM design_plan_comment d
+		WHERE 1=1
+		<if test="id != null  and  id !='' ">  and d.id = #{id,jdbcType=INTEGER} </if>
+	</select>
+     <!-- end-->
+</mapper>

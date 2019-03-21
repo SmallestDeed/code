@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.base.dao.CommonMapper" >
+
+  <resultMap id="AllResultMap" type="com.sandu.api.base.model.GroupProductImageInfo">
+    <id column="id" property="groupProductId" jdbcType="INTEGER"/>
+    <result column="resPicId" property="resPicId" jdbcType="INTEGER"/>
+    <result column="newSmallPath" property="newSmallPath" jdbcType="VARCHAR"/>
+    <result column="convertPicPath" property="convertPicPath" jdbcType="INTEGER"/>
+  </resultMap>
+
+  <select id="getAllGroupProductImageInfoList" resultMap="AllResultMap">
+    select gp.id AS groupProductId,
+           gp.pic_id as resPicId,
+           rp.pic_path as convertPicPath
+    from group_product gp,
+         res_pic rp
+    where gp.is_deleted=0
+          and gp.pic_id>0
+          and gp.pic_id = rp.id
+          and rp.id in (111147,129305,129302,129297)
+  </select>
+
+  <update id="updateResSmallPicPath" parameterType="com.sandu.api.base.model.GroupProductImageInfo">
+      update res_pic rp
+      set rp.new_orginal_pic_path=#{imageInfo.convertPicPath,jdbcType=VARCHAR},
+          rp.pic_path=#{item.newSmallPath,jdbcType=VARCHAR}
+      WHERE rp.id =#{imageInfo.resPicId, jdbcType=INTEGER}
+  </update>
+
+    <update id="batchUpdateResSmallPicPath" parameterType="java.util.List">
+        <foreach separator=";" index="index" item="item" collection="list" close="" open="">
+            update res_pic rp
+            <set>
+                rp.pic_path=#{item.newSmallPath,jdbcType=VARCHAR},
+                rp.new_orginal_pic_path=#{item.convertPicPath,jdbcType=VARCHAR}
+            </set>
+            WHERE rp.id =#{item.resPicId, jdbcType=INTEGER}
+        </foreach>
+    </update>
+
+
+</mapper>

@@ -1,0 +1,101 @@
+<!--选择方案pages/plan/selection-scheme/selections-scheme.wxml.wxml-->
+<!--根据type值返回描述文字和链接  -->
+<view class='selections-scheme'>
+  <!-- 头部 -->
+  <view class="header">
+    <view class="{{type=='myPlan'?'header_title header_active':'header_title'}}">
+      <text class="txt" bindtap='changeType' data-type='myPlan'>我的方案</text>
+    </view>
+    <view class="header_xian"></view>
+    <view class="{{type=='collectPlan'?'header_title header_active':'header_title'}}">
+      <text class="txt" bindtap='changeType' data-type='collectPlan'>我收藏的方案</text>
+    </view>
+  </view>
+  <!-- 收藏的tab栏 -->
+  <view class='collectPlanTop clearfix' wx:if="{{type=='collectPlan'}}">
+    <view class='space_type fl {{conditionActive == 0? "active" : ""}}' data-index='{{0}}' bindtap='switchCondition'>
+      {{childConditionActive[0] == -1?'空间类型':spaceList[childConditionActive[0]].houseName }}
+      <image src='{{conditionActive == 0? "/static/image/choose_icon_up.png" : "/static/image/choose_icon_down.png"}}'></image>
+    </view>
+    <view class='space_area fl {{conditionActive == 1? "active" : ""}}' data-index='{{1}}' bindtap='switchCondition'>
+      {{childConditionActive[1] == -1?'空间面积': areaList[childConditionActive[1]].areaName + 'm²'}}
+      <image src='{{conditionActive == 1? "/static/image/choose_icon_up.png" : "/static/image/choose_icon_down.png"}}'></image>
+    </view>
+    <view class='space_style fl {{conditionActive == 2? "active" : ""}}' data-index='{{2}}' bindtap='switchCondition'>
+     {{childConditionActive[2] == -1?'装修风格': styleList[childConditionActive[2]].styleName}}
+      <image src='{{conditionActive == 2? "/static/image/choose_icon_up.png" : "/static/image/choose_icon_down.png"}}'></image>
+    </view>
+  </view>
+  <!-- 收藏的tab内容 -->
+  <view class='case-condition' wx:if='{{conditionActive >= 0 && type=="collectPlan"}}' bindtap='closeCaseCondition'>
+    <view class='condition-box clearfix' wx:if='{{conditionActive == 0}}'>
+      <view class='single-box fl {{childConditionActive[0] == index?"condition-box-active": ""}}' wx:for='{{spaceList}}' wx:key='{{index}}' bindtap='chooseCondition' data-indexP='{{0}}' data-indexC='{{index}}' data-code='{{item.houseType}}'>
+        {{item.houseName}}
+        <!-- 客餐厅 -->
+      </view>
+    </view>
+    <view class='condition-box clearfix' wx:if='{{conditionActive == 1}}'>
+      <view class='single-box fl {{childConditionActive[1] == -1?"condition-box-active": ""}}' data-indexP='{{1}}' data-indexC='{{-1}}' bindtap='chooseCondition' data-code='""'>
+        全部
+      </view>
+      <view class='single-box fl {{childConditionActive[1] == index?"condition-box-active": ""}}' wx:for='{{areaList}}' data-indexP='{{1}}' data-indexC='{{index}}' bindtap='chooseCondition' wx:key='{{index}}' data-code='{{item.areaId}}'>
+        {{item.areaName}}m²
+      </view>
+    </view>
+    <view class='condition-box clearfix' wx:if='{{conditionActive == 2}}'>
+      <view class='single-box fl {{childConditionActive[2] == -1?"condition-box-active": ""}}' data-indexP='{{2}}' data-indexC='{{-1}}' bindtap='chooseCondition' data-code='""'>
+        全部
+      </view>
+      <view class='single-box fl {{childConditionActive[2] == index?"condition-box-active": ""}}' wx:for='{{styleList}}' wx:key='{{index}}' data-indexP='{{2}}' bindtap='chooseCondition' data-indexC='{{index}}' data-code='{{item.styleCode}}'>
+        {{item.styleName}}
+      </view>
+    </view>
+  </view>
+  <!-- 方案列表 -->
+  <block wx:if="{{type=='myPlan'}}">
+    <view class="list" wx:if="{{planList.length>0}}">
+      <view class="list-item" wx:for="{{planList}}" wx:key='{{index}}' data-key='{{index}}'>
+        <view class="item-img">
+          <image class='checkBtn' src='{{staticImage+(isCheck==index?"choose_icon_sct.png":"choose_icon_nor.png")}}' catchtap='switchCheck' data-index="{{index}}">
+          </image>
+          <image class="btn" src="{{staticImage}}home_icon_3d.png" bindtap='toThreeD' data-type='seven' data-item='{{item}}'></image>
+          <image src='{{item.planPicPath?resourcePath+item.planPicPath:staticImage+"home_pic_no.png"}}'></image>
+        </view>
+        <view class="bottom-box">
+          <view class="left">
+            <view class="name ellipsis fl">{{item.designName}}</view>
+            <view class="date ellipsis fr">{{item.gmtCreate}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+  <!-- 收藏方案列表 -->
+  <block wx:if="{{type=='collectPlan'}}">
+    <view class="listTop" wx:if="{{planList.length>0}}">
+      <view class="list-item" wx:for="{{planList}}" wx:key='{{index}}' data-key='{{index}}'>
+        <view class="item-img">
+          <image class='checkBtn' src='{{staticImage+(isCheck==index?"choose_icon_sct.png":"choose_icon_nor.png")}}' catchtap='switchCheck' data-index="{{index}}">
+          </image>
+          <image class="btn" src="{{staticImage}}home_icon_3d.png" bindtap='go720' data-type='720' data-item='{{item}}'></image>
+          <image src='{{item.coverPath?resourcePath+item.coverPath:staticImage+"home_pic_no.png"}}'></image>
+        </view>
+        <view class="bottom-box">
+          <view class="left">
+            <view class="name ellipsis fl">{{item.planName}}</view>
+            <view class="date ellipsis fr">{{item.releaseTime}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 确定按钮 -->
+  <view class='confirm' wx:if="{{planList.length>0}}">
+    <button class='confirmBtn' bindtap='confirmBtn'>确定</button>
+  </view>
+</view>
+<empty-page emptyPageObj="{{emptyPageObj}}" btnHiden="{{true}}" wx:if="{{!planList.length>0}}"></empty-page>
+<!-- 快速导航模块 -->
+<import src="/component/newNav/newNav.wxml" />
+<template is="newNav" data="{{ ...newNav }}" />

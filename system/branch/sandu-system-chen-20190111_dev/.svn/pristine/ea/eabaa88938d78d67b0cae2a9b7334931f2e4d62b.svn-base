@@ -1,0 +1,355 @@
+package com.sandu.web.act3;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.validation.Valid;
+
+import com.github.pagehelper.PageInfo;
+import com.sandu.api.act3.input.LuckyWheelAdd;
+import com.sandu.api.act3.input.LuckyWheelQuery;
+import com.sandu.api.act3.input.LuckyWheelUpdate;
+import com.sandu.api.act3.output.LuckyWheelDetailVO;
+import com.sandu.api.act3.output.LuckyWheelListVO;
+import com.sandu.util.UUIDUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+import com.alibaba.dubbo.common.utils.StringUtils;
+import com.sandu.api.act3.model.LuckyWheel;
+import com.sandu.api.act3.service.LuckyWheelService;
+import com.sandu.api.common.exception.SystemException;
+import com.sandu.api.user.model.SysUser;
+import com.sandu.api.user.service.SysUserService;
+import com.sandu.common.LoginContext;
+import com.sandu.commons.LoginUser;
+import com.sandu.commons.ResponseEnvelope;
+import com.sandu.web.BaseController;
+
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+
+@RestController
+@RequestMapping("/v1/act3/luckywheel")
+@Slf4j
+public class LuckyWheelController extends BaseController {
+    private Logger logger = LoggerFactory.getLogger(LuckyWheelController.class);
+
+    @Autowired
+    private LuckyWheelService luckyWheelService;
+
+    @Resource
+    private SysUserService userService;
+    
+    private static SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    
+    
+    @ApiOperation(value = "查询转盘活动列表", response = ResponseEnvelope.class)
+    @GetMapping("/pageList")
+    public ResponseEnvelope pageList(LuckyWheelQuery query) {
+    	try {
+			//列表查询
+            if (null!=query.getName()){
+                query.setName(query.getName().trim());
+            }
+            PageInfo<LuckyWheel> pageList = luckyWheelService.pageList(query);
+            //输出数据转换
+            PageInfo<LuckyWheelListVO> pageResult = this.buildPageResult(pageList);
+			return new ResponseEnvelope<>(true, pageResult.getTotal(),pageResult.getList());
+		}catch(SystemException ex) {
+    		log.warn("业务异常:"+ex.getMessage());
+    		return new ResponseEnvelope<>(false, ex.getMessage());
+    	}catch(Exception ex) {
+    		log.error("系统异常:",ex);
+			return new ResponseEnvelope<>(false, "系统异常!");
+		}
+    }
+    
+  
+    
+    @ApiOperation(value = "创建转盘活动", response = ResponseEnvelope.class)
+    @PostMapping("/create")
+    public ResponseEnvelope create(@RequestBody @Valid LuckyWheelAdd luckyWheelAdd, BindingResult validResult) {
+        //1.数据校验
+        if (validResult.hasErrors()) {
+            return processValidError(validResult,new ResponseEnvelope());
+        }
+        Date beginTime = null;
+        Date endTime = null;
+        try {
+            beginTime = sdf.parse(luckyWheelAdd.getBeginTime());
+        }catch(Exception ex) {
+            return new ResponseEnvelope(false,"开始时间不合法");
+        }
+        try {
+            endTime = sdf.parse(luckyWheelAdd.getEndTime());
+        }catch(Exception ex) {
+            return new ResponseEnvelope(false,"结束时间不合法");
+        }
+        if (endTime.compareTo(beginTime) < 0){
+            return new ResponseEnvelope(false,"活动结束时间不能晚于活动开始时间");
+        }
+        //2.获取当前登录用户信息
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        SysUser user = userService.get(loginUser.getId());
+        if(user==null) {
+            return new ResponseEnvelope<>(false, "用户不存在!");
+        }
+        try {
+            //3.数据转换
+            LuckyWheel luckyWheel = this.addDataTransform(luckyWheelAdd,beginTime,endTime, user);
+            //4.向数据库加入数据
+            luckyWheelService.create(luckyWheel);
+            return new ResponseEnvelope<>(true, "保存成功!",luckyWheel.getId());
+        } catch (Exception ex) {
+            log.error("系统错误",ex);
+            return new ResponseEnvelope<>(false, "保存失败!");
+        }
+    }
+
+
+    @ApiOperation(value = "修改转盘活动", response = ResponseEnvelope.class)
+    @PostMapping("/modify")
+    public ResponseEnvelope modify(@RequestBody LuckyWheelUpdate update ,BindingResult validResult) {
+        //获取当前登录用户
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        //校验参数
+        if (validResult.hasErrors()) {
+            return processValidError(validResult,new ResponseEnvelope());
+        }
+        Date beginTime = null;
+        Date endTime = null;
+        //当开始时间和结束时间不为空时，需要校验开始时间和结束时间
+        if (null!=update.getBeginTime()){
+            try {
+                beginTime = sdf.parse(update.getBeginTime());
+            }catch(Exception ex) {
+                return new ResponseEnvelope(false,"开始时间不合法");
+            }
+        }
+        if (null!=update.getEndTime()){
+            try {
+                endTime = sdf.parse(update.getEndTime());
+            }catch(Exception ex) {
+                return new ResponseEnvelope(false,"结束时间不合法");
+            }
+        }
+        if (null!=update.getBeginTime()&&null!=update.getEndTime()){
+            if (update.getEndTime().compareTo(update.getBeginTime()) < 0){
+                return new ResponseEnvelope(false,"活动结束时间不能晚于活动开始时间");
+            }
+        }
+        try {
+            //通过Id获取活动，校验Id是否有效
+            LuckyWheel luckyWheel = luckyWheelService.get(update.getId());
+            logger.info("===转盘修改===luckyWheel:{}"+luckyWheel);
+            if (null==luckyWheel){
+                return new ResponseEnvelope<>(false, "参数Id无效!");
+            }
+            //数据转换
+            this.updateDataTransform(update,loginUser,luckyWheel,beginTime,endTime);
+            //修改数据
+            logger.info("===转盘修改---数据转换后===luckyWheel:{}"+luckyWheel);
+            int result = luckyWheelService.modifyById(luckyWheel);
+            logger.info("===转盘修改===修改结果:{}"+result);
+            if (result>0){
+                return new ResponseEnvelope<>(true, "修改成功!");
+            }
+            return new ResponseEnvelope<>(false, "修改失败!");
+        } catch (Exception e) {
+        	log.error("系统错误",e);
+            return new ResponseEnvelope(false,"系统错误");
+        }
+    }
+	
+	
+	
+	@ApiOperation(value = "结束活动", response = ResponseEnvelope.class)
+    @PostMapping("/finish")
+    public ResponseEnvelope finish(String actId) {
+
+        if (StringUtils.isEmpty(actId)){
+            return new ResponseEnvelope(false,"活动id不能为空!");
+        }
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        try {
+        	LuckyWheel entity = new LuckyWheel();
+        	entity.setId(actId);
+        	entity.setGmtModified(new Date());
+        	entity.setModifier(loginUser.getId().toString());
+        	entity.setIsEnable(0);
+        	entity.setEndTime(new Date());//实际结束时间
+        	luckyWheelService.modifyById(entity);
+            return new ResponseEnvelope(true,"结束活动成功");
+        } catch (Exception e) {
+            log.error("系统错误",e);
+            return new ResponseEnvelope(false,"系统错误");
+        }
+    }
+
+
+    @ApiOperation(value = "查询转盘活动详情", response = ResponseEnvelope.class)
+    @GetMapping("/getDetail")
+    public ResponseEnvelope getDetail(String actId) {
+        if (StringUtils.isEmpty(actId)){
+            return new ResponseEnvelope(false,"活动id不能为空!");
+        }
+        LuckyWheel luckyWheel = luckyWheelService.get(actId);
+        if (null!=luckyWheel){
+            Integer status = luckyWheelService.getStatus(luckyWheel);
+            LuckyWheelDetailVO detailVO = this.detailDataTransform(luckyWheel,status);
+            return new ResponseEnvelope(true,"详情获取成功",detailVO);
+        }
+        return new ResponseEnvelope(false,"无此Id对应活动");
+    }
+
+
+    @ApiOperation(value = "删除活动", response = ResponseEnvelope.class)
+    @PostMapping("/delete")
+    public ResponseEnvelope delete(@RequestParam("actId") String actId) {
+        if (StringUtils.isEmpty(actId)){
+            return new ResponseEnvelope(false,"活动id不能为空!");
+        }
+        Integer result = luckyWheelService.remove(actId);
+        if (result>0){
+            return new ResponseEnvelope(true,"删除成功");
+        }
+        return new ResponseEnvelope(false,"删除失败");
+    }
+
+
+
+    /**
+     * 新增活动数据转换
+     * @param add 新增入参
+     * @param user 当前登录用户
+     * @return LuckyWheel
+     */
+    private LuckyWheel addDataTransform(LuckyWheelAdd add,Date beginTime,Date endTime,SysUser user){
+        Date now = new Date();
+        LuckyWheel luckyWheel=new LuckyWheel();
+        luckyWheel.setId(UUIDUtil.getUUID());
+        luckyWheel.setName(add.getActName());
+        luckyWheel.setBeginTime(beginTime);
+        luckyWheel.setEndTime(endTime);
+        luckyWheel.setRule(add.getActRule());
+        luckyWheel.setIsEnable(1);
+        luckyWheel.setUserId(user.getId());
+        luckyWheel.setLotteryNumDefalut(add.getLotteryNumDefalut());
+        luckyWheel.setLotteryNumMax(add.getLotteryNumMax());
+        luckyWheel.setLotteryNumPerDayDefalut(add.getLotteryNumPerDayDefalut());
+        luckyWheel.setLotteryNumPerDayMax(add.getLotteryNumPerDayMax());
+        luckyWheel.setConfigItem(add.getConfigItem());
+        luckyWheel.setCreator(user.getId().toString());
+        luckyWheel.setGmtCreate(now);
+        luckyWheel.setModifier(user.getId().toString());
+        luckyWheel.setGmtModified(now);
+        luckyWheel.setIsDeleted(0);
+        luckyWheel.setAppId("wx42e6b214e6cdaed3");
+        luckyWheel.setAppName("随选网");
+        luckyWheel.setCompanyId(2501L);
+        luckyWheel.setCompanyName("三度空间");
+        luckyWheel.setLotteryTotalCount(0);
+        luckyWheel.setAwardsTotalCount(0);
+        luckyWheel.setRegCount(0);
+        return luckyWheel;
+    }
+
+    /**
+     * 修改活动数据转换
+     * @param update 修改接口入参
+     * @param user 当前用户
+     * @param luckyWheel 返回实体
+     * @param beginTime 校验后开始时间
+     * @param endTime  校验后结束时间
+     */
+    private void updateDataTransform(LuckyWheelUpdate update,LoginUser user,
+                                           LuckyWheel luckyWheel,Date beginTime,Date endTime){
+        luckyWheel.setGmtModified(new Date());
+        luckyWheel.setModifier(user.getId().toString());
+        if (null!=beginTime){
+            luckyWheel.setBeginTime(beginTime);
+        }
+        if (null!=endTime){
+            luckyWheel.setEndTime(endTime);
+        }
+        luckyWheel.setName(update.getActName());
+        luckyWheel.setRule(update.getActRule());
+        luckyWheel.setConfigItem(update.getConfigItem());
+        if (update.getConfigItem()==1){//当配置是1:每天配置,把整体配置对应参数改为0
+            luckyWheel.setLotteryNumPerDayMax(update.getLotteryNumPerDayMax());
+            luckyWheel.setLotteryNumPerDayDefalut(update.getLotteryNumPerDayDefalut());
+            luckyWheel.setLotteryNumMax(0);
+            luckyWheel.setLotteryNumDefalut(0);
+        }else if(update.getConfigItem()==2){//当配置是1:整体配置,把每天配置对应的参数改为0
+            luckyWheel.setLotteryNumPerDayMax(0);
+            luckyWheel.setLotteryNumPerDayDefalut(0);
+            luckyWheel.setLotteryNumMax(update.getLotteryNumMax());
+            luckyWheel.setLotteryNumDefalut(update.getLotteryNumDefalut());
+        }
+        luckyWheel.setModifier(user.getId().toString());
+        luckyWheel.setGmtModified(new Date());
+    }
+
+
+    /**
+     * 活动列表查询输出数据转换
+     * @param pageList 转换入参
+     * @return retList 转换后输出
+     */
+    private PageInfo<LuckyWheelListVO> buildPageResult(PageInfo<LuckyWheel> pageList){
+        PageInfo<LuckyWheelListVO> retList = new PageInfo<>();
+        List<LuckyWheelListVO> list = new ArrayList<>();
+        if(pageList!=null && pageList.getList()!=null&& pageList.getList().size()>0) {
+            for(LuckyWheel wheel : pageList.getList()) {
+                LuckyWheelListVO wheelListVO = new LuckyWheelListVO();
+                //输出活动名称和ID
+                wheelListVO.setName(wheel.getName());
+                wheelListVO.setId(wheel.getId());
+                //开始结束时间处理
+                Date endTime=wheel.getEndTime();
+                Date beginTime =wheel.getBeginTime();
+                wheelListVO.setBeginTime(sdf.format(beginTime));
+                wheelListVO.setEndTime(sdf.format(endTime));
+                //活动状态处理
+                Integer status = luckyWheelService.getStatus(wheel);
+                wheelListVO.setStatusCode(status);
+                list.add(wheelListVO);
+            }
+        }
+        retList.setTotal(pageList.getTotal());
+        retList.setList(list);
+        return retList;
+    }
+
+    /**
+     * 获取转盘活动详情数据转换
+     * @param luckyWheel 转盘活动详情
+     * @return LuckyWheelDetailVO 输出实体
+     */
+    private LuckyWheelDetailVO detailDataTransform(LuckyWheel luckyWheel,Integer status){
+        LuckyWheelDetailVO detailVO=new LuckyWheelDetailVO();
+        detailVO.setStatusCode(status);
+        detailVO.setId(luckyWheel.getId());
+        detailVO.setName(luckyWheel.getName());
+        detailVO.setRule(luckyWheel.getRule());
+        detailVO.setBeginTime(sdf.format(luckyWheel.getBeginTime()));
+        detailVO.setEndTime(sdf.format(luckyWheel.getEndTime()));
+        detailVO.setConfigItem(luckyWheel.getConfigItem());
+        detailVO.setLotteryNumDefalut(luckyWheel.getLotteryNumDefalut());
+        detailVO.setLotteryNumMax(luckyWheel.getLotteryNumMax());
+        detailVO.setLotteryNumPerDayDefalut(luckyWheel.getLotteryNumPerDayDefalut());
+        detailVO.setLotteryNumPerDayMax(luckyWheel.getLotteryNumPerDayMax());
+        return detailVO;
+    }
+
+
+
+}

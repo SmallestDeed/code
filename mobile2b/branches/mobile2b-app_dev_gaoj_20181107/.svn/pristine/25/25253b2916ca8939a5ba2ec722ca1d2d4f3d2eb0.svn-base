@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nork.design.dao.DecorateDesignPlanImgMapper">
+
+    <select id="getRecommendedById" parameterType="java.lang.Long" resultType="com.nork.design.model.DecorateDesignPlanImgInfo">
+        select dprs.id as planId,rrp.pic_path as picPath,dprs.plan_name AS planName
+        from
+		design_plan_render_scene dprs
+		LEFT JOIN res_render_pic rrp ON dprs.id=rrp.design_scene_id
+        where rrp.rendering_type = 4
+        and rrp.file_key = 'design.designPlan.render.small.pic'
+		and dprs.id = #{planId}
+    </select>
+
+    <select id="getWholeHouseById" parameterType="java.lang.Long" resultType="com.nork.design.model.DecorateDesignPlanImgInfo">
+        SELECT fhdp.id as planId ,rrp.pic_path as picPath,fhdp.plan_name as planName
+        from full_house_design_plan fhdp
+        LEFT JOIN res_render_pic rrp ON fhdp.plan_pic_id = rrp.id
+        where fhdp.is_deleted=0
+        AND fhdp.id = #{planId}
+    </select>
+
+</mapper>

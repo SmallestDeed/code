@@ -1,0 +1,30 @@
+package com.sandu.product.service;
+
+import com.sandu.product.model.input.PlanProductModel;
+import com.sandu.product.model.output.BaseProductDetailsVo;
+import com.sandu.product.model.output.ProductsCostType;
+
+import java.util.List;
+
+/**
+ * @Author Gao Jun
+ * @Description
+ * @Date:Created Administrator in 下午 3:36 2018/6/27 0027
+ * @Modified By:
+ */
+public interface DesignPlanProductService {
+
+    /**
+     * 查询方案产品列表
+     * @param model
+     * @return
+     */
+    List<ProductsCostType> getDesignPlanProductList(PlanProductModel model);
+
+    /**
+     * 获取产品详情 TEMP
+     * @param productId
+     * @return
+     */
+    BaseProductDetailsVo getProductDetails(Integer productId);
+}

@@ -1,0 +1,179 @@
+package com.sandu.web.goods.controller;
+
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.designplan.vo.RecommendedPlanProductRelatedVo;
+import com.sandu.goods.input.GoodsListQuery;
+import com.sandu.goods.input.GoodsSkuQuery;
+import com.sandu.goods.model.PO.GoodsListPO;
+import com.sandu.goods.output.GoodsSkuVO;
+import com.sandu.goods.output.SpuAttributeVO;
+import com.sandu.goods.output.GoodsDetailVO;
+import com.sandu.goods.output.GoodsVO;
+import com.sandu.goods.service.BaseGoodsSKUService;
+import com.sandu.goods.service.BaseGoodsSPUService;
+import com.sandu.product.model.BaseCompany;
+import com.sandu.product.service.BaseCompanyService;
+import com.sandu.web.designplan.controller.DesignPlanRecommendedController;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+
+@Api(tags = "BaseGoodsController", description = "商品")
+@Log4j2
+@RestController
+@RequestMapping("/v1/miniprogram/goods/basegoods")
+public class BaseGoodsController
+{
+    @Autowired
+    BaseCompanyService baseCompanyService;
+
+    @Autowired
+    BaseGoodsSPUService baseGoodsSPUService;
+
+    @Autowired
+    BaseGoodsSKUService baseGoodsSKUService;
+
+    @Autowired
+    DesignPlanRecommendedController designPlanRecommendedController;
+
+    @Value("${sanducloudhome.company.code}")
+    private String companyCode;
+
+
+    /**
+     * @Author: zhangchengda
+     * @Description: 获取商品列表
+     * @Date: 18:08 2018/5/30
+     */
+    @ApiOperation(value = "获取商品列表", response = ResponseEnvelope.class)
+    @GetMapping("/list")
+    public ResponseEnvelope getGoodsList(GoodsListQuery goodsListQuery, HttpServletRequest request)
+    {
+        GoodsListPO goodsListPO = new GoodsListPO();
+        // 查询是否是访问公司
+        BaseCompany baseCompany = baseCompanyService.getCompanyByDomainUrl(request.getHeader("Referer"));
+        if (baseCompany == null)
+        {
+            baseCompany = baseCompanyService.getCompanyByDomainUrl(request.getHeader("Custom-Referer"));
+        }
+        if (baseCompany != null)
+        {
+            if(companyCode.equals(baseCompany.getCompanyCode()))
+            {
+                goodsListPO.setCompanyId(null);
+            }else
+            {
+                goodsListPO.setCompanyId(baseCompany.getId());
+            }
+        }
+        if(goodsListQuery.getCodes() != null)
+        {
+            goodsListPO.setCodeList(Arrays.asList(goodsListQuery.getCodes().split(",")));
+            goodsListPO.setCodeListSize(goodsListPO.getCodeList().size() - 1);
+        }
+
+        if(goodsListQuery.getPage() != null && goodsListQuery.getLimit() != null)
+        {
+            goodsListPO.setStart((goodsListQuery.getPage()-1)*goodsListQuery.getLimit());
+            goodsListPO.setLimit(goodsListQuery.getLimit());
+        }
+
+        Integer total = baseGoodsSPUService.getGoodsListCount(goodsListPO);
+        if (total > 0)
+        {
+            List<GoodsVO> goodsVOList = baseGoodsSPUService.getGoodsList(goodsListPO);
+            if (goodsVOList == null || goodsVOList.size() == 0)
+            {
+                return new ResponseEnvelope(true, "查询产品出错");
+            }else
+            {
+                for (GoodsVO goodsVO : goodsVOList)
+                {
+                    goodsVO.setPriceStr(goodsVO.getPrice().toString());
+                }
+            }
+            return new ResponseEnvelope(true, "success", goodsVOList, total);
+        }
+        return new ResponseEnvelope(true, "该分类下没有产品");
+    }
+
+    /**
+     * @Author: zhangchengda
+     * @Description: 商品详情
+     * @Date: 18:10 2018/5/30
+     */
+    @ApiOperation(value = "获取商品详情", response = ResponseEnvelope.class)
+    @GetMapping("/detail")
+    public ResponseEnvelope getGoodsDetail(Integer id)
+    {
+        GoodsDetailVO goodsDetailVO = baseGoodsSPUService.getGoodsDetail(id);
+        return new ResponseEnvelope(true, "success", goodsDetailVO);
+    }
+
+    /**
+     * @Author: zhangchengda
+     * @Description: 商品案例
+     * @Date: 10:02 2018/5/31
+     */
+    @ApiOperation(value = "商品案例", response = ResponseEnvelope.class)
+    @GetMapping("/design")
+    public ResponseEnvelope getGoodsDesign(@RequestParam("spuId") Integer spuId, HttpServletRequest request)
+    {
+        List<Integer> skuIds = baseGoodsSKUService.getProductIdsBySpuId(spuId);
+        List<RecommendedPlanProductRelatedVo> recommendedPlanProductRelatedVoList = new ArrayList<>();
+        for (Integer skuId : skuIds)
+        {
+            recommendedPlanProductRelatedVoList.addAll((List<RecommendedPlanProductRelatedVo>)designPlanRecommendedController.recommendedPlanOfProductRelated(skuId,request).getObj());
+        }
+
+        return new ResponseEnvelope(true, "success", recommendedPlanProductRelatedVoList);
+    }
+
+    /**
+     * @Author: zhangchengda
+     * @Description: 商品具有的规格属性
+     * @Date: 10:28 2018/5/31
+     */
+    @ApiOperation(value = "获取商品具有的规格属性", response = ResponseEnvelope.class)
+    @GetMapping("/attr")
+    public ResponseEnvelope getGoodsAttribute(Integer id)
+    {
+        List<SpuAttributeVO> spuAttrList = baseGoodsSPUService.getSpuAttrList(id);
+        return new ResponseEnvelope(true, "success", spuAttrList);
+    }
+
+    /**
+     * @Author: zhangchengda
+     * @Description: 根据选择的规格获取sku信息
+     * @Date: 10:29 2018/5/31
+     */
+    @ApiOperation(value = "根据选择的规格获取sku信息", response = ResponseEnvelope.class)
+    @GetMapping("/sku")
+    public ResponseEnvelope getSkuInfoByAttribute(GoodsSkuQuery goodsSkuQuery)
+    {
+        GoodsSkuVO goodsSkuVO = baseGoodsSKUService.getSkuInfoByAttrs(goodsSkuQuery);
+        return new ResponseEnvelope(true, "success", goodsSkuVO);
+    }
+
+    /**
+     * @Author: zhangchengda
+     * @Description: 选择规格后的商品详情页
+     * @Date: 10:30 2018/5/31
+     */
+    public ResponseEnvelope getSkuInfo()
+    {
+        return null;
+    }
+}

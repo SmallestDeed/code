@@ -1,0 +1,983 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.business.dao.BaseRoomMapper">
+<!--<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>-->
+	<!-- **插入定义** -->
+	<insert id="insertSelective" parameterType="com.nork.business.model.BaseRoom"  useGeneratedKeys="true" keyProperty="id">
+		insert into base_room
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		<if test="sysCode!= null">sys_code, </if>
+		<if test="creator!= null">creator, </if>
+		<if test="gmtCreate!= null">gmt_create, </if>
+		<if test="modifier!= null">modifier, </if>
+		<if test="gmtModified!= null">gmt_modified, </if>
+		<if test="isDeleted!= null">is_deleted, </if>
+		<if test="roomCode!= null">room_code, </if>
+		<if test="roomName!= null">room_name, </if>
+		<if test="roomTypeId!= null">room_type_id, </if>
+		<if test="maxLength!= null">max_length, </if>
+		<if test="maxWidth!= null">max_width, </if>
+		<if test="maxAreas!= null">max_areas, </if>
+		<if test="mainLength!= null">main_length, </if>
+		<if test="mainWidth!= null">main_width, </if>
+		<if test="mainAreas!= null">main_areas, </if>
+		<if test="mainHigh!= null">main_high, </if>
+		<if test="isCertified!= null">is_certified, </if>
+		<if test="certifiedPerson!= null">certified_person, </if>
+		<if test="certifiedType!= null">certified_type, </if>
+		<if test="roomDesc!= null">room_desc, </if>
+		<if test="houseId!= null">house_id, </if>
+		<if test="houseSpaceId!= null">house_space_id, </if>
+		<if test="roomCommonCode!= null">room_common_code, </if>
+		<if test="roomTypeCode!= null">room_type_code, </if>
+		<if test="att1!= null">att1, </if>
+		<if test="att2!= null">att2, </if>
+		<if test="att3!= null">att3, </if>
+		<if test="att4!= null">att4, </if>
+		<if test="att5!= null">att5, </if>
+		<if test="att6!= null">att6, </if>
+		<if test="dateAtt1!= null">date_att1, </if>
+		<if test="dateAtt2!= null">date_att2, </if>
+		<if test="numAtt1!= null">num_att1, </if>
+		<if test="numAtt2!= null">num_att2, </if>
+		<if test="numAtt3!= null">num_att3, </if>
+		<if test="numAtt4!= null">num_att4, </if>
+		<if test="remark!= null">remark, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="roomCode!= null">  #{roomCode,jdbcType=VARCHAR}, </if>
+		<if test="roomName!= null">  #{roomName,jdbcType=VARCHAR}, </if>
+		<if test="roomTypeId!= null">  #{roomTypeId,jdbcType=INTEGER}, </if>
+		<if test="maxLength!= null">  #{maxLength,jdbcType=VARCHAR}, </if>
+		<if test="maxWidth!= null">  #{maxWidth,jdbcType=VARCHAR}, </if>
+		<if test="maxAreas!= null">  #{maxAreas,jdbcType=VARCHAR}, </if>
+		<if test="mainLength!= null">  #{mainLength,jdbcType=VARCHAR}, </if>
+		<if test="mainWidth!= null">  #{mainWidth,jdbcType=VARCHAR}, </if>
+		<if test="mainAreas!= null">  #{mainAreas,jdbcType=VARCHAR}, </if>
+		<if test="mainHigh!= null">  #{mainHigh,jdbcType=VARCHAR}, </if>
+		<if test="isCertified!= null">  #{isCertified,jdbcType=VARCHAR}, </if>
+		<if test="certifiedPerson!= null">  #{certifiedPerson,jdbcType=VARCHAR}, </if>
+		<if test="certifiedType!= null">  #{certifiedType,jdbcType=VARCHAR}, </if>
+		<if test="roomDesc!= null">  #{roomDesc,jdbcType=VARCHAR}, </if>
+		<if test="houseId!= null">  #{houseId,jdbcType=INTEGER}, </if>
+		<if test="houseSpaceId!= null">  #{houseSpaceId,jdbcType=INTEGER}, </if>
+		<if test="roomCommonCode!= null">  #{roomCommonCode,jdbcType=VARCHAR}, </if>
+		<if test="roomTypeCode!= null">  #{roomTypeCode,jdbcType=VARCHAR}, </if>
+		<if test="att1!= null">  #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  #{att2,jdbcType=VARCHAR}, </if>
+		<if test="att3!= null">  #{att3,jdbcType=VARCHAR}, </if>
+		<if test="att4!= null">  #{att4,jdbcType=VARCHAR}, </if>
+		<if test="att5!= null">  #{att5,jdbcType=VARCHAR}, </if>
+		<if test="att6!= null">  #{att6,jdbcType=VARCHAR}, </if>
+		<if test="dateAtt1!= null">  #{dateAtt1,jdbcType=TIMESTAMP}, </if>
+		<if test="dateAtt2!= null">  #{dateAtt2,jdbcType=TIMESTAMP}, </if>
+		<if test="numAtt1!= null">  #{numAtt1,jdbcType=INTEGER}, </if>
+		<if test="numAtt2!= null">  #{numAtt2,jdbcType=INTEGER}, </if>
+		<if test="numAtt3!= null">  #{numAtt3,jdbcType=DOUBLE}, </if>
+		<if test="numAtt4!= null">  #{numAtt4,jdbcType=DOUBLE}, </if>
+		<if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>	
+		</trim>
+	</insert>
+
+	<!-- **更新定义** -->
+	<update id="updateByPrimaryKeySelective" parameterType="com.nork.business.model.BaseRoom">
+		update base_room
+		<set>
+		<if test="sysCode!= null">  sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  creator = #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  modifier = #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="roomCode!= null">  room_code = #{roomCode,jdbcType=VARCHAR}, </if>
+		<if test="roomName!= null">  room_name = #{roomName,jdbcType=VARCHAR}, </if>
+		<if test="roomTypeId!= null">  room_type_id = #{roomTypeId,jdbcType=INTEGER}, </if>
+		<if test="maxLength!= null">  max_length = #{maxLength,jdbcType=VARCHAR}, </if>
+		<if test="maxWidth!= null">  max_width = #{maxWidth,jdbcType=VARCHAR}, </if>
+		<if test="maxAreas!= null">  max_areas = #{maxAreas,jdbcType=VARCHAR}, </if>
+		<if test="mainLength!= null">  main_length = #{mainLength,jdbcType=VARCHAR}, </if>
+		<if test="mainWidth!= null">  main_width = #{mainWidth,jdbcType=VARCHAR}, </if>
+		<if test="mainAreas!= null">  main_areas = #{mainAreas,jdbcType=VARCHAR}, </if>
+		<if test="mainHigh!= null">  main_high = #{mainHigh,jdbcType=VARCHAR}, </if>
+		<if test="isCertified!= null">  is_certified = #{isCertified,jdbcType=VARCHAR}, </if>
+		<if test="certifiedPerson!= null">  certified_person = #{certifiedPerson,jdbcType=VARCHAR}, </if>
+		<if test="certifiedType!= null">  certified_type = #{certifiedType,jdbcType=VARCHAR}, </if>
+		<if test="roomDesc!= null">  room_desc = #{roomDesc,jdbcType=VARCHAR}, </if>
+		<if test="houseId!= null">  house_id = #{houseId,jdbcType=INTEGER}, </if>
+		<if test="houseSpaceId!= null">  house_space_id = #{houseSpaceId,jdbcType=INTEGER}, </if>
+		<if test="roomCommonCode!= null">  room_common_code = #{roomCommonCode,jdbcType=VARCHAR}, </if>
+		<if test="roomTypeCode!= null">  room_type_code = #{roomTypeCode,jdbcType=VARCHAR}, </if>
+		<if test="att1!= null">  att1 = #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  att2 = #{att2,jdbcType=VARCHAR}, </if>
+		<if test="att3!= null">  att3 = #{att3,jdbcType=VARCHAR}, </if>
+		<if test="att4!= null">  att4 = #{att4,jdbcType=VARCHAR}, </if>
+		<if test="att5!= null">  att5 = #{att5,jdbcType=VARCHAR}, </if>
+		<if test="att6!= null">  att6 = #{att6,jdbcType=VARCHAR}, </if>
+		<if test="dateAtt1!= null">  date_att1 = #{dateAtt1,jdbcType=TIMESTAMP}, </if>
+		<if test="dateAtt2!= null">  date_att2 = #{dateAtt2,jdbcType=TIMESTAMP}, </if>
+		<if test="numAtt1!= null">  num_att1 = #{numAtt1,jdbcType=INTEGER}, </if>
+		<if test="numAtt2!= null">  num_att2 = #{numAtt2,jdbcType=INTEGER}, </if>
+		<if test="numAtt3!= null">  num_att3 = #{numAtt3,jdbcType=DOUBLE}, </if>
+		<if test="numAtt4!= null">  num_att4 = #{numAtt4,jdbcType=DOUBLE}, </if>
+		<if test="remark!= null">  remark = #{remark,jdbcType=VARCHAR}, </if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<!-- **删除定义** -->
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from base_room
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	
+	<!-- **常量定义** -->
+	<sql id="All_Column_List">
+		id,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,room_code,room_name,room_type_id,max_length,max_width,max_areas,main_length,main_width,main_areas,main_high,is_certified,certified_person,certified_type,room_desc,house_id,house_space_id,room_common_code,room_type_code,att1,att2,att3,att4,att5,att6,date_att1,date_att2,num_att1,num_att2,num_att3,num_att4,remark
+	</sql>
+	
+	<!-- **结果定义** -->
+	<resultMap id="AllResultMap" type="com.nork.business.model.BaseRoom">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="room_code" property="roomCode" jdbcType="VARCHAR" />
+		<result  column="room_name" property="roomName" jdbcType="VARCHAR" />
+		<result  column="room_type_id" property="roomTypeId" jdbcType="INTEGER" />
+		<result  column="max_length" property="maxLength" jdbcType="VARCHAR" />
+		<result  column="max_width" property="maxWidth" jdbcType="VARCHAR" />
+		<result  column="max_areas" property="maxAreas" jdbcType="VARCHAR" />
+		<result  column="main_length" property="mainLength" jdbcType="VARCHAR" />
+		<result  column="main_width" property="mainWidth" jdbcType="VARCHAR" />
+		<result  column="main_areas" property="mainAreas" jdbcType="VARCHAR" />
+		<result  column="main_high" property="mainHigh" jdbcType="VARCHAR" />
+		<result  column="is_certified" property="isCertified" jdbcType="VARCHAR" />
+		<result  column="certified_person" property="certifiedPerson" jdbcType="VARCHAR" />
+		<result  column="certified_type" property="certifiedType" jdbcType="VARCHAR" />
+		<result  column="room_desc" property="roomDesc" jdbcType="VARCHAR" />
+		<result  column="house_id" property="houseId" jdbcType="INTEGER" />
+		<result  column="house_space_id" property="houseSpaceId" jdbcType="INTEGER" />
+		<result  column="room_common_code" property="roomCommonCode" jdbcType="VARCHAR" />
+		<result  column="room_type_code" property="roomTypeCode" jdbcType="VARCHAR" />
+		<result  column="att1" property="att1" jdbcType="VARCHAR" />
+		<result  column="att2" property="att2" jdbcType="VARCHAR" />
+		<result  column="att3" property="att3" jdbcType="VARCHAR" />
+		<result  column="att4" property="att4" jdbcType="VARCHAR" />
+		<result  column="att5" property="att5" jdbcType="VARCHAR" />
+		<result  column="att6" property="att6" jdbcType="VARCHAR" />
+		<result  column="date_att1" property="dateAtt1" jdbcType="TIMESTAMP" />
+		<result  column="date_att2" property="dateAtt2" jdbcType="TIMESTAMP" />
+		<result  column="num_att1" property="numAtt1" jdbcType="INTEGER" />
+		<result  column="num_att2" property="numAtt2" jdbcType="INTEGER" />
+		<result  column="num_att3" property="numAtt3" jdbcType="DOUBLE" />
+		<result  column="num_att4" property="numAtt4" jdbcType="DOUBLE" />
+		<result  column="remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- **查询定义** -->
+	<!-- 按主键查询 -->
+	<select id="selectByPrimaryKey" resultMap="AllResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="All_Column_List" />
+		from base_room
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+		parameterType="com.nork.business.model.BaseRoom">
+		select
+		<include refid="All_Column_List" />
+		from base_room
+        where 1=1
+		<if test="sysCode!= null">  and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="creator!= null">  and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="gmtCreate!= null">  and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+		<if test="modifier!= null">  and modifier = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="gmtModified!= null">  and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP} </if>
+		<if test="isDeleted!= null">  and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="roomCode!= null">  and room_code = #{roomCode,jdbcType=VARCHAR} </if>
+		<if test="roomName!= null">  and room_name = #{roomName,jdbcType=VARCHAR} </if>
+		<if test="roomTypeId!= null">  and room_type_id = #{roomTypeId,jdbcType=INTEGER} </if>
+		<if test="maxLength!= null">  and max_length = #{maxLength,jdbcType=VARCHAR} </if>
+		<if test="maxWidth!= null">  and max_width = #{maxWidth,jdbcType=VARCHAR} </if>
+		<if test="maxAreas!= null">  and max_areas = #{maxAreas,jdbcType=VARCHAR} </if>
+		<if test="mainLength!= null">  and main_length = #{mainLength,jdbcType=VARCHAR} </if>
+		<if test="mainWidth!= null">  and main_width = #{mainWidth,jdbcType=VARCHAR} </if>
+		<if test="mainAreas!= null">  and main_areas = #{mainAreas,jdbcType=VARCHAR} </if>
+		<if test="mainHigh!= null">  and main_high = #{mainHigh,jdbcType=VARCHAR} </if>
+		<if test="isCertified!= null">  and is_certified = #{isCertified,jdbcType=VARCHAR} </if>
+		<if test="certifiedPerson!= null">  and certified_person = #{certifiedPerson,jdbcType=VARCHAR} </if>
+		<if test="certifiedType!= null">  and certified_type = #{certifiedType,jdbcType=VARCHAR} </if>
+		<if test="roomDesc!= null">  and room_desc = #{roomDesc,jdbcType=VARCHAR} </if>
+		<if test="houseId!= null">  and house_id = #{houseId,jdbcType=INTEGER} </if>
+		<if test="houseSpaceId!= null">  and house_space_id = #{houseSpaceId,jdbcType=INTEGER} </if>
+		<if test="roomCommonCode!= null">  and room_common_code = #{roomCommonCode,jdbcType=VARCHAR} </if>
+		<if test="roomTypeCode!= null">  and room_type_code = #{roomTypeCode,jdbcType=VARCHAR} </if>
+		<if test="att1!= null">  and att1 = #{att1,jdbcType=VARCHAR} </if>
+		<if test="att2!= null">  and att2 = #{att2,jdbcType=VARCHAR} </if>
+		<if test="att3!= null">  and att3 = #{att3,jdbcType=VARCHAR} </if>
+		<if test="att4!= null">  and att4 = #{att4,jdbcType=VARCHAR} </if>
+		<if test="att5!= null">  and att5 = #{att5,jdbcType=VARCHAR} </if>
+		<if test="att6!= null">  and att6 = #{att6,jdbcType=VARCHAR} </if>
+		<if test="dateAtt1!= null">  and date_att1 = #{dateAtt1,jdbcType=TIMESTAMP} </if>
+		<if test="dateAtt2!= null">  and date_att2 = #{dateAtt2,jdbcType=TIMESTAMP} </if>
+		<if test="numAtt1!= null">  and num_att1 = #{numAtt1,jdbcType=INTEGER} </if>
+		<if test="numAtt2!= null">  and num_att2 = #{numAtt2,jdbcType=INTEGER} </if>
+		<if test="numAtt3!= null">  and num_att3 = #{numAtt3,jdbcType=DOUBLE} </if>
+		<if test="numAtt4!= null">  and num_att4 = #{numAtt4,jdbcType=DOUBLE} </if>
+		<if test="remark!= null">  and remark = #{remark,jdbcType=VARCHAR} </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order}
+			<if test="orderNum != null and  orderNum !='' ">
+				${orderNum}
+			</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">
+		   order by ${orders}
+		</if>
+	</select>
+	
+	<!-- 分页汇总 -->
+	<select id="selectCount" resultType="int"
+		parameterType="com.nork.business.model.search.BaseRoomSearch">
+		select count(*)
+		from base_room
+		where 1=1
+		<if test="sysCode !=  null and sysCode !=  ''   "> and sys_code  = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+			and sys_code  like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+			and sys_code  like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+			and sys_code  like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+			and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="creator !=  null and creator !=  ''   "> and creator  = #{creator,jdbcType=VARCHAR} </if>
+		<if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+			and creator  like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+			and creator  like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+			and creator  like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="creatorStart !=  null and creatorEnd!= null  ">
+			and creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtCreate !=  null  ">
+			and gmt_create  = #{gmtCreate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="modifier !=  null and modifier !=  ''   "> and modifier  = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and modifier  like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and modifier  like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		 </if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and modifier  like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtModified !=  null  ">
+			and gmt_modified  = #{gmtModified,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="isDeleted !=  null  ">			and is_deleted  = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="roomCode !=  null and roomCode !=  ''   "> and room_code  = #{roomCode,jdbcType=VARCHAR} </if>
+		<if test="sch_RoomCode_ !=  null and sch_RoomCode_ !=  ''   ">
+			and room_code  like CONCAT(CONCAT('%',#{sch_RoomCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RoomCode !=  null and sch_RoomCode !=  ''   ">
+			and room_code  like CONCAT('%',#{sch_RoomCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRoomCode_ !=  null and schRoomCode_ !=  ''   ">
+			and room_code  like CONCAT(#{schRoomCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="roomCodeStart !=  null and roomCodeEnd!= null  ">
+			and room_code between #{roomCodeStart,jdbcType=VARCHAR} and #{roomCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="roomName !=  null and roomName !=  ''   "> and room_name  = #{roomName,jdbcType=VARCHAR} </if>
+		<if test="sch_RoomName_ !=  null and sch_RoomName_ !=  ''   ">
+			and room_name  like CONCAT(CONCAT('%',#{sch_RoomName_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RoomName !=  null and sch_RoomName !=  ''   ">
+			and room_name  like CONCAT('%',#{sch_RoomName,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRoomName_ !=  null and schRoomName_ !=  ''   ">
+			and room_name  like CONCAT(#{schRoomName_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="roomNameStart !=  null and roomNameEnd!= null  ">
+			and room_name between #{roomNameStart,jdbcType=VARCHAR} and #{roomNameEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="roomTypeId !=  null  ">			and room_type_id  = #{roomTypeId,jdbcType=INTEGER} </if>
+		<if test="maxLength !=  null and maxLength !=  ''   "> and max_length  = #{maxLength,jdbcType=VARCHAR} </if>
+		<if test="sch_MaxLength_ !=  null and sch_MaxLength_ !=  ''   ">
+			and max_length  like CONCAT(CONCAT('%',#{sch_MaxLength_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_MaxLength !=  null and sch_MaxLength !=  ''   ">
+			and max_length  like CONCAT('%',#{sch_MaxLength,jdbcType=VARCHAR})
+		 </if>
+		<if test="schMaxLength_ !=  null and schMaxLength_ !=  ''   ">
+			and max_length  like CONCAT(#{schMaxLength_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="maxLengthStart !=  null and maxLengthEnd!= null  ">
+			and max_length between #{maxLengthStart,jdbcType=VARCHAR} and #{maxLengthEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="maxWidth !=  null and maxWidth !=  ''   "> and max_width  = #{maxWidth,jdbcType=VARCHAR} </if>
+		<if test="sch_MaxWidth_ !=  null and sch_MaxWidth_ !=  ''   ">
+			and max_width  like CONCAT(CONCAT('%',#{sch_MaxWidth_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_MaxWidth !=  null and sch_MaxWidth !=  ''   ">
+			and max_width  like CONCAT('%',#{sch_MaxWidth,jdbcType=VARCHAR})
+		 </if>
+		<if test="schMaxWidth_ !=  null and schMaxWidth_ !=  ''   ">
+			and max_width  like CONCAT(#{schMaxWidth_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="maxWidthStart !=  null and maxWidthEnd!= null  ">
+			and max_width between #{maxWidthStart,jdbcType=VARCHAR} and #{maxWidthEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="maxAreas !=  null and maxAreas !=  ''   "> and max_areas  = #{maxAreas,jdbcType=VARCHAR} </if>
+		<if test="sch_MaxAreas_ !=  null and sch_MaxAreas_ !=  ''   ">
+			and max_areas  like CONCAT(CONCAT('%',#{sch_MaxAreas_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_MaxAreas !=  null and sch_MaxAreas !=  ''   ">
+			and max_areas  like CONCAT('%',#{sch_MaxAreas,jdbcType=VARCHAR})
+		 </if>
+		<if test="schMaxAreas_ !=  null and schMaxAreas_ !=  ''   ">
+			and max_areas  like CONCAT(#{schMaxAreas_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="maxAreasStart !=  null and maxAreasEnd!= null  ">
+			and max_areas between #{maxAreasStart,jdbcType=VARCHAR} and #{maxAreasEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="mainLength !=  null and mainLength !=  ''   "> and main_length  = #{mainLength,jdbcType=VARCHAR} </if>
+		<if test="sch_MainLength_ !=  null and sch_MainLength_ !=  ''   ">
+			and main_length  like CONCAT(CONCAT('%',#{sch_MainLength_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_MainLength !=  null and sch_MainLength !=  ''   ">
+			and main_length  like CONCAT('%',#{sch_MainLength,jdbcType=VARCHAR})
+		 </if>
+		<if test="schMainLength_ !=  null and schMainLength_ !=  ''   ">
+			and main_length  like CONCAT(#{schMainLength_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="mainLengthStart !=  null and mainLengthEnd!= null  ">
+			and main_length between #{mainLengthStart,jdbcType=VARCHAR} and #{mainLengthEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="mainWidth !=  null and mainWidth !=  ''   "> and main_width  = #{mainWidth,jdbcType=VARCHAR} </if>
+		<if test="sch_MainWidth_ !=  null and sch_MainWidth_ !=  ''   ">
+			and main_width  like CONCAT(CONCAT('%',#{sch_MainWidth_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_MainWidth !=  null and sch_MainWidth !=  ''   ">
+			and main_width  like CONCAT('%',#{sch_MainWidth,jdbcType=VARCHAR})
+		 </if>
+		<if test="schMainWidth_ !=  null and schMainWidth_ !=  ''   ">
+			and main_width  like CONCAT(#{schMainWidth_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="mainWidthStart !=  null and mainWidthEnd!= null  ">
+			and main_width between #{mainWidthStart,jdbcType=VARCHAR} and #{mainWidthEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="mainAreas !=  null and mainAreas !=  ''   "> and main_areas  = #{mainAreas,jdbcType=VARCHAR} </if>
+		<if test="sch_MainAreas_ !=  null and sch_MainAreas_ !=  ''   ">
+			and main_areas  like CONCAT(CONCAT('%',#{sch_MainAreas_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_MainAreas !=  null and sch_MainAreas !=  ''   ">
+			and main_areas  like CONCAT('%',#{sch_MainAreas,jdbcType=VARCHAR})
+		 </if>
+		<if test="schMainAreas_ !=  null and schMainAreas_ !=  ''   ">
+			and main_areas  like CONCAT(#{schMainAreas_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="mainAreasStart !=  null and mainAreasEnd!= null  ">
+			and main_areas between #{mainAreasStart,jdbcType=VARCHAR} and #{mainAreasEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="mainHigh !=  null and mainHigh !=  ''   "> and main_high  = #{mainHigh,jdbcType=VARCHAR} </if>
+		<if test="sch_MainHigh_ !=  null and sch_MainHigh_ !=  ''   ">
+			and main_high  like CONCAT(CONCAT('%',#{sch_MainHigh_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_MainHigh !=  null and sch_MainHigh !=  ''   ">
+			and main_high  like CONCAT('%',#{sch_MainHigh,jdbcType=VARCHAR})
+		 </if>
+		<if test="schMainHigh_ !=  null and schMainHigh_ !=  ''   ">
+			and main_high  like CONCAT(#{schMainHigh_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="mainHighStart !=  null and mainHighEnd!= null  ">
+			and main_high between #{mainHighStart,jdbcType=VARCHAR} and #{mainHighEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="isCertified !=  null and isCertified !=  ''   "> and is_certified  = #{isCertified,jdbcType=VARCHAR} </if>
+		<if test="sch_IsCertified_ !=  null and sch_IsCertified_ !=  ''   ">
+			and is_certified  like CONCAT(CONCAT('%',#{sch_IsCertified_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_IsCertified !=  null and sch_IsCertified !=  ''   ">
+			and is_certified  like CONCAT('%',#{sch_IsCertified,jdbcType=VARCHAR})
+		 </if>
+		<if test="schIsCertified_ !=  null and schIsCertified_ !=  ''   ">
+			and is_certified  like CONCAT(#{schIsCertified_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="isCertifiedStart !=  null and isCertifiedEnd!= null  ">
+			and is_certified between #{isCertifiedStart,jdbcType=VARCHAR} and #{isCertifiedEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="certifiedPerson !=  null and certifiedPerson !=  ''   "> and certified_person  = #{certifiedPerson,jdbcType=VARCHAR} </if>
+		<if test="sch_CertifiedPerson_ !=  null and sch_CertifiedPerson_ !=  ''   ">
+			and certified_person  like CONCAT(CONCAT('%',#{sch_CertifiedPerson_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_CertifiedPerson !=  null and sch_CertifiedPerson !=  ''   ">
+			and certified_person  like CONCAT('%',#{sch_CertifiedPerson,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCertifiedPerson_ !=  null and schCertifiedPerson_ !=  ''   ">
+			and certified_person  like CONCAT(#{schCertifiedPerson_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="certifiedPersonStart !=  null and certifiedPersonEnd!= null  ">
+			and certified_person between #{certifiedPersonStart,jdbcType=VARCHAR} and #{certifiedPersonEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="certifiedType !=  null and certifiedType !=  ''   "> and certified_type  = #{certifiedType,jdbcType=VARCHAR} </if>
+		<if test="sch_CertifiedType_ !=  null and sch_CertifiedType_ !=  ''   ">
+			and certified_type  like CONCAT(CONCAT('%',#{sch_CertifiedType_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_CertifiedType !=  null and sch_CertifiedType !=  ''   ">
+			and certified_type  like CONCAT('%',#{sch_CertifiedType,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCertifiedType_ !=  null and schCertifiedType_ !=  ''   ">
+			and certified_type  like CONCAT(#{schCertifiedType_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="certifiedTypeStart !=  null and certifiedTypeEnd!= null  ">
+			and certified_type between #{certifiedTypeStart,jdbcType=VARCHAR} and #{certifiedTypeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="roomDesc !=  null and roomDesc !=  ''   "> and room_desc  = #{roomDesc,jdbcType=VARCHAR} </if>
+		<if test="sch_RoomDesc_ !=  null and sch_RoomDesc_ !=  ''   ">
+			and room_desc  like CONCAT(CONCAT('%',#{sch_RoomDesc_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RoomDesc !=  null and sch_RoomDesc !=  ''   ">
+			and room_desc  like CONCAT('%',#{sch_RoomDesc,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRoomDesc_ !=  null and schRoomDesc_ !=  ''   ">
+			and room_desc  like CONCAT(#{schRoomDesc_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="roomDescStart !=  null and roomDescEnd!= null  ">
+			and room_desc between #{roomDescStart,jdbcType=VARCHAR} and #{roomDescEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="houseId !=  null  ">			and house_id  = #{houseId,jdbcType=INTEGER} </if>
+		<if test="houseSpaceId !=  null  ">			and house_space_id  = #{houseSpaceId,jdbcType=INTEGER} </if>
+		<if test="roomCommonCode !=  null and roomCommonCode !=  ''   "> and room_common_code  = #{roomCommonCode,jdbcType=VARCHAR} </if>
+		<if test="sch_RoomCommonCode_ !=  null and sch_RoomCommonCode_ !=  ''   ">
+			and room_common_code  like CONCAT(CONCAT('%',#{sch_RoomCommonCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RoomCommonCode !=  null and sch_RoomCommonCode !=  ''   ">
+			and room_common_code  like CONCAT('%',#{sch_RoomCommonCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRoomCommonCode_ !=  null and schRoomCommonCode_ !=  ''   ">
+			and room_common_code  like CONCAT(#{schRoomCommonCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="roomCommonCodeStart !=  null and roomCommonCodeEnd!= null  ">
+			and room_common_code between #{roomCommonCodeStart,jdbcType=VARCHAR} and #{roomCommonCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="roomTypeCode !=  null and roomTypeCode !=  ''   "> and room_type_code  = #{roomTypeCode,jdbcType=VARCHAR} </if>
+		<if test="sch_RoomTypeCode_ !=  null and sch_RoomTypeCode_ !=  ''   ">
+			and room_type_code  like CONCAT(CONCAT('%',#{sch_RoomTypeCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RoomTypeCode !=  null and sch_RoomTypeCode !=  ''   ">
+			and room_type_code  like CONCAT('%',#{sch_RoomTypeCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRoomTypeCode_ !=  null and schRoomTypeCode_ !=  ''   ">
+			and room_type_code  like CONCAT(#{schRoomTypeCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="roomTypeCodeStart !=  null and roomTypeCodeEnd!= null  ">
+			and room_type_code between #{roomTypeCodeStart,jdbcType=VARCHAR} and #{roomTypeCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="att1 !=  null and att1 !=  ''   "> and att1  = #{att1,jdbcType=VARCHAR} </if>
+		<if test="sch_Att1_ !=  null and sch_Att1_ !=  ''   ">
+			and att1  like CONCAT(CONCAT('%',#{sch_Att1_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att1 !=  null and sch_Att1 !=  ''   ">
+			and att1  like CONCAT('%',#{sch_Att1,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt1_ !=  null and schAtt1_ !=  ''   ">
+			and att1  like CONCAT(#{schAtt1_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att1Start !=  null and att1End!= null  ">
+			and att1 between #{att1Start,jdbcType=VARCHAR} and #{att1End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att2 !=  null and att2 !=  ''   "> and att2  = #{att2,jdbcType=VARCHAR} </if>
+		<if test="sch_Att2_ !=  null and sch_Att2_ !=  ''   ">
+			and att2  like CONCAT(CONCAT('%',#{sch_Att2_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att2 !=  null and sch_Att2 !=  ''   ">
+			and att2  like CONCAT('%',#{sch_Att2,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt2_ !=  null and schAtt2_ !=  ''   ">
+			and att2  like CONCAT(#{schAtt2_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att2Start !=  null and att2End!= null  ">
+			and att2 between #{att2Start,jdbcType=VARCHAR} and #{att2End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att3 !=  null and att3 !=  ''   "> and att3  = #{att3,jdbcType=VARCHAR} </if>
+		<if test="sch_Att3_ !=  null and sch_Att3_ !=  ''   ">
+			and att3  like CONCAT(CONCAT('%',#{sch_Att3_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att3 !=  null and sch_Att3 !=  ''   ">
+			and att3  like CONCAT('%',#{sch_Att3,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt3_ !=  null and schAtt3_ !=  ''   ">
+			and att3  like CONCAT(#{schAtt3_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att3Start !=  null and att3End!= null  ">
+			and att3 between #{att3Start,jdbcType=VARCHAR} and #{att3End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att4 !=  null and att4 !=  ''   "> and att4  = #{att4,jdbcType=VARCHAR} </if>
+		<if test="sch_Att4_ !=  null and sch_Att4_ !=  ''   ">
+			and att4  like CONCAT(CONCAT('%',#{sch_Att4_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att4 !=  null and sch_Att4 !=  ''   ">
+			and att4  like CONCAT('%',#{sch_Att4,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt4_ !=  null and schAtt4_ !=  ''   ">
+			and att4  like CONCAT(#{schAtt4_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att4Start !=  null and att4End!= null  ">
+			and att4 between #{att4Start,jdbcType=VARCHAR} and #{att4End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att5 !=  null and att5 !=  ''   "> and att5  = #{att5,jdbcType=VARCHAR} </if>
+		<if test="sch_Att5_ !=  null and sch_Att5_ !=  ''   ">
+			and att5  like CONCAT(CONCAT('%',#{sch_Att5_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att5 !=  null and sch_Att5 !=  ''   ">
+			and att5  like CONCAT('%',#{sch_Att5,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt5_ !=  null and schAtt5_ !=  ''   ">
+			and att5  like CONCAT(#{schAtt5_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att5Start !=  null and att5End!= null  ">
+			and att5 between #{att5Start,jdbcType=VARCHAR} and #{att5End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att6 !=  null and att6 !=  ''   "> and att6  = #{att6,jdbcType=VARCHAR} </if>
+		<if test="sch_Att6_ !=  null and sch_Att6_ !=  ''   ">
+			and att6  like CONCAT(CONCAT('%',#{sch_Att6_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att6 !=  null and sch_Att6 !=  ''   ">
+			and att6  like CONCAT('%',#{sch_Att6,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt6_ !=  null and schAtt6_ !=  ''   ">
+			and att6  like CONCAT(#{schAtt6_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att6Start !=  null and att6End!= null  ">
+			and att6 between #{att6Start,jdbcType=VARCHAR} and #{att6End,jdbcType=VARCHAR}
+		 </if>
+		<if test="dateAtt1 !=  null  ">
+			and date_att1  = #{dateAtt1,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="dateAtt1Start !=  null and dateAtt1End!= null  ">
+			and date_att1 between #{dateAtt1Start,jdbcType=TIMESTAMP} and #{dateAtt1End,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="dateAtt2 !=  null  ">
+			and date_att2  = #{dateAtt2,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="dateAtt2Start !=  null and dateAtt2End!= null  ">
+			and date_att2 between #{dateAtt2Start,jdbcType=TIMESTAMP} and #{dateAtt2End,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="numAtt1 !=  null  ">			and num_att1  = #{numAtt1,jdbcType=INTEGER} </if>
+		<if test="numAtt2 !=  null  ">			and num_att2  = #{numAtt2,jdbcType=INTEGER} </if>
+		<if test="numAtt3 !=  null  ">			and num_att3  = #{numAtt3,jdbcType=DOUBLE} </if>
+		<if test="numAtt4 !=  null  ">			and num_att4  = #{numAtt4,jdbcType=DOUBLE} </if>
+		<if test="remark !=  null and remark !=  ''   "> and remark  = #{remark,jdbcType=VARCHAR} </if>		<if test="sch_Remark_ !=  null and sch_Remark_ !=  ''   ">
+			and remark  like CONCAT(CONCAT('%',#{sch_Remark_,jdbcType=VARCHAR}),'%')
+		 </if>		<if test="sch_Remark !=  null and sch_Remark !=  ''   ">
+			and remark  like CONCAT('%',#{sch_Remark,jdbcType=VARCHAR})
+		 </if>		<if test="schRemark_ !=  null and schRemark_ !=  ''   ">
+			and remark  like CONCAT(#{schRemark_,jdbcType=VARCHAR},'%')
+		 </if>		<if test="remarkStart !=  null and remarkEnd!= null  ">
+			and remark between #{remarkStart,jdbcType=VARCHAR} and #{remarkEnd,jdbcType=VARCHAR}
+		 </if>
+	</select>
+	
+	<!-- 分页查询 ,可在BaseRoomSearch中自定义查询条件-->
+	<select id="selectPaginatedList" resultMap="AllResultMap"
+		parameterType="com.nork.business.model.search.BaseRoomSearch">
+		select
+		<include refid="All_Column_List" />
+	    from base_room
+		where 1=1	
+		<if test="sysCode !=  null and sysCode !=  ''   "> and sys_code  = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+			and sys_code  like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+			and sys_code  like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+			and sys_code  like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+			and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="creator !=  null and creator !=  ''   "> and creator  = #{creator,jdbcType=VARCHAR} </if>
+		<if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+			and creator  like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+			and creator  like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+			and creator  like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="creatorStart !=  null and creatorEnd!= null  ">
+			and creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtCreate !=  null  ">
+			and gmt_create  = #{gmtCreate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="modifier !=  null and modifier !=  ''   "> and modifier  = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and modifier  like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and modifier  like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		 </if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and modifier  like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtModified !=  null  ">
+			and gmt_modified  = #{gmtModified,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="isDeleted !=  null  ">			and is_deleted  = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="roomCode !=  null and roomCode !=  ''   "> and room_code  = #{roomCode,jdbcType=VARCHAR} </if>
+		<if test="sch_RoomCode_ !=  null and sch_RoomCode_ !=  ''   ">
+			and room_code  like CONCAT(CONCAT('%',#{sch_RoomCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RoomCode !=  null and sch_RoomCode !=  ''   ">
+			and room_code  like CONCAT('%',#{sch_RoomCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRoomCode_ !=  null and schRoomCode_ !=  ''   ">
+			and room_code  like CONCAT(#{schRoomCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="roomCodeStart !=  null and roomCodeEnd!= null  ">
+			and room_code between #{roomCodeStart,jdbcType=VARCHAR} and #{roomCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="roomName !=  null and roomName !=  ''   "> and room_name  = #{roomName,jdbcType=VARCHAR} </if>
+		<if test="sch_RoomName_ !=  null and sch_RoomName_ !=  ''   ">
+			and room_name  like CONCAT(CONCAT('%',#{sch_RoomName_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RoomName !=  null and sch_RoomName !=  ''   ">
+			and room_name  like CONCAT('%',#{sch_RoomName,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRoomName_ !=  null and schRoomName_ !=  ''   ">
+			and room_name  like CONCAT(#{schRoomName_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="roomNameStart !=  null and roomNameEnd!= null  ">
+			and room_name between #{roomNameStart,jdbcType=VARCHAR} and #{roomNameEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="roomTypeId !=  null  ">			and room_type_id  = #{roomTypeId,jdbcType=INTEGER} </if>
+		<if test="maxLength !=  null and maxLength !=  ''   "> and max_length  = #{maxLength,jdbcType=VARCHAR} </if>
+		<if test="sch_MaxLength_ !=  null and sch_MaxLength_ !=  ''   ">
+			and max_length  like CONCAT(CONCAT('%',#{sch_MaxLength_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_MaxLength !=  null and sch_MaxLength !=  ''   ">
+			and max_length  like CONCAT('%',#{sch_MaxLength,jdbcType=VARCHAR})
+		 </if>
+		<if test="schMaxLength_ !=  null and schMaxLength_ !=  ''   ">
+			and max_length  like CONCAT(#{schMaxLength_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="maxLengthStart !=  null and maxLengthEnd!= null  ">
+			and max_length between #{maxLengthStart,jdbcType=VARCHAR} and #{maxLengthEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="maxWidth !=  null and maxWidth !=  ''   "> and max_width  = #{maxWidth,jdbcType=VARCHAR} </if>
+		<if test="sch_MaxWidth_ !=  null and sch_MaxWidth_ !=  ''   ">
+			and max_width  like CONCAT(CONCAT('%',#{sch_MaxWidth_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_MaxWidth !=  null and sch_MaxWidth !=  ''   ">
+			and max_width  like CONCAT('%',#{sch_MaxWidth,jdbcType=VARCHAR})
+		 </if>
+		<if test="schMaxWidth_ !=  null and schMaxWidth_ !=  ''   ">
+			and max_width  like CONCAT(#{schMaxWidth_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="maxWidthStart !=  null and maxWidthEnd!= null  ">
+			and max_width between #{maxWidthStart,jdbcType=VARCHAR} and #{maxWidthEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="maxAreas !=  null and maxAreas !=  ''   "> and max_areas  = #{maxAreas,jdbcType=VARCHAR} </if>
+		<if test="sch_MaxAreas_ !=  null and sch_MaxAreas_ !=  ''   ">
+			and max_areas  like CONCAT(CONCAT('%',#{sch_MaxAreas_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_MaxAreas !=  null and sch_MaxAreas !=  ''   ">
+			and max_areas  like CONCAT('%',#{sch_MaxAreas,jdbcType=VARCHAR})
+		 </if>
+		<if test="schMaxAreas_ !=  null and schMaxAreas_ !=  ''   ">
+			and max_areas  like CONCAT(#{schMaxAreas_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="maxAreasStart !=  null and maxAreasEnd!= null  ">
+			and max_areas between #{maxAreasStart,jdbcType=VARCHAR} and #{maxAreasEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="mainLength !=  null and mainLength !=  ''   "> and main_length  = #{mainLength,jdbcType=VARCHAR} </if>
+		<if test="sch_MainLength_ !=  null and sch_MainLength_ !=  ''   ">
+			and main_length  like CONCAT(CONCAT('%',#{sch_MainLength_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_MainLength !=  null and sch_MainLength !=  ''   ">
+			and main_length  like CONCAT('%',#{sch_MainLength,jdbcType=VARCHAR})
+		 </if>
+		<if test="schMainLength_ !=  null and schMainLength_ !=  ''   ">
+			and main_length  like CONCAT(#{schMainLength_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="mainLengthStart !=  null and mainLengthEnd!= null  ">
+			and main_length between #{mainLengthStart,jdbcType=VARCHAR} and #{mainLengthEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="mainWidth !=  null and mainWidth !=  ''   "> and main_width  = #{mainWidth,jdbcType=VARCHAR} </if>
+		<if test="sch_MainWidth_ !=  null and sch_MainWidth_ !=  ''   ">
+			and main_width  like CONCAT(CONCAT('%',#{sch_MainWidth_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_MainWidth !=  null and sch_MainWidth !=  ''   ">
+			and main_width  like CONCAT('%',#{sch_MainWidth,jdbcType=VARCHAR})
+		 </if>
+		<if test="schMainWidth_ !=  null and schMainWidth_ !=  ''   ">
+			and main_width  like CONCAT(#{schMainWidth_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="mainWidthStart !=  null and mainWidthEnd!= null  ">
+			and main_width between #{mainWidthStart,jdbcType=VARCHAR} and #{mainWidthEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="mainAreas !=  null and mainAreas !=  ''   "> and main_areas  = #{mainAreas,jdbcType=VARCHAR} </if>
+		<if test="sch_MainAreas_ !=  null and sch_MainAreas_ !=  ''   ">
+			and main_areas  like CONCAT(CONCAT('%',#{sch_MainAreas_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_MainAreas !=  null and sch_MainAreas !=  ''   ">
+			and main_areas  like CONCAT('%',#{sch_MainAreas,jdbcType=VARCHAR})
+		 </if>
+		<if test="schMainAreas_ !=  null and schMainAreas_ !=  ''   ">
+			and main_areas  like CONCAT(#{schMainAreas_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="mainAreasStart !=  null and mainAreasEnd!= null  ">
+			and main_areas between #{mainAreasStart,jdbcType=VARCHAR} and #{mainAreasEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="mainHigh !=  null and mainHigh !=  ''   "> and main_high  = #{mainHigh,jdbcType=VARCHAR} </if>
+		<if test="sch_MainHigh_ !=  null and sch_MainHigh_ !=  ''   ">
+			and main_high  like CONCAT(CONCAT('%',#{sch_MainHigh_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_MainHigh !=  null and sch_MainHigh !=  ''   ">
+			and main_high  like CONCAT('%',#{sch_MainHigh,jdbcType=VARCHAR})
+		 </if>
+		<if test="schMainHigh_ !=  null and schMainHigh_ !=  ''   ">
+			and main_high  like CONCAT(#{schMainHigh_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="mainHighStart !=  null and mainHighEnd!= null  ">
+			and main_high between #{mainHighStart,jdbcType=VARCHAR} and #{mainHighEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="isCertified !=  null and isCertified !=  ''   "> and is_certified  = #{isCertified,jdbcType=VARCHAR} </if>
+		<if test="sch_IsCertified_ !=  null and sch_IsCertified_ !=  ''   ">
+			and is_certified  like CONCAT(CONCAT('%',#{sch_IsCertified_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_IsCertified !=  null and sch_IsCertified !=  ''   ">
+			and is_certified  like CONCAT('%',#{sch_IsCertified,jdbcType=VARCHAR})
+		 </if>
+		<if test="schIsCertified_ !=  null and schIsCertified_ !=  ''   ">
+			and is_certified  like CONCAT(#{schIsCertified_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="isCertifiedStart !=  null and isCertifiedEnd!= null  ">
+			and is_certified between #{isCertifiedStart,jdbcType=VARCHAR} and #{isCertifiedEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="certifiedPerson !=  null and certifiedPerson !=  ''   "> and certified_person  = #{certifiedPerson,jdbcType=VARCHAR} </if>
+		<if test="sch_CertifiedPerson_ !=  null and sch_CertifiedPerson_ !=  ''   ">
+			and certified_person  like CONCAT(CONCAT('%',#{sch_CertifiedPerson_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_CertifiedPerson !=  null and sch_CertifiedPerson !=  ''   ">
+			and certified_person  like CONCAT('%',#{sch_CertifiedPerson,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCertifiedPerson_ !=  null and schCertifiedPerson_ !=  ''   ">
+			and certified_person  like CONCAT(#{schCertifiedPerson_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="certifiedPersonStart !=  null and certifiedPersonEnd!= null  ">
+			and certified_person between #{certifiedPersonStart,jdbcType=VARCHAR} and #{certifiedPersonEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="certifiedType !=  null and certifiedType !=  ''   "> and certified_type  = #{certifiedType,jdbcType=VARCHAR} </if>
+		<if test="sch_CertifiedType_ !=  null and sch_CertifiedType_ !=  ''   ">
+			and certified_type  like CONCAT(CONCAT('%',#{sch_CertifiedType_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_CertifiedType !=  null and sch_CertifiedType !=  ''   ">
+			and certified_type  like CONCAT('%',#{sch_CertifiedType,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCertifiedType_ !=  null and schCertifiedType_ !=  ''   ">
+			and certified_type  like CONCAT(#{schCertifiedType_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="certifiedTypeStart !=  null and certifiedTypeEnd!= null  ">
+			and certified_type between #{certifiedTypeStart,jdbcType=VARCHAR} and #{certifiedTypeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="roomDesc !=  null and roomDesc !=  ''   "> and room_desc  = #{roomDesc,jdbcType=VARCHAR} </if>
+		<if test="sch_RoomDesc_ !=  null and sch_RoomDesc_ !=  ''   ">
+			and room_desc  like CONCAT(CONCAT('%',#{sch_RoomDesc_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RoomDesc !=  null and sch_RoomDesc !=  ''   ">
+			and room_desc  like CONCAT('%',#{sch_RoomDesc,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRoomDesc_ !=  null and schRoomDesc_ !=  ''   ">
+			and room_desc  like CONCAT(#{schRoomDesc_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="roomDescStart !=  null and roomDescEnd!= null  ">
+			and room_desc between #{roomDescStart,jdbcType=VARCHAR} and #{roomDescEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="houseId !=  null  ">			and house_id  = #{houseId,jdbcType=INTEGER} </if>
+		<if test="houseSpaceId !=  null  ">			and house_space_id  = #{houseSpaceId,jdbcType=INTEGER} </if>
+		<if test="roomCommonCode !=  null and roomCommonCode !=  ''   "> and room_common_code  = #{roomCommonCode,jdbcType=VARCHAR} </if>
+		<if test="sch_RoomCommonCode_ !=  null and sch_RoomCommonCode_ !=  ''   ">
+			and room_common_code  like CONCAT(CONCAT('%',#{sch_RoomCommonCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RoomCommonCode !=  null and sch_RoomCommonCode !=  ''   ">
+			and room_common_code  like CONCAT('%',#{sch_RoomCommonCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRoomCommonCode_ !=  null and schRoomCommonCode_ !=  ''   ">
+			and room_common_code  like CONCAT(#{schRoomCommonCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="roomCommonCodeStart !=  null and roomCommonCodeEnd!= null  ">
+			and room_common_code between #{roomCommonCodeStart,jdbcType=VARCHAR} and #{roomCommonCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="roomTypeCode !=  null and roomTypeCode !=  ''   "> and room_type_code  = #{roomTypeCode,jdbcType=VARCHAR} </if>
+		<if test="sch_RoomTypeCode_ !=  null and sch_RoomTypeCode_ !=  ''   ">
+			and room_type_code  like CONCAT(CONCAT('%',#{sch_RoomTypeCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RoomTypeCode !=  null and sch_RoomTypeCode !=  ''   ">
+			and room_type_code  like CONCAT('%',#{sch_RoomTypeCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRoomTypeCode_ !=  null and schRoomTypeCode_ !=  ''   ">
+			and room_type_code  like CONCAT(#{schRoomTypeCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="roomTypeCodeStart !=  null and roomTypeCodeEnd!= null  ">
+			and room_type_code between #{roomTypeCodeStart,jdbcType=VARCHAR} and #{roomTypeCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="att1 !=  null and att1 !=  ''   "> and att1  = #{att1,jdbcType=VARCHAR} </if>
+		<if test="sch_Att1_ !=  null and sch_Att1_ !=  ''   ">
+			and att1  like CONCAT(CONCAT('%',#{sch_Att1_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att1 !=  null and sch_Att1 !=  ''   ">
+			and att1  like CONCAT('%',#{sch_Att1,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt1_ !=  null and schAtt1_ !=  ''   ">
+			and att1  like CONCAT(#{schAtt1_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att1Start !=  null and att1End!= null  ">
+			and att1 between #{att1Start,jdbcType=VARCHAR} and #{att1End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att2 !=  null and att2 !=  ''   "> and att2  = #{att2,jdbcType=VARCHAR} </if>
+		<if test="sch_Att2_ !=  null and sch_Att2_ !=  ''   ">
+			and att2  like CONCAT(CONCAT('%',#{sch_Att2_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att2 !=  null and sch_Att2 !=  ''   ">
+			and att2  like CONCAT('%',#{sch_Att2,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt2_ !=  null and schAtt2_ !=  ''   ">
+			and att2  like CONCAT(#{schAtt2_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att2Start !=  null and att2End!= null  ">
+			and att2 between #{att2Start,jdbcType=VARCHAR} and #{att2End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att3 !=  null and att3 !=  ''   "> and att3  = #{att3,jdbcType=VARCHAR} </if>
+		<if test="sch_Att3_ !=  null and sch_Att3_ !=  ''   ">
+			and att3  like CONCAT(CONCAT('%',#{sch_Att3_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att3 !=  null and sch_Att3 !=  ''   ">
+			and att3  like CONCAT('%',#{sch_Att3,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt3_ !=  null and schAtt3_ !=  ''   ">
+			and att3  like CONCAT(#{schAtt3_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att3Start !=  null and att3End!= null  ">
+			and att3 between #{att3Start,jdbcType=VARCHAR} and #{att3End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att4 !=  null and att4 !=  ''   "> and att4  = #{att4,jdbcType=VARCHAR} </if>
+		<if test="sch_Att4_ !=  null and sch_Att4_ !=  ''   ">
+			and att4  like CONCAT(CONCAT('%',#{sch_Att4_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att4 !=  null and sch_Att4 !=  ''   ">
+			and att4  like CONCAT('%',#{sch_Att4,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt4_ !=  null and schAtt4_ !=  ''   ">
+			and att4  like CONCAT(#{schAtt4_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att4Start !=  null and att4End!= null  ">
+			and att4 between #{att4Start,jdbcType=VARCHAR} and #{att4End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att5 !=  null and att5 !=  ''   "> and att5  = #{att5,jdbcType=VARCHAR} </if>
+		<if test="sch_Att5_ !=  null and sch_Att5_ !=  ''   ">
+			and att5  like CONCAT(CONCAT('%',#{sch_Att5_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att5 !=  null and sch_Att5 !=  ''   ">
+			and att5  like CONCAT('%',#{sch_Att5,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt5_ !=  null and schAtt5_ !=  ''   ">
+			and att5  like CONCAT(#{schAtt5_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att5Start !=  null and att5End!= null  ">
+			and att5 between #{att5Start,jdbcType=VARCHAR} and #{att5End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att6 !=  null and att6 !=  ''   "> and att6  = #{att6,jdbcType=VARCHAR} </if>
+		<if test="sch_Att6_ !=  null and sch_Att6_ !=  ''   ">
+			and att6  like CONCAT(CONCAT('%',#{sch_Att6_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att6 !=  null and sch_Att6 !=  ''   ">
+			and att6  like CONCAT('%',#{sch_Att6,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt6_ !=  null and schAtt6_ !=  ''   ">
+			and att6  like CONCAT(#{schAtt6_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att6Start !=  null and att6End!= null  ">
+			and att6 between #{att6Start,jdbcType=VARCHAR} and #{att6End,jdbcType=VARCHAR}
+		 </if>
+		<if test="dateAtt1 !=  null  ">
+			and date_att1  = #{dateAtt1,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="dateAtt1Start !=  null and dateAtt1End!= null  ">
+			and date_att1 between #{dateAtt1Start,jdbcType=TIMESTAMP} and #{dateAtt1End,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="dateAtt2 !=  null  ">
+			and date_att2  = #{dateAtt2,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="dateAtt2Start !=  null and dateAtt2End!= null  ">
+			and date_att2 between #{dateAtt2Start,jdbcType=TIMESTAMP} and #{dateAtt2End,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="numAtt1 !=  null  ">			and num_att1  = #{numAtt1,jdbcType=INTEGER} </if>
+		<if test="numAtt2 !=  null  ">			and num_att2  = #{numAtt2,jdbcType=INTEGER} </if>
+		<if test="numAtt3 !=  null  ">			and num_att3  = #{numAtt3,jdbcType=DOUBLE} </if>
+		<if test="numAtt4 !=  null  ">			and num_att4  = #{numAtt4,jdbcType=DOUBLE} </if>
+		<if test="remark !=  null and remark !=  ''   "> and remark  = #{remark,jdbcType=VARCHAR} </if>		<if test="sch_Remark_ !=  null and sch_Remark_ !=  ''   ">
+			and remark  like CONCAT(CONCAT('%',#{sch_Remark_,jdbcType=VARCHAR}),'%')
+		 </if>		<if test="sch_Remark !=  null and sch_Remark !=  ''   ">
+			and remark  like CONCAT('%',#{sch_Remark,jdbcType=VARCHAR})
+		 </if>		<if test="schRemark_ !=  null and schRemark_ !=  ''   ">
+			and remark  like CONCAT(#{schRemark_,jdbcType=VARCHAR},'%')
+		 </if>		<if test="remarkStart !=  null and remarkEnd!= null  ">
+			and remark between #{remarkStart,jdbcType=VARCHAR} and #{remarkEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order} <if test="orderNum != null and  orderNum !='' ">${orderNum}</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">  order by #{orders}</if>
+		<if test="order == null and  orders == null ">  order by id desc</if>
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+
+    <!-- 其他Map等查询方式 -->
+    
+     <!-- end-->
+</mapper>

@@ -1,0 +1,622 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.pay.order.dao.PayModelGroupRefMapper">
+    <resultMap id="BaseResultMap" type="com.sandu.pay.order.model.PayModelGroupRef">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="business_id" property="businessId" jdbcType="INTEGER"/>
+        <result column="pay_model_config_id" property="payModelConfigId" jdbcType="INTEGER"/>
+        <result column="effective_time" property="effectiveTime" jdbcType="TIMESTAMP"/>
+        <result column="expiry_time" property="expiryTime" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    id, business_id, pay_model_config_id, effective_time, expiry_time, is_deleted, creator, gmt_create,
+    modifier, gmt_modified
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from pay_model_group_ref
+        where id = #{id,jdbcType=INTEGER}
+        AND is_deleted = '0'
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from pay_model_group_ref
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insertSelective" parameterType="com.sandu.pay.order.model.PayModelGroupRef">
+        insert into pay_model_group_ref
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="businessId != null">
+                business_id,
+            </if>
+            <if test="payModelConfigId != null">
+                pay_model_config_id,
+            </if>
+            <if test="effectiveTime != null">
+                effective_time,
+            </if>
+            <if test="expiryTime != null">
+                expiry_time,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="businessId != null">
+                #{businessId,jdbcType=INTEGER},
+            </if>
+            <if test="payModelConfigId != null">
+                #{payModelConfigId,jdbcType=INTEGER},
+            </if>
+            <if test="effectiveTime != null">
+                #{effectiveTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="expiryTime != null">
+                #{expiryTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.pay.order.model.PayModelGroupRef">
+        update pay_model_group_ref
+        <set>
+            <if test="businessId != null">
+                business_id = #{businessId,jdbcType=INTEGER},
+            </if>
+            <if test="payModelConfigId != null">
+                pay_model_config_id = #{payModelConfigId,jdbcType=INTEGER},
+            </if>
+            <if test="effectiveTime != null">
+                effective_time = #{effectiveTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="expiryTime != null">
+                expiry_time = #{expiryTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <select id="getPayModelGroupRefList" resultMap="BaseResultMap" parameterType="java.util.Map">
+        select
+        t1.id, t1.business_id, t1.pay_model_config_id, t1.effective_time, t1.expiry_time, t1.is_deleted, t1.creator,
+        t1.gmt_create,
+        t1.modifier, t1.gmt_modified
+        from pay_model_group_ref AS t1
+        LEFT OUTER JOIN pay_model_config AS t2
+        ON t1.pay_model_config_id = t2.id
+        where t1.is_deleted = '0'
+        AND t2.is_deleted = '0'
+        AND t1.expiry_time > NOW()
+        <if test="timeType != null and timeType != ''">
+            AND t2.time_type = #{timeType}
+        </if>
+        <if test="rangeType != null">
+            AND t2.range_type = #{rangeType}
+        </if>
+        <if test="businessId != null">
+            AND t1.business_id = #{businessId,jdbcType=INTEGER}
+        </if>
+        <if test="list != null and list.size() > 0">
+            AND t1.pay_model_config_id IN
+            <foreach collection="list" item="c" open="(" close=")" separator=",">
+                '${c.id}'
+            </foreach>
+        </if>
+        ORDER BY t1.expiry_time DESC
+    </select>
+    <select id="getPayModelGroupRef" resultMap="BaseResultMap" parameterType="java.util.Map">
+        select
+        <include refid="Base_Column_List"/>
+        from pay_model_group_ref
+        where is_deleted = '0'
+        <if test="businessId != null">
+            AND business_id = #{businessId,jdbcType=INTEGER}
+        </if>
+        <if test="payModelConfigId != null">
+            AND pay_model_config_id = #{payModelConfigId,jdbcType=INTEGER}
+        </if>
+    </select>
+    <select id="getUserRefInfoList" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT t2.package_name AS packageName,t2.time_type AS timeType,t1.expiry_time AS expiryTime,t2.biz_type AS
+        bizType
+        FROM pay_model_group_ref AS t1
+        LEFT OUTER JOIN pay_model_config AS t2
+        ON t2.id = t1.pay_model_config_id
+        WHERE 1 = 1
+        AND t1.is_deleted = '0'
+        AND t2.is_deleted = '0'
+        AND t1.expiry_time >= NOW()
+        <if test="businessId != null and businessId != ''">
+            AND t1.business_id = #{businessId}
+        </if>
+        <if test="rangeType != null and rangeType != ''">
+            AND t2.range_type = #{rangeType}
+        </if>
+        <if test="bizType != null and bizType != ''">
+            AND (t2.biz_type = #{bizType,jdbcType=VARCHAR}
+            OR t2.biz_type = 'renderTypeGive')
+        </if>
+        ORDER BY t1.expiry_time DESC
+    </select>
+
+    <!--获取用户可免费渲染的关联信息-->
+    <select id="getPayModelVoRenderList" resultType="com.sandu.pay.order.PayModelVo" parameterType="java.util.Map">
+        SELECT
+        t2.pay_model_config_id AS payModelConfigId,
+        t2.id AS payModelGroupRefId,
+        t1.package_user_type AS packageUserType,
+        t2.expiry_time AS expiryTime
+        FROM
+        pay_model_config AS t1
+        LEFT OUTER JOIN pay_model_group_ref AS t2 ON t1.id = t2.pay_model_config_id
+        WHERE
+        1 = 1
+        AND t1.is_deleted = '0'
+        AND t2.is_deleted = '0'
+        AND t1.biz_type = 'companyFreeRenderPlan'
+        AND t1.business_type = '0'
+        AND (NOW() BETWEEN t2.effective_time AND t2.expiry_time)
+        AND t1.range_type = '2'
+        AND (t1.package_user_type = #{packageUserType} OR t1.package_user_type = #{userType})
+        <if test="platformId != null">
+            AND t1.platform_id = #{platformId}
+        </if>
+        <if test="companyVoList != null and companyVoList.size() > 0">
+            AND t2.business_id IN
+            <foreach collection="companyVoList" item="c" open="(" close=")" separator=",">
+                '${c.companyId}'
+            </foreach>
+        </if>
+        ORDER BY
+        t2.expiry_time DESC
+        LIMIT 1
+    </select>
+
+    <!--获取用户可免费购买户型的关联信息-->
+    <select id="getPayModelVoHouseList" resultType="com.sandu.pay.order.PayModelVo" parameterType="java.util.Map">
+        SELECT
+        t2.pay_model_config_id AS payModelConfigId,
+        t2.id AS payModelGroupRefId,
+        t1.package_user_type AS packageUserType,
+        t2.expiry_time AS expiryTime
+        FROM
+        pay_model_config AS t1
+        LEFT OUTER JOIN pay_model_group_ref AS t2 ON t1.id = t2.pay_model_config_id
+        WHERE
+        1 = 1
+        AND t1.is_deleted = '0'
+        AND t2.is_deleted = '0'
+        AND t1.biz_type = 'companyFreeRenderPlan'
+        AND t1.business_type = '1'
+        AND (NOW() BETWEEN t2.effective_time AND t2.expiry_time)
+        AND t1.range_type = '2'
+        AND (t1.package_user_type = #{packageUserType} OR t1.package_user_type = #{userType})
+        <if test="platformId != null">
+            AND t1.platform_id = #{platformId}
+        </if>
+        AND t2.business_id = #{companyId}
+        ORDER BY
+        t2.expiry_time DESC
+        LIMIT 1
+    </select>
+
+    <!--获取公司id-->
+    <select id="getCompanyNameByDoMianName" resultType="java.lang.Integer" parameterType="java.lang.String">
+        SELECT
+        t1.id AS companyId
+        FROM
+        base_company AS t1
+        WHERE
+        t1.company_domain_name = #{companyDomainName}
+        LIMIT 1
+    </select>
+
+    <!--普通用户或者经销商用户渲染的时候获取的产品名称（假如用户具备包年、包月、赠送，则按照时间最早的来取）-->
+    <select id="getRenderPackageName" resultType="java.lang.String">
+        SELECT
+        <if test="isFranchiser != null and isFranchiser == 0">
+            CASE
+            WHEN t2.biz_type = 'renderType' AND t2.time_type = '0' THEN '(包月)'
+            WHEN t2.biz_type = 'renderType' AND t2.time_type = '1' THEN '(包年)'
+            WHEN t2.biz_type = 'renderTypeGive' THEN '(新用户3个月免费)'
+            WHEN t2.biz_type = '2bCompanyGiveRenderPlan' THEN '(企业赠送包年)'
+            WHEN t2.biz_type = '2bPackageUserGiveRender' THEN '(套餐赠送免费渲染)'
+            END AS packageName
+        </if>
+        <if test="isFranchiser != null and isFranchiser == 1">
+            CASE
+            WHEN t2.biz_type = 'renderTypeFranchiser' AND t2.time_type = '0' THEN '(包月)'
+            WHEN t2.biz_type = 'renderTypeFranchiser' AND t2.time_type = '1' THEN '(包年)'
+            WHEN t2.biz_type = 'renderTypeGiveFranchiser' THEN '(新用户3个月免费)'
+            WHEN t2.biz_type = '2bCompanyGiveRenderPlan' THEN '(企业赠送包年)'
+            WHEN t2.biz_type = '2bPackageUserGiveRender' THEN '(套餐赠送免费渲染)'
+            END AS packageName
+        </if>
+        FROM pay_model_group_ref AS t1
+        LEFT OUTER JOIN pay_model_config AS t2 ON t1.pay_model_config_id = t2.id
+        WHERE 1 = 1
+        <if test="isFranchiser != null and isFranchiser == 0">
+            AND (t2.biz_type = 'renderType' OR t2.biz_type = 'renderTypeGive'
+            or t2.biz_type = '2bCompanyGiveRenderPlan' or  t2.biz_type = '2bPackageUserGiveRender')
+            AND t2.range_type = '0'
+        </if>
+        <if test="isFranchiser != null and isFranchiser == 1">
+            AND (t2.biz_type = 'renderTypeFranchiser' OR t2.biz_type = 'renderTypeGiveFranchiser'
+            OR t2.biz_type = '2bCompanyGiveRenderPlan' or  t2.biz_type = '2bPackageUserGiveRender')
+            AND (t2.range_type = '3' or t2.range_type = '0')
+        </if>
+        AND (NOW() BETWEEN t1.effective_time AND t1.expiry_time)
+        AND t1.business_id = #{businessId}
+        ORDER BY t1.expiry_time ASC
+        LIMIT 1
+    </select>
+
+    <!--获取付款方式关联表id（假如用户具备包年、包月、赠送，则按照时间最迟的来取）-->
+    <select id="getPayModelGroupRefId" resultType="java.lang.Integer">
+        SELECT
+        t1.id AS payModelGroupRefId
+        FROM pay_model_group_ref AS t1
+        LEFT OUTER JOIN pay_model_config AS t2 ON t1.pay_model_config_id = t2.id
+        WHERE 1 = 1
+        <if test="isFranchiser != null and isFranchiser == 0">
+            AND (t2.biz_type = 'renderType' OR t2.biz_type = 'renderTypeGive'
+            OR t2.biz_type = '2bCompanyGiveRenderPlan' or  t2.biz_type = '2bPackageUserGiveRender')
+            AND t2.range_type = '0'
+        </if>
+        <if test="isFranchiser != null and isFranchiser == 1">
+            AND (t2.biz_type = 'renderTypeFranchiser' OR t2.biz_type = 'renderTypeGiveFranchiser'
+            OR t2.biz_type = '2bCompanyGiveRenderPlan' or  t2.biz_type = '2bPackageUserGiveRender')
+            AND (t2.range_type = '3' or t2.range_type = '0')
+        </if>
+        AND (NOW() BETWEEN t1.effective_time AND t1.expiry_time)
+        AND t1.business_id = #{businessId}
+        ORDER BY t1.expiry_time DESC
+        LIMIT 1
+    </select>
+
+    <!--pc端获取用户的套餐信息-->
+    <select id="getPackageInfoVoPc" resultType="com.sandu.pay.order.vo.PackageInfoVo">
+        SELECT
+        <if test="isFranchiser != null and isFranchiser == 0">
+            CONCAT(GROUP_CONCAT(CASE
+            WHEN t2.biz_type = 'renderType'
+            AND t2.time_type = '0' THEN '包月套餐'
+            WHEN t2.biz_type = 'renderType'
+            AND t2.time_type = '1' THEN '包年套餐'
+            WHEN t2.biz_type = 'renderTypeGive' THEN '绑定赠送3个月'
+            WHEN t2.biz_type = '2bCompanyGiveRenderPlan' THEN '企业赠送包年'
+            WHEN t2.biz_type = '2bPackageUserGiveRender' THEN '(套餐赠送免费渲染)'
+            END ORDER BY t1.expiry_time ASC SEPARATOR '、'), '(以上服务总共有效期至', DATE_FORMAT(MAX(t1.expiry_time),
+            '%Y年%m月%d日'), ')') AS enjoyPackageInfo,
+        </if>
+        <if test="isFranchiser != null and isFranchiser == 1">
+            CONCAT(GROUP_CONCAT(CASE
+            WHEN t2.biz_type = 'renderTypeFranchiser'
+            AND t2.time_type = '0' THEN '包月套餐'
+            WHEN t2.biz_type = 'renderTypeFranchiser'
+            AND t2.time_type = '1' THEN '包年套餐'
+            WHEN t2.biz_type = 'renderTypeGiveFranchiser' THEN '绑定赠送3个月'
+            WHEN t2.biz_type = '2bCompanyGiveRenderPlan' THEN '企业赠送包年'
+            WHEN t2.biz_type = '2bPackageUserGiveRender' THEN '(套餐赠送免费渲染)'
+            END ORDER BY t1.expiry_time ASC SEPARATOR '、'), '(以上服务总共有效期至', DATE_FORMAT(MAX(t1.expiry_time),
+            '%Y年%m月%d日'), ')') AS enjoyPackageInfo,
+        </if>
+        TO_DAYS(MAX(t1.expiry_time)) - TO_DAYS(NOW()) AS remainDate
+        FROM pay_model_group_ref t1
+        LEFT JOIN pay_model_config t2 ON t1.pay_model_config_id = t2.id
+        WHERE 1 = 1
+        <if test="isFranchiser != null and isFranchiser == 0">
+            AND (t2.biz_type = 'renderType' OR t2.biz_type = 'renderTypeGive'
+            OR t2.biz_type = '2bCompanyGiveRenderPlan' OR t2.biz_type = '2bPackageUserGiveRender')
+            AND t2.range_type = '0'
+        </if>
+        <if test="isFranchiser != null and isFranchiser == 1">
+            AND (t2.biz_type = 'renderTypeFranchiser' OR t2.biz_type = 'renderTypeGiveFranchiser'
+            OR t2.biz_type = '2bCompanyGiveRenderPlan' OR t2.biz_type = '2bPackageUserGiveRender')
+            AND (t2.range_type = '3' OR t2.range_type = '0')
+        </if>
+        AND (NOW() BETWEEN t1.effective_time AND t1.expiry_time)
+        AND t1.business_id = #{businessId}
+        ORDER BY t1.expiry_time ASC
+    </select>
+
+    <!--获取用户的渲染套餐（包含过期）-->
+    <select id="getPayModelVoList" resultType="com.sandu.pay.order.vo.PayModelInfoVo">
+        SELECT t1.id AS payModelGroupRefId, t1.pay_model_config_id AS payModelConfigId,
+        (
+        SELECT IF(MAX(t1.expiry_time) > NOW(),MAX(t1.expiry_time),NOW())
+        FROM pay_model_group_ref t1
+        LEFT JOIN pay_model_config t2 ON t1.pay_model_config_id = t2.id
+        WHERE 1 = 1
+        <if test="isFranchiser != null and isFranchiser == 0">
+            AND (t2.biz_type = 'renderType' OR t2.biz_type = 'renderTypeGive'
+            OR t2.biz_type = '2bCompanyGiveRenderPlan' OR t2.biz_type = '2bPackageUserGiveRender')
+            AND t2.range_type = '0'
+        </if>
+        <if test="isFranchiser != null and isFranchiser == 1">
+            AND (t2.biz_type = 'renderTypeFranchiser' OR t2.biz_type = 'renderTypeGiveFranchiser'
+            OR t2.biz_type = '2bCompanyGiveRenderPlan' OR t2.biz_type = '2bPackageUserGiveRender')
+            AND (t2.range_type = '3' OR t2.range_type = '0')
+        </if>
+        AND t1.business_id = #{businessId}
+        ) AS maxExpiryTime
+        FROM pay_model_group_ref t1
+        LEFT JOIN pay_model_config t2 ON t1.pay_model_config_id = t2.id
+        WHERE 1 = 1
+        <if test="isFranchiser != null and isFranchiser == 0">
+            AND (t2.biz_type = 'renderType' OR t2.biz_type = 'renderTypeGive'
+            OR t2.biz_type = '2bCompanyGiveRenderPlan' OR t2.biz_type = '2bPackageUserGiveRender')
+            AND t2.range_type = '0'
+        </if>
+        <if test="isFranchiser != null and isFranchiser == 1">
+            AND (t2.biz_type = 'renderTypeFranchiser' OR t2.biz_type = 'renderTypeGiveFranchiser'
+            OR t2.biz_type = '2bCompanyGiveRenderPlan' OR t2.biz_type = '2bPackageUserGiveRender')
+            AND (t2.range_type = '3' OR t2.range_type = '0')
+        </if>
+        AND t1.business_id = #{businessId}
+        ORDER BY t1.expiry_time ASC
+    </select>
+
+    <!--获取用户的套餐信息（未过期的套餐）-->
+    <select id="getPackageInfoVoList" resultType="com.sandu.pay.order.vo.PackageInfoVo">
+        SELECT
+        (
+        SELECT MAX(t1.expiry_time)
+        FROM pay_model_group_ref t1
+        LEFT JOIN pay_model_config t2 ON t1.pay_model_config_id = t2.id
+        WHERE 1 = 1
+        <if test="isFranchiser != null and isFranchiser == 0">
+            AND (t2.biz_type = 'renderType' OR t2.biz_type = 'renderTypeGive'
+            OR t2.biz_type = '2bCompanyGiveRenderPlan' OR t2.biz_type = '2bPackageUserGiveRender')
+            AND t2.range_type = '0'
+        </if>
+        <if test="isFranchiser != null and isFranchiser == 1">
+            AND (t2.biz_type = 'renderTypeFranchiser' OR t2.biz_type = 'renderTypeGiveFranchiser'
+            OR t2.biz_type = '2bCompanyGiveRenderPlan' OR t2.biz_type = '2bPackageUserGiveRender')
+            AND (t2.range_type = '3' OR t2.range_type = '0')
+        </if>
+        AND t1.business_id = #{businessId}
+        ) AS maxExpiryTime,
+        t1.expiry_time AS expiryTime,
+        <if test="isFranchiser != null and isFranchiser == 0">
+            CASE
+            WHEN t2.biz_type = 'renderType'
+            AND t2.time_type = '0' THEN '包月套餐'
+            WHEN t2.biz_type = 'renderType'
+            AND t2.time_type = '1' THEN '包年套餐'
+            WHEN t2.biz_type = 'renderTypeGive' THEN '绑定赠送3个月'
+            WHEN t2.biz_type = '2bCompanyGiveRenderPlan' THEN '企业赠送包年'
+            WHEN t2.biz_type = '2bPackageUserGiveRender' THEN '(套餐赠送免费渲染)'
+            END AS enjoyPackageInfo,
+            CASE
+            WHEN t2.biz_type = 'renderType'
+            AND t2.time_type = '0' THEN '2'
+            WHEN t2.biz_type = '2bCompanyGiveRenderPlan'
+            AND t2.time_type = '0' THEN '2'
+            WHEN t2.biz_type = '2bPackageUserGiveRender'
+            AND  t2.time_type = '0' THEN '4'
+            WHEN t2.biz_type = 'renderType'
+            AND t2.time_type = '1' THEN '3'
+            WHEN t2.biz_type = 'renderTypeGive' THEN '1'
+            END AS state
+        </if>
+        <if test="isFranchiser != null and isFranchiser == 1">
+            CASE
+            WHEN t2.biz_type = 'renderTypeFranchiser'
+            AND t2.time_type = '0' THEN '包月套餐'
+            WHEN t2.biz_type = 'renderTypeFranchiser'
+            AND t2.time_type = '1' THEN '包年套餐'
+            WHEN t2.biz_type = 'renderTypeGiveFranchiser' THEN '绑定赠送3个月'
+            WHEN t2.biz_type = '2bCompanyGiveRenderPlan' THEN '企业赠送包年'
+            WHEN t2.biz_type = '2bPackageUserGiveRender' THEN '(套餐赠送免费渲染)'
+            END AS enjoyPackageInfo,
+            CASE
+            WHEN t2.biz_type = 'renderTypeFranchiser'
+            AND t2.time_type = '0' THEN '2'
+            WHEN t2.biz_type = '2bCompanyGiveRenderPlan'
+            AND t2.time_type = '0' THEN '2'
+            WHEN t2.biz_type = '2bPackageUserGiveRender'
+            AND  t2.time_type = '0' THEN '4'
+            WHEN t2.biz_type = 'renderTypeFranchiser'
+            AND t2.time_type = '1' THEN '3'
+            WHEN t2.biz_type = 'renderTypeGiveFranchiser' THEN '1'
+            END AS state
+        </if>
+        FROM pay_model_group_ref t1
+        LEFT JOIN pay_model_config t2 ON t1.pay_model_config_id = t2.id
+        WHERE 1 = 1
+        AND NOW() BETWEEN t1.effective_time AND t1.expiry_time
+        <if test="isFranchiser != null and isFranchiser == 0">
+            AND (t2.biz_type = 'renderType' OR t2.biz_type = 'renderTypeGive'
+            OR t2.biz_type = '2bCompanyGiveRenderPlan' OR t2.biz_type = '2bPackageUserGiveRender')
+            AND t2.range_type = '0'
+        </if>
+        <if test="isFranchiser != null and isFranchiser == 1">
+            AND (t2.biz_type = 'renderTypeFranchiser' OR t2.biz_type = 'renderTypeGiveFranchiser'
+            OR t2.biz_type = '2bCompanyGiveRenderPlan' OR t2.biz_type = '2bPackageUserGiveRender')
+            AND (t2.range_type = '3' AND t2.range_type = '0')
+        </if>
+        AND t1.business_id = #{businessId}
+        ORDER BY t1.expiry_time ASC
+    </select>
+
+    <select id="getUserRefInfoList2C" resultType="map">
+        SELECT
+            t2.package_name AS packageName,
+            t2.time_type AS timeType,
+            t1.expiry_time AS expiryTime,
+            t2.biz_type AS bizType
+        FROM
+            pay_model_group_ref AS t1
+        LEFT OUTER JOIN
+            pay_model_config AS t2
+        ON
+            t2.id = t1.pay_model_config_id
+        WHERE
+            1 = 1
+            AND t1.is_deleted = '0'
+            AND t2.is_deleted = '0'
+            AND t1.expiry_time >= NOW()
+        <if test="businessId != null and businessId != ''">
+            AND t1.business_id = #{businessId}
+        </if>
+        <if test="bizType != null and bizType != ''">
+            AND t2.biz_type = #{bizType}
+        </if>
+         ORDER BY t1.expiry_time DESC
+    </select>
+
+    <!-- AND (NOW() BETWEEN t2.effective_time AND t2.expiry_time)-->
+    <select id="getPayModelVoRenderList2CBybusinessId" resultType="com.sandu.pay.order.PayModelVo">
+        SELECT
+            t2.pay_model_config_id AS payModelConfigId,
+            t2.id AS payModelGroupRefId,
+            t2.expiry_time AS expiryTime
+        FROM
+            pay_model_group_ref t2
+        WHERE
+           t2.is_deleted = '0'
+           AND t2.business_id = #{userId}
+           AND NOW() BETWEEN t2.effective_time AND t2.expiry_time
+        ORDER BY
+           t2.expiry_time DESC
+           LIMIT 1
+    </select>
+
+    <!--
+      SELECT t1.id AS payModelGroupRefId, t1.pay_model_config_id AS payModelConfigId,
+        (
+        SELECT IF(MAX(t1.expiry_time) > NOW(),MAX(t1.expiry_time),NOW())
+        FROM pay_model_group_ref t1
+        LEFT JOIN pay_model_config t2 ON t1.pay_model_config_id = t2.id
+        WHERE 1 = 1
+            AND t2.biz_type = 'renderType2C'
+        AND t1.business_id = #{businessId}
+        ) AS maxExpiryTime
+        FROM pay_model_group_ref t1
+        LEFT JOIN pay_model_config t2 ON t1.pay_model_config_id = t2.id
+        WHERE 1 = 1
+            AND t2.biz_type = 'renderType2C'
+        AND t1.business_id = #{businessId}
+        ORDER BY t1.expiry_time ASC
+    -->
+    <select id="getPayModelVoListByBusinessId" resultType="com.sandu.pay.order.model.PayModelGroupRef">
+       SELECT
+          *
+       FROM
+          pay_model_group_ref
+       WHERE
+          business_id = #{businessId} AND
+          is_deleted = 0 AND
+          pay_model_config_id in (SELECT id FROM pay_model_config WHERE biz_type = 'renderType2C')
+          ORDER BY expiry_time DESC limit 1
+    </select>
+
+    <select id="selectByBusinessId" resultType="com.sandu.pay.order.model.PayModelGroupRef">
+        SELECT
+           *
+        FROM
+           pay_model_group_ref
+        WHERE
+           business_id = #{userId}
+           and is_deleted = 0
+           ORDER BY
+           expiry_time DESC
+           limit 1
+    </select>
+
+    <select id="selectIsExistCompanyPackages" resultType="com.sandu.pay.order.model.PayModelGroupRef">
+          SELECT
+           *
+        FROM
+           pay_model_group_ref
+        WHERE
+           business_id = #{businessId}
+           and is_deleted = 0
+           and pay_model_config_id = #{payModelConfigId}
+           ORDER BY
+           expiry_time DESC
+           limit 1
+    </select>
+
+    <select id="selectByBusinessIdAndPayModelConfigId" resultType="com.sandu.pay.order.model.PayModelGroupRef">
+        SELECT
+           *
+        FROM
+           pay_model_group_ref
+        WHERE
+           business_id = #{businessId}
+           AND pay_model_config_id = #{payModelConfigId}
+           AND is_deleted = 0
+        ORDER BY
+           expiry_time DESC
+           limit 1
+    </select>
+
+    <select id="getByBusinessId" resultType="com.sandu.pay.order.model.PayModelGroupRef">
+        SELECT
+           *
+        FROM
+           pay_model_group_ref
+        WHERE
+           business_id = #{businessId} AND
+           is_deleted = 0
+        ORDER BY
+           expiry_time DESC
+           limit 1
+    </select>
+
+</mapper>

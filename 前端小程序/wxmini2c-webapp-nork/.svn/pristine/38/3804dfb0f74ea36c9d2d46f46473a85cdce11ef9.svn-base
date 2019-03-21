@@ -1,0 +1,36 @@
+<wxs src="../../../utils/public.wxs" module="public" />
+<view class="main">
+    <view class="nav">
+        <view class="weui-flex__item" style="text-align:center;">
+            我的积分:{{userpointamount}}
+        </view>
+        <view class="weui-flex__item" style="text-align:center;">
+            <navigator url='../index/index'>积分商城</navigator>
+        </view>
+    </view>
+    <view class="weui-panel" wx:for="{{orderlist}}" wx:key="orderNo">
+        <view class="weui-panel__hd">
+            <text class='pull-left'>订单编号:{{item.orderNo}}</text>
+            <text class='pull-right'>联系客服</text>
+            <image src='{{staticImageUrl}}list_icon_kefu.png'></image>
+        </view>
+        <view class="weui-panel__bd">
+            <navigator class="weui-flex" url="../mineInfo/mineInfo?id={{item.id}}">
+                <image src="{{item.filename?resourcePath+item.filename:staticImageUrl+'goods_pic_no.png'}}"></image>
+                <view class='row'>
+                    <view class="gift-name">{{item.giftName}}</view>
+                    <view class="gift-point ">{{item.itemPoint}}积分</view>
+                    <view class="gift-point " wx:if="{{item.itemOriginalPrice}}">原价：<text class="gift-values">¥{{item.itemOriginalPrice}}</text></view>
+                </view>
+            </navigator>
+        </view>
+        <view class="footer">{{item.status==5?"完成":"兑换"}}时间:{{public.toSpilt(item.createTime,'.0',0)}}
+            <view wx:if="{{item.status!=5}}" 
+                class='btnVe pull-right' 
+                data-id='{{item.id}}' 
+                bindtap='confirmReceive'
+            >确认收货</view>
+            <view class='txtVe pull-right' wx:elif="{{item.status==5}}">已完成</view>
+        </view>
+    </view>
+</view>

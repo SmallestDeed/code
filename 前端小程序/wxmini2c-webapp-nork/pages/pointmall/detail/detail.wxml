@@ -1,0 +1,37 @@
+<wxs src="../../../utils/public.wxs" module="toTirm" />
+<view class="main">
+    <view class="banner">
+        <image class='noImg' wx:if="{{!gift.filenames||gift.filenames.length<=0}}" src="{{staticImageUrl}}goods_pic_no.png"></image>
+        <swiper class="swiper" 
+            indicator-active-color="#ff6419"
+            indicator-dots
+            autoplay
+            wx:if="{{gift.filenames&&gift.filenames.length>0}}" 
+        >
+            <swiper-item wx:for="{{gift.filenames}}" wx:key="{{index}}">
+                <view class='items'>
+                    <image  src="{{item?resourcePath+item:staticImageUrl+'goods_pic_no.png'}}"></image>
+                </view>
+             </swiper-item>
+        </swiper>
+    </view>
+    <view class="gift-price">
+        <view class="gift-name">{{toTirm.toTirm(gift.name)}}</view>
+        <view class='gift-info'><label class='gift-point'>{{gift.point}}积分 </label>
+            <label class='gift-values' wx:if="{{gift.price}}">原价：<text>¥{{gift.price}}</text></label>
+        </view>
+    </view>
+    <view class="weui-panel">
+        <view class="weui-media-box__title">兑换说明</view>
+        <view class="weui-panel__bd">{{gift.explain}}</view>
+    </view>
+    <view class="weui-panel">
+        <view class="weui-media-box__title">商品描述</view>
+        <view class="weui-panel__bd">{{gift.introduce}}</view>
+    </view>
+    <view class='bottom-view'>
+        <image src='{{staticImageUrl}}list_icon_kefu.png'></image>
+        <view class='button-confirm' bindtap="gettrade" wx:if="{{gift.inventory>0}}">立即兑换</view>
+        <view class='unbtn' wx:if="{{gift.inventory<=0}}">暂无库存</view>
+    </view>
+</view>

@@ -1,0 +1,125 @@
+<!--pages/confirm-order/confirm-order.wxml-->
+<wxs module="public" src="../../utils/public.wxs"></wxs>
+<view class='confirm-order'>
+  <view class='order-address'>
+    <view class='add-address' wx:if='{{!defaultAddress.consignee}}' bindtap='toAddAddress'>
+      <view class='add-icon fl'><image src='./image/list_icon_add.png'></image></view>
+      <view class='add-text fl'>添加收货地址</view>
+    </view>
+    <view class='choose-address' bindtap='toAddressList' wx:if='{{defaultAddress.consignee}}'>
+      <view class='address-icon'><image src='./image/list_icon_adress.png'></image></view>
+      <view class='user-mes'>{{defaultAddress.consignee}} {{defaultAddress.mobile}}</view>
+      <view class='address-mes'>
+      {{defaultAddress.provinceName === defaultAddress.cityName? defaultAddress.provinceName + defaultAddress.districtName + defaultAddress.address: defaultAddress.provinceName + defaultAddress.cityName + defaultAddress.districtName + defaultAddress.address}}
+      </view>  
+      <view class='address-arrow'><image src='./image/list_icon_more.png'></image></view>
+      <image class='botBg' src='../static/image/order_address_msg.png'></image>     
+    </view>    
+  </view>
+
+
+  <view class='order-list {{index==0?"order-list2":""}}' wx:for='{{productDetailsObj}}' wx:key='{{index}}'>
+    <view class='order-details clearfix' style='{{productDetailsObj.length==1?"padding-bottom:30rpx":""}}'>
+      <view class='details-image fl'>
+        <image src='{{item.productPicPath?resourcePath + item.productPicPath:"../static/image/goods_pic_no.png"}}'></image>
+      </view>
+      <view class='details-text fl'>
+        <view class='text-name'>{{item.productName}}</view>
+        <view class='text-model'>{{item.attribute}} </view>
+        <!-- <view class='text-model'>{{item.attribute || '默认'}};{{item.productStyleName || '默认'}}          </view> -->
+        <view class='text-price clearfix'>
+          <view class='fl'>￥{{item.productPrice}}</view>
+          <view class='fr count'>× {{item.productNumber}}</view>        
+        </view>      
+      </view>
+    </view>
+  </view>
+<!--  wx:if="{{flagTitle}}" -->
+  <view class='clcView'>
+    <text class='ts'>优惠券</text>
+    <view class='chooseMore' wx:if="{{!active&&couponListT.length>0}}" bindtap='chooseTapT'>
+      {{couponListT.length}} 张可用<image src='../static/image/home_icon_more.png'></image>
+    </view>
+    <view class='chooseMore' wx:if="{{!active&&couponListT.length<=0}}">
+      不可用<image src='../static/image/home_icon_more.png'></image>
+    </view>
+    <view class='chooseMore orenage' wx:if="{{active}}" bindtap='chooseTapT'>
+      优惠{{ssMoney}}元<image src='../static/image/home_icon_more.png'></image>
+    </view>
+  </view>
+    
+  <view class='zzcView'wx:if="{{isShowZzc}}">
+    <view class='rViews'>
+      <view class='titles'>请选择优惠卷<image bindtap='chooseTapF' src='../static/image/pop_nav_icon_close.png'></image></view>
+      <view class='mains'>
+        <view class='items' bindtap='chTap' wx:for="{{couponListT}}" wx:key="index" data-chindex="{{index}}">
+          <view class='itemL'>
+            <view class='tops'
+                style="{{item.discountAmount>=10000?'font-size: 60rpx;':''}}"><view wx:if="{{item.discountAmount!=0}}">￥</view>
+              {{item.discountAmount!=0?item.discountAmount:item.rebateFactor+"折"}}
+            </view>
+            <view class='bots'>
+              {{item.couponType==1?"新人专享":(item.orderAmount==0?"无门槛":"满"+item.orderAmount+"元立减")}}
+            </view>
+          </view>
+          <view class='itemR'>
+            <view class='ps'>使用范围: {{item.productScopeType==1?"全店通用":"指定商品"}}</view>
+            <view class='ps'>使用期限: {{item.beginTime?public.toSpilt(item.beginTime,' ',0):''}}~{{item.finalTime?public.toSpilt(item.finalTime,' ',0):''}}</view>
+            <view class='chse {{chindex==index?"active":""}}'></view>
+          </view>
+        </view>
+        <view class='def' wx:if="{{couponListF.length>0}}"><text>以下优惠券不可用</text></view>
+        <view class='items itemGlays' wx:for="{{couponListF}}" wx:key="index" wx:if="{{couponListF.length>0}}">
+          <view class='itemL'>
+            <view class='tops' 
+                style="{{item.discountAmount>=10000?'font-size: 60rpx;':''}}"><view wx:if="{{item.discountAmount!=0}}">￥</view>
+              {{item.discountAmount!=0?item.discountAmount:item.rebateFactor+"折"}}
+            </view>
+            <view class='bots'>
+              {{item.couponType==1?"新人专享":(item.orderAmount==0?"无门槛":"满"+item.orderAmount+"元立减")}}
+            </view>
+          </view>
+          <view class='itemR'>
+            <view class='ps'>使用范围: {{item.productScopeType==1?"全店通用":"指定商品"}}</view>
+            <view class='ps'>使用期限: {{item.beginTime?public.toSpilt(item.beginTime,' ',0):''}}~{{item.finalTime?public.toSpilt(item.finalTime,' ',0):''}}</view>
+          </view>
+        </view>
+        
+        <view class='btns' bindtap='subTap'>确认</view>
+      </view>
+    </view>
+  </view>
+  <view class='rows'>
+    <view class='items'>
+      <view>商品金额</view>
+      <view class='price'>￥{{productPrice}}</view>   
+    </view>
+    <view class='items' wx:if="{{ssMoney}}">
+      <view>优惠金额</view>
+      <view class='price'>-￥{{ssMoney}}</view>   
+    </view>
+    <view class='items'>
+      <view>物流运费</view>
+      <view class='price'>+￥{{transportMoney}}</view>   
+    </view>
+
+  </view>
+  <view class='rows'>
+    <view class='items'>
+      <text>备注信息 </text>
+      <view class='message'>
+        <input maxlength='20' bindinput='inputRemask' data-index='{{index}}' placeholder-class="input-placeholder" placeholder='选填：20字以内'></input>
+      </view> 
+    </view>    
+  </view>
+
+  <view class='order-footer clearfix'>
+    <view class='footer-price fl'>
+      合计： <text>￥{{salePriceTotal}}</text>
+    </view>
+    <view class='footer-payment fl' bindtap='immediatePayment'> 立即支付</view>    
+  </view>  
+</view>
+  <!-- 快速导航 -->
+  <import src="../../component/quick-navigation/quick-navigation.wxml"/>
+  <template is="quickNavigation" data="{{ ...quickNavigation }}"/>

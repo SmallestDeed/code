@@ -1,0 +1,236 @@
+<!--pages/decoration/seek-service/seek-service.wxml-->
+<!-- 搜索记录 -->
+<view class="{{(showSort || showSite || showCategory || showScreen)?'list-active':''}}">
+  <view class="seek-record-box" wx:if="{{!isShowList}}">
+    <!-- <view class="hot-box">
+      <view class="seek-record-title">热门搜索</view>
+      <view class="record-list">
+        <view class="record-item" 
+          bindtap='seek'
+          data-item="{{item}}"
+          wx:for="{{hotList}}" 
+          wx:key="{{index}}">{{item}}</view>
+      </view>
+    </view> -->
+    <view class="history-box" wx:if="{{historyList.length > 0}}">
+      <view class="seek-record-title">历史搜索 
+        <image src="/static/image/huxing_icon_delete.png" bindtap='deleteHistory'></image>
+      </view>
+      <view class="record-list">
+        <view class="record-item" 
+          bindtap='seek'
+          data-item="{{item}}"
+          wx:for="{{historyList}}" 
+          wx:key="{{index}}">{{item}}</view>
+      </view>
+    </view>
+  </view>
+  <!-- 搜索记录 -->
+  <view class="header">
+    <view class="seek-box">
+      <image src="/static/image/search.png"></image>
+      <input placeholder='搜索关键字' 
+        placeholder-style="color: #999" 
+        class="seek-box-input"
+        value='{{seekText}}' 
+        wx:if="{{!isShowList}}"
+        bindconfirm="seek"
+        bindinput="getText"></input>
+      <view class="seekTxt" wx:if="{{isShowList}}" bindtap="focus">{{seekText}}</view>
+      <view class="{{isShowList?'seek-text-active':'seek-text'}}" bindtap='seek'>搜索</view>
+    </view>
+
+    <!--rzd_start <view class="screen-box" wx:if="{{isShowList}}">
+      <view class="{{showSort?'screen-item-active':'screen-item'}}" bindtap='select' data-type="排序">
+        {{sortId==0?'最新':'最热'}} 
+        <image src="/static/image/choose_icon_{{showSort?'up':'down'}}@2x.png"></image>
+      </view>
+      <view class="{{showSite?'screen-item-active':'screen-item'}}" bindtap='select' data-type="区域">
+        {{cityName}} <image src="/static/image/choose_icon_{{showSite?'up':'down'}}@2x.png"></image>
+      </view>
+      <view class="{{showCategory?'screen-item-active':'screen-item'}}" bindtap='select' data-type="类别">
+        类别 <image src="/static/image/choose_icon_{{showCategory?'up':'down'}}@2x.png"></image>
+      </view>
+      <view class="{{showScreen?'screen-item-active':'screen-item'}}" bindtap='select' data-type="筛选">
+        筛选 <image class="screen-icon" src="/static/image/service_icon_screen_{{showScreen?'02':'01'}}.png"></image>
+      </view>
+    </view>
+    --rzd_end-->
+    <!-- rzd headtab start -->
+    <!-- <view class='supply_main_head'  wx:if="{{isShowList}}">
+      <view class='head_tab'>
+        <view class="head_tab_item {{supply==0? 'active_tab': ''}}" data-supply='0' data-msgId='2' bindtap='changeSupply'>
+          需求
+         <text class='line' wx:if="{{supply==0}}"></text>
+        </view>
+        <view class="head_tab_item {{supply==1? 'active_tab': ''}}" data-supply='1' data-msgId='1' bindtap='changeSupply'>
+          供应
+         <text class='line' wx:if="{{supply==1}}"></text>
+        </view>
+      </view>
+      <view class='head_typeSel' bindtap='changeRzdSort'>
+        <text>{{sortId==0?'最新':'最热'}}</text>
+        <image wx-if='{{!showSort}}' src='{{staticImageUrl+"choose_icon_down@2x.png"}}'></image>
+        <image wx-if='{{showSort}}' src='{{staticImageUrl+"choose_icon_up@2x.png"}}'></image>
+      </view>
+    </view> -->
+
+    <view class='supply_main_head'  wx:if="{{isShowList}}">
+      <view class='head_tab'>
+        <view class="head_tab_item {{sortId == 0? 'sort-item-active': ''}}"
+         data-id='0' bindtap='selectSort' data-setsort='new'>
+          最新
+         <text class='line' wx:if="{{sortId==0}}"></text>
+        </view>
+        <view class="head_tab_item {{sortId == 1? 'sort-item-active': ''}}" data-id='1' bindtap='selectSort' data-setsort='hot'>
+          最热
+         <text class='line' wx:if="{{sortId==1}}"></text>
+        </view>
+      </view>
+    </view>
+
+  </view>
+  <!-- rzd headtab end -->
+  <!-- 筛选弹框 -->
+  <view class="filtrate" wx:if="{{showSort || showSite || showCategory || showScreen}}">
+    <view class="filtrate-box">
+      <!-- 排序 -->
+      <view class="sort" wx:if="{{showSort}}">
+        <view class="{{sortId == item.id?'sort-item-active':'sort-item'}}"
+          bindtap='selectSort'
+          data-id="{{item.id}}"
+          wx:for="{{sortList}}" 
+          wx:key="{{index}}">{{item.name}}</view>
+      </view>
+      <!-- 区域 -->
+      <view class="area" wx:if="{{showSite}}">
+        <view class="left">
+          <view class="{{provinceCode==item.areaCode?'left-item-active':'left-item'}}"
+            bindtap='selectArea'
+            data-type="province"
+            data-item="{{item}}"
+            wx:for="{{provinceList}}" 
+            wx:key="{{index}}">{{item.areaName}}</view>
+        </view>
+        <view class="right">
+          <view class="{{cityCode==item.areaCode?'right-item-active':'right-item'}}" 
+            wx:for="{{cityList}}" 
+            wx:key="{{index}}" 
+            bindtap='selectArea' 
+            data-type="city" 
+            data-item="{{item}}">
+            {{item.areaName}}
+            <image class="right-icon" 
+              wx:if="{{cityCode==item.areaCode}}" src="/static/image/choose.png"></image>
+          </view>
+        </view>
+      </view>
+      <!-- 类别 -->
+      <view class="category" wx:if="{{showCategory}}">
+          <view class="category-title">装修服务</view>
+          <view class="category-box">
+            <view class="{{code == item.pid+','+item.id?'category-item-active':'category-item'}}" 
+              bindtap='selectCategory'
+              data-type="装修服务"
+              data-id="{{item.pid+','+item.id}}"
+              wx:for="{{decorationList}}" 
+              wx:key="{{index}}">
+              {{item.name}}
+            </view>
+          </view>
+          <view class="category-title">建材家居</view>
+          <view class="category-box">
+            <view class="{{code == item.pid+','+item.id?'category-item-active':'category-item'}}" 
+              bindtap='selectCategory'
+              data-type="建材家居"
+              data-id="{{item.pid+','+item.id}}"
+              wx:for="{{materialsList}}" 
+              wx:key="{{index}}">
+              {{item.name}}
+            </view>
+          </view>
+          <view class="category-title">人力服务</view>
+          <view class="category-box">
+            <view class="{{code == item.pid+','+item.id?'category-item-active':'category-item'}}" 
+              bindtap='selectCategory'
+              data-type="人力服务"
+              data-id="{{item.pid+','+item.id}}"
+              wx:for="{{manpowerList}}" 
+              wx:key="{{index}}">
+              {{item.name}}
+            </view>
+          </view>
+          <view class="category-btn">
+            <view class="reset-btn" bindtap='categoryBtn' data-type="重置">重置</view>
+            <view class="confirm-btn" bindtap='categoryBtn' data-type="确定">确定</view>
+          </view>
+      </view>
+      <!-- 筛选 -->
+      <view class="screen" wx:if="{{showScreen}}">
+        <view class="category-title">信息类型</view>
+        <view class="category-box">
+          <view class="{{messageId == item.id?'category-item-active':'category-item'}}" 
+            bindtap='selectScreen'
+            data-type="信息类型"
+            data-id="{{item.id}}"
+            wx:for="{{messageList}}" 
+            wx:key="{{index}}">
+            {{item.name}}
+          </view>
+        </view>
+        <view class="category-title">发布者</view>
+        <view class="category-box">
+          <view class="{{promulgatorId == item.id?'category-item-active':'category-item'}}" 
+            bindtap='selectScreen'
+            data-type="发布者"
+            data-id="{{item.id}}"
+            wx:for="{{promulgatorList}}" 
+            wx:key="{{index}}">
+            {{item.name}}
+          </view>
+        </view>
+        <view class="category-btn">
+            <view class="reset-btn" bindtap='screenBtn' data-type="重置">重置</view>
+            <view class="confirm-btn" bindtap='screenBtn' data-type="确定">确定</view>
+          </view>
+      </view>
+    </view>
+  </view>
+  <!-- 列表 -->
+  <view class="list" wx:if="{{isShowList}}" >
+    <view class="list-item" 
+      bindtap='toDetail'
+      data-id='{{item.supplyDemandId}}' 
+      data-type="供求"
+      wx:for="{{seekItemList}}" 
+      wx:key="{{index}}">
+      <image  class="list-item-image"
+          src="{{item.supplyDemandCoverPic?(resourcePath + item.supplyDemandCoverPic.picPath):sDDefaultImg}}"  mode="aspectFill"></image>
+      <view class="message">
+        <view class="title">
+          {{item.title}}
+          <!-- <image class="title-icon" 
+          src="/static/image/service_icon_{{item.typeName == '需求'?'qiu':'gong'}}.png"></image> -->
+        </view>
+        <!-- <view class="site ellipsis">
+          {{item.provinceAddress + item.cityAddress}}{{item.districtAddress?item.districtAddress:''}}{{item.address!=null?item.address:''}}
+        </view> -->
+        <view class="data">
+          <view>浏览 {{item.viewNum}}</view> 
+          <view style="margin:0 10rpx">|</view><view>{{item.gmtModified}}发布</view>
+        </view>
+        <view class='itemInfo_creater'>
+            <image class='creater_port' src='{{resourcePath+item.userHeadPic}}'></image>
+            <text>{{item.userName}}</text>
+          </view>
+      </view>
+    </view>
+    <view class="empty" wx:if="{{isShowempty}}">
+    <image src="/static/image/undefined.png"></image>
+    <view>什么都没有呢~</view>
+  </view>
+  </view>
+</view>
+<!-- 快速导航模块 -->
+  <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav" data="{{ ...newNav }}"/>

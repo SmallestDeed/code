@@ -1,0 +1,1110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sandu.service.space.dao.DrawSpaceCommonMapper">
+    <select id="listSpaceCommon" resultType="com.sandu.api.house.bo.DrawSpaceCommonBO">
+		SELECT 
+		  sc.id AS space_id,
+		  sc.space_code,
+		  rf.id AS file_id,
+		  rf.file_name,
+		  rf.file_path 
+		FROM
+		  draw_space_common sc 
+		  LEFT JOIN draw_res_file rf 
+		    ON sc.bake_before_file_id = rf.id 
+		WHERE sc.is_deleted = 0 
+		  AND sc.draw_base_house_id = #{houseId}
+    </select>
+
+    <select id="listSpaceCommonByIds" resultType="com.sandu.api.house.bo.DrawSpaceCommonBO">
+		SELECT
+		  sc.id AS space_id,
+		  sc.space_code,
+		  rf.id AS file_id,
+		  rf.file_name,
+		  rf.file_path
+		FROM
+		  draw_space_common sc
+		  LEFT JOIN draw_res_file rf
+		    ON sc.bake_before_file_id = rf.id
+		WHERE sc.is_deleted = 0
+		  AND sc.id IN
+		  <foreach collection="drawSpaces" item="item" open="(" separator="," close=")">
+             #{item.id}
+          </foreach>
+    </select>
+
+    <select id="getDealDrawSpaceCommon" resultType="long">
+		SELECT 
+		  sc.id AS space_id
+		FROM
+		  draw_space_common sc 
+		WHERE sc.is_deleted = 0 
+		  AND sc.draw_base_house_id = #{houseId}
+    </select>
+
+    <select id="countSpaceCommonBySpaceCode" resultType="java.lang.Integer">
+        select
+          count(*)
+        from space_common
+        where 1=1
+        <if test="spaceCodeSuffix !=  null and spaceCodeSuffix !=  '' ">
+            and space_code like CONCAT(#{spaceCodeSuffix},'%')
+        </if>
+    </select>
+
+    <insert id="saveSpaceCommon" useGeneratedKeys="true" keyProperty="id">
+        insert into space_common
+        (
+          sys_code, space_code, space_name, space_function_id, main_length,
+          main_width, space_areas, space_shape, door_location_type, door_location_id, pic_id,
+          model_id, space_desc, location_arrays, is_include_way, way_location, user_num,
+          search_num, space_num, space_percent, datasource_id, status, creator,
+          gmt_create, modifier, gmt_modified, is_deleted, model_3d_id, model_u3d_id,
+          att1, att2, view3d_pic_id, att4, att5, att6, publish_modified,
+          date_att2, style_id, cad_pic_id, num_att3, num_att4, remark,
+          ipad_u3d_model_id, ios_u3d_model_id, android_u3d_model_id, macBookPc_u3d_model_id, windowsPc_u3d_model_id,
+          total_usage_amount, pid, is_standard_space, web_u3d_mode_id, cad_address, window_location_value,
+          view_plan_ids, sync_status, scene3d_id, space_shape_pic_id, open_status, daylight_u3d_model_id,
+          dusklight_u3d_model_id, nightlight_u3d_model_id, space_analyze_code, space_u3d_code, space_main_length,
+          space_main_width
+      )
+      values
+      (
+          #{sysCode}, #{spaceCode}, #{spaceName}, #{spaceFunctionId}, #{mainLength},
+          #{mainWidth}, #{spaceAreas}, #{spaceShape}, #{doorLocationType}, #{doorLocationId}, #{picId},
+          #{modelId}, #{spaceDesc}, #{locationArrays}, #{isIncludeWay}, #{wayLocation}, #{userNum},
+          #{searchNum}, #{spaceNum}, #{spacePercent}, #{datasourceId}, #{status}, #{creator},
+          #{gmtCreate}, #{modifier}, #{gmtModified}, #{isDeleted}, #{model3dId}, #{modelU3dId},
+          #{att1}, #{att2}, #{view3dPicId}, #{att4}, #{att5}, #{att6}, #{publishModified},
+          #{dateAtt2}, #{styleId}, #{cadPicId}, #{numAtt3}, #{numAtt4}, #{remark},
+          #{ipadU3dModelId}, #{iosU3dModelId}, #{androidU3dModelId}, #{macbookpcU3dModelId}, #{windowspcU3dModelId},
+          #{totalUsageAmount}, #{pid}, #{isStandardSpace}, #{webU3dModeId}, #{cadAddress}, #{windowLocationValue},
+          #{viewPlanIds}, #{syncStatus}, #{scene3dId}, #{spaceShapePicId}, #{openStatus}, #{daylightU3dModelId},
+          #{dusklightU3dModelId}, #{nightlightU3dModelId}, #{spaceAnalyzeCode}, #{spaceU3dCode}, #{spaceMainLength},
+          #{spaceMainWidth}
+      )
+    </insert>
+
+    <insert id="saveHouseSpaceNew">
+        insert into house_space_new
+        (
+          space_type, space_name, positionx, positiony, is_main,
+          space_shape, logic_shape, is_exists, above_x1, above_x2, below_x1,
+          below_x2, max_length, max_width, max_areas, mix_length, mix_width,
+          mix_areas, mix_high, space_pid, space_sign, house_id, space_modified,
+          reset_location_state, unreset_location_state, space_id, standard_space_id, sys_code,
+          creator, gmt_create, modifier, gmt_modified, is_deleted, att1,
+          att2, numa1, numa2, remark
+        )
+       values
+       (
+          #{spaceType}, #{spaceName}, #{positionx}, #{positiony}, #{isMain},
+          #{spaceShape}, #{logicShape}, #{isExists}, #{aboveX1}, #{aboveX2}, #{belowX1},
+          #{belowX2}, #{maxLength}, #{maxWidth}, #{maxAreas}, #{mixLength}, #{mixWidth},
+          #{mixAreas}, #{mixHigh}, #{spacePid}, #{spaceSign}, #{houseId}, #{spaceModified},
+          #{resetLocationState}, #{unresetLocationState}, #{spaceId}, #{standardSpaceId}, #{sysCode},
+          #{creator}, #{gmtCreate}, #{modifier}, #{gmtModified}, #{isDeleted}, #{att1},
+          #{att2}, #{numa1}, #{numa2}, #{remark}
+      )
+    </insert>
+
+    <update id="updateSpaceCommon">
+        update space_common set
+        <if test="modelType == 'daylight'">daylight_u3d_model_id = #{resModelId}</if>
+        <if test="modelType == 'dusklight'">dusklight_u3d_model_id = #{resModelId} </if>
+        <if test="modelType == 'nightlight'">nightlight_u3d_model_id = #{resModelId}</if>
+        where id = #{spaceId}
+    </update>
+
+    <select id="get" resultType="com.sandu.api.house.model.DrawSpaceCommon">
+        SELECT
+          id, sys_code, space_code, space_name, space_function_id, main_length,
+          main_width, space_areas, space_shape, door_location_type, door_location_id, pic_id,
+          model_id, space_desc, location_arrays, is_include_way, way_location, user_num,
+          search_num, space_num, space_percent, datasource_id, status, creator,
+          gmt_create, modifier, gmt_modified, is_deleted, model_3d_id, model_u3d_id,
+          att1, att2, view3d_pic_id, att4, att5, att6, publish_modified,
+          date_att2, style_id, cad_pic_id, num_att3, num_att4, remark,
+          ipad_u3d_model_id, ios_u3d_model_id, android_u3d_model_id, macBookPc_u3d_model_id, windowsPc_u3d_model_id,
+          total_usage_amount, pid, is_standard_space, web_u3d_mode_id, cad_address, window_location_value,
+          view_plan_ids, sync_status, scene3d_id, space_shape_pic_id, open_status, daylight_u3d_model_id,
+          dusklight_u3d_model_id, nightlight_u3d_model_id, space_analyze_code, space_u3d_code, space_main_length,
+          space_main_width
+        FROM draw_space_common
+        WHERE is_deleted = 0 
+           AND id = #{id}
+    </select>
+
+    <insert id="saveDrawSpaceCommon" useGeneratedKeys="true" keyProperty="id">
+        insert into draw_space_common
+        (
+          sys_code, space_code, space_name, space_function_id, main_length,
+          main_width, space_areas, space_shape, door_location_type, door_location_id, pic_id,
+          model_id, space_desc, location_arrays, is_include_way, way_location, user_num,
+          search_num, space_num, space_percent, datasource_id, status, creator,
+          gmt_create, modifier, gmt_modified, is_deleted, model_3d_id, model_u3d_id,
+          att1, att2, view3d_pic_id, att4, att5, att6, publish_modified,
+          date_att2, style_id, cad_pic_id, num_att3, num_att4, remark,
+          ipad_u3d_model_id, ios_u3d_model_id, android_u3d_model_id, macBookPc_u3d_model_id, windowsPc_u3d_model_id,
+          total_usage_amount, pid, is_standard_space, web_u3d_mode_id, cad_address, window_location_value,
+          view_plan_ids, sync_status, scene3d_id, space_shape_pic_id, open_status, daylight_u3d_model_id,
+          dusklight_u3d_model_id, nightlight_u3d_model_id, space_analyze_code, space_u3d_code, space_main_length,
+          space_main_width, bake_before_file_id, draw_base_house_id, data_type
+      )
+      values
+      (
+          #{sysCode}, #{spaceCode}, #{spaceName}, #{spaceFunctionId}, #{mainLength},
+          #{mainWidth}, #{spaceAreas}, #{spaceShape}, #{doorLocationType}, #{doorLocationId}, #{picId},
+          #{modelId}, #{spaceDesc}, #{locationArrays}, #{isIncludeWay}, #{wayLocation}, #{userNum},
+          #{searchNum}, #{spaceNum}, #{spacePercent}, #{datasourceId}, #{status}, #{creator},
+          #{gmtCreate}, #{modifier}, #{gmtModified}, #{isDeleted}, #{model3dId}, #{modelU3dId},
+          #{att1}, #{att2}, #{view3dPicId}, #{att4}, #{att5}, #{att6}, #{publishModified},
+          #{dateAtt2}, #{styleId}, #{cadPicId}, #{numAtt3}, #{numAtt4}, #{remark},
+          #{ipadU3dModelId}, #{iosU3dModelId}, #{androidU3dModelId}, #{macbookpcU3dModelId}, #{windowspcU3dModelId},
+          #{totalUsageAmount}, #{pid}, #{isStandardSpace}, #{webU3dModeId}, #{cadAddress}, #{windowLocationValue},
+          #{viewPlanIds}, #{syncStatus}, #{scene3dId}, #{spaceShapePicId}, #{openStatus}, #{daylightU3dModelId},
+          #{dusklightU3dModelId}, #{nightlightU3dModelId}, #{spaceAnalyzeCode}, #{spaceU3dCode}, #{spaceMainLength},
+          #{spaceMainWidth}, #{bakeBeforeFileId}, #{drawBaseHouseId}, #{dataType}
+      )
+    </insert>
+
+    <insert id="saveDrawHouseAndSpaceRelation">
+        insert into draw_house_space_new
+        (
+          space_type, space_name, positionx, positiony, is_main,
+          space_shape, logic_shape, is_exists, above_x1, above_x2, below_x1,
+          below_x2, max_length, max_width, max_areas, mix_length, mix_width,
+          mix_areas, mix_high, space_pid, space_sign, house_id, space_modified,
+          reset_location_state, unreset_location_state, space_id, standard_space_id, sys_code,
+          creator, gmt_create, modifier, gmt_modified, is_deleted, att1,
+          att2, numa1, numa2, remark
+        )
+       values
+       (
+          #{spaceType}, #{spaceName}, #{positionx}, #{positiony}, #{isMain},
+          #{spaceShape}, #{logicShape}, #{isExists}, #{aboveX1}, #{aboveX2}, #{belowX1},
+          #{belowX2}, #{maxLength}, #{maxWidth}, #{maxAreas}, #{mixLength}, #{mixWidth},
+          #{mixAreas}, #{mixHigh}, #{spacePid}, #{spaceSign}, #{houseId}, #{spaceModified},
+          #{resetLocationState}, #{unresetLocationState}, #{spaceId}, #{standardSpaceId}, #{sysCode},
+          #{creator}, #{gmtCreate}, #{modifier}, #{gmtModified}, #{isDeleted}, #{att1},
+          #{att2}, #{numa1}, #{numa2}, #{remark}
+      )
+    </insert>
+
+    <delete id="delete">
+        delete from draw_space_common where id in (
+        <foreach collection="spaceIds" separator="," item="id" index="index">
+            #{id}
+        </foreach>
+        )
+    </delete>
+
+    <delete id="deleteDrawHouseSpaceRelation">
+        delete from draw_house_space_new where house_id = #{houseId}
+    </delete>
+    
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.house.model.DrawSpaceCommon">
+    update draw_space_common
+    <set>
+      <if test="sysCode != null">
+        sys_code = #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="spaceCode != null">
+        space_code = #{spaceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="spaceName != null">
+        space_name = #{spaceName,jdbcType=VARCHAR},
+      </if>
+      <if test="spaceFunctionId != null">
+        space_function_id = #{spaceFunctionId,jdbcType=INTEGER},
+      </if>
+      <if test="mainLength != null">
+        main_length = #{mainLength,jdbcType=VARCHAR},
+      </if>
+      <if test="mainWidth != null">
+        main_width = #{mainWidth,jdbcType=VARCHAR},
+      </if>
+      <if test="spaceAreas != null">
+        space_areas = #{spaceAreas,jdbcType=VARCHAR},
+      </if>
+      <if test="spaceShape != null">
+        space_shape = #{spaceShape,jdbcType=VARCHAR},
+      </if>
+      <if test="doorLocationType != null">
+        door_location_type = #{doorLocationType,jdbcType=VARCHAR},
+      </if>
+      <if test="doorLocationId != null">
+        door_location_id = #{doorLocationId,jdbcType=INTEGER},
+      </if>
+      <if test="picId != null">
+        pic_id = #{picId,jdbcType=INTEGER},
+      </if>
+      <if test="modelId != null">
+        model_id = #{modelId,jdbcType=INTEGER},
+      </if>
+      <if test="spaceDesc != null">
+        space_desc = #{spaceDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="locationArrays != null">
+        location_arrays = #{locationArrays,jdbcType=VARCHAR},
+      </if>
+      <if test="isIncludeWay != null">
+        is_include_way = #{isIncludeWay,jdbcType=INTEGER},
+      </if>
+      <if test="wayLocation != null">
+        way_location = #{wayLocation,jdbcType=VARCHAR},
+      </if>
+      <if test="userNum != null">
+        user_num = #{userNum,jdbcType=INTEGER},
+      </if>
+      <if test="searchNum != null">
+        search_num = #{searchNum,jdbcType=INTEGER},
+      </if>
+      <if test="spaceNum != null">
+        space_num = #{spaceNum,jdbcType=INTEGER},
+      </if>
+      <if test="spacePercent != null">
+        space_percent = #{spacePercent,jdbcType=VARCHAR},
+      </if>
+      <if test="datasourceId != null">
+        datasource_id = #{datasourceId,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="model3dId != null">
+        model_3d_id = #{model3dId,jdbcType=VARCHAR},
+      </if>
+      <if test="modelU3dId != null">
+        model_u3d_id = #{modelU3dId,jdbcType=VARCHAR},
+      </if>
+      <if test="att1 != null">
+        att1 = #{att1,jdbcType=VARCHAR},
+      </if>
+      <if test="att2 != null">
+        att2 = #{att2,jdbcType=VARCHAR},
+      </if>
+      <if test="view3dPicId != null">
+        view3d_pic_id = #{view3dPicId,jdbcType=VARCHAR},
+      </if>
+      <if test="att4 != null">
+        att4 = #{att4,jdbcType=VARCHAR},
+      </if>
+      <if test="att5 != null">
+        att5 = #{att5,jdbcType=VARCHAR},
+      </if>
+      <if test="att6 != null">
+        att6 = #{att6,jdbcType=VARCHAR},
+      </if>
+      <if test="publishModified != null">
+        publish_modified = #{publishModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="dateAtt2 != null">
+        date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},
+      </if>
+      <if test="styleId != null">
+        style_id = #{styleId,jdbcType=INTEGER},
+      </if>
+      <if test="cadPicId != null">
+        cad_pic_id = #{cadPicId,jdbcType=INTEGER},
+      </if>
+      <if test="numAtt3 != null">
+        num_att3 = #{numAtt3,jdbcType=DECIMAL},
+      </if>
+      <if test="numAtt4 != null">
+        num_att4 = #{numAtt4,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="ipadU3dModelId != null">
+        ipad_u3d_model_id = #{ipadU3dModelId,jdbcType=VARCHAR},
+      </if>
+      <if test="iosU3dModelId != null">
+        ios_u3d_model_id = #{iosU3dModelId,jdbcType=VARCHAR},
+      </if>
+      <if test="androidU3dModelId != null">
+        android_u3d_model_id = #{androidU3dModelId,jdbcType=VARCHAR},
+      </if>
+      <if test="macbookpcU3dModelId != null">
+        macBookPc_u3d_model_id = #{macbookpcU3dModelId,jdbcType=VARCHAR},
+      </if>
+      <if test="windowspcU3dModelId != null">
+        windowsPc_u3d_model_id = #{windowspcU3dModelId,jdbcType=VARCHAR},
+      </if>
+      <if test="totalUsageAmount != null">
+        total_usage_amount = #{totalUsageAmount,jdbcType=INTEGER},
+      </if>
+      <if test="pid != null">
+        pid = #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="isStandardSpace != null">
+        is_standard_space = #{isStandardSpace,jdbcType=INTEGER},
+      </if>
+      <if test="webU3dModeId != null">
+        web_u3d_mode_id = #{webU3dModeId,jdbcType=VARCHAR},
+      </if>
+      <if test="cadAddress != null">
+        cad_address = #{cadAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="windowLocationValue != null">
+        window_location_value = #{windowLocationValue,jdbcType=INTEGER},
+      </if>
+      <if test="viewPlanIds != null">
+        view_plan_ids = #{viewPlanIds,jdbcType=VARCHAR},
+      </if>
+      <if test="syncStatus != null">
+        sync_status = #{syncStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="scene3dId != null">
+        scene3d_id = #{scene3dId,jdbcType=INTEGER},
+      </if>
+      <if test="spaceShapePicId != null">
+        space_shape_pic_id = #{spaceShapePicId,jdbcType=INTEGER},
+      </if>
+      <if test="openStatus != null">
+        open_status = #{openStatus,jdbcType=INTEGER},
+      </if>
+      <if test="daylightU3dModelId != null">
+        daylight_u3d_model_id = #{daylightU3dModelId,jdbcType=INTEGER},
+      </if>
+      <if test="dusklightU3dModelId != null">
+        dusklight_u3d_model_id = #{dusklightU3dModelId,jdbcType=INTEGER},
+      </if>
+      <if test="nightlightU3dModelId != null">
+        nightlight_u3d_model_id = #{nightlightU3dModelId,jdbcType=INTEGER},
+      </if>
+      <if test="spaceAnalyzeCode != null">
+        space_analyze_code = #{spaceAnalyzeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="spaceU3dCode != null">
+        space_u3d_code = #{spaceU3dCode,jdbcType=VARCHAR},
+      </if>
+      <if test="spaceMainLength != null">
+        space_main_length = #{spaceMainLength,jdbcType=VARCHAR},
+      </if>
+      <if test="spaceMainWidth != null">
+        space_main_width = #{spaceMainWidth,jdbcType=VARCHAR},
+      </if>
+      <if test="daylightAndroidU3dModelId != null">
+        daylight_android_u3d_model_id = #{daylightAndroidU3dModelId,jdbcType=INTEGER},
+      </if>
+      <if test="dusklightAndroidU3dModelId != null">
+        dusklight_android_u3d_model_id = #{dusklightAndroidU3dModelId,jdbcType=INTEGER},
+      </if>
+      <if test="nightlightAndroidU3dModelId != null">
+        nightlight_android_u3d_model_id = #{nightlightAndroidU3dModelId,jdbcType=INTEGER},
+      </if>
+      <if test="daylightIosU3dModelId != null">
+        daylight_ios_u3d_model_id = #{daylightIosU3dModelId,jdbcType=INTEGER},
+      </if>
+      <if test="dusklightIosU3dModelId != null">
+        dusklight_ios_u3d_model_id = #{dusklightIosU3dModelId,jdbcType=INTEGER},
+      </if>
+      <if test="nightlightIosU3dModelId != null">
+        nightlight_ios_u3d_model_id = #{nightlightIosU3dModelId,jdbcType=INTEGER},
+      </if>
+      <if test="bakeBeforeFileId != null">
+        bake_before_file_id = #{bakeBeforeFileId,jdbcType=BIGINT},
+      </if>
+      <if test="drawBaseHouseId != null">
+        draw_base_house_id = #{drawBaseHouseId,jdbcType=BIGINT},
+      </if>
+      <if test="spaceCommonId != null">
+        space_common_id = #{spaceCommonId,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <sql id="Base_Column_List">
+    id, sys_code, space_code, space_name, space_function_id, main_length, main_width, 
+    space_areas, space_shape, door_location_type, door_location_id, pic_id, model_id, 
+    space_desc, location_arrays, is_include_way, way_location, user_num, search_num, 
+    space_num, space_percent, datasource_id, status, creator, gmt_create, modifier, gmt_modified, 
+    is_deleted, model_3d_id, model_u3d_id, att1, att2, view3d_pic_id, att4, att5, att6, 
+    publish_modified, date_att2, style_id, cad_pic_id, num_att3, num_att4, remark, ipad_u3d_model_id, 
+    ios_u3d_model_id, android_u3d_model_id, macBookPc_u3d_model_id, windowsPc_u3d_model_id, 
+    total_usage_amount, pid, is_standard_space, web_u3d_mode_id, cad_address, window_location_value, 
+    view_plan_ids, sync_status, scene3d_id, space_shape_pic_id, open_status, daylight_u3d_model_id, 
+    dusklight_u3d_model_id, nightlight_u3d_model_id, space_analyze_code, space_u3d_code, 
+    space_main_length, space_main_width, daylight_android_u3d_model_id, dusklight_android_u3d_model_id, 
+    nightlight_android_u3d_model_id, daylight_ios_u3d_model_id, dusklight_ios_u3d_model_id, 
+    nightlight_ios_u3d_model_id, bake_before_file_id, draw_base_house_id, data_type
+  </sql>
+  
+  <resultMap id="BaseResultMap" type="com.sandu.api.house.model.DrawSpaceCommon">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="sys_code" jdbcType="VARCHAR" property="sysCode" />
+    <result column="space_code" jdbcType="VARCHAR" property="spaceCode" />
+    <result column="space_name" jdbcType="VARCHAR" property="spaceName" />
+    <result column="space_function_id" jdbcType="INTEGER" property="spaceFunctionId" />
+    <result column="main_length" jdbcType="VARCHAR" property="mainLength" />
+    <result column="main_width" jdbcType="VARCHAR" property="mainWidth" />
+    <result column="space_areas" jdbcType="VARCHAR" property="spaceAreas" />
+    <result column="space_shape" jdbcType="VARCHAR" property="spaceShape" />
+    <result column="door_location_type" jdbcType="VARCHAR" property="doorLocationType" />
+    <result column="door_location_id" jdbcType="INTEGER" property="doorLocationId" />
+    <result column="pic_id" jdbcType="INTEGER" property="picId" />
+    <result column="model_id" jdbcType="INTEGER" property="modelId" />
+    <result column="space_desc" jdbcType="VARCHAR" property="spaceDesc" />
+    <result column="location_arrays" jdbcType="VARCHAR" property="locationArrays" />
+    <result column="is_include_way" jdbcType="INTEGER" property="isIncludeWay" />
+    <result column="way_location" jdbcType="VARCHAR" property="wayLocation" />
+    <result column="user_num" jdbcType="INTEGER" property="userNum" />
+    <result column="search_num" jdbcType="INTEGER" property="searchNum" />
+    <result column="space_num" jdbcType="INTEGER" property="spaceNum" />
+    <result column="space_percent" jdbcType="VARCHAR" property="spacePercent" />
+    <result column="datasource_id" jdbcType="INTEGER" property="datasourceId" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+    <result column="model_3d_id" jdbcType="VARCHAR" property="model3dId" />
+    <result column="model_u3d_id" jdbcType="VARCHAR" property="modelU3dId" />
+    <result column="att1" jdbcType="VARCHAR" property="att1" />
+    <result column="att2" jdbcType="VARCHAR" property="att2" />
+    <result column="view3d_pic_id" jdbcType="VARCHAR" property="view3dPicId" />
+    <result column="att4" jdbcType="VARCHAR" property="att4" />
+    <result column="att5" jdbcType="VARCHAR" property="att5" />
+    <result column="att6" jdbcType="VARCHAR" property="att6" />
+    <result column="publish_modified" jdbcType="TIMESTAMP" property="publishModified" />
+    <result column="date_att2" jdbcType="TIMESTAMP" property="dateAtt2" />
+    <result column="style_id" jdbcType="INTEGER" property="styleId" />
+    <result column="cad_pic_id" jdbcType="INTEGER" property="cadPicId" />
+    <result column="num_att3" jdbcType="DECIMAL" property="numAtt3" />
+    <result column="num_att4" jdbcType="DECIMAL" property="numAtt4" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="ipad_u3d_model_id" jdbcType="VARCHAR" property="ipadU3dModelId" />
+    <result column="ios_u3d_model_id" jdbcType="VARCHAR" property="iosU3dModelId" />
+    <result column="android_u3d_model_id" jdbcType="VARCHAR" property="androidU3dModelId" />
+    <result column="macBookPc_u3d_model_id" jdbcType="VARCHAR" property="macbookpcU3dModelId" />
+    <result column="windowsPc_u3d_model_id" jdbcType="VARCHAR" property="windowspcU3dModelId" />
+    <result column="total_usage_amount" jdbcType="INTEGER" property="totalUsageAmount" />
+    <result column="pid" jdbcType="INTEGER" property="pid" />
+    <result column="is_standard_space" jdbcType="INTEGER" property="isStandardSpace" />
+    <result column="web_u3d_mode_id" jdbcType="VARCHAR" property="webU3dModeId" />
+    <result column="cad_address" jdbcType="VARCHAR" property="cadAddress" />
+    <result column="window_location_value" jdbcType="INTEGER" property="windowLocationValue" />
+    <result column="view_plan_ids" jdbcType="VARCHAR" property="viewPlanIds" />
+    <result column="sync_status" jdbcType="VARCHAR" property="syncStatus" />
+    <result column="scene3d_id" jdbcType="INTEGER" property="scene3dId" />
+    <result column="space_shape_pic_id" jdbcType="INTEGER" property="spaceShapePicId" />
+    <result column="open_status" jdbcType="INTEGER" property="openStatus" />
+    <result column="daylight_u3d_model_id" jdbcType="INTEGER" property="daylightU3dModelId" />
+    <result column="dusklight_u3d_model_id" jdbcType="INTEGER" property="dusklightU3dModelId" />
+    <result column="nightlight_u3d_model_id" jdbcType="INTEGER" property="nightlightU3dModelId" />
+    <result column="space_analyze_code" jdbcType="VARCHAR" property="spaceAnalyzeCode" />
+    <result column="space_u3d_code" jdbcType="VARCHAR" property="spaceU3dCode" />
+    <result column="space_main_length" jdbcType="VARCHAR" property="spaceMainLength" />
+    <result column="space_main_width" jdbcType="VARCHAR" property="spaceMainWidth" />
+    <result column="daylight_android_u3d_model_id" jdbcType="INTEGER" property="daylightAndroidU3dModelId" />
+    <result column="dusklight_android_u3d_model_id" jdbcType="INTEGER" property="dusklightAndroidU3dModelId" />
+    <result column="nightlight_android_u3d_model_id" jdbcType="INTEGER" property="nightlightAndroidU3dModelId" />
+    <result column="daylight_ios_u3d_model_id" jdbcType="INTEGER" property="daylightIosU3dModelId" />
+    <result column="dusklight_ios_u3d_model_id" jdbcType="INTEGER" property="dusklightIosU3dModelId" />
+    <result column="nightlight_ios_u3d_model_id" jdbcType="INTEGER" property="nightlightIosU3dModelId" />
+    <result column="bake_before_file_id" jdbcType="BIGINT" property="bakeBeforeFileId" />
+    <result column="draw_base_house_id" jdbcType="BIGINT" property="drawBaseHouseId" />
+  </resultMap>
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from draw_space_common
+    where is_deleted = 0 
+       AND id = #{id,jdbcType=BIGINT}
+  </select>
+  
+  	<!-- transformToSpaceCommon -->
+    <insert id="transformToSpaceCommon" parameterType="com.sandu.api.house.model.DrawSpaceCommon" useGeneratedKeys="true" keyProperty="spaceCommonId">
+	insert into space_common
+	<trim prefix="(" suffix=")" suffixOverrides=",">
+		<if test="sysCode != null">
+			sys_code,
+		</if>
+		<if test="spaceCode != null">
+			space_code,
+		</if>
+		<if test="spaceName != null">
+			space_name,
+		</if>
+		<if test="spaceFunctionId != null">
+			space_function_id,
+		</if>
+		<if test="mainLength != null">
+			main_length,
+		</if>
+		<if test="mainWidth != null">
+			main_width,
+		</if>
+		<if test="spaceAreas != null">
+			space_areas,
+		</if>
+		<if test="spaceShape != null">
+			space_shape,
+		</if>
+		<if test="doorLocationType != null">
+			door_location_type,
+		</if>
+		<if test="doorLocationId != null">
+			door_location_id,
+		</if>
+		<if test="picId != null">
+			pic_id,
+		</if>
+		<if test="modelId != null">
+			model_id,
+		</if>
+		<if test="spaceDesc != null">
+			space_desc,
+		</if>
+		<if test="locationArrays != null">
+			location_arrays,
+		</if>
+		<if test="isIncludeWay != null">
+			is_include_way,
+		</if>
+		<if test="wayLocation != null">
+			way_location,
+		</if>
+		<if test="userNum != null">
+			user_num,
+		</if>
+		<if test="searchNum != null">
+			search_num,
+		</if>
+		<if test="spaceNum != null">
+			space_num,
+		</if>
+		<if test="spacePercent != null">
+			space_percent,
+		</if>
+		<if test="datasourceId != null">
+			datasource_id,
+		</if>
+		<if test="status != null">
+			status,
+		</if>
+		<if test="creator != null">
+			creator,
+		</if>
+		<if test="gmtCreate != null">
+			gmt_create,
+		</if>
+		<if test="modifier != null">
+			modifier,
+		</if>
+		<if test="gmtModified != null">
+			gmt_modified,
+		</if>
+		<if test="isDeleted != null">
+			is_deleted,
+		</if>
+		<if test="model3dId != null">
+			model_3d_id,
+		</if>
+		<if test="modelU3dId != null">
+			model_u3d_id,
+		</if>
+		<if test="att1 != null">
+			att1,
+		</if>
+		<if test="att2 != null">
+			att2,
+		</if>
+		<if test="view3dPicId != null">
+			view3d_pic_id,
+		</if>
+		<if test="att4 != null">
+			att4,
+		</if>
+		<if test="att5 != null">
+			att5,
+		</if>
+		<if test="att6 != null">
+			att6,
+		</if>
+		<if test="publishModified != null">
+			publish_modified,
+		</if>
+		<if test="dateAtt2 != null">
+			date_att2,
+		</if>
+		<if test="styleId != null">
+			style_id,
+		</if>
+		<if test="cadPicId != null">
+			cad_pic_id,
+		</if>
+		<if test="numAtt3 != null">
+			num_att3,
+		</if>
+		<if test="numAtt4 != null">
+			num_att4,
+		</if>
+		<if test="remark != null">
+			remark,
+		</if>
+		<if test="ipadU3dModelId != null">
+			ipad_u3d_model_id,
+		</if>
+		<if test="iosU3dModelId != null">
+			ios_u3d_model_id,
+		</if>
+		<if test="androidU3dModelId != null">
+			android_u3d_model_id,
+		</if>
+		<if test="macbookpcU3dModelId != null">
+			macBookPc_u3d_model_id,
+		</if>
+		<if test="windowspcU3dModelId != null">
+			windowsPc_u3d_model_id,
+		</if>
+		<if test="totalUsageAmount != null">
+			total_usage_amount,
+		</if>
+		<if test="pid != null">
+			pid,
+		</if>
+		<if test="isStandardSpace != null">
+			is_standard_space,
+		</if>
+		<if test="webU3dModeId != null">
+			web_u3d_mode_id,
+		</if>
+		<if test="cadAddress != null">
+			cad_address,
+		</if>
+		<if test="windowLocationValue != null">
+			window_location_value,
+		</if>
+		<if test="viewPlanIds != null">
+			view_plan_ids,
+		</if>
+		<if test="syncStatus != null">
+			sync_status,
+		</if>
+		<if test="scene3dId != null">
+			scene3d_id,
+		</if>
+		<if test="spaceShapePicId != null">
+			space_shape_pic_id,
+		</if>
+		<if test="openStatus != null">
+			open_status,
+		</if>
+		<if test="daylightU3dModelId != null">
+			daylight_u3d_model_id,
+		</if>
+		<if test="dusklightU3dModelId != null">
+			dusklight_u3d_model_id,
+		</if>
+		<if test="nightlightU3dModelId != null">
+			nightlight_u3d_model_id,
+		</if>
+		<if test="spaceAnalyzeCode != null">
+			space_analyze_code,
+		</if>
+		<if test="spaceU3dCode != null">
+			space_u3d_code,
+		</if>
+		<if test="spaceMainLength != null">
+			space_main_length,
+		</if>
+		<if test="spaceMainWidth != null">
+			space_main_width,
+		</if>
+		<if test="daylightAndroidU3dModelId != null">
+			daylight_android_u3d_model_id,
+		</if>
+		<if test="dusklightAndroidU3dModelId != null">
+			dusklight_android_u3d_model_id,
+		</if>
+		<if test="nightlightAndroidU3dModelId != null">
+			nightlight_android_u3d_model_id,
+		</if>
+		<if test="daylightIosU3dModelId != null">
+			daylight_ios_u3d_model_id,
+		</if>
+		<if test="dusklightIosU3dModelId != null">
+			dusklight_ios_u3d_model_id,
+		</if>
+		<if test="nightlightIosU3dModelId != null">
+			nightlight_ios_u3d_model_id,
+		</if>
+		<if test="relDrawId != null">
+			rel_draw_id,
+		</if>
+		<if test="dataType != null">
+			data_type,
+		</if>
+		<if test="origin != null">
+			origin,
+		</if>
+	</trim>
+	<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="sysCode != null">
+			#{sysCode,jdbcType=VARCHAR},
+		</if>
+		<if test="spaceCode != null">
+			#{spaceCode,jdbcType=VARCHAR},
+		</if>
+		<if test="spaceName != null">
+			#{spaceName,jdbcType=VARCHAR},
+		</if>
+		<if test="spaceFunctionId != null">
+			#{spaceFunctionId,jdbcType=INTEGER},
+		</if>
+		<if test="mainLength != null">
+			#{mainLength,jdbcType=VARCHAR},
+		</if>
+		<if test="mainWidth != null">
+			#{mainWidth,jdbcType=VARCHAR},
+		</if>
+		<if test="spaceAreas != null">
+			#{spaceAreas,jdbcType=VARCHAR},
+		</if>
+		<if test="spaceShape != null">
+			#{spaceShape,jdbcType=VARCHAR},
+		</if>
+		<if test="doorLocationType != null">
+			#{doorLocationType,jdbcType=VARCHAR},
+		</if>
+		<if test="doorLocationId != null">
+			#{doorLocationId,jdbcType=INTEGER},
+		</if>
+		<if test="picId != null">
+			#{picId,jdbcType=INTEGER},
+		</if>
+		<if test="modelId != null">
+			#{modelId,jdbcType=INTEGER},
+		</if>
+		<if test="spaceDesc != null">
+			#{spaceDesc,jdbcType=VARCHAR},
+		</if>
+		<if test="locationArrays != null">
+			#{locationArrays,jdbcType=VARCHAR},
+		</if>
+		<if test="isIncludeWay != null">
+			#{isIncludeWay,jdbcType=INTEGER},
+		</if>
+		<if test="wayLocation != null">
+			#{wayLocation,jdbcType=VARCHAR},
+		</if>
+		<if test="userNum != null">
+			#{userNum,jdbcType=INTEGER},
+		</if>
+		<if test="searchNum != null">
+			#{searchNum,jdbcType=INTEGER},
+		</if>
+		<if test="spaceNum != null">
+			#{spaceNum,jdbcType=INTEGER},
+		</if>
+		<if test="spacePercent != null">
+			#{spacePercent,jdbcType=VARCHAR},
+		</if>
+		<if test="datasourceId != null">
+			#{datasourceId,jdbcType=INTEGER},
+		</if>
+		<if test="status != null">
+			#{status,jdbcType=INTEGER},
+		</if>
+		<if test="creator != null">
+			#{creator,jdbcType=VARCHAR},
+		</if>
+		<if test="gmtCreate != null">
+			#{gmtCreate,jdbcType=TIMESTAMP},
+		</if>
+		<if test="modifier != null">
+			#{modifier,jdbcType=VARCHAR},
+		</if>
+		<if test="gmtModified != null">
+			#{gmtModified,jdbcType=TIMESTAMP},
+		</if>
+		<if test="isDeleted != null">
+			#{isDeleted,jdbcType=INTEGER},
+		</if>
+		<if test="model3dId != null">
+			#{model3dId,jdbcType=VARCHAR},
+		</if>
+		<if test="modelU3dId != null">
+			#{modelU3dId,jdbcType=VARCHAR},
+		</if>
+		<if test="att1 != null">
+			#{att1,jdbcType=VARCHAR},
+		</if>
+		<if test="att2 != null">
+			#{att2,jdbcType=VARCHAR},
+		</if>
+		<if test="view3dPicId != null">
+			#{view3dPicId,jdbcType=VARCHAR},
+		</if>
+		<if test="att4 != null">
+			#{att4,jdbcType=VARCHAR},
+		</if>
+		<if test="att5 != null">
+			#{att5,jdbcType=VARCHAR},
+		</if>
+		<if test="att6 != null">
+			#{att6,jdbcType=VARCHAR},
+		</if>
+		<if test="publishModified != null">
+			#{publishModified,jdbcType=TIMESTAMP},
+		</if>
+		<if test="dateAtt2 != null">
+			#{dateAtt2,jdbcType=TIMESTAMP},
+		</if>
+		<if test="styleId != null">
+			#{styleId,jdbcType=INTEGER},
+		</if>
+		<if test="cadPicId != null">
+			#{cadPicId,jdbcType=INTEGER},
+		</if>
+		<if test="numAtt3 != null">
+			#{numAtt3,jdbcType=DECIMAL},
+		</if>
+		<if test="numAtt4 != null">
+			#{numAtt4,jdbcType=DECIMAL},
+		</if>
+		<if test="remark != null">
+			#{remark,jdbcType=VARCHAR},
+		</if>
+		<if test="ipadU3dModelId != null">
+			#{ipadU3dModelId,jdbcType=VARCHAR},
+		</if>
+		<if test="iosU3dModelId != null">
+			#{iosU3dModelId,jdbcType=VARCHAR},
+		</if>
+		<if test="androidU3dModelId != null">
+			#{androidU3dModelId,jdbcType=VARCHAR},
+		</if>
+		<if test="macbookpcU3dModelId != null">
+			#{macbookpcU3dModelId,jdbcType=VARCHAR},
+		</if>
+		<if test="windowspcU3dModelId != null">
+			#{windowspcU3dModelId,jdbcType=VARCHAR},
+		</if>
+		<if test="totalUsageAmount != null">
+			#{totalUsageAmount,jdbcType=INTEGER},
+		</if>
+		<if test="pid != null">
+			#{pid,jdbcType=INTEGER},
+		</if>
+		<if test="isStandardSpace != null">
+			#{isStandardSpace,jdbcType=INTEGER},
+		</if>
+		<if test="webU3dModeId != null">
+			#{webU3dModeId,jdbcType=VARCHAR},
+		</if>
+		<if test="cadAddress != null">
+			#{cadAddress,jdbcType=VARCHAR},
+		</if>
+		<if test="windowLocationValue != null">
+			#{windowLocationValue,jdbcType=INTEGER},
+		</if>
+		<if test="viewPlanIds != null">
+			#{viewPlanIds,jdbcType=VARCHAR},
+		</if>
+		<if test="syncStatus != null">
+			#{syncStatus,jdbcType=VARCHAR},
+		</if>
+		<if test="scene3dId != null">
+			#{scene3dId,jdbcType=INTEGER},
+		</if>
+		<if test="spaceShapePicId != null">
+			#{spaceShapePicId,jdbcType=INTEGER},
+		</if>
+		<if test="openStatus != null">
+			#{openStatus,jdbcType=INTEGER},
+		</if>
+		<if test="daylightU3dModelId != null">
+			#{daylightU3dModelId,jdbcType=INTEGER},
+		</if>
+		<if test="dusklightU3dModelId != null">
+			#{dusklightU3dModelId,jdbcType=INTEGER},
+		</if>
+		<if test="nightlightU3dModelId != null">
+			#{nightlightU3dModelId,jdbcType=INTEGER},
+		</if>
+		<if test="spaceAnalyzeCode != null">
+			#{spaceAnalyzeCode,jdbcType=VARCHAR},
+		</if>
+		<if test="spaceU3dCode != null">
+			#{spaceU3dCode,jdbcType=VARCHAR},
+		</if>
+		<if test="spaceMainLength != null">
+			#{spaceMainLength,jdbcType=VARCHAR},
+		</if>
+		<if test="spaceMainWidth != null">
+			#{spaceMainWidth,jdbcType=VARCHAR},
+		</if>
+		<if test="daylightAndroidU3dModelId != null">
+			#{daylightAndroidU3dModelId,jdbcType=INTEGER},
+		</if>
+		<if test="dusklightAndroidU3dModelId != null">
+			#{dusklightAndroidU3dModelId,jdbcType=INTEGER},
+		</if>
+		<if test="nightlightAndroidU3dModelId != null">
+			#{nightlightAndroidU3dModelId,jdbcType=INTEGER},
+		</if>
+		<if test="daylightIosU3dModelId != null">
+			#{daylightIosU3dModelId,jdbcType=INTEGER},
+		</if>
+		<if test="dusklightIosU3dModelId != null">
+			#{dusklightIosU3dModelId,jdbcType=INTEGER},
+		</if>
+		<if test="nightlightIosU3dModelId != null">
+			#{nightlightIosU3dModelId,jdbcType=INTEGER},
+		</if>
+		<if test="relDrawId != null">
+			#{relDrawId,jdbcType=BIGINT},
+		</if>
+		<if test="dataType != null">
+			#{dataType},
+		</if>
+		<if test="origin != null">
+			#{origin},
+		</if>
+	</trim>
+	</insert>
+
+    <insert id="batchSaveDrawSpaceCommon" useGeneratedKeys="true" keyProperty="id">
+      INSERT INTO draw_space_common
+        (
+          sys_code, space_code, space_name, space_function_id, main_length,
+          main_width, space_areas, space_shape, door_location_type, door_location_id, pic_id,
+          model_id, space_desc, location_arrays, is_include_way, way_location, user_num,
+          search_num, space_num, space_percent, datasource_id, status, creator,
+          gmt_create, modifier, gmt_modified, is_deleted, model_3d_id, model_u3d_id,
+          att1, att2, view3d_pic_id, att4, att5, att6, publish_modified,
+          date_att2, style_id, cad_pic_id, num_att3, num_att4, remark,
+          ipad_u3d_model_id, ios_u3d_model_id, android_u3d_model_id, macBookPc_u3d_model_id, windowsPc_u3d_model_id,
+          total_usage_amount, pid, is_standard_space, web_u3d_mode_id, cad_address, window_location_value,
+          view_plan_ids, sync_status, scene3d_id, space_shape_pic_id, open_status, daylight_u3d_model_id,
+          dusklight_u3d_model_id, nightlight_u3d_model_id, space_analyze_code, space_u3d_code, space_main_length,
+          space_main_width, bake_before_file_id, draw_base_house_id, data_type
+        )
+      VALUES
+      <foreach collection="list" item="item" separator=",">
+          <trim prefix="(" suffix=")" suffixOverrides=",">
+              #{item.sysCode}, #{item.spaceCode}, #{item.spaceName},
+              #{item.spaceFunctionId}, #{item.mainLength}, #{item.mainWidth},
+              #{item.spaceAreas}, #{item.spaceShape}, #{item.doorLocationType},
+              #{item.doorLocationId}, #{item.picId}, #{item.modelId},
+              #{item.spaceDesc}, #{item.locationArrays}, #{item.isIncludeWay},
+              #{item.wayLocation}, #{item.userNum}, #{item.searchNum},
+              #{item.spaceNum}, #{item.spacePercent}, #{item.datasourceId},
+              #{item.status}, #{item.creator}, #{item.gmtCreate},
+              #{item.modifier}, #{item.gmtModified}, #{item.isDeleted},
+              #{item.model3dId}, #{item.modelU3dId}, #{item.att1},
+              #{item.att2}, #{item.view3dPicId}, #{item.att4},
+              #{item.att5}, #{item.att6}, #{item.publishModified},
+              #{item.dateAtt2}, #{item.styleId}, #{item.cadPicId},
+              #{item.numAtt3}, #{item.numAtt4}, #{item.remark},
+              #{item.ipadU3dModelId}, #{item.iosU3dModelId}, #{item.androidU3dModelId},
+              #{item.macbookpcU3dModelId}, #{item.windowspcU3dModelId}, #{item.totalUsageAmount},
+              #{item.pid}, #{item.isStandardSpace}, #{item.webU3dModeId},
+              #{item.cadAddress}, #{item.windowLocationValue}, #{item.viewPlanIds},
+              #{item.syncStatus}, #{item.scene3dId}, #{item.spaceShapePicId},
+              #{item.openStatus}, #{item.daylightU3dModelId}, #{item.dusklightU3dModelId},
+              #{item.nightlightU3dModelId}, #{item.spaceAnalyzeCode}, #{item.spaceU3dCode},
+              #{item.spaceMainLength}, #{item.spaceMainWidth}, #{item.bakeBeforeFileId},
+              #{item.drawBaseHouseId}, #{item.dataType}
+          </trim>
+      </foreach>
+    </insert>
+
+    <!--
+  	<update id="deleteDrawSpaceCommon">
+  		UPDATE 
+		  draw_space_common sc 
+		SET
+		  sc.is_deleted = #{status}
+		WHERE sc.is_deleted = 0 
+		  AND sc.draw_base_house_id = #{houseId} 
+  	</update>
+    -->
+
+    <update id="deleteDrawSpaceCommon">
+        UPDATE
+          draw_space_common sc
+        SET
+          sc.is_deleted = #{status}
+        WHERE sc.is_deleted = 0
+          AND sc.id IN
+          <foreach collection="emptySpaces" item="item" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+    </update>
+  	
+  	<!-- 被删除的绘制空间数据-->
+  	<select id="getDealSpaceCommon" resultType="long">
+		SELECT 
+		  sc.id 
+		FROM
+		  draw_space_common dsc,
+		  space_common sc 
+		WHERE dsc.is_deleted = 1 
+		  AND sc.is_deleted = 0 
+		  AND dsc.space_common_id = sc.id 
+		  AND dsc.id = #{spaceId}
+    </select>
+
+    <select id="getEmptyDealSpaceCommon" resultType="long">
+    	SELECT 
+          sc.id AS space_id
+        FROM
+          house_space_new sn,
+          space_common sc
+        WHERE sc.id = sn.space_id
+          AND sc.origin = 1
+          AND sc.is_deleted = 0
+          AND sn.is_deleted = 0
+          AND sn.house_id = #{houseId}
+    </select>
+
+    <select id="getClearCupboardSpaceBySubmit" resultType="java.lang.Long">
+		SELECT
+          sc.id AS space_id
+        FROM
+          draw_space_common sc
+        WHERE sc.is_deleted = 0
+          AND sc.space_code LIKE 'E%'
+          AND sc.draw_base_house_id = #{houseId}
+    </select>
+
+    <select id="getClearCupboardSpaceByCallback" resultType="java.lang.Long">
+      SELECT
+        sc.id AS space_id
+      FROM
+        house_space_new sn,
+        space_common sc
+      WHERE sc.id = sn.space_id
+        AND sc.origin = 1
+        AND sc.is_deleted = 0
+        AND sn.is_deleted = 0
+        AND sc.space_code LIKE 'E%'
+        AND sn.house_id = #{baseHouseId}
+    </select>
+</mapper>

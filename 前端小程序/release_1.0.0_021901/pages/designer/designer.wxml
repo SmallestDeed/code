@@ -1,0 +1,146 @@
+<view class='designer'>
+   <view class='designerBanner'>
+     
+     <view wx:if='{{detailInfo.coverResList}}'>
+       <swiper
+          indicator-dots="{{detailInfo.coverResList}}"
+          autoplay="{{autoplay}}"
+          interval="{{interval}}"
+          duration="{{duration}}"
+          style='height:400rpx'
+        >
+        <block wx:for="{{detailInfo.coverResList}}" wx:key='{{index}}'>
+          <swiper-item class='topBanner'>
+            <image class='imgs' src="{{resourcePath+item}}"/>
+          </swiper-item>
+        </block>
+       
+       </swiper>
+        
+     </view>
+     <image mode='aspectFill' class='defaultImgs' wx:if='{{!detailInfo.coverResList}}' src='/static/images/wei_pc_nor.jpg'></image>
+
+        <view class='designerHead'>
+          <image class='head' wx:if='{{detailInfo.logoUrl}}' src='{{resourcePath+detailInfo.logoUrl}}'></image>
+          <image  class='head' wx:else src='{{defaultHeader}}'></image>
+          <view class='name'>{{detailInfo.shopName}}</view>
+          <view class='experience' wx:if='{{detailInfo.workingYears}}'>{{detailInfo.workingYears}}年设计经验</view>
+        </view>
+   </view>
+
+   <!-- 个人介绍 -->
+   <view class='designerInfo' 
+    wx:if='{{detailInfo.shopIntroduced && detailInfo.shopIntroduced.length > 0}}'>
+      <view class='title'>个人介绍</view>
+      <view class='{{isPull?"info-active":"info"}}' id='info-box'>
+         <rich-text id='info' nodes='{{detailInfo.shopIntroduced}}'></rich-text>
+      </view>
+      <view class='examine'  wx:if='{{contentHeight > boxHeight}}' bindtap='examine'>
+        <image src='/static/images/home_icon_{{isPull?"up":"down"}}.png'></image>
+        {{isPull?'收起全部':'展开全部'}}
+      </view>
+   </view>
+   <!-- 个人介绍 结束-->
+   <!-- 一键方案 -->
+   <view class='oneKeyPlan' wx:if='{{planCounter}}'>
+        <view class='onekeyTitle'>
+           <view class='title'> 一键方案</view>
+           <view class='counter' bindtap='oneKeyPlanPage'>
+               {{planCounter}}个 <image src='../../static/images/me_icon_more.png' class='arrow'></image>
+           </view>
+        </view>
+        <view class='oneKeyPlanScorll'>
+            <scroll-view scroll-x
+                  class="scroll-view_H"
+                  scroll-into-view="{{toView}}">
+                  <view class='{{index==0?"one-left":"onekeyPlanScrollArea"}}' 
+                      wx:for='{{designList}}' 
+                      wx:key='{{index}}'>
+                    <design-item design="{{item}}"></design-item>
+                  </view>
+            </scroll-view>
+        </view>
+   </view>
+
+
+   <!-- 真实案例 -->
+    <view class='caseTitle' wx:if='{{caseCounter}}'>
+         <view class='title'>真实案例</view>
+         <view class='counter' bindtap='trulyCase'>
+            {{caseCounter}}个 <image src='../../static/images/me_icon_more.png' class='arrow'></image>
+         </view>
+      </view>
+      <scroll-view scroll-x class='scrollV'  wx:if='{{caseCounter}}'>
+      <view class='caseTeam'>
+            <view class='caseShow'>
+                <view class='caseItem'
+                    bindtap='toDetail'
+                    wx:for='{{trueCaseData}}'
+                    wx:key='{{index}}'
+                    data-item='{{item}}'
+                >
+                <view class='caseImgs'>
+                    <image class='imgs' wx:if='{{item.picPath}}' src='{{resourcePath + item.picPath}}'></image>
+                    <image class='imgs' wx:else src='/static/images/home_banner_01.png'></image>
+                </view>
+                <view class='caseTitle'>{{item.caseTitle}}</view>
+              </view>
+            </view>
+      </view>
+   </scroll-view>
+  <!-- 真实案例 -->
+
+  <!-- 博文 -->
+   <view class='bowen' wx:if="{{bowenCounter}}">
+      <view class='title'>
+          <view class='title2'>博文</view>
+          <view class='counter' bindtap='bowenlist'>
+            {{bowenCounter}}条 <image src='../../static/images/me_icon_more.png' class='arrow'></image>
+         </view>
+      </view>
+      <view class='bowenList'>
+         <!-- ------------------------------ -->
+<view class='listItem' 
+              wx:for='{{bowenList}}' 
+              wx:key='{{index}}'
+              data-item='{{item}}'
+              bindtap='bowenDetail'
+          >
+
+              <image class='bowenImg' wx:if='{{item.picPath}}' src='{{resourcePath + item.picPath}}'></image>
+              <image class='bowenImg' wx:else src='/static/images/news_pic_nor.png' ></image>
+              <view class='bowenInfo'>
+                  <view class='bowenTitle'>{{item.articleTitle}}</view>
+                  <view class='times'>浏览 {{item.browseCount == null ? 0 :item.browseCount}}  |  {{item.releaseTimeStr}}发布</view>
+              </view>
+          </view>
+         <!-- -------------------------------- -->
+      </view>
+   </view>
+  <!-- 博文结束 -->
+
+  <view class='footerBtn'>
+     <view class='goutong' bindtap='goutong'>立即沟通</view> 
+     <view class='yuxue' bindtap='yuxue'>与我预约</view>
+  </view>
+  
+  <!-- 预约弹框 -->
+  <view class='yuxueMasker' wx:if='{{isShowMasker}}'></view>
+  <view class='yuxueDialog' wx:if='{{isShowYuXue}}'>
+      <view class='header'>
+         <view class='close' bindtap='cancleYuxue'>
+            <image src='../../static/images/pop_icon_close_02.png'></image>
+         </view>  
+         <view class='bigTitle'>免费预约</view>
+         <view class='smallTitle'>请填写你的联系方式，我们将会与你联系</view>
+      </view>
+      <view class='inputForm'>
+        <form bindsubmit="formSubmit" bindreset="formReset">
+            <input type="text" name='userName' value='{{userName}}' bindinput='getRename' maxlength='21' placeholder='请输入名称'/>
+            <input type="number" name='userPhone' value='{{userPhone}}' bindinput='userPhone' maxlength='11' placeholder='请输入您的电话号码'/>
+            <button class='buttonSure' form-type="submit">确定</button>
+        </form>
+      </view>
+  </view>
+
+</view>

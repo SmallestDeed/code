@@ -1,0 +1,831 @@
+package com.sandu.web.designplan.controller;
+
+import com.google.gson.Gson;
+import com.sandu.api.base.common.BaseController;
+import com.sandu.api.base.common.LoginUser;
+import com.sandu.api.base.common.ResponseEnvelope;
+import com.sandu.api.base.common.exception.BizException;
+import com.sandu.api.base.input.UserDecorationPlanVo;
+import com.sandu.api.base.model.SysUser;
+import com.sandu.api.base.service.SysUserService;
+import com.sandu.api.designplan.input.DesignPlanInput;
+import com.sandu.api.designplan.input.FullHousePlanInput;
+import com.sandu.api.designplan.input.PlanInput;
+import com.sandu.api.designplan.input.PlanRenderSceneInput;
+import com.sandu.api.designplan.output.DesignPlanDecorationVo;
+import com.sandu.api.designplan.output.DesignPlanRenderSceneVo;
+import com.sandu.api.designplan.output.SingleDesignPlanVo;
+import com.sandu.api.designplan.output.SinglePlanRenderSceneVo;
+import com.sandu.api.designplan.service.DesignPlanRenderSceneService;
+import com.sandu.common.LoginContext;
+import com.sandu.interceptor.NeedNotLogin;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
+import java.util.stream.Collectors;
+
+
+/**
+ * Created by xiaoxc on 2018/5/31 0031.
+ */
+@Slf4j
+@RestController
+@RequestMapping("/v1/core/designplanrenderscene")
+public class DesignPlanRenderSceneController extends BaseController {
+
+
+    private final static String CLASS_LOG_PREFIX = "[效果图方案服务]:";
+    private final static Gson gson = new Gson();
+
+    @Autowired
+    private DesignPlanRenderSceneService designPlanRenderSceneService;
+
+    @Autowired
+    private SysUserService sysUserService;
+
+    /**
+     * 通过全屋户型ID获取所有空间的效果图方案
+     *
+     * @param
+     * @return
+     */
+    @RequestMapping(value = "/designplanrenderscenelist",method = RequestMethod.POST)
+    @ResponseBody
+    @NeedNotLogin
+    public ResponseEnvelope designPlanRenderSceneList( DesignPlanInput designPlanInput) {
+
+        ResponseEnvelope res = new ResponseEnvelope();
+
+        //参数校验
+        Integer planId = designPlanInput.getPlanId();
+        Integer planType = designPlanInput.getPlanType();
+        if(null == planId || 0 == planId || null == planType || planType ==0){
+               return new ResponseEnvelope(false,"缺少参数");
+
+        }
+        log.info(CLASS_LOG_PREFIX+"方案ID:"+planId+"---------"+"方案类型"+planType);
+
+        //获取效果图方案列表
+        DesignPlanRenderSceneVo designPlanRenderSceneVo;
+        try {
+            if(planType == 4){
+                designPlanRenderSceneVo = designPlanRenderSceneService.getDesignPlanRenderSceneList(planId,designPlanInput.getDesignTemplateId());
+            }else  if (planType == 3){
+                designPlanRenderSceneVo = designPlanRenderSceneService.getDesignPlanRenderSceneList(planId);
+            }else {
+                designPlanRenderSceneVo = null;
+            }
+
+            if(null == designPlanRenderSceneVo ){
+                log.error(CLASS_LOG_PREFIX+"获取效果图方案列表失败,"+"参数:"+planId+"-----"+planType);
+                return new ResponseEnvelope(false,"获取效果图方案列表失败");
+            }
+        }catch (BizException e){
+            log.error(CLASS_LOG_PREFIX+"获取效果图方案列表数据异常:"+e);
+            return new ResponseEnvelope(false,CLASS_LOG_PREFIX+"获取效果图方案列表数据异常");
+        }
+        res.setSuccess(true);
+        res.setMsgId(designPlanInput.getMsgId());
+        res.setObj(designPlanRenderSceneVo);
+        return res;
+    }
+
+    /**
+     * 获取所有已装修和未装修的效果图方案
+     *
+     * @param
+     * @return
+     */
+    @RequestMapping(value = "/designplandecorationlist",method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEnvelope designPlanDecorationList(@RequestParam(value = "planType",required = false)Integer planType,//3:单空间我的设计方案,4:全屋我的设计方案
+                                                     @RequestParam(value = "demandId",required = false)Integer demandId,
+                                                     @RequestParam(value = "planId",required = false) Integer planId) {
+        //登录用户校验
+      LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false,CLASS_LOG_PREFIX + "请登录!");
+        }
+        log.info(CLASS_LOG_PREFIX+"登录用户:"+gson.toJson(loginUser));
+
+        List<DesignPlanDecorationVo> designPlanDecorationVoList = new ArrayList<>();
+
+        //获取未装修效果图方案列表
+        DesignPlanRenderSceneVo unDecorationPlan;
+        try {
+            if( planType!=null && planType == 4 && planId !=null && planId>0 ){
+                unDecorationPlan = designPlanRenderSceneService.getDesignPlanRenderSceneList(planId, 0);
+            }else if(  planType!=null && planType == 3 && planId !=null && planId>0 ){
+                unDecorationPlan = designPlanRenderSceneService.getDesignPlanRenderSceneList(planId);
+            }else {
+                unDecorationPlan = null;
+            }
+
+            if(null == unDecorationPlan ){
+                log.warn(CLASS_LOG_PREFIX+"获取未装修效果图方案列表为空,"+"参数:"+demandId+"-------"+loginUser.getId());
+
+            }
+        }catch (BizException e){
+            log.error(CLASS_LOG_PREFIX+"获取未装修效果图方案列表数据异常:"+e);
+            return new ResponseEnvelope(false,CLASS_LOG_PREFIX+"获取未装修效果图方案列表数据异常");
+        }
+
+        //获取已装修的草图方案列表
+        List<SingleDesignPlanVo> decorationPlanList;
+        try {
+            decorationPlanList = designPlanRenderSceneService.getDesignPlanList(demandId,loginUser.getId());
+            if(null == decorationPlanList || decorationPlanList.size() == 0){
+                log.warn(CLASS_LOG_PREFIX+"获取已装修效果图方案列表为空,"+"参数:"+demandId+"-------"+loginUser.getId());
+            }
+        }catch (BizException e){
+            log.error(CLASS_LOG_PREFIX+"获取已装修效果图方案列表数据异常:"+e);
+            return new ResponseEnvelope(false,CLASS_LOG_PREFIX+"获取已装修效果图方案列表数据异常");
+        }
+
+
+        //组装返回参数
+        if( null!=unDecorationPlan){
+            List<SinglePlanRenderSceneVo> singlePlanRenderSceneList =  unDecorationPlan.getSinglePlanRenderSceneList();
+            if(null != singlePlanRenderSceneList && singlePlanRenderSceneList.size() > 0){
+                for(SinglePlanRenderSceneVo singlePlanRenderSceneVo : singlePlanRenderSceneList){
+                    DesignPlanDecorationVo designPlanDecorationVo = new DesignPlanDecorationVo();
+                    designPlanDecorationVo.setUnDecorationPlanVo(singlePlanRenderSceneVo);
+                    designPlanDecorationVo.setSpaceName(singlePlanRenderSceneVo.getSpaceName());
+                    designPlanDecorationVo.setSpaceType(singlePlanRenderSceneVo.getSpaceType());
+                    if(null != decorationPlanList && decorationPlanList.size() > 0  ){
+                        List<SingleDesignPlanVo> singleDesignPlanVoList = new ArrayList<>();
+                        for(SingleDesignPlanVo singleDesignPlanVo : decorationPlanList){
+                            if(null != singleDesignPlanVo.getSpaceFunctionId() && 0< singleDesignPlanVo.getSpaceFunctionId()
+                                    && singleDesignPlanVo.getSpaceFunctionId().intValue()==singlePlanRenderSceneVo.getSpaceType().intValue()
+                                    &&singleDesignPlanVo.getDesignTemplateId().intValue()==singlePlanRenderSceneVo.getDesignTemplateId().intValue()
+                                    ){
+                                singleDesignPlanVoList.add(singleDesignPlanVo);
+                            }
+                        }
+                        designPlanDecorationVo.setDecorationPlanVoList(singleDesignPlanVoList);
+                    }
+                    designPlanDecorationVoList.add(designPlanDecorationVo);
+                }
+            }
+        }else if(unDecorationPlan==null && decorationPlanList!=null && decorationPlanList.size() > 0){
+            Map<Integer,List<SingleDesignPlanVo>> integerlistMap = new LinkedHashMap<>();
+            for (SingleDesignPlanVo singleDesignPlanVo : decorationPlanList){
+                if(integerlistMap.containsKey(singleDesignPlanVo.getDesignTemplateId())){
+                    List<SingleDesignPlanVo> singleDesignPlanVoList = integerlistMap.get(singleDesignPlanVo.getDesignTemplateId());
+                    singleDesignPlanVoList.add(singleDesignPlanVo);
+                    integerlistMap.put(singleDesignPlanVo.getDesignTemplateId(),singleDesignPlanVoList);
+                }else {
+                    List<SingleDesignPlanVo> singleDesignPlanVoList = new ArrayList<>();
+                    singleDesignPlanVoList.add(singleDesignPlanVo);
+                    integerlistMap.put(singleDesignPlanVo.getDesignTemplateId(),singleDesignPlanVoList);
+                }
+            }
+            for(Map.Entry<Integer,List<SingleDesignPlanVo>> entry : integerlistMap.entrySet()){
+                DesignPlanDecorationVo designPlanDecorationVo = new DesignPlanDecorationVo();
+                designPlanDecorationVo.setSpaceName(entry.getValue().get(0).getSpaceName());
+                designPlanDecorationVo.setSpaceType(entry.getValue().get(0).getSpaceFunctionId());
+                designPlanDecorationVo.setDecorationPlanVoList(entry.getValue());
+                designPlanDecorationVoList.add(designPlanDecorationVo);
+            }
+
+
+        }
+
+
+
+        return new ResponseEnvelope(true,designPlanDecorationVoList);
+    }
+
+
+
+
+
+
+
+
+
+    /**
+     * 通过添加的方案组装成新的全屋方案
+     *
+     * @param
+     * @return
+     */
+    @RequestMapping(value = "/buildfullhouseplan",method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEnvelope buildFullHousePlan(@RequestBody FullHousePlanInput fullHousePlanInput, HttpServletRequest request) {
+        //登录用户校验
+     LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false,CLASS_LOG_PREFIX + "请登录!");
+        }
+        log.info(CLASS_LOG_PREFIX+"登录用户:"+gson.toJson(loginUser));
+
+
+
+        //参数校验
+        List<PlanInput> planInputList = fullHousePlanInput.getPlanInputList();
+        List<PlanRenderSceneInput> planRenderSceneInputList = fullHousePlanInput.getPlanRenderSceneInputList();
+        if ( (planRenderSceneInputList ==null || planRenderSceneInputList.size() ==0) && (planInputList==null || planInputList.size() == 0 ) ){
+            return new ResponseEnvelope(false,CLASS_LOG_PREFIX+"方案缺失参数");
+        }
+        Integer planType = fullHousePlanInput.getPlanType();
+        if(planType == null || planType == 0){
+            return new ResponseEnvelope(false,CLASS_LOG_PREFIX+"方案类型缺失");
+        }
+
+        //全屋户型方案必传户型ID
+       if(fullHousePlanInput.getPlanType().intValue() == 4&& (fullHousePlanInput.getHouseId()==null || fullHousePlanInput.getHouseId()==0)){
+            return new ResponseEnvelope(false,CLASS_LOG_PREFIX+"全屋户型方案必传户型ID");
+        }
+
+
+        String authorization = request.getHeader("Authorization");
+
+        String planName = fullHousePlanInput.getPlanName();
+        Integer planId = fullHousePlanInput.getPlanId();
+        Integer houseId = fullHousePlanInput.getHouseId();
+        if(StringUtils.isBlank(planName)){
+            return new ResponseEnvelope(false,CLASS_LOG_PREFIX+"planName缺失");
+        }
+
+        //输出效果图方案
+        log.info(CLASS_LOG_PREFIX+"开始输出效果图方案");
+        SinglePlanRenderSceneVo singlePlanRenderSceneVo;
+        try {
+            if(planType==4){
+                singlePlanRenderSceneVo =  designPlanRenderSceneService.creatNewFullHousePlan(planRenderSceneInputList,planInputList,loginUser,planName,planId,houseId,authorization);
+            }else if(planType==3){
+                singlePlanRenderSceneVo =  designPlanRenderSceneService.creatNewDesignPlan(planRenderSceneInputList,planInputList,loginUser,authorization);
+            }else {
+                singlePlanRenderSceneVo=null;
+            }
+            if(null ==singlePlanRenderSceneVo){
+                return new ResponseEnvelope(false,CLASS_LOG_PREFIX+"组装全屋方案失败");
+            }
+        }catch (BizException e){
+            log.error(CLASS_LOG_PREFIX+"输出效果图方案数据异常"+e);
+            return new ResponseEnvelope(false,CLASS_LOG_PREFIX+"输出效果图方案数据异常");
+        }
+        log.info(CLASS_LOG_PREFIX+"开始输出效果图方案完成");
+
+        return new ResponseEnvelope(true,singlePlanRenderSceneVo);
+    }
+
+
+    @RequestMapping(value = "/currentChatUserDesignPlanInfo")
+    public  Object getCurrentChatUserDesignPlanInfo(@RequestParam(value = "currentChatUserSessionId")String currentChatUserSessionId){
+
+        Assert.notNull(currentChatUserSessionId,"当前联系人sessionId不能为空");
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+
+        Assert.notNull(loginUser,"获取当前登录用户信息失败");
+        List<Map<String,Object>> result = new ArrayList<>();
+
+        try {
+            //获取当前登录用户信息
+            SysUser sysUser = sysUserService.selectByPrimaryKey(Long.parseLong(loginUser.getId() + ""));
+
+            //step 1.获取当前聊天用户我的单空间、我的全屋方案、户型相关方案信息供求信息相关
+            List<UserDecorationPlanVo> supplyDesignPlans =  sysUserService.getAllDemandPlanAndHouse(currentChatUserSessionId,sysUser.getId());
+
+            //封装供求信息单空间信息
+            buildSupplySingleDesignInfo(supplyDesignPlans,result,loginUser.getId());
+
+            //封装供求信息全屋方案信息
+            buildSupplyFullHouseDesignInfo(supplyDesignPlans,result,loginUser.getId());
+
+            //封装供求信息户型相关信息
+            buildSupplyHouseDesignInfo(result,currentChatUserSessionId,loginUser.getId());
+
+            //step 2.获取当前聊天用户我的单空间、我的全屋方案、户型相关方案信息聊天相关
+            List<UserDecorationPlanVo> msgDesignPlans = sysUserService.getAllMsgPlanAndHouse(currentChatUserSessionId, sysUser.getUuid());
+
+            //封装聊天消息相关 => 单空间方案
+            buildMsgSingleDesignInfo(msgDesignPlans,result,loginUser.getId());
+
+            //封装聊天信息全屋方案信息
+            buildMsgFullHouseDesignInfo(msgDesignPlans,result,loginUser.getId());
+
+            //封装聊天信息户型方案信息
+            buildMsgBaseHouseDesignInfo(msgDesignPlans,result,loginUser.getId());
+            return new ResponseEnvelope<>(true,result);
+        }catch (IllegalArgumentException ill){
+            log.error("参数错误:",ill);
+            return new ResponseEnvelope<>(false,ill.getMessage());
+        }catch (Exception e) {
+            log.error("系统错误",e);
+            return new ResponseEnvelope<>(false,"系统错误");
+        }
+    }
+
+    /**
+     * 我的消息户型相关
+     * @param msgDesignPlans
+     * @param result
+     * @param userId
+     */
+    private void buildMsgBaseHouseDesignInfo(List<UserDecorationPlanVo> msgDesignPlans, List<Map<String,Object>> result, Integer userId) {
+        if (nonNull(msgDesignPlans)){
+            //获取单空间聊天信息
+            List<UserDecorationPlanVo> singleMsgPlan = msgDesignPlans.stream().filter(msgSingle -> Objects.equals(msgSingle.getMsgType(), 4)).collect(Collectors.toList());
+            if (nonNull(singleMsgPlan)){
+                Map<String,Object> data = null;
+                for (UserDecorationPlanVo house : singleMsgPlan){
+                    data = new HashMap<>();
+                    List<SingleDesignPlanVo> designPlanList = designPlanRenderSceneService.getDesignPlanListByMsgId(house.getMsgHistoryMessageId(), userId);
+                    if (nonNull(designPlanList)){
+                        //根据样板房id分类
+                        List<DesignPlanDecorationVo> DesignPlanDecorations= new ArrayList<>();
+                        Map<Integer, List<SingleDesignPlanVo>> decorationPlan = designPlanList.stream().collect(Collectors.groupingBy(SingleDesignPlanVo::getDesignTemplateId));
+                        DesignPlanDecorationVo vo = new DesignPlanDecorationVo();
+                        //获取户型的名称
+                        String houseName = designPlanRenderSceneService.getHouseName(Integer.parseInt(house.getMsgBody()));
+                        //分装返回参数
+                        for(Map.Entry<Integer,List<SingleDesignPlanVo>> entry : decorationPlan.entrySet()){
+                            DesignPlanDecorationVo designPlanDecorationVo = new DesignPlanDecorationVo();
+                            designPlanDecorationVo.setDisplayName(houseName);
+                            designPlanDecorationVo.setSpaceName(entry.getValue().get(0).getSpaceName());
+                            designPlanDecorationVo.setSpaceType(entry.getValue().get(0).getSpaceFunctionId());
+                            designPlanDecorationVo.setDecorationPlanVoList(entry.getValue());
+                            DesignPlanDecorations.add(designPlanDecorationVo);
+                        }
+                        data.put("planName",houseName);
+                        data.put("houseId",house.getMsgBody());
+                        data.put("result",DesignPlanDecorations);
+                        data.put("houseType",4);
+                        data.put("houseFlag",1);
+                        result.add(data);
+                    }
+                }
+//                singleMsgPlan.stream().forEach(house ->{
+//
+//                });
+            }
+        }
+    }
+
+    /**
+     * 我的消息全屋方案相关
+     * @param msgDesignPlans
+     * @param result
+     * @param userId
+     */
+    private void buildMsgFullHouseDesignInfo(List<UserDecorationPlanVo> msgDesignPlans, List<Map<String,Object>> result, Integer userId) {
+        if (nonNull(msgDesignPlans)){
+            //获取单空间聊天信息
+            List<UserDecorationPlanVo> singleMsgPlan = msgDesignPlans.stream().filter(msgSingle -> Objects.equals(msgSingle.getMsgType(), 3)).collect(Collectors.toList());
+            if (nonNull(singleMsgPlan)){
+                Map<String,Object> data;
+                for (UserDecorationPlanVo full : singleMsgPlan){
+                    data = new HashMap<>();
+                    //查询当前聊天用户发送过来的全屋效果图方案
+                    DesignPlanRenderSceneVo fullHouseDesign = designPlanRenderSceneService.getDesignPlanRenderSceneList(Integer.parseInt(full.getMsgBody()), null);
+
+                    //获取该供求信息下的所有已经改造过的草图方案
+                    List<SingleDesignPlanVo> designPlanList = designPlanRenderSceneService.getDesignPlanListByMsgId(full.getMsgHistoryMessageId(), userId);
+
+                    if (!CollectionUtils.isEmpty(designPlanList)){
+                        if (Objects.nonNull(fullHouseDesign)){
+                            List<DesignPlanDecorationVo> DesignPlanDecorations= new ArrayList<>();
+                            fullHouseDesign.getSinglePlanRenderSceneList().forEach(render ->{
+                                DesignPlanDecorationVo vo = new DesignPlanDecorationVo();
+                                vo.setUnDecorationPlanVo(render);
+                                vo.setSpaceName(vo.getSpaceName());
+                                vo.setSpaceType(vo.getSpaceType());
+                                //获取改造过的草图方案
+                                if (nonNull(designPlanList)){
+                                    List<SingleDesignPlanVo> singles = new ArrayList<>();
+                                    for (SingleDesignPlanVo single : designPlanList){
+                                        if (Objects.equals(render.getDesignTemplateId(),single.getDesignTemplateId())){
+                                            //样板房id相同,同一空间下
+                                            singles.add(single);
+                                        }
+                                    }
+                                    vo.setDecorationPlanVoList(singles);
+                                    vo.setDisplayName(fullHouseDesign.getFullHousePlanName());
+                                }
+                                DesignPlanDecorations.add(vo);
+                            });
+                            data.put("planName",fullHouseDesign.getFullHousePlanName());
+                            data.put("houseId",fullHouseDesign.getSinglePlanRenderSceneList().get(0).getHouseId());
+                            data.put("result",DesignPlanDecorations);
+                            data.put("houseType",4);
+                            data.put("planId",Integer.parseInt(full.getMsgBody())); //原全屋方案id
+                            data.put("houseFlag",0);
+                            result.add(data);
+                        }
+                    }
+                }
+//                singleMsgPlan.stream().forEach(full ->{
+//
+//                });
+            }
+        }
+    }
+
+
+    /**
+     * 我的消息单空间方案相关
+     * @param msgDesignPlans
+     * @param result
+     * @param userId
+     */
+    private void buildMsgSingleDesignInfo(List<UserDecorationPlanVo> msgDesignPlans, List<Map<String,Object>> result, Integer userId) {
+        if (nonNull(msgDesignPlans)){
+            //获取单空间聊天信息
+            List<UserDecorationPlanVo> singleMsgPlan = msgDesignPlans.stream().filter(msgSingle -> Objects.equals(msgSingle.getMsgType(), 2)).collect(Collectors.toList());
+            if (nonNull(singleMsgPlan)){
+                Map<String,Object> data;
+                for (UserDecorationPlanVo single: singleMsgPlan){
+                    List<DesignPlanDecorationVo> DesignPlanDecorations= new ArrayList<>();
+                    data = new HashMap<>();
+                    //查询聊天用户发送过来的效果图方案
+                    DesignPlanRenderSceneVo singleDesignPlan = designPlanRenderSceneService.getDesignPlanRenderSceneList(Integer.parseInt(single.getMsgBody()));
+                    if (Objects.nonNull(singleDesignPlan)){
+                        SinglePlanRenderSceneVo singlePlanRenderSceneVo = singleDesignPlan.getSinglePlanRenderSceneList().get(0);
+                        DesignPlanDecorationVo vo = new DesignPlanDecorationVo();
+                        vo.setUnDecorationPlanVo(singlePlanRenderSceneVo);
+                        //查询当前用户改造的草图方案
+                        List<SingleDesignPlanVo> designPlanList = designPlanRenderSceneService.getDesignPlanListByMsgId(single.getMsgHistoryMessageId(), userId);
+                        if (!CollectionUtils.isEmpty(designPlanList)){
+                            vo.setDecorationPlanVoList(designPlanList);
+                            //设置当前空间名称
+                            vo.setSpaceName(singlePlanRenderSceneVo.getSpaceName());
+                            vo.setSpaceType(singlePlanRenderSceneVo.getSpaceType());
+                            vo.setDisplayName(singlePlanRenderSceneVo.getPlanName());
+                            DesignPlanDecorations.add(vo);
+
+                            data.put("planName",singlePlanRenderSceneVo.getPlanName());
+                            data.put("houseId",0);
+                            data.put("result",DesignPlanDecorations);
+                            data.put("houseType",3);
+                            data.put("houseFlag",0);
+    //                        data.put("planId",single.getMsgBody());
+                            result.add(data);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 获取户型相关的供求信息
+     * @param result
+     * @param currentChatUserSessionId
+     */
+    private void buildSupplyHouseDesignInfo(List<Map<String,Object>> result, String currentChatUserSessionId, Integer userId) {
+        //获取聊天用户发送户型相关的供求信息
+        List<UserDecorationPlanVo> baseHouse = sysUserService.getDemandHouse(currentChatUserSessionId,userId);
+
+        if (nonNull(baseHouse)){
+            //直接查询草图方案
+            Map<String,Object> data;
+            for (UserDecorationPlanVo h : baseHouse){
+                data = new HashMap<>();
+                List<SingleDesignPlanVo> designPlanList = designPlanRenderSceneService.getDesignPlanList(h.getSupplyDemandId(), userId);
+                if (nonNull(designPlanList)){
+                    //根据样板房id分类
+                    List<DesignPlanDecorationVo> DesignPlanDecorations= new ArrayList<>();
+                    Map<Integer, List<SingleDesignPlanVo>> decorationPlan = designPlanList.stream().collect(Collectors.groupingBy(SingleDesignPlanVo::getDesignTemplateId));
+                    //获取户型的名称
+                    String houseName = designPlanRenderSceneService.getHouseName(Integer.parseInt(h.getMsgBody()));
+                    //分装返回参数
+                    for(Map.Entry<Integer,List<SingleDesignPlanVo>> entry : decorationPlan.entrySet()){
+                        DesignPlanDecorationVo designPlanDecorationVo = new DesignPlanDecorationVo();
+                        designPlanDecorationVo.setSpaceName(entry.getValue().get(0).getSpaceName());
+                        designPlanDecorationVo.setSpaceType(entry.getValue().get(0).getSpaceFunctionId());
+                        designPlanDecorationVo.setDecorationPlanVoList(entry.getValue());
+                        designPlanDecorationVo.setDisplayName(houseName);
+                        DesignPlanDecorations.add(designPlanDecorationVo);
+                    }
+                    data.put("planName",houseName);
+                    data.put("houseId",h.getMsgBody());
+                    data.put("result",DesignPlanDecorations);
+                    data.put("houseType",4);
+                    data.put("houseFlag",1);
+//                    data.put("planId",h.getMsgBody());
+                    result.add(data);
+                }
+
+            }
+        }
+
+
+    }
+
+    /**
+     * 提取全屋方案供求信息
+     * @param supplyDesignPlans
+     * @param result
+     */
+    private void buildSupplyFullHouseDesignInfo(List<UserDecorationPlanVo> supplyDesignPlans, List<Map<String,Object>> result, Integer userId) {
+        //提取全屋方案
+        List<UserDecorationPlanVo> fullDesignPlans = supplyDesignPlans.stream().filter(single -> Objects.equals(single.getPlanType(), 4)).collect(Collectors.toList());
+
+        //获取全屋方案的信息
+        if (nonNull(fullDesignPlans)){
+            Map<String,Object> data;
+            for (UserDecorationPlanVo full : fullDesignPlans){
+                data = new HashMap<>();
+                //查询当前聊天用户发送过来的全屋效果图方案
+                DesignPlanRenderSceneVo fullHouseDesign = designPlanRenderSceneService.getDesignPlanRenderSceneList(full.getPlanId(), 0);
+
+                //获取该供求信息下的所有已经改造过的草图方案
+                List<SingleDesignPlanVo> designPlanList = designPlanRenderSceneService.getDesignPlanList(full.getSupplyDemandId(), userId);
+
+                //只有渲染过720的才加载出来
+                if (!CollectionUtils.isEmpty(designPlanList)){
+                    if (Objects.nonNull(fullHouseDesign)){
+                        List<DesignPlanDecorationVo> DesignPlanDecorations= new ArrayList<>();
+                        fullHouseDesign.getSinglePlanRenderSceneList().forEach(render ->{
+                            DesignPlanDecorationVo vo = new DesignPlanDecorationVo();
+                            vo.setUnDecorationPlanVo(render);
+                            vo.setSpaceName(vo.getSpaceName());
+                            vo.setSpaceType(vo.getSpaceType());
+                            vo.setDisplayName(fullHouseDesign.getFullHousePlanName());
+                            //获取改造过的草图方案
+                            if (nonNull(designPlanList)){
+                                List<SingleDesignPlanVo> singles = new ArrayList<>();
+                                for (SingleDesignPlanVo single : designPlanList){
+                                    if (Objects.equals(render.getDesignTemplateId(),single.getDesignTemplateId())){
+                                        //样板房id相同,同一空间下
+                                        singles.add(single);
+                                    }
+                                }
+                                vo.setDecorationPlanVoList(singles);
+                                vo.setDisplayName(fullHouseDesign.getFullHousePlanName());
+                            }
+                            DesignPlanDecorations.add(vo);
+                        });
+                        data.put("planName",fullHouseDesign.getFullHousePlanName());
+                        data.put("houseId",fullHouseDesign.getSinglePlanRenderSceneList().get(0).getHouseId());
+                        data.put("result",DesignPlanDecorations);
+                        data.put("houseType",4);
+                        data.put("planId",full.getPlanId()); //原全屋方案id
+                        data.put("houseFlag",0);
+                        result.add(data);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 获取单空间返回信息 => 先实现功能,后续再优化代码
+     * @param supplyDesignPlans
+     * @param result
+     */
+    private void buildSupplySingleDesignInfo(List<UserDecorationPlanVo> supplyDesignPlans, List<Map<String,Object>> result, Integer userId) {
+        if (nonNull(supplyDesignPlans)){
+            //提取单空间方案和全屋方案
+            List<UserDecorationPlanVo> singleDesignPlans = supplyDesignPlans.stream().filter(single -> Objects.equals(single.getPlanType(), 3)).collect(Collectors.toList());
+            if (nonNull(singleDesignPlans)){
+                Map<String,Object> data;
+                for (UserDecorationPlanVo s : singleDesignPlans){
+                    //获取单空间方案的效果图方案
+                    List<DesignPlanDecorationVo> designPlanDecorationVoList = new ArrayList<>();
+                    data = new HashMap<>();
+                    //查询聊天用户发送过来的效果图方案
+                    DesignPlanRenderSceneVo singleDesignPlan = designPlanRenderSceneService.getDesignPlanRenderSceneList(s.getPlanId());
+                    SinglePlanRenderSceneVo singlePlanRenderSceneVo = singleDesignPlan.getSinglePlanRenderSceneList().get(0);
+                    DesignPlanDecorationVo vo = new DesignPlanDecorationVo();
+                    vo.setUnDecorationPlanVo(singlePlanRenderSceneVo);
+                    //查询当前用户改造的草图方案
+                    List<SingleDesignPlanVo> designPlanList = designPlanRenderSceneService.getDesignPlanList(s.getSupplyDemandId(), userId);
+                    //只有渲染过720的才加载出来
+                    if (!CollectionUtils.isEmpty(designPlanList)){
+                        vo.setDecorationPlanVoList(designPlanList);
+                        //设置当前空间名称
+                        vo.setSpaceName(singlePlanRenderSceneVo.getSpaceName());
+                        vo.setSpaceType(singlePlanRenderSceneVo.getSpaceType());
+                        vo.setDisplayName(singlePlanRenderSceneVo.getPlanName());
+                        designPlanDecorationVoList.add(vo);
+                        data.put("planName",singlePlanRenderSceneVo.getPlanName());
+                        data.put("houseType",3);
+                        data.put("houseId",0);
+                        data.put("result",designPlanDecorationVoList);
+                        data.put("houseFlag",0);
+    //                    data.put("planId",s.getMsgBody());
+                        result.add(data);
+                    }
+                }
+//                singleDesignPlans.forEach(s ->{
+//
+//                });
+            }
+        }
+    }
+
+    private boolean nonNull(Collection<?> collection){
+        return Objects.nonNull(collection) && !collection.isEmpty();
+    }
+
+    /**
+     * 方案交互一对一添加方案列表
+     *
+     * @param
+     * @return
+     */
+//    @RequestMapping(value = "/userplanlist",method = RequestMethod.GET)
+//    @ResponseBody
+//    public ResponseEnvelope getUserPlanList(@RequestParam(value = "ownerUserSessionId",required = false)String ownerUserSessionId ,//C端业主用户ID
+//                                            @RequestParam(value = "loginUserSessionId",required = false)String loginUserSessionId //B端设计师用户标识
+//                                          ) {
+//        //登录用户校验
+//        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+//        if (loginUser == null) {
+//            return new ResponseEnvelope(false,CLASS_LOG_PREFIX + "请登录!");
+//        }
+//        log.info(CLASS_LOG_PREFIX+"登录用户:"+gson.toJson(loginUser));
+//
+//
+//        //校验参数
+//        if(StringUtils.isBlank(loginUserSessionId)){
+//            log.warn(CLASS_LOG_PREFIX+"参数缺失"+loginUserSessionId);
+//            return new ResponseEnvelope(false,"必填参数loginUserSessionId");
+//        }
+//        log.info(CLASS_LOG_PREFIX+"B端设计师用户标识"+loginUserSessionId);
+//
+//
+//
+//        //校验参数
+//        if(StringUtils.isBlank(ownerUserSessionId)){
+//            log.warn(CLASS_LOG_PREFIX+"参数缺失"+ownerUserSessionId);
+//            return new ResponseEnvelope(false,"必填参数ownerUserSessionId");
+//        }
+//        log.info(CLASS_LOG_PREFIX+"C端业主用户标识ID"+ownerUserSessionId);
+//
+//
+//        List<UserDecorationPlanVo> userDecorationPlanVoList = new ArrayList<>(16);
+//        //获取该业主发布的需求信息的方案
+//        List<UserDecorationPlanVo> userDemandDecorationPlanVoList;
+//        try {
+//           userDemandDecorationPlanVoList = sysUserService.getAllDemandPlanAndHouse(ownerUserSessionId);
+//           if(userDemandDecorationPlanVoList == null || userDemandDecorationPlanVoList.size() == 0){
+//               log.warn(CLASS_LOG_PREFIX+"该业主未发布需求信息或发布的需求信息没有方案");
+//           }else {
+//               userDecorationPlanVoList.addAll(userDemandDecorationPlanVoList);
+//           }
+//        }catch (Exception e){
+//            log.error(CLASS_LOG_PREFIX+e);
+//            return new ResponseEnvelope(false,"获取业主发布的需求信息数据异常");
+//        }
+//        //获取该业主聊天消息的方案
+//        List<UserDecorationPlanVo> userMsgDecorationPlanVoList;
+//        try {
+//            userMsgDecorationPlanVoList = sysUserService.getAllMsgPlanAndHouse(ownerUserSessionId,loginUserSessionId);
+//            if(userMsgDecorationPlanVoList == null || userMsgDecorationPlanVoList.size() == 0){
+//                log.warn(CLASS_LOG_PREFIX+"该业主聊天的消息没有方案");
+//            }else {
+//               for(UserDecorationPlanVo userDecorationPlanVo : userMsgDecorationPlanVoList){
+//                   Integer msgType = userDecorationPlanVo.getMsgType();
+//                   String msgBody = userDecorationPlanVo.getMsgBody();
+//                   if( null !=msgType && msgType == 2 ){
+//                       userDecorationPlanVo.setPlanId(Integer.parseInt(msgBody));
+//                       userDecorationPlanVo.setPlanType(3);
+//                       userDecorationPlanVoList.add(userDecorationPlanVo);
+//                   }else if(null !=msgType && msgType == 3){
+//                       userDecorationPlanVo.setPlanId(Integer.parseInt(msgBody));
+//                       userDecorationPlanVo.setPlanType(4);
+//                       userDecorationPlanVoList.add(userDecorationPlanVo);
+//                   }
+//
+//                }
+//            }
+//        }catch (Exception e){
+//            log.error(CLASS_LOG_PREFIX+e);
+//            return new ResponseEnvelope(false,"获取业主聊天消息数据异常");
+//        }
+//
+//        if(null == userDecorationPlanVoList || userDecorationPlanVoList.size() == 0) {
+//            log.warn(CLASS_LOG_PREFIX+"该业主没有需要装修的方案或户型");
+//            return new ResponseEnvelope(true,"该业主没有需要装修的方案或户型");
+//        }
+//
+//        //获取业主需要装修的所有方案效果图列表
+//        Map<Integer,DesignPlanRenderSceneVo> demandPlanMap = new HashMap<>(16);
+//        Map<Integer,DesignPlanRenderSceneVo> msgPlanMap = new HashMap<>(16);
+//        for(UserDecorationPlanVo userDecorationPlanVo : userDecorationPlanVoList){
+//            DesignPlanRenderSceneVo unDecorationPlan;
+//            Integer planId = userDecorationPlanVo.getPlanId();
+//            Integer planType = userDecorationPlanVo.getPlanType();
+//            try {
+//                if( planType!=null && planType == 4 && planId !=null && planId>0 ){
+//                    unDecorationPlan = designPlanRenderSceneService.getDesignPlanRenderSceneList(planId, 0);
+//                    if(null!= userDecorationPlanVo.getSupplyDemandId() && userDecorationPlanVo.getSupplyDemandId() > 0){
+//                        demandPlanMap.put(userDecorationPlanVo.getSupplyDemandId(),unDecorationPlan);
+//                    }else if( null!= userDecorationPlanVo.getMsgHistoryMessageId() &&userDecorationPlanVo.getMsgHistoryMessageId()>0){
+//                        msgPlanMap.put(userDecorationPlanVo.getMsgHistoryMessageId(),unDecorationPlan);
+//                    }
+//                }else if(  planType!=null && planType == 3 && planId !=null && planId>0 ){
+//                    unDecorationPlan = designPlanRenderSceneService.getDesignPlanRenderSceneList(planId);
+//                    if(null!= userDecorationPlanVo.getSupplyDemandId() && userDecorationPlanVo.getSupplyDemandId() > 0){
+//                        demandPlanMap.put(userDecorationPlanVo.getSupplyDemandId(),unDecorationPlan);
+//                    }else if( null!= userDecorationPlanVo.getMsgHistoryMessageId() &&userDecorationPlanVo.getMsgHistoryMessageId()>0){
+//                        msgPlanMap.put(userDecorationPlanVo.getMsgHistoryMessageId(),unDecorationPlan);
+//                    }
+//                }else {
+//                    unDecorationPlan = null;
+//                }
+//
+//                if(null == unDecorationPlan ){
+//                    log.warn(CLASS_LOG_PREFIX+"获取未装修效果图方案列表为空,"+"planid:"+planId+"-------"+loginUser.getId());
+//
+//                }
+//            }catch (BizException e){
+//                log.error(CLASS_LOG_PREFIX+"获取未装修效果图方案列表数据异常:"+e);
+//                return new ResponseEnvelope(false,CLASS_LOG_PREFIX+"获取未装修效果图方案列表数据异常");
+//            }
+//        }
+//
+//
+//
+//        //获取当前登录用户装修后的所有草图方案
+//        List<SingleDesignPlanVo> lists = new ArrayList<>(16);
+//        for(UserDecorationPlanVo userDecorationPlanVo : userDecorationPlanVoList){
+//            Integer demandId = userDecorationPlanVo.getSupplyDemandId();
+//            Integer msgHistoryMessageId = userDecorationPlanVo.getMsgHistoryMessageId();
+//            try {
+//                if(null != demandId && demandId >0 ){
+//                    List<SingleDesignPlanVo>  demandDecorationPlanList = designPlanRenderSceneService.getDesignPlanList(demandId,loginUser.getId());
+//                    if(null == demandDecorationPlanList || demandDecorationPlanList.size() == 0){
+//                        log.warn(CLASS_LOG_PREFIX+"获取已装修效果图方案列表为空,"+"参数:"+demandId+"-------"+loginUser.getId());
+//                    }else {
+//                        lists.addAll(demandDecorationPlanList);
+//                    }
+//                }else if( null != msgHistoryMessageId && msgHistoryMessageId>0){
+//                    List<SingleDesignPlanVo>  msgDecorationPlanList = designPlanRenderSceneService.getDesignPlanListByMsgId(msgHistoryMessageId,loginUser.getId());
+//                    if(null == msgDecorationPlanList || msgDecorationPlanList.size() == 0){
+//                        log.warn(CLASS_LOG_PREFIX+"获取已装修效果图方案列表为空,"+"参数:"+msgHistoryMessageId+"-------"+loginUser.getId());
+//                    }else {
+//                        lists.addAll(msgDecorationPlanList);
+//                    }
+//                }
+//            }catch (BizException e){
+//                log.error(CLASS_LOG_PREFIX+"获取已装修效果图方案列表数据异常:"+e);
+//                return new ResponseEnvelope(false,CLASS_LOG_PREFIX+"获取已装修效果图方案列表数据异常");
+//            }
+//        }
+//
+//        //组装返回参数
+//    /*    List<DesignPlanDecorationVo> designPlanDecorationVoList = new ArrayList<>();
+//        if( null != lists && lists.size() > 0){
+//            for(SingleDesignPlanVo singleDesignPlanVo: lists){
+//                if(singleDesignPlanVo.getSupplyDemandId() >0 ){
+//                    DesignPlanRenderSceneVo designPlanRenderSceneVo = demandPlanMap.get(singleDesignPlanVo.getSupplyDemandId());
+//                    if(null != designPlanRenderSceneVo){
+//                        DesignPlanDecorationVo designPlanDecorationVo = new DesignPlanDecorationVo();
+//
+//
+//
+//                    }else {
+//
+//
+//
+//
+//                    }
+//
+//
+//                }else if(singleDesignPlanVo.getMsgHistoryMessageId() > 0){
+//
+//
+//
+//                }
+//            }
+//
+//
+//        }*/
+//
+//       //获取当前用户的所有供求信息 => 类型为单空间我的方案,和全屋方案/户型
+//
+//
+//       //获取当前用户的所有聊天消息 => 类型为方案/户型的
+//
+//
+//
+//        return new ResponseEnvelope(true,null);
+//    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}

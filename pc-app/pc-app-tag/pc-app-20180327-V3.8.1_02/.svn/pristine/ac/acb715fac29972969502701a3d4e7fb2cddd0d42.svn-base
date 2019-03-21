@@ -1,0 +1,732 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.system.dao.BaseMessageMapper">
+<!--<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>-->
+	<!-- **插入定义** -->
+	<insert id="insertSelective" parameterType="com.nork.system.model.BaseMessage"  useGeneratedKeys="true" keyProperty="id">
+		insert into base_message
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		<if test="userId!= null">user_id, </if>
+		<if test="messageType!= null">message_type, </if>
+		<if test="businessTypeId!= null">business_type_id, </if>
+		<if test="businessObjId!= null">business_obj_id, </if>
+		<if test="businessObjType!= null">business_obj_type, </if>
+		<if test="content!= null">content, </if>
+		<if test="status!= null">status, </if>
+		<if test="sysCode!= null">sys_code, </if>
+		<if test="creator!= null">creator, </if>
+		<if test="gmtCreate!= null">gmt_create, </if>
+		<if test="modifier!= null">modifier, </if>
+		<if test="gmtModified!= null">gmt_modified, </if>
+		<if test="isDeleted!= null">is_deleted, </if>
+		<if test="att1!= null">att1, </if>
+		<if test="att2!= null">att2, </if>
+		<if test="numa1!= null">numa1, </if>
+		<if test="numa2!= null">numa2, </if>
+		<if test="remark!= null">remark, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="userId!= null">  #{userId,jdbcType=INTEGER}, </if>
+		<if test="messageType!= null">  #{messageType,jdbcType=INTEGER}, </if>
+		<if test="businessTypeId!= null">  #{businessTypeId,jdbcType=INTEGER}, </if>
+		<if test="businessObjId!= null">  #{businessObjId,jdbcType=INTEGER}, </if>
+		<if test="businessObjType!= null">  #{businessObjType,jdbcType=INTEGER}, </if>
+		<if test="content!= null">  #{content,jdbcType=VARCHAR}, </if>
+		<if test="status!= null">  #{status,jdbcType=INTEGER}, </if>
+		<if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="att1!= null">  #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  #{att2,jdbcType=VARCHAR}, </if>
+		<if test="numa1!= null">  #{numa1,jdbcType=INTEGER}, </if>
+		<if test="numa2!= null">  #{numa2,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>	
+		</trim>
+	</insert>
+
+	<!-- **更新定义** -->
+	<update id="updateByPrimaryKeySelective" parameterType="com.nork.system.model.BaseMessage">
+		update base_message
+		<set>
+		<if test="userId!= null">  user_id = #{userId,jdbcType=INTEGER}, </if>
+		<if test="messageType!= null">  message_type = #{messageType,jdbcType=INTEGER}, </if>
+		<if test="businessTypeId!= null">  business_type_id = #{businessTypeId,jdbcType=INTEGER}, </if>
+		<if test="businessObjId!= null">  business_obj_id = #{businessObjId,jdbcType=INTEGER}, </if>
+		<if test="businessObjType!= null">  business_obj_type = #{businessObjType,jdbcType=INTEGER}, </if>
+		<if test="content!= null">  content = #{content,jdbcType=VARCHAR}, </if>
+		<if test="status!= null">  status = #{status,jdbcType=INTEGER}, </if>
+		<if test="sysCode!= null">  sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  creator = #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  modifier = #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="att1!= null">  att1 = #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  att2 = #{att2,jdbcType=VARCHAR}, </if>
+		<if test="numa1!= null">  numa1 = #{numa1,jdbcType=INTEGER}, </if>
+		<if test="numa2!= null">  numa2 = #{numa2,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  remark = #{remark,jdbcType=VARCHAR}, </if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<!-- **删除定义** -->
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from base_message
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	
+	<!-- **常量定义** -->
+	<sql id="All_Column_List">
+		id,user_id,message_type,business_type_id,business_obj_id,business_obj_type,content,status,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,att1,att2,numa1,numa2,remark
+	</sql>
+	
+	<!-- **结果定义** -->
+	<resultMap id="AllResultMap" type="com.nork.system.model.BaseMessage">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="user_id" property="userId" jdbcType="INTEGER" />
+		<result  column="message_type" property="messageType" jdbcType="INTEGER" />
+		<result  column="business_type_id" property="businessTypeId" jdbcType="INTEGER" />
+		<result  column="business_obj_id" property="businessObjId" jdbcType="INTEGER" />
+		<result  column="business_obj_type" property="businessObjType" jdbcType="INTEGER" />
+		<result  column="content" property="content" jdbcType="VARCHAR" />
+		<result  column="status" property="status" jdbcType="INTEGER" />
+		<result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="att1" property="att1" jdbcType="VARCHAR" />
+		<result  column="att2" property="att2" jdbcType="VARCHAR" />
+		<result  column="numa1" property="numa1" jdbcType="INTEGER" />
+		<result  column="numa2" property="numa2" jdbcType="INTEGER" />
+		<result  column="remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- **查询定义** -->
+	<!-- 按主键查询 -->
+	<select id="selectByPrimaryKey" resultMap="AllResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="All_Column_List" />
+		from base_message
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+		parameterType="com.nork.system.model.BaseMessage">
+		select
+		<include refid="All_Column_List" />
+		from base_message
+        where 1=1
+		<if test="userId!= null">  and user_id = #{userId,jdbcType=INTEGER} </if>
+		<if test="messageType!= null">  and message_type = #{messageType,jdbcType=INTEGER} </if>
+		<if test="businessTypeId!= null">  and business_type_id = #{businessTypeId,jdbcType=INTEGER} </if>
+		<if test="businessObjId!= null">  and business_obj_id = #{businessObjId,jdbcType=INTEGER} </if>
+		<if test="businessObjType!= null">  and business_obj_type = #{businessObjType,jdbcType=INTEGER} </if>
+		<if test="content!= null">  and content = #{content,jdbcType=VARCHAR} </if>
+		<if test="status!= null">  and status = #{status,jdbcType=INTEGER} </if>
+		<if test="sysCode!= null">  and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="creator!= null">  and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="gmtCreate!= null">  and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+		<if test="modifier!= null">  and modifier = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="gmtModified!= null">  and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP} </if>
+		<if test="isDeleted!= null">  and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1!= null">  and att1 = #{att1,jdbcType=VARCHAR} </if>
+		<if test="att2!= null">  and att2 = #{att2,jdbcType=VARCHAR} </if>
+		<if test="numa1!= null">  and numa1 = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2!= null">  and numa2 = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark!= null">  and remark = #{remark,jdbcType=VARCHAR} </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order}
+			<if test="orderNum != null and  orderNum !='' ">
+				${orderNum}
+			</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">
+		   order by ${orders}
+		</if>
+	</select>
+	
+	<!-- 分页汇总 -->
+	<select id="selectCount" resultType="int"
+		parameterType="com.nork.system.model.search.BaseMessageSearch">
+		SELECT COUNT(*)
+		FROM base_message_recieve  m
+		LEFT JOIN sys_user u on m.user_id = u.id and u.is_deleted = 0
+	    LEFT JOIN base_message b  on  b.id =m.message_id
+	    LEFT JOIN sys_user su on b.user_id = su.id and su.is_deleted = 0
+		WHERE 1=1
+		<if test="messageId !=  null  ">		and m.message_id  = #{messageId,jdbcType=INTEGER} </if>
+		<if test="messageType !=  null  ">		and b.message_type  = #{messageType,jdbcType=INTEGER} </if>
+		<if test="userId !=  null  ">			and m.user_id  = #{userId,jdbcType=INTEGER} </if>
+		<if test="messageType !=  null  ">			and message_type  = #{messageType,jdbcType=INTEGER} </if>
+		<if test="businessTypeId !=  null  ">			and business_type_id  = #{businessTypeId,jdbcType=INTEGER} </if>
+		<if test="businessObjId !=  null  ">			and business_obj_id  = #{businessObjId,jdbcType=INTEGER} </if>
+		<if test="businessObjType !=  null  ">			and business_obj_type  = #{businessObjType,jdbcType=INTEGER} </if>
+		<if test="content !=  null and content !=  ''   "> and content  = #{content,jdbcType=VARCHAR} </if>
+		<if test="sch_Content_ !=  null and sch_Content_ !=  ''   ">
+			and content  like CONCAT(CONCAT('%',#{sch_Content_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Content !=  null and sch_Content !=  ''   ">
+			and content  like CONCAT('%',#{sch_Content,jdbcType=VARCHAR})
+		 </if>
+		<if test="schContent_ !=  null and schContent_ !=  ''   ">
+			and content  like CONCAT(#{schContent_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="contentStart !=  null and contentEnd!= null  ">
+			and content between #{contentStart,jdbcType=VARCHAR} and #{contentEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="status !=  null  ">			and status  = #{status,jdbcType=INTEGER} </if>
+		<if test="sysCode !=  null and sysCode !=  ''   "> and sys_code  = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+			and sys_code  like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+			and sys_code  like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+			and sys_code  like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+			and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="creator !=  null and creator !=  ''   "> and creator  = #{creator,jdbcType=VARCHAR} </if>
+		<if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+			and creator  like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+			and creator  like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+			and creator  like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="creatorStart !=  null and creatorEnd!= null  ">
+			and creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtCreate !=  null and tomorrow != null  ">
+			and gmt_create   between #{gmtCreate,jdbcType=TIMESTAMP} and #{tomorrow,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="modifier !=  null and modifier !=  ''   "> and modifier  = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and modifier  like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and modifier  like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		 </if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and modifier  like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtModified !=  null  ">
+			and gmt_modified  = #{gmtModified,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="isDeleted !=  null  ">			and is_deleted  = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1 !=  null and att1 !=  ''   "> and att1  = #{att1,jdbcType=VARCHAR} </if>
+		<if test="sch_Att1_ !=  null and sch_Att1_ !=  ''   ">
+			and att1  like CONCAT(CONCAT('%',#{sch_Att1_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att1 !=  null and sch_Att1 !=  ''   ">
+			and att1  like CONCAT('%',#{sch_Att1,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt1_ !=  null and schAtt1_ !=  ''   ">
+			and att1  like CONCAT(#{schAtt1_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att1Start !=  null and att1End!= null  ">
+			and att1 between #{att1Start,jdbcType=VARCHAR} and #{att1End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att2 !=  null and att2 !=  ''   "> and att2  = #{att2,jdbcType=VARCHAR} </if>
+		<if test="sch_Att2_ !=  null and sch_Att2_ !=  ''   ">
+			and att2  like CONCAT(CONCAT('%',#{sch_Att2_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att2 !=  null and sch_Att2 !=  ''   ">
+			and att2  like CONCAT('%',#{sch_Att2,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt2_ !=  null and schAtt2_ !=  ''   ">
+			and att2  like CONCAT(#{schAtt2_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att2Start !=  null and att2End!= null  ">
+			and att2 between #{att2Start,jdbcType=VARCHAR} and #{att2End,jdbcType=VARCHAR}
+		 </if>
+		<if test="numa1 !=  null  ">			and numa1  = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2 !=  null  ">			and numa2  = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark !=  null and remark !=  ''   "> and remark  = #{remark,jdbcType=VARCHAR} </if>		<if test="sch_Remark_ !=  null and sch_Remark_ !=  ''   ">
+			and remark  like CONCAT(CONCAT('%',#{sch_Remark_,jdbcType=VARCHAR}),'%')
+		 </if>		<if test="sch_Remark !=  null and sch_Remark !=  ''   ">
+			and remark  like CONCAT('%',#{sch_Remark,jdbcType=VARCHAR})
+		 </if>		<if test="schRemark_ !=  null and schRemark_ !=  ''   ">
+			and remark  like CONCAT(#{schRemark_,jdbcType=VARCHAR},'%')
+		 </if>		<if test="remarkStart !=  null and remarkEnd!= null  ">
+			and remark between #{remarkStart,jdbcType=VARCHAR} and #{remarkEnd,jdbcType=VARCHAR}
+		 </if>
+	</select>
+	
+	<!-- 分页查询 ,可在BaseMessageSearch中自定义查询条件-->
+	<select id="selectPaginatedList" resultMap="AllResultMap"
+		parameterType="com.nork.system.model.search.BaseMessageSearch">
+		select
+		m.id,m.user_id,message_type,u.user_name as sender, su.user_name as receiver,business_type_id,business_obj_id,business_obj_type,content,m.status,m.sys_code,m.creator,m.gmt_create,m.modifier,m.gmt_modified,m.is_deleted,m.numa1
+	    from base_message m
+	    LEFT JOIN sys_user u on m.user_id = u.id and u.is_deleted = 0
+	    LEFT JOIN base_message_recieve r on m.id = r.message_id
+		LEFT JOIN sys_user su on r.user_id = su.id  and su.is_deleted = 0
+		where 1=1	
+		<if test="userId !=  null  ">			and m.user_id  = #{userId,jdbcType=INTEGER} </if>
+		<if test="messageType !=  null  ">			and message_type  = #{messageType,jdbcType=INTEGER} </if>
+		<if test="businessTypeId !=  null  ">			and business_type_id  = #{businessTypeId,jdbcType=INTEGER} </if>
+		<if test="businessObjId !=  null  ">			and business_obj_id  = #{businessObjId,jdbcType=INTEGER} </if>
+		<if test="businessObjType !=  null  ">			and business_obj_type  = #{businessObjType,jdbcType=INTEGER} </if>
+		<if test="sender !=  null and sender !=  ''   "> and u.user_name like CONCAT(CONCAT('%',#{sender,jdbcType=VARCHAR}),'%') </if>
+		<if test="receiver !=  null and receiver !=  ''   "> and su.user_name like CONCAT(CONCAT('%',#{receiver,jdbcType=VARCHAR}),'%') </if>
+		<if test="content !=  null and content !=  ''   "> and content  = #{content,jdbcType=VARCHAR} </if>
+		<if test="sch_Content_ !=  null and sch_Content_ !=  ''   ">
+			and content  like CONCAT(CONCAT('%',#{sch_Content_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Content !=  null and sch_Content !=  ''   ">
+			and content  like CONCAT('%',#{sch_Content,jdbcType=VARCHAR})
+		 </if>
+		<if test="schContent_ !=  null and schContent_ !=  ''   ">
+			and content  like CONCAT(#{schContent_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="contentStart !=  null and contentEnd!= null  ">
+			and content between #{contentStart,jdbcType=VARCHAR} and #{contentEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="status !=  null  ">			and m.status  = #{status,jdbcType=INTEGER} </if>
+		<if test="sysCode !=  null and sysCode !=  ''   "> and m.sys_code  = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+			and m.sys_code  like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+			and m.sys_code  like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+			and m.sys_code  like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+			and m.sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="creator !=  null and creator !=  ''   "> and m.creator  = #{creator,jdbcType=VARCHAR} </if>
+		<if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+			and m.creator  like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+			and m.creator  like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+			and m.creator  like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="creatorStart !=  null and creatorEnd!= null  ">
+			and m.creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtCreate !=  null and tomorrow != null  ">
+			and m.gmt_create between #{gmtCreate,jdbcType=TIMESTAMP} and #{tomorrow,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and m.gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="modifier !=  null and modifier !=  ''   "> and modifier  = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and m.modifier  like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and m.modifier  like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		 </if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and m.modifier  like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and m.modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtModified !=  null  ">
+			and m.gmt_modified  = #{gmtModified,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and m.gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="isDeleted !=  null  ">			and m.is_deleted  = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order} <if test="orderNum != null and  orderNum !='' ">${orderNum}</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">  order by #{orders}</if>
+		<if test="order == null and  orders == null ">  order by id desc</if>
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+	
+	<!-- 查询用户消息所有记录-->
+    <select id="selectAllMessage" resultMap="AllResultMap"
+		parameterType="com.nork.system.model.search.BaseMessageSearch">
+				
+				SELECT
+			t.*
+		FROM
+			(
+				SELECT
+					m.id,
+					m.user_id,
+					m.message_type,
+					u.user_name AS sender,
+					su.user_name AS receiver,
+					m.business_type_id,
+					m.business_obj_id,
+					m.business_obj_type,
+					concat('PC端', m.content) AS content,
+					m. STATUS,
+					m.sys_code,
+					m.creator,
+					m.gmt_create,
+					m.modifier,
+					m.gmt_modified,
+					m.is_deleted,
+					m.numa1
+				FROM
+					base_message m
+				LEFT JOIN sys_user u ON m.user_id = u.id
+				AND u.is_deleted = 0
+				LEFT JOIN base_message_recieve r ON m.id = r.message_id
+				LEFT JOIN sys_user su ON r.user_id = su.id
+				AND su.is_deleted = 0
+				WHERE
+					1 = 1
+				<if test="userId !=  null  ">			and  m.user_id  = #{userId,jdbcType=INTEGER} </if>	
+				AND m.is_deleted = 0
+				UNION ALL
+					SELECT
+						sum.id AS id,
+						sum.user_id AS user_id,
+						'' message_type,
+						u.user_name AS sender,
+						u.user_name AS receiver,
+						'' business_type_id,
+						'' business_obj_id,
+						'' business_obj_type,
+						concat(
+							'移动端&lt;','color','="#01017A"&gt;',
+							content,
+							'&lt;','/color','&gt;|',
+							title
+						) AS content,
+						sum. STATUS AS STATUS,
+						sum.sys_code AS sys_code,
+						sum.creator AS creator,
+						sum.gmt_create AS gmt_create,
+						sum.modifier AS modifier,
+						sum.gmt_modified AS gmt_modified,
+						sum.is_deleted AS is_deleted,
+						sum.pic_id AS  numa1
+					FROM
+						sys_user_message sum
+					LEFT JOIN sys_user u ON sum.user_id = u.id
+					AND u.is_deleted = 0
+					LEFT JOIN base_message_recieve r ON sum.id = r.message_id
+					AND u.is_deleted = 0
+					LEFT JOIN sys_user su ON r.user_id = su.id
+					AND su.is_deleted = 0
+					WHERE
+						1 = 1
+					<if test="userId !=  null  ">			and  sum.user_id  = #{userId,jdbcType=INTEGER} </if>
+					AND sum.platform_id = 1
+					AND sum.is_deleted = 0
+			) t
+			ORDER BY
+					t.gmt_create desc
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+	
+	<!-- 查询用户消息所有条数 -->
+	<select id="selectCountAllMessage" resultType="int"
+		parameterType="com.nork.system.model.search.BaseMessageSearch">
+		
+				SELECT
+			count(*)
+		FROM
+			(
+				SELECT
+					r.id,
+					m.user_id,
+					m.message_type,
+					u.user_name AS sender,
+					su.user_name AS receiver,
+					m.business_type_id,
+					m.business_obj_id,
+					m.business_obj_type,
+					concat('PC端', m.content) AS content,
+					m. STATUS,
+					m.sys_code,
+					m.creator,
+					m.gmt_create,
+					m.modifier,
+					m.gmt_modified,
+					m.is_deleted,
+					m.numa1
+				FROM
+					base_message m
+				LEFT JOIN sys_user u ON m.user_id = u.id
+				AND u.is_deleted = 0
+				LEFT JOIN base_message_recieve r ON m.id = r.message_id
+				LEFT JOIN sys_user su ON r.user_id = su.id
+				AND su.is_deleted = 0
+				WHERE
+					1 = 1
+				<if test="userId !=  null  ">			and  m.user_id  = #{userId,jdbcType=INTEGER} </if>	
+				AND m.is_deleted = 0
+				UNION ALL
+					SELECT
+						r.id AS id,
+						sum.user_id AS user_id,
+						'' message_type,
+						u.user_name AS sender,
+						u.user_name AS receiver,
+						'' business_type_id,
+						'' business_obj_id,
+						'' business_obj_type,
+						concat(
+							'移动端&lt;','color','="#01017A"&gt;',
+							content,
+							'&lt;','/color','&gt;|',
+							title
+						) AS content,
+						sum. STATUS AS STATUS,
+						sum.sys_code AS sys_code,
+						sum.creator AS creator,
+						sum.gmt_create AS gmt_create,
+						sum.modifier AS modifier,
+						sum.gmt_modified AS gmt_modified,
+						sum.is_deleted AS is_deleted,
+						'' numa1
+					FROM
+						sys_user_message sum
+					LEFT JOIN sys_user u ON sum.user_id = u.id
+					AND u.is_deleted = 0
+					LEFT JOIN base_message_recieve r ON sum.id = r.message_id
+					AND u.is_deleted = 0
+					LEFT JOIN sys_user su ON r.user_id = su.id
+					AND su.is_deleted = 0
+					WHERE
+						1 = 1
+					<if test="userId !=  null  ">			and  sum.user_id  = #{userId,jdbcType=INTEGER} </if>
+					AND sum.platform_id = 1
+					AND sum.is_deleted = 0
+			) t
+	</select>
+	<!-- 查询用户消息所有条数 -->
+	<select id="selectCountUnreaded" resultType="int"
+		parameterType="com.nork.system.model.search.BaseMessageSearch">
+		
+				SELECT
+			count(*)
+		FROM
+			(
+				SELECT
+					r.id,
+					m.user_id,
+					m.message_type,
+					u.user_name AS sender,
+					su.user_name AS receiver,
+					m.business_type_id,
+					m.business_obj_id,
+					m.business_obj_type,
+					concat('PC端', m.content) AS content,
+					m. STATUS,
+					m.sys_code,
+					m.creator,
+					m.gmt_create,
+					m.modifier,
+					m.gmt_modified,
+					m.is_deleted,
+					m.numa1
+				FROM
+					base_message m
+				LEFT JOIN sys_user u ON m.user_id = u.id
+				AND u.is_deleted = 0
+				LEFT JOIN base_message_recieve r ON m.id = r.message_id
+				LEFT JOIN sys_user su ON r.user_id = su.id
+				AND su.is_deleted = 0 
+				WHERE
+					1 = 1
+				<if test="userId !=  null  ">			and  m.user_id  = #{userId,jdbcType=INTEGER} </if>	
+				AND m.is_deleted = 0
+				and r.is_readed = 0
+				UNION ALL
+					SELECT
+						r.id AS id,
+						sum.user_id AS user_id,
+						'' message_type,
+						u.user_name AS sender,
+						u.user_name AS receiver,
+						'' business_type_id,
+						'' business_obj_id,
+						'' business_obj_type,
+						concat(
+							'移动端&lt;','color','="#01017A"&gt;',
+							content,
+							'&lt;','/color','&gt;|',
+							title
+						) AS content,
+						sum. STATUS AS STATUS,
+						sum.sys_code AS sys_code,
+						sum.creator AS creator,
+						sum.gmt_create AS gmt_create,
+						sum.modifier AS modifier,
+						sum.gmt_modified AS gmt_modified,
+						sum.is_deleted AS is_deleted,
+						'' numa1
+					FROM
+						sys_user_message sum
+					LEFT JOIN sys_user u ON sum.user_id = u.id
+					AND u.is_deleted = 0
+					LEFT JOIN base_message_recieve r ON sum.id = r.message_id
+					AND u.is_deleted = 0
+					LEFT JOIN sys_user su ON r.user_id = su.id
+					AND su.is_deleted = 0 
+					WHERE
+						1 = 1
+					<if test="userId !=  null  ">			and  sum.user_id  = #{userId,jdbcType=INTEGER} </if>
+					AND sum.platform_id = 1
+					AND sum.is_deleted = 0
+					and r.is_readed = 0
+			) t
+	</select>
+    	<!-- **结果定义** -->
+	<resultMap id="MessageResultMap" type="com.nork.system.model.UserMessageDesignPlan">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<id column="message_id" property="messageId" jdbcType="INTEGER" />
+		<id column="is_readed" property="isReaded" jdbcType="INTEGER" />
+		<result  column="user_id" property="userId" jdbcType="INTEGER" />
+		<result  column="user_id" property="receiverId" jdbcType="INTEGER" />
+		<result  column="user_name" property="sender" jdbcType="VARCHAR" />
+		<result  column="message_type" property="messageType" jdbcType="INTEGER" />
+		<result  column="business_type_id" property="businessTypeId" jdbcType="INTEGER" />
+		<result  column="business_obj_id" property="businessObjId" jdbcType="INTEGER" />
+		<result  column="content" property="content" jdbcType="VARCHAR" />
+		<result  column="user_name" property="receiver" jdbcType="VARCHAR" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+	<!-- 查询后台站内消息列表 -->
+	<select id="selectMessageList" resultMap="MessageResultMap"
+		parameterType="com.nork.system.model.UserMessageDesignPlan">
+		SELECT
+		bm.id as id ,
+		mr.user_id as userId,
+		bm.gmt_create AS gmtCreate,
+		su.user_name AS sender,
+		u.user_name AS receiver,
+		bm.message_type AS messageType,
+		bm.business_type_id AS businessTypeId,
+		bm.content AS content
+		FROM base_message bm
+		LEFT JOIN sys_user su ON bm.user_id = su.id and su.is_deleted = 0
+		LEFT JOIN base_message_recieve mr ON bm.id = mr.message_id
+		LEFT JOIN sys_user u ON mr.user_id = u.id and u.is_deleted = 0
+		WHERE 1=1 
+		<if test="id !=  null  ">
+			and mr.id = #{id,jdbcType=INTEGER}
+		</if>
+		<if test="messageId !=  null  ">
+			and mr.message_id = #{messageId,jdbcType=INTEGER}
+		</if>
+		<if test="gmtCreate !=  null and tomorrow != null  ">
+			and bm.gmt_create between #{gmtCreate,jdbcType=TIMESTAMP} and #{tomorrow,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="sender !=  null and sender !=  ''   ">
+			and su.user_name   like CONCAT(CONCAT('%',#{sender,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="receiver !=  null and receiver !=  ''   ">
+			and u.user_name  like CONCAT(CONCAT('%',#{receiver,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="messageType != null  ">
+			and bm.message_type = #{messageType,jdbcType=INTEGER}
+	    </if>
+		<if test="messageType == null  ">
+			and bm.message_type = 0
+	    </if>
+		<if test="businessTypeId != null  ">
+			and bm.business_type_id = #{businessTypeId,jdbcType=INTEGER} 
+	    </if>
+	</select>
+<!-- 	<select id="selectReceiver" resultMap="MessageResultMap"
+		parameterType="com.nork.system.model.UserMessageDesignPlan">
+		SELECT
+		u.user_name AS receiver,
+		mr.message_id as messageId
+		FROM base_message_recieve  mr
+		LEFT JOIN sys_user u ON mr.user_id = u.id
+		LEFT JOIN base_message bm ON bm.id = mr.message_id
+		WHERE 1=1
+		<if test="messageId !=  null  ">
+			and mr.message_id = #{messageId,jdbcType=INTEGER}
+		</if>
+		<if test="receiver !=  null and receiver !=  ''   ">
+			and u.user_name  like CONCAT(CONCAT('%',#{receiver,jdbcType=VARCHAR}),'%')
+		</if>
+	</select> -->
+	
+	<select id="selectWebMessageList" resultMap="MessageResultMap"	parameterType="com.nork.system.model.UserMessageDesignPlan">
+			SELECT
+			br.id AS id,
+			bm.gmt_create AS gmtCreate,
+			bm.business_obj_id AS businessObjId,
+			bm.business_type_id AS businessTypeId,
+			bm.user_id AS userId,
+			su.user_name AS sender,
+			bm.content AS content
+			FROM base_message bm 
+			LEFT JOIN sys_user su ON bm.user_id = su.id and su.is_deleted = 0
+			LEFT JOIN base_message_recieve br ON  bm.id = br.message_id 
+			LEFT JOIN sys_user u ON br.user_id = u.id and u.is_deleted = 0
+			WHERE 1=1 
+			<if test="id !=  null">
+				and br.id  =#{id,jdbcType=INTEGER}
+	    	</if>
+			<if test="receiverId !=  null">
+				and br.user_id  =#{receiverId,jdbcType=INTEGER}
+	    	</if>
+			<if test="userId !=  null">
+				and bm.user_id  =#{userId,jdbcType=INTEGER}
+	    	</if>
+			<if test="messageId !=  null  ">
+				 and br.message_id  = #{messageId,jdbcType=INTEGER}
+			</if>
+			<if test="messageType ==  null  ">
+				and bm.message_type  = 0
+			</if>
+			<if test="businessTypeId !=  null  ">
+				and bm.business_type_id  = #{businessTypeId,jdbcType=INTEGER}
+			</if>
+			order by br.gmt_create desc
+	</select>
+	<!-- <select id="selectReceiverIdList" resultMap="MessageResultMap"
+		parameterType="com.nork.system.model.UserMessageDesignPlan">
+		SELECT
+		mr.message_id as messageId
+		FROM base_message_recieve  mr
+		LEFT JOIN sys_user u ON mr.user_id = u.id
+		LEFT JOIN base_message bm ON mr.message_id = bm.id
+		WHERE 1=1
+		<if test="userId !=  null and userId !=  ''   ">
+			and mr.user_id  =#{userId,jdbcType=INTEGER}
+	    </if>
+	</select> -->
+	<select id="unreadMessageCount" resultType="int" parameterType="com.nork.system.model.BaseMessage">
+			SELECT count(*) FROM base_message bm 
+			LEFT JOIN base_message_recieve br ON  bm.id = br.message_id 
+			WHERE br.is_readed = 0 and bm.is_deleted = 0
+			<if test="userId !=  null">
+				and bm.user_id  =#{userId,jdbcType=INTEGER}
+	    	</if>
+	</select>
+     <!-- end-->
+</mapper>

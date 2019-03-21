@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.design.dao.DesignPlanRecommendedMapper">
+    
+    <resultMap id="selectResultMap" type="com.sandu.design.model.output.DesignPlanRecommendedVo">
+        <id column="id" property="planRecommendedId" jdbcType="INTEGER" />
+        <result column="plan_name" property="planName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 一键方案数量 -->
+    <select id="selectCount" resultType="java.lang.Integer"
+            parameterType="com.sandu.design.model.input.DesignPlanRecommendedSearch">
+        select count(DISTINCT dpr.id) from design_plan_recommended dpr
+        left join design_plan_brand dpb on dpr.id = dpb.plan_id
+        left join design_plan_2b_platform dp2p on dp2p.plan_id = dpr.id
+        where 1=1 and dpr.is_deleted = 0 and dpb.is_deleted = 0
+        and dp2p.platform_id = 2 and dp2p.putaway_state = 1
+        <if test="companyId != null">
+          and dpb.company_id = #{companyId,jdbcType=INTEGER}
+        </if>
+        <if test="planStyleId != null">
+            and dpr.design_recommended_style_id = #{planStyleId,jdbcType=INTEGER}
+        </if>
+        <if test="releaseStatus != null">
+            and dpr.is_release = #{releaseStatus,jdbcType=INTEGER}
+        </if>
+        <if test="recommendedType != null">
+            and dpr.recommended_type = #{recommendedType,jdbcType=INTEGER}
+        </if>
+        and (concat(",",dpr.shelf_status,",") like concat ("%,ONEKEY,%") or concat(",",dpr.shelf_status,",") like concat ("%,OPEN,%"))
+    </select>
+
+    <!-- 一键方案列表 -->
+    <select id="selectList" resultMap="selectResultMap"
+            parameterType="com.sandu.design.model.input.DesignPlanRecommendedSearch">
+        select DISTINCT dpr.id,dpr.plan_name from design_plan_recommended dpr
+        left join design_plan_brand dpb on dpr.id = dpb.plan_id
+        left join design_plan_2b_platform dp2p on dp2p.plan_id = dpr.id
+        where 1=1 and dpr.is_deleted = 0 and dpb.is_deleted = 0
+        and dp2p.platform_id = 2 and dp2p.putaway_state = 1
+        <if test="companyId != null">
+            and dpb.company_id = #{companyId,jdbcType=INTEGER}
+        </if>
+        <if test="planStyleId != null">
+            and dpr.design_recommended_style_id = #{planStyleId,jdbcType=INTEGER}
+        </if>
+        <if test="releaseStatus != null">
+            and dpr.is_release = #{releaseStatus,jdbcType=INTEGER}
+        </if>
+        <if test="recommendedType != null">
+            and dpr.recommended_type = #{recommendedType,jdbcType=INTEGER}
+        </if>
+        and (concat(",",dpr.shelf_status,",") like concat ("%,ONEKEY,%") or concat(",",dpr.shelf_status,",") like concat ("%,OPEN,%"))
+        order by dpr.id desc
+        <if test="start != null and limit != null">
+            LIMIT #{start}, #{limit}
+        </if>
+    </select>
+
+    <!-- 获取方案封面图 TEMP -->
+    <select id="getCoverPicPath" resultType="java.lang.String"
+            parameterType="java.lang.Integer">
+        select rrp.pic_path from design_plan_recommended dpr
+        left join res_render_pic rrp on rrp.plan_recommended_id = dpr.id
+        and (rrp.file_key = 'design.designPlanRecommended.render.small.pic' or rrp.file_key = 'design.designPlanRecommended.render.video.cover')
+        and rrp.is_deleted = 0
+        where dpr.is_deleted = 0 and dpr.id = #{planId,jdbcType=INTEGER}
+        order by rrp.id desc limit 1;
+    </select>
+
+    <!-- 风格result -->
+    <resultMap id="planStyleResultMap" type="com.sandu.design.model.output.DesignPlanStyleVo">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="name" property="designStyleName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 根据空间类型获取风格 TEMP -->
+    <select id="getPlanStyleList" resultMap="planStyleResultMap"
+            parameterType="java.lang.Integer">
+        select bps2.id,bps2.`name` from base_product_style bps1
+        left join base_product_style bps2 on bps1.id = bps2.pid
+        where bps1.numa2 = #{designPlanType,jdbcType=INTEGER}
+    </select>
+
+    <!-- 获取推荐方案最新的720单点渲染图路径 -->
+    <select id="getPlanRecommendedRenderPath" resultType="java.lang.String"
+            parameterType="java.lang.Integer">
+        select rrp.pic_path from design_plan_recommended dpr
+        left join res_render_pic rrp on rrp.plan_recommended_id = dpr.id
+        and rrp.file_key = 'design.designPlanRecommended.render.pic' and rrp.rendering_type = 4
+        and rrp.is_deleted = 0
+        where dpr.is_deleted = 0 and dpr.id = #{planRecommendedId,jdbcType=INTEGER}
+        order by rrp.id desc limit 1;
+    </select>
+</mapper>

@@ -1,0 +1,178 @@
+package com.sandu.service.base.impl;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.common.base.Strings;
+import com.sandu.api.base.common.constant.InteractiveZoneConstant;
+import com.sandu.api.base.input.InteractiveZoneReplyAdd;
+import com.sandu.api.base.input.InteractiveZoneReplyQuery;
+import com.sandu.api.base.model.InteractiveZoneReply;
+import com.sandu.api.base.output.InteractiveZoneReplyVO;
+import com.sandu.api.base.output.PicBean;
+import com.sandu.api.base.service.InteractiveZoneReplyService;
+import com.sandu.api.base.service.InteractiveZoneTopicService;
+import com.sandu.api.base.service.SysUserService;
+import com.sandu.api.user.model.SysUser;
+import com.sandu.constant.Punctuation;
+import com.sandu.designplan.model.ResRenderPic;
+import com.sandu.service.base.dao.InteractiveZoneReplyMapper;
+import com.sandu.service.base.dao.SupplyDemandPicMapper;
+import com.sandu.system.service.NodeInfoBizService;
+import com.sandu.system.service.ResRenderPicService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.sandu.node.constant.NodeInfoConstant.SYSTEM_DICTIONARY_DETAIL_TYPE_LIKE;
+
+/**
+ * @ClassName: InteractiveZoneReplyServiceImpl
+ * @Auther: gaoj
+ * @Date: 2019/3/13 17:30
+ * @Description:
+ * @Version 1.0
+ */
+@Service("interactiveZoneReplyService")
+@Slf4j
+public class InteractiveZoneReplyServiceImpl implements InteractiveZoneReplyService {
+
+    private final String CLASS_LOG_PREFIX = "【互动区主题业务层】";
+
+    @Autowired
+    private InteractiveZoneReplyMapper interactiveZoneReplyMapper;
+    @Autowired
+    private InteractiveZoneTopicService interactiveZoneTopicService;
+
+    @Autowired
+    private NodeInfoBizService nodeInfoBizService;
+
+    @Autowired
+    private SysUserService sysUserService;
+
+    @Autowired
+    private SupplyDemandPicMapper supplyDemandPicMapper;
+
+    @Autowired
+    private ResRenderPicService resRenderPicService;
+
+
+    @Override
+    public Integer add(InteractiveZoneReplyAdd interactiveZoneReplyAdd, SysUser sysUser) {
+        InteractiveZoneReply interactiveZoneReply = new InteractiveZoneReply();
+        BeanUtils.copyProperties(interactiveZoneReplyAdd, interactiveZoneReply);
+        Integer blockTypeValue = interactiveZoneTopicService.getBlockTypeValue(interactiveZoneReplyAdd.getBlockTypeValueKey());
+        interactiveZoneReply.setBlockType(blockTypeValue);
+        this.addCommonParam(interactiveZoneReply, sysUser);
+
+        Integer id = interactiveZoneReplyMapper.insertSelective(interactiveZoneReply);
+        if (id > 0) {
+            Integer virtualLikeNum = interactiveZoneReplyAdd.getVirtualLikeNum();
+            if (null != virtualLikeNum) {
+                nodeInfoBizService.updateNodeInfoDetailValue(interactiveZoneReplyAdd.getId().intValue(),
+                        InteractiveZoneConstant.INTERACTIVE_ZONE_REPLY_NODE_TYPE_VALUE,
+                        InteractiveZoneConstant.VIRTUAL_LIKE_VALUE, virtualLikeNum);
+            }
+        }
+        return id;
+    }
+
+    @Override
+    public Integer update(InteractiveZoneReplyAdd interactiveZoneReplyAdd, SysUser sysUser) {
+        InteractiveZoneReply interactiveZoneReply = new InteractiveZoneReply();
+        BeanUtils.copyProperties(interactiveZoneReplyAdd, interactiveZoneReply);
+        this.addCommonParam(interactiveZoneReply, sysUser);
+
+        Integer result = interactiveZoneReplyMapper.updateByPrimaryKeySelective(interactiveZoneReply);
+        if (1 == result) {
+            //虚拟点赞数不为空的话，就修改虚拟点赞数
+            Integer virtualLikeNum = interactiveZoneReplyAdd.getVirtualLikeNum();
+            if (null != virtualLikeNum) {
+                nodeInfoBizService.updateNodeInfoDetailValue(interactiveZoneReplyAdd.getId().intValue(),
+                        InteractiveZoneConstant.INTERACTIVE_ZONE_REPLY_NODE_TYPE_VALUE,
+                        InteractiveZoneConstant.VIRTUAL_LIKE_VALUE, virtualLikeNum);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public PageInfo<InteractiveZoneReplyVO> query(InteractiveZoneReplyQuery query) {
+        PageHelper.startPage(query.getPage(), query.getLimit());
+        PageInfo<InteractiveZoneReplyVO> pageInfo = interactiveZoneReplyMapper.queryBiz(query).stream().map(it -> {
+            InteractiveZoneReplyVO vo = new InteractiveZoneReplyVO();
+            BeanUtils.copyProperties(it, vo);
+            return vo;
+        }).collect(Collectors.collectingAndThen(Collectors.toList(), PageInfo::new));
+
+        List<InteractiveZoneReplyVO> userReviews = pageInfo.getList();
+
+        //获取头像
+        Map<Long, String> id2headPic = sysUserService.id2headPic(userReviews.stream().map(InteractiveZoneReply::getReplyUserId).map(Integer::longValue).collect(Collectors.toList()));
+        //处理点赞数
+        for (InteractiveZoneReplyVO it : userReviews) {
+            it.setAuthorPic(id2headPic.get(it.getId()));
+
+            Integer nodeId = nodeInfoBizService.registerNodeInfo(it.getId().intValue(), (byte) 8);
+            Map<String, Object> nodeData = nodeInfoBizService.getNodeData(nodeId, SYSTEM_DICTIONARY_DETAIL_TYPE_LIKE, -1);
+            int tmp = Integer.valueOf(Objects.toString(nodeData.get("setLikeNum"), "0")) +
+                    Integer.valueOf(Objects.toString(nodeData.get("setVirtualLikeNum"), "0"));
+            it.setLikeCount(tmp);
+
+            //方案、户型图片
+            if(it.getPlanId() != null && it.getPlanId() >0){
+                ResRenderPic pic = resRenderPicService.getSingleSpaceCoverResRenderPic(it.getPlanId());
+                if(pic != null){
+                    it.setPlanPicUrl(pic.getPicPath());
+                }
+            }
+            if(it.getHouseId() != null && it.getHouseId() >0){
+                PicBean pic = supplyDemandPicMapper.getHousePicByHouseId(it.getHouseId());
+                if(pic!=null){
+                    it.setHousePicUrl(pic.getUrl());
+                }
+            }
+
+
+            //处理评论中的 图片
+            List<Integer> picId = Arrays.stream(Strings.nullToEmpty(it.getPicIds()).split(Punctuation.COMMA))
+                    .filter(StringUtils::isNotEmpty)
+                    .map(Integer::valueOf)
+                    .collect(Collectors.toList());
+            if(!picId.isEmpty()){
+                List<PicBean> picBeanList = supplyDemandPicMapper.selectByIds(picId)
+                        .stream()
+                        .map(pic -> PicBean.builder()
+                                .id(pic.getId().intValue())
+                                .url(pic.getPicPath())
+                                .build()
+                        ).collect(Collectors.toList());
+                it.setPics(picBeanList);
+            }
+        }
+
+        return pageInfo;
+    }
+
+    @Override
+    public InteractiveZoneReply get(Long id) {
+        return interactiveZoneReplyMapper.selectByPrimaryKey(id);
+    }
+
+    private void addCommonParam(InteractiveZoneReply interactiveZoneReply, SysUser sysUser) {
+        Long userId = sysUser.getId();
+        Date date = new Date();
+        if (null == interactiveZoneReply.getId() || 0 == interactiveZoneReply.getId()) {
+            interactiveZoneReply.setCreator(sysUser.getNickName());
+            interactiveZoneReply.setReplyUserId(userId.intValue());
+            interactiveZoneReply.setGmtCreate(date);
+            interactiveZoneReply.setIsDeleted(0);
+        }
+        interactiveZoneReply.setGmtModified(date);
+        interactiveZoneReply.setModifier(userId + "");
+    }
+}

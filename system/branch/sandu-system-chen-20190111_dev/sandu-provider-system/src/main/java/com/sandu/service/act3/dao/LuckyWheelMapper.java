@@ -1,0 +1,26 @@
+package com.sandu.service.act3.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.sandu.api.act3.model.LuckyWheel;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface LuckyWheelMapper {
+   
+    int insert(LuckyWheel record);
+
+    LuckyWheel selectById(String id);
+
+    int updateById(LuckyWheel record);
+    
+    List<LuckyWheel> selectList(LuckyWheel record);
+
+	void updateToIncreaseLotteryAndRegCount(@Param("actId") String actId, @Param("isAward") boolean isAward, @Param("isFirstLotter") boolean isFirstLotter);
+
+	List<LuckyWheel> selectAllActivePerDayConfigActList();
+
+	int delete(String actId);
+}

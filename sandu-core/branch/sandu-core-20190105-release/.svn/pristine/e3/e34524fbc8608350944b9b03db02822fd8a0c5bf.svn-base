@@ -1,0 +1,68 @@
+-- 用户名片表
+USE app_online_30;
+DROP TABLE IF EXISTS user_card;
+CREATE TABLE
+IF NOT EXISTS user_card (
+	id INT NOT NULL AUTO_INCREMENT COMMENT '主键Id',
+	user_id INT NOT NULL COMMENT '用户id',
+	user_name VARCHAR (30) NOT NULL DEFAULT '' COMMENT '用户名称',
+	user_head_pic_id INT (128) NOT NULL DEFAULT 0 COMMENT '用户头像ID关联res_pic表',
+	user_head_pic_path VARCHAR (256) NOT NULL DEFAULT '' COMMENT '用户头像图片地址',
+	phone VARCHAR (30) NOT NULL DEFAULT '' COMMENT '用户手机号',
+	user_wechat VARCHAR (30) NOT NULL DEFAULT '' COMMENT '用户微信',
+	company_name VARCHAR (30) NOT NULL DEFAULT '' COMMENT '公司名称',
+	company_post VARCHAR (30) NOT NULL DEFAULT '' COMMENT '公司职位',
+	email VARCHAR (30) NOT NULL DEFAULT '' COMMENT '邮箱',
+	address VARCHAR (120) NOT NULL DEFAULT '' COMMENT '地址',
+	resume VARCHAR (512) NOT NULL DEFAULT '' COMMENT '个人介绍',
+	user_pic_ids VARCHAR (128) NOT NULL DEFAULT '' COMMENT '用户照片ID关联res_pic表',
+	creator VARCHAR (32) DEFAULT NULL COMMENT '创建者',
+	gmt_create TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+	modifier VARCHAR (32) NOT NULL DEFAULT '' COMMENT '更新者',
+	gmt_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间，自动更新',
+	is_deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除字段,0:正常 1:已删除',
+	remark VARCHAR (200) NOT NULL DEFAULT '' COMMENT '备注',
+	PRIMARY KEY (id),
+	UNIQUE KEY uqidx_user_id (user_id)
+) DEFAULT CHARSET = utf8 COMMENT = '用户名片表';
+
+-- 用户名片访问记录表
+DROP TABLE IF EXISTS user_card_access_record;
+CREATE TABLE
+IF NOT EXISTS user_card_access_record (
+	id INT NOT NULL AUTO_INCREMENT COMMENT '主键Id',
+	user_card_id INT NOT NULL COMMENT '用户名片ID',
+	user_id INT NOT NULL COMMENT '访问用户id',
+	access_type INT NOT NULL COMMENT '1:转发微信好友,2:转发微信朋友圈,3:名片海报',
+	access_log_info VARCHAR (128) NOT NULL DEFAULT '' COMMENT '访问记录',
+	is_read TINYINT NOT NULL DEFAULT 0 COMMENT '0:未读 1:已读',
+	creator VARCHAR (32) DEFAULT NULL COMMENT '创建者',
+	gmt_create TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+	modifier VARCHAR (32) DEFAULT NULL COMMENT '更新者',
+	gmt_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间，自动更新',
+	is_deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除字段,0:正常 1:已删除',
+	remark VARCHAR (200) NOT NULL DEFAULT '' COMMENT '备注',
+	PRIMARY KEY (id),
+	KEY uqidx_user_card_id (user_card_id)
+) DEFAULT CHARSET = utf8 COMMENT = '用户名片访问记录表';
+-- 用户名片访问操作日志表
+DROP TABLE IF EXISTS user_card_access_operation_log;
+CREATE TABLE
+IF NOT EXISTS user_card_access_operation_log (
+	id INT NOT NULL AUTO_INCREMENT COMMENT '主键Id',
+	user_card_id INT NOT NULL COMMENT '用户名片ID',
+	user_id INT NOT NULL COMMENT '访问用户id',
+	user_card_access_record_id INT NOT NULL COMMENT '用户访问记录id',
+	purpose_type INT NOT NULL COMMENT '意向类型:1:普通用户,2:强意向用户',
+	operation_type INT NOT NULL COMMENT '操作类型:1:获取微信号 2: 获取手机号 3 : 获取邮箱 4 :获取地址 5 :留下联系方式',
+	contact_phone VARCHAR (32) DEFAULT NULL COMMENT '联系手机号',
+	is_read TINYINT NOT NULL DEFAULT 0 COMMENT '0:未读 1:已读',
+	creator VARCHAR (32) DEFAULT NULL COMMENT '创建者',
+	gmt_create TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+	modifier VARCHAR (32) DEFAULT NULL COMMENT '更新者',
+	gmt_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间，自动更新',
+	is_deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除字段,0:正常 1:已删除',
+	remark VARCHAR (200) NOT NULL DEFAULT '' COMMENT '备注',
+	PRIMARY KEY (id),
+	KEY uqidx_user_card_id (user_id)
+) DEFAULT CHARSET = utf8 COMMENT = '用户名片访问操作日志表';

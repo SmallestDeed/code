@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.system.dao.ResmodelPathAndProductIdMapper" >
+
+	<select id="getAllProductIdToResmodelPath" resultType="com.nork.system.model.ResmodelPathAndProductId">
+			SELECT
+				rm.gmt_create,
+				rm.model_path,
+				bp.id,
+				bp.product_code,
+				bp.putaway_state,
+							case bp.putaway_state
+					when 1 then '已上架'
+          when 2 then '测试中'
+          when 3 then '已发布'
+				 end as putaway_state
+			FROM
+				res_model rm
+			LEFT JOIN base_product bp ON rm.is_deleted = 0
+			AND bp.is_deleted = 0
+			AND rm.business_id != 0
+			AND rm.business_id = bp.id
+			WHERE
+				rm.file_key = 'product.baseProduct.u3dmodel.windowsPc'
+			AND bp.putaway_state IN (1, 2, 3)
+			<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+</mapper>

@@ -1,0 +1,38 @@
+<wxs src="../../../utils/public.wxs" module="public" />
+<view class="main">
+    <view class='header'>
+        <text class='pull-left'>商品信息</text>
+        <text class='pull-right'>{{gifts.status==5?"已收货":"待收货"}}</text>
+    </view>
+    <view class='goods'>
+        <image 
+            src='{{gifts.itemList[0].itemSmall?resourcePath+gifts.itemList[0].itemSmall:staticImageUrl+"goods_pic_no.png"}}'
+        ></image>
+        <view class='name'>{{gifts.itemList[0].itemName}}</view>
+        <view class='point'>{{gifts.itemList[0].itemPoint}}积分</view>
+        <view class='price' wx:if="{{gifts.itemList[0].itemOriginalPrice}}">原价：<text>￥{{gifts.itemList[0].itemOriginalPrice}}</text></view>
+        <text class='num'>X 1</text>
+    </view>
+    <view class='goodsInfo'>
+        <view>商品合计<text>{{gifts.itemList[0].itemPoint}}积分</text></view>
+        <view wx:if="{{gift.expressFee!=0}}">物流运费<text>到付</text></view>
+    </view>
+    <view class='items boder'>实付款<text class='strong'>￥0</text></view>
+    <view class='row'>
+        <view class='text'>备注信息 </view>
+            <view class='message'>{{gifts.remark}}</view>
+        </view>    
+    <view class='citys' wx:if="{{defaultAddress}}">
+        <view class='title strong'>收货地址</view>
+        <view class='body'>
+            <view class='info'>{{defaultAddress.consignee}}<text>{{defaultAddress.mobile}}</text></view>
+            <view>
+                {{defaultAddress.provinceName+defaultAddress.cityName+defaultAddress.areaName+defaultAddress.address}}
+            </view>
+        </view>
+    </view>
+    <view class='rows'>
+        <view class='item'>订单编号<text>{{gifts.orderNo}}</text></view>
+        <view class='item'>下单时间<text>{{gifts.paymentDate}}</text></view>
+    </view>
+</view>

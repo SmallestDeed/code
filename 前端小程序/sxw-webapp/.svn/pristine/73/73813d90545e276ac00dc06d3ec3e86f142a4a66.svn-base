@@ -1,0 +1,27 @@
+<view class='tites'>
+    {{feedbackDetail.gmtCreate}}
+    <text class='{{feedbackDetail.dealStatus?"active":""}}'>{{feedbackDetail.dealStatus?"已回复":"未回复"}}</text>
+</view>
+<view class='contents'>{{feedbackDetail.feedbackContent}}</view>
+<view class='imgRows'>
+    <image wx:for="{{resPath}}" 
+        wx:key="{{index}}" data-index="{{index}}" 
+        bindtap='showBigImg'
+        src='{{item}}'></image>
+</view>
+<view class="reply" wx:if="{{feedbackDetail.dealStatus}}">
+    <view class='replyTle'>回复内容</view>
+    <view class='replyContent'>{{feedbackDetail.replyContent}}</view>
+    <view class='gmtReply'>{{feedbackDetail.gmtReply}}</view>
+</view>
+<view class='pushPj' wx:if="{{showPushPj&&feedbackDetail.dealStatus}}">
+    <view class='tits'>请问您对我们的回复结果满意吗？</view>
+    <view class='btnRows'>
+        <view class='btns' bindtap='pushPj' data-tys="0">满意</view>
+        <view class='btns' bindtap='pushPj' data-tys="1">不满意</view>
+    </view>
+</view>
+<view class='toast' wx:if="{{showToasts}}">
+    <image src='{{staticImageUrl}}pop_icon_mile.png'></image>
+    <view class='p1'>感谢您的反馈</view>
+</view>

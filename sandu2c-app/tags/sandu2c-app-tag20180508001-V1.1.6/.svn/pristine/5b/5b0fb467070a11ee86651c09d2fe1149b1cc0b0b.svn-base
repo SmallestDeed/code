@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+					http://www.springframework.org/schema/beans/spring-beans.xsd
+                    http://code.alibabatech.com/schema/dubbo
+						http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <!-- 声明需要暴露的服务接口 -->
+    <dubbo:service interface="com.sandu.user.service.IUserService"
+                   ref="userService" protocol="dubbo" timeout="${dubbo.timeout}" version="${dubbo.version}"/>
+    <!-- 用户会话服务 -->
+    <dubbo:service interface="com.sandu.user.service.UserSessionService"
+                   ref="userSessionService" protocol="dubbo" timeout="${dubbo.timeout}" version="${dubbo.version}"/>
+
+    <dubbo:service interface="com.sandu.user.service.SysUserService"
+                   ref="sysUserService" protocol="dubbo" timeout="${dubbo.timeout}" version="${dubbo.version}"/>
+
+    <dubbo:service interface="com.sandu.user.service.SysUserRoleService"
+                   ref="sysUserRoleService" protocol="dubbo" timeout="${dubbo.timeout}" version="${dubbo.version}"/>
+
+    <dubbo:service interface="com.sandu.user.service.SysRoleService"
+                   ref="sysRoleService" protocol="dubbo" timeout="${dubbo.timeout}" version="${dubbo.version}"/>
+
+    <dubbo:service interface="com.sandu.user.service.SysUserMessageService"
+                   ref="sysUserMessageService" protocol="dubbo" timeout="${dubbo.timeout}" version="${dubbo.version}"/>
+
+    <!-- 用户金融服务 -->
+    <dubbo:service interface="com.sandu.user.service.UserFinanceService"
+                   ref="userFinanceService" protocol="dubbo" timeout="${dubbo.timeout}" version="${dubbo.version}"/>
+
+    <!-- 用户积分服务 -->
+    <dubbo:service interface="com.sandu.user.service.PayAccountService"
+                   ref="payAccountService" protocol="dubbo" timeout="${dubbo.timeout}" version="${dubbo.version}"/>
+
+
+    <!-- 用户留言私信服务 -->
+    <dubbo:service interface="com.sandu.user.service.UserPrivateMessageService"
+                   ref="userPrivateMessageService" protocol="dubbo" timeout="${dubbo.timeout}"
+                   version="${dubbo.version}"/>
+
+
+    <!-- 用户评论服务 -->
+    <dubbo:service interface="com.sandu.user.service.UserReviewsService"
+                   ref="userReviewsService" protocol="dubbo" timeout="${dubbo.timeout}" version="${dubbo.version}"/>
+
+
+    <!-- 用户回复服务 -->
+    <dubbo:service interface="com.sandu.user.service.UserReplyService"
+                   ref="userReplyService" protocol="dubbo" timeout="${dubbo.timeout}" version="${dubbo.version}"/>
+
+
+
+    <!-- 用户邀请服务 -->
+    <dubbo:service interface="com.sandu.user.service.UserInviteService"
+                   ref="userInviteService" protocol="dubbo" timeout="${dubbo.timeout}" version="${dubbo.version}"/>
+
+
+
+    <!-- 引用外部服务 -->
+    <dubbo:reference id="redisService"
+                     interface="com.sandu.cache.service.RedisService" version="${dubbo.version}"/>
+    <dubbo:reference id="redisLoginService"
+                     interface="com.sandu.cache.service.RedisLoginService" version="${dubbo.version}"/>
+    <dubbo:reference id="sysDictionaryService"
+                     interface="com.sandu.system.service.SysDictionaryService" version="${dubbo.version}"/>
+
+    <dubbo:reference id="basePlatformService"
+                     interface="com.sandu.system.service.BasePlatformService" version="${dubbo.version}"/>
+
+
+</beans>

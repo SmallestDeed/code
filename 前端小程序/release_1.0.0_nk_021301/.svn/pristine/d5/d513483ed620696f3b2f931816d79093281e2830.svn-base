@@ -1,0 +1,28 @@
+<!--logs.wxml-->
+<view class="sales">
+  <view class='sales-top'><image src='https://show.sanduspace.com/AA/bannerpic/upload/1532329796808.jpg'></image></view>
+  <!-- for: goodsList  -->
+  <view class='sales-list'>
+    <view class='sales-item' wx:for="{{goodsList}}" bindtap='toPage' data-id='{{item.id}}'>
+      <view class='sales-item-left'>
+        <image src='{{item.picPath?resourcePath+item.picPath:staticImageUrl+"goods_pic_no.png"}}'></image>
+        <image class='tapView' src='{{staticImageUrl}}home_icon_factory.png'></image>
+      </view>
+      <view class='sales-item-rigt'>
+        <view class='sales-item-title'>{{item.productName}}</view>
+        <view class='sales-item-price'>
+          <view class='sales-item-price-left'>￥{{item.price}}</view>
+          <!-- <view class='sales-item-price-rigt'>原价￥{{item.salePrice}}</view> -->
+        </view>
+        <view class='sales-item-button'>
+          <view class='repertory' wx:if='{{item.totalInventory>0}}'>
+            仅剩 {{item.totalInventory}} 件
+          </view>
+        </view>
+      </view>
+       <view class='sales-button' >{{item.totalInventory?"去抢购":"已购空"}}</view>
+    </view>
+    <view class='space'></view>
+  </view>
+
+</view>

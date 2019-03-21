@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.pointmall.dao.UserPointDao">
+
+    <!--<resultMap id="BaseResultMap" type="com.item.dao.model.UserPointInout" >-->
+        <!--<id column="id" property="id" />-->
+        <!--<result column="buyer_id" property="buyerId" />-->
+        <!--<result column="start_point" property="startPoint" />-->
+        <!--<result column="in_out_point" property="inOutPoint" />-->
+        <!--<result column="in_out_type" property="inOutType" />-->
+        <!--<result column="end_point" property="endPoint" />-->
+        <!--<result column="describe" property="describe" />-->
+        <!--<result column="valid" property="valid" />-->
+        <!--<result column="invalid_time" property="invalidTime" />-->
+        <!--<result column="remark" property="remark" />-->
+        <!--<result column="sys_code" property="sysCode" />-->
+        <!--<result column="creator" property="creator" />-->
+        <!--<result column="gmt_create" property="gmtCreate" />-->
+        <!--<result column="modifier" property="modifier" />-->
+        <!--<result column="gmt_modified" property="gmtModified" />-->
+        <!--<result column="is_deleted" property="isDeleted" />-->
+    <!--</resultMap>-->
+
+    <sql id="Base_Column_List" >
+        id,buyer_id buyerId,in_out_amount inOutAmount,end_point endPoint,order_id orderId,describes,remark,sys_code sysCode,creator,gmt_create gmtCreate
+    </sql>
+
+    <select id="selectLastPoint" resultType="com.sandu.api.pointmall.model.UserPointInout">
+        SELECT  <include refid="Base_Column_List"/>
+        FROM user_point_inout
+        WHERE 1=1
+        AND buyer_id = #{uid}
+        ORDER BY gmt_create DESC
+        LIMIT 1
+    </select>
+
+    <select id="getPointVo" resultType="com.sandu.api.pointmall.model.vo.PointVo">
+        SELECT id,buyer_id buyerId,end_point endPoint
+        FROM user_point_inout
+        WHERE 1=1
+        AND buyer_id = #{uid}
+
+        ORDER BY gmt_create DESC
+        LIMIT 1
+    </select>
+
+    <insert id="insertSelective" >
+        insert into user_point_inout
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                id,
+            </if>
+            <if test="buyerId != null" >
+                buyer_id,
+            </if>
+            <if test="inOutAmount != null" >
+                in_out_amount,
+            </if>
+            <if test="endPoint != null" >
+                end_point,
+            </if>
+            <if test="orderId != null" >
+                order_id,
+            </if>
+            <if test="describes != null" >
+                describes,
+            </if>
+            <if test="remark != null" >
+                remark,
+            </if>
+            <if test="sysCode != null" >
+                sys_code,
+            </if>
+            <if test="creator != null" >
+                creator,
+            </if>
+            <if test="gmtCreate != null" >
+                gmt_create,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                #{id},
+            </if>
+            <if test="buyerId != null" >
+                #{buyerId},
+            </if>
+            <if test="inOutAmount != null" >
+                #{inOutAmount},
+            </if>
+            <if test="endPoint != null" >
+                #{endPoint},
+            </if>
+            <if test="orderId != null" >
+                #{orderId},
+            </if>
+            <if test="describes != null" >
+                #{describes},
+            </if>
+            <if test="remark != null" >
+                #{remark},
+            </if>
+            <if test="sysCode != null" >
+                #{sysCode},
+            </if>
+            <if test="creator != null" >
+                #{creator},
+            </if>
+            <if test="gmtCreate != null" >
+                #{gmtCreate},
+            </if>
+        </trim>
+    </insert>
+
+</mapper>

@@ -1,0 +1,163 @@
+package com.sandu.api.fullhouse.service.biz;
+
+import com.sandu.api.base.common.exception.BizExceptionEE;
+import com.sandu.api.fullhouse.common.exception.BizException;
+import com.sandu.api.fullhouse.input.*;
+import com.sandu.api.fullhouse.output.DesignPlanStyleVO;
+import com.sandu.api.fullhouse.output.DesignPlanVO;
+import com.sandu.api.fullhouse.output.FullHouseDesignPlanEditPageVO;
+import com.sandu.api.fullhouse.output.FullHouseDesignPlanVO;
+import com.sandu.api.fullhouse.output.MatchInfoVO;
+
+import java.util.List;
+
+/**
+ * created by zhangchengda
+ * 2018/8/15 18:37
+ * 全屋方案业务服务
+ */
+public interface FullHouseDesignPlanBizService {
+    /**
+     * created by zhangchengda
+     * 2018/8/16 12:52
+     * 查询用于全屋方案制作的组合方案主方案/一键方案（空间类型为厨房时）
+     *
+     * @param query 查询参数
+     * @return 可选方案集合
+     */
+    List<DesignPlanVO> selectGroupPrimaryDesignPlan(DesignPlanQuery query);
+
+    /**
+     * created by zhangcheng
+     * 2018/8/16 16:18
+     * 查询用于全屋方案制作的组合方案主方案/一键方案（空间类型为厨房时）总数
+     *
+     * @param query 查询参数
+     * @return 方案总数
+     */
+    Integer selectGroupPrimaryDesignPlanCount(DesignPlanQuery query);
+
+    /**
+     * created by zhangchengda
+     * 2018/8/16 17:22
+     * 查询任意空间类型下所有的方案风格
+     *
+     * @param query 查询参数
+     * @return 该空间类型下的所有方案风格
+     */
+    List<DesignPlanStyleVO> selectDesignPlanStyle(DesignPlanStyleQuery query);
+
+    /**
+     * created by zhangchengda
+     * 2018/8/17 10:52
+     * 查询当前登录用户制作的符合查询条件的全屋方案
+     *
+     * @param query 查询参数
+     * @return 全屋方案集合
+     */
+    List<FullHouseDesignPlanVO> selectFullHouseDesignPlan(FullHouseDesignPlanQuery query);
+
+    /**
+     * created by zhangchengda
+     * 2018/8/17 11:32
+     * 查询当前登录用户制作的符合查询条件的全屋方案总数
+     *
+     * @param query 查询参数
+     * @return 全屋方案总数
+     */
+    Integer selectFullHouseDesignPlanCount(FullHouseDesignPlanQuery query);
+
+    /**
+     * created by zhangchengda
+     * 2018/8/17 13:56
+     * 制作全屋方案
+     *
+     * @param fullHouseDesignPlanAdd 制作全屋方案参数
+     * @param userId                 用户ID
+     * @throws BizException
+     */
+    void createFullHouseDesignPlan(FullHouseDesignPlanAdd fullHouseDesignPlanAdd, Integer userId, String token) throws BizException;
+
+    /**
+     * created by zhangchengda
+     * 2018/8/18 18:57
+     * 删除全屋方案
+     *
+     * @param id 要删除的全屋方案ID
+     * @throws BizException
+     */
+    void deleteFullHouseDesignPlan(Integer id) throws BizException;
+
+    /**
+     * created by zhangchengda
+     * 2018/8/20 9:38
+     * 查询全屋方案更换方案时显示的单空间方案列表
+     *
+     * @param fullHouseId 全屋方案ID
+     * @return 全屋方案更换方案页面的数据
+     */
+    FullHouseDesignPlanEditPageVO selectFullHouseDesignPlanDetailList(Integer fullHouseId);
+
+    /**
+     * created by zhangchengda
+     * 2018/8/20 12:11
+     * 更新全屋方案
+     *
+     * @param update 更新参数
+     * @param userId 当前登录用户ID
+     * @throws BizException
+     */
+    void updateFullHouseDesignPlan(FullHouseDesignPlanUpdate update, Integer userId, String token) throws BizException;
+
+    /**
+     * 获取全屋一件装修的详细装修信息(哪个推荐方案装进哪个样板房)
+     *
+     * @param houseId         户型id
+     * @param fullHousePlanId 全屋装修方案id
+     * @return
+     * @throws BizExceptionEE
+     * @author huangsongbo
+     */
+    List<MatchInfoVO> getMatchInfo(Integer houseId, Integer fullHousePlanId) throws BizExceptionEE;
+
+    /**
+     * created by zhangchengda
+     * 2018/8/27 16:14
+     * 装进我家时新建全屋方案
+     *
+     * @param fullHouseDesignPlanAdd 新增对象（效果图方案）
+     * @return 全屋方案ID
+     * @throws BizException
+     */
+    String addFullHouseDesignPlanScene(FullHouseDesignPlanAdd fullHouseDesignPlanAdd) throws BizException;
+
+    /**
+     * created by zhangchengda
+     * 2018/9/19 17:40
+     * 装进我家时修改全屋方案
+     *
+     * @param fullHouseDesignPlanSceneUpdate 修改数据对象
+     * @return
+     */
+    String updateFullHouseDesignPlanScene(FullHouseDesignPlanSceneUpdate fullHouseDesignPlanSceneUpdate) throws BizException;
+
+    /**
+     * created by zhangchengda
+     * 2018/9/20 12:37
+     * 单空间装进我家时临时创建的全屋方案，用于在移动端创建全屋方案(先占坑)
+     *
+     * @param userId                   当前用户ID
+     * @param oldFullHouseDesignPlanId 旧的全屋方案ID
+     * @param houseId                  户型ID
+     * @return
+     * @throws BizException
+     */
+    Integer addTempFullHouseDesignPlan(Integer userId, Integer oldFullHouseDesignPlanId, Integer houseId) throws BizException;
+
+    /**
+     * 在供求信息列表处改造全屋方案时复制全屋方案
+     * @param
+     * @return
+     */
+    String copyFullHouseDesignPlan(FullHouseDesignPlanCopy fullHouseDesignPlanCopy, Integer userId) throws BizException;
+}

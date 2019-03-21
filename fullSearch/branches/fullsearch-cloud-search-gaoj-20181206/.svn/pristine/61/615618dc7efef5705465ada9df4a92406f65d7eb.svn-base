@@ -1,0 +1,99 @@
+package com.sandu.search.controller.groupproduct;
+
+import com.sandu.pay.model.matedata.ProductTypeConstant;
+import com.sandu.search.common.constant.ProductTypeValue;
+import com.sandu.search.common.constant.ReturnCode;
+import com.sandu.search.common.tools.JsonUtil;
+import com.sandu.search.common.util.Utils;
+import com.sandu.search.controller.product.ToBProductReplaceController;
+import com.sandu.search.entity.response.SearchResultResponse;
+import com.sandu.search.entity.response.universal.UniversalSearchResultResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+
+@RestController
+@Slf4j
+@RequestMapping("/toc/groupProduct/replace")
+public class ToCGroupProductReplaceController {
+
+    private static final String CLASS_LOG_PREFIX = "C端组合产品替换搜索服务";
+
+    @Autowired
+    private ToBProductReplaceController toBProductReplaceController;
+    @Value("${app.fullsearchapi.url}")
+    private String fullSearchUrl;
+
+    /**
+     * 同城联盟和小程序的组合产品替换搜索逻辑
+     *
+     * @param productTypeValue         产品大类
+     * @param productTypeSmallValue    产品小类
+     * @param start                    数据起始数
+     * @param dataSize                 单页数据条数
+     * @param productCategoryId        产品分类ID
+     * @param productCategoryLongCode  产品分类长编码
+     * @param designPlanProductId      设计方案产品ID
+     * @param productId                产品ID(用于新增柜类产品长度过滤)
+     * @param designPlanType           设计方案类型(Desc: com.sandu.search.common.constant.DesignPlanType)
+     * @param productBrandId           产品品牌ID
+     * @param bizProductTypeSmallValue 产品小类筛选(只供同城联盟和小程序产品替换搜索通过小类筛选用)
+     * @param aggsData
+     * @return
+     */
+    @RequestMapping("/list")
+    SearchResultResponse queryGroupProductReplaceByCondition(Integer productTypeValue,
+                                                             Integer productTypeSmallValue,
+                                                             Integer start,
+                                                             Integer dataSize,
+                                                             Integer productCategoryId,
+                                                             String productCategoryLongCode,
+                                                             Integer designPlanProductId,
+                                                             Integer productId,
+                                                             @RequestParam(required = false) Integer designPlanType,
+                                                             @RequestParam(required = false) Integer productBrandId,
+                                                             @RequestParam(required = false) Integer bizProductTypeSmallValue,
+                                                             @RequestParam(required = false, defaultValue = "N") String aggsData,
+                                                             HttpServletRequest request) {
+        long startTime = System.currentTimeMillis();
+
+        String token = request.getHeader("Authorization");
+        String platformCode = request.getHeader("Platform-Code");
+        String referer = request.getHeader("Referer");
+        String customReferer = request.getHeader("Custom-Referer");
+
+        String hostUrl = fullSearchUrl + "/universal/product/replace/list?1=1";
+        StringBuffer sb = new StringBuffer(hostUrl);
+        if (null != productTypeValue) {
+            sb.append("&productTypeValue="+productTypeValue);
+        }
+        if (null != productTypeSmallValue) {
+            sb.append("&productTypeSmallValue="+productTypeSmallValue);
+        }
+        // 拼接其他参数...，然后修改下面的url
+
+        String url = fullSearchUrl + "/universal/product/replace/list?productTypeValue="+productTypeValue+
+                "&productTypeSmallValue="+productTypeSmallValue+"&start="+start+"&dataSize="+dataSize+
+                "&productCategoryId="+productCategoryId+"&productCategoryLongCode="+productCategoryLongCode+
+                "&designPlanProductId="+designPlanProductId+"&productId="+productId+"&designPlanType="+designPlanType+
+                "&productBrandId="+productBrandId+"&bizProductTypeSmallValue="+bizProductTypeSmallValue+
+                "&aggsData="+aggsData+"&onlyMainProduct="+ ProductTypeValue.IS_MAIN_PRODUCT;
+
+        log.info(CLASS_LOG_PREFIX + "调用单品替换搜索url：{}", url);
+
+        String jsonResult = Utils.doGetMethod(url, token, platformCode, referer, customReferer);
+        if (StringUtils.isBlank(jsonResult)) {
+            return new SearchResultResponse(ReturnCode.SEARCH_PRODUCT_FAIL);
+        }
+
+        UniversalSearchResultResponse searchResult = JsonUtil.fromJson(jsonResult, UniversalSearchResultResponse.class);
+
+        return null;
+    }
+}

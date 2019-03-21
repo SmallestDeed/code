@@ -1,0 +1,352 @@
+<view  style='height:{{caseListheight}};overflow:{{caseListOverflow}};' class='main'>
+<view class='searchView'>
+
+    <view class="ppg_search" bindtap="doFilter">
+        <view class="input">找{{getType.typeText(brandType)}}</view>
+        <image src="{{imgURL}}ppg_search.png"></image>
+        <view style="clear: both;"></view>
+    </view>
+</view>
+
+<view class="main_body wen">
+
+  <view class='popular' wx:if='{{popularList.length>0}}'>
+    <!-- <swiper wx:if="{{brandType == 3}}" autoplay="auto" interval="5000" duration="500"
+    current="{{swiperCurrent}}" bindchange="swiperChange">
+      <swiper-item class="commend-item" wx:for="{{popularList}}" wx:key="{{index}}">
+        <view class='nono no2'>
+          <view class='options options2' bindtap='toDetail' data-id='{{item.shopId}}'>
+            <image class="{{brandType==3?'bannerImg2':'bannerImg'}}" src="{{item.caseCoverPath ? resourcePath + item.caseCoverPath : staticImageUrl+'home_pic_no.png'}}" />
+          </view>
+        </view>
+      </swiper-item>
+    </swiper> -->
+    <swiper class="commend-container" circular='true' indicator-dots='{{popularList.length>1}}' autoplay="true" duration="500">
+        <swiper-item class="commend-item" wx:for="{{popularList}}" wx:key="{{index}}">
+            <view class='options options2' bindtap='toDetail' data-id='{{item.shopId || ""}}'>
+              <image class="bannerImg" src="{{item.picPath ? resourcePath + item.picPath : staticImageUrl+'home_pic_no.png'}}" />
+            </view>
+        </swiper-item>
+    </swiper>
+    <!-- 轮播图光标 -->
+    <!-- <view class="dots">
+      <block wx:for="{{popularList}}" wx:key="popularList">
+        <view class="dot {{index == swiperCurrent?'actives':''}}"></view>
+      </block>
+    </view> -->
+  </view>
+    <!--top-->
+    <!-- <scroll-view scroll-x='true' class="ppg_header" style='width:auto;'>
+      <view class='scorll'>
+			<view class="ppg_header_title {{brandType==3?'ppg_header_active':''}} "  data-brand="3" bindtap="changeBrand">
+				<text class="brand_item">设计师</text >
+				<view class="ppg_header_xian"></view>
+			</view>
+      <view class="ppg_header_title {{brandType==4?'ppg_header_active':''}} "  data-brand="4" bindtap="changeBrand">
+				<text class="brand_item">设计公司</text >
+				<view class="ppg_header_xian"></view>
+			</view>
+			<view class="ppg_header_title {{brandType==5?'ppg_header_active':''}} " data-brand="5" bindtap="changeBrand">
+				<text class="brand_item">装修公司</text>
+				<view class="ppg_header_xian"></view>
+			</view>
+			<view class="ppg_header_title {{brandType==6?'ppg_header_active':''}} "  data-brand="6" bindtap="changeBrand" >
+				<text class="brand_item">施工单位</text>
+				<view class="ppg_header_xian"></view>
+			</view>
+			<view class="ppg_header_title {{brandType==2?'ppg_header_active':''}} "  data-brand="2" bindtap="changeBrand" >
+				<text class="brand_item">建材家居</text>
+				<view class="ppg_header_xian"></view>
+			</view>
+      </view>
+		</scroll-view> -->
+    <!--人气推荐  -->
+    <!-- <view class="ppg_rqdptj">
+			<view class="rqdptj_title">{{recommendTitle}}</view>
+      <swiper autoplay="{{bannerAutoPlay}}" display-multiple-items="3">
+        <swiper-item wx:for='{{popularList}}' bindtap='toDetail' data-id='{{item.shopId}}'>
+          <image class='bannerImg' src="{{resourcePath+item.picPath}}"/>
+          <view class="bannerText">{{item.shopName}}</view>
+        </swiper-item>
+      </swiper>
+    </view> 
+     -->
+     
+    <!--older-version <view class='popular' wx:if='{{popularList.length>0}}'>
+        <view class="title">每日推荐{{recommendTitle=='工长'?"优秀"+recommendTitle:recommendTitle}}</view>
+        <view class="title title2">随选网{{recommendTitle=="设计师"?"设计大咖":recommendTitle}}TOP榜</view>
+        <swiper wx:if="{{brandType == 3}}">
+          <swiper-item class="commend-item" wx:for="{{popularList}}" wx:key="{{index}}">
+            <view class='nono'>
+              <view class='options' wx:for='{{item}}' wx:for-item="popular" wx:for-index="i" bindtap='toDetail' data-id='{{popular.shopId}}' wx:key="{{i}}">
+                <image class="{{brandType==3?'bannerImg2':'bannerImg'}}" src="{{resourcePath+popular.picPath}}" />
+                <view class="bannerText">{{popular.shopName}}</view>
+              </view>
+            </view>
+          </swiper-item>
+        </swiper>
+        <swiper class="commend-container" wx:else>
+          <swiper-item class="commend-item" wx:for="{{popularList}}" wx:key="{{index}}">
+            <view class='nono no2'>
+              <view class='options options2' bindtap='toDetail' data-id='{{item.shopId}}'>
+                <image class="{{brandType==3?'bannerImg2':'bannerImg'}}" src="{{item.caseCoverPath ? resourcePath + item.caseCoverPath : staticImageUrl+'home_pic_no.png'}}" />
+                <view class="bannerText"><image src='{{resourcePath + item.picPath}}'></image>{{item.shopName}}</view>
+              </view>
+            </view>
+          </swiper-item>
+        </swiper>
+        <!-- <scroll-view scroll-x="true" wx:if="{{brandType ==3 }}">
+            <view class='nono'>
+                <view class='options' wx:for='{{popularList}}' bindtap='toDetail' data-id='{{item.shopId}}'>
+                    <image class="{{brandType==3?'bannerImg2':'bannerImg'}}" src="{{resourcePath+item.picPath}}" />
+                    <view class="bannerText">{{item.shopName}}</view>
+                </view>
+            </view>
+        </scroll-view>
+        <scroll-view scroll-x="true" wx:else>
+            <view class='nono no2'>
+                <view class='options options2' wx:for='{{popularList}}' bindtap='toDetail' data-id='{{item.shopId}}'>
+                    <image class="{{brandType==3?'bannerImg2':'bannerImg'}}" src="{{item.caseCoverPath?resourcePath+item.caseCoverPath:staticImageUrl+'home_pic_no.png'}}" />
+                    <view class="bannerText"><image src='{{resourcePath+item.picPath}}'></image>{{item.shopName}}</view>
+                </view>
+            </view>
+        </scroll-view>
+    </view> -->
+    <!--  wx:if="{{showTopView}}" -->
+    <view class="ppg_dzss">
+    <!-- <view class="am-dropdown  {{isShowCitys?'am-active':''}}" >
+        <view class="ppg_dizhi am-dropdown-toggle" bindtap="changeCity"><image src="{{imgURL}}ppg_dizhi.png"></image>{{city}}</view>
+                <view class="am-dropdown-content {{isCitySlideDown?'am-animation-slide-top':''}} {{isCitySlideTop?'am-dropdown-animation':''}}">
+                    <view wx:for="{{serviceCitys}}" wx:for-item="city" data-cityid="{{city.id}}" bindtap="changeCity">{{city.areaName}}</view>
+                </view>
+        </view>  -->
+      <view  class='filter hptj' style='{{praiseRecommendedFixed?"position: fixed;border-bottom:1rpx solid #f5f5f5;":""}}'>
+        <!-- <view class="{{optionsType!=0?'options':'opt2'}}" bindtap="changeFun" style='{{showCityView?"color:#fff;background:#29cccc;":""}}'>
+          {{city}}<image src='{{showCityView?staticImageUrl+"list_icon_down_sel.png":staticImageUrl+"list_icon_down_nor.png"}}'></image>
+        </view> -->
+        <view class="{{optionsType!=0?'options':'opt2'}}" style='{{sortFlag2?"color:#fff;background:#29cccc;":""}}'  bindtap='changeSort2'>
+            {{sortName2}}<image src='{{sortFlag2?staticImageUrl+"list_icon_down_sel.png":staticImageUrl+"list_icon_down_nor.png"}}'></image>
+        </view>
+        <view class="{{optionsType!=0?'options':'opt2'}}" wx:if="{{brandType==5 || brandType==6 || brandType==2}}" style='{{sortFlag4?"color:#fff;background:#29cccc;":""}}'  bindtap='changeSort4'>
+            {{sortName4}}<image src='{{sortFlag4?staticImageUrl+"list_icon_down_sel.png":staticImageUrl+"list_icon_down_nor.png"}}'></image>
+          </view>
+        <view class="{{optionsType!=0?'options':'opt2'}}" wx:if="{{brandType==3 || brandType==4 || brandType==5}}"  style='{{sortFlag3?"color:#fff;background:#29cccc;":""}}'  bindtap='changeSort3'>
+            {{sortName3}}<image src='{{sortFlag3?staticImageUrl+"list_icon_down_sel.png":staticImageUrl+"list_icon_down_nor.png"}}'></image>
+        </view>
+          <view class="{{optionsType!=0?'options':'opt2'}}"  style='{{sortFlag?"color:#fff;background:#29cccc;":""}}'  bindtap='changeSort'>
+            {{sortName}}<image src='{{sortFlag?staticImageUrl+"list_icon_down_sel.png":staticImageUrl+"list_icon_down_nor.png"}}'></image>
+          </view>
+        </view>
+        <view class='sortOptions' wx:if='{{sortFlag2}}'>
+            <view class='{{sortFlag2Index == index?"optionsSelect":"options"}}' 
+                bindtap='commitSort2' 
+                data-type='newttest' 
+                data-name='{{item.styleName=="全部"?(getType.typeText(brandType)=="建材家居"?"分类":(getType.typeText(brandType)!="工长"?"风格":"工种")):item.styleName}}' 
+                wx:for="{{styleName}}"
+                data-id="{{item.styleId}}"
+            data-index='{{index}}'>
+                {{item.styleName}}
+            </view>
+        </view>
+        <view class='sortOptions costOptions' wx:if='{{sortFlag3}}'>
+          <view class='costRange-box'>
+              <view class='costRange' data-type='newCost' data-name='费用'>费用区间
+              </view>
+            <view class='input-box' data-name='价格'>
+              <input type='number' value='{{minValue}}' placeholder-class="phClass" maxlength='4' data-type='minValue' data-name="最小值" bindinput='getMinValue' placeholder='请输入最小值'></input>
+              <text class='connect'></text>
+              <input type='number' value='{{maxValue}}' placeholder-class="phClass" maxlength='4' data-type='maxValue' data-name="最大值" bindinput='getMaxValue' placeholder='请输入最大值'></input>
+              <text class='unit'>元/m²</text>
+            </view>
+          </view>
+          <view class='btnRows'>
+              <view class='resets' catchtap='resetFun'>重置</view>
+              <view class='submits' catchtap='submitFun'>确认</view>
+            </view>
+        </view>
+        <view class='sortOptions' wx:if='{{sortFlag}}'>
+        <view class='{{sortType=="all"?"optionsSelect":"options"}}' bindtap='commitSort' data-type='all' data-name='全部'>全部</view>
+          <view class='{{sortType=="newttest"?"optionsSelect":"options"}}' bindtap='commitSort' data-type='newttest' data-name='最新'>最新</view>
+            <view class='{{sortType=="hottest"?"optionsSelect":"options"}}' bindtap='commitSort' data-type='hottest' data-name='最热'>
+                最热
+            </view>
+        </view>
+        <view class='sortOptions' wx:if='{{sortFlag4}}'>
+            <view class='{{sortType2=="all"?"optionsSelect":"options"}}' bindtap='commitSort3' data-type='all' data-name='全部' data-index=''>全部</view>
+            <view class='{{sortType2=="alltest"?"optionsSelect":"options"}}' bindtap='commitSort3' data-type='alltest' data-name='全包' data-index='1'>
+                全包
+            </view>
+             <view class='{{sortType2=="halftest"?"optionsSelect":"options"}}' bindtap='commitSort3' data-type='halftest' data-index='0' data-name='半包'>
+                半包
+            </view>
+        </view>
+    </view>
+    <!--根据type值返回描述文字和链接  -->
+    <wxs module="getType">
+        var fn = function(type) {
+            if (type == undefined)
+                return;
+            var str = ""
+
+            if (type == 3)
+                str = "设计师";
+            else if (type == 1)
+                str = "品牌厂商";
+            else if (type == 2)
+                str = "建材家居";
+            else if (type == 5)
+                str = "装修公司";
+            else if (type == 6)
+                str = "施工单位";
+            else if (type == 4)
+                str = "设计公司";
+            return str;
+        }
+
+        var fn2 = function(type, id) {
+            if (type == undefined || id == undefined)
+                return;
+            var str = ""
+            if (type == 3)
+                str = "../designerDetail/designerDetail?id=" + id;
+            else if (type == 2)
+                str = "../materialDetail/materialDetail?id=" + id;
+            else if (type == 5)
+                str = "../companyDetail/companyDetail?id=" + id;
+            else if (type == 6)
+                str = "../builderDetail/builderDetail?id=" + id;
+            return str;
+        }
+        module.exports = fn
+        module.exports = {
+            typeText: fn,
+            typeHref: fn2
+        }
+    </wxs>
+    <!--全部内容  -->
+
+    <!--品牌列表  -->
+    <view class="zxfw_neiro">
+        <view class='noMore' wx:if="{{exampleList.length<=0&&showNoMore}}">
+            <image src='{{staticImageUrl}}undefined.png'></image>
+            <view class='txts'>没有您搜索的{{getType.typeText(brandType)}}呢</view>
+        </view>
+        <view class="zxfw_sjsdm" wx:for="{{exampleList}}" wx:for-item="exampleItem" bindtap="toDetail" data-id="{{exampleItem.id}}" wx:key="{{index}}">
+            <view class="sjsdm_jieshao">
+                <view class="sjsdm_left">
+                    <view class="{{brandType==3?'sjsdm_logo2':'sjsdm_logo'}}">
+                        <image src="{{exampleItem.logoUrl?resourcePath + exampleItem.logoUrl:defaultImg}}"></image>
+                    </view>
+                    <!-- <view class="sjsdm_leixing {{getType.typeClass(exampleItem.businessType)}}">{{exampleItem.businessTypeName}}</view> -->
+                </view>
+                <view class="sjsdm_right_copy">
+                    <view class="copy_title">
+                        <text class="sjsdm_name">{{exampleItem.shopName}}</text>
+                    </view>
+                    <view class="copy_txt">
+                      <text class='copy_txt_left' wx:if="{{exampleItem.businessType==3 && exampleItem.workingYears!=null}}">从业{{exampleItem.workingYears}}年</text>
+
+                      <text class='copy_txt_left fl' wx:if="{{(exampleItem.businessType==5 || exampleItem.businessType==2) && exampleItem.decorationType!=null}}">{{exampleItem.decorationType==0?"半包":"全包"}}</text>
+
+                      <text class='copy_txt_left fl' wx:if='{{exampleItem.businessType ==4 &&  exampleItem.designFeeEnding!=null}}'>{{exampleItem.designFeeStarting}}~{{exampleItem.designFeeEnding}}元/m²</text>
+                      <block wx:if='{{exampleItem.decorationPriceStart!=null}}'>
+                       <text class='copy_txt_right fr'>{{exampleItem.decorationPriceStart}}~{{exampleItem.decorationPriceEnd}}元/m²</text>
+                      </block>
+                      <block wx:if='{{exampleItem.businessType==3 && exampleItem.designFeeEnding!=null}}'>
+                       <text class='copy_txt_right fr'>{{exampleItem.designFeeStarting}}~{{exampleItem.designFeeEnding}}元/m²</text>
+                      </block>
+                    </view>
+                    <view class="copy_style">
+                        <view class='copy_txt_left'>
+                            <!-- <image src='{{staticImageUrl}}citys.png'></image> -->
+                            {{exampleItem.categoryNames}}
+                        </view>
+                        <view class='copy_txt_right'>
+                            <!-- <image src='{{staticImageUrl}}likes.png'></image> -->
+                            {{exampleItem.visitCount}}人浏览
+                        </view>
+                    </view>
+                    <view class='label'>
+                      <text wx:if="{{exampleItem.projectCaseCount}}">{{exampleItem.projectCaseCount}}个真实案例</text>
+                      <text wx:if="{{exampleItem.companyDesignerCount}}">{{exampleItem.companyDesignerCount}}名设计师</text>
+                      <text wx:if="{{exampleItem.companyShopArticleCount}}">{{exampleItem.companyShopArticleCount}}条博文</text>
+                      <text wx:if="{{exampleItem.shopPlanCount}}">{{exampleItem.shopPlanCount}}个方案</text>
+                    </view>
+                </view>
+            </view>
+            <view class="sjsdm_pic">
+              <swiper class="scroll-container" wx:if="{{exampleItem.lstResPic && exampleItem.lstResPic.length!=0}}">
+                <swiper-item class='scroll-item' wx:for="{{exampleItem.lstResPic}}" wx:for-item="picItem" wx:key="index">
+                  <view class="pic_item">
+                    <image src="{{resourcePath}}{{picItem.picPath}}" data-imgpath="{{resourcePath}}{{picItem.picPath}}"></image>
+                  </view>
+                </swiper-item>
+              </swiper>
+                <!-- <scroll-view scroll-x='true' style='heigth:376rpx' wx:if="{{exampleItem.lstResPic}}">
+                    <view class='scroll-item'>
+                        <view class="pic_item" wx:for="{{exampleItem.lstResPic}}" wx:for-item="picItem" wx:key="">
+                            <image src="{{resourcePath}}{{picItem.picPath}}"  data-imgpath="{{resourcePath}}{{picItem.picPath}}"></image>
+                        </view>
+                    </view>
+                </scroll-view> -->
+            </view>
+        </view>
+        <!-- <view class="nomore" wx:if="{{noData==true}}">暂无更多数据</view>  -->
+    </view>
+    <view class='bottomView' wx:if="{{exampleList.length>0&&messTxt}}">
+        <text>浏览已完毕</text>
+    </view>
+</view>
+<!-- <import src="../../../component/emptyTemplate/emptyTemplate.wxml" />
+<template is="emptyTemplate" data="{{ ...emptyTemplate }}" />
+
+<view wx:if="{{condition}}" class="citypicker" wx:key='{{index}}'>
+    <view class="cityheader">
+        <view bindtap='provincialLinkageHide' data-flag="{{false}}" class="city-cancel">取消</view>
+        <view bindtap='provincialLinkageHide' data-flag="{{true}}" class="city-true">确定</view>
+    </view>
+    <picker-view indicator-style="height: 50px;" style="width: 100%; height: 250px;" value="{{value}}" bindchange="bindChange" class="citybody">
+        <picker-view-column>
+            <view wx:for="{{provinces}}" wx:key="item">{{item.areaName}}</view>
+        </picker-view-column>
+        <picker-view-column>
+            <view wx:for="{{citys}}" wx:key="item">{{item.areaName}}</view>
+        </picker-view-column>
+    </picker-view>
+</view> -->
+
+<view class='cityView' wx:if="{{showCityView}}" >
+    <view class='pull-left'>
+        <view class='rows' wx:for="{{provinceData}}" wx:key="{{idx}}" wx:for-index="idx">
+            <view class='items {{choosex==idx&&choosey==idy?"active":""}}' 
+                wx:for="{{item.objList}}" 
+                wx:for-index="idy"
+                wx:key="{{idy}}" 
+                data-idy = '{{idy}}'
+                data-idx = '{{idx}}'
+                data-areaCode = '{{it.areaCode}}'
+                wx:for-item='it'
+                bindtap='changePro'>
+                <text>{{it.areaNamePinyin}}</text>
+                {{it.areaName}}
+            </view>
+        </view>
+    </view>
+    <view class='pull-right'>
+        <view class='items {{index==choosep?"active":""}}' 
+            wx:for="{{cityObj}}" 
+            wx:key="index"
+            data-idx="{{index}}"
+            bindtap='submitFuc'
+            data-areacode='{{item.areaCode}}'
+        >
+            {{item.areaName}}
+            <!-- <image wx:if="{{index==choosep}}" src='{{staticImageUrl}}choose.png' bindtap='submitFuc'></image> -->
+        </view>
+    </view>
+</view>
+<view class='zzc' wx:if="{{showCityView||sortFlag||sortFlag2||sortFlag3||sortFlag4}}"></view>
+</view>
+<!-- 快速导航模块 -->
+  <import src="../../../component/newNav/newNav.wxml"/>
+  <template is="newNav"  data="{{ ...newNav }}"/>

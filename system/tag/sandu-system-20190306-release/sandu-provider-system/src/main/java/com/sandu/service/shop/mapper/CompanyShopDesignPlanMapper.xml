@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.shop.dao.CompanyShopDesignPlanDao">
+
+    <delete id="deleteDesignPlanByShopId">
+        UPDATE
+            company_shop_design_plan
+        SET
+            is_deleted = 1
+        WHERE
+            shop_id IN
+            <foreach item="item" collection="shopIds" separator="," open="(" close=")" index="">
+                #{item}
+            </foreach>
+    </delete>
+
+    <select id="getDesignPlanByShopId" resultType="java.lang.Integer">
+        SELECT COUNT(id)
+        FROM company_shop_design_plan
+        WHERE 1=1
+        AND shop_id IN
+        <foreach item="item" collection="shopIds" separator="," open="(" close=")" index="">
+            #{item}
+        </foreach>
+    </select>
+
+    <update id="updateMainShopDesignStatus">
+        update
+            company_shop_design_plan t1
+            inner join company_shop_design_plan t2 on t2.plan_id = t1.plan_id and t2.shop_id = #{shopId}
+        set
+            t1.is_deleted = #{status},
+            t1.gmt_modified = CURRENT_TIMESTAMP
+        where
+             t1.shop_id = #{mainShopId}
+    </update>
+</mapper>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.user.dao.UserReplyMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.user.model.UserReply" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="reviews_id" property="reviewsId" jdbcType="INTEGER" />
+    <result column="business_id" property="businessId" jdbcType="INTEGER" />
+    <result column="reply_type" property="replyType" jdbcType="VARCHAR" />
+    <result column="reply_reviews_id" property="replyReviewsId" jdbcType="INTEGER" />
+    <result column="reply_msg" property="replyMsg" jdbcType="VARCHAR" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, reviews_id, business_id, reply_type, reply_reviews_id, reply_msg, creator, gmt_create, 
+    is_deleted, remark
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from user_reply
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from user_reply
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.user.model.UserReply" >
+    insert into user_reply (id, reviews_id, business_id, 
+      reply_type, reply_reviews_id, reply_msg, 
+      creator, gmt_create, is_deleted, 
+      remark)
+    values (#{id,jdbcType=INTEGER}, #{reviewsId,jdbcType=INTEGER}, #{businessId,jdbcType=INTEGER}, 
+      #{replyType,jdbcType=VARCHAR}, #{replyReviewsId,jdbcType=INTEGER}, #{replyMsg,jdbcType=VARCHAR}, 
+      #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER}, 
+      #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.user.model.UserReply" useGeneratedKeys="true" keyProperty="id">
+    insert into user_reply
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="reviewsId != null" >
+        reviews_id,
+      </if>
+      <if test="businessId != null" >
+        business_id,
+      </if>
+      <if test="replyType != null" >
+        reply_type,
+      </if>
+      <if test="replyReviewsId != null" >
+        reply_reviews_id,
+      </if>
+      <if test="replyMsg != null" >
+        reply_msg,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="reviewsId != null" >
+        #{reviewsId,jdbcType=INTEGER},
+      </if>
+      <if test="businessId != null" >
+        #{businessId,jdbcType=INTEGER},
+      </if>
+      <if test="replyType != null" >
+        #{replyType,jdbcType=VARCHAR},
+      </if>
+      <if test="replyReviewsId != null" >
+        #{replyReviewsId,jdbcType=INTEGER},
+      </if>
+      <if test="replyMsg != null" >
+        #{replyMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.user.model.UserReply" >
+    update user_reply
+    <set >
+      <if test="reviewsId != null" >
+        reviews_id = #{reviewsId,jdbcType=INTEGER},
+      </if>
+      <if test="businessId != null" >
+        business_id = #{businessId,jdbcType=INTEGER},
+      </if>
+      <if test="replyType != null" >
+        reply_type = #{replyType,jdbcType=VARCHAR},
+      </if>
+      <if test="replyReviewsId != null" >
+        reply_reviews_id = #{replyReviewsId,jdbcType=INTEGER},
+      </if>
+      <if test="replyMsg != null" >
+        reply_msg = #{replyMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.user.model.UserReply" >
+    update user_reply
+    set reviews_id = #{reviewsId,jdbcType=INTEGER},
+      business_id = #{businessId,jdbcType=INTEGER},
+      reply_type = #{replyType,jdbcType=VARCHAR},
+      reply_reviews_id = #{replyReviewsId,jdbcType=INTEGER},
+      reply_msg = #{replyMsg,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,1559 @@
+package com.nork.render.service.impl;
+
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.nork.common.exception.GeneratePanoramaException;
+import com.nork.common.model.LoginUser;
+import com.nork.common.model.ResponseEnvelope;
+import com.nork.common.util.StringUtils;
+import com.nork.common.util.Utils;
+import com.nork.design.common.DesignPlanConstants;
+import com.nork.design.model.*;
+import com.nork.design.service.*;
+import com.nork.home.model.SpaceCommon;
+import com.nork.home.service.SpaceCommonService;
+import com.nork.pay.metadata.ProductType;
+import com.nork.pay.service.PayOrderService;
+import com.nork.platform.model.BasePlatform;
+import com.nork.platform.service.BasePlatformService;
+import com.nork.product.model.AutoRenderTaskConstant;
+import com.nork.render.model.BaseHouseGuidePicInfo;
+import com.nork.render.model.BaseHousePicFullHousePlanRel;
+import com.nork.render.model.vo.FullHouseRenderTaskVO;
+import com.nork.system.model.ResRenderPic;
+import com.nork.system.model.SysUser;
+import com.nork.system.service.SysUserService;
+import com.nork.user.service.UserFinanceService;
+import net.sf.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.*;
+
+/**
+ * Description: 移动端和网站运营逻辑抽象类
+ *
+ * @author 何文
+ * @version 1.0
+ * Company:Sandu
+ * Copyright:Copyright(c)2017
+ * @date 2017/12/8
+ */
+public abstract class AbstractAutoRenderProcessor {
+
+    protected Logger logger = LoggerFactory.getLogger(AbstractAutoRenderProcessor.class);
+    private static final Gson GSON = new Gson();
+    @Autowired
+    protected DesignTempletService designTempletService;
+
+    @Autowired
+    protected SpaceCommonService spaceCommonService;
+
+    @Autowired
+    protected DesignPlanRecommendedService designPlanRecommendedService;
+
+    @Autowired
+    protected DesignPlanRenderSceneService designPlanRenderSceneService;
+
+    @Autowired
+    protected PayOrderService payOrderService;
+
+    @Autowired
+    protected SysUserService sysUserService;
+
+    @Autowired
+    private UserFinanceService userFinanceService;
+    @Autowired
+    private BasePlatformService basePlatformService;
+    @Autowired
+    protected DesignPlanAutoRenderService designPlanAutoRenderServiceImpl;
+    @Autowired
+    protected FullHousePlanService fullHousePlanService;
+    @Value("${app.core.url}")
+    private String coreUrl;
+    @Value("${app.onekey.url}")
+    private String appOnekeyUrl;
+
+    /**
+     * 适配构造自动渲染任务对象
+     *
+     * @return
+     * @throws GeneratePanoramaException
+     */
+    protected AutoRenderTask getAutoRenderTask(ResRenderPic resRenderPic) throws GeneratePanoramaException {
+
+        // 用户ID
+        Integer userId = resRenderPic.getUserId();
+        // 房型ID
+        Integer houseId = resRenderPic.getHouseId();
+        // 渲染任务类型 （详见ProductType常量类）
+        String renderTaskType = resRenderPic.getRenderTaskType();
+        // 任务类型（0：自动渲染 1：产品替换）
+        Integer taskType = resRenderPic.getTaskType();
+        // 任务来源 （0：web 1：APP）
+        Integer taskSource = resRenderPic.getTaskSource();
+        //订单号
+        String orderNo = resRenderPic.getOrderNo();
+
+
+        if (StringUtils.isEmpty(orderNo)) {
+            throw new GeneratePanoramaException(false, "订单号为空");
+        }
+        BasePlatform basePlatform = basePlatformService.getByCode(resRenderPic.getPlatformCode());
+        if (basePlatform == null) {
+            throw new GeneratePanoramaException(false, "平台数据错误！");
+        }
+        //平台Id
+        Integer platformId = basePlatform.getId();
+        InetAddress addr = null;
+
+        AutoRenderTask autoRenderTask = new AutoRenderTask();
+        autoRenderTask.setOrderNumber(orderNo);
+        autoRenderTask.setPlatformId(platformId);
+        autoRenderTask.setOverlapResolve(resRenderPic.getOverlapResolve());
+
+        SysUser sysUser = sysUserService.get(userId);
+        LoginUser loginUser = sysUser.toLoginUser();
+        autoRenderTask.setCreator(loginUser.getName());
+        autoRenderTask.setModifier(loginUser.getName());
+        autoRenderTask.setOperationUserId(loginUser.getId());
+        autoRenderTask.setOperationUserName(loginUser.getName());
+
+        try {
+            addr = InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            logger.error("获取IP地址发生异常");
+            throw new GeneratePanoramaException(false, "获取IP地址发生异常");
+        }
+        String hostIp = addr.getHostAddress().toString();
+        autoRenderTask.setHostIp(hostIp);
+
+        if (houseId != null && houseId > 0) {
+            autoRenderTask.setHouseId(houseId);
+        }
+
+        autoRenderTask.setPlanHouseType(resRenderPic.getPlanHouseType());
+        autoRenderTask.setGmtCreate(new Date());
+        autoRenderTask.setGmtModified(new Date());
+        autoRenderTask.setTaskType(taskType.intValue());
+        autoRenderTask.setTaskSource(taskSource);
+        //复制前效果图方案id及全屋方案id,主任务id等，如果为单空间，则前端不会传全屋方案id，放在公共方法里不影响
+        autoRenderTask.setPreRenderSceneId(resRenderPic.getPreRenderSceneId());
+        autoRenderTask.setFullHousePlanAction(resRenderPic.getFullHousePlanAction());
+        autoRenderTask.setFullHousePlanId(resRenderPic.getFullHousePlanId());
+        autoRenderTask.setNewFullHousePlanId(resRenderPic.getFullHousePlanId());
+        autoRenderTask.setMainTaskId(resRenderPic.getTaskId());
+        autoRenderTask.setSpaceFunctionId(resRenderPic.getSpaceFunctionId());
+        autoRenderTask.setSupplyDemandId(resRenderPic.getSupplyDemandId());
+
+        //c端的自动渲染设置houseId的值
+        if (taskSource.intValue() == 0 && taskType.intValue() == 0) {
+            autoRenderTask.setHouseId(houseId);
+        }
+        if (ProductType.COMMON_RENDER.equals(renderTaskType)) {
+            // 普通照片级
+            autoRenderTask.setRenderTypesStr(ProductType.PHOTO);
+            autoRenderTask.setRenderPic(AutoRenderTaskConstant.NO_RENDER_TASK);
+        } else if (ProductType.PANORAMA_RENDER.equals(renderTaskType)) {
+            // 720全景
+            autoRenderTask.setRenderTypesStr(ProductType.ROAM720);
+            autoRenderTask.setRender720(AutoRenderTaskConstant.NO_RENDER_TASK);
+        } else if (ProductType.ROAM_VIDEO_RENDER.equals(renderTaskType)) {
+            // 漫游视频
+            autoRenderTask.setRenderTypesStr(ProductType.VIDEO);
+            autoRenderTask.setRenderVideo(AutoRenderTaskConstant.NO_RENDER_TASK);
+        } else if (ProductType.ROAM_PANORAMA_RENDER.equals(renderTaskType)) {
+            // 720多点
+            autoRenderTask.setRenderTypesStr(ProductType.ROAMN720);
+            autoRenderTask.setRenderN720(AutoRenderTaskConstant.NO_RENDER_TASK);
+        } else {
+            throw new GeneratePanoramaException(false, "未知渲染类型");
+        }
+
+        return autoRenderTask;
+    }
+
+    /**
+     * 全屋方案组装主任务task对象
+     *
+     * @param resRenderPic
+     * @param autoRenderTask
+     * @return
+     * @throws GeneratePanoramaException
+     */
+    protected void createFullHouseTask(ResRenderPic resRenderPic, AutoRenderTask autoRenderTask) throws GeneratePanoramaException {
+        //全屋方案id
+        Integer fullHousePlanId = resRenderPic.getPlanRecommendedId();
+        //全屋方案
+        FullHouseDesignPlan fullHouseDesignPlan = fullHousePlanService.get(fullHousePlanId);
+        if (null == fullHouseDesignPlan) {
+            logger.error("get by fullHousePlan:{}", fullHousePlanId + " not found FullHouseDesignPlan data");
+            throw new GeneratePanoramaException(false, "未找到全屋方案信息");
+        }
+        String designCode = fullHouseDesignPlan.getPlanCode();
+        String designName = fullHouseDesignPlan.getPlanName();
+        autoRenderTask.setFullHousePlanId(fullHousePlanId);
+        autoRenderTask.setPlanId(fullHousePlanId);
+        autoRenderTask.setTemplateId(-1);
+        autoRenderTask.setDesignCode(designCode);
+        autoRenderTask.setDesignName(designName);
+    }
+
+    /**
+     * 单空间方案组装task对象
+     *
+     * @param resRenderPic
+     * @param autoRenderTask
+     * @throws GeneratePanoramaException
+     */
+    protected void createSingleHouseTask(ResRenderPic resRenderPic, AutoRenderTask autoRenderTask) throws GeneratePanoramaException {
+        // 效果图ID
+        Integer designPlanSceneId = resRenderPic.getDesignPlanSceneId();
+        // 方案推荐ID
+        Integer planRecommendedId = resRenderPic.getPlanRecommendedId();
+        // 样板房ID
+        Integer templateId = resRenderPic.getTemplateId();
+        // 操作来源（0：我的设计效果图 1：方案推荐）
+        Integer operationSource = resRenderPic.getOperationSource();
+        // 任务类型（0：自动渲染 1：产品替换）
+        Integer taskType = resRenderPic.getTaskType();
+        //方案组合主方案id
+        Integer groupPrimaryId = resRenderPic.getGroupPrimaryId();
+
+        Integer spaceCommonId = null;
+        String designCode = null;
+        String designName = null;
+        String templateCode;
+
+        if (operationSource.intValue() == AutoRenderTaskConstant.OPERATION_SOURCE_MY_DESIGN) {
+            //来源是我的设计
+            DesignPlanRenderScene designPlanRenderScene = designPlanRenderSceneService.get(designPlanSceneId);
+            if (null == designPlanRenderScene) {
+                logger.error("get by designPlanSceneId:{}", designPlanSceneId + " not found DesignPlanRenderScene data");
+                throw new GeneratePanoramaException(false, "未找到方案效果图信息");
+            }
+            spaceCommonId = designPlanRenderScene.getSpaceCommonId();
+            designCode = designPlanRenderScene.getPlanCode();
+            designName = designPlanRenderScene.getPlanName();
+            autoRenderTask.setPlanId(designPlanSceneId);
+        } else if (operationSource.intValue() == AutoRenderTaskConstant.OPERATION_SOURCE_REMMONED) {
+            //来源是推荐方案
+            //先查询方案信息，判断是否是组合方案，是组合方案的话就去获取最适合的子方案
+            DesignPlanRecommended planRecommended = designPlanRecommendedService.get(planRecommendedId);
+            if (null == planRecommended) {
+                logger.error("get by planRecommendedId:{}", planRecommendedId + " not found DesignPlanRecommended data");
+                throw new GeneratePanoramaException(false, "未找到推荐方案信息");
+            }
+
+            groupPrimaryId = planRecommended.getGroupPrimaryId();
+            if (groupPrimaryId != null && groupPrimaryId != 0 && groupPrimaryId.equals(planRecommendedId) &&
+                    AutoRenderTaskConstant.TASK_TYPE_AUTO_RENDER.equals(taskType)) {
+                //如果装进我家的方案是组合方案的子方案，则去获取最适合的方案适配
+                try {
+                    planRecommendedId = this.getMatchPlanOfGroup(planRecommendedId, templateId);
+                } catch (GeneratePanoramaException e) {
+                    logger.warn("get match plan ====> exception:" + e);
+                    //如果是组合方案，没有获取到适配的子方案的话，产品告知返回本文案 add by gaoj 2018.09.12
+                    throw new GeneratePanoramaException(false, "该方案家具尺寸过大，不适合您家的户型，请选择其他方案");
+                }
+            }
+            logger.error("渲染任务 ======> groupPrimaryId=" + groupPrimaryId + ",planRecommendedId=" + planRecommendedId);
+            DesignPlanRecommended designPlanRecommended = designPlanRecommendedService.get(planRecommendedId);
+            if (null == designPlanRecommended) {
+                logger.error("get by planRecommendedId:{}", planRecommendedId + " not found DesignPlanRecommended data");
+                throw new GeneratePanoramaException(false, "未找到推荐方案信息");
+            }
+            spaceCommonId = designPlanRecommended.getSpaceCommonId();
+            designCode = designPlanRecommended.getPlanCode();
+            designName = designPlanRecommended.getPlanName();
+            autoRenderTask.setPlanId(planRecommendedId);
+            //添加打组方案主方案id
+            autoRenderTask.setGroupPrimaryId(groupPrimaryId);
+        }
+
+        SpaceCommon spaceCommon = getSpaceCommon(spaceCommonId);
+        String spaceCode = spaceCommon.getSpaceCode();
+        autoRenderTask.setSpaceCode(spaceCode);
+        autoRenderTask.setDesignCode(designCode);
+        autoRenderTask.setDesignName(designName);
+        autoRenderTask.setOperationSource(operationSource);
+
+        if (templateId != null && templateId.intValue() > 0) {
+            DesignTemplet designTemplet = designTempletService.selectByPrimaryKey(templateId);
+            if (null == designTemplet) {
+                logger.error("templateId:{},not found data", templateId);
+                throw new GeneratePanoramaException(false, "未找到样板房信息");
+            }
+            templateCode = designTemplet.getDesignCode();
+            autoRenderTask.setTemplateCode(templateCode);
+        }
+        // 0:自动渲染 1：替换
+        if (taskType.intValue() == AutoRenderTaskConstant.TASK_TYPE_AUTO_RENDER) {
+            autoRenderTask.setTemplateId(templateId);
+        } else if (taskType.intValue() == AutoRenderTaskConstant.TASK_TYPE_REPLACE) {
+            autoRenderTask.setTemplateId(-1);
+            autoRenderTask.setPriority(99);
+        }
+
+    }
+
+    /**
+     * 根据主方案id和样板房id获取最适配的子方案
+     *
+     * @param planRecommendedId
+     * @param templateId
+     * @return
+     * @throws GeneratePanoramaException
+     */
+    protected Integer getMatchPlanOfGroup(Integer planRecommendedId, Integer templateId) throws GeneratePanoramaException {
+        String url = appOnekeyUrl + "/online/web/design/intelligenceDecoration/getBestMatchInPlanGroup.htm?designTemplateId=" + templateId + "&recommendedPlanId=" + planRecommendedId;
+        logger.error("getMatchPlan----------- url : {}", url);
+        //远程调用获取最适配子方案
+        String result = Utils.doGetMethod(url);
+        logger.error("getMatchPlan -------- onekey result = {}", result);
+
+        if (result == null || "".equals(result)) {
+            throw new GeneratePanoramaException(false, "组合方案远程获取适配子方案失败,result is null");
+        }
+        ResponseEnvelope responseEnvelope = GSON.fromJson(result, ResponseEnvelope.class);
+        if (!responseEnvelope.isSuccess()) {
+            throw new GeneratePanoramaException(false, "组合方案远程获取适配子方案失败,isSuccess=" + responseEnvelope.isSuccess());
+        }
+        if (responseEnvelope.getObj() == null) {
+            throw new GeneratePanoramaException(false, "组合方案远程获取适配子方案失败,obj=" + responseEnvelope.getObj());
+        }
+        planRecommendedId = ((Double) responseEnvelope.getObj()).intValue();
+        if (null == planRecommendedId || planRecommendedId.intValue() <= 0) {
+            throw new GeneratePanoramaException(false, "组合方案远程获取适配子方案失败,planRecommendedId=" + planRecommendedId);
+        }
+        logger.error("getMatchPlan -------- get the bast match plan id success = {}", planRecommendedId);
+
+        return planRecommendedId;
+    }
+
+    private SpaceCommon getSpaceCommon(Integer spaceCommonId) throws GeneratePanoramaException {
+        SpaceCommon spaceCommon = spaceCommonService.get(spaceCommonId);
+        if (null == spaceCommon) {
+            logger.error("spaceCommonId:{},not found data", spaceCommonId);
+            throw new GeneratePanoramaException(false, "未找到空间信息");
+        }
+        return spaceCommon;
+    }
+
+    private LoginUser checkSysUserData(Integer userId, Integer houseId, Double totalFee) throws GeneratePanoramaException {
+        SysUser sysUser = sysUserService.get(userId);
+        LoginUser loginUser = sysUser.toLoginUser();
+        //判断用户余额是不是充足
+//        if(sysUser.getBalanceAmount().intValue() < totalFee.intValue()) {
+//            logger.error("用户：",loginUser.getLoginName()+"余额不足，当前余额：{}",sysUser.getBalanceAmount()+"--订单需要付款金额:{}",totalFee);
+//            throw new GeneratePanoramaException(false, "您的余额不足，请到PC端充值！");
+//        }
+
+        if (null != houseId && houseId > 0) {
+            //检查用户户型是否可用(已购买的户型不算入户型数计算) 移动端不需要校验数量
+            logger.info("检查用户户型是否可用(已购买的户型不算入户型数计算):userId:{}, houseId:{}.", userId, houseId);
+            boolean houseIsAbleUse = userFinanceService.checkUserHouseIsAbleUse(userId, houseId);
+            logger.info("检查用户户型是否可用(已购买的户型不算入户型数计算)完成:houseIsAbleUse:{}", houseIsAbleUse);
+
+            if (!houseIsAbleUse) {
+                logger.warn("用户：{}，账户互相不足，请购买户型", sysUser.getUserName());
+                throw new GeneratePanoramaException(false, "账户户型不足，请购买户型.");
+            }
+        }
+        return loginUser;
+    }
+
+    //传入单个taskId的回调
+    public boolean backFillTaskId(String orderNo, Integer taskId, String token, String platformCode) {
+
+        String payPath = Utils.getPropertyName("app", "pay.server.url", "");
+        String url = payPath + "/web/pay/payOrder/updatePayoOrder?orderNo=" + orderNo + "&taskId=" + taskId;
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("orderNo", orderNo);
+        params.put("taskId", taskId.toString());
+        try {
+            String result = Utils.doPostMethod(url, params, token, platformCode);
+            JSONObject jsonObject = JSONObject.fromObject(result);
+            boolean status = (boolean) jsonObject.get("status");
+            return status;
+        } catch (Exception e) {
+            logger.error("backFillTaskId========>exception:" + e);
+            return false;
+        }
+    }
+
+    /**
+     * 构造全屋渲染子任务集合
+     *
+     * @param mainTask
+     * @return
+     * @throws GeneratePanoramaException
+     */
+    protected List<AutoRenderTask> getSubtaskList(AutoRenderTask mainTask) throws GeneratePanoramaException {
+
+        //调用远程服务获取全屋方案适配的样板房及方案集合-----
+        String url = coreUrl + "/v1/core/fullHouse/getMatchInfo";
+        Integer houseId = mainTask.getHouseId();
+        if (houseId == null || houseId <= 0) {
+            logger.error("getSubtaskList ===> 主任务houseId为空");
+            throw new GeneratePanoramaException(false, "全屋方案自动渲染，主任务houseId为空");
+        }
+        url += "?houseId=" + houseId + "&fullHousePlanId=" + mainTask.getPlanId();
+        logger.error("远程调用core获取样板房列表 url=" + url);
+        String jsonResult = Utils.doGetMethod(url);
+        logger.error("远程调用core获取样板房列表 jsonResult=" + jsonResult);
+        if (StringUtils.isBlank(jsonResult)) {
+            logger.error("getSubtaskList ===> 远程调用获取子任务方案id和样板房id有误");
+            throw new GeneratePanoramaException(false, "远程调用获取子任务方案id和样板房id有误");
+        }
+
+        ResponseEnvelope<MatchInfoVO> response = GSON.fromJson(jsonResult, new TypeToken<ResponseEnvelope<MatchInfoVO>>() {
+        }.getType());
+        logger.error("远程调用core获取样板房列表 response=" + response);
+        List<MatchInfoVO> datalist = response.getDatalist();
+        if (datalist == null || datalist.size() == 0) {
+            logger.error("getSubtaskList ===> 远程调用获取子任务方案id和样板房id集合为空");
+            throw new GeneratePanoramaException(false, "远程调用获取子任务方案id和样板房id集合为空");
+        }
+
+        List<AutoRenderTask> autoRenderTaskList = new ArrayList<>();
+        AutoRenderTask autoRenderTask;
+
+        for (MatchInfoVO matchInfoVO : datalist) {
+            autoRenderTask = new AutoRenderTask();
+            BeanUtils.copyProperties(mainTask, autoRenderTask);
+            //主子任务不一样的值
+            autoRenderTask.setId(null);
+            autoRenderTask.setPlanId(matchInfoVO.getDesignRecommendedPlanId());
+            autoRenderTask.setTemplateId(matchInfoVO.getDesignTempletId());
+            autoRenderTask.setSpaceFunctionId(matchInfoVO.getSpaceFunctionId());
+            autoRenderTask.setGmtCreate(new Date());
+            autoRenderTask.setGmtModified(new Date());
+            autoRenderTask.setMainTaskId(mainTask.getId());
+            autoRenderTask.setSpaceCode(matchInfoVO.getSpaceCode());
+            autoRenderTask.setTemplateCode(matchInfoVO.getTemplateCode());
+            autoRenderTask.setSpaceCommonId(matchInfoVO.getSpaceCommonId());
+            autoRenderTaskList.add(autoRenderTask);
+        }
+        return autoRenderTaskList;
+    }
+
+
+    /**
+     * 全屋方案一次性渲染的逻辑  写到这里两个实现类都使用一套
+     *
+     * @param resRenderPic
+     * @return
+     */
+    protected ResponseEnvelope handleFullHouseAutoRenderTask(ResRenderPic resRenderPic) throws GeneratePanoramaException{
+        AutoRenderTask autoRenderTask = null;
+        try {
+            // 构造全屋渲染主任务对象
+            //公共的属性
+            autoRenderTask = getAutoRenderTask(resRenderPic);
+            //全屋方案主任务的属性
+            createFullHouseTask(resRenderPic, autoRenderTask);
+
+        } catch (GeneratePanoramaException e) {
+            // return new ResponseEnvelope(e.isFlag(), e.getMessage());
+            throw new GeneratePanoramaException(e.getMessage());
+        }
+        //全屋方案主任务添加到db(先添加到db，子任务要回填)
+        Integer taskId = designPlanAutoRenderServiceImpl.add(autoRenderTask);
+        autoRenderTask.setId(taskId);
+        autoRenderTask.setMainTaskId(taskId);
+
+        List<AutoRenderTask> subtaskList;
+        try {
+            // 构造全屋渲染子任务对象集合
+            subtaskList = getSubtaskList(autoRenderTask);
+        } catch (GeneratePanoramaException e) {
+            // return new ResponseEnvelope(e.isFlag(), e.getMessage());
+            throw new GeneratePanoramaException(e.getMessage());
+        }
+        if (subtaskList == null || subtaskList.size() == 0) {
+            // return new ResponseEnvelope(false, "获取子任务集合为空");
+            throw new GeneratePanoramaException("获取子任务集合为空");
+        }
+        //设置主任务的子任务数量字段
+        autoRenderTask.setSubtaskCount(subtaskList.size());
+        //回填主任务的部分属性
+        Integer res = designPlanAutoRenderServiceImpl.updateAutoRenderTask(autoRenderTask);
+        if (res <= 0) {
+            // return new ResponseEnvelope(false, "回填主任务相关字段失败");
+            throw new GeneratePanoramaException("回填主任务相关字段失败");
+        }
+
+        //全屋方案子任务集合添加到db
+        designPlanAutoRenderServiceImpl.addSubtaskList(subtaskList);
+        //全屋方案主任务添加到redis
+        Integer result = designPlanAutoRenderServiceImpl.addRedisLists(autoRenderTask);
+        //全屋方案子任务集合添加到redis
+        boolean listStatus = designPlanAutoRenderServiceImpl.addListToRedisLists(subtaskList);
+
+        String token = resRenderPic.getToken();
+        String platformCode = resRenderPic.getPlatformCode();
+        Boolean flag = false;
+
+        boolean status = backFillTaskId(autoRenderTask.getOrderNumber(), taskId, token, platformCode);
+
+        if (result > 0 && status && listStatus) {
+            flag = true;
+            return new ResponseEnvelope<>(flag, "创建渲染任务成功！");
+        }
+        logger.error("全屋方案装进我家创建渲染任务失败===>result:" + result + ",status:" + status + ",listStatus:" + listStatus);
+        return new ResponseEnvelope<>(flag, "创建渲染任务失败！");
+    }
+
+
+    /**
+     * 全屋方案制作相关渲染逻辑
+     *
+     * @param resRenderPic
+     * @return
+     */
+    protected ResponseEnvelope handleFullHousePlanAutoRenderNewTask(ResRenderPic resRenderPic) throws GeneratePanoramaException{
+        Integer fullHousePlanAction = resRenderPic.getFullHousePlanAction();
+        FullHouseRenderTaskVO fullHouseRenderTaskVO = null;
+        //判断全屋方案制作是什么操作
+        if (AutoRenderTaskConstant.FULL_HOUSE_PLAN_ACTION_CREATE.equals(fullHousePlanAction)) {
+            //第一次调用，
+            Integer bizType = resRenderPic.getBizType();
+            //单空间创建全屋方案
+            if (null == bizType || 0 == bizType || 1 == bizType) {
+                // try {
+                    fullHouseRenderTaskVO = this.fullHousePlanCreate(resRenderPic);
+                // } catch (GeneratePanoramaException e) {
+                //     return new ResponseEnvelope(e.isFlag(), e.getMessage());
+                // }
+                //全屋方案装进我家
+            } else if (2 == bizType) {
+
+                // try {
+                fullHouseRenderTaskVO = this.replaceFullHousePlanCreate(resRenderPic);
+                // } catch (GeneratePanoramaException e) {
+                //     // 手动回滚事务
+                //     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                //     return new ResponseEnvelope(e.isFlag(), e.getMessage());
+                // }
+
+            }
+
+        } else if (AutoRenderTaskConstant.FULL_HOUSE_PLAN_ACTION_UPDATE.equals(fullHousePlanAction)) {
+            //修改全屋方案，新增或替换子方案
+            // try {
+                fullHouseRenderTaskVO = this.fullHousePlanUpdate(resRenderPic);
+            // } catch (GeneratePanoramaException e) {
+            //     return new ResponseEnvelope(e.isFlag(), e.getMessage());
+            // }
+
+        } else if (AutoRenderTaskConstant.FULL_HOUSE_PLAN_ACTION_UPDATE_NEW.equals(fullHousePlanAction)) {
+            //修改全屋方案生成新的全屋方案
+            // try {
+                fullHouseRenderTaskVO = this.fullHousePlanCreateNew(resRenderPic);
+            // } catch (GeneratePanoramaException e) {
+            //     return new ResponseEnvelope(e.isFlag(), e.getMessage());
+            // }
+
+        } else if (AutoRenderTaskConstant.FULL_HOUSE_PLAN_ACTION_COPY.equals(fullHousePlanAction)) {
+            // 处理复制过来的全屋方案渲染逻辑，有全屋方案没有主子任务
+            fullHouseRenderTaskVO = this.fullhouseplanCopy(resRenderPic);
+
+        } else {
+            return new ResponseEnvelope(false, "不能识别制作全屋方案的类型,fullHousePlanAction=" + fullHousePlanAction);
+        }
+
+        if (fullHouseRenderTaskVO == null) {
+            return new ResponseEnvelope(false, "创建渲染任务失败");
+        }
+
+        return new ResponseEnvelope(true, fullHouseRenderTaskVO, "创建渲染任务成功");
+    }
+
+    /**
+     * 处理复制出来的全屋方案逻辑
+     * 只有全屋方案，没有主子任务的情况
+     * @param resRenderPic
+     * @return
+     */
+    public FullHouseRenderTaskVO fullhouseplanCopy(ResRenderPic resRenderPic) throws GeneratePanoramaException{
+        // 如果没有任务id，表示复制完全屋方案之后第一次装修，就创建主任务
+        if (null == resRenderPic.getTaskId() || 0 == resRenderPic.getTaskId()) {
+            //公共的属性
+            AutoRenderTask mainTask = this.getAutoRenderTask(resRenderPic);
+            //单空间方案的属性
+            this.createSingleHouseTask(resRenderPic, mainTask);
+            //全屋方案主任务添加到db(先添加到db，子任务要回填主任务id)
+            Integer mainTaskId = designPlanAutoRenderServiceImpl.add(mainTask);
+            mainTask.setId(mainTaskId);
+            mainTask.setMainTaskId(mainTaskId);
+
+            //回填主任务的部分属性
+            Integer res = designPlanAutoRenderServiceImpl.updateAutoRenderTask(mainTask);
+            if (res <= 0) {
+                throw new GeneratePanoramaException("回填主任务相关字段失败");
+            }
+
+            //把主任务的属性拷贝到子任务
+            AutoRenderTask subtask = new AutoRenderTask();
+            BeanUtils.copyProperties(mainTask, subtask);
+            //子任务的特殊字段
+            subtask.setId(null);
+            subtask.setGmtCreate(new Date());
+            subtask.setGmtModified(new Date());
+
+            //添加子任务到db
+            Integer subtaskId = designPlanAutoRenderServiceImpl.add(subtask);
+            if (subtaskId == null || 0 == subtaskId) {
+                throw new GeneratePanoramaException("生成子任务失败");
+            }
+            subtask.setId(subtaskId);
+            Integer newFullHousePlanId = resRenderPic.getNewFullHousePlanId();
+            // 保存全屋户型文件数据
+            addBaseHousePicFullHousePlanRel(resRenderPic, resRenderPic.getNewFullHousePlanId(), mainTaskId, subtaskId);
+            //全屋方案主任务添加到redis
+            Integer mainResult = designPlanAutoRenderServiceImpl.addRedisLists(mainTask);
+            //子任务添加到redis
+            Integer subResult = designPlanAutoRenderServiceImpl.addRedisLists(subtask);
+            // 修改复制过来的全屋方案的is_update为1
+            int result = designPlanAutoRenderServiceImpl.updateFullHouseDesignPlan(newFullHousePlanId);
+            if (result <= 0) {
+                throw new GeneratePanoramaException("修改复制过来的全屋方案isUpdate失败，result="+result+
+                        ",newFullHousePlanId="+newFullHousePlanId);
+            }
+
+            String token = resRenderPic.getToken();
+            String platformCode = resRenderPic.getPlatformCode();
+            boolean status = backFillTaskId(mainTask.getOrderNumber(), mainTaskId, token, platformCode);
+            //构建返回值，全屋方案id和主方案id
+            FullHouseRenderTaskVO fullHouseRenderTaskVO = new FullHouseRenderTaskVO();
+            fullHouseRenderTaskVO.setFullHousePlanId(newFullHousePlanId);
+            fullHouseRenderTaskVO.setMainTaskId(mainTaskId);
+            if (mainTaskId > 0 && subtaskId > 0 && mainResult > 0 && subResult > 0) {
+                //成功返回数据
+                return fullHouseRenderTaskVO;
+            }
+
+            logger.error("全屋方案制作新增全屋，创建渲染任务失败===>mainTaskId:" + mainTaskId + ",subtaskId:"
+                    + subtaskId + ",mainResult:" + mainResult + ",subResult" + subResult);
+            return null;
+        } else {
+            // 如果有任务id，表示不是第一次装修，就调用update全屋的接口
+            return this.fullHousePlanUpdate(resRenderPic);
+        }
+    }
+
+
+    protected FullHouseRenderTaskVO replaceFullHousePlanCreate(ResRenderPic resRenderPic) throws GeneratePanoramaException {
+        //调用core的接口生成空的全屋主方案
+        Integer fullHousePlanId = this.createTempFullHousePlan(resRenderPic);
+        AutoRenderTask mainAutoRenderTask = null;
+
+        // 构造全屋渲染主任务对象
+        //公共的属性
+        mainAutoRenderTask = getAutoRenderTask(resRenderPic);
+        //全屋方案主任务的属性
+        createFullHouseTask(resRenderPic, mainAutoRenderTask);
+
+        //全屋方案主任务添加到db(先添加到db，子任务要回填)
+        // autoRenderTask.setFullHousePlanId(fullHousePlanId);
+        mainAutoRenderTask.setNewFullHousePlanId(fullHousePlanId);
+        Integer mainTaskId = designPlanAutoRenderServiceImpl.add(mainAutoRenderTask);
+        mainAutoRenderTask.setId(mainTaskId);
+        mainAutoRenderTask.setMainTaskId(mainTaskId);
+
+        List<AutoRenderTask> subtaskList;
+
+        // 构造全屋渲染子任务对象集合
+        subtaskList = getSubtaskList(mainAutoRenderTask);
+
+        if (subtaskList == null || subtaskList.size() == 0) {
+            throw new GeneratePanoramaException(false, "获取子任务集合为空");
+        }
+        //设置主任务的子任务数量字段
+        mainAutoRenderTask.setSubtaskCount(subtaskList.size());
+        //回填主任务的部分属性
+        Integer res = designPlanAutoRenderServiceImpl.updateAutoRenderTask(mainAutoRenderTask);
+        if (res <= 0) {
+            throw new GeneratePanoramaException(false, "回填主任务相关字段失败");
+        }
+
+        //全屋方案子任务集合添加到db
+        designPlanAutoRenderServiceImpl.addSubtaskList(subtaskList);
+        {
+            /*保存全屋户型文件数据start*/
+            //查询全屋坐标信息数据
+            List<BaseHouseGuidePicInfo> baseHouseGuidePicInfoList = this.getBaseHouseGuidePicInfoList(subtaskList);
+
+            //通过主任务查询所有子任务集合
+            List<AutoRenderTask> autoRenderTaskList = designPlanAutoRenderServiceImpl.getALLTaskByMainTaskId(resRenderPic.getUserId(), mainTaskId);
+
+            List<BaseHousePicFullHousePlanRel> newBaseHousePicFullHousePlanRelList = this.createBaseHousePicFullHousePlanRelAddList(resRenderPic, fullHousePlanId, baseHouseGuidePicInfoList, autoRenderTaskList, mainTaskId);
+            if (null != newBaseHousePicFullHousePlanRelList && newBaseHousePicFullHousePlanRelList.size() > 0) {
+                int count;
+                try {
+                    count = designPlanAutoRenderServiceImpl.addBaseHousePicFullHousePlanRelList(newBaseHousePicFullHousePlanRelList);
+                    if (0 == count) {
+                        logger.error("保存全屋户型文件失败", GSON.toJson(newBaseHousePicFullHousePlanRelList));
+                        throw new GeneratePanoramaException(false, "保存全屋户型文件失败");
+                    }
+                } catch (Exception e) {
+                    logger.error("保存全屋户型文件数据异常", e);
+                    throw new GeneratePanoramaException(false, "保存全屋户型文件数据异常");
+                }
+            }
+            /*保存全屋户型文件数据end*/
+        }
+        //全屋方案主任务添加到redis
+        Integer result = designPlanAutoRenderServiceImpl.addRedisLists(mainAutoRenderTask);
+        //全屋方案子任务集合添加到redis
+        boolean listStatus = designPlanAutoRenderServiceImpl.addListToRedisLists(subtaskList);
+
+        String token = resRenderPic.getToken();
+        String platformCode = resRenderPic.getPlatformCode();
+        Boolean flag = false;
+        // Update by steve,
+        boolean status = backFillTaskId(mainAutoRenderTask.getOrderNumber(), mainTaskId, token, platformCode);
+
+        if (result > 0 && listStatus) {
+            //构建返回值，全屋方案id和主方案id
+            FullHouseRenderTaskVO fullHouseRenderTaskVO = new FullHouseRenderTaskVO();
+            fullHouseRenderTaskVO.setFullHousePlanId(fullHousePlanId);
+            fullHouseRenderTaskVO.setMainTaskId(mainTaskId);
+            return fullHouseRenderTaskVO;
+        }
+        logger.error("全屋方案装进我家创建渲染任务失败===>result:" + result + ",listStatus:" + listStatus);
+        throw new GeneratePanoramaException(flag, "创建渲染任务失败！");
+    }
+
+
+    protected List<BaseHousePicFullHousePlanRel> createBaseHousePicFullHousePlanRelAddList(ResRenderPic resRenderPic, Integer fullHousePlanId, List<BaseHouseGuidePicInfo> baseHouseGuidePicInfoList, List<AutoRenderTask> subtaskList, Integer taskId) {
+        List<BaseHousePicFullHousePlanRel> baseHousePicFullHousePlanRelList = new ArrayList<>(baseHouseGuidePicInfoList.size());
+        for (BaseHouseGuidePicInfo baseHouseGuidePicInfo : baseHouseGuidePicInfoList) {
+            for (AutoRenderTask autoRenderTask : subtaskList) {
+                if (baseHouseGuidePicInfo.getHouseId().intValue() == autoRenderTask.getHouseId().intValue() &&
+                        baseHouseGuidePicInfo.getDesignTempletId().intValue() == autoRenderTask.getTemplateId().intValue()) {
+                    Date date = new Date();
+                    BaseHousePicFullHousePlanRel baseHousePicFullHousePlanRel = new BaseHousePicFullHousePlanRel();
+                    baseHousePicFullHousePlanRel.setHouseGuidePicInfoId(baseHouseGuidePicInfo.getId());
+                    baseHousePicFullHousePlanRel.setPicId(baseHouseGuidePicInfo.getPicId());
+                    baseHousePicFullHousePlanRel.setHouseId(baseHouseGuidePicInfo.getHouseId());
+                    baseHousePicFullHousePlanRel.setSpaceType(baseHouseGuidePicInfo.getSpaceType());
+                    baseHousePicFullHousePlanRel.setSpaceCommonId(baseHouseGuidePicInfo.getSpaceCommonId());
+                    baseHousePicFullHousePlanRel.setDesignTempletId(baseHouseGuidePicInfo.getDesignTempletId());
+                    baseHousePicFullHousePlanRel.setFullHousePlanId(new Long(fullHousePlanId));
+                    baseHousePicFullHousePlanRel.setMainTaskId(new Long(taskId));
+                    baseHousePicFullHousePlanRel.setState(new Long(2));
+                    baseHousePicFullHousePlanRel.setTaskId(new Long(autoRenderTask.getId()));
+                    baseHousePicFullHousePlanRel.setName(baseHouseGuidePicInfo.getName());
+                    baseHousePicFullHousePlanRel.setxCoordinate(baseHouseGuidePicInfo.getxCoordinate());
+                    baseHousePicFullHousePlanRel.setyCoordinate(baseHouseGuidePicInfo.getyCoordinate());
+                    baseHousePicFullHousePlanRel.setCoordinateInfo(baseHouseGuidePicInfo.getCoordinateInfo());
+                    baseHousePicFullHousePlanRel.setIsDeleted((short) 0);
+                    baseHousePicFullHousePlanRel.setCreator(resRenderPic.getUserId() + "");
+                    baseHousePicFullHousePlanRel.setGmtCreate(date);
+                    baseHousePicFullHousePlanRel.setGmtModified(date);
+                    baseHousePicFullHousePlanRel.setModifier(resRenderPic.getUserId() + "");
+
+                    baseHousePicFullHousePlanRelList.add(baseHousePicFullHousePlanRel);
+                }
+            }
+
+        }
+        return baseHousePicFullHousePlanRelList;
+
+    }
+
+    protected List<BaseHouseGuidePicInfo> getBaseHouseGuidePicInfoList(List<AutoRenderTask> subTasks) throws GeneratePanoramaException {
+        List<BaseHouseGuidePicInfo> baseHouseGuidePicInfoList;
+        try {
+            baseHouseGuidePicInfoList = designPlanAutoRenderServiceImpl.getBaseHouseGuidePicInfoList(subTasks);
+            if (null == baseHouseGuidePicInfoList || baseHouseGuidePicInfoList.size() == 0) {
+                logger.warn("查询全屋坐标信息失败");
+                throw new GeneratePanoramaException("查询全屋坐标信息失败");
+            }
+        } catch (Exception e) {
+            logger.error("查询全屋坐标信息数据异常", e);
+            throw new GeneratePanoramaException("查询全屋坐标信息数据异常");
+        }
+        return baseHouseGuidePicInfoList;
+    }
+
+    /**
+     * 替换单个方案生成新的全屋方案
+     *
+     * @param resRenderPic
+     * @return
+     */
+    private FullHouseRenderTaskVO fullHousePlanUpdateNew(ResRenderPic resRenderPic) throws GeneratePanoramaException {
+        //fullHousePlanId 不为空，taskId 为空,生成新的全屋方案
+        //创建全屋方案虚拟主任务及子任务，最后成功后一次性生成新的全屋方案
+        // 构造全屋渲染主任务对象
+        //公共的属性
+        AutoRenderTask mainTask = this.getAutoRenderTask(resRenderPic);
+        //单空间方案的属性
+        this.createSingleHouseTask(resRenderPic, mainTask);
+        //全屋方案主任务添加到db(先添加到db，子任务要回填主任务id)
+        Integer mainTaskId = designPlanAutoRenderServiceImpl.add(mainTask);
+
+        mainTask.setId(mainTaskId);
+        mainTask.setMainTaskId(mainTaskId);
+
+        //回填主任务的部分属性
+        Integer res = designPlanAutoRenderServiceImpl.updateAutoRenderTask(mainTask);
+        if (res <= 0) {
+            throw new GeneratePanoramaException("回填主任务相关字段失败");
+        }
+
+        //把主任务的属性拷贝到子任务
+        AutoRenderTask subtask = new AutoRenderTask();
+        BeanUtils.copyProperties(mainTask, subtask);
+        //子任务的特殊字段
+        subtask.setId(null);
+        subtask.setGmtCreate(new Date());
+        subtask.setGmtModified(new Date());
+        //添加子任务到db
+        Integer subtaskId = designPlanAutoRenderServiceImpl.add(subtask);
+        subtask.setId(subtaskId);
+        //全屋方案主任务添加到redis
+        Integer mainResult = designPlanAutoRenderServiceImpl.addRedisLists(mainTask);
+        //子任务添加到redis
+        Integer subResult = designPlanAutoRenderServiceImpl.addRedisLists(subtask);
+
+        String token = resRenderPic.getToken();
+        String platformCode = resRenderPic.getPlatformCode();
+        boolean status = backFillTaskId(mainTask.getOrderNumber(), mainTaskId, token, platformCode);
+        //构建返回值，全屋方案id和主方案id
+        FullHouseRenderTaskVO fullHouseRenderTaskVO = new FullHouseRenderTaskVO();
+        //这里还没有生成全屋方案，所以返回给前台的只有当前的主任务id，这块要是不满足需求的话就得重新写逻辑；
+        //如果这样不行就得：先生成一个空的全屋方案，然后渲染完成后（乘达）提供一个新的update的接口，
+        //把原来的全屋方案的除当前空间的子方案都复制到新生成的空的全屋方案中+当前空间新的效果图方案
+        fullHouseRenderTaskVO.setMainTaskId(mainTaskId);
+        if (mainTaskId > 0 && subtaskId > 0 && mainResult > 0 && subResult > 0) {
+            /*修改户型文件数据start*/
+            //查询全屋坐标信息数据
+            BaseHouseGuidePicInfo baseHouseGuidePicInfo = this.getBaseHouseGuidePicInfo(resRenderPic);
+            //查询改户型下的空间是否是第一次渲染.(第一次是新增,已经渲染过就是修改)
+            BaseHousePicFullHousePlanRel baseHousePicFullHousePlanRel = this.getBaseHousePicFullHousePlanRel(resRenderPic);
+            if (null != baseHousePicFullHousePlanRel) {
+                resRenderPic.setTaskId(mainTaskId);
+                BaseHousePicFullHousePlanRel newBaseHousePicFullHousePlanRel = this.createBaseHousePicFullHousePlanRelUpdate(resRenderPic, baseHouseGuidePicInfo, subtaskId, baseHousePicFullHousePlanRel);
+                int baseHousePicFullHousePlanRelId;
+                try {
+                    baseHousePicFullHousePlanRelId = designPlanAutoRenderServiceImpl.updateBaseHousePicFullHousePlanRel(newBaseHousePicFullHousePlanRel);
+                    if (0 == baseHousePicFullHousePlanRelId) {
+                        logger.warn("修改全屋户型渲染任务状态数据失败" + new Gson().toJson(newBaseHousePicFullHousePlanRel));
+                        throw new GeneratePanoramaException("修改全屋户型渲染任务状态数据失败");
+                    }
+                    logger.info("修改全屋户型渲染任务状态数据成功" + baseHousePicFullHousePlanRelId);
+                } catch (Exception e) {
+                    logger.error("修改全屋户型渲染任务状态数据异常" + e);
+                    throw new GeneratePanoramaException("修改全屋户型渲染任务状态数据异常");
+                }
+            }
+            /*修改全屋户型文件数据end*/
+            //成功返回数据
+            return fullHouseRenderTaskVO;
+        }
+
+        logger.error("替换生成新全屋方案，创建渲染任务失败===>mainTaskId:" + mainTaskId + ",subtaskId:"
+                + subtaskId + ",mainResult:" + mainResult + ",subResult" + subResult);
+        return null;
+
+    }
+
+    /**
+     * 全屋方案制作的修改逻辑（新增子方案或替换某个子方案）
+     *
+     * @param resRenderPic
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    private FullHouseRenderTaskVO fullHousePlanUpdate(ResRenderPic resRenderPic) throws GeneratePanoramaException {
+        //新增子方案或替换某个子方案,taskId不为空，fullHousePlanId不为空
+        //创建子任务关联到之前的主任务及主方案
+        //公共的属性
+        AutoRenderTask autoRenderTask = this.getAutoRenderTask(resRenderPic);
+        //单空间方案的属性
+        this.createSingleHouseTask(resRenderPic, autoRenderTask);
+        autoRenderTask.setNewFullHousePlanId(resRenderPic.getFullHousePlanId());
+        //属性基本都从上面已经复制完成，保存到数据库
+        Integer taskId = designPlanAutoRenderServiceImpl.add(autoRenderTask);
+        //修改主任务渲染状态
+        designPlanAutoRenderServiceImpl.updateAutoRenderTaskStateByTaskId(autoRenderTask.getMainTaskId(), 2);
+        //Update the render state to rending(2),
+        //修改全屋方案渲染状态
+        FullHouseDesignPlan currentFullHouseDesignPlan = new FullHouseDesignPlan();
+        currentFullHouseDesignPlan.setId(resRenderPic.getFullHousePlanId());
+        currentFullHouseDesignPlan.setRenderState(Integer.valueOf(2));
+        fullHousePlanService.updateFullHousePlan(currentFullHouseDesignPlan);
+        // 如果没传前一个效果图方案ID，说明是新增子方案，新增数据
+        if (resRenderPic.getPreRenderSceneId() == null || resRenderPic.getPreRenderSceneId() == 0) {
+            addBaseHousePicFullHousePlanRel(resRenderPic, resRenderPic.getFullHousePlanId(), resRenderPic.getTaskId(), taskId);
+        } else {
+            // 如果传了前一个效果图方案ID，说明是替换子方案，更新状态即可
+            updateBaseHousePicFullHousePlanRel(resRenderPic, taskId);
+            // 删除旧任务状态
+            designPlanAutoRenderServiceImpl.updateSubTaskStateByBusinessId(resRenderPic.getPreRenderSceneId());
+        }
+        //属性基本都从上面已经复制完成，保存到缓存
+        Integer result = designPlanAutoRenderServiceImpl.addRedisLists(autoRenderTask);
+
+        FullHouseRenderTaskVO fullHouseRenderTaskVO = new FullHouseRenderTaskVO();
+        fullHouseRenderTaskVO.setMainTaskId(resRenderPic.getTaskId());
+        fullHouseRenderTaskVO.setFullHousePlanId(resRenderPic.getFullHousePlanId());
+        if (taskId > 0 && result > 0) {
+            return fullHouseRenderTaskVO;
+        } else {
+            logger.error("全屋方案制作的修改，创建任务失败taskId=" + taskId + ",result=" + result);
+            return null;
+        }
+    }
+
+    /**
+     * 更新户型渲染状态
+     *
+     * @param resRenderPic
+     * @param taskId
+     * @throws GeneratePanoramaException
+     */
+    private void updateBaseHousePicFullHousePlanRel(ResRenderPic resRenderPic, int taskId)
+            throws GeneratePanoramaException {
+        /*修改户型文件数据start*/
+        //查询全屋坐标信息数据
+        BaseHouseGuidePicInfo baseHouseGuidePicInfo = this.getBaseHouseGuidePicInfo(resRenderPic);
+        //查询改户型下的空间是否是第一次渲染.(第一次是新增,已经渲染过就是修改)
+        BaseHousePicFullHousePlanRel baseHousePicFullHousePlanRel = this.getBaseHousePicFullHousePlanRel(resRenderPic);
+        if (null != baseHousePicFullHousePlanRel) {
+            BaseHousePicFullHousePlanRel newBaseHousePicFullHousePlanRel = this.createBaseHousePicFullHousePlanRelUpdate(resRenderPic, baseHouseGuidePicInfo, taskId, baseHousePicFullHousePlanRel);
+            int baseHousePicFullHousePlanRelId;
+            try {
+                baseHousePicFullHousePlanRelId = designPlanAutoRenderServiceImpl.updateBaseHousePicFullHousePlanRel(newBaseHousePicFullHousePlanRel);
+                if (0 == baseHousePicFullHousePlanRelId) {
+                    logger.warn("修改全屋户型渲染任务状态数据失败" + new Gson().toJson(newBaseHousePicFullHousePlanRel));
+                    throw new GeneratePanoramaException("修改全屋户型渲染任务状态数据失败");
+                }
+                logger.info("修改全屋户型渲染任务状态数据成功" + baseHousePicFullHousePlanRelId);
+            } catch (Exception e) {
+                logger.error("修改全屋户型渲染任务状态数据异常" + e);
+                throw new GeneratePanoramaException("修改全屋户型渲染任务状态数据异常");
+            }
+        }
+        /*修改全屋户型文件数据end*/
+    }
+
+    /**
+     * 新增户型渲染状态数据
+     *
+     * @param resRenderPic
+     * @param fullHousePlanId
+     * @param mainTaskId
+     * @param subtaskId
+     * @throws GeneratePanoramaException
+     */
+    private void addBaseHousePicFullHousePlanRel(ResRenderPic resRenderPic, int fullHousePlanId, int mainTaskId, int subtaskId)
+            throws GeneratePanoramaException {
+        /*保存全屋户型文件数据start*/
+        //查询全屋坐标信息数据
+        BaseHouseGuidePicInfo baseHouseGuidePicInfo = this.getBaseHouseGuidePicInfo(resRenderPic);
+        //查询改户型下的空间是否是第一次渲染.(第一次是新增,已经渲染过就是修改)
+        BaseHousePicFullHousePlanRel baseHousePicFullHousePlanRel = this.getBaseHousePicFullHousePlanRel(resRenderPic);
+        if (null == baseHousePicFullHousePlanRel) {
+            BaseHousePicFullHousePlanRel newBaseHousePicFullHousePlanRel = this.createBaseHousePicFullHousePlanRelAdd(resRenderPic, fullHousePlanId, baseHouseGuidePicInfo, mainTaskId, subtaskId);
+            int baseHousePicFullHousePlanRelId;
+            try {
+                baseHousePicFullHousePlanRelId = designPlanAutoRenderServiceImpl.addBaseHousePicFullHousePlanRel(newBaseHousePicFullHousePlanRel);
+                if (0 == baseHousePicFullHousePlanRelId) {
+                    logger.warn("保存全屋户型渲染任务状态数据失败" + new Gson().toJson(newBaseHousePicFullHousePlanRel));
+                    throw new GeneratePanoramaException("保存全屋户型渲染任务状态数据失败");
+                }
+                logger.info("保存全屋户型渲染任务状态数据成功" + baseHousePicFullHousePlanRelId);
+            } catch (Exception e) {
+                logger.error("保存全屋户型渲染任务状态数据异常" + e);
+                throw new GeneratePanoramaException("保存全屋户型渲染任务状态数据异常");
+            }
+        }
+        /*保存全屋户型文件数据end*/
+    }
+
+    private void copyBaseHousePicFullHousePlanRelToNewPlan(ResRenderPic resRenderPic, Integer newFullHousePlanId, Integer mainTaskId,Integer subTaskId)
+            throws GeneratePanoramaException {
+        logger.error("-------- 拷贝全屋渲染任务状态参数：resRenderPic：{},newFullHousePlanId:{},mainTaskId:{}", resRenderPic, newFullHousePlanId, mainTaskId);
+        /*保存全屋户型文件数据start*/
+        Integer houseId = resRenderPic.getHouseId();
+        Integer templetId = resRenderPic.getTemplateId();
+
+        List<BaseHousePicFullHousePlanRel> baseHousePicFullHousePlanRelList = this.getBaseHousePicFullHousePlanRelListByFullHousePlanId(resRenderPic.getFullHousePlanId());
+        if (baseHousePicFullHousePlanRelList != null && baseHousePicFullHousePlanRelList.size() > 0) {
+            Date now = new Date();
+            for (BaseHousePicFullHousePlanRel baseHousePicFullHousePlanRel : baseHousePicFullHousePlanRelList) {
+                baseHousePicFullHousePlanRel.setId(null);
+                baseHousePicFullHousePlanRel.setGmtCreate(now);
+                baseHousePicFullHousePlanRel.setGmtModified(now);
+                baseHousePicFullHousePlanRel.setFullHousePlanId(newFullHousePlanId.longValue());
+                baseHousePicFullHousePlanRel.setMainTaskId(mainTaskId.longValue());
+                if (baseHousePicFullHousePlanRel.getHouseId().equals(houseId) && baseHousePicFullHousePlanRel.getDesignTempletId().equals(templetId)) {
+                    baseHousePicFullHousePlanRel.setState(2L);
+                    baseHousePicFullHousePlanRel.setTaskId(subTaskId.longValue());
+                }
+            }
+            int num = designPlanAutoRenderServiceImpl.addBaseHousePicFullHousePlanRelList(baseHousePicFullHousePlanRelList);
+            if (num <= 0) {
+                logger.warn("拷贝全屋户型渲染任务状态数据失败" + new Gson().toJson(baseHousePicFullHousePlanRelList));
+                throw new GeneratePanoramaException("拷贝全屋户型渲染任务状态数据失败");
+            }
+            /*保存全屋户型文件数据end*/
+        }
+    }
+
+    private List<BaseHousePicFullHousePlanRel> getBaseHousePicFullHousePlanRelListByFullHousePlanId(Integer fullHousePlanId) {
+        return designPlanAutoRenderServiceImpl.getBaseHousePicFullHousePlanRelListByFullHousePlanId(fullHousePlanId);
+    }
+
+    protected BaseHousePicFullHousePlanRel createBaseHousePicFullHousePlanRelUpdate(ResRenderPic resRenderPic, BaseHouseGuidePicInfo baseHouseGuidePicInfo, Integer taskId, BaseHousePicFullHousePlanRel baseHousePicFullHousePlanRel) {
+        Date date = new Date();
+        BaseHousePicFullHousePlanRel newBaseHousePicFullHousePlanRel = new BaseHousePicFullHousePlanRel();
+        newBaseHousePicFullHousePlanRel.setId(baseHousePicFullHousePlanRel.getId());
+        newBaseHousePicFullHousePlanRel.setHouseGuidePicInfoId(baseHouseGuidePicInfo.getId());
+        newBaseHousePicFullHousePlanRel.setPicId(baseHouseGuidePicInfo.getPicId());
+        newBaseHousePicFullHousePlanRel.setHouseId(baseHouseGuidePicInfo.getHouseId());
+        newBaseHousePicFullHousePlanRel.setSpaceType(baseHouseGuidePicInfo.getSpaceType());
+        newBaseHousePicFullHousePlanRel.setSpaceCommonId(baseHouseGuidePicInfo.getSpaceCommonId());
+        newBaseHousePicFullHousePlanRel.setDesignTempletId(baseHouseGuidePicInfo.getDesignTempletId());
+        newBaseHousePicFullHousePlanRel.setFullHousePlanId(new Long(resRenderPic.getFullHousePlanId()));
+        newBaseHousePicFullHousePlanRel.setMainTaskId(new Long(resRenderPic.getTaskId()));
+        newBaseHousePicFullHousePlanRel.setState(new Long(2));
+        newBaseHousePicFullHousePlanRel.setTaskId(new Long(taskId));
+        newBaseHousePicFullHousePlanRel.setName(baseHouseGuidePicInfo.getName());
+        newBaseHousePicFullHousePlanRel.setxCoordinate(baseHouseGuidePicInfo.getxCoordinate());
+        newBaseHousePicFullHousePlanRel.setyCoordinate(baseHouseGuidePicInfo.getyCoordinate());
+        newBaseHousePicFullHousePlanRel.setCoordinateInfo(baseHouseGuidePicInfo.getCoordinateInfo());
+        newBaseHousePicFullHousePlanRel.setIsDeleted((short) 0);
+        newBaseHousePicFullHousePlanRel.setCreator(resRenderPic.getUserId() + "");
+        newBaseHousePicFullHousePlanRel.setGmtCreate(date);
+        newBaseHousePicFullHousePlanRel.setGmtModified(date);
+        newBaseHousePicFullHousePlanRel.setModifier(resRenderPic.getUserId() + "");
+        return newBaseHousePicFullHousePlanRel;
+    }
+
+    /**
+     * 全屋制作的创建
+     *
+     * @param resRenderPic
+     * @throws GeneratePanoramaException
+     */
+    @Transactional(rollbackFor = Exception.class)
+    private FullHouseRenderTaskVO fullHousePlanCreate(ResRenderPic resRenderPic) throws GeneratePanoramaException {
+        //第一次调用，创建全屋方案,taskId为空，fullHousePlanId为空
+        //创建主任务，按照全屋的任务来创建，然后把主任务的属性拷贝到子任务中，这里的话就是主任务和第一次渲染的子任务属性基本一致
+
+
+        //调用core的接口生成空的全屋主方案
+        Integer fullHousePlanId = this.createTempFullHousePlan(resRenderPic);
+        resRenderPic.setFullHousePlanId(fullHousePlanId);
+        resRenderPic.setNewFullHousePlanId(fullHousePlanId);
+
+        // 构造全屋渲染主任务对象,并添加主任务到DB
+        AutoRenderTask mainTask = this.getAutoRenderTask(resRenderPic);
+        //单空间方案的属性
+        this.createSingleHouseTask(resRenderPic, mainTask);
+
+        mainTask.setFullHousePlanId(fullHousePlanId);
+        mainTask.setNewFullHousePlanId(fullHousePlanId);
+        Integer mainTaskId = designPlanAutoRenderServiceImpl.add(mainTask);
+
+
+        //全屋方案主任务添加到db(先添加到db，子任务要回填主任务id)
+        mainTask.setId(mainTaskId);
+        mainTask.setMainTaskId(mainTaskId);
+
+        //回填主任务的部分属性
+        Integer res = designPlanAutoRenderServiceImpl.updateAutoRenderTask(mainTask);
+        if (res <= 0) {
+            throw new GeneratePanoramaException("回填主任务相关字段失败");
+        }
+
+        //把主任务的属性拷贝到子任务
+        AutoRenderTask subtask = new AutoRenderTask();
+        BeanUtils.copyProperties(mainTask, subtask);
+        //子任务的特殊字段
+        subtask.setId(null);
+        subtask.setGmtCreate(new Date());
+        subtask.setGmtModified(new Date());
+        //添加子任务到db
+        Integer subtaskId = designPlanAutoRenderServiceImpl.add(subtask);
+        subtask.setId(subtaskId);
+        // 保存全屋户型文件数据
+        addBaseHousePicFullHousePlanRel(resRenderPic, fullHousePlanId, mainTaskId, subtaskId);
+        //全屋方案主任务添加到redis
+        Integer mainResult = designPlanAutoRenderServiceImpl.addRedisLists(mainTask);
+        //子任务添加到redis
+        Integer subResult = designPlanAutoRenderServiceImpl.addRedisLists(subtask);
+
+        String token = resRenderPic.getToken();
+        String platformCode = resRenderPic.getPlatformCode();
+        boolean status = backFillTaskId(mainTask.getOrderNumber(), mainTaskId, token, platformCode);
+        //构建返回值，全屋方案id和主方案id
+        FullHouseRenderTaskVO fullHouseRenderTaskVO = new FullHouseRenderTaskVO();
+        fullHouseRenderTaskVO.setFullHousePlanId(fullHousePlanId);
+        fullHouseRenderTaskVO.setMainTaskId(mainTaskId);
+        if (mainTaskId > 0 && subtaskId > 0 && mainResult > 0 && subResult > 0) {
+            //成功返回数据
+            return fullHouseRenderTaskVO;
+        }
+
+        logger.error("全屋方案制作新增全屋，创建渲染任务失败===>mainTaskId:" + mainTaskId + ",subtaskId:"
+                + subtaskId + ",mainResult:" + mainResult + ",subResult" + subResult);
+        return null;
+    }
+
+    private BaseHousePicFullHousePlanRel getBaseHousePicFullHousePlanRel(ResRenderPic resRenderPic) throws GeneratePanoramaException {
+        BaseHousePicFullHousePlanRel baseHousePicFullHousePlanRel;
+        try {
+            baseHousePicFullHousePlanRel = designPlanAutoRenderServiceImpl.getBaseHousePicFullHousePlanRelByHouseId(resRenderPic);
+            logger.info("查询全屋户型渲染任务数据" + baseHousePicFullHousePlanRel);
+        } catch (Exception e) {
+            logger.warn("查询全屋户型渲染任务数据异常" + resRenderPic.getHouseGuidePicInfoId());
+            throw new GeneratePanoramaException("查询全屋户型渲染任务数据异常");
+        }
+        return baseHousePicFullHousePlanRel;
+    }
+
+    private BaseHouseGuidePicInfo getBaseHouseGuidePicInfo(ResRenderPic resRenderPic) throws GeneratePanoramaException {
+        List<BaseHouseGuidePicInfo> baseHouseGuidePicInfos;
+        try {
+            baseHouseGuidePicInfos = designPlanAutoRenderServiceImpl.getBaseHouseGuidePicInfo(resRenderPic.getHouseId(), resRenderPic.getTemplateId());
+            if (null == baseHouseGuidePicInfos || baseHouseGuidePicInfos.size() == 0) {
+                logger.warn("查询全屋坐标信息失败" + resRenderPic.getHouseGuidePicInfoId());
+                throw new GeneratePanoramaException("查询全屋坐标信息失败");
+            }
+        } catch (Exception e) {
+            logger.error("查询全屋坐标信息数据异常", e);
+            throw new GeneratePanoramaException("查询全屋坐标信息数据异常");
+        }
+        return baseHouseGuidePicInfos.get(0);
+    }
+
+    protected BaseHousePicFullHousePlanRel createBaseHousePicFullHousePlanRelAdd(ResRenderPic resRenderPic, Integer fullHousePlanId, BaseHouseGuidePicInfo baseHouseGuidePicInfo
+            , Integer mainTaskId, Integer subtaskId) {
+        Date date = new Date();
+        BaseHousePicFullHousePlanRel baseHousePicFullHousePlanRel = new BaseHousePicFullHousePlanRel();
+        baseHousePicFullHousePlanRel.setHouseGuidePicInfoId(baseHouseGuidePicInfo.getId());
+        baseHousePicFullHousePlanRel.setPicId(baseHouseGuidePicInfo.getPicId());
+        baseHousePicFullHousePlanRel.setHouseId(baseHouseGuidePicInfo.getHouseId());
+        baseHousePicFullHousePlanRel.setSpaceType(baseHouseGuidePicInfo.getSpaceType());
+        baseHousePicFullHousePlanRel.setSpaceCommonId(baseHouseGuidePicInfo.getSpaceCommonId());
+        baseHousePicFullHousePlanRel.setDesignTempletId(baseHouseGuidePicInfo.getDesignTempletId());
+        baseHousePicFullHousePlanRel.setFullHousePlanId(new Long(fullHousePlanId));
+        baseHousePicFullHousePlanRel.setMainTaskId(new Long(mainTaskId));
+        baseHousePicFullHousePlanRel.setState(new Long(2));
+        baseHousePicFullHousePlanRel.setTaskId(new Long(subtaskId));
+        baseHousePicFullHousePlanRel.setName(baseHouseGuidePicInfo.getName());
+        baseHousePicFullHousePlanRel.setxCoordinate(baseHouseGuidePicInfo.getxCoordinate());
+        baseHousePicFullHousePlanRel.setyCoordinate(baseHouseGuidePicInfo.getyCoordinate());
+        baseHousePicFullHousePlanRel.setCoordinateInfo(baseHouseGuidePicInfo.getCoordinateInfo());
+        baseHousePicFullHousePlanRel.setIsDeleted((short) 0);
+        baseHousePicFullHousePlanRel.setCreator(resRenderPic.getUserId() + "");
+        baseHousePicFullHousePlanRel.setGmtCreate(date);
+        baseHousePicFullHousePlanRel.setGmtModified(date);
+        baseHousePicFullHousePlanRel.setModifier(resRenderPic.getUserId() + "");
+        return baseHousePicFullHousePlanRel;
+    }
+
+
+    /**
+     * 远程调用创建空全屋方案
+     *
+     * @param resRenderPic
+     * @return
+     * @throws GeneratePanoramaException
+     */
+    private Integer createTempFullHousePlan(ResRenderPic resRenderPic) throws GeneratePanoramaException {
+        //创建空的全屋方案（只有主方案没有子方案）
+        Integer userId = resRenderPic.getUserId();
+        String url;
+        if (resRenderPic.getFullHousePlanId() != null) {
+            url = coreUrl + "/v1/core/fullHouse/addTempFullHouseDesignPlan?userId=" + userId +
+                    "&oldFullHouseDesignPlanId=" + resRenderPic.getFullHousePlanId() +
+                    "&houseId=" + resRenderPic.getHouseId();
+        } else {
+            url = coreUrl + "/v1/core/fullHouse/addTempFullHouseDesignPlan?userId=" + userId +
+                    "&houseId=" + resRenderPic.getHouseId();
+        }
+        String jsonResult = Utils.doGetMethod(url);
+        if (StringUtils.isBlank(jsonResult)) {
+            logger.error("远程调用创建全屋主方案结果jsonResult为空" + url);
+            throw new GeneratePanoramaException(false, "远程调用创建全屋主方案结果jsonResult为空");
+        }
+
+        ResponseEnvelope response = GSON.fromJson(jsonResult, ResponseEnvelope.class);
+        Double planIdD = (Double) response.getObj();
+        if (planIdD == null) {
+            logger.error("远程调用创建全屋主方案结果planIdD为空");
+            throw new GeneratePanoramaException(false, "远程调用创建全屋主方案结果planIdD为空");
+        }
+        Integer fullHousePlanId = planIdD.intValue();
+
+        return fullHousePlanId;
+    }
+
+    /**
+     * 替换单个方案生成新的全屋方案
+     *
+     * @param resRenderPic
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    private FullHouseRenderTaskVO fullHousePlanCreateNew(ResRenderPic resRenderPic) throws GeneratePanoramaException {
+        //fullHousePlanId 不为空，taskId 为空,生成新的全屋方案
+        //先创建空的全屋方案，渲染完成后再把子方案update进全屋方案
+        //构造全屋渲染主任务对象
+        //公共的属性
+        AutoRenderTask mainTask = this.getAutoRenderTask(resRenderPic);
+        //单空间方案的属性
+        this.createSingleHouseTask(resRenderPic, mainTask);
+        //调用core的接口生成空的全屋主方案
+        Integer newFullHousePlanId = this.createTempFullHousePlan(resRenderPic);
+        mainTask.setNewFullHousePlanId(newFullHousePlanId);
+        //全屋方案主任务添加到db(先添加到db，子任务要回填主任务id)
+        Integer mainTaskId = designPlanAutoRenderServiceImpl.add(mainTask);
+        mainTask.setId(mainTaskId);
+        mainTask.setMainTaskId(mainTaskId);
+
+        //回填主任务的部分属性
+        Integer res = designPlanAutoRenderServiceImpl.updateAutoRenderTask(mainTask);
+        if (res <= 0) {
+            throw new GeneratePanoramaException("回填主任务相关字段失败");
+        }
+
+        //把主任务的属性拷贝到子任务
+        AutoRenderTask subtask = new AutoRenderTask();
+        BeanUtils.copyProperties(mainTask, subtask);
+        //子任务的特殊字段
+        subtask.setId(null);
+        subtask.setGmtCreate(new Date());
+        subtask.setGmtModified(new Date());
+        //添加子任务到db
+        Integer subtaskId = designPlanAutoRenderServiceImpl.add(subtask);
+        if (subtaskId == null ) {
+            throw new GeneratePanoramaException("生成子任务失败");
+        }
+        subtask.setId(subtaskId);
+        // 保存全屋户型文件数据
+        copyBaseHousePicFullHousePlanRelToNewPlan(resRenderPic, newFullHousePlanId, mainTaskId, subtaskId);
+        //全屋方案主任务添加到redis
+        Integer mainResult = designPlanAutoRenderServiceImpl.addRedisLists(mainTask);
+        //子任务添加到redis
+        Integer subResult = designPlanAutoRenderServiceImpl.addRedisLists(subtask);
+
+        String token = resRenderPic.getToken();
+        String platformCode = resRenderPic.getPlatformCode();
+        boolean status = backFillTaskId(mainTask.getOrderNumber(), mainTaskId, token, platformCode);
+        //构建返回值，全屋方案id和主方案id
+        FullHouseRenderTaskVO fullHouseRenderTaskVO = new FullHouseRenderTaskVO();
+        fullHouseRenderTaskVO.setFullHousePlanId(newFullHousePlanId);
+        fullHouseRenderTaskVO.setMainTaskId(mainTaskId);
+        if (mainTaskId > 0 && subtaskId > 0 && mainResult > 0 && subResult > 0) {
+            //成功返回数据
+            return fullHouseRenderTaskVO;
+        }
+
+        logger.error("替换生成新全屋方案，创建渲染任务失败===>mainTaskId:" + mainTaskId + ",subtaskId:"
+                + subtaskId + ",mainResult:" + mainResult + ",subResult" + subResult);
+        return null;
+
+    }
+
+    /**
+     * 全屋替换渲染逻辑
+     *
+     * @param resRenderPic
+     * @return
+     */
+    protected ResponseEnvelope handleFullHouseAutoReplaceTask(ResRenderPic resRenderPic) throws GeneratePanoramaException{
+        int action = resRenderPic.getFullHousePlanAction();
+        // 更新全屋方案坐标信息的时候用,从推荐方案列表进的时候不用
+        // 根据之前的效果图方案id查它里面的templateId
+        if (resRenderPic.getHouseId() == null || resRenderPic.getHouseId() == 0){
+            Integer preRenderSceneId = resRenderPic.getPreRenderSceneId();
+            if (preRenderSceneId == null || preRenderSceneId == 0) {
+                return new ResponseEnvelope(false, "替换之前的效果图id为空");
+            }
+            DesignPlanRenderScene preRenderScene = designPlanRenderSceneService.get(preRenderSceneId);
+            if (preRenderScene == null) {
+                return new ResponseEnvelope(false, "替换之前的效果图id有误");
+            }
+            resRenderPic.setTemplateId(preRenderScene.getDesignTemplateId());
+        }
+
+        if (AutoRenderTaskConstant.FULL_HOUSE_PLAN_ACTION_UPDATE.equals(action)) {
+            // 替换旧方案，更新全屋方案，有全屋方案，有主任务
+            try {
+                return this.fullHouseAutoReplaceUpdate(resRenderPic);
+            } catch (GeneratePanoramaException e) {
+                // return new ResponseEnvelope(false, e.getMessage());
+                throw new GeneratePanoramaException(e.getMessage());
+            }
+        } else if (AutoRenderTaskConstant.FULL_HOUSE_PLAN_ACTION_UPDATE_NEW.equals(action)) {
+            // 生成新的全屋方案，没有主任务，没有全屋方案的情况
+            try {
+                return this.fullHouseAutoReplaceAdd(resRenderPic);
+            } catch (GeneratePanoramaException e) {
+                // return new ResponseEnvelope(false, e.getMessage());
+                throw new GeneratePanoramaException(e.getMessage());
+            }
+        }
+        // 逻辑有缺陷，不走这里，注释掉
+        // else if (AutoRenderTaskConstant.FULL_HOUSE_PLAN_ACTION_COPY.equals(action)) {
+        //     // 处理复制过来的全屋方案，只有全屋方案，没有主任务的情况
+        //     return this.fullHouseAutoReplaceCopy(resRenderPic);
+        //
+        // }
+        return new ResponseEnvelope(false, "未知的action类型");
+    }
+
+    /**
+     * 处理复制过来的全屋
+     * @param resRenderPic
+     * @return
+     */
+    private ResponseEnvelope fullHouseAutoReplaceCopy(ResRenderPic resRenderPic) throws GeneratePanoramaException{
+        // 如果没有taskId表示复制完全屋方案第一次做替换渲染，生成主任务
+        if (null == resRenderPic.getTaskId() || 0 == resRenderPic.getTaskId()) {
+            Boolean flag = false;
+            //先创建主任务
+            AutoRenderTask mainTask = getAutoRenderTask(resRenderPic);
+            //单空间方案
+            createSingleHouseTask(resRenderPic, mainTask);
+            //主任务添加到db
+            Integer mainTaskId = designPlanAutoRenderServiceImpl.add(mainTask);
+            mainTask.setId(mainTaskId);
+            mainTask.setMainTaskId(mainTaskId);
+
+            //回填主任务的部分属性
+            Integer res = designPlanAutoRenderServiceImpl.updateAutoRenderTask(mainTask);
+            if (res <= 0) {
+                return new ResponseEnvelope(false, "回填主任务相关字段失败");
+            }
+
+            //创建子任务
+            AutoRenderTask subtask = new AutoRenderTask();
+            BeanUtils.copyProperties(mainTask, subtask);
+            subtask.setId(null);
+
+            // 新720要用到templateId
+            subtask.setTemplateId(resRenderPic.getTemplateId()==null?-1:resRenderPic.getTemplateId());
+            // 处理保存自动渲染任务数据
+            Integer subtaskId = designPlanAutoRenderServiceImpl.handleAutoRenderTask(subtask, resRenderPic, resRenderPic.getOrder());
+            if (subtaskId == null) {
+                return new ResponseEnvelope(false, "生成子任务失败");
+            }
+            Integer newFullHousePlanId = resRenderPic.getNewFullHousePlanId();
+            // 保存全屋户型文件数据
+            if (resRenderPic.getHouseId() != null || resRenderPic.getHouseId() != 0){
+                copyBaseHousePicFullHousePlanRelToNewPlan(resRenderPic, newFullHousePlanId, mainTaskId, subtaskId);
+            }
+            // 主子任务自动渲染任务添加至Redis缓存
+            Integer mainResult = designPlanAutoRenderServiceImpl.addRedisReplaceList(mainTask);
+            Integer subResult = designPlanAutoRenderServiceImpl.addRedisReplaceList(subtask);
+
+            int result = designPlanAutoRenderServiceImpl.updateFullHouseDesignPlan(newFullHousePlanId);
+            if (result <= 0) {
+                throw new GeneratePanoramaException("修改复制过来的全屋方案isUpdate失败，result="+result);
+            }
+
+            String token = resRenderPic.getToken();
+            String platformCode = resRenderPic.getPlatformCode();
+            boolean status = backFillTaskId(subtask.getOrderNumber(), subtaskId, token, platformCode);
+            if (mainResult > 0 && subResult > 0 && status) {
+                flag = true;
+                FullHouseRenderTaskVO fullHouseRenderTaskVO = new FullHouseRenderTaskVO();
+                fullHouseRenderTaskVO.setFullHousePlanId(newFullHousePlanId);
+                fullHouseRenderTaskVO.setMainTaskId(mainTaskId);
+                return new ResponseEnvelope<>(flag, fullHouseRenderTaskVO, "创建渲染任务成功！");
+            }
+            flag = false;
+            logger.error("替换渲染创建渲染任务失败===>result:" + mainResult + ",status:" + status);
+            return new ResponseEnvelope<>(flag, "创建渲染任务失败！");
+        }
+        return null;
+
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/9/29 11:43
+     * 全屋替换渲染逻辑，更新当前全屋方案
+     *
+     * @param resRenderPic
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    private ResponseEnvelope fullHouseAutoReplaceUpdate(ResRenderPic resRenderPic) throws GeneratePanoramaException {
+        ResponseEnvelope message = new ResponseEnvelope();
+        Boolean flag = false;
+        AutoRenderTask autoRenderTask = null;
+        String token = resRenderPic.getToken();
+        String platformCode = resRenderPic.getPlatformCode();
+
+        AutoRenderTask mainTask;
+        // 判断是不是复制方案的第一次替换渲染,则生成主任务
+        if (null == resRenderPic.getTaskId() || 0 == resRenderPic.getTaskId()) {
+            Integer fullHousePlanId = resRenderPic.getFullHousePlanId();
+            if (null == fullHousePlanId || 0 == fullHousePlanId) {
+                FullHouseDesignPlan fullHouseDesignPlan = fullHousePlanService.get(fullHousePlanId);
+                if (null != fullHouseDesignPlan) {
+                    if (DesignPlanConstants.FULL_HOUSE_DESIGN_PLAN_SOURCE_COPY == fullHouseDesignPlan.getSourceType() &&
+                            DesignPlanConstants.ISUPDATE.NO.getValue() == fullHouseDesignPlan.getIsUpdate()) {
+                        //先创建主任务
+                        mainTask = getAutoRenderTask(resRenderPic);
+                        //单空间方案
+                        createSingleHouseTask(resRenderPic, mainTask);
+                        mainTask.setNewFullHousePlanId(fullHousePlanId);
+                        mainTask.setFullHousePlanId(fullHousePlanId);
+                        //主任务添加到db
+                        Integer mainTaskId = designPlanAutoRenderServiceImpl.add(mainTask);
+                        mainTask.setId(mainTaskId);
+                        mainTask.setMainTaskId(mainTaskId);
+
+                        //回填主任务的部分属性
+                        Integer res = designPlanAutoRenderServiceImpl.updateAutoRenderTask(mainTask);
+                        if (res <= 0) {
+                            return new ResponseEnvelope(false, "回填主任务相关字段失败");
+                        }
+                        // 主任务添加到缓存
+                        designPlanAutoRenderServiceImpl.addRedisReplaceList(mainTask);
+                        resRenderPic.setTaskId(mainTaskId);
+
+                        // 修改复制的全屋方案的is_update字段
+                        int result = designPlanAutoRenderServiceImpl.updateFullHouseDesignPlan(fullHousePlanId);
+                        if (result <= 0) {
+                            throw new GeneratePanoramaException("修改复制过来的全屋方案isUpdate失败，result="+result);
+                        }
+                    }
+                }
+            }
+        }
+        try {
+            //创建任务
+            autoRenderTask = getAutoRenderTask(resRenderPic);
+            //单空间方案
+            createSingleHouseTask(resRenderPic, autoRenderTask);
+            autoRenderTask.setFullHousePlanId(resRenderPic.getFullHousePlanId());
+            autoRenderTask.setNewFullHousePlanId(resRenderPic.getFullHousePlanId());
+        } catch (GeneratePanoramaException e) {
+            return new ResponseEnvelope(e.isFlag(), e.getMessage());
+        }
+
+        // 新720要用到templateId
+        autoRenderTask.setTemplateId(resRenderPic.getTemplateId());
+        // 处理保存自动渲染任务数据
+        Integer subtaskId = designPlanAutoRenderServiceImpl.handleAutoRenderTask(autoRenderTask, resRenderPic, resRenderPic.getOrder());
+        //修改主任务渲染状态
+        designPlanAutoRenderServiceImpl.updateAutoRenderTaskStateByTaskId(autoRenderTask.getMainTaskId(), 2);
+        //修改全屋方案渲染状态
+        FullHouseDesignPlan currentFullHouseDesignPlan = new FullHouseDesignPlan();
+        currentFullHouseDesignPlan.setId(resRenderPic.getFullHousePlanId());
+        currentFullHouseDesignPlan.setRenderState(Integer.valueOf(2));
+        fullHousePlanService.updateFullHousePlan(currentFullHouseDesignPlan);
+        // 删除旧任务状态
+        designPlanAutoRenderServiceImpl.updateSubTaskStateByBusinessId(resRenderPic.getPreRenderSceneId());
+        // 修改户型文件数据
+        if (resRenderPic.getHouseId() != null || resRenderPic.getHouseId() != 0){
+            updateBaseHousePicFullHousePlanRel(resRenderPic, subtaskId);
+        }
+        // 自动渲染任务添加至Redis缓存
+        Integer subResult = designPlanAutoRenderServiceImpl.addRedisReplaceList(autoRenderTask);
+
+        boolean status = backFillTaskId(autoRenderTask.getOrderNumber(), subtaskId, token, platformCode);
+        if (subResult > 0 && status) {
+            flag = true;
+            FullHouseRenderTaskVO fullHouseRenderTaskVO = new FullHouseRenderTaskVO();
+            fullHouseRenderTaskVO.setFullHousePlanId(resRenderPic.getFullHousePlanId());
+            fullHouseRenderTaskVO.setMainTaskId(resRenderPic.getTaskId());
+            return new ResponseEnvelope<>(flag, fullHouseRenderTaskVO, "创建渲染任务成功！");
+        }
+        flag = false;
+        logger.error("替换渲染创建渲染任务失败===>result:" + subResult + ",status:" + status);
+        return new ResponseEnvelope<>(flag, "创建渲染任务失败！");
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/9/29 11:43
+     * 全屋替换渲染逻辑，生成新的全屋方案
+     *
+     * @param resRenderPic
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    private ResponseEnvelope fullHouseAutoReplaceAdd(ResRenderPic resRenderPic) throws GeneratePanoramaException {
+        Boolean flag = false;
+        AutoRenderTask mainTask = null;
+        String token = resRenderPic.getToken();
+        String platformCode = resRenderPic.getPlatformCode();
+        Integer newFullHousePlanId;
+        try {
+            //先创建主任务
+            mainTask = getAutoRenderTask(resRenderPic);
+            //单空间方案
+            createSingleHouseTask(resRenderPic, mainTask);
+            //调用core的接口生成空的全屋主方案
+            newFullHousePlanId = this.createTempFullHousePlan(resRenderPic);
+            mainTask.setNewFullHousePlanId(newFullHousePlanId);
+            mainTask.setFullHousePlanId(resRenderPic.getFullHousePlanId());
+        } catch (GeneratePanoramaException e) {
+            return new ResponseEnvelope(e.isFlag(), e.getMessage());
+        }
+        //主任务添加到db
+        Integer mainTaskId = designPlanAutoRenderServiceImpl.add(mainTask);
+        mainTask.setId(mainTaskId);
+        mainTask.setMainTaskId(mainTaskId);
+
+        //回填主任务的部分属性
+        Integer res = designPlanAutoRenderServiceImpl.updateAutoRenderTask(mainTask);
+        if (res <= 0) {
+            return new ResponseEnvelope(false, "回填主任务相关字段失败");
+        }
+
+        //创建子任务
+        AutoRenderTask subtask = new AutoRenderTask();
+        BeanUtils.copyProperties(mainTask, subtask);
+        subtask.setId(null);
+
+        // 新720要用到templateId
+        subtask.setTemplateId(resRenderPic.getTemplateId()==null?-1:resRenderPic.getTemplateId());
+        // 处理保存自动渲染任务数据
+        Integer subtaskId = designPlanAutoRenderServiceImpl.handleAutoRenderTask(subtask, resRenderPic, resRenderPic.getOrder());
+        if (subtaskId == null) {
+            return new ResponseEnvelope(false, "生成子任务失败");
+        }
+        // 保存全屋户型文件数据
+        if (resRenderPic.getHouseId() != null || resRenderPic.getHouseId() != 0){
+            copyBaseHousePicFullHousePlanRelToNewPlan(resRenderPic, newFullHousePlanId, mainTaskId, subtaskId);
+        }
+        // 主子任务自动渲染任务添加至Redis缓存
+        Integer mainResult = designPlanAutoRenderServiceImpl.addRedisReplaceList(mainTask);
+        Integer subResult = designPlanAutoRenderServiceImpl.addRedisReplaceList(subtask);
+
+        boolean status = backFillTaskId(subtask.getOrderNumber(), subtaskId, token, platformCode);
+        if (mainResult > 0 && subResult > 0 && status) {
+            flag = true;
+            FullHouseRenderTaskVO fullHouseRenderTaskVO = new FullHouseRenderTaskVO();
+            fullHouseRenderTaskVO.setFullHousePlanId(newFullHousePlanId);
+            fullHouseRenderTaskVO.setMainTaskId(mainTaskId);
+            return new ResponseEnvelope<>(flag, fullHouseRenderTaskVO, "创建渲染任务成功！");
+        }
+        flag = false;
+        logger.error("替换渲染创建渲染任务失败===>result:" + mainResult + ",status:" + status);
+        return new ResponseEnvelope<>(flag, "创建渲染任务失败！");
+    }
+}

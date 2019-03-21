@@ -1,0 +1,29 @@
+package com.sandu.service.task.refresh.dao;
+
+import com.sandu.api.house.model.DesignTempletJumpPositionRel;
+import com.sandu.api.task.refresh.model.FilePathBO;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+/**
+ * @Author Gao Jun
+ * @Description
+ * @Date:Created Administrator in 下午 6:11 2018/7/5 0005
+ * @Modified By:
+ */
+
+@Repository
+@Mapper
+public interface RefreshDoorPositionMapper {
+
+    List<FilePathBO> getAllFilePath();
+
+    Integer getTargetTempletId(@Param("uniqueId") String uniqueId, @Param("originTempletId") Integer originTempletId);
+
+    void insertBatch(List<DesignTempletJumpPositionRel> list);
+
+    void updateBatch(List<Long> list);
+}

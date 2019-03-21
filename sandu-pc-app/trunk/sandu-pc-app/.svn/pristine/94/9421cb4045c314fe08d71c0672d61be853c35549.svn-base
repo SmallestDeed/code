@@ -1,0 +1,209 @@
+package com.sandu.panorama.service.impl;
+
+import com.sandu.cityunion.model.UnionContact;
+import com.sandu.common.model.BaseModel;
+import com.sandu.common.model.LoginUser;
+import com.sandu.common.util.FileUploadUtils;
+import com.sandu.common.util.Utils;
+import com.sandu.common.util.constant.FileModel;
+import com.sandu.panorama.dao.DesignPlanStoreReleaseMapper;
+import com.sandu.panorama.dao.UnionContactMapper;
+import com.sandu.panorama.model.input.UnionContactAdd;
+import com.sandu.panorama.model.input.UnionContactSearch;
+import com.sandu.panorama.model.input.UnionContactUpdate;
+import com.sandu.panorama.model.output.UnionContactVo;
+import com.sandu.panorama.service.UnionContactService;
+import com.sandu.system.model.ResPic;
+import com.sandu.system.model.po.ResPicPO;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service("unionContactService")
+@Slf4j
+@Transactional
+public class UnionContactServiceImpl implements UnionContactService{
+
+    @Autowired
+    private UnionContactMapper unionContactMapper;
+    @Autowired
+    private DesignPlanStoreReleaseMapper designPlanStoreReleaseMapper;
+
+
+    @Override
+    public int add(UnionContact contact) {
+        return unionContactMapper.insertSelective(contact);
+    }
+
+    @Override
+    public int update(UnionContact contact) {
+        return unionContactMapper.updateByPrimaryKeySelective(contact);
+    }
+
+    @Override
+    public int delete(Integer id) {
+        return unionContactMapper.deleteByPrimaryKey(id);
+    }
+
+    @Override
+    public UnionContact get(Integer id) {
+        if( id == null ){
+            return null;
+        }
+        return unionContactMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public UnionContactVo getContact(Integer id){
+        if( id == null ){
+            return null;
+        }
+        return unionContactMapper.getContact(id);
+    }
+
+    /**
+     * 保存联系人
+     * @param unionContactAdd
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public int addContact(UnionContactAdd unionContactAdd, LoginUser loginUser){
+        if( unionContactAdd == null ){
+            return 0;
+        }
+        UnionContact unionContact = new UnionContact();
+        unionContact.setUserId(loginUser.getId());
+        unionContact.setName(unionContactAdd.getName());
+        unionContact.setPhone(unionContactAdd.getPhone());
+
+        // 保存头像
+        MultipartFile file = unionContactAdd.getPic();
+        if( file != null ){
+            ResPicPO resPic = new ResPicPO();
+            Map<String, Object> map = new HashMap<>();
+            map.put(FileUploadUtils.UPLOADPATHTKEY, "contact.logo.pic.upload.path");
+            map.put(FileUploadUtils.FILE, file);
+
+            // 保存文件
+            boolean flag = FileUploadUtils.saveFile(map);
+            if( flag ){
+                resPic.setFileKey((String)map.get(FileModel.FILE_KEY));
+                resPic.setPicSize((Integer)map.get(FileModel.FILE_SIZE));
+                resPic.setPicPath((String) map.get(FileUploadUtils.DB_FILE_PATH));
+                resPic.setPicType("联系人头像");
+                resPic.setPicWeight((String)map.get(FileModel.PIC_WEIGHT));
+                resPic.setPicHigh((String)map.get(FileModel.PIC_HEIGHT));
+                resPic.setPicFormat((String)map.get(FileModel.FORMAT));
+                resPic.setPicSuffix((String)map.get(FileModel.FILE_SUFFIX));
+                resPic.setPicName((String)map.get("finalFileName"));
+                resPic.setPicFileName((String)map.get(FileModel.FILE_NAME));
+                BaseModel.sysSave(resPic, loginUser);
+                designPlanStoreReleaseMapper.createResPic(resPic);// TEMP
+
+                unionContact.setPicId(resPic.getId());
+                BaseModel.sysSave(unionContact, loginUser);
+                unionContactMapper.insertSelective(unionContact);
+
+                // 回填businessId TEMP
+                resPic.setBusinessId(unionContact.getId());
+                designPlanStoreReleaseMapper.updateResPic(resPic);
+                return unionContact.getId();
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * 修改联系人
+     * @param unionContactUpdate
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public int updateContact(UnionContactUpdate unionContactUpdate, LoginUser loginUser){
+        if( unionContactUpdate == null ){
+            return 0;
+        }
+        UnionContact unionContactOld = unionContactMapper.selectByPrimaryKey(unionContactUpdate.getId());
+        if( unionContactOld == null ){
+            return 0;
+        }
+        UnionContact unionContact = new UnionContact();
+        unionContact.setId(unionContactUpdate.getId());
+        unionContact.setName(unionContactUpdate.getName());
+        unionContact.setPhone(unionContactUpdate.getPhone());
+
+        // 保存头像
+        MultipartFile file = unionContactUpdate.getPic();
+        if( file != null ){
+            ResPicPO resPic = new ResPicPO();
+            Map<String, Object> map = new HashMap<>();
+            map.put(FileUploadUtils.UPLOADPATHTKEY, "contact.logo.pic.upload.path");
+            map.put(FileUploadUtils.FILE, file);
+
+            // 保存文件
+            boolean flag = FileUploadUtils.saveFile(map);
+            if( flag ){
+                resPic.setFileKey((String)map.get(FileModel.FILE_KEY));
+                resPic.setPicSize((Integer)map.get(FileModel.FILE_SIZE));
+                resPic.setPicPath((String) map.get(FileUploadUtils.DB_FILE_PATH));
+                resPic.setPicType("联系人头像");
+                resPic.setPicWeight((String)map.get(FileModel.PIC_WEIGHT));
+                resPic.setPicHigh((String)map.get(FileModel.PIC_HEIGHT));
+                resPic.setPicFormat((String)map.get(FileModel.FORMAT));
+                resPic.setPicSuffix((String)map.get(FileModel.FILE_SUFFIX));
+                resPic.setPicName((String)map.get("finalFileName"));
+                resPic.setPicFileName((String)map.get(FileModel.FILE_NAME));
+                resPic.setBusinessId(unionContact.getId());
+                BaseModel.sysSave(resPic, loginUser);
+                designPlanStoreReleaseMapper.createResPic(resPic);// TEMP
+
+                unionContact.setPicId(resPic.getId());
+                BaseModel.sysSave(unionContact, loginUser);
+                unionContactMapper.updateByPrimaryKeySelective(unionContact);
+
+                // 删除旧文件
+                ResPicPO resPicOld = new ResPicPO();
+                resPicOld.setId(unionContactOld.getPicId());
+                resPicOld.setIsDeleted(1);
+                BaseModel.sysSave(resPicOld, loginUser);
+                designPlanStoreReleaseMapper.updateResPic(resPicOld);
+                return unionContact.getId();
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * 查询联系人数量
+     * @param unionContactSearch
+     * @return
+     */
+    @Override
+    public int getCount(UnionContactSearch unionContactSearch){
+        if( unionContactSearch == null ){
+            return 0;
+        }
+        return unionContactMapper.selectCount(unionContactSearch);
+    }
+
+    /**
+     * 查询联系人列表
+     * @param unionContactSearch
+     * @return
+     */
+    @Override
+    public List<UnionContactVo> list(UnionContactSearch unionContactSearch){
+        if( unionContactSearch == null ){
+            return null;
+        }
+        return unionContactMapper.selectList(unionContactSearch);
+    }
+}

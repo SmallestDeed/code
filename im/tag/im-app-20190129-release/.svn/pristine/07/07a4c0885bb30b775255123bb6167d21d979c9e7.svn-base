@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.im.dao.BaseHouseDao">
+
+	<select id="selectBaseHouseInfo" resultType="com.sandu.im.model.BaseHouse">
+		SELECT DISTINCT
+        bh.*, bl.living_name,
+        ba.long_code AS areaLongCode
+        FROM
+        base_house bh
+        LEFT JOIN house_space_new s ON (s.house_id = bh.id)
+        LEFT JOIN space_common c ON (s.standard_space_id = c.id)
+        LEFT JOIN base_living bl ON bl.id = bh.living_id
+        LEFT JOIN base_area ba ON ba.area_code = bl.area_id
+        LEFT JOIN (
+        select house_id,max(gmt_create) as gmt_create  from pay_order
+        WHERE
+        pay_state = "SUCCESS"
+        AND biz_type = "Buy"
+        AND is_deleted = 0
+        AND house_id &lt;&gt; 0
+        group by house_id
+        ) p on p.house_id = bh.id
+        WHERE
+        bh.is_deleted = 0
+        AND c.origin = 1
+        and bh.id in
+        <foreach collection="houseIds" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+
+	<select id="getHousePicPath" resultType="com.sandu.im.model.ResHousePic">
+		select
+			*
+		from
+			res_house_pic
+		where
+			id = #{picId}
+	</select>
+
+	<select id="getLivingName" resultType="string">
+		 SELECT
+		 	area_name
+		 FROM
+		 	base_area
+		 WHERE
+			area_code = #{areaCode}
+			and is_deleted = 0
+	</select>
+
+	<!-- 通过户型ID获取该户型下所有的空间类型 -->
+	<select id="getSpaceTypeListByHouseId" resultType="String"
+			parameterType="java.lang.Integer">
+        SELECT
+        	c.space_function_id
+        FROM
+        	house_space_new h
+        LEFT JOIN space_common c on c.id = h.standard_space_id
+        WHERE
+        	h.house_id = #{houseId}
+    </select>
+</mapper>

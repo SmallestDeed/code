@@ -1,0 +1,55 @@
+package com.sandu.service.springFestivalActivity.impl;
+
+import com.sandu.api.springFestivalActivity.model.WxUserTask;
+import com.sandu.api.springFestivalActivity.service.WxUserTaskService;
+import com.sandu.service.springFestivalActivity.dao.WxUserTaskMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
+
+@Service("wxUserTaskService")
+public class WxUserTaskServiceImpl implements WxUserTaskService {
+    @Autowired
+    private WxUserTaskMapper wxUserTaskMapper;
+
+    @Override
+    public List<WxUserTask> selectSelective(WxUserTask wxUserTask) {
+        return wxUserTaskMapper.selectSelective(wxUserTask);
+    }
+
+    @Override
+    public int insertSelective(WxUserTask record) {
+        return wxUserTaskMapper.insertSelective(record);
+    }
+
+    @Override
+    public WxUserTask selectByPrimaryKey(Long id) {
+        return wxUserTaskMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public int updateByPrimaryKeySelective(WxUserTask record) {
+        return wxUserTaskMapper.updateByPrimaryKeySelective(record);
+    }
+
+    @Override
+    public Integer getRateByUserId(Long activityId, Long userId) {
+        WxUserTask wxUserTask = new WxUserTask();
+        wxUserTask.setActivityId(activityId);
+        wxUserTask.setUserId(userId);
+        wxUserTask.setIsDeleted(0);
+        List<WxUserTask> wxUserTaskList = wxUserTaskMapper.selectSelective(wxUserTask);
+        if (!CollectionUtils.isEmpty(wxUserTaskList)) {
+            wxUserTask = wxUserTaskList.get(0);
+            return wxUserTask.getLotteryRate();
+        }
+        return 5;
+    }
+
+    @Override
+    public List<WxUserTask> getUnderwayTaskList(Long activityId) {
+        return wxUserTaskMapper.getUnderwayTaskList(activityId);
+    }
+}

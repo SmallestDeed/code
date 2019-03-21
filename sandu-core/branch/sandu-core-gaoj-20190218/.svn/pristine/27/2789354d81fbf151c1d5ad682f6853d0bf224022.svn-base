@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.base.dao.UserCardAccessMapper">
+    <insert id="insertUserCardAccessRecord" parameterType="com.sandu.api.base.model.UserCardAccessRecord"
+            useGeneratedKeys="true" keyProperty="id">
+        insert into user_card_access_record (id, user_card_id, user_id,
+      access_type, is_read,
+      creator, gmt_create, modifier,
+      gmt_modified, is_deleted
+      )
+    values (#{id,jdbcType=INTEGER}, #{userCardId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER},
+      #{accessType,jdbcType=INTEGER}, #{isRead,jdbcType=TINYINT},
+      #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR},
+      #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=TINYINT}
+      )
+    </insert>
+
+    <insert id="insertUserCardAccessOperationLog" parameterType="com.sandu.api.base.model.UserCardAccessOperationLog" keyProperty="id" useGeneratedKeys="true">
+   insert into user_card_access_operation_log (id, user_card_id, user_id,
+      user_card_access_record_id, purpose_type, operation_type,
+      contact_phone, is_read, creator,
+      gmt_create, modifier, gmt_modified,
+      is_deleted)
+    values (#{id,jdbcType=INTEGER}, #{userCardId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER},
+      #{userCardAccessRecordId,jdbcType=INTEGER}, #{purposeType,jdbcType=INTEGER}, #{operationType,jdbcType=INTEGER},
+      #{contactPhone,jdbcType=VARCHAR}, #{isRead,jdbcType=TINYINT}, #{creator,jdbcType=VARCHAR},
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP},
+      #{isDeleted,jdbcType=TINYINT})
+    </insert>
+
+
+    <select id="getUserCardAccessCount" parameterType="object" resultType="java.lang.Integer">
+        select
+        count(id)
+        from user_card_access_record
+        where user_card_id = #{userAccessId,jdbcType=INTEGER}
+        and is_deleted = 0
+    </select>
+
+
+    <select id="getUserCardAccessList" parameterType="object"
+            resultType="com.sandu.api.base.output.UserCardAccessRecordVo">
+        select
+        ucar.gmt_modified AS gmtModified,
+        su.nick_name AS accessUserName,
+        su.sex AS sex,
+        r.pic_path AS accessUserHeadPicPath
+        from user_card_access_record ucar
+        left join sys_user su on su.id = ucar.user_id and su.is_deleted = 0
+        LEFT JOIN res_pic r ON r.id = su.pic_id and r.is_deleted = 0
+        where ucar.user_card_id = #{userAccessId,jdbcType=INTEGER}
+        and ucar.is_deleted = 0
+        order by ucar.gmt_modified desc
+        limit #{start},#{limit}
+    </select>
+
+
+    <select id="selectUserCardAccessOperationLogCount" parameterType="object" resultType="java.lang.Integer">
+        select
+        count(id)
+        from user_card_access_operation_log
+        where user_card_id = #{userAccessId,jdbcType=INTEGER}
+        <if test="purposeType != null and purposeType > 0">
+            and purpose_type = #{purposeType,jdbcType=INTEGER}
+        </if>
+        and is_deleted = 0
+    </select>
+
+
+    <select id="selectUserCardAccessOperationLogList" parameterType="object"
+            resultType="com.sandu.api.base.output.UserCardAccessRecordVo">
+        select
+        ucaol.gmt_modified AS gmtModified,
+        su.nick_name AS accessUserName,
+        su.sex AS sex,
+        r.pic_path AS accessUserHeadPicPath,
+        ucaol.operation_type AS operationType,
+        ucaol.contact_phone AS contactPhone
+        from user_card_access_operation_log ucaol
+        left join sys_user su on su.id = ucaol.user_id and su.is_deleted = 0
+        LEFT JOIN res_pic r ON r.id = su.pic_id and r.is_deleted = 0
+        where ucaol.user_card_id = #{userAccessId,jdbcType=INTEGER}
+        <if test="purposeType != null and purposeType > 0">
+            and ucaol.purpose_type = #{purposeType,jdbcType=INTEGER}
+        </if>
+        and ucaol.is_deleted = 0
+        order by ucaol.gmt_modified desc
+        limit #{start},#{limit}
+    </select>
+
+
+    <select id="selectUserCardAccessRecordCountInfo" resultType="com.sandu.api.base.model.UserCardAccessRecordCount" parameterType="object">
+        SELECT
+            count(DISTINCT ucar.id) AS accessCount,
+            count(DISTINCT ucar.user_id) AS accessUserCount,
+            count(DISTINCT tucar.id) AS todayAccessCount,
+            count(DISTINCT tucar.user_id) AS todayAccessUserCount
+        FROM
+            user_card_access_record ucar
+        LEFT JOIN user_card_access_record tucar ON tucar.id = ucar.id
+        AND tucar.is_deleted = 0
+        AND TO_DAYS(tucar.gmt_modified) = TO_DAYS(NOW())
+        WHERE
+            ucar.is_deleted = 0
+        and ucar.user_card_id = #{userAccessId,jdbcType=INTEGER}
+    </select>
+
+
+    <update id="updateUserCardAccessRecordToIsRead" keyProperty="id" useGeneratedKeys="true" parameterType="object">
+        UPDATE user_card_access_record SET is_read = 1
+        WHERE
+        user_card_id = #{userAccessId,jdbcType=INTEGER}
+        and is_deleted = 0
+    </update>
+
+    <update id="updateUserCardAccessOperationLogToIsRead" keyProperty="id" useGeneratedKeys="true"
+            parameterType="object">
+        UPDATE user_card_access_operation_log SET is_read = 1
+        WHERE
+        user_card_id = #{userAccessId,jdbcType=INTEGER}
+        <if test="purposeType != null and purposeType > 0">
+            and purpose_type = #{purposeType,jdbcType=INTEGER}
+        </if>
+        and is_deleted = 0
+    </update>
+
+
+    <select id="selectUnReadUserCardAccessRecord" parameterType="object" resultType="java.lang.Integer">
+        select
+        count(id)
+        from user_card_access_record
+        where user_card_id = #{userAccessId,jdbcType=INTEGER}
+        and is_deleted = 0
+        AND is_read = 0
+    </select>
+
+    <select id="selectUnReadUserCardAccessOperationLog" parameterType="object" resultType="java.lang.Integer">
+        select
+        count(id)
+        from user_card_access_operation_log
+        where user_card_id = #{userAccessId,jdbcType=INTEGER}
+        and is_deleted = 0
+        AND is_read = 0
+    </select>
+
+
+</mapper>

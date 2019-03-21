@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.volume.room.dao.DrawVolumeRoomMapper">
+  <resultMap id="BaseResultMap" type="com.sandu.api.volume.room.model.DrawVolumeRoom">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="zip_file_id" jdbcType="BIGINT" property="zipFileId" />
+    <result column="lf_file_id" jdbcType="BIGINT" property="lfFileId" />
+    <result column="sdkj_file_id" jdbcType="BIGINT" property="sdkjFileId" />
+    <result column="house_pic_id" jdbcType="BIGINT" property="housePicId" />
+    <result column="house_name" jdbcType="VARCHAR" property="houseName" />
+    <result column="project_key" jdbcType="VARCHAR" property="projectKey" />
+    <result column="house_uuid" jdbcType="VARCHAR" property="houseUuid" />
+    <result column="draw_house_id" jdbcType="BIGINT" property="drawHouseId" />
+    <result column="province" jdbcType="VARCHAR" property="province" />
+    <result column="city" jdbcType="VARCHAR" property="city" />
+    <result column="dist" jdbcType="VARCHAR" property="dist" />
+    <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+    <result column="is_deleted" jdbcType="SMALLINT" property="isDeleted" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+  </resultMap>
+
+  <sql id="all_columns">
+    <trim suffixOverrides=",">
+      id, zip_file_id, lf_file_id, sdkj_file_id, house_pic_id,
+      project_key, house_uuid, draw_house_id, house_name,
+      province, city, dist, mobile, is_deleted, creator,
+      gmt_create, modifier, gmt_modified, project_key
+    </trim>
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    SELECT
+      <include refid="all_columns" />
+    FROM draw_volume_room dvr
+    WHERE dvr.is_deleted = 0
+      AND dvr.id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="getDrawVolumeRoomByKey" resultType="com.sandu.api.volume.room.model.DrawVolumeRoom">
+    SELECT
+      id, zip_file_id, lf_file_id, house_pic_id, project_key, house_name,
+      province, city, dist, mobile, house_uuid, is_deleted, draw_house_id
+    FROM
+      draw_volume_room dvr
+    WHERE dvr.project_key = #{projectKey}
+  </select>
+
+  <select id="listVolumeRoomByHouseId" resultType="com.sandu.api.volume.room.model.VolumeRoomHouseBO">
+    SELECT
+      vr.id,
+      vr.draw_house_id,
+      vr.lf_file_id,
+      f.file_path AS lf_file_path
+    FROM
+      draw_volume_room vr,
+      draw_res_lf_file f
+    WHERE f.is_deleted = 0
+      AND vr.is_deleted = 0
+      AND f.id = vr.lf_file_id
+      AND vr.status = #{status}
+      AND vr.draw_house_id IN
+      <foreach collection="list" item="item" open="(" separator="," close=")">
+        #{item.id}
+      </foreach>
+  </select>
+
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
+          parameterType="com.sandu.api.volume.room.model.DrawVolumeRoom">
+    INSERT INTO draw_volume_room
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="zipFileId != null">
+        zip_file_id,
+      </if>
+      <if test="lfFileId != null">
+        lf_file_id,
+      </if>
+      <if test="sdkjFileId != null">
+        sdkj_file_id,
+      </if>
+      <if test="housePicId != null">
+        house_pic_id,
+      </if>
+      <if test="houseName != null">
+        house_name,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="projectKey != null">
+        project_key,
+      </if>
+      <if test="houseUuid != null">
+        house_uuid,
+      </if>
+      <if test="drawHouseId != null">
+        draw_house_id,
+      </if>
+      <if test="province != null">
+        province,
+      </if>
+      <if test="city != null">
+        city,
+      </if>
+      <if test="dist != null">
+        dist,
+      </if>
+      <if test="livingName != null">
+        living_name,
+      </if>
+      <if test="mobile != null">
+        mobile,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+    </trim>
+    <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="zipFileId != null">
+        #{zipFileId,jdbcType=BIGINT},
+      </if>
+      <if test="lfFileId != null">
+        #{lfFileId,jdbcType=BIGINT},
+      </if>
+      <if test="sdkjFileId != null">
+        #{sdkjFileId,jdbcType=BIGINT},
+      </if>
+      <if test="housePicId != null">
+        #{housePicId,jdbcType=BIGINT},
+      </if>
+      <if test="houseName != null">
+        #{houseName,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="projectKey != null">
+        #{projectKey,jdbcType=VARCHAR},
+      </if>
+      <if test="houseUuid != null">
+        #{houseUuid,jdbcType=VARCHAR},
+      </if>
+      <if test="drawHouseId != null">
+        #{drawHouseId,jdbcType=BIGINT},
+      </if>
+      <if test="province != null">
+        #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null">
+        #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="dist != null">
+        #{dist,jdbcType=VARCHAR},
+      </if>
+      <if test="livingName != null">
+        #{livingName,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null">
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=SMALLINT},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.volume.room.model.DrawVolumeRoom">
+    UPDATE draw_volume_room
+    <set>
+      <if test="zipFileId != null">
+        zip_file_id = #{zipFileId,jdbcType=BIGINT},
+      </if>
+      <if test="lfFileId != null">
+        lf_file_id = #{lfFileId,jdbcType=BIGINT},
+      </if>
+      <if test="sdkjFileId != null">
+        sdkj_file_id = #{sdkjFileId,jdbcType=BIGINT},
+      </if>
+      <if test="housePicId != null">
+        house_pic_id = #{housePicId,jdbcType=BIGINT},
+      </if>
+      <if test="houseName != null">
+        house_name = #{houseName,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="projectKey != null">
+        project_key = #{projectKey,jdbcType=VARCHAR},
+      </if>
+      <if test="houseUuid != null">
+        house_uuid = #{houseUuid,jdbcType=VARCHAR},
+      </if>
+      <if test="drawHouseId != null">
+        draw_house_id = #{drawHouseId,jdbcType=BIGINT},
+      </if>
+      <if test="province != null">
+        province = #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null">
+        city = #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="dist != null">
+        dist = #{dist,jdbcType=VARCHAR},
+      </if>
+      <if test="livingName != null">
+        living_name = #{livingName,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null">
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=SMALLINT},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateVolumeRoomByLock">
+    UPDATE
+      draw_volume_room vr
+    SET
+      vr.status = #{updateStatus}
+    WHERE vr.status = #{applyStatus}
+      AND vr.draw_house_id = #{drawHouseId}
+  </update>
+</mapper>

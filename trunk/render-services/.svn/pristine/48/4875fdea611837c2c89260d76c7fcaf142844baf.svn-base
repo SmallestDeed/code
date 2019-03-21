@@ -1,0 +1,662 @@
+package com.nork.pano.service.impl;
+
+import app.test.dubbo.model.User;
+import com.google.gson.reflect.TypeToken;
+import com.nork.cityunion.dao.UnionContactMapper;
+import com.nork.cityunion.model.UnionContact;
+import com.nork.common.model.LoginUser;
+import com.nork.common.pano.PanoramaUtil;
+import com.nork.common.util.*;
+import com.nork.common.util.collections.CustomerListUtils;
+import com.nork.design.dao.DesignPlanRecommendedMapperV2;
+import com.nork.design.dao.DesignPlanRenderSceneMapper;
+import com.nork.design.dao.DesignRenderRoamMapper;
+import com.nork.design.dao.DesignTemplateJumpPositionRelMapper;
+import com.nork.design.model.*;
+import com.nork.design.service.*;
+import com.nork.home.model.BaseHouse;
+import com.nork.home.model.SpaceCommon;
+import com.nork.home.service.BaseHouseService;
+import com.nork.home.service.SpaceCommonService;
+import com.nork.pano.dao.DesignPlanStoreReleaseDetailsMapper;
+import com.nork.pano.dao.DesignPlanStoreReleaseMapper;
+import com.nork.pano.model.DesignPlanStoreRelease;
+import com.nork.pano.model.DesignPlanStoreReleaseDetails;
+import com.nork.pano.model.RenderTaskState;
+import com.nork.pano.model.RenderTaskStateSearch;
+import com.nork.pano.model.input.SceneDataSearch;
+import com.nork.pano.model.output.CoordinateVo;
+import com.nork.pano.model.output.DesignPlanStoreReleaseDetailsVo;
+import com.nork.pano.model.output.DesignPlanStoreReleaseVo;
+import com.nork.pano.model.roam.Roam;
+import com.nork.pano.service.DesignPlanStoreReleaseService;
+import com.nork.product.model.BaseCompany;
+import com.nork.product.model.CompanyShop;
+import com.nork.product.service.BaseCompanyService;
+import com.nork.product.service.CompanyShopService;
+import com.nork.render.model.BaseHouseGuidePicInfo;
+import com.nork.render.service.BaseHouseGuidePicInfoService;
+import com.nork.resource.dao.ResFullHouseFileMapper;
+import com.nork.resource.model.ResFullHouseFile;
+import com.nork.pano.service.PanoramaService;
+import com.nork.system.model.*;
+import com.nork.system.service.*;
+import com.nork.user.model.constant.UserTypeConstant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.File;
+import java.util.*;
+import java.util.stream.Collectors;
+
+
+@Service("designPlanStoreReleaseService")
+@Transactional(rollbackFor = Exception.class)
+public class DesignPlanStoreReleaseServiceImpl implements DesignPlanStoreReleaseService {
+
+    private static Logger logger = LoggerFactory.getLogger(DesignPlanStoreReleaseServiceImpl.class);
+
+    @Autowired
+    private DesignPlanStoreReleaseMapper designPlanStoreReleaseMapper;
+    @Autowired
+    private DesignPlanStoreReleaseDetailsMapper designPlanStoreReleaseDetailsMapper;
+    @Autowired
+    private UnionContactMapper unionContactMapper;
+    @Autowired
+    private ResHousePicService resHousePicService;
+    @Autowired
+    private ResPicService resPicService;
+    @Autowired
+    private SysUserService sysUserService;
+    @Autowired
+    private ResRenderPicService resRenderPicService;
+    @Autowired
+    private ResRenderVideoService resRenderVideoService;
+    @Autowired
+    private DesignRenderRoamMapper designRenderRoamMapper;
+    @Autowired
+    private DesignPlanRenderSceneMapper designPlanRenderSceneMapper;
+    @Autowired
+    private DesignTemplateJumpPositionRelMapper designTemplateJumpPositionRelMapper;
+    @Autowired
+    private ResDesignService resDesignService;
+    @Autowired
+    private BaseHouseService baseHouseService;
+    @Autowired
+    private DesignPlanRecommendedServiceV2 designPlanRecommendedServiceV2;
+    @Autowired
+    private ResFullHouseFileService resFullHouseFileService;
+    @Autowired
+    private FullHousePlanService fullHousePlanService;
+    @Autowired
+    private DesignPlanAutoRenderService designPlanAutoRenderService;
+    @Autowired
+    private BaseHouseGuidePicInfoService baseHouseGuidePicInfoService;
+    @Autowired
+    private PanoramaService panoramaService;
+    @Autowired
+    private CompanyShopService companyShopService;
+    @Autowired
+    private BaseCompanyService baseCompanyService;
+    @Autowired
+    private SpaceCommonService spaceCommonService;
+    @Autowired
+    private CompanyDesignPlanIncomeService companyDesignPlanIncomeService;
+
+    /**
+     * 获取720分享
+     * @param search
+     * @return
+     */
+    @Override
+    public DesignPlanStoreReleaseVo getPanorama(SceneDataSearch search, LoginUser loginUser){
+        Integer releaseId = search.getRenderId();
+
+        //1.获取720分享主体信息
+        DesignPlanStoreReleaseVo designPlanStoreReleaseVo = null;
+        if(releaseId != null){
+            designPlanStoreReleaseVo = designPlanStoreReleaseMapper.selectByPrimaryKey(releaseId);
+        }else{
+            designPlanStoreReleaseVo = designPlanStoreReleaseMapper.getDesignPlanStoreRelease(search.getUuid());
+        }
+
+        logger.error("designPlanStoreReleaseVo:" + JsonUtil.toJson(designPlanStoreReleaseVo));
+        if( designPlanStoreReleaseVo == null ){
+            return null;
+        }
+        //是否已查到户型信息
+        boolean hasHouseInfoFlag = false;
+        //是否是由推荐方案组成的全屋方案
+        boolean hasRecommendPlan = false;
+
+        ResHousePic housePic = resHousePicService.get(designPlanStoreReleaseVo.getHousePicId());
+        logger.error("housePic:" + JsonUtil.toJson(housePic));
+        if( housePic != null ){
+            designPlanStoreReleaseVo.setHousePicPath(housePic.getPicPath());
+        }
+        //全屋方案的空间类型，先写死
+        designPlanStoreReleaseVo.setSpaceFunctionId(13);
+        designPlanStoreReleaseVo.setHouseTypeName("全屋");
+
+        Integer userId = designPlanStoreReleaseVo.getUserId();
+        SysUser user = sysUserService.get(userId);
+        BaseCompany company = null;
+        if(user != null && user.getBusinessAdministrationId() != null){
+            company =  baseCompanyService.get(user.getBusinessAdministrationId());
+            designPlanStoreReleaseVo.setCompanyTypeValue(company != null ? company.getBusinessType() : null);
+        }
+        // 2.组装联系人信息.如果制作时没有选择联系人信息，则把方案创建人作为联系人信息
+        Integer contactId = designPlanStoreReleaseVo.getUnionContactId();
+        if( contactId != null && contactId != 0){
+            UnionContact unionContact = unionContactMapper.selectByPrimaryKey(contactId);
+            designPlanStoreReleaseVo.setContactName(unionContact.getName());
+            designPlanStoreReleaseVo.setContactPhone(unionContact.getPhone());
+            // LOGO
+            ResPic resPic = resPicService.get(unionContact.getPicId());
+            if( resPic != null ){
+                designPlanStoreReleaseVo.setLogo(resPic.getPicPath());
+            }
+        }else{
+            if( user != null ){
+                 /*
+                 * 显示信息
+                 * update by chenm on 2018/12/5
+                 * TODO:先这么堆叠的写着，下次发布一起重构
+                 */
+                CompanyShop companyShop = companyShopService.getUserCompanyShopForNewScene(userId);
+                if(companyShop != null){
+                    designPlanStoreReleaseVo.setCompanyShopId(companyShop.getId());
+                    designPlanStoreReleaseVo.setContactName(companyShop.getShopName());
+                    designPlanStoreReleaseVo.setContactPhone(companyShop.getContactPhone());
+                    if(companyShop.getLogoPicId() != null){
+                        ResPic logoPic = resPicService.get(companyShop.getLogoPicId());
+                        designPlanStoreReleaseVo.setLogo(logoPic == null ? null : logoPic.getPicPath());
+                    }
+                }else{
+                    if(company != null){
+                        if(Objects.equals(UserTypeConstant.USER_TYPE_COMPANY,user.getUserType())){
+                            designPlanStoreReleaseVo.setContactName(company.getCompanyName());
+                            designPlanStoreReleaseVo.setContactPhone(company.getPhone());
+                            if(company.getCompanyLogo() != null){
+                                ResPic logoPic = resPicService.get(company.getCompanyLogo());
+                                designPlanStoreReleaseVo.setLogo(logoPic == null ? null : logoPic.getPicPath());
+                            }
+                        }
+                    }else{
+                        designPlanStoreReleaseVo.setContactName(user.getUserName() != null ? user.getUserName() : user.getNickName());
+                        designPlanStoreReleaseVo.setContactPhone(user.getMobile());
+                        if(user.getPicId() != null){
+                            ResPic logoPic = resPicService.get(user.getPicId());
+                            designPlanStoreReleaseVo.setLogo(logoPic == null ? null : logoPic.getPicPath());
+                        }
+                    }
+                }
+            }
+        }
+
+        /** 查询对应全户型obj文件及户型下样板房 unique_id 对应数据 begin **/
+        BaseHouse baseHouse = new BaseHouse();
+        if(designPlanStoreReleaseVo.getHouseId() != null && designPlanStoreReleaseVo.getHouseId() > 0){
+            //720制作的数据会记录户型Id,全屋方案制作不会
+            baseHouse = baseHouseService.get(designPlanStoreReleaseVo.getHouseId());
+            if(baseHouse == null || baseHouse.getId() == null){
+                hasHouseInfoFlag = false;
+            }else{
+                hasHouseInfoFlag = true;
+            }
+        }
+        Integer currentFullHousePlanId = null;
+
+        //得到全屋方案数据
+        FullHouseDesignPlan planSearch = new FullHouseDesignPlan();
+        planSearch.setUserId(designPlanStoreReleaseVo.getUserId());
+        planSearch.setVrResourceUuid(designPlanStoreReleaseVo.getUuid());
+        // 不显示以下 类型来源方案 (1:内部制作,3:交付,4:分享)
+        List<Integer> uselessSourceTypeList = Arrays.asList(new Integer[]{1,3,4});
+        /*planSearch.setUselessSourceTypeList(uselessSourceTypeList);*/
+        FullHouseDesignPlan fullHouseDesignPlan = fullHousePlanService.selectPlanByVrResourceUuid(planSearch);
+        if(fullHouseDesignPlan != null){
+            currentFullHousePlanId = fullHouseDesignPlan.getId();
+            if(fullHouseDesignPlan.getPlanPicId() != null && fullHouseDesignPlan.getPlanPicId() > 0){
+                ResRenderPic pic = resRenderPicService.get(fullHouseDesignPlan.getPlanPicId());
+                designPlanStoreReleaseVo.setCoverPath(pic != null ? pic.getPicPath() : null);
+            }
+        }
+
+        if(!hasHouseInfoFlag){
+            /**
+             * 如果全屋720分享表中没有记录houseId,或记录的houseId为无效数据,则从全屋方案表查询信息
+             * 例：PC端制作全屋方法和移动端替换渲染时720分享主表中不存储户型id
+             */
+            if(fullHouseDesignPlan != null && fullHouseDesignPlan.getId() != null){
+                if(fullHouseDesignPlan.getSourceType() != null && !uselessSourceTypeList.contains(fullHouseDesignPlan.getSourceType())){
+                    //内部制作,交付,分享 的全屋方案不查找户型和obj文件
+                    Integer houseId = designPlanAutoRenderService.selectHouseIdByFullHousePlanId(fullHouseDesignPlan.getId());
+                    if(houseId != null){
+                        baseHouse = baseHouseService.get(houseId);
+                    }
+                }
+            }
+        }
+        //得到对应全户型obj文件
+        if(baseHouse != null && baseHouse.getFullHouseObjId() != null){
+            hasHouseInfoFlag = true;
+            Integer fullHouseObjId = baseHouse.getFullHouseObjId();
+            ResFullHouseFile fullHouseFile = resFullHouseFileService.selectByPrimaryKey(fullHouseObjId);
+            if(fullHouseFile != null && fullHouseFile.getIsDeleted() != 1 && StringUtils.isNotBlank(fullHouseFile.getFilePath())){
+                designPlanStoreReleaseVo.setFullHouseObjFilePath(fullHouseFile.getFilePath());
+            }
+        }
+        //找到该户型下所有样板房,并存储样板房Id与uniqueId对应集合
+       List<BaseHouseGuidePicInfo> houseGuidePicInfoList = new ArrayList<BaseHouseGuidePicInfo>();
+        if(baseHouse != null && baseHouse.getId() != null){
+           BaseHouseGuidePicInfo guidePicInfoSearch = new BaseHouseGuidePicInfo();
+            guidePicInfoSearch.setHouseId(baseHouse.getId().longValue());
+            if(baseHouse.getSnapPicId() != null){
+                guidePicInfoSearch.setPicId(baseHouse.getSnapPicId().longValue());
+            }
+            houseGuidePicInfoList = baseHouseGuidePicInfoService.getList(guidePicInfoSearch);
+        }
+        //样板房与户型图对应唯一标识集合
+        Map<Integer,String> templetUniqueIdMap = new HashMap<Integer,String>(houseGuidePicInfoList.size());
+        List<Integer> allDesignTemplateIds = new ArrayList <>();
+        //样板房及在720分享方案中数量对应集合
+        Map<Integer,Integer>  templetCountMap = new HashMap<Integer,Integer>(houseGuidePicInfoList.size());
+        if(CustomerListUtils.isNotEmpty(houseGuidePicInfoList)){
+            for (BaseHouseGuidePicInfo guidePicInfo : houseGuidePicInfoList){
+                if(guidePicInfo.getDesignTempletId() != null){
+                    Integer designTempletId = guidePicInfo.getDesignTempletId().intValue();
+                    templetUniqueIdMap.put(designTempletId,guidePicInfo.getUniqueId());
+                    allDesignTemplateIds.add(designTempletId);
+                }
+            }
+        }
+        /** 查询对应全户型obj文件及户型下样板房 unique_id 对应数据 end **/
+
+        //读取分享标题
+        String desc = panoramaService.getCustomizedDescBySceneInfo(search,designPlanStoreReleaseVo.getUserId());
+        designPlanStoreReleaseVo.setDesc(desc);
+
+        logger.error("designPlanStoreReleaseVo:" + JsonUtil.toJson(designPlanStoreReleaseVo));
+        // 3.获取分享详情
+        List<DesignPlanStoreReleaseDetails> designPlanStoreReleaseDetailsList = designPlanStoreReleaseDetailsMapper.selectListByStoreReleaseId(designPlanStoreReleaseVo.getId());
+        logger.error("designPlanStoreReleaseDetailsList:" + JsonUtil.toJson(designPlanStoreReleaseDetailsList));
+
+        //处理720分享详情
+        Long startDate = System.currentTimeMillis();
+        if( designPlanStoreReleaseDetailsList != null && designPlanStoreReleaseDetailsList.size() > 0 ){
+            List<DesignPlanStoreReleaseDetailsVo> designPlanStoreReleaseDetailsVoList = new ArrayList<>();
+            DesignPlanStoreReleaseDetailsVo designPlanStoreReleaseDetailsVo = null;
+            for( DesignPlanStoreReleaseDetails designPlanStoreReleaseDetails : designPlanStoreReleaseDetailsList ){
+                designPlanStoreReleaseDetailsVo = new DesignPlanStoreReleaseDetailsVo();
+                designPlanStoreReleaseDetailsVo.setIsMain(designPlanStoreReleaseDetails.getIsMain());
+                if( DesignPlanStoreReleaseDetails.IsMain.YES == designPlanStoreReleaseDetails.getIsMain().intValue() ){
+                    designPlanStoreReleaseVo.setMainDesignPlanId(designPlanStoreReleaseDetails.getDesignPlanId());
+                }
+                designPlanStoreReleaseDetailsVo.setDesignPlanType(designPlanStoreReleaseDetails.getDesignPlanType());
+                designPlanStoreReleaseDetailsVo.setDesignPlanId(designPlanStoreReleaseDetails.getDesignPlanId());
+                designPlanStoreReleaseDetailsVo.setRenderingType(designPlanStoreReleaseDetails.getRenderingType());
+                designPlanStoreReleaseDetailsVo.setResourceId(designPlanStoreReleaseDetails.getResourceId());
+                // 获取缩略图路径
+                ResRenderPic resRenderPic = new ResRenderPic();
+                resRenderPic.setPid(designPlanStoreReleaseDetails.getResourceId());
+                resRenderPic.setIsDeleted(0);
+                List<ResRenderPic> list = resRenderPicService.getList(resRenderPic);
+                if( list != null && list.size() > 0 ){
+                    designPlanStoreReleaseDetailsVo.setThumbPicPath(list.get(0).getPicPath());
+                }
+
+                // 获取资源路径
+                if( DesignPlanStoreReleaseDetails.RenderingType.VIDEO == designPlanStoreReleaseDetails.getRenderingType().intValue() ){
+                    // 视频需要去另外的res_render_video表取路径
+                    ResRenderVideo videoRender = resRenderVideoService.get(designPlanStoreReleaseDetails.getResourceId());
+                    if( videoRender != null ){
+                        designPlanStoreReleaseDetailsVo.setResourcePath(videoRender.getVideoPath());
+                    }
+                }else if( DesignPlanStoreReleaseDetails.RenderingType.ROAM_RENDER == designPlanStoreReleaseDetails.getRenderingType().intValue()
+                        || DesignPlanStoreReleaseDetails.RenderingType.PANORAMA_RENDER == designPlanStoreReleaseDetails.getRenderingType().intValue() ){// 多点720和单点720需要生成行走和穿透的热点坐标信息
+                    // 生成行走和穿透坐标信息
+                    designPlanStoreReleaseDetailsVo = this.generateCoordinate(designPlanStoreReleaseDetailsVo, designPlanStoreReleaseDetailsList, designPlanStoreReleaseVo.getShareType());
+                }else{// 照片级直接取资源路径
+                    ResRenderPic normalRender = resRenderPicService.get(designPlanStoreReleaseDetails.getResourceId());
+                    if( normalRender != null ){
+                        designPlanStoreReleaseDetailsVo.setResourcePath(normalRender.getPicPath());
+                    }
+                }
+
+                // 空间类型
+                String spaceType = designPlanRenderSceneMapper.getFunctionName(designPlanStoreReleaseDetailsVo.getDesignPlanId());
+                designPlanStoreReleaseDetailsVo.setSpaceType(spaceType);
+
+                //对应样板房Id
+                Integer designId = 0;
+                //对应空间id
+                Integer spaceCommonId = null;
+                if(designPlanStoreReleaseDetails.getDesignPlanId() != null && designPlanStoreReleaseDetails.getDesignPlanId() > 0){
+                    //效果图方案
+                    DesignPlanRenderScene planRenderScene = designPlanRenderSceneMapper.get(designPlanStoreReleaseDetails.getDesignPlanId());
+                    if(planRenderScene != null && planRenderScene.getDesignId() != null){
+                        designId = planRenderScene.getDesignId();
+                    }
+                    spaceCommonId = planRenderScene.getSpaceCommonId();
+                    //组合主方案id
+                    designPlanStoreReleaseDetailsVo.setGroupPrimaryId(planRenderScene.getGroupPrimaryId());
+                }
+                if(designPlanStoreReleaseDetails.getRecommendDesignPlanId() != null && designPlanStoreReleaseDetails.getRecommendDesignPlanId() > 0){
+                    hasRecommendPlan = true;
+                    DesignPlanRecommended planRecommended = designPlanRecommendedServiceV2.get(designPlanStoreReleaseDetails.getRecommendDesignPlanId());
+                    /*if(planRecommended != null && planRecommended.getDesignTemplateId() != null){
+                        designId = planRecommended.getDesignTemplateId();
+                    }*/
+                    spaceCommonId = planRecommended.getSpaceCommonId();
+                    //组合主方案id
+                    designPlanStoreReleaseDetailsVo.setGroupPrimaryId(planRecommended.getGroupPrimaryId());
+                }
+                //找到样板房对应的unique_id,如果有相同的样板房则只给第一个方案赋值
+                if(!templetCountMap.containsKey(designId)){
+                    if(templetUniqueIdMap.containsKey(designId)){
+                        designPlanStoreReleaseDetailsVo.setUniqueId(templetUniqueIdMap.get(designId));
+                        templetCountMap.put(designId,1);
+                    }
+                }else{
+                    templetCountMap.put(designId,(templetCountMap.get(designId) + 1));
+                }
+                //720制作分享中的方案来源类型可设置为效果图方案,因为全屋方案的费用清单使用的参数是效果图方案Id,不影响功能
+                designPlanStoreReleaseDetailsVo.setPlanSourceType(DesignPlanStoreReleaseDetailsVo.PlanSourceType.DESIGNSCENE_PLAN);
+                //渲染图来源的方案id(720制作与全屋方案都使用效果图方案id),方便前端传值查看费用清单
+                designPlanStoreReleaseDetailsVo.setSourcePlanId(designPlanStoreReleaseDetailsVo.getDesignPlanId());
+                //查询空间类型id
+                if(spaceCommonId != null){
+                    SpaceCommon spaceCommon = spaceCommonService.get(spaceCommonId);
+                    designPlanStoreReleaseDetailsVo.setSpaceFunctionId(spaceCommon != null ? spaceCommon.getSpaceFunctionId() : null);
+                }
+
+                designPlanStoreReleaseDetailsVoList.add(designPlanStoreReleaseDetailsVo);
+            }
+            designPlanStoreReleaseVo.setDetails(designPlanStoreReleaseDetailsVoList);
+        }
+        List<String> rendingUniqueIdList = new ArrayList <>();
+        if(currentFullHousePlanId != null && allDesignTemplateIds != null && allDesignTemplateIds.size() >0) {
+            RenderTaskStateSearch stateSearch = new RenderTaskStateSearch();
+            stateSearch.setNewFullPlanHouseId(currentFullHousePlanId);
+            stateSearch.setTemplateIds(allDesignTemplateIds);
+            List<RenderTaskState> taskStates = getRenderStatesOfHouse(stateSearch);
+            for(RenderTaskState taskState : taskStates) {
+                Integer state = taskState.getState();
+                if(state != null && state.intValue() == 2) {
+                    String currentUuid = templetUniqueIdMap.get(taskState.getTemplateId());
+                    rendingUniqueIdList.add(currentUuid);
+                }
+            }
+        }
+        designPlanStoreReleaseVo.setRendingUniqueIdList(rendingUniqueIdList);
+        //查找全户型中没有对应效果图方案的方案uuid并返回前端
+        List<String> uselessUniqueIdList = new ArrayList<String>(templetUniqueIdMap.size());
+        for (Integer templateId : templetUniqueIdMap.keySet()){
+            if (!templetCountMap.containsKey(templateId) && !rendingUniqueIdList.contains(templetUniqueIdMap.get(templateId))){
+                uselessUniqueIdList.add(templetUniqueIdMap.get(templateId));
+            }
+        }
+        designPlanStoreReleaseVo.setUselessUniqueIdList(uselessUniqueIdList);
+
+
+        /**
+         * XZW-328 随选网方案分享后，720中可操作的图标保持不变
+         * 控制前端界面功能按钮展示的标识
+         * 来源于PC端的二维码如果是效果图方案组成则是3(兼容多种......)，是推荐方案组成则是1
+         * 来源于随选网的:
+         *  1.能查找到户型信息:7 (如随选网装进我家生成的全屋方案)
+         *  2.查不到户型信息:6 (如随选网产品替换生成的全屋方案)
+         *  3.没有购买的付费方案为 8
+         */
+        if(Objects.equals(SceneDataSearch.PlatformType.PC2B,search.getPlatformType())){
+            designPlanStoreReleaseVo.setViewControlType(3);
+        }else if(Objects.equals(search.getPlatformType(),SceneDataSearch.PlatformType.SELECTDECORATION)){
+            if(hasHouseInfoFlag){
+                designPlanStoreReleaseVo.setViewControlType(7);
+            }else{
+                designPlanStoreReleaseVo.setViewControlType(6);
+            }
+            if(hasRecommendPlan){
+                //是由推荐方案组成的全屋方案
+                if(fullHouseDesignPlan != null){
+                    if(Objects.equals(1,fullHouseDesignPlan.getChargeType())){
+                        designPlanStoreReleaseVo.setCopyRightPermission(1);
+                        designPlanStoreReleaseVo.setPlanPrice(fullHouseDesignPlan.getPlanPrice());
+                        if(search.getUserId() != null){
+                            /**
+                             * 用户是否购买了该付费方案
+                             * 2b端和企业小程序本公司不需要收费
+                             */
+                            CompanyDesignPlanIncome incomesearch = new CompanyDesignPlanIncome();
+                            incomesearch.setPlanId(fullHouseDesignPlan.getId());
+                            incomesearch.setBuyerId(search.getUserId().longValue());
+                            incomesearch.setPlanType(0);
+                            incomesearch.setIsDeleted(0);
+                            int count = companyDesignPlanIncomeService.getCount(incomesearch);
+                            if(count <= 0){
+                                designPlanStoreReleaseVo.setHavePurchased(0);
+                                designPlanStoreReleaseVo.setViewControlType(8);
+                            }else{
+                                designPlanStoreReleaseVo.setHavePurchased(1);
+                                designPlanStoreReleaseVo.setViewControlType(1);
+                            }
+                        }
+
+                    }else{
+                        designPlanStoreReleaseVo.setCopyRightPermission(0);
+                        designPlanStoreReleaseVo.setViewControlType(1);
+                    }
+                }
+            }
+
+        }else if(Objects.equals(search.getPlatformType(),SceneDataSearch.PlatformType.COMPANY_MINIPROGRAM)){
+            //企业小程序全屋现在不需要校验是否购买
+            designPlanStoreReleaseVo.setCopyRightPermission(0);
+            designPlanStoreReleaseVo.setViewControlType(1);
+        }else if(Objects.equals(search.getPlatformType(),SceneDataSearch.PlatformType.COMPANY_MOBILE2B)){
+            designPlanStoreReleaseVo.setCopyRightPermission(0);
+            if(loginUser != null && loginUser.getId() != null){
+                if(Objects.equals(UserTypeConstant.USER_MEDIATION,loginUser.getUserType())){
+                    //中介用户
+                    designPlanStoreReleaseVo.setViewControlType(10);
+                }else{
+                    designPlanStoreReleaseVo.setViewControlType(9);
+                }
+            }
+        }else if(Objects.equals(search.getPlatformType(),SceneDataSearch.PlatformType.OTHERS)){
+            designPlanStoreReleaseVo.setCopyRightPermission(0);
+        }else{
+            designPlanStoreReleaseVo.setCopyRightPermission(0);
+        }
+        logger.error("designPlanStoreReleaseDetailsList for循环耗时："+ (System.currentTimeMillis() - startDate));
+
+        return designPlanStoreReleaseVo;
+    }
+
+
+    private List<RenderTaskState> getRenderStatesOfHouse(RenderTaskStateSearch search) {
+        List<RenderTaskState> taskStates = baseHouseGuidePicInfoService.getRenderTaskStateList(search);
+        List<RenderTaskState> taskList = baseHouseGuidePicInfoService.getRenderTaskListByFullHouseIdAndTemplateIds(search);
+        for(RenderTaskState state : taskList) {
+            state.setState(2);
+        }
+        taskStates.addAll(taskList);
+        return taskStates;
+    }
+
+    /**
+     * 生成热点位置信息
+     * @param designPlanStoreReleaseDetailsVo 当前空间
+     * @param designPlanStoreReleaseDetailsList 所有其他空间
+     * @param shareType
+     * @return
+     */
+    public DesignPlanStoreReleaseDetailsVo generateCoordinate(DesignPlanStoreReleaseDetailsVo designPlanStoreReleaseDetailsVo, List<DesignPlanStoreReleaseDetails> designPlanStoreReleaseDetailsList, Integer shareType) {
+        /**
+         * 如果为720多点，除了生成行走的坐标位置外，当分享类型为全户型分享时，还需要计算出每一个点和可穿透空间的相对位置
+         */
+        if( DesignPlanStoreReleaseDetails.RenderingType.ROAM_RENDER == designPlanStoreReleaseDetailsVo.getRenderingType().intValue() ){
+            // 行走坐标信息
+            Integer screenShotId = designPlanStoreReleaseDetailsVo.getResourceId();
+            List<Roam> roamList = this.getWalkCoordinate(screenShotId);
+
+            // 只有全户型分享的时候才可以空间穿透
+            if( DesignPlanStoreRelease.ShareType.FULL_HOUSE == shareType.intValue() ) {
+                for (Roam roam : roamList) {
+                    // 渲染相机位置
+                    String renderCoordinatePosition = roam.getRenderPosition();
+                    List<CoordinateVo> penetrationCoordinateList = this.getPenetrationCoordinate(roam.getFieldName(), renderCoordinatePosition, designPlanStoreReleaseDetailsList);
+                    roam.setPenetrationCoordinateList(penetrationCoordinateList);
+                }
+            }
+            designPlanStoreReleaseDetailsVo.setRoamList(roamList);
+        }else if( DesignPlanStoreReleaseDetails.RenderingType.PANORAMA_RENDER == designPlanStoreReleaseDetailsVo.getRenderingType().intValue() ){
+            Integer resRenderPicId = designPlanStoreReleaseDetailsVo.getResourceId();
+            // 只有全屋分享才可以空间穿透
+            if( DesignPlanStoreRelease.ShareType.FULL_HOUSE == shareType.intValue() ){
+                // 渲染相机位置信息
+                String renderCoordinatePosition = "";
+                ResRenderPic renderPic = resRenderPicService.get(resRenderPicId);
+                if( renderPic != null ){
+                    renderCoordinatePosition = renderPic.getCameraLocation();
+                }
+                List<CoordinateVo> penetrationCoordinateList = this.getPenetrationCoordinate(resRenderPicId, renderCoordinatePosition, designPlanStoreReleaseDetailsList);
+                designPlanStoreReleaseDetailsVo.setCoordinateList(penetrationCoordinateList);
+            }
+            ResRenderPic panoramaRender = resRenderPicService.get(resRenderPicId);
+            if( panoramaRender != null ){
+                designPlanStoreReleaseDetailsVo.setResourcePath(panoramaRender.getPicPath());
+                File file = new File(Utils.getAbsolutePath(panoramaRender.getPicPath(), null));
+                // 如果图片资源为目录，则表示为切片资源
+                if( file.exists() && file.isDirectory() ){
+                    designPlanStoreReleaseDetailsVo.setIsShear(DesignPlanStoreReleaseDetailsVo.IsShear.YES);
+                }
+            }
+        }
+        return designPlanStoreReleaseDetailsVo;
+    }
+
+    /**
+     * 获取穿透热点位置信息
+     * @param resRenderPicId   当前场景资源ID
+     * @param renderCoordinatePosition  当前资源的渲染相机位置
+     * @param designPlanStoreReleaseDetailsList    需要比对的其他场景
+     * @return
+     */
+    public List<CoordinateVo> getPenetrationCoordinate(Integer resRenderPicId, String renderCoordinatePosition, List<DesignPlanStoreReleaseDetails> designPlanStoreReleaseDetailsList){
+        // 没有渲染相机的位置信息则算不出穿透的坐标位置
+        if( StringUtils.isBlank(renderCoordinatePosition) ){
+            return null;
+        }
+        List<CoordinateVo> penetrationCoordinateList = new ArrayList<>();
+        CoordinateVo coordinateVo = null;
+        /** TODO 通过当前场景的样板房ID在需要比对的其他场景中找出哪些可穿透，并计算热点的位置信息 **/
+        // 当前场景对应的样板房ID
+        Integer designTemplateId = designPlanRenderSceneMapper.getDesignTemplateIdByResRenderPicId(resRenderPicId);
+        for( DesignPlanStoreReleaseDetails designPlanStoreReleaseDetails : designPlanStoreReleaseDetailsList ){
+            // 其他场景对应的样板房ID
+            Integer targetDesignTemplateId = designPlanRenderSceneMapper.getDesignTemplateIdByResRenderPicId(designPlanStoreReleaseDetails.getResourceId());
+            // 获取两个样板房之间门的坐标位置，如果没有则表示不可穿透
+            String doorCoordinatePosition = designTemplateJumpPositionRelMapper.getCoordinatePosition(designTemplateId, targetDesignTemplateId);
+            if( StringUtils.isNotBlank(doorCoordinatePosition) ){
+                coordinateVo = new CoordinateVo();
+                coordinateVo.setTargetResourceId(designPlanStoreReleaseDetails.getResourceId());
+                Roam roam1 = GsonUtil.json2Bean(renderCoordinatePosition, Roam.class);
+                Roam roam2 = GsonUtil.json2Bean(doorCoordinatePosition, Roam.class);
+                coordinateVo.setAtv(PanoramaUtil.getAtv(roam1, roam2));
+                coordinateVo.setAth(PanoramaUtil.getAth(roam1, roam2));
+                // 空间类型
+                String spaceType = designPlanRenderSceneMapper.getFunctionName(designPlanStoreReleaseDetails.getDesignPlanId());
+                coordinateVo.setSpaceType(spaceType);
+                penetrationCoordinateList.add(coordinateVo);
+            }
+        }
+        return penetrationCoordinateList.size()==0?null:penetrationCoordinateList;
+    }
+
+    /**
+     * 获取行走热点位置信息
+     * @return
+     */
+    @Override
+    public List<Roam> getWalkCoordinate(Integer screenShotId){
+        List<Roam> roamList = new ArrayList<>();
+        DesignRenderRoam designRenderRoam = designRenderRoamMapper.selectByScreenId(screenShotId);
+        String roamConfigContext = "";
+        if( designRenderRoam != null ){
+            String roamConfigPath = "";
+            ResDesign resDesign = resDesignService.get(designRenderRoam.getRoamConfig());
+            if( resDesign != null ){
+                roamConfigPath = resDesign.getFilePath();
+            }
+
+            if( StringUtils.isNotBlank(roamConfigPath) ){
+                roamConfigContext = FileUploadUtils.getFileContext(Utils.getAbsolutePath(roamConfigPath, null));
+               //FIXME:调试代码
+              /*  roamConfigContext = FileUploadUtils.getJsonByInternet(Utils.getAbsolutePath(roamConfigPath, null));*/
+            }
+
+            if( StringUtils.isNotBlank(roamConfigContext) ){
+                roamList = GsonUtil.json2Bean(roamConfigContext, new TypeToken<List<Roam>>(){}.getType());
+
+                List<CoordinateVo> walkCoordinateList = null;
+                CoordinateVo walkCoordinateVo = null;
+                for( Roam roam : roamList ){
+                    ResRenderPic renderPic = resRenderPicService.get(roam.getFieldName());
+                    if( renderPic != null ){
+                        roam.setFieldResourcePath(renderPic.getPicPath());
+                        File file = new File(Utils.getAbsolutePath(renderPic.getPicPath(), null));
+                        // 如果图片资源为目录，则表示为切片资源
+                        if( file.exists() && file.isDirectory() ){
+                            roam.setIsShear(DesignPlanStoreReleaseDetailsVo.IsShear.YES);
+                        }
+                    }
+                    walkCoordinateList = new ArrayList<>();
+                    for( Roam roam1 : roamList ){
+                        if( roam.getFieldName() != roam1.getFieldName() ){
+                            walkCoordinateVo = new CoordinateVo();
+                            walkCoordinateVo.setTargetResourceId(roam1.getFieldName());
+                            walkCoordinateVo.setAth(PanoramaUtil.getAth(roam, roam1));
+                            walkCoordinateVo.setAtv(PanoramaUtil.getAtv(roam, roam1));
+                            walkCoordinateList.add(walkCoordinateVo);
+                        }
+                    }
+                    roam.setWalkCoordinateList(walkCoordinateList);
+                }
+            }
+        }
+        return roamList;
+    }
+
+    /**
+     * 更新浏览量
+     * @param releaseId
+     * @return
+     */
+    @Override
+    public int updatePv(Integer releaseId){
+        if(releaseId == null){
+            return 0;
+        }
+        DesignPlanStoreReleaseVo designPlanStoreReleaseVo = designPlanStoreReleaseMapper.selectByPrimaryKey(releaseId);
+        if( designPlanStoreReleaseVo == null ){
+            return 0;
+        }
+        Integer pv = designPlanStoreReleaseVo.getPv();
+        if( pv == null ){
+            pv = 1;
+        }else{
+            pv += 1;
+        }
+        DesignPlanStoreRelease designPlanStoreRelease = new DesignPlanStoreRelease();
+        designPlanStoreRelease.setId(designPlanStoreReleaseVo.getId());
+        designPlanStoreRelease.setPv(pv);
+        return designPlanStoreReleaseMapper.updateByPrimaryKeySelective(designPlanStoreRelease);
+    }
+
+}

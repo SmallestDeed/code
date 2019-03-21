@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.alibabatech.com/schema/dubbo
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+        ">
+
+    <!-- 订单查询服务 -->
+    <!-- <dubbo:reference interface="com.sandu.order.service.MallBaseOrderService"
+                     id="mallBaseOrderService" version="1.0.1" retries="0" timeout="60000"/> -->
+    <!-- 支付订单服务 -->
+    <dubbo:reference interface="com.sandu.pay.order.service.PayOrderService"
+                     id="payOrderService" version="1.0.1" retries="0" timeout="60000"/>
+                     
+   <dubbo:reference interface="com.sandu.pay.order.service.MgrRechargeLogService"
+                     id="mgrRechargeLogService" version="1.0.1" retries="0" timeout="60000"/>
+
+    <!--付款方式表-->
+    <dubbo:reference interface="com.sandu.pay.order.service.PayModelConfigService"
+                     id="payModelConfigService" version="1.0.1" retries="0" timeout="60000"/>
+
+    <!--付款方式业务关联表-->
+    <dubbo:reference interface="com.sandu.pay.order.service.PayModelGroupRefService"
+                     id="payModelGroupRefService" version="1.0.1" retries="0" timeout="60000"/>
+
+    <!--平台表-->
+    <dubbo:reference interface="com.sandu.pay.base.service.BasePlatformService"
+                     id="basePlatformService" version="1.0.1" retries="0" timeout="60000"/>
+
+    <!--支付账户表-->
+    <dubbo:reference interface="com.sandu.pay.order.service.PayAccountService"
+                     id="payAccountService" version="1.0.1" retries="0" timeout="60000"/>
+
+    <!--Mini program pay-->
+    <dubbo:reference interface="com.sandu.pay.minipro.service.WXMiniProPayService"
+                   id="wxMiniProPayService" protocol="dubbo" timeout="10000" version="1.0.1"/>
+
+    <dubbo:reference interface="com.sandu.pay2.service.Pay2Service"
+                     id="miniPay"  protocol="dubbo" timeout="10000" version="1.0.1" group="miniPay"/>
+</beans>

@@ -1,0 +1,153 @@
+package com.sandu.service.base.impl;
+
+import com.sandu.api.base.model.GroupProductImageInfo;
+import com.sandu.api.base.service.CompressImageService;
+import com.sandu.service.base.dao.CommonMapper;
+import lombok.extern.log4j.Log4j2;
+import net.coobird.thumbnailator.Thumbnails;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+/**
+ * Copyright (c) http://www.sanduspace.cn. All rights reserved.
+ *
+ * @author :  Steve
+ * @date : 2018/11/22
+ * @since : sandu_yun_1.0
+ */
+@Log4j2
+@Service("compressImageService")
+public class CompressImageServiceImpl implements CompressImageService{
+
+    public final static String rootPath = "/data001/resource";
+
+    @Autowired
+    private CommonMapper commonMapper;
+
+    @Override
+    public void compressImage() {
+        List<GroupProductImageInfo> list = commonMapper.getAllGroupProductImageInfoList();
+        int defaultThreads = 10;
+        if(list.size()<=10){
+            defaultThreads = 1;
+        }
+        ExecutorService service = Executors.newFixedThreadPool(defaultThreads+1);
+        int size =list.size();
+        int perSize = size/defaultThreads;
+        int residue = size % defaultThreads;
+        int j = 1;
+        log.info("CompressImageServiceImpl: To compress image  list size {}",size);
+        for(int i=0; i<=defaultThreads; i++){
+            int start = i*perSize;
+            int end = j*perSize;
+            if(i == defaultThreads){
+                end = start + residue;
+            }
+            log.info("CompressImageServiceImpl: To compress image index list {}  start {} end {} residue {} j {}",i,start,end,residue,j);
+            if(start <= size && end <=size && start != end){
+                List <GroupProductImageInfo> subList = list.subList(start, end);
+                service.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        comPressAction(subList);
+                    }
+                });
+            }
+            j++;
+        }
+        service.shutdown();
+    }
+
+    private void comPressAction(List <GroupProductImageInfo> list)  {
+        List <GroupProductImageInfo> toBatchUpdateList = new ArrayList();
+        for(GroupProductImageInfo info : list) {
+            String convertPath = info.getConvertPicPath();
+            //"C:\\imgtest\\tst\\"+i +".jpg";
+            String fileUrlStr = rootPath + convertPath;
+            String newSmallPath = fileUrlStr.replace(".jpg", "_small.jpg");
+            try {
+                File file = new File(fileUrlStr);
+                if(file.exists()) {
+                    InputStream is = new FileInputStream(file);
+                    Thumbnails.of(is)
+                            .outputQuality(0.95)
+                            .size(512, 512)
+                            .toFile(newSmallPath);
+                    info.setNewSmallPath(newSmallPath.replace("/data001/resource", ""));
+                    toBatchUpdateList.add(info);
+                }
+
+            } catch (IOException e) {
+                log.error("", e);
+            }
+        }
+        log.info("batchUpdateResSmallPicPath : toBatchUpdateList size {}",toBatchUpdateList.size());
+        commonMapper.batchUpdateResSmallPicPath(toBatchUpdateList);
+        log.info("batchUpdateResSmallPicPath : End run  batchUpdateResSmallPicPath");
+    }
+
+    public static void main(String []args) {
+
+        ExecutorService service = Executors.newFixedThreadPool(11);
+        for(int k=0; k<=10; k++){
+            service.submit(new Runnable() {
+                int j =0;
+                @Override
+                public void run() {
+                    System.out.println("Begin" + Thread.currentThread().getName().toString());
+
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("end" + Thread.currentThread().getName().toString());
+                }
+            });
+        }
+        System.out.println("begin shutdown");
+        service.shutdown();
+        System.out.println("end shutdown");
+        int size =555;
+        int d = 10;
+        if(size < 10){
+            d = 1;
+        }
+        List<Integer> rr = new ArrayList <>();
+        rr.add(1);
+        rr.add(2);
+        rr.add(3);
+        rr.add(4);
+        rr.add(5);
+        List<Integer> rr2 = rr.subList(5,5);
+        List<Integer> rr3= rr.subList(0,2);
+        List<Integer> rr4= rr.subList(2,4);
+        System.out.println(rr.size());
+        for(Integer iii : rr4){
+            System.out.println(iii);
+        }
+        int persize = size/d;
+        int yushu = size % d;
+        int j = 1;
+        for(int i=0;i <=d;i++){
+
+            int start=i*persize;
+            int end = j*persize;
+            if(i==d){
+                end = start + yushu;
+            }
+            j++;
+            System.out.println("i=" + i + "j=" +j + "start=" +start + "end=" + end + "persize=" +persize);
+        }
+    }
+
+}

@@ -1,0 +1,280 @@
+package com.nork.mobile.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.nork.design.service.FullHousePlanService;
+import com.nork.product.model.AutoRenderTaskConstant;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.nork.common.model.ResponseEnvelope;
+import com.nork.common.util.Constants;
+import com.nork.common.util.Utils;
+import com.nork.design.dao.DesignPlanRecommendedMapperV2;
+import com.nork.design.model.AutoRenderTaskState;
+import com.nork.design.model.DesignPlanRecommended;
+import com.nork.design.model.DesignPlanRenderScene;
+import com.nork.design.model.DesignRenderRoam;
+import com.nork.design.model.ThumbData;
+import com.nork.design.service.DesignPlanAutoRenderService;
+import com.nork.design.service.DesignPlanRenderSceneService;
+import com.nork.mobile.service.MobileDesignPlanService;
+import com.nork.product.model.BaseProductStyle;
+import com.nork.product.model.search.BaseProductStyleSearch;
+import com.nork.product.service.BaseProductStyleService;
+import com.nork.render.model.RenderTypeCode;
+import com.nork.system.dao.ResRenderPicMapper;
+import com.nork.system.model.ResRenderPic;
+import com.nork.system.model.ResRenderVideo;
+import com.nork.system.service.ResRenderPicService;
+import com.nork.system.service.ResRenderVideoService;
+
+@Service("mobileDesignPlanService")
+public class MobileDesignPlanServiceImpl implements MobileDesignPlanService{
+	
+	private static Logger logger = Logger
+			.getLogger(MobileDesignPlanServiceImpl.class);
+	
+	@Autowired
+	private BaseProductStyleService baseProductStyleService;
+	@Autowired
+	private ResRenderPicMapper resRenderPicMapper;
+	@Autowired
+	private DesignPlanRecommendedMapperV2 designPlanRecommendedMapperV2;
+	@Autowired
+	private DesignPlanAutoRenderService designPlanAutoRenderService;
+	@Autowired
+	private ResRenderVideoService resRenderVideoService;
+	@Autowired
+	private ResRenderPicService resRenderPicService;
+	@Autowired
+	private DesignPlanRenderSceneService designPlanRenderSceneService;
+	@Autowired
+	private FullHousePlanService fullHousePlanService;
+	
+	/**
+	 * 移动端我的设计获取所有效果图
+	 */
+	@SuppressWarnings("rawtypes")
+	@Override
+	public ResponseEnvelope getMyDesignPlanListMobile(ThumbData thumbData) {
+		//调用PC端的serviceImpl里的方法
+		return designPlanAutoRenderService.getrenderPicByPage(thumbData);
+	}
+
+
+	/**
+	 * 获取所有房间类型
+	 */
+	@Override
+	public List<BaseProductStyle> getSpace(BaseProductStyleSearch baseProductStyleSearch) {
+		
+		return baseProductStyleService.getPaginatedList(baseProductStyleSearch);
+	}
+	
+	/**
+	 * 移动端我的设计    获取720的全景图
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked"})
+	@Override
+	public ResponseEnvelope get720renderPicByPage(ThumbData thumbData) {
+		ResponseEnvelope envelope = new ResponseEnvelope();
+		//查询该用户共有多少渲染图
+		int count = resRenderPicMapper.countRenderPicByPage(thumbData);
+		if (count <= 0) {
+			envelope.setTotalCount(count);
+			return envelope;
+		}
+		if (thumbData.getStart() > count) {
+			envelope.setDatalist(new ArrayList<>());
+			return envelope;
+		}
+		//查询该用户的效果图列表
+		List<ThumbData> list = resRenderPicMapper.getRenderPicByPage(thumbData);
+		if (list == null || list.size() <= 0) {
+			envelope.setDatalist(list);
+			return envelope;
+		}
+
+		List<Long> ids = new ArrayList<Long>();
+		for(ThumbData temp : list) {
+			ids.add(temp.getCpId());
+		}
+
+		List<DesignPlanRecommended> recommendedList = designPlanRecommendedMapperV2
+				.getStatusByIds(ids);
+		if (recommendedList == null || recommendedList.size() <= 0) {
+			envelope.setTotalCount(count);
+			envelope.setDatalist(list);
+			return envelope;
+		}
+
+		for (int i = 0; i < list.size(); i++) {
+			ThumbData temp = (ThumbData) list.get(i);
+			for (int j = 0; j < recommendedList.size(); j++) {
+				DesignPlanRecommended recommended = recommendedList.get(j);
+				if (recommended.getPlanId().longValue() != temp.getCpId())
+					continue;
+
+				if (Constants.RECOMMENDED_TYPE_SHARE == recommended
+						.getRecommendedType().intValue()) {
+					temp.setPubSt(recommended.getIsRelease());
+					continue;
+				}
+				if (Constants.RECOMMENDED_TYPE_ONE_KEY_PUB == recommended
+						.getRecommendedType().intValue()) {
+					temp.setOneKeySt(recommended.getIsRelease());
+					continue;
+				}
+			}
+		}
+//		count = list720.size();
+		envelope.setTotalCount(count);
+		envelope.setDatalist(list);
+		return envelope;
+	}
+	
+	
+	
+	/**
+	 * 生成二维码图的url
+	 * @param resPic
+	 * @param loginUser
+	 * @return
+	 */
+	public String getQRpicPath(ResRenderPic resPic){
+		int renderingType = resPic.getRenderingType().intValue();
+		String picPath = this.getQRCodeInfo(resPic);
+		if(resPic.getRenderingType() != null){
+			if( RenderTypeCode.COMMON_720_LEVEL == renderingType || RenderTypeCode.HD_720_LEVEL == renderingType ){// 普通单图720
+				picPath = Utils.getPropertyName("app","app.render.server.url","")
+						+ Utils.getPropertyName("app","app.render.server.siteName","") + picPath;
+			}else if( RenderTypeCode.ROAM_720_LEVEL == renderingType ){// 720漫游
+					picPath = Utils.getPropertyName("app","app.render.server.url","")
+							+ Utils.getPropertyName("app","app.render.server.siteName","") + picPath;
+			} else if(RenderTypeCode.COMMON_VIDEO == renderingType){//普通视频
+				picPath = Utils.getPropertyName("app","app.resources.url","")  + picPath;
+			}else if(RenderTypeCode.HD_VIDEO == renderingType){//高清视频
+				picPath = Utils.getPropertyName("app","app.resources.url","")  + picPath;
+			}else{
+				picPath=Utils.getValue("app.resources.url", "")+picPath;
+			}
+		}else{
+			/*取普通渲染图路径*/
+			picPath=Utils.getValue("app.resources.url", "")+picPath;
+		}
+		return picPath;
+	}
+	/**
+	 * 二维码的信息
+	 * @param resPic
+	 * @param loginUser
+	 * @return
+	 */
+	public String getQRCodeInfo(ResRenderPic resPic) {
+
+		String picPath="";
+		String code = "";
+		if(resPic.getRenderingType() != null){
+			if( RenderTypeCode.COMMON_720_LEVEL == resPic.getRenderingType() || RenderTypeCode.HD_720_LEVEL == resPic.getRenderingType() ){// 普通单图720
+				ResRenderPic singleCode = resRenderPicService.get720SingleCode(resPic);//得到720单点分享需要的code
+				if(singleCode != null && StringUtils.isNotEmpty(singleCode.getSysCode())){
+					code = singleCode.getSysCode();
+				}else{
+					logger.error("ResRenderPic is null ,res_render_pic_id="+resPic.getId());
+					return null;
+				}
+				picPath = "pages/vr720/vr720MobileSingle.htm?code="+code;
+			}else if( RenderTypeCode.ROAM_720_LEVEL == resPic.getRenderingType() ){// 720漫游
+				// 获取720漫游组信息，传过来的pid问截图ID。渲染图列表接口返回了缩略图列表和对应的截图ID
+				logger.error("id = "+ resPic.getId());
+				DesignRenderRoam romanCode = resRenderPicService.get720RomanCode(resPic);
+				if(romanCode != null && StringUtils.isNotEmpty(romanCode.getUuid())){
+					code = romanCode.getUuid();
+					picPath = "pages/vr720/vr720RoamOfMobile.htm?code="+code;
+					logger.error("romanCode  == " + romanCode.getUuid());
+				}else{
+					logger.error("DesignRenderRoam is null ,res_render_pic_id="+resPic.getId());
+					return null;
+				}
+			} else if(RenderTypeCode.COMMON_VIDEO == resPic.getRenderingType() || RenderTypeCode.HD_VIDEO == resPic.getRenderingType()){//普通视频
+				ResRenderVideo resRenderVideo = new ResRenderVideo();
+				resRenderVideo.setIsDeleted(0);
+				resRenderVideo.setSysTaskPicId(resPic.getId());
+				List<ResRenderVideo> videoList = resRenderVideoService.getList(resRenderVideo);
+				if(videoList == null || videoList.size()<=0 ){
+					return null;
+				}else if(videoList != null && videoList.size() == 1 ){
+					picPath = videoList.get(0).getVideoPath();
+				}else{
+					return null;
+				}
+			}else{
+				picPath=resPic.getPicPath();
+			}
+		}else{
+			/*取普通渲染图路径*/
+			picPath=resPic.getPicPath();
+		}
+		return picPath;
+	}
+
+
+	/**
+	 * 根据缩略图id获取渲染效果图
+	 */
+	@Override
+	public Object getPanoPicture(Integer resRenderPicId) {
+		// TODO Auto-generated method stub
+
+		ResRenderPic res = resRenderPicService.get(resRenderPicId);
+
+		//获取二维码路径   没有按钮的
+		String panoPath =  this.getQRpicPath(res);
+		Map<String,String> returnMap=new HashMap<String, String>();
+		returnMap.put("url", panoPath);
+		returnMap.put("contentUrl",res.getId().toString());
+		returnMap.put("picId", resRenderPicId.toString());
+		return new ResponseEnvelope<>(returnMap);
+
+	}
+	/**
+     * 逻辑删除我的设计、我的任务、我的消息
+     * @param planId
+     * @return
+     */
+	@Override
+	public Object deleteMyDesignPlanAndTask(Integer planId,Integer userId,Integer planHouseType) {
+		if (AutoRenderTaskConstant.PLAN_FULL_HOUSE_TYPE.equals(planHouseType)) {
+			//如果是删除全屋我的设计方案
+			return fullHousePlanService.deleteFullHousePlanAndTask(planId,userId);
+		}
+		//删除单空间我的设计方案
+		if(planId != null) {
+			DesignPlanRenderScene scene = designPlanRenderSceneService.get(planId);
+			AutoRenderTaskState taskState = designPlanAutoRenderService.selectTaskStateByBusinessId(planId);
+			if(scene != null) {
+				scene.setIsDeleted(new Integer(1));
+			}else {
+				return new ResponseEnvelope<>(false,"参数planId错误");
+			}
+			try {
+				//逻辑删除我的设计
+				designPlanRenderSceneService.update(scene);
+				if(taskState != null) {
+					//根据business_id 逻辑删除任务状态
+					designPlanAutoRenderService.updateAutoRenderTaskStateByBusinessId(planId);
+				}
+			} catch (Exception e) {
+				return new ResponseEnvelope<>(false,"删除失败");
+			}
+		}
+		return new ResponseEnvelope<>(true,"删除我的设计、我的任务和我的消息成功！");
+	}
+
+}

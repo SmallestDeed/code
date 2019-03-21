@@ -1,0 +1,308 @@
+package com.sandu.design.service.impl;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.common.cache.service.CommonCacheService;
+import com.sandu.common.metadata.ModuleType;
+import com.sandu.common.model.LoginUser;
+import com.sandu.common.properties.AesProperties;
+import com.sandu.common.util.AESUtil2;
+import com.sandu.common.util.Utils;
+import com.sandu.design.dao.DesignPlanProductMapper;
+import com.sandu.design.model.DesignPlanProduct;
+import com.sandu.design.model.PosNameInfo;
+import com.sandu.design.model.constant.DesignPlanConstants;
+import com.sandu.design.service.DesignPlanProductService;
+import com.sandu.design.service.OptimizePlanService;
+import com.sandu.onekey.model.ProductListByTypeInfo.PlanProductInfo;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+@Service("designPlanProductService")
+public class DesignPlanProductServiceImpl implements DesignPlanProductService {
+
+	Logger logger = LoggerFactory.getLogger(DesignPlanProductServiceImpl.class);
+	
+	private static String PASSWORD_CRYPT_KEY= Utils.getValueByFileKey(AesProperties.AES, AesProperties.AES_RESOURCES_ENCRYPT_KEY_FILEKEY, "41e5c74dd46e4ddcb942dc8ce6224a2e").trim();
+
+	@Autowired
+	private OptimizePlanService optimizePlanService;
+	
+	@Autowired
+	private DesignPlanProductMapper designPlanProductMapper;
+	
+	@Autowired
+	private CommonCacheService commonCacheService;
+	
+	@Override
+	public Integer createByPlanProductInfo(PlanProductInfo planProductInfo, Integer planId, String username, Integer opType) {
+		
+		// *参数验证/参数处理 ->start
+		if(planProductInfo == null) {
+			return null;
+		}
+		if(planId == null || planId < 0) {
+			logger.error("function:DesignPlanProductServiceImpl.createByPlanProductInfo(....)->\n参数planId:(planId == null || planId < 0) = true;planId:" + planId);
+			return null;
+		}
+		if(StringUtils.isEmpty(username)) {
+			logger.error("function:DesignPlanProductServiceImpl.createByPlanProductInfo(....)->\n参数username不能为空:(StringUtils.isEmpty(username)) = true;username:" + username);
+			return null;
+		}
+		if (opType == null) {
+			opType = DesignPlanConstants.USER_RENDER;
+		}
+		// *参数验证/参数处理 ->start
+		
+		// *设置designPlanProduct属性 ->start
+		DesignPlanProduct  designPlanProduct = new DesignPlanProduct();
+		LoginUser loginUser = new LoginUser();
+		loginUser.setLoginName(username);
+		this.sysSave(designPlanProduct, loginUser);
+		designPlanProduct.setPlanId(planId);
+		designPlanProduct.setProductId(planProductInfo.getProductId());
+		designPlanProduct.setPlanProductId(planProductInfo.getPlanProductId());
+		designPlanProduct.setIsHide(0);
+		designPlanProduct.setInitProductId(planProductInfo.getInitProductId());
+		designPlanProduct.setIsDirty(0);
+		designPlanProduct.setProductGroupId(planProductInfo.getGroupOrStructureId());
+		designPlanProduct.setIsMainProduct(planProductInfo.getIsMainProduct());
+		designPlanProduct.setModelProductId(0);
+		designPlanProduct.setBindParentProductId(planProductInfo.getBindParentProductId());
+		designPlanProduct.setSplitTexturesChooseInfo(planProductInfo.getSplitTexturesChooseInfo());
+		designPlanProduct.setSameProductTypeIndex(0);
+		designPlanProduct.setIsStandard(planProductInfo.getIsStandard());
+		designPlanProduct.setCenter(planProductInfo.getCenter());
+		designPlanProduct.setRegionMark(planProductInfo.getRegionMark());
+		designPlanProduct.setMeasureCode(planProductInfo.getMeasureCode());
+		designPlanProduct.setWallOrientation(planProductInfo.getWallOrientation());
+		designPlanProduct.setWallType(planProductInfo.getWallType());
+		designPlanProduct.setStyleId(planProductInfo.getStyleId());
+		designPlanProduct.setProductIndex(planProductInfo.getProductIndex());
+		designPlanProduct.setIsMainStructureProduct(planProductInfo.getIsMainStructureProduct());
+		designPlanProduct.setIsGroupReplaceWay(planProductInfo.getIsGroupReplaceWay());
+		designPlanProduct.setPlanGroupId(planProductInfo.getPlanGroupId());
+		designPlanProduct.setGroupType(planProductInfo.getGroupType());
+		designPlanProduct.setIsGroupReplaceWay(planProductInfo.getIsGroupReplaceWay());
+		designPlanProduct.setProductIndex(planProductInfo.getProductIndex());
+		if(planProductInfo.getIsDeleted() == null){
+			designPlanProduct.setIsDeleted(0);
+		}else{
+			designPlanProduct.setPosName(planProductInfo.getPosName());
+			designPlanProduct.setPosIndexPath(planProductInfo.getPosIndexPath());
+			designPlanProduct.setIsDeleted(planProductInfo.getIsDeleted());
+		}
+		// *设置designPlanProduct属性 ->end
+		
+		if(DesignPlanConstants.AUTO_RENDER != opType) {
+			this.add(designPlanProduct);
+		}else {
+			// 自动渲染,则把设计方案产品数据存在自动渲染产品表里
+			optimizePlanService.addPlanProduct(designPlanProduct);
+		}
+		
+		return designPlanProduct.getId();
+	}
+
+	@Override
+	public String matchSplitTexturesInfo(String splitTexturesChooseInfo, Integer productId,
+			String splitTexturesInfoRecommended) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * 自动存储系统字段
+	 */
+	private void sysSave(DesignPlanProduct model,LoginUser loginUser){
+		if(model != null){
+				if(model.getId() == null){
+					model.setGmtCreate(new Date());
+					model.setCreator(loginUser.getLoginName());
+					model.setIsDeleted(0);
+				    if(model.getSysCode()==null || "".equals(model.getSysCode())){
+					   model.setSysCode(Utils.getCurrentDateTime(Utils.DATETIMESSS) +"_"+ Utils.generateRandomDigitString(6));
+				   }
+				}
+				model.setGmtModified(new Date());
+				model.setModifier(loginUser.getLoginName());
+		}
+	}
+
+	/**
+	 * 新增数据
+	 *
+	 * @param designPlanProduct
+	 * @return  int 
+	 */
+	@Override
+	public int add(DesignPlanProduct designPlanProduct) {
+		/*删除 进入该样板房的缓存*/
+		Map<Object,Object>	paramsMap=new HashMap<>();
+		paramsMap.put("designPlanId", designPlanProduct.getDesignPlanId());
+		if(Utils.enableRedisCache()){
+			commonCacheService.removeAll(ModuleType.DesignPlan, "getDesignPlanWeb", paramsMap);		
+		}
+		designPlanProductMapper.insertSelective(designPlanProduct);
+		return designPlanProduct.getId();
+	}
+
+	/**
+	 *    获取数据详情
+	 *
+	 * @param id
+	 * @return  DesignPlanProduct 
+	 */
+	@Override
+	public DesignPlanProduct get(Integer id) {
+		return designPlanProductMapper.selectByPrimaryKey(id);
+	}
+
+	@Override
+	public boolean updateByConfig(String configEncrypt, List<PosNameInfo> posNameInfoList, Integer opType) {
+		
+		// *参数验证/参数处理 ->start
+		if (opType == null) {
+			opType = DesignPlanConstants.USER_RENDER;
+		}
+		// *参数验证/参数处理 ->end
+		
+		// *处理posNameInfoList ->start
+		Map<String, Integer> posNameInfoMap = new HashMap<String, Integer>();
+		for(PosNameInfo posNameInfo : posNameInfoList) {
+			posNameInfoMap.put(posNameInfo.getPosName(), posNameInfo.getDeignPlanProductId());
+		}
+		// *处理posNameInfoList ->end
+		
+		// *configEncrypt解密 ->start
+		if(PASSWORD_CRYPT_KEY.length() < 8){
+			PASSWORD_CRYPT_KEY = String.format("%1$0"+(8-PASSWORD_CRYPT_KEY.length())+"d",0);
+		}else{
+			PASSWORD_CRYPT_KEY = PASSWORD_CRYPT_KEY.substring(0,8);
+		}
+		
+		String config = null;
+		try {
+			config = AESUtil2.decrypt(configEncrypt, PASSWORD_CRYPT_KEY);
+		} catch (Exception e) {
+			logger.error(e.toString());
+			logger.error("function:DesignPlanProductServiceImpl.createByConfig(....)->\n解密配置文件失败");
+			return false;
+		}
+		// *configEncrypt解密 ->end
+		
+		// *解析json,更新DesignPlanProduct ->start
+		try {
+			JSONObject jsonObject = JSONObject.fromObject(config);
+			JSONArray jsonArray = (JSONArray) jsonObject.get("RoomConfig");
+			for (int index = 0; index < jsonArray.size(); index++) {
+				JSONObject productJson = jsonArray.getJSONObject(index);
+				// *找到对应DesignPlanProduct ->start
+				String posName = productJson.getString("PosName");
+				if(StringUtils.isEmpty(posName)) {
+					logger.error("function:DesignPlanProductServiceImpl.updateByConfig(....)->\n某个posName没有从配置文件中取到");
+					return false;
+				}
+				Integer designPlanProductId = posNameInfoMap.get(posName);
+				if(designPlanProductId == null) {
+					logger.error("function:DesignPlanProductServiceImpl.updateByConfig(....)->\n在posNameInfoList没有找到posName为:" + posName + "的设计方案产品");
+					return false;
+				}
+				/*DesignPlanProduct designPlanProduct = this.get(designPlanProductId);
+				if(designPlanProduct == null) {
+					logger.error("function:DesignPlanProductServiceImpl.updateByConfig(....)->\nDesignPlanProduct not found:designPlanProductId:" + designPlanProductId + "");
+					return false;
+				}*/
+				// *找到对应DesignPlanProduct ->end
+				
+				DesignPlanProduct designPlanProduct = new DesignPlanProduct();
+				designPlanProduct.setId(designPlanProductId);
+				this.updateDesignPlanProductByJson(designPlanProduct, productJson);
+				if(DesignPlanConstants.AUTO_RENDER != opType) {
+					this.update(designPlanProduct);
+				}else {
+					// 自动渲染
+					optimizePlanService.updatePlanProduct(designPlanProduct);
+				}
+			}
+		}catch (Exception e) {
+			logger.error("------解析配置文件失败");
+			e.printStackTrace();
+			return false;
+		}
+		// *解析json,更新DesignPlanProduct ->start
+		
+		return true;
+	}
+
+	/**
+	 * 根据json信息生成DesignPlanProduct
+	 * 
+	 * @author huangsongbo
+	 * @param designPlanProduct
+	 * @param productJson
+	 * @return
+	 */
+	private DesignPlanProduct updateDesignPlanProductByJson(DesignPlanProduct designPlanProduct, JSONObject productJson) {
+		
+		// *参数验证 ->start
+		if(productJson == null) {
+			logger.error("function:DesignPlanProductServiceImpl.getDesignPlanProductByJson(....)->\n参数productJson = null");
+			return null;
+		}
+		if(designPlanProduct == null) {
+			logger.error("function:DesignPlanProductServiceImpl.getDesignPlanProductByJson(....)->\n参数designPlanProduct = null");
+			return null;
+		}
+		// *参数验证 ->end
+		
+		// *补充信息 ->start
+		designPlanProduct.setPosIndexPath(productJson.getString("PosIndexPath"));
+		designPlanProduct.setProductSequence(com.sandu.common.util.StringUtils.replaceString(designPlanProduct.getPosIndexPath(), "/"));
+		designPlanProduct.setPosName(productJson.getString("PosName"));
+		// *补充信息 ->end
+		
+		return designPlanProduct;
+	}
+	
+	/**
+	 *    更新数据
+	 *
+	 * @param designPlanProduct
+	 * @return  int 
+	 */
+	@Override
+	public int update(DesignPlanProduct designPlanProduct) {
+		/*删除 进入该样板房的缓存*/
+		Map<Object,Object>	paramsMap=new HashMap<>();
+		paramsMap.put("designPlanId", designPlanProduct.getDesignPlanId());
+		if(Utils.enableRedisCache()){
+			/*CommonCacher.removeAll(ModuleType.DesignPlan, "getDesignPlanWeb", paramsMap);*/
+			commonCacheService.removeAll(ModuleType.DesignPlan, "getDesignPlanWeb", paramsMap);
+		}
+		return designPlanProductMapper
+				.updateByPrimaryKeySelective(designPlanProduct);
+	}
+
+	/**
+	 * 所有数据
+	 * 
+	 * @param  designPlanProduct
+	 * @return   List<DesignPlanProduct>
+	 */
+	@Override
+	public List<DesignPlanProduct> getList(DesignPlanProduct designPlanProduct) {
+	    return designPlanProductMapper.selectList(designPlanProduct);
+	}
+	
+}

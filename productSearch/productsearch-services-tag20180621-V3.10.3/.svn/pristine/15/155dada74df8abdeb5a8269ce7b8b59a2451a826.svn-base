@@ -1,0 +1,146 @@
+package com.nork.product.service;
+
+import java.util.List;
+
+import com.nork.common.model.LoginUser;
+import com.nork.common.model.ResponseEnvelope;
+import com.nork.design.model.DesignPlanProduct;
+import com.nork.product.model.ProductCategoryRel;
+import com.nork.product.model.search.GroupProductSearch;
+
+/**
+ * Created by yangz on 2017/12/12.
+ */
+public interface CommonAppSearchService {
+
+	/**
+	 * 通过idList查询产品详情
+	 * add by yangz 2017-12-28 15:16:45
+	 * @param idList
+	 * @param limit
+	 * @param start
+	 * @param userId
+	 * @param msgId
+	 * @return ResponseEnvelope
+	 */
+	ResponseEnvelope getDetailByIds(List<Integer> idList, Integer limit,
+			 Integer start, Integer userId, String msgId, Integer isStandard,
+			 String regionMark, Integer styleId, String measureCode,
+             Integer designPlanId, Integer planProductId, String mediaType, Integer isSpellingFlowerProduct);
+	
+	/**
+	 * 查询单品
+	 * @param templateProductId
+	 * @param productCategoryRel
+	 * @param loginUser
+	 * @param productModelOrBrandName
+	 * @param planProductId
+	 * @param houseType
+	 * @param productTypeValue
+	 * @param spaceCommonId
+	 * @param smallTypeValue
+	 * @param mediaType
+	 * @param statusType
+	 * @param isStandard
+	 * @param regionMark
+	 * @param styleId
+	 * @param measureCode
+	 * @param smallpox
+	 * @param designPlanId
+	 * @param style
+	 * @return
+	 */
+    Object searchSingleProduct(String templateProductId,
+                               ProductCategoryRel productCategoryRel,
+                               LoginUser loginUser,
+                               String productModelOrBrandName,
+                               Integer planProductId,
+                               String houseType,
+                               Integer productTypeValue,
+                               Integer spaceCommonId,
+                               Integer smallTypeValue,
+                               String mediaType,
+                               Integer statusType,
+                               Integer isStandard,
+                               String regionMark,
+                               Integer styleId,
+                               String measureCode,
+                               String smallpox,
+                               Integer designPlanId,
+                               String style);
+
+
+    /**
+     * 查询组合
+     * @param productCategoryRel
+     * @param houseType
+     * @param designPlanId
+     * @param planProductId
+     * @param spaceCommonId
+     * @param templateProductId
+     * @param productTypeValue
+     * @param smallTypeValue
+     * @param queryType
+     * @param groupType
+     * @param type
+     * @param structureId
+     * @param designTempletId
+     * @param userStatusType
+     * @param loginUser
+     * @param groupSearch
+     * @param mediaType
+     * @return
+     */
+    Object searchProductGroupV2(ProductCategoryRel productCategoryRel, String houseType, Integer designPlanId,
+                                Integer planProductId, Integer spaceCommonId, String templateProductId,
+                                String productTypeValue, String smallTypeValue, String queryType,
+                                String groupType, String type, Integer structureId, Integer designTempletId,
+                                Integer userStatusType, LoginUser loginUser, GroupProductSearch groupSearch,
+                                String mediaType);
+
+
+    /**
+     * 查询材质的接口
+     * @param productId
+     * @param designPlanId
+     * @param planProductId
+     * @param spaceCommonId
+     * @param msgId
+     * @param loginUser
+     * @return
+     */
+    ResponseEnvelope findSameTypeProductList(Integer productId, Integer designPlanId, Integer planProductId
+            , Integer spaceCommonId, String msgId, LoginUser loginUser);
+
+    /**
+     * 查询结构接口
+     *
+     * @param planProductId 方案产品ID
+     * @param spaceCommonId 空间ID
+     * @param msgId
+     * @param start
+     * @param limit
+     * @param loginUser     用户对象
+     * @param mediaType     媒介类型
+     * @param styleId       款式Id
+     * @param isStandard    是否是标准
+     * @param regionMark    区域标识
+     * @param measureCode   尺寸代码
+     * @return
+     * @author xiaoxc
+     */
+    Object searchStructureProduct(Integer planProductId, Integer spaceCommonId, Integer designPlanId,
+                                  String msgId, Integer start, Integer limit, LoginUser loginUser, String mediaType,
+                                  Integer isStandard, Integer styleId, String regionMark, String measureCode);
+
+    /**
+     * 系列
+     *
+     * @param msgId
+     * @param loginUser
+     * @return
+     */
+    Object getSeriesList(String msgId, LoginUser loginUser);
+
+
+}

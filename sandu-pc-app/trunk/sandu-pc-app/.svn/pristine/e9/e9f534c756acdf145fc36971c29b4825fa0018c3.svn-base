@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.product.dao.DesignPlanProductMapper">
+
+    <!-- 结算清单明细 -->
+    <resultMap id="costDetailResult" type="com.sandu.product.model.output.ProductCostDetail">
+        <id column="id" property="productId" jdbcType="VARCHAR"/>
+        <result column="product_name" property="productName" jdbcType="VARCHAR"/>
+        <result column="brand_name" property="brandName" jdbcType="VARCHAR"/>
+        <result column="unitPrice" property="unitPrice" jdbcType="DECIMAL"/>
+        <result column="totalPrice" property="totalPrice" jdbcType="DECIMAL"/>
+        <result column="totalCount" property="count" jdbcType="INTEGER"/>
+        <result column="productPicPath" property="productPicPath" jdbcType="VARCHAR"/>
+        <result column="productModelNumber" property="productModelNumber" jdbcType="VARCHAR"/>
+        <result column="productSpec" property="productSpec" jdbcType="VARCHAR"/>
+        <result column="productDesc" property="productDesc" jdbcType="VARCHAR"/>
+        <result column="productOriginalPicPath" property="productOriginalPicPath" jdbcType="VARCHAR"/>
+        <result column="productUnit" property="productUnit" jdbcType="VARCHAR"/>
+        <result column="productCode" property="productCode" jdbcType="VARCHAR"/>
+        <result column="posIndexPath" property="posIndexPath" jdbcType="VARCHAR"/>
+
+        <result column="productTypeValue" property="productTypeValue" jdbcType="VARCHAR"/>
+        <result column="productSmallTypeValue" property="productSmallTypeValue" jdbcType="VARCHAR"/>
+        <result column="planProductId" property="planProductId" jdbcType="INTEGER"/>
+        <result column="isMainProduct" property="isMainProduct" jdbcType="INTEGER"/>
+        <result column="productTypeValue" property="productTypeValue" jdbcType="VARCHAR"/>
+        <result column="productSmallTypeValue" property="productSmallTypeValue" jdbcType="VARCHAR"/>
+        <result column="spaceCommonId" property="spaceCommonId" jdbcType="INTEGER"/>
+
+        <result column="sourcePlanGroupId" property="sourcePlanGroupId" jdbcType="VARCHAR"/>
+        <result column="sourceProductGroupId" property="sourceProductGroupId" jdbcType="INTEGER"/>
+        <result column="sourceGroupProductUniqueId" property="sourceGroupProductUniqueId" jdbcType="VARCHAR"/>
+        <result column="sourceGroupProductId" property="sourceGroupProductId" jdbcType="INTEGER"/>
+        <result column="sourceGroupProductCode" property="sourceGroupProductCode" jdbcType="VARCHAR"/>
+        <result column="split_textures_choose_info" property="sourceSplitTexturesChooseInfo" jdbcType="VARCHAR"/>
+        <result column="is_standard" property="isStandard" jdbcType="INTEGER"/>
+        <result column="region_mark" property="regionMark" jdbcType="VARCHAR"/>
+        <result column="style_id" property="styleId" jdbcType="INTEGER"/>
+        <result column="measure_code" property="measureCode" jdbcType="VARCHAR"/>
+        <result column="structure_id" property="structureId" jdbcType="INTEGER"/>
+        <result column="valuekey" property="valuekey" jdbcType="VARCHAR"/>
+        <result column="is_replace_texture" property="isReplaceTexture" jdbcType="INTEGER"/>
+
+        <result column="designTemplet_id" property="designTempletId" jdbcType="INTEGER"/>
+        <result column="pro_category_id" property="proCategoryId" jdbcType="INTEGER"/>
+        <result column="pro_category_long_code" property="proCategoryLongCode" jdbcType="VARCHAR"/>
+        <result column="type_value_key" property="typeValueKey" jdbcType="VARCHAR"/>
+        <result column="typeValue" property="typeValue" jdbcType="VARCHAR"/>
+        <result column="brandId" property="brandId" jdbcType="INTEGER"/>
+        <result column="secrecy_flag" property="secrecyFlag" jdbcType="INTEGER"/>
+        <result column="company_id" property="companyId" jdbcType="INTEGER"/>
+        <result column="styleIdStr" property="styleIdStr" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getRecommendedProductList" resultMap="costDetailResult" parameterType="com.sandu.product.model.input.PlanProductModel">
+        SELECT bp.id,bp.product_name,bb.brand_name,ppr.sale_price unitPrice,(ppr.sale_price*COUNT(bp.id)) totalPrice,COUNT(bp.id) totalCount,rp.pic_path productPicPath,
+        bp.product_model_number productModelNumber,bp.product_spec productSpec,ppr.description productDesc,bp.product_code productCode,rp1.pic_path productOriginalPicPath
+        ,ppr.style_id as styleIdStr
+        ,dp.pos_index_path as posIndexPath        	  <!-- 挂节点 -->
+        ,dp.is_main_product as isMainProduct      	  <!-- 是否是主产品 -->
+        ,dp.id as planProductId						  <!-- 方案产品id -->
+        ,dp2.space_common_id as spaceCommonId			  <!-- 空间id -->
+        ,bp.product_type_mark as categoryCode		  <!-- 产品分类编码 -->
+        ,bp.product_small_type_mark as smallCategoryCode<!-- 产品小分类编码 -->
+        ,bp.product_type_value as productTypeValue		<!-- 产品类别value···大类 -->
+        ,bp.product_small_type_value as productSmallTypeValue  <!-- 产品类别value···小类 -->
+
+        ,dp.plan_group_id as sourcePlanGroupId          	  <!-- 设计方案组合ID-->
+        ,dp.product_group_id as sourceProductGroupId  	  <!-- 产品组合ID -->
+        ,dp.group_product_uniqueId as sourceGroupProductUniqueId		<!-- 组合产品唯一标识 -->
+        ,gp.id as sourceGroupProductId			<!-- 组合id -->
+        ,gp.group_code as sourceGroupProductCode	<!-- 组合code -->
+        ,dp.split_textures_choose_info <!-- 默认材质信息  -->
+        ,dp.is_standard		<!-- 描述(区域、尺寸代码) -->
+        ,dp.region_mark		<!-- 区域标识 -->
+        ,dp.style_id		<!-- 款式id -->
+        ,dp.measure_code	<!-- 尺寸代码 -->
+        ,dp.is_replace_texture  <!-- 是否进行了材质替换0:否,>0:是 -->
+        ,gp.structure_id	<!-- 结构id -->
+        ,s2.valuekey
+        ,dp2.design_template_id as designTemplet_id	<!-- 关联样板房id -->
+        ,pc.id as pro_category_id					<!-- 产品分类id -->
+        ,pc.long_code as pro_category_long_code		<!-- 产品分类长编码 -->
+        ,s2.att2 as type_value_key
+        ,bp.product_type_value as typeValue
+        ,bp.brand_id as brandId
+        ,bp.secrecy_flag
+        ,bb.company_id
+
+        FROM design_plan_recommended_product dp
+        LEFT JOIN base_product bp ON bp.id = dp.product_id
+        LEFT JOIN platform2b_product_rel AS ppr ON ppr.product_id = dp.product_id
+        left join pro_category pc on bp.product_small_type_mark = pc.code
+        LEFT JOIN (SELECT bs.type,bs.valuekey,bs.value,bs.name,bs.ordering FROM sys_dictionary bs WHERE bs.type = 'productType' ORDER BY bs.ordering) s1 ON bp.product_type_value = s1.value
+        LEFT JOIN sys_dictionary s2 ON s2.value = bp.product_small_type_value AND s2.type = s1.valuekey
+        LEFT JOIN res_pic rp ON ppr.pic_id = rp.id
+        LEFT JOIN res_pic rp1 ON ppr.pic_ids = rp1.id
+        LEFT JOIN base_brand bb ON bb.id = bp.brand_id
+        LEFT JOIN group_product gp on gp.id = dp.product_group_id
+        LEFT JOIN design_plan_recommended dp2 ON dp2.id = dp.plan_recommended_id
+        WHERE 1=1 AND dp.is_deleted = 0
+        AND ppr.platform_id = #{platformId,jdbcType=INTEGER} AND ppr.putaway_state = 1 AND ppr.allot_state = 1
+        <if test="recommendedId != null and recommendedId != ''">
+            AND dp.plan_recommended_id = #{recommendedId,jdbcType=INTEGER}
+        </if>
+        AND s2.att3 != 'baimo'
+        GROUP BY bp.id
+    </select>
+
+
+    <!--效果图方案产品清单-->
+    <select id="getRenderSceneProductList" resultMap="costDetailResult" parameterType="com.sandu.product.model.input.PlanProductModel">
+        SELECT bp.id,bp.product_name,bb.brand_name,ppr.sale_price unitPrice,(ppr.sale_price*COUNT(bp.id)) totalPrice,COUNT(bp.id) totalCount,rp.pic_path productPicPath,
+        bp.product_model_number productModelNumber,bp.product_spec productSpec,ppr.description productDesc,bp.product_code productCode,rp1.pic_path productOriginalPicPath
+        ,ppr.style_id as styleIdStr
+        ,dp.pos_index_path as posIndexPath        	  <!-- 挂节点 -->
+        ,dp.is_main_product as isMainProduct      	  <!-- 是否是主产品 -->
+        ,dp.id as planProductId						  <!-- 方案产品id -->
+        ,dp2.space_common_id as spaceCommonId			  <!-- 空间id -->
+        ,bp.product_type_mark as categoryCode		  <!-- 产品分类编码 -->
+        ,bp.product_small_type_mark as smallCategoryCode<!-- 产品小分类编码 -->
+        ,bp.product_type_value as productTypeValue		<!-- 产品类别value···大类 -->
+        ,bp.product_small_type_value as productSmallTypeValue  <!-- 产品类别value···小类 -->
+
+        ,dp.plan_group_id as sourcePlanGroupId          	  <!-- 设计方案组合ID-->
+        ,dp.product_group_id as sourceProductGroupId  	  <!-- 产品组合ID -->
+        ,dp.group_product_uniqueId as sourceGroupProductUniqueId		<!-- 组合产品唯一标识 -->
+        ,gp.id as sourceGroupProductId			<!-- 组合id -->
+        ,gp.group_code as sourceGroupProductCode	<!-- 组合code -->
+        ,dp.split_textures_choose_info <!-- 默认材质信息  -->
+        ,dp.is_standard		<!-- 描述(区域、尺寸代码) -->
+        ,dp.region_mark		<!-- 区域标识 -->
+        ,dp.style_id		<!-- 款式id -->
+        ,dp.measure_code	<!-- 尺寸代码 -->
+        ,gp.structure_id	<!-- 结构id -->
+        ,dp.is_replace_texture<!-- 是否做了材质替换(0:否;1:是) -->
+        ,s2.valuekey
+        ,dp2.design_template_id as designTemplet_id	<!-- 关联样板房id -->
+        ,pc.id as pro_category_id					<!-- 产品分类id -->
+        ,pc.long_code as pro_category_long_code		<!-- 产品分类长编码 -->
+        ,s2.att2 as type_value_key
+        ,bp.product_type_value as typeValue
+        ,bp.brand_id as brandId
+        ,bp.secrecy_flag
+        ,bb.company_id
+
+        FROM design_plan_product_render_scene dp
+        LEFT JOIN base_product bp ON bp.id = dp.product_id
+        LEFT JOIN platform2b_product_rel AS ppr ON ppr.product_id = dp.product_id
+        left join pro_category pc on bp.product_small_type_mark = pc.code
+        LEFT JOIN (SELECT bs.type,bs.valuekey,bs.value,bs.name,bs.ordering FROM sys_dictionary bs WHERE bs.type = 'productType' ORDER BY bs.ordering) s1 ON bp.product_type_value = s1.value
+        LEFT JOIN sys_dictionary s2 ON s2.value = bp.product_small_type_value AND s2.type = s1.valuekey
+        LEFT JOIN res_pic rp ON ppr.pic_id = rp.id
+        LEFT JOIN res_pic rp1 ON ppr.pic_ids = rp1.id
+        LEFT JOIN base_brand bb ON bb.id = bp.brand_id
+        LEFT JOIN group_product gp on gp.id = dp.product_group_id
+        LEFT JOIN design_plan_render_scene dp2 ON dp2.id = dp.plan_id
+        WHERE 1=1 AND dp.is_deleted = 0
+        AND dp.plan_id = #{renderSceneId,jdbcType=INTEGER}
+        <!--添加平台过滤  上架已发布状态-->
+        AND ppr.platform_id = #{platformId,jdbcType=INTEGER} AND ppr.putaway_state = 1 AND ppr.allot_state = 1
+        AND s2.att3 != 'baimo'
+        GROUP BY bp.id
+
+    </select>
+
+</mapper>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.cityunion.dao.UnionContactMapper">
+
+    <!-- **插入定义** -->
+    <insert id="insertSelective" parameterType="com.nork.cityunion.model.UnionContact"  useGeneratedKeys="true" keyProperty="id">
+        insert into union_contact
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="userId != null">user_id, </if>
+        <if test="name != null">name,</if>
+        <if test="phone != null">phone, </if>
+        <if test="picId != null">pic_id, </if>
+        <if test="sysCode!= null">sys_code, </if>
+        <if test="creator!= null">creator, </if>
+        <if test="gmtCreate!= null">gmt_create, </if>
+        <if test="modifier!= null">modifier, </if>
+        <if test="gmtModified!= null">gmt_modified, </if>
+        <if test="isDeleted!= null">is_deleted, </if>
+        <if test="remark!= null">remark, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+        <if test="userId != null">#{userId,jdbcType=INTEGER}, </if>
+        <if test="name != null">#{name,jdbcType=VARCHAR},</if>
+        <if test="phone != null">#{phone,jdbcType=VARCHAR}, </if>
+        <if test="picId != null">#{picId,jdbcType=INTEGER}, </if>
+        <if test="sysCode!= null">#{sysCode,jdbcType=VARCHAR}, </if>
+        <if test="creator!= null">#{creator,jdbcType=VARCHAR}, </if>
+        <if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP}, </if>
+        <if test="modifier!= null">#{modifier,jdbcType=VARCHAR}, </if>
+        <if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP}, </if>
+        <if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER}, </if>
+        <if test="remark!= null">#{remark,jdbcType=VARCHAR}, </if>
+        </trim>
+    </insert>
+
+    <!-- **更新定义** -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.nork.cityunion.model.UnionContact">
+        update union_contact
+        <set>
+            <if test="userId != null">user_id = #{userId,jdbcType=INTEGER}, </if>
+            <if test="name != null">name = #{name,jdbcType=VARCHAR},</if>
+            <if test="phone != null">phone = #{phone,jdbcType=VARCHAR}, </if>
+            <if test="picId != null">pic_id = #{picId,jdbcType=INTEGER}, </if>
+            <if test="sysCode!= null">sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+            <if test="creator!= null">creator = #{creator,jdbcType=VARCHAR}, </if>
+            <if test="gmtCreate!= null">gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+            <if test="modifier!= null">modifier = #{modifier,jdbcType=VARCHAR}, </if>
+            <if test="gmtModified!= null">gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+            <if test="isDeleted!= null">is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+            <if test="remark!= null">remark = #{remark,jdbcType=VARCHAR}, </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!-- **删除定义** -->
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        update union_contact set is_deleted = 1 , gmt_modified = now()
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+        id,user_id,name,phone,pic_id,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,remark
+    </sql>
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.nork.cityunion.model.UnionContact">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="pic_id" property="picId" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="AllResultMap"
+            parameterType="java.lang.Integer">
+        select
+        <include refid="All_Column_List" />
+        from union_contact
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+</mapper>

@@ -1,0 +1,40 @@
+package com.sandu.customer.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.sandu.customer.dao.CustomerBaseInfoMapper;
+import com.sandu.customer.model.CustomerBaseInfo;
+import com.sandu.customer.service.CustomerBaseInfoService;
+
+@Service("customerBaseInfoService")
+public class CustomerBaseInfoServiceImpl implements CustomerBaseInfoService {
+
+
+	@Resource
+	private CustomerBaseInfoMapper customerBaseInfoMapper;
+	
+	@Override
+	public int updateCustomerBaseInfo(CustomerBaseInfo info) {
+		return customerBaseInfoMapper.updateByPrimaryKeySelective(info);
+	}
+
+	@Override
+	public CustomerBaseInfo selectCustomerBaseInfoByUserId(Integer userId) {
+		return customerBaseInfoMapper.selectByUserId(userId);
+	}
+
+	@Override
+	public List<CustomerBaseInfo> queryCustomerInfoByMap(Map<String, Object> param) {
+		return customerBaseInfoMapper.selectCustomerInfoByMap(param);
+	}
+
+	@Override
+	public int batchUpdate(List<CustomerBaseInfo> updateList) {
+		return customerBaseInfoMapper.batchUpdate(updateList);
+	}
+}

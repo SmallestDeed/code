@@ -1,0 +1,34 @@
+package com.sandu.design.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.design.dao.DesignTempletProductMapper;
+import com.sandu.design.model.DesignTempletProduct;
+import com.sandu.design.service.DesignTempletProductService;
+
+@Service("designTempletProductService")
+public class DesignTempletProductServiceImpl implements DesignTempletProductService {
+
+	@Autowired
+	private DesignTempletProductMapper designTempletProductMapper;
+	
+	@Override
+	public List<DesignTempletProduct> getListByTempletId(Integer designTempletId) {
+		if(designTempletId == null) {
+			return null;
+		}
+		return designTempletProductMapper.getListByTempletId(designTempletId);
+	}
+
+	@Override
+	public List<DesignTempletProduct> getBeijingProductInfo(Integer designTempletId) {
+		if(designTempletId == null) {
+			return null;
+		}
+		return designTempletProductMapper.getBeijingProductInfo(designTempletId);
+	}
+
+}

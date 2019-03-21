@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.system.dao.ResPicDao">
+	<select id="selectByPrimaryKey" resultType="com.sandu.api.system.model.ResPic">
+		select *		
+		from res_pic
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<select id="selectByIds" resultType="com.sandu.api.system.model.ResPic">
+		select *		
+		from res_pic
+		where id in
+		<foreach collection="ids" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+        </foreach>
+	</select>
+	
+	<insert id="insertResPic" parameterType="com.sandu.api.system.model.ResPic" useGeneratedKeys="true" keyProperty="id">
+		insert into res_pic
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="sysCode!= null">sys_code,</if>
+			<if test="creator!= null">creator,</if>
+			<if test="gmtCreate!= null">gmt_create,</if>
+			<if test="modifier!= null">modifier,</if>
+			<if test="gmtModified!= null">gmt_modified,</if>
+			<if test="isDeleted!= null">is_deleted,</if>
+			<if test="picCode!= null">pic_code,</if>
+			<if test="picName!= null">pic_name,</if>
+			<if test="picFileName!= null">pic_file_name,</if>
+			<if test="picType!= null">pic_type,</if>
+			<if test="picSize!= null">pic_size,</if>
+			<if test="picWeight!= null">pic_weight,</if>
+			<if test="picHigh!= null">pic_high,</if>
+			<if test="picSuffix!= null">pic_suffix,</if>
+			<if test="picLevel!= null">pic_level,</if>
+			<if test="picFormat!= null">pic_format,</if>
+			<if test="picPath!= null">pic_path,</if>
+			<if test="picDesc!= null">pic_desc,</if>
+			<if test="picOrdering!= null">pic_ordering,</if>
+			<if test="businessIds!= null">business_ids,</if>
+			<if test="smallPicInfo!= null">small_pic_info,</if>
+			<if test="viewPoint!= null">view_point,</if>
+			<if test="scene!= null">scene,</if>
+			<if test="dateAtt1!= null">date_att1,</if>
+			<if test="dateAtt2!= null">date_att2,</if>
+			<if test="numAtt2!= null">num_att2,</if>
+			<if test="numAtt3!= null">num_att3,</if>
+			<if test="numAtt4!= null">num_att4,</if>
+			<if test="remark!= null">remark,</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="sysCode!= null">#{sysCode,jdbcType=VARCHAR},</if>
+			<if test="creator!= null">#{creator,jdbcType=VARCHAR},</if>
+			<if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP},</if>
+			<if test="modifier!= null">#{modifier,jdbcType=VARCHAR},</if>
+			<if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP},</if>
+			<if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER},</if>
+			<if test="picCode!= null">#{picCode,jdbcType=VARCHAR},</if>
+			<if test="picName!= null">#{picName,jdbcType=VARCHAR},</if>
+			<if test="picFileName!= null">#{picFileName,jdbcType=VARCHAR},</if>
+			<if test="picType!= null">#{picType,jdbcType=VARCHAR},</if>
+			<if test="picSize!= null">#{picSize,jdbcType=INTEGER},</if>
+			<if test="picWeight!= null">#{picWeight,jdbcType=VARCHAR},</if>
+			<if test="picHigh!= null">#{picHigh,jdbcType=VARCHAR},</if>
+			<if test="picSuffix!= null">#{picSuffix,jdbcType=VARCHAR},</if>
+			<if test="picLevel!= null">#{picLevel,jdbcType=VARCHAR},</if>
+			<if test="picFormat!= null">#{picFormat,jdbcType=VARCHAR},</if>
+			<if test="picPath!= null">#{picPath,jdbcType=VARCHAR},</if>
+			<if test="picDesc!= null">#{picDesc,jdbcType=VARCHAR},</if>
+			<if test="picOrdering!= null">#{picOrdering,jdbcType=VARCHAR},</if>
+			<if test="businessIds!= null">#{businessIds,jdbcType=VARCHAR},</if>
+			<if test="smallPicInfo!= null">#{smallPicInfo,jdbcType=VARCHAR},</if>
+			<if test="viewPoint!= null">#{viewPoint,jdbcType=INTEGER},</if>
+			<if test="scene!= null">#{scene,jdbcType=INTEGER},</if>
+			<if test="dateAtt1!= null">#{dateAtt1,jdbcType=TIMESTAMP},</if>
+			<if test="dateAtt2!= null">#{dateAtt2,jdbcType=TIMESTAMP},</if>
+			<if test="numAtt2!= null">#{numAtt2,jdbcType=INTEGER},</if>
+			<if test="numAtt3!= null">#{numAtt3,jdbcType=DOUBLE},</if>
+			<if test="numAtt4!= null">#{numAtt4,jdbcType=DOUBLE},</if>
+			<if test="remark!= null">#{remark,jdbcType=VARCHAR},</if>
+		</trim>
+	</insert>
+	
+</mapper>

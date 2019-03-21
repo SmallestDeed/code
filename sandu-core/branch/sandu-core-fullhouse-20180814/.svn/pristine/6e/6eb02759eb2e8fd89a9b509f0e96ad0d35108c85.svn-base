@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.fullhouse.dao.FullHouseDesignPlanDetailMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.api.fullhouse.model.FullHouseDesignPlanDetail" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="uuid" property="uuid" jdbcType="VARCHAR" />
+    <result column="full_house_plan_id" property="fullHousePlanId" jdbcType="INTEGER" />
+    <result column="recommended_plan_group_primary_id" property="recommendedPlanGroupPrimaryId" jdbcType="INTEGER" />
+    <result column="render_scene_plan_id" property="renderScenePlanId" jdbcType="INTEGER" />
+    <result column="space_type" property="spaceType" jdbcType="INTEGER" />
+    <result column="priority_level" property="priorityLevel" jdbcType="INTEGER" />
+    <result column="plan_render_resource_id" property="planRenderResourceId" jdbcType="INTEGER" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, uuid, full_house_plan_id, recommended_plan_group_primary_id, render_scene_plan_id, space_type, priority_level,
+    plan_render_resource_id, creator, gmt_create, modifier, gmt_modified, is_deleted, 
+    remark
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from full_house_design_plan_detail
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from full_house_design_plan_detail
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.fullhouse.model.FullHouseDesignPlanDetail" >
+    insert into full_house_design_plan_detail (id, uuid, full_house_plan_id, 
+      recommended_plan_group_primary_id, render_scene_plan_id, space_type, priority_level,
+      plan_render_resource_id, creator, gmt_create, 
+      modifier, gmt_modified, is_deleted, 
+      remark)
+    values (#{id,jdbcType=INTEGER}, #{uuid,jdbcType=VARCHAR}, #{fullHousePlanId,jdbcType=INTEGER}, 
+      #{recommendedPlanGroupPrimaryId,jdbcType=INTEGER}, #{renderScenePlanId,jdbcType=INTEGER},
+      #{spaceType,jdbcType=INTEGER}, #{priorityLevel,jdbcType=INTEGER},
+      #{planRenderResourceId,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, 
+      #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER}, 
+      #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.fullhouse.model.FullHouseDesignPlanDetail" >
+    insert into full_house_design_plan_detail
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="uuid != null" >
+        uuid,
+      </if>
+      <if test="fullHousePlanId != null" >
+        full_house_plan_id,
+      </if>
+      <if test="recommendedPlanGroupPrimaryId != null" >
+        recommended_plan_group_primary_id,
+      </if>
+      <if test="renderScenePlanId != null">
+        render_scene_plan_id,
+      </if>
+      <if test="spaceType != null" >
+        space_type,
+      </if>
+      <if test="priorityLevel != null" >
+        priority_level,
+      </if>
+      <if test="planRenderResourceId != null" >
+        plan_render_resource_id,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="uuid != null" >
+        #{uuid,jdbcType=VARCHAR},
+      </if>
+      <if test="fullHousePlanId != null" >
+        #{fullHousePlanId,jdbcType=INTEGER},
+      </if>
+      <if test="recommendedPlanGroupPrimaryId != null" >
+        #{recommendedPlanGroupPrimaryId,jdbcType=INTEGER},
+      </if>
+      <if test="renderScenePlanId != null">
+        #{renderScenePlanId,jdbcType=INTEGER},
+      </if>
+      <if test="spaceType != null" >
+        #{spaceType,jdbcType=INTEGER},
+      </if>
+      <if test="priorityLevel != null" >
+        #{priorityLevel,jdbcType=INTEGER},
+      </if>
+      <if test="planRenderResourceId != null" >
+        #{planRenderResourceId,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.fullhouse.model.FullHouseDesignPlanDetail" >
+    update full_house_design_plan_detail
+    <set >
+      <if test="uuid != null" >
+        uuid = #{uuid,jdbcType=VARCHAR},
+      </if>
+      <if test="fullHousePlanId != null" >
+        full_house_plan_id = #{fullHousePlanId,jdbcType=INTEGER},
+      </if>
+      <if test="recommendedPlanGroupPrimaryId != null" >
+        recommended_plan_group_primary_id = #{recommendedPlanGroupPrimaryId,jdbcType=INTEGER},
+      </if>
+      <if test="renderScenePlanId != null" >
+        render_scene_plan_id = #{renderScenePlanId,jdbcType=INTEGER},
+      </if>
+      <if test="spaceType != null" >
+        space_type = #{spaceType,jdbcType=INTEGER},
+      </if>
+      <if test="priorityLevel != null" >
+        priority_level = #{priorityLevel,jdbcType=INTEGER},
+      </if>
+      <if test="planRenderResourceId != null" >
+        plan_render_resource_id = #{planRenderResourceId,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.fullhouse.model.FullHouseDesignPlanDetail" >
+    update full_house_design_plan_detail
+    set uuid = #{uuid,jdbcType=VARCHAR},
+      full_house_plan_id = #{fullHousePlanId,jdbcType=INTEGER},
+      recommended_plan_group_primary_id = #{recommendedPlanGroupPrimaryId,jdbcType=INTEGER},
+      render_scene_plan_id = #{renderScenePlanId,jdbcType=INTEGER},
+      space_type = #{spaceType,jdbcType=INTEGER},
+      priority_level = #{priorityLevel,jdbcType=INTEGER},
+      plan_render_resource_id = #{planRenderResourceId,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <insert id="insertList" parameterType="java.util.List" >
+    insert into full_house_design_plan_detail (id, uuid, full_house_plan_id,
+    recommended_plan_group_primary_id, render_scene_plan_id, space_type, priority_level,
+    plan_render_resource_id, creator, gmt_create,
+    modifier, gmt_modified, is_deleted,
+    remark)
+    values 
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.id,jdbcType=INTEGER}, #{item.uuid,jdbcType=VARCHAR}, #{item.fullHousePlanId,jdbcType=INTEGER},
+            #{item.recommendedPlanGroupPrimaryId,jdbcType=INTEGER}, #{item.renderScenePlanId,jdbcType=INTEGER},
+            #{item.spaceType,jdbcType=INTEGER}, #{item.priorityLevel,jdbcType=INTEGER},
+            #{item.planRenderResourceId,jdbcType=INTEGER}, #{item.creator,jdbcType=VARCHAR}, #{item.gmtCreate,jdbcType=TIMESTAMP},
+            #{item.modifier,jdbcType=VARCHAR}, #{item.gmtModified,jdbcType=TIMESTAMP}, #{item.isDeleted,jdbcType=INTEGER},
+            #{item.remark,jdbcType=VARCHAR}
+            )
+        </foreach>
+  </insert>
+  <update id="logicDeleteByFullHouseDesignPlanId" parameterType="java.lang.Integer">
+    update
+        full_house_design_plan_detail
+    set
+        is_deleted = 1
+    where
+        full_house_plan_id = #{id,jdbcType=INTEGER}
+  </update>
+  <resultMap id="selectSingleSpaceDesignPlanListResultMap" type="com.sandu.api.fullhouse.output.DesignPlanVO">
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="plan_name" property="designPlanName" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreated" jdbcType="TIMESTAMP" />
+    <result column="pic_path" property="picPath" jdbcType="VARCHAR" />
+    <result column="is_group" property="isGroup" jdbcType="INTEGER" />
+    <result column="space_type" property="spaceType" jdbcType="INTEGER" />
+  </resultMap>
+  <select id="selectSingleSpaceDesignPlanList" resultMap="selectSingleSpaceDesignPlanListResultMap" parameterType="java.lang.Integer" >
+    select
+        t2.id
+        ,t2.plan_name
+        ,t2.gmt_create
+        ,t3.pic_path
+        ,IF(t2.group_primary_id=0,0,1) is_group
+        ,t1.space_type
+    from
+        full_house_design_plan_detail t1,
+        inner join design_plan_recommended t2 on t2.id = t1.recommended_plan_group_primary_id
+        left join res_pic t3 on t3.id = t2.pic_id
+    where
+        t1.full_house_plan_id = #{fullHouseId,jdbcType=INTEGER}
+        and t1.is_deleted = 0
+        and t2.is_deleted = 0
+    order by t1.space_type, t1.priority_level
+  </select>
+</mapper>

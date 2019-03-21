@@ -1,0 +1,720 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.groupproduct.dao.GroupProductDao">
+    <resultMap id="BaseResultMap" type="com.sandu.api.groupproducct.model.GroupProduct">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="group_code" jdbcType="VARCHAR" property="groupCode"/>
+        <result column="group_name" jdbcType="VARCHAR" property="groupName"/>
+        <result column="type" jdbcType="INTEGER" property="type"/>
+        <result column="state" jdbcType="INTEGER" property="state"/>
+        <result column="sorting" jdbcType="INTEGER" property="sorting"/>
+        <result column="pic_id" jdbcType="INTEGER" property="picId"/>
+        <result column="code" jdbcType="VARCHAR" property="code"/>
+        <result column="sys_code" jdbcType="VARCHAR" property="sysCode"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="att1" jdbcType="VARCHAR" property="att1"/>
+        <result column="att2" jdbcType="VARCHAR" property="att2"/>
+        <result column="numa1" jdbcType="INTEGER" property="numa1"/>
+        <result column="numa2" jdbcType="INTEGER" property="numa2"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="design_templet_id" jdbcType="INTEGER" property="designTempletId"/>
+        <result column="location" jdbcType="VARCHAR" property="location"/>
+        <result column="group_price" jdbcType="DOUBLE" property="groupPrice"/>
+        <result column="structure_id" jdbcType="INTEGER" property="structureId"/>
+        <result column="group_flag" jdbcType="VARCHAR" property="groupFlag"/>
+        <result column="group_width" jdbcType="VARCHAR" property="groupWidth"/>
+        <result column="group_length" jdbcType="VARCHAR" property="groupLength"/>
+        <result column="group_high" jdbcType="VARCHAR" property="groupHigh"/>
+        <result column="space_function_value" jdbcType="INTEGER" property="spaceFunctionValue"/>
+        <result column="space_area_value" jdbcType="INTEGER" property="spaceAreaValue"/>
+        <result column="brand_id" jdbcType="INTEGER" property="brandId"/>
+        <result column="style_value" jdbcType="INTEGER" property="styleValue"/>
+        <result column="product_style_id_info" jdbcType="VARCHAR" property="productStyleIdInfo"/>
+        <result column="style_id" jdbcType="BIGINT" property="styleId"/>
+        <result column="product_type" jdbcType="VARCHAR" property="productType"/>
+        <result column="group_type" jdbcType="TINYINT" property="groupType"/>
+        <result column="composite_type" jdbcType="INTEGER" property="compositeType"/>
+        <result column="advice_price" property="advicePrice"/>
+        <result column="pic_ids" jdbcType="VARCHAR" property="picIds"/>
+        <result column="secrecy_flag" jdbcType="INTEGER" property="secrecyFlag"/>
+        <result column="description" jdbcType="INTEGER" property="description"/>
+        <result column="company_id" jdbcType="INTEGER" property="description"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, group_code, group_name, type, state, sorting, pic_id, code, sys_code, creator,
+    gmt_create, modifier, gmt_modified, is_deleted, att1, att2, numa1, numa2, remark, 
+    design_templet_id, location, group_price, structure_id, group_flag, group_width, 
+    group_length, group_high, space_function_value, space_area_value, brand_id, style_value, 
+    product_style_id_info, style_id, product_type, group_type, composite_type ,advice_price ,pic_ids,secrecy_flag
+    ,description,company_id
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from group_product
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <select id="queryList" resultType="com.sandu.api.groupproducct.model.bo.GroupProductListBO"
+            parameterType="com.sandu.api.groupproducct.input.GroupQuery">
+        select
+        gp.id,
+        gp.group_name ,
+        gp.group_code,
+        gp.group_type,
+        gp.brand_id,
+        gp.pic_id,
+        p2b.allot_State as status2b,
+        p2c.allot_State as status2c,
+        gp.secrecy_flag as secrecy,
+        gp.gmt_create as createTime,
+        gp.composite_type
+        from group_product gp
+        LEFT JOIN platform2b_group_rel p2b on gp.id = p2b.product_group_id
+        LEFT JOIN platform2c_group_rel p2c on gp.id = p2c.product_group_id
+        where 1 =1 and gp.is_deleted = 0 and is_display = 0
+        <if test="brandIds != null and brandIds.size > 0">
+            and gp.brand_id in
+            <foreach collection="brandIds" open="(" close=")" separator="," item="brandId">
+                #{brandId}
+            </foreach>
+        </if>
+        <if test="groupCode != null and groupCode !=''">
+            and gp.group_code like concat('%',#{groupCode},'%')
+        </if>
+        <if test="groupName != null and groupName !=''">
+            and gp.group_name like concat('%',#{groupName},'%')
+        </if>
+        <if test="compositeType != null">
+            and gp.composite_type = #{compositeType}
+        </if>
+        <if test="allotState != null and allotState == 'nonAllot'">
+            and (( p2b.id is null and p2c.id is null) or (p2c.allot_State = 0 and p2b.allot_State = 0))
+        </if>
+        <if test="allotState != null and allotState == 'channel'">
+            and p2b.allot_State = 1 and p2b.platform_id = #{platform2bId}
+        </if>
+        <if test="allotState != null and allotState == 'online'">
+            and p2c.allot_State = 1 and p2c.platform_id = #{platform2cId}
+        </if>
+        <if test="allotState != null and allotState == 'online'">
+            and p2c.allot_State = 1 and p2c.platform_id = #{platform2cId}
+        </if>
+        <if test="secrecy != null and secrecy != -1">
+            <if test="secrecy == 1">
+                and gp.secrecy_flag = #{secrecy}
+            </if>
+            <if test="secrecy == 0">
+                and (gp.secrecy_flag = #{secrecy} or gp.secrecy_flag is null)
+            </if>
+        </if>
+        <if test="platformId != null and platformId != -1">
+            and ((p2c.putaway_state = 1 and p2c.platform_id = #{platformId})
+            or (p2b.putaway_state = 1 and p2b.platform_id = #{platformId}))
+        </if>
+        <if test="platformId != null and platformId == -1">
+            and (p2c.putaway_state = 0 or p2c.putaway_state is null)
+            and (p2b.putaway_state = 0 or p2b.putaway_state is null)
+        </if>
+        group by gp.id
+        <if test="orderField!=null and orderField!=''">
+            order by gp.${orderField}
+            <if test="orderMethod!=null and orderMethod!=''">
+                ${orderMethod}
+            </if>
+        </if>
+    </select>
+    <select id="getInfoByIds" resultType="com.sandu.api.groupproducct.model.GroupProduct">
+        select
+        id,
+        `group_price`,
+        advice_price,
+        `pic_ids`,
+        description,
+        pic_id
+        from group_product
+        where id in
+        <foreach collection="list" item="id" separator="," close=")" open="(">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </select>
+    <select id="queryList2b" resultType="com.sandu.api.groupproducct.model.bo.GroupProductListBO"
+            parameterType="com.sandu.api.groupproducct.input.GroupQuery">
+        select
+        gp.id,
+        gp.group_name ,
+        gp.group_code,
+        gp.group_type,
+        gp.brand_id,
+        p2b.pic_id,
+        p2b.putaway_state as putStatus2b,
+        p2b.gmt_create as allotTime,
+        gp.secrecy_flag as secrecy ,
+        gp.composite_type
+        from group_product gp
+        LEFT JOIN platform2b_group_rel p2b on gp.id = p2b.product_group_id
+        where 1 =1 AND
+        p2b.allot_State = 1 and gp.is_deleted = 0
+        <if test="brandIds != null and brandIds.size > 0">
+            and gp.brand_id in
+            <foreach collection="brandIds" open="(" close=")" separator="," item="brandId">
+                #{brandId}
+            </foreach>
+        </if>
+        <if test="groupCode != null and groupCode !=''">
+            and gp.group_code like concat('%',#{groupCode},'%')
+        </if>
+        <if test="groupName != null and groupName !=''">
+            and gp.group_name like concat('%',#{groupName},'%')
+        </if>
+        <if test="compositeType != null">
+            and gp.composite_type = #{compositeType}
+        </if>
+        <if test="putawayState != null">
+            and p2b.putaway_state = #{putawayState}
+        </if>
+        <if test="secrecy != null and secrecy != -1">
+            <if test="secrecy == 1">
+                and gp.secrecy_flag = #{secrecy}
+            </if>
+            <if test="secrecy == 0">
+                and (gp.secrecy_flag = #{secrecy} or gp.secrecy_flag is null)
+            </if>
+        </if>
+        group by gp.id
+        <if test="orderField!=null and orderField!=''">
+            order by gp.${orderField}
+            <if test="orderMethod!=null and orderMethod!=''">
+                ${orderMethod}
+            </if>
+        </if>
+    </select>
+    <select id="queryList2c" resultType="com.sandu.api.groupproducct.model.bo.GroupProductListBO"
+            parameterType="com.sandu.api.groupproducct.input.GroupQuery">
+        select
+        gp.id,
+        gp.group_name ,
+        gp.group_code,
+        gp.group_type,
+        gp.brand_id,
+        p2c.pic_id,
+        GROUP_CONCAT(p2c.putaway_state) as putAwayStatus2c,
+        GROUP_CONCAT(p2c.platform_id) as platformIds,
+        p2c.gmt_create as allotTime,
+        gp.secrecy_flag as secrecy ,
+        gp.composite_type
+        from group_product gp
+        LEFT JOIN platform2c_group_rel p2c on gp.id = p2c.product_group_id
+        where 1 =1
+        and p2c.allot_State = 1 and gp.is_deleted = 0
+        <if test="brandIds != null and brandIds.size > 0">
+            and gp.brand_id in
+            <foreach collection="brandIds" open="(" close=")" separator="," item="brandId">
+                #{brandId}
+            </foreach>
+        </if>
+        <if test="groupCode != null and groupCode !=''">
+            and gp.group_code like concat('%',#{groupCode},'%')
+        </if>
+        <if test="groupName != null and groupName !=''">
+            and gp.group_name like concat('%',#{groupName},'%')
+        </if>
+        <if test="compositeType != null">
+            and gp.composite_type = #{compositeType}
+        </if>
+        <if test="platformId != null and platformId != -1">
+            and p2c.putaway_state = 1 and p2c.platform_id = #{platformId}
+        </if>
+        <if test="platformId != null and platformId == -1">
+            and (p2c.putaway_state = 0 or p2c.putaway_state is null)
+        </if>
+        <if test="secrecy != null and secrecy != -1">
+            <if test="secrecy == 1">
+                and gp.secrecy_flag = #{secrecy}
+            </if>
+            <if test="secrecy == 0">
+                and (gp.secrecy_flag = #{secrecy} or gp.secrecy_flag is null)
+            </if>
+        </if>
+        group by gp.id
+        <if test="orderField!=null and orderField!=''">
+            order by gp.${orderField}
+            <if test="orderMethod!=null and orderMethod!=''">
+                ${orderMethod}
+            </if>
+        </if>
+
+    </select>
+    <select id="getMaxId" resultType="java.lang.String">
+        select max(id) from group_product
+    </select>
+    <select id="listGroupPutStatusByGroupIds" resultType="com.sandu.base.IdToSomeBean">
+        select product_group_id as id , group_concat(platformIds) as some from (
+        select
+        product_group_id,
+        group_concat(platform_id) as platformIds
+        from platform2c_group_rel
+        where
+        product_group_id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and putaway_state = 1
+        group by product_group_id
+        union
+        select
+        product_group_id,
+        group_concat(platform_id)as platformIds
+        from platform2b_group_rel
+        where
+        product_group_id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and putaway_state = 1
+        group by product_group_id
+        ) as t group by product_group_id;
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from group_product
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <update id="deleteByIds">
+        update group_product set is_deleted = 1
+        where id in
+        <foreach collection="list" open="(" close=")" separator="," item="id">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+    <insert id="insert" parameterType="com.sandu.api.groupproducct.model.GroupProduct">
+    insert into group_product (id, group_code, group_name, 
+      type, state, sorting, 
+      pic_id, code, sys_code, 
+      creator, gmt_create, modifier, 
+      gmt_modified, is_deleted, att1, 
+      att2, numa1, numa2, 
+      remark, design_templet_id, location, 
+      group_price, structure_id, group_flag, 
+      group_width, group_length, group_high, 
+      space_function_value, space_area_value, brand_id, 
+      style_value, product_style_id_info, style_id, 
+      product_type, group_type, composite_type
+      )
+    values (#{id,jdbcType=BIGINT}, #{groupCode,jdbcType=VARCHAR}, #{groupName,jdbcType=VARCHAR}, 
+      #{type,jdbcType=INTEGER}, #{state,jdbcType=INTEGER}, #{sorting,jdbcType=INTEGER}, 
+      #{picId,jdbcType=INTEGER}, #{code,jdbcType=VARCHAR}, #{sysCode,jdbcType=VARCHAR}, 
+      #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER}, #{att1,jdbcType=VARCHAR}, 
+      #{att2,jdbcType=VARCHAR}, #{numa1,jdbcType=INTEGER}, #{numa2,jdbcType=INTEGER}, 
+      #{remark,jdbcType=VARCHAR}, #{designTempletId,jdbcType=INTEGER}, #{location,jdbcType=VARCHAR}, 
+      #{groupPrice,jdbcType=DOUBLE}, #{structureId,jdbcType=INTEGER}, #{groupFlag,jdbcType=VARCHAR}, 
+      #{groupWidth,jdbcType=VARCHAR}, #{groupLength,jdbcType=VARCHAR}, #{groupHigh,jdbcType=VARCHAR}, 
+      #{spaceFunctionValue,jdbcType=INTEGER}, #{spaceAreaValue,jdbcType=INTEGER}, #{brandId,jdbcType=INTEGER}, 
+      #{styleValue,jdbcType=INTEGER}, #{productStyleIdInfo,jdbcType=VARCHAR}, #{styleId,jdbcType=BIGINT}, 
+      #{productType,jdbcType=VARCHAR}, #{groupType,jdbcType=TINYINT}, #{compositeType,jdbcType=INTEGER}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.sandu.api.groupproducct.model.GroupProduct" useGeneratedKeys="true"
+            keyProperty="id" keyColumn="id">
+        insert into group_product
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="groupCode != null">
+                group_code,
+            </if>
+            <if test="groupName != null">
+                group_name,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="state != null">
+                state,
+            </if>
+            <if test="sorting != null">
+                sorting,
+            </if>
+            <if test="picId != null">
+                pic_id,
+            </if>
+            <if test="code != null">
+                code,
+            </if>
+            <if test="sysCode != null">
+                sys_code,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="att1 != null">
+                att1,
+            </if>
+            <if test="att2 != null">
+                att2,
+            </if>
+            <if test="numa1 != null">
+                numa1,
+            </if>
+            <if test="numa2 != null">
+                numa2,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="designTempletId != null">
+                design_templet_id,
+            </if>
+            <if test="location != null">
+                location,
+            </if>
+            <if test="groupPrice != null">
+                group_price,
+            </if>
+            <if test="structureId != null">
+                structure_id,
+            </if>
+            <if test="groupFlag != null">
+                group_flag,
+            </if>
+            <if test="groupWidth != null">
+                group_width,
+            </if>
+            <if test="groupLength != null">
+                group_length,
+            </if>
+            <if test="groupHigh != null">
+                group_high,
+            </if>
+            <if test="spaceFunctionValue != null">
+                space_function_value,
+            </if>
+            <if test="spaceAreaValue != null">
+                space_area_value,
+            </if>
+            <if test="brandId != null">
+                brand_id,
+            </if>
+            <if test="styleValue != null">
+                style_value,
+            </if>
+            <if test="productStyleIdInfo != null">
+                product_style_id_info,
+            </if>
+            <if test="styleId != null">
+                style_id,
+            </if>
+            <if test="productType != null">
+                product_type,
+            </if>
+            <if test="groupType != null">
+                group_type,
+            </if>
+            <if test="compositeType != null">
+                composite_type,
+            </if>
+            <if test="companyId != null">
+                company_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="groupCode != null">
+                #{groupCode,jdbcType=VARCHAR},
+            </if>
+            <if test="groupName != null">
+                #{groupName,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=INTEGER},
+            </if>
+            <if test="state != null">
+                #{state,jdbcType=INTEGER},
+            </if>
+            <if test="sorting != null">
+                #{sorting,jdbcType=INTEGER},
+            </if>
+            <if test="picId != null">
+                #{picId,jdbcType=INTEGER},
+            </if>
+            <if test="code != null">
+                #{code,jdbcType=VARCHAR},
+            </if>
+            <if test="sysCode != null">
+                #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="att1 != null">
+                #{att1,jdbcType=VARCHAR},
+            </if>
+            <if test="att2 != null">
+                #{att2,jdbcType=VARCHAR},
+            </if>
+            <if test="numa1 != null">
+                #{numa1,jdbcType=INTEGER},
+            </if>
+            <if test="numa2 != null">
+                #{numa2,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="designTempletId != null">
+                #{designTempletId,jdbcType=INTEGER},
+            </if>
+            <if test="location != null">
+                #{location,jdbcType=VARCHAR},
+            </if>
+            <if test="groupPrice != null">
+                #{groupPrice,jdbcType=DOUBLE},
+            </if>
+            <if test="structureId != null">
+                #{structureId,jdbcType=INTEGER},
+            </if>
+            <if test="groupFlag != null">
+                #{groupFlag,jdbcType=VARCHAR},
+            </if>
+            <if test="groupWidth != null">
+                #{groupWidth,jdbcType=VARCHAR},
+            </if>
+            <if test="groupLength != null">
+                #{groupLength,jdbcType=VARCHAR},
+            </if>
+            <if test="groupHigh != null">
+                #{groupHigh,jdbcType=VARCHAR},
+            </if>
+            <if test="spaceFunctionValue != null">
+                #{spaceFunctionValue,jdbcType=INTEGER},
+            </if>
+            <if test="spaceAreaValue != null">
+                #{spaceAreaValue,jdbcType=INTEGER},
+            </if>
+            <if test="brandId != null">
+                #{brandId,jdbcType=INTEGER},
+            </if>
+            <if test="styleValue != null">
+                #{styleValue,jdbcType=INTEGER},
+            </if>
+            <if test="productStyleIdInfo != null">
+                #{productStyleIdInfo,jdbcType=VARCHAR},
+            </if>
+            <if test="styleId != null">
+                #{styleId,jdbcType=BIGINT},
+            </if>
+            <if test="productType != null">
+                #{productType,jdbcType=VARCHAR},
+            </if>
+            <if test="groupType != null">
+                #{groupType,jdbcType=TINYINT},
+            </if>
+            <if test="compositeType != null">
+                #{compositeType,jdbcType=INTEGER},
+            </if>
+            <if test="companyId != null">
+                #{companyId}
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.groupproducct.model.GroupProduct">
+        update group_product
+        <set>
+            <if test="groupCode != null">
+                group_code = #{groupCode,jdbcType=VARCHAR},
+            </if>
+            <if test="groupName != null">
+                group_name = #{groupName,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=INTEGER},
+            </if>
+            <if test="state != null">
+                state = #{state,jdbcType=INTEGER},
+            </if>
+            <if test="sorting != null">
+                sorting = #{sorting,jdbcType=INTEGER},
+            </if>
+            <if test="picId != null">
+                pic_id = #{picId,jdbcType=INTEGER},
+            </if>
+            <if test="code != null">
+                code = #{code,jdbcType=VARCHAR},
+            </if>
+            <if test="sysCode != null">
+                sys_code = #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="att1 != null">
+                att1 = #{att1,jdbcType=VARCHAR},
+            </if>
+            <if test="att2 != null">
+                att2 = #{att2,jdbcType=VARCHAR},
+            </if>
+            <if test="numa1 != null">
+                numa1 = #{numa1,jdbcType=INTEGER},
+            </if>
+            <if test="numa2 != null">
+                numa2 = #{numa2,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="designTempletId != null">
+                design_templet_id = #{designTempletId,jdbcType=INTEGER},
+            </if>
+            <if test="location != null">
+                location = #{location,jdbcType=VARCHAR},
+            </if>
+            <if test="groupPrice != null">
+                group_price = #{groupPrice,jdbcType=DOUBLE},
+            </if>
+            <if test="structureId != null">
+                structure_id = #{structureId,jdbcType=INTEGER},
+            </if>
+            <if test="groupFlag != null">
+                group_flag = #{groupFlag,jdbcType=VARCHAR},
+            </if>
+            <if test="groupWidth != null">
+                group_width = #{groupWidth,jdbcType=VARCHAR},
+            </if>
+            <if test="groupLength != null">
+                group_length = #{groupLength,jdbcType=VARCHAR},
+            </if>
+            <if test="groupHigh != null">
+                group_high = #{groupHigh,jdbcType=VARCHAR},
+            </if>
+            <if test="spaceFunctionValue != null">
+                space_function_value = #{spaceFunctionValue,jdbcType=INTEGER},
+            </if>
+            <if test="spaceAreaValue != null">
+                space_area_value = #{spaceAreaValue,jdbcType=INTEGER},
+            </if>
+            <if test="brandId != null">
+                brand_id = #{brandId,jdbcType=INTEGER},
+            </if>
+            <if test="styleValue != null">
+                style_value = #{styleValue,jdbcType=INTEGER},
+            </if>
+            <if test="productStyleIdInfo != null">
+                product_style_id_info = #{productStyleIdInfo,jdbcType=VARCHAR},
+            </if>
+            <if test="styleId != null">
+                style_id = #{styleId,jdbcType=BIGINT},
+            </if>
+            <if test="productType != null">
+                product_type = #{productType,jdbcType=VARCHAR},
+            </if>
+            <if test="groupType != null">
+                group_type = #{groupType,jdbcType=TINYINT},
+            </if>
+            <if test="compositeType != null">
+                composite_type = #{compositeType,jdbcType=INTEGER},
+            </if>
+            <if test="advicePrice != null">
+                advice_price = #{advicePrice},
+            </if>
+            <if test="picIds != null">
+                pic_ids = #{picIds},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=INTEGER},
+            </if>
+            <if test="secrecyFlag != null">
+                secrecy_flag = #{secrecyFlag,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.sandu.api.groupproducct.model.GroupProduct">
+    update group_product
+    set group_code = #{groupCode,jdbcType=VARCHAR},
+      group_name = #{groupName,jdbcType=VARCHAR},
+      type = #{type,jdbcType=INTEGER},
+      state = #{state,jdbcType=INTEGER},
+      sorting = #{sorting,jdbcType=INTEGER},
+      pic_id = #{picId,jdbcType=INTEGER},
+      code = #{code,jdbcType=VARCHAR},
+      sys_code = #{sysCode,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      att1 = #{att1,jdbcType=VARCHAR},
+      att2 = #{att2,jdbcType=VARCHAR},
+      numa1 = #{numa1,jdbcType=INTEGER},
+      numa2 = #{numa2,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR},
+      design_templet_id = #{designTempletId,jdbcType=INTEGER},
+      location = #{location,jdbcType=VARCHAR},
+      group_price = #{groupPrice,jdbcType=DOUBLE},
+      structure_id = #{structureId,jdbcType=INTEGER},
+      group_flag = #{groupFlag,jdbcType=VARCHAR},
+      group_width = #{groupWidth,jdbcType=VARCHAR},
+      group_length = #{groupLength,jdbcType=VARCHAR},
+      group_high = #{groupHigh,jdbcType=VARCHAR},
+      space_function_value = #{spaceFunctionValue,jdbcType=INTEGER},
+      space_area_value = #{spaceAreaValue,jdbcType=INTEGER},
+      brand_id = #{brandId,jdbcType=INTEGER},
+      style_value = #{styleValue,jdbcType=INTEGER},
+      product_style_id_info = #{productStyleIdInfo,jdbcType=VARCHAR},
+      style_id = #{styleId,jdbcType=BIGINT},
+      product_type = #{productType,jdbcType=VARCHAR},
+      group_type = #{groupType,jdbcType=TINYINT},
+      composite_type = #{compositeType,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <update id="updateGroupSecrecyByIds">
+        update group_product set
+        secrecy_flag = #{secrecyFlag}
+        where id in
+        <foreach collection="ids" separator="," close=")" open="(" item="id">
+            #{id}
+        </foreach>
+    </update>
+</mapper>

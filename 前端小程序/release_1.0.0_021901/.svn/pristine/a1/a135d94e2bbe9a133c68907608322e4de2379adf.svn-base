@@ -1,0 +1,68 @@
+<view class='design-item'>
+  <!-- <form class='design-img-box' bindsubmit='go720' report-submit='true'>
+  <button class='design-img-btn' form-type='submit' data-type='720'>
+    <image class='design-img' 
+      src='{{design.coverPath?resourcePath+design.coverPath:"/static/images/design_def.png"}}' 
+      mode='aspectFill'>
+    </image>
+  </button>
+  </form> -->
+  <image class='design-img' 
+      src='{{design.coverPath?resourcePath+design.coverPath:"/static/images/design_def.png"}}' 
+      mode='aspectFill'>
+  </image>
+  <view class='icon-box'>
+    <form  bindsubmit='go720' report-submit='true' wx:if='{{design.planTableType !== 2}}'>
+      <view class='icon' form-type='submit' data-type='video' catchtap='toThreeD'>
+        <image src='/static/images/place_icon_vedio@2x.png'></image>
+      </view>
+    </form>
+    <form  bindsubmit='go720' report-submit='true'>
+      <button class='icon' form-type='submit' data-type='720'>
+        <image src='/static/images/place_icon_720@2x.png'></image>
+      </button>
+    </form>
+    <form  bindsubmit='go720' report-submit='true' wx:if='{{design.planTableType !== 2}}'>
+      <button class='icon' form-type='submit' data-type='roam'>
+        <image src='/static/images/place_icon_morepoint@2x.png'></image>
+      </button>
+    </form>
+    <form bindsubmit='examineImg' report-submit='true'>
+      <button class='icon' form-type='submit'>
+        <image src='/static/images/place_icon_pic.png'></image>
+      </button>
+    </form>
+  </view>
+  <form class='fitment-btn' bindsubmit='goSelectHouse' report-submit='true'>
+    <button class='btn' form-type='submit'  data-type='push'>装进我家</button>
+     <image src='/static/images/page_icon_more.png'></image>
+  </form>
+  <view class='design-footer'>
+    <view class='name-box'>
+      <view class='left ellipsis'>{{design.planName}}</view>
+      <view class='right'>
+        <image 
+          bindtap='operation'
+          data-type='collectCase'
+          class='collect' 
+          src='/static/images/{{design.isFavorite==0?"page_icon_collect_nor":"page_icon_collect_sct"}}.png'>
+        </image>
+        <view class='number {{design.isFavorite==0? "" : "number-color"}}'>
+          {{design.collectNum > 999 ? "999+ ": design.collectNum}}
+        </view>
+        <image 
+          bindtap='operation'
+          data-type='likeCase'
+          class='praise' 
+          src='/static/images/{{design.isLike==0?"page_icon_like_nor":"page_icon_like_sct"}}.png'>
+        </image>
+        <view class='number {{design.isLike==0? "" : "number-color"}}'>
+          {{design.likeNum > 999 ? "999+" : design.likeNum}}
+        </view>
+      </view>
+    </view>
+    <view class='message'>
+      {{design.styleName}}{{design.spaceAreas?'  |  ' + design.spaceAreas + '㎡' : ''}}
+    </view>
+  </view>
+</view>

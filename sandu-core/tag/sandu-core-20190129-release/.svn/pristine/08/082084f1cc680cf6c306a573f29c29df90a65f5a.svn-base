@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.task.dao.AutoRenderTaskStateMapper">
+
+    <sql id="All_Column_List">
+        id,plan_id,template_id,render_pic,render_720,render_n720,render_video,state,remark,fail_type,fail_reason,
+        host_name,is_deleted,gmt_create,gmt_modified,modifier,creator,business_id,design_plan_id,order_number,
+        task_id,operation_user_id,task_type,render_types_str,design_code,template_code,new_design_code,
+        design_name,task_source,host_ip,render_time_consuming,is_valid,render_machine_ip,render_level,
+		render_program_version,platform_id,full_house_plan_id,plan_house_type,main_task_id,house_id,
+		subtask_count,space_function_id,new_full_house_plan_id,full_house_plan_uuid,group_primary_id,
+		pre_render_scene_id,full_house_plan_action,supply_demand_id
+    </sql>
+
+    <resultMap id="AllResultMap" type="com.sandu.api.task.model.AutoRenderTaskState">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="plan_id" property="planId" jdbcType="INTEGER"/>
+        <result column="template_id" property="templateId" jdbcType="INTEGER"/>
+        <result column="render_pic" property="renderPic" jdbcType="INTEGER"/>
+        <result column="render_720" property="render720" jdbcType="INTEGER"/>
+        <result column="render_n720" property="renderN720" jdbcType="INTEGER"/>
+        <result column="render_video" property="renderVideo" jdbcType="INTEGER"/>
+        <result column="state" property="state" jdbcType="INTEGER"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="fail_type" property="failType" jdbcType="INTEGER"/>
+        <result column="fail_reason" property="failReason" jdbcType="VARCHAR"/>
+        <result column="host_name" property="hostName" jdbcType="VARCHAR"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="business_id" property="businessId" jdbcType="INTEGER"/>
+        <result column="design_plan_id" property="designPlanId" jdbcType="INTEGER"/>
+        <result column="order_number" property="orderNumber" jdbcType="VARCHAR"/>
+        <result column="task_id" property="taskId" jdbcType="INTEGER"/>
+        <result column="operation_user_id" property="operationUserId" jdbcType="INTEGER"/>
+        <result column="task_type" property="taskType" jdbcType="INTEGER"/>
+        <result column="render_types_str" property="renderTypesStr" jdbcType="VARCHAR"/>
+        <result column="design_code" property="designCode" jdbcType="VARCHAR"/>
+        <result column="template_code" property="templateCode" jdbcType="VARCHAR"/>
+        <result column="new_design_code" property="newDesignCode" jdbcType="VARCHAR"/>
+        <result column="design_name" property="designName" jdbcType="VARCHAR"/>
+        <result column="task_source" property="taskSource" jdbcType="INTEGER"/>
+        <result column="render_time_consuming" property="renderTimeConsuming" jdbcType="VARCHAR"/>
+        <result column="is_valid" property="isValid" jdbcType="INTEGER"/>
+        <result column="render_machine_ip" property="renderMachineIp" jdbcType="VARCHAR"/>
+        <result column="render_level" property="renderLevel" jdbcType="INTEGER"/>
+        <result column="render_program_version" property="renderProgramVersion" jdbcType="VARCHAR"/>
+        <result column="platform_id" property="platformId" jdbcType="INTEGER"/>
+        <result column="overlap_resolve" property="overlapResolve" jdbcType="INTEGER"/>
+        <result column="full_house_plan_id" property="fullHousePlanId" jdbcType="INTEGER"/>
+        <result column="plan_house_type" property="planHouseType" jdbcType="INTEGER"/>
+        <result column="main_task_id" property="mainTaskId" jdbcType="INTEGER"/>
+        <result column="house_id" property="houseId" jdbcType="INTEGER"/>
+        <result column="subtask_count" property="subtaskCount" jdbcType="INTEGER"/>
+        <result column="space_function_id" property="spaceFunctionId" jdbcType="INTEGER"/>
+        <result column="new_full_house_plan_id" property="newFullHousePlanId" jdbcType="INTEGER"/>
+        <result column="full_house_plan_uuid" property="fullHousePlanUUID" jdbcType="VARCHAR"/>
+        <result column="group_primary_id" property="groupPrimaryId" jdbcType="INTEGER"/>
+        <result column="pre_render_scene_id" property="preRenderSceneId" jdbcType="INTEGER"/>
+        <result column="full_house_plan_action" property="fullHousePlanAction" jdbcType="INTEGER"/>
+        <result column="supply_demand_id" property="supplyDemandId" jdbcType="INTEGER"/>
+    </resultMap>
+
+
+    <select id="getMainTaskStateByTaskId" parameterType="integer" resultMap="AllResultMap">
+        SELECT
+        <include refid="All_Column_List"/>
+        FROM auto_render_task_state
+        WHERE task_id = #{mainTaskId}
+    </select>
+
+    <insert id="insertSelective" parameterType="com.sandu.api.task.model.AutoRenderTaskState">
+        INSERT INTO auto_render_task_state
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="planId!= null">plan_id, </if>
+            <if test="templateId!= null">template_id, </if>
+            <if test="renderPic!= null">render_pic, </if>
+            <if test="render720!= null">render_720, </if>
+            <if test="renderN720!= null">render_n720, </if>
+            <if test="renderVideo!= null">render_video, </if>
+            <if test="isDeleted!= null">is_deleted, </if>
+            <if test="state!= null">state, </if>
+            <if test="remark!= null">remark, </if>
+            <if test="failType!= null">fail_type, </if>
+            <if test="failReason!= null">fail_reason, </if>
+            <if test="hostName!= null">host_name, </if>
+            <if test="businessId!= null">business_id, </if>
+            <if test="creator!= null">creator, </if>
+            <if test="gmtCreate!= null">gmt_create, </if>
+            <if test="modifier!= null">modifier, </if>
+            <if test="gmtModified!= null">gmt_modified, </if>
+            <if test="designPlanId != null">design_plan_id, </if>
+            <if test="orderNumber != null">order_number, </if>
+            <if test="operationUserId != null">operation_user_id, </if>
+            <if test="taskType != null">task_type, </if>
+            <if test="renderTypesStr != null">render_types_str, </if>
+            <if test="taskId != null">task_id, </if>
+            <if test="taskSource!= null">task_source, </if>
+            <if test="designCode!= null">design_code, </if>
+            <if test="designName!= null">design_name, </if>
+            <if test="hostIp!= null">host_ip, </if>
+            <if test="templateCode!= null">template_code, </if>
+            <if test="renderTimeConsuming!= null">render_time_consuming, </if>
+            <if test="isValid!= null">is_valid, </if>
+            <if test="renderMachineIp != null">render_machine_ip, </if>
+            <if test="renderLevel != null">render_level, </if>
+            <if test="platformId != null">Platform_id, </if>
+            <if test="renderProgramVersion != null">render_program_version, </if>
+            <if test="overlapResolve!= null">overlap_resolve, </if>
+            <if test="fullHousePlanId!= null">full_house_plan_id, </if>
+            <if test="planHouseType!= null">plan_house_type, </if>
+            <if test="mainTaskId!= null">main_task_id, </if>
+            <if test="houseId!= null">house_id, </if>
+            <if test="subtaskCount!= null">subtask_count, </if>
+            <if test="spaceFunctionId!= null">space_function_id, </if>
+            <if test="groupPrimaryId!= null">group_primary_id, </if>
+            <if test="newFullHousePlanId!= null">new_full_house_plan_id, </if>
+            <if test="fullHousePlanUUID!= null">full_house_plan_uuid, </if>
+            <if test="preRenderSceneId!= null">pre_render_scene_id, </if>
+            <if test="fullHousePlanAction!= null">full_house_plan_action, </if>
+            <if test="supplyDemandId!= null">supply_demand_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="planId!= null"> #{planId,jdbcType=INTEGER}, </if>
+            <if test="templateId!= null"> #{templateId,jdbcType=INTEGER}, </if>
+            <if test="renderPic!= null"> #{renderPic,jdbcType=INTEGER}, </if>
+            <if test="render720!= null"> #{render720,jdbcType=INTEGER}, </if>
+            <if test="renderN720!= null"> #{renderN720,jdbcType=INTEGER}, </if>
+            <if test="renderVideo!= null"> #{renderVideo,jdbcType=INTEGER}, </if>
+            <if test="isDeleted!= null"> #{isDeleted,jdbcType=INTEGER}, </if>
+            <if test="state!= null"> #{state,jdbcType=INTEGER}, </if>
+            <if test="remark!= null"> #{remark,jdbcType=VARCHAR}, </if>
+            <if test="failType!= null"> #{failType,jdbcType=INTEGER}, </if>
+            <if test="failReason!= null"> #{failReason,jdbcType=VARCHAR}, </if>
+            <if test="hostName!= null"> #{hostName,jdbcType=VARCHAR}, </if>
+            <if test="businessId!= null"> #{businessId,jdbcType=INTEGER}, </if>
+            <if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+            <if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+            <if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+            <if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+            <if test="designPlanId != null"> #{designPlanId,jdbcType=INTEGER}, </if>
+            <if test="orderNumber != null"> #{orderNumber,jdbcType=VARCHAR}, </if>
+            <if test="operationUserId != null"> #{operationUserId,jdbcType=INTEGER}, </if>
+            <if test="taskType != null"> #{taskType,jdbcType=INTEGER}, </if>
+            <if test="renderTypesStr != null"> #{renderTypesStr,jdbcType=VARCHAR}, </if>
+            <if test="taskId != null"> #{taskId,jdbcType=INTEGER}, </if>
+            <if test="taskSource != null"> #{taskSource,jdbcType=INTEGER}, </if>
+            <if test="designCode != null"> #{designCode,jdbcType=VARCHAR}, </if>
+            <if test="designName != null"> #{designName,jdbcType=VARCHAR}, </if>
+            <if test="hostIp != null"> #{hostIp,jdbcType=VARCHAR}, </if>
+            <if test="templateCode != null"> #{templateCode,jdbcType=VARCHAR}, </if>
+            <if test="renderTimeConsuming!= null">#{renderTimeConsuming,jdbcType=VARCHAR}, </if>
+            <if test="isValid!= null">#{isValid,jdbcType=INTEGER}, </if>
+            <if test="renderMachineIp != null"> #{renderMachineIp,jdbcType=VARCHAR}, </if>
+            <if test="renderLevel != null"> #{renderLevel,jdbcType=INTEGER}, </if>
+            <if test="platformId != null"> #{platformId,jdbcType=INTEGER}, </if>
+            <if test="renderProgramVersion != null"> #{renderProgramVersion,jdbcType=VARCHAR}, </if>
+            <if test="overlapResolve!= null">#{overlapResolve,jdbcType=INTEGER}, </if>
+            <if test="fullHousePlanId!= null">#{fullHousePlanId,jdbcType=INTEGER}, </if>
+            <if test="planHouseType!= null">#{planHouseType,jdbcType=INTEGER}, </if>
+            <if test="mainTaskId!= null">#{mainTaskId,jdbcType=INTEGER}, </if>
+            <if test="houseId!= null">#{houseId,jdbcType=INTEGER}, </if>
+            <if test="subtaskCount!= null">#{subtaskCount,jdbcType=INTEGER}, </if>
+            <if test="spaceFunctionId!= null">#{spaceFunctionId,jdbcType=INTEGER}, </if>
+            <if test="groupPrimaryId!= null"> #{groupPrimaryId,jdbcType=INTEGER}, </if>
+            <if test="newFullHousePlanId!= null"> #{newFullHousePlanId,jdbcType=INTEGER}, </if>
+            <if test="fullHousePlanUUID!= null"> #{fullHousePlanUUID,jdbcType=VARCHAR}, </if>
+            <if test="preRenderSceneId!= null"> #{preRenderSceneId,jdbcType=INTEGER}, </if>
+            <if test="fullHousePlanAction!= null"> #{fullHousePlanAction,jdbcType=INTEGER}, </if>
+            <if test="supplyDemandId!= null">#{supplyDemandId,jdbcType=INTEGER},</if>
+        </trim>
+    </insert>
+
+    <select id="getAllTaskStateByMainTaskId" parameterType="integer" resultMap="AllResultMap">
+        select <include refid="All_Column_List"/> from auto_render_task_state
+        WHERE main_task_id = #{mainTaskId}
+    </select>
+
+    <insert id="insertBatch" >
+        INSERT INTO auto_render_task_state
+        (
+        plan_id,template_id,render_pic,render_720,render_n720,render_video,is_deleted,state,fail_type,
+        fail_reason,host_name,business_id,creator,gmt_create,modifier,gmt_modified,order_number,operation_user_id,
+        task_type,render_types_str,task_id,task_source,design_code,design_name,host_ip,template_code,
+        render_time_consuming,is_valid,render_machine_ip,render_level,render_program_version,platform_id,
+        overlap_resolve,full_house_plan_id,plan_house_type,main_task_id,house_id,subtask_count,group_primary_id,
+        new_full_house_plan_id,full_house_plan_uuid,pre_render_scene_id,full_house_plan_action,
+        space_function_id,supply_demand_id
+        ) values
+        <foreach collection="list" index="index" item="item" separator=",">
+            (
+            #{item.planId,jdbcType=INTEGER},#{item.templateId,jdbcType=INTEGER},#{item.renderPic,jdbcType=VARCHAR},
+            #{item.render720,jdbcType=VARCHAR},#{item.renderN720,jdbcType=VARCHAR},#{item.renderVideo,jdbcType=VARCHAR},
+            #{item.isDeleted,jdbcType=INTEGER},#{item.state,jdbcType=INTEGER},#{item.failType,jdbcType=INTEGER},
+            #{item.failReason,jdbcType=VARCHAR},#{item.hostName,jdbcType=VARCHAR},#{item.businessId,jdbcType=INTEGER},
+            #{item.creator,jdbcType=VARCHAR},#{item.gmtCreate,jdbcType=TIMESTAMP},#{item.modifier,jdbcType=VARCHAR},
+            #{item.gmtModified,jdbcType=TIMESTAMP},#{item.orderNumber,jdbcType=VARCHAR},#{item.operationUserId,jdbcType=INTEGER},
+            #{item.taskType,jdbcType=INTEGER},#{item.renderTypesStr,jdbcType=VARCHAR},#{item.taskId,jdbcType=INTEGER},
+            #{item.designCode,jdbcType=VARCHAR},#{item.designName,jdbcType=VARCHAR},#{item.hostIp,jdbcType=VARCHAR},
+            #{item.templateCode,jdbcType=VARCHAR},#{item.renderTimeConsuming,jdbcType=VARCHAR},#{item.isValid,jdbcType=INTEGER},
+            #{item.renderMachineIp,jdbcType=VARCHAR},#{item.renderLevel,jdbcType=INTEGER},#{item.renderProgramVersion,jdbcType=VARCHAR},
+            #{item.platformId,jdbcType=INTEGER},#{item.overlapResolve,jdbcType=INTEGER},#{item.fullHousePlanId,jdbcType=INTEGER},
+            #{item.planHouseType,jdbcType=INTEGER},#{item.mainTaskId,jdbcType=INTEGER},#{item.houseId,jdbcType=INTEGER},
+            #{item.subtaskCount,jdbcType=INTEGER},#{item.groupPrimaryId,jdbcType=INTEGER},#{item.newFullHousePlanId,jdbcType=INTEGER},
+            #{item.fullHousePlanUUID,jdbcType=VARCHAR},#{item.preRenderSceneId,jdbcType=INTEGER},
+            #{item.fullHousePlanAction,jdbcType=INTEGER},#{item.spaceFunctionId,jdbcType=INTEGER},#{item.supplyDemandId,jdbcType=INTEGER}
+            )
+        </foreach>
+    </insert>
+</mapper>

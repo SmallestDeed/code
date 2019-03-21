@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://cxf.apache.org/jaxws   
+						http://cxf.apache.org/schemas/jaxws.xsd">
+	<!-- start -->
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+	<!--
+	<jaxws:endpoint id="cxfDemo" implementorClass="app.test.webservice.CXFDemoImpl"
+		address="/demo" />
+		
+	<jaxws:endpoint id="cxfUploadFile" implementorClass="app.test.webservice.UploadFileServerImpl"
+		address="/uploadFile" />
+	-->
+
+	<!-- 如果webservice中有需要加载其他类，采用注解的方式不行，需要在配置文件中显示声明 -->
+	<!-- <jaxws:endpoint id="cxfDemo" implementor="#demoImpl" address="/demo"/>
+		<bean id="demoImpl" class="app.test.webservice.CXFDemoImpl">
+		<property name="demo1Service" ref="demo1Impl"></property> </bean>
+	-->
+	<jaxws:endpoint id="cxfSyncFile" implementorClass="com.nork.common.webservice.SyncFileServiceImpl"
+		address="/syncFile" />
+	<jaxws:endpoint id="cxfTransfData" implementorClass="com.nork.sync.service.impl.TransfDataServiceImpl"
+		address="/transfData" />
+
+	<bean id="spaceCommonService" class="com.nork.home.service.impl.SpaceCommonServiceImpl">
+
+	</bean>
+
+	<jaxws:endpoint id="serverDataService" implementorClass="com.nork.sync.service.impl.ServerDataServiceImpl" address="/serverDataService" >
+		<jaxws:implementor>
+			<bean id="serviceData" class="com.nork.sync.service.impl.ServerDataServiceImpl">
+				<property name="spaceCommonService" ref="spaceCommonService"/>
+			</bean>
+		</jaxws:implementor>
+	</jaxws:endpoint>
+	<!-- end -->
+</beans>

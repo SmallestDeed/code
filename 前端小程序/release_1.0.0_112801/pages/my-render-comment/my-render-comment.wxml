@@ -1,0 +1,26 @@
+<view class='comment-list'>
+  <view class='{{item.isRead == 1?"comment-item-active":"comment-item"}}' 
+      wx:if="{{commentList&&commentList.length > 0}}"
+      wx:for='{{commentList}}' 
+      wx:key='{{index}}' 
+      data-item='{{item}}'
+      data-index='{{index}}'
+      bindtap='goSupplyDetail'>
+    <view class='comment-info'>
+      <view class='info-header'>
+        <image src='{{staticImageUrl+"header.png"}}' class='header-img'></image>
+        <view class='header-data'>
+        <!-- {{item.designPlanRecommendedResult?'帮你改造了方案':'评论了你'}} -->
+          <view class='name ellipsis'>{{item.nickName}}</view>
+          <view class='time'>{{item.gmtCreate}}</view>
+        </view>
+      </view>
+      <view class='message'>{{item.reviewsMsg}}</view>
+    </view>
+    <image src='{{resourcePath+item.coverPicPath}}' wx:if='{{item.coverPicPath}}' class='comment-img'></image>
+    <image src='{{resourcePath+item.designPlanRecommendedResult.coverPath}}' wx:if='{{!item.coverPicPath && item.designPlanRecommendedResult}}'  class='comment-img'></image>
+    <image src='{{resourcePath+item.mydecorationPlanVo.planPicPath}}' wx:if='{{!item.coverPicPath && item.mydecorationPlanVo}}' class='comment-img'></image>
+    <image src='{{staticImageUrl+"goods_pic_no.png"}}' wx:if='{{!item.coverPicPath && !item.mydecorationPlanVo && !item.designPlanRecommendedResult}}' class='comment-img'></image>
+  </view>
+  <!-- <empty-page emptyPageObj="{{emptyPageObj}}" wx:else></empty-page> -->
+</view>

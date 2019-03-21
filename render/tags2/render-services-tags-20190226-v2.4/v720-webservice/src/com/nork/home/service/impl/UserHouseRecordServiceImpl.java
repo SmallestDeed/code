@@ -1,0 +1,69 @@
+package com.nork.home.service.impl;
+
+import com.nork.home.dao.UserHouseRecordMapper;
+import com.nork.home.model.UserHouseRecord;
+import com.nork.home.model.WxUserTaskState;
+import com.nork.home.service.UserHouseRecordService;
+import com.nork.render.model.search.OldRecordSearch;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+
+@Service("userHouseRecordService")
+public class UserHouseRecordServiceImpl implements UserHouseRecordService {
+    private final static Logger logger = LogManager.getLogger(UserHouseRecordServiceImpl.class);
+
+    @Autowired
+    private UserHouseRecordMapper userHouseRecordMapper;
+
+    @Override
+    public Integer insertRecord(UserHouseRecord userHouseRecord)
+    {
+        OldRecordSearch oldRecordSearch = new OldRecordSearch();
+        oldRecordSearch.setUserId(userHouseRecord.getUserId());
+        oldRecordSearch.setHouseId(userHouseRecord.getHouseId());
+        oldRecordSearch.setPlatformId(userHouseRecord.getPlatformId());
+        oldRecordSearch.setRenderType(userHouseRecord.getRenderType());
+        UserHouseRecord oldRecord = userHouseRecordMapper.getOldRecord(oldRecordSearch);
+        if(oldRecord == null)
+        {
+            Date curDate = new Date();
+            userHouseRecord.setUseCount(1);
+            userHouseRecord.setSysCode("" + userHouseRecord.getUserId() + curDate.getTime());
+            userHouseRecord.setGmtCreate(curDate);
+            userHouseRecord.setGmtModified(curDate);
+            return userHouseRecordMapper.insertSelective(userHouseRecord);
+        }else
+        {
+            UserHouseRecord updateRecord = new UserHouseRecord();
+            updateRecord.setUseCount(oldRecord.getUseCount() + 1);
+            updateRecord.setId(oldRecord.getId());
+            updateRecord.setGmtModified(new Date());
+            updateRecord.setModifier(userHouseRecord.getModifier());
+            return userHouseRecordMapper.updateByPrimaryKeySelective(userHouseRecord);
+        }
+    }
+
+    @Override
+    public Long getSpringActivityId(Long userId) {
+        return userHouseRecordMapper.getSpringActivityId(userId.intValue());
+    }
+
+    @Override
+    public Map<String, String> getUserTaskState(Long userId, Long activityId) {
+        WxUserTaskState state = userHouseRecordMapper.getUserTaskState(userId, activityId);
+        Map<String, String> map = new HashMap<>();
+        if (state != null) {
+            map.put("1", state.getTaskOneStatus() + "");
+            map.put("2", state.getTaskTwoStatus() + "");
+            map.put("3", state.getTaskThreeStatus() + "");
+        }
+        return map;
+    }
+}

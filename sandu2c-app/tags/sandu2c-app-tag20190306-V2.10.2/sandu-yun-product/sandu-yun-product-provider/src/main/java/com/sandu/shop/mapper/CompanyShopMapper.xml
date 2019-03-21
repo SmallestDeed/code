@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.shop.dao.CompanyShopMapper">
+
+    <select id="selectByCompanyId" parameterType="java.lang.Long" resultType="com.sandu.shop.vo.CompanyShopVO">
+        SELECT
+        cs.id                          AS  shopId,
+        cs.company_id                  AS  companyId,
+        cs.company_pid                 AS  companyPid,
+        cs.user_id                     AS  userId,
+        cs. province_code              AS  provinceCode,
+        ba1.area_name                  AS  provinceName,
+        cs.city_code                   AS  cityCode,
+        ba2.area_name                  AS  cityName,
+        cs.area_Code                   AS  areaCode,
+        ba3.area_name                  AS  areaName,
+        cs.street_code                 AS  streetCode,
+        ba4.area_name                  AS  streetName,
+        cs.long_area_code              AS  longAreaCode,
+        cs.shop_address                AS  shopAddress
+        FROM company_shop cs
+        left join base_area ba1 on cs.province_code = ba1.area_code
+        left join base_area ba2 on cs.city_code = ba2.area_code
+        left join base_area ba3 on cs.area_code = ba3.area_code
+        left join base_area ba4 on cs.street_code = ba4.area_code
+        WHERE
+        cs.is_deleted=0
+        AND cs.is_blacklist=0
+        AND cs.company_pid = #{companyId}
+        AND cs.release_platform_values IS NOT NULL
+        AND cs.release_platform_values !=""
+        AND cs.release_platform_values !="0"
+    </select>
+
+</mapper>

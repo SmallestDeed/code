@@ -1,0 +1,170 @@
+let fetch = getApp().fetch
+let $App = getApp()
+Page({
+  data: {
+    startX: 0, //开始坐标
+    startY: 0,
+    resourcePath: getApp().resourcePath,
+    curPage: 1,
+    pageSize: 10,
+    contentlist: [],
+    message: "加载中",
+    order: "gmt_modified",
+    orderNum: "desc"
+  },
+  /**
+   * 用户点击右上角分享
+   */
+  onShareAppMessage: function (res) {
+    if (res.from === 'menu') {
+      return $App.shareAppMessageFn(true);
+    }
+  },
+  onLoad: function() {
+    new $App.quickNavigation() // 注册组件
+    // for (var i = 0; i < 10; i++) {
+    //   this.data.items.push({
+    //     content: " 720°渲染完成",
+    //     type: "装进我家",
+    //     furniture: "装进我家  |  洛克家具辅助沙发B-507",
+    //     time: "2017-11-10 16:56:55",
+    //     isTouchMove: false //默认全隐藏删除
+    //   })
+    // }
+    // this.setData({
+    //   items: this.data.items
+    // })
+    this.getSearchResluts('加载数据');
+  },
+  //手指触摸动作开始 记录起点X坐标
+  touchstart: function(e) {
+    //开始触摸时 重置所有删除
+    this.data.contentlist.forEach(function(v, i) {
+      if (v.isTouchMove) //只操作为true的
+        v.isTouchMove = false;
+    })
+    this.setData({
+      startX: e.changedTouches[0].clientX,
+      startY: e.changedTouches[0].clientY,
+      contentlist: this.data.contentlist
+    })
+  },
+  //滑动事件处理
+  touchmove: function(e) {
+    var that = this,
+      index = e.currentTarget.dataset.index, //当前索引
+      startX = that.data.startX, //开始X坐标
+      startY = that.data.startY, //开始Y坐标
+      touchMoveX = e.changedTouches[0].clientX, //滑动变化坐标
+      touchMoveY = e.changedTouches[0].clientY, //滑动变化坐标
+      //获取滑动角度
+      angle = that.angle({
+        X: startX,
+        Y: startY
+      }, {
+        X: touchMoveX,
+        Y: touchMoveY
+      });
+    that.data.contentlist.forEach(function(v, i) {
+      v.isTouchMove = false
+      //滑动超过30度角 return
+      if (Math.abs(angle) > 30) return;
+      if (i == index) {
+        if (touchMoveX > startX) //右滑
+          v.isTouchMove = false
+        else //左滑
+          v.isTouchMove = true
+      }
+    })
+    //更新数据
+    that.setData({
+      contentlist: that.data.contentlist
+    })
+  },
+  /**
+   * 计算滑动角度
+   * @param {Object} start 起点坐标
+   * @param {Object} end 终点坐标
+   */
+  angle: function(start, end) {
+    var _X = end.X - start.X,
+      _Y = end.Y - start.Y
+    //返回角度 /Math.atan()返回数字的反正切值
+    return 360 * Math.atan(_Y / _X) / (2 * Math.PI);
+  },
+  //删除事件
+  del: function(e) {
+    var that=this
+    var msgid=e.currentTarget.dataset.id
+    var url ='/sysUserMessage/delete?id='+msgid
+    fetch(url, 'get')
+      .then((res) => {
+        if(res.success){
+          this.data.contentlist.splice(e.currentTarget.dataset.index, 1)
+          this.setData({
+            contentlist: this.data.contentlist
+          })
+        }else{
+          wx.showToast({
+            title: '删除信息失败',
+            icon: 'none'
+          })
+        }
+      })
+    
+
+
+    
+  },
+  getSearchResluts: function(message) {
+    var that = this
+    var url = "/sysUserMessage/getList"
+    var data = {
+      order: that.data.order,
+      orderNum: that.data.orderNum,
+      pageSize: that.data.pageSize,
+      curPage: that.data.curPage
+    }
+    fetch(url, 'get', data)
+      .then((res) => {
+        var contentlistTem = that.data.contentlist
+        if (res.success) {
+          if (that.data.curPage == 1) {
+            contentlistTem = []
+          }
+          var contentlist = res.obj;
+          if (contentlist) {
+              for(let i=0;i<contentlist.length;i++){
+                   contentlist[i].isTouchMove=false
+              }
+            if (contentlist.length < that.data.pageSize) {
+              that.setData({
+                contentlist: contentlistTem.concat(contentlist),
+                hasMoreData: false
+              })
+            } else {
+              that.setData({
+                contentlist: contentlistTem.concat(contentlist),
+                hasMoreData: true,
+                curPage: that.data.curPage + 1
+              })
+            }
+          } else {
+            that.setData({
+              message: '暂时还没有消息记录~'
+            })
+          }
+        }
+        if (!res.flag) {
+          that.setData({
+            message: '暂时还没有消息记录~'
+          })
+        }
+      })
+      .catch((res) => {
+        that.setData({
+          message: res.message
+        })
+      })
+  }
+})

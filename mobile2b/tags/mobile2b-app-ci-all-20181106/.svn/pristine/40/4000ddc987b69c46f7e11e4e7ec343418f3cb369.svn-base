@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nork.decorateOrder.dao.DecorateCustomerMapper">
+  <resultMap id="BaseResultMap" type="com.nork.decorateOrder.model.DecorateCustomer">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="customer_type" jdbcType="TINYINT" property="customerType" />
+    <result column="proprietor_info_id" jdbcType="INTEGER" property="proprietorInfoId" />
+    <result column="company_id" jdbcType="BIGINT" property="companyId" />
+    <result column="inner_company_id" jdbcType="BIGINT" property="innerCompanyId" />
+    <result column="first_seckill_company" jdbcType="BIGINT" property="firstSeckillCompany" />
+    <result column="second_seckill_company" jdbcType="BIGINT" property="secondSeckillCompany" />
+    <result column="design_plan_id" jdbcType="BIGINT" property="designPlanId" />
+    <result column="revisit_time" jdbcType="DATE" property="revisitTime" />
+    <result column="decorate_type" jdbcType="TINYINT" property="decorateType" />
+    <result column="contract_company" jdbcType="BIGINT" property="contractCompany" />
+    <result column="contract_price" jdbcType="DECIMAL" property="contractPrice" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+    <result column="bid_end_time" jdbcType="TIMESTAMP" property="bidEndTime" />
+    <result column="bid_status" jdbcType="TINYINT" property="bidStatus" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, customer_type, proprietor_info_id, company_id, inner_company_id, first_seckill_company, 
+    second_seckill_company, design_plan_id, revisit_time, decorate_type, contract_company, 
+    contract_price, remark, creator, gmt_create, modifier, gmt_modified, is_deleted
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from decorate_customer
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from decorate_customer
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.nork.decorateOrder.model.DecorateCustomer">
+    insert into decorate_customer (id, customer_type, proprietor_info_id, 
+      company_id, inner_company_id, first_seckill_company, 
+      second_seckill_company, design_plan_id, revisit_time, 
+      decorate_type, contract_company, contract_price, 
+      remark, creator, gmt_create, 
+      modifier, gmt_modified, is_deleted
+      )
+    values (#{id,jdbcType=BIGINT}, #{customerType,jdbcType=TINYINT}, #{proprietorInfoId,jdbcType=INTEGER}, 
+      #{companyId,jdbcType=BIGINT}, #{innerCompanyId,jdbcType=BIGINT}, #{firstSeckillCompany,jdbcType=BIGINT}, 
+      #{secondSeckillCompany,jdbcType=BIGINT}, #{designPlanId,jdbcType=BIGINT}, #{revisitTime,jdbcType=DATE}, 
+      #{decorateType,jdbcType=TINYINT}, #{contractCompany,jdbcType=BIGINT}, #{contractPrice,jdbcType=DECIMAL}, 
+      #{remark,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, 
+      #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.nork.decorateOrder.model.DecorateCustomer">
+    insert into decorate_customer
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="customerType != null">
+        customer_type,
+      </if>
+      <if test="proprietorInfoId != null">
+        proprietor_info_id,
+      </if>
+      <if test="companyId != null">
+        company_id,
+      </if>
+      <if test="innerCompanyId != null">
+        inner_company_id,
+      </if>
+      <if test="firstSeckillCompany != null">
+        first_seckill_company,
+      </if>
+      <if test="secondSeckillCompany != null">
+        second_seckill_company,
+      </if>
+      <if test="designPlanId != null">
+        design_plan_id,
+      </if>
+      <if test="revisitTime != null">
+        revisit_time,
+      </if>
+      <if test="decorateType != null">
+        decorate_type,
+      </if>
+      <if test="contractCompany != null">
+        contract_company,
+      </if>
+      <if test="contractPrice != null">
+        contract_price,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+      <if test="bidEndTime != null">
+        bid_end_time,
+      </if>
+      <if test="bidStatus != null">
+        bid_status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="customerType != null">
+        #{customerType,jdbcType=TINYINT},
+      </if>
+      <if test="proprietorInfoId != null">
+        #{proprietorInfoId,jdbcType=INTEGER},
+      </if>
+      <if test="companyId != null">
+        #{companyId,jdbcType=BIGINT},
+      </if>
+      <if test="innerCompanyId != null">
+        #{innerCompanyId,jdbcType=BIGINT},
+      </if>
+      <if test="firstSeckillCompany != null">
+        #{firstSeckillCompany,jdbcType=BIGINT},
+      </if>
+      <if test="secondSeckillCompany != null">
+        #{secondSeckillCompany,jdbcType=BIGINT},
+      </if>
+      <if test="designPlanId != null">
+        #{designPlanId,jdbcType=BIGINT},
+      </if>
+      <if test="revisitTime != null">
+        #{revisitTime,jdbcType=DATE},
+      </if>
+      <if test="decorateType != null">
+        #{decorateType,jdbcType=TINYINT},
+      </if>
+      <if test="contractCompany != null">
+        #{contractCompany,jdbcType=BIGINT},
+      </if>
+      <if test="contractPrice != null">
+        #{contractPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="bidEndTime != null">
+        #{bidEndTime, jdbcType=TIMESTAMP},
+      </if>
+      <if test="bidStatus != null">
+        #{bidStatus, jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.nork.decorateOrder.model.DecorateCustomer">
+    update decorate_customer
+    <set>
+      <if test="customerType != null">
+        customer_type = #{customerType,jdbcType=TINYINT},
+      </if>
+      <if test="proprietorInfoId != null">
+        proprietor_info_id = #{proprietorInfoId,jdbcType=INTEGER},
+      </if>
+      <if test="companyId != null">
+        company_id = #{companyId,jdbcType=BIGINT},
+      </if>
+      <if test="innerCompanyId != null">
+        inner_company_id = #{innerCompanyId,jdbcType=BIGINT},
+      </if>
+      <if test="firstSeckillCompany != null">
+        first_seckill_company = #{firstSeckillCompany,jdbcType=BIGINT},
+      </if>
+      <if test="secondSeckillCompany != null">
+        second_seckill_company = #{secondSeckillCompany,jdbcType=BIGINT},
+      </if>
+      <if test="designPlanId != null">
+        design_plan_id = #{designPlanId,jdbcType=BIGINT},
+      </if>
+      <if test="revisitTime != null">
+        revisit_time = #{revisitTime,jdbcType=DATE},
+      </if>
+      <if test="decorateType != null">
+        decorate_type = #{decorateType,jdbcType=TINYINT},
+      </if>
+      <if test="contractCompany != null">
+        contract_company = #{contractCompany,jdbcType=BIGINT},
+      </if>
+      <if test="contractPrice != null">
+        contract_price = #{contractPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="bidEndTime != null">
+        bid_end_time = #{bidEndTime, jdbcType=TIMESTAMP},
+      </if>
+      <if test="bidStatus != null">
+        bid_status = #{bidStatus, jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.nork.decorateOrder.model.DecorateCustomer">
+    update decorate_customer
+    set customer_type = #{customerType,jdbcType=TINYINT},
+      proprietor_info_id = #{proprietorInfoId,jdbcType=INTEGER},
+      company_id = #{companyId,jdbcType=BIGINT},
+      inner_company_id = #{innerCompanyId,jdbcType=BIGINT},
+      first_seckill_company = #{firstSeckillCompany,jdbcType=BIGINT},
+      second_seckill_company = #{secondSeckillCompany,jdbcType=BIGINT},
+      design_plan_id = #{designPlanId,jdbcType=BIGINT},
+      revisit_time = #{revisitTime,jdbcType=DATE},
+      decorate_type = #{decorateType,jdbcType=TINYINT},
+      contract_company = #{contractCompany,jdbcType=BIGINT},
+      contract_price = #{contractPrice,jdbcType=DECIMAL},
+      remark = #{remark,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <select id="selectGetOverTimeBidCustomerIdList" resultType="java.lang.Long">
+  	select id from decorate_customer where 
+	customer_type = 2 
+	and bid_status = 0
+	and bid_end_time &lt; #{date}
+  </select>
+  
+</mapper>

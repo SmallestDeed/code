@@ -1,0 +1,27 @@
+package com.sandu.service.user.dao;
+
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import com.sandu.api.user.model.UserJurisdiction;
+
+import java.util.List;
+import java.util.Set;
+
+@Repository
+public interface UserJurisdictionDao {
+
+	UserJurisdiction selectByUserIdAndPlatformId(@Param("userId") Long userId,@Param("platformId") Long platformId);
+
+	int countByUserIdAndJurisdictionStatus(@Param("userId")Long userId, @Param("jurisdictionStatus")int jurisdictionStatus);
+
+    int insert(UserJurisdiction userJurisdiction);
+
+    void delByPrimaryKey(Long id);
+
+    void delByIds(@Param("userId")Integer userId);
+    
+    List<UserJurisdiction> selectByUserId(@Param("userId") Long userId);
+    
+    void batchUserJurisdictions(@Param("ujs") List<UserJurisdiction> ujs);
+}

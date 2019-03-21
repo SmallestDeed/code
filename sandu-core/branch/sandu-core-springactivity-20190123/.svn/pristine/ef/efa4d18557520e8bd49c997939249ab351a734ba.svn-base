@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.springFestivalActivity.dao.WxUserTaskMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.api.springFestivalActivity.model.WxUserTask" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="activity_id" property="activityId" jdbcType="BIGINT" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="open_id" property="openId" jdbcType="VARCHAR" />
+    <result column="task_one_status" property="taskOneStatus" jdbcType="TINYINT" />
+    <result column="task_one_receive_time" property="taskOneReceiveTime" jdbcType="TIMESTAMP" />
+    <result column="task_one_finish_time" property="taskOneFinishTime" jdbcType="TIMESTAMP" />
+    <result column="task_two_status" property="taskTwoStatus" jdbcType="TINYINT" />
+    <result column="task_two_receive_time" property="taskTwoReceiveTime" jdbcType="TIMESTAMP" />
+    <result column="task_two_finish_time" property="taskTwoFinishTime" jdbcType="TIMESTAMP" />
+    <result column="task_three_status" property="taskThreeStatus" jdbcType="TINYINT" />
+    <result column="task_three_receive_time" property="taskThreeReceiveTime" jdbcType="TIMESTAMP" />
+    <result column="task_three_finish_time" property="taskThreeFinishTime" jdbcType="TIMESTAMP" />
+    <result column="lottery_rate" property="lotteryRate" jdbcType="INTEGER" />
+    <result column="is_auto_complete" property="isAutoComplete" jdbcType="TINYINT" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, activity_id, user_id, open_id, task_one_status, task_one_receive_time, task_one_finish_time, 
+    task_two_status, task_two_receive_time, task_two_finish_time, task_three_status, 
+    task_three_receive_time, task_three_finish_time, lottery_rate, is_auto_complete, 
+    creator, gmt_create, modifier, gmt_modified, is_deleted
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" />
+    from wx_user_task
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from wx_user_task
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.api.springFestivalActivity.model.WxUserTask" >
+    insert into wx_user_task (id, activity_id, user_id, 
+      open_id, task_one_status, task_one_receive_time, 
+      task_one_finish_time, task_two_status, task_two_receive_time, 
+      task_two_finish_time, task_three_status, task_three_receive_time, 
+      task_three_finish_time, lottery_rate, is_auto_complete, 
+      creator, gmt_create, modifier, 
+      gmt_modified, is_deleted)
+    values (#{id,jdbcType=BIGINT}, #{activityId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, 
+      #{openId,jdbcType=VARCHAR}, #{taskOneStatus,jdbcType=TINYINT}, #{taskOneReceiveTime,jdbcType=TIMESTAMP}, 
+      #{taskOneFinishTime,jdbcType=TIMESTAMP}, #{taskTwoStatus,jdbcType=TINYINT}, #{taskTwoReceiveTime,jdbcType=TIMESTAMP}, 
+      #{taskTwoFinishTime,jdbcType=TIMESTAMP}, #{taskThreeStatus,jdbcType=TINYINT}, #{taskThreeReceiveTime,jdbcType=TIMESTAMP}, 
+      #{taskThreeFinishTime,jdbcType=TIMESTAMP}, #{lotteryRate,jdbcType=INTEGER}, #{isAutoComplete,jdbcType=TINYINT}, 
+      #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.api.springFestivalActivity.model.WxUserTask" useGeneratedKeys="true" keyProperty="id" keyColumn="id" >
+    insert into wx_user_task
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="activityId != null" >
+        activity_id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="openId != null" >
+        open_id,
+      </if>
+      <if test="taskOneStatus != null" >
+        task_one_status,
+      </if>
+      <if test="taskOneReceiveTime != null" >
+        task_one_receive_time,
+      </if>
+      <if test="taskOneFinishTime != null" >
+        task_one_finish_time,
+      </if>
+      <if test="taskTwoStatus != null" >
+        task_two_status,
+      </if>
+      <if test="taskTwoReceiveTime != null" >
+        task_two_receive_time,
+      </if>
+      <if test="taskTwoFinishTime != null" >
+        task_two_finish_time,
+      </if>
+      <if test="taskThreeStatus != null" >
+        task_three_status,
+      </if>
+      <if test="taskThreeReceiveTime != null" >
+        task_three_receive_time,
+      </if>
+      <if test="taskThreeFinishTime != null" >
+        task_three_finish_time,
+      </if>
+      <if test="lotteryRate != null" >
+        lottery_rate,
+      </if>
+      <if test="isAutoComplete != null" >
+        is_auto_complete,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="activityId != null" >
+        #{activityId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="openId != null" >
+        #{openId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskOneStatus != null" >
+        #{taskOneStatus,jdbcType=TINYINT},
+      </if>
+      <if test="taskOneReceiveTime != null" >
+        #{taskOneReceiveTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="taskOneFinishTime != null" >
+        #{taskOneFinishTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="taskTwoStatus != null" >
+        #{taskTwoStatus,jdbcType=TINYINT},
+      </if>
+      <if test="taskTwoReceiveTime != null" >
+        #{taskTwoReceiveTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="taskTwoFinishTime != null" >
+        #{taskTwoFinishTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="taskThreeStatus != null" >
+        #{taskThreeStatus,jdbcType=TINYINT},
+      </if>
+      <if test="taskThreeReceiveTime != null" >
+        #{taskThreeReceiveTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="taskThreeFinishTime != null" >
+        #{taskThreeFinishTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lotteryRate != null" >
+        #{lotteryRate,jdbcType=INTEGER},
+      </if>
+      <if test="isAutoComplete != null" >
+        #{isAutoComplete,jdbcType=TINYINT},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.springFestivalActivity.model.WxUserTask" >
+    update wx_user_task
+    <set >
+      <if test="activityId != null" >
+        activity_id = #{activityId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="openId != null" >
+        open_id = #{openId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskOneStatus != null" >
+        task_one_status = #{taskOneStatus,jdbcType=TINYINT},
+      </if>
+      <if test="taskOneReceiveTime != null" >
+        task_one_receive_time = #{taskOneReceiveTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="taskOneFinishTime != null" >
+        task_one_finish_time = #{taskOneFinishTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="taskTwoStatus != null" >
+        task_two_status = #{taskTwoStatus,jdbcType=TINYINT},
+      </if>
+      <if test="taskTwoReceiveTime != null" >
+        task_two_receive_time = #{taskTwoReceiveTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="taskTwoFinishTime != null" >
+        task_two_finish_time = #{taskTwoFinishTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="taskThreeStatus != null" >
+        task_three_status = #{taskThreeStatus,jdbcType=TINYINT},
+      </if>
+      <if test="taskThreeReceiveTime != null" >
+        task_three_receive_time = #{taskThreeReceiveTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="taskThreeFinishTime != null" >
+        task_three_finish_time = #{taskThreeFinishTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lotteryRate != null" >
+        lottery_rate = #{lotteryRate,jdbcType=INTEGER},
+      </if>
+      <if test="isAutoComplete != null" >
+        is_auto_complete = #{isAutoComplete,jdbcType=TINYINT},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.api.springFestivalActivity.model.WxUserTask" >
+    update wx_user_task
+    set activity_id = #{activityId,jdbcType=BIGINT},
+      user_id = #{userId,jdbcType=BIGINT},
+      open_id = #{openId,jdbcType=VARCHAR},
+      task_one_status = #{taskOneStatus,jdbcType=TINYINT},
+      task_one_receive_time = #{taskOneReceiveTime,jdbcType=TIMESTAMP},
+      task_one_finish_time = #{taskOneFinishTime,jdbcType=TIMESTAMP},
+      task_two_status = #{taskTwoStatus,jdbcType=TINYINT},
+      task_two_receive_time = #{taskTwoReceiveTime,jdbcType=TIMESTAMP},
+      task_two_finish_time = #{taskTwoFinishTime,jdbcType=TIMESTAMP},
+      task_three_status = #{taskThreeStatus,jdbcType=TINYINT},
+      task_three_receive_time = #{taskThreeReceiveTime,jdbcType=TIMESTAMP},
+      task_three_finish_time = #{taskThreeFinishTime,jdbcType=TIMESTAMP},
+      lottery_rate = #{lotteryRate,jdbcType=INTEGER},
+      is_auto_complete = #{isAutoComplete,jdbcType=TINYINT},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectSelective" parameterType="com.sandu.api.springFestivalActivity.model.WxUserTask"
+          resultType="com.sandu.api.springFestivalActivity.model.WxUserTask">
+    SELECT
+        <include refid="Base_Column_List" />
+    FROM
+        wx_user_task
+    <where>
+        <if test="id != null">
+            AND id = #{id,jdbcType=BIGINT}
+        </if>
+        <if test="activityId != null" >
+            AND activity_id = #{activityId,jdbcType=BIGINT}
+        </if>
+        <if test="userId != null" >
+            AND user_id = #{userId,jdbcType=BIGINT}
+        </if>
+        <if test="openId != null" >
+            AND open_id = #{openId,jdbcType=VARCHAR}
+        </if>
+        <if test="taskOneStatus != null" >
+            AND task_one_status = #{taskOneStatus,jdbcType=TINYINT}
+        </if>
+        <if test="taskOneReceiveTime != null" >
+            AND task_one_receive_time = #{taskOneReceiveTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="taskOneFinishTime != null" >
+            AND task_one_finish_time = #{taskOneFinishTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="taskTwoStatus != null" >
+            AND task_two_status = #{taskTwoStatus,jdbcType=TINYINT}
+        </if>
+        <if test="taskTwoReceiveTime != null" >
+            AND task_two_receive_time = #{taskTwoReceiveTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="taskTwoFinishTime != null" >
+            AND task_two_finish_time = #{taskTwoFinishTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="taskThreeStatus != null" >
+            AND task_three_status = #{taskThreeStatus,jdbcType=TINYINT}
+        </if>
+        <if test="taskThreeReceiveTime != null" >
+            AND task_three_receive_time = #{taskThreeReceiveTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="taskThreeFinishTime != null" >
+            AND task_three_finish_time = #{taskThreeFinishTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="lotteryRate != null" >
+            AND lottery_rate = #{lotteryRate,jdbcType=INTEGER}
+        </if>
+        <if test="isAutoComplete != null" >
+            AND is_auto_complete = #{isAutoComplete,jdbcType=TINYINT}
+        </if>
+        <if test="creator != null" >
+            AND creator = #{creator,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtCreate != null" >
+            AND gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="modifier != null" >
+            AND modifier = #{modifier,jdbcType=VARCHAR}
+        </if>
+        <if test="gmtModified != null" >
+            AND gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+        </if>
+        <if test="isDeleted != null" >
+            AND is_deleted = #{isDeleted,jdbcType=INTEGER}
+        </if>
+    </where>
+  </select>
+  <select id="getUnderwayTaskList" resultType="com.sandu.api.springFestivalActivity.model.WxUserTask" parameterType="java.lang.Long" >
+    SELECT
+        <include refid="Base_Column_List" />
+    FROM
+        wx_user_task
+    WHERE
+        activityId = #{activityId}
+        AND is_deleted = 0
+        AND (task_one_status = 1 or task_two_status = 1 or task_three_status = 1)
+  </select>
+</mapper>

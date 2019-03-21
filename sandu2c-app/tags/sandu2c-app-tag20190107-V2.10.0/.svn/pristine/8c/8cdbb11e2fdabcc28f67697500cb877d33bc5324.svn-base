@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.user.dao.SysUserRoleMapper">
+    
+    <!-- **插入定义** -->
+	<insert id="insertSelective" parameterType="com.sandu.user.model.SysUserRole"  useGeneratedKeys="true" keyProperty="id">
+		insert into sys_user_role
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		<if test="roleId!= null">role_id, </if>
+		<if test="userId!= null">user_id, </if>
+		<if test="sysCode!= null">sys_code, </if>
+		<if test="creator!= null">creator, </if>
+		<if test="gmtCreate!= null">gmt_create, </if>
+		<if test="modifier!= null">modifier, </if>
+		<if test="gmtModified!= null">gmt_modified, </if>
+		<if test="isDeleted!= null">is_deleted, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="roleId!= null">  #{roleId,jdbcType=INTEGER}, </if>
+		<if test="userId!= null">  #{userId,jdbcType=INTEGER}, </if>
+		<if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+		</trim>
+	</insert>
+	
+	
+	<!-- 插入用户角色组权限 -->
+   <insert id="insertUserRoleGroup" parameterType="com.sandu.user.model.SysUserRole"  useGeneratedKeys="true" keyProperty="id">
+		insert into sys_user_role_group
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		<if test="roleGroupId!= null">role_group_id, </if>
+		<if test="userId!= null">user_id, </if>
+		<if test="creator!= null">creator, </if>
+		<if test="gmtCreate!= null">gmt_create, </if>
+		<if test="modifier!= null">modifier, </if>
+		<if test="gmtModified!= null">gmt_modified, </if>
+		<if test="isDeleted!= null">is_deleted, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="roleGroupId!= null">  #{roleGroupId,jdbcType=INTEGER}, </if>
+		<if test="userId!= null">  #{userId,jdbcType=INTEGER}, </if>
+		<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+		</trim>
+	</insert>
+	
+	
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.sandu.user.model.SysUserRole">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="sys_code" property="sysCode" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="role_id" property="roleId" jdbcType="INTEGER"/>
+    </resultMap>
+	<!-- **更新游客为正式用户** -->
+	<update id="updateByRegisterId" >
+		update sys_user_role
+		<set>
+			role_id = #{roleId,jdbcType=INTEGER}
+		</set>
+		where user_id = #{registerId,jdbcType=INTEGER}
+	</update>
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+        id,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,user_id,role_id
+    </sql>
+
+    <!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+            parameterType="com.sandu.user.model.SysUserRole">
+        select
+        <include refid="All_Column_List"/>
+        from sys_user_role
+        where 1=1
+        <if test="sysCode!= null">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="creator!= null">and creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="gmtCreate!= null">and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}</if>
+        <if test="modifier!= null">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="gmtModified!= null">and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}</if>
+        <if test="isDeleted!= null">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="userId!= null">and user_id = #{userId,jdbcType=INTEGER}</if>
+        <if test="roleId!= null">and role_id = #{roleId,jdbcType=INTEGER}</if>
+        <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderNum != null and  orderNum !='' ">
+                ${orderNum}
+            </if>
+        </if>
+        <if test="orders != null and  orders !=''  ">
+            order by ${orders}
+        </if>
+    </select>
+    
+  <!--   查询用户在角色权限 -->
+    <select id="sysRoleGroup" resultType="int"
+            parameterType="com.sandu.user.model.SysUserRole">
+		    SELECT
+			id
+			FROM
+				sys_role_group
+			WHERE
+				CODE = #{baseRoleGroup,jdbcType=VARCHAR}
+			AND is_deleted = 0
+    </select>
+
+	<select id="getByRegisterId" resultType="com.sandu.user.model.SysUserRole">
+		SELECT <include refid="All_Column_List"/>
+		from sys_user_role
+		WHERE
+		role_id = #{roleId,jdbcType=INTEGER} and user_id = #{registerId,jdbcType=INTEGER}
+	</select>
+
+</mapper>

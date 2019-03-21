@@ -1,0 +1,110 @@
+// pages/teamList/teamList.js
+let API = getApp().API
+Page({
+
+  /**
+   * 页面的初始数据
+   */
+  data: {
+    userType: '',
+    list: [],
+    page: 1,
+    count: 0
+  },
+
+  /**
+   * 生命周期函数--监听页面加载
+   */
+  onLoad: function (options) {
+    this.init(options)
+    
+  },
+
+  /**
+   * 生命周期函数--监听页面初次渲染完成
+   */
+  onReady: function () {
+
+  },
+
+  /**
+   * 生命周期函数--监听页面显示
+   */
+  onShow: function () {
+
+  },
+
+  init(options) {
+    wx.setNavigationBarTitle({
+      title: options.type
+    })
+    if (options.type == '设计团队') {
+      this.data.userType = 5
+    }
+    if (options.type == '工长团队') {
+      this.data.userType = 13
+    }
+    this.getIndexDesignerList()
+  },
+
+  /**获取列表数据 */
+  getIndexDesignerList(type) {
+    API.getIndexDesignerList({
+      pageNo: this.data.page,
+      pageSize: 5,
+      businessType: '',
+      platformType: 4,
+      userType: this.data.userType,
+      orderBy: 'all',
+      companyId: wx.getStorageSync('companyId'),
+      shopType: 2
+    }).then(res => {
+      console.log(res)
+      if (res.data) {
+        this.setData({
+          count: res.data.count,
+          list: type == 'pull' ? this.data.list.concat(res.data.list) : res.data.list
+        })
+      }
+    })
+  },
+
+  /**
+   * 生命周期函数--监听页面隐藏
+   */
+  onHide: function () {
+
+  },
+
+  /**
+   * 生命周期函数--监听页面卸载
+   */
+  onUnload: function () {
+
+  },
+
+  /**
+   * 页面相关事件处理函数--监听用户下拉动作
+   */
+  onPullDownRefresh: function () {
+
+  },
+
+  /**
+   * 页面上拉触底事件的处理函数
+   */
+  onReachBottom: function () {
+    console.log(this.data.page, this.data.count)
+    if (this.data.page * 5 < this.data.count) {
+      this.data.page++
+      this.getIndexDesignerList('pull')
+    }
+  },
+
+  /**
+   * 用户点击右上角分享
+   */
+  onShareAppMessage: function () {
+
+  }
+})

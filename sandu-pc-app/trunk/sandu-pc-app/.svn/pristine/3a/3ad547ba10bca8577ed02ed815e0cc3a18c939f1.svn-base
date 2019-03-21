@@ -1,0 +1,28 @@
+package com.sandu.panorama.model.input;
+
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import java.io.Serializable;
+
+@Data
+public class DesignPlanStoreReleaseDetailsAdd implements Serializable {
+
+    @ApiModelProperty(value = "详情Id",dataType = "Integer" , required = false)
+    private Integer id;
+    @ApiModelProperty(value = "样板房ID", dataType = "Integer", required = true)
+    private Integer designTemplateId;
+    @ApiModelProperty(value = "方案ID", dataType = "Integer", required = false)
+    private Integer designPlanId;
+    @ApiModelProperty(value = "推荐方案ID", dataType = "Integer", required = false)
+    private Integer recommendDesignPlanId;
+    @ApiModelProperty(value = "方案类型", dataType = "Integer", required = true)
+    private Integer designPlanType;
+    @ApiModelProperty(value = "渲染类型（1:720、2:多点、3:图片、4:视频）", dataType = "Integer", required = true)
+    private Integer renderingType;
+    @ApiModelProperty(value = "资源ID", dataType = "Integer", required = true)
+    private Integer resourceId;
+    @ApiModelProperty(value = "是否为主图（0：否、1：是）", dataType = "Integer", required = true)
+    private Integer isMain;
+
+}

@@ -1,0 +1,54 @@
+//logs.js
+const util = require('../../../utils/util.js')
+let API = getApp().API
+let $App = getApp()
+Page({
+  data: {
+    logs: [],
+    planListLength: 0,
+    goodsList:[],
+  },
+  /**
+   * 用户点击右上角分享
+   */
+  onShareAppMessage: function (res) {
+    if (res.from === 'menu') {
+      return $App.shareAppMessageObj
+    }
+  },
+  onLoad: function () {
+      new $App.newNav() // 注册快速导航组件
+    var that = this
+    this.setData({
+      logs: (wx.getStorageSync('logs') || []).map(log => {
+        return util.formatTime(new Date(log))
+      })
+    })
+    that.getPlan();
+    that.getGoods();
+    
+  },
+  onShow:function(){
+    var that=this
+    that.getPlan();
+    that.getGoods();
+  },
+  getPlan: function () {
+    API.getDesignplanfavorite({ spaceType: '', designPlanStyleId: '', spaceArea: '', isSort: 0, platformCode: 'selectDecoration'})
+    .then((res) => {
+      this.setData({ planListLength: res.totalCount  })
+    })
+  },
+  getGoods:function(){
+    API.getProductfavorite({ isSort: 0})
+      .then((res) => {
+        this.setData({ goodsList: res.obj })
+      })
+  },
+  toMyGoods:function(e){
+    var that=this
+    wx.navigateTo({
+      url: '/pages/my-favorite-goods/my-favorite-goods?goodslist=' + that.data.goodsList,
+    })
+  }
+})

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.designplan.dao.DesignPlanRecommendFavoriteMapper">
+
+    <insert id="addFavorite" parameterType="com.sandu.designplan.model.Favorite">
+        INSERT INTO
+        sys_business_favorite(bid,userId,name) VALUE(#{bid},#{userId},#{name})
+    </insert>
+
+    <update id="updateFavorite" parameterType="com.sandu.designplan.model.Favorite">
+        UPDATE
+        sys_business_favorite SET name=#{name} WHERE bid=#{bid} AND
+        userId=#{userId}
+    </update>
+
+    <delete id="deleteFavorite" parameterType="com.sandu.designplan.model.Favorite">
+        DELETE FROM
+        sys_business_favorite WHERE bid=#{bid} AND userId=#{userId}
+    </delete>
+
+    <delete id="deleteFavoriteRefByFid" parameterType="com.sandu.designplan.model.Favorite">
+        DELETE FROM
+        design_plan_recommend_favorite_ref WHERE fid=#{bid}
+    </delete>
+    <select id="listFavorites" parameterType="com.sandu.designplan.model.Favorite"
+            resultType="com.sandu.designplan.model.Favorite">
+        SELECT bid,name FROM sys_business_favorite WHERE
+        userId=#{userId}
+        <if test="name != null and name!='' ">
+            AND name=#{name}
+        </if>
+        ORDER BY id desc
+    </select>
+
+    <select id="getFavoritesByBid" parameterType="java.lang.String" resultType="com.sandu.designplan.model.Favorite">
+        SELECT bid,name,userId FROM sys_business_favorite WHERE bid = #{bid}
+    </select>
+
+    <insert id="moveInFavorite"
+            parameterType="com.sandu.designplan.model.DesignPlanRecommendFavoriteRef">
+        INSERT INTO
+        design_plan_recommend_favorite_ref(bid,fid,recommendId,status)
+        VALUE(#{bid},#{fid},#{recommendId},1)
+    </insert>
+
+    <select id="existInFavorite"
+            parameterType="com.sandu.designplan.model.DesignPlanRecommendFavoriteRef"
+            resultType="int">
+        SELECT COUNT(1) FROM design_plan_recommend_favorite_ref WHERE recommendId=#{recommendId} AND fid=#{fid};
+    </select>
+
+
+    <delete id="moveOutFavorite"
+            parameterType="com.sandu.designplan.model.DesignPlanRecommendFavoriteRef">
+        DELETE FROM design_plan_recommend_favorite_ref WHERE
+        bid=#{bid}
+    </delete>
+
+    <select id="listMyDesignPlanRecommend"
+            parameterType="com.sandu.designplan.model.DesignPlanRecommendFavoriteRef"
+            resultType="com.sandu.designplan.model.DesignPlanRecommendFavoriteRef">
+    </select>
+
+    <select id="countMyDesignPlanRecommend"
+            parameterType="com.sandu.designplan.model.DesignPlanRecommendFavoriteRef"
+            resultType="int">
+    </select>
+
+    <!--  通过recommendId  删 推荐收藏关系-->
+    <delete id="deleteFavoriteRefByRecommendId" parameterType="java.lang.Integer">
+        DELETE FROM design_plan_recommend_favorite_ref WHERE
+        recommendId = #{recommendId}
+    </delete>
+
+
+    <select id="existInFavoriteNew"
+            parameterType="com.sandu.designplan.model.DesignPlanRecommendFavoriteRef"
+            resultType="int">
+        SELECT
+        COUNT(1)
+        FROM
+        sys_business_favorite AS sbf
+        LEFT JOIN design_plan_recommend_favorite_ref AS fr ON (sbf.bid = fr.fid)
+        WHERE
+        sbf.userId = #{userId}
+        AND fr.recommendId = #{recommendId}
+        <if test="fid != null and fid != '' ">AND fr.fid = #{fid}</if> AND fr.status = 1
+    </select>
+
+    <!-- 保存或修改 -->
+    <insert id="saveOrUpdate" parameterType="com.sandu.designplan.model.DesignPlanRecommendFavoriteRef">
+        INSERT INTO design_plan_recommend_favorite_ref ( bid, fid, recommendId, status, full_house_design_plan_id, design_plan_type )
+        values ( #{bid,jdbcType=VARCHAR}, #{fid,jdbcType=VARCHAR}, #{recommendId,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, 0, 0 )
+		ON DUPLICATE key update
+		status = #{status,jdbcType=INTEGER}
+    </insert>
+
+    <!-- 获取收藏状态 -->
+    <select id="getPlanFavoriteStatusOfUser" parameterType="com.sandu.designplan.model.DesignPlanRecommendFavoriteRef"
+            resultType="int">
+        SELECT status FROM sys_business_favorite AS sbf
+        LEFT JOIN design_plan_recommend_favorite_ref AS fr ON (sbf.bid = fr.fid)
+        WHERE
+        sbf.userId = #{userId}
+        AND fr.recommendId = #{recommendId}
+        <if test="fid != null and fid != '' ">AND fr.fid = #{fid}</if>
+    </select>
+
+    <!-- 获取全屋方案收藏状态 -->
+    <select id="getFullHousePlanFavoriteStatusOfUser" parameterType="com.sandu.designplan.model.DesignPlanRecommendFavoriteRef"
+            resultType="java.lang.Integer">
+        SELECT
+            status
+        FROM
+            sys_business_favorite t1
+            LEFT JOIN design_plan_recommend_favorite_ref t2 ON t2.fid = t1.bid
+        WHERE
+            t1.userId = #{userId}
+            AND t2.full_house_design_plan_id = #{fullHouseDesignPlanId}
+            AND t2.fid = #{fid}
+            and t2.design_plan_type = 1
+    </select>
+
+    <!-- 保存或修改 -->
+    <insert id="saveOrUpdateFullHouseDesignPlan" parameterType="com.sandu.designplan.model.DesignPlanRecommendFavoriteRef">
+        INSERT INTO design_plan_recommend_favorite_ref ( bid, fid, recommendId, status, full_house_design_plan_id, design_plan_type )
+        values ( #{bid,jdbcType=VARCHAR}, #{fid,jdbcType=VARCHAR}, 0, #{status,jdbcType=INTEGER}, #{fullHouseDesignPlanId}, 1 )
+        ON DUPLICATE key update
+        status = #{status,jdbcType=INTEGER}
+    </insert>
+</mapper>

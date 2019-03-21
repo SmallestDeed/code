@@ -1,0 +1,137 @@
+package com.sandu.service.fullhouse.impl;
+
+import com.sandu.api.fullhouse.input.FullHouseDesignPlanQuery;
+import com.sandu.api.fullhouse.model.FullHouseDesignPlan;
+import com.sandu.api.fullhouse.output.FullHouseDesignPlanVO;
+import com.sandu.api.fullhouse.service.FullHouseDesignPlanService;
+import com.sandu.service.fullhouse.dao.FullHouseDesignPlanMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+/**
+ * created by zhangchengda
+ * 2018/8/15 18:28
+ * 全屋方案表单表查询服务
+ */
+@Service("fullHouseDesignPlanService")
+public class FullHouseDesignPlanServiceImpl implements FullHouseDesignPlanService {
+    @Autowired
+    private FullHouseDesignPlanMapper fullHouseDesignPlanMapper;
+    private static final int DEFAULT_CURRENT_PAGE = 1;
+    private static final int DEFAULT_FULL_HOUSE_DESIGN_PLAN_PAGE_SIZE = 10;
+    private static final int DEFAULT_START = 0;
+
+    /**
+     * created by zhangchengda
+     * 2018/8/15 18:28
+     * 根据主键ID删除数据
+     * @param id 全屋方案表id
+     * @return 返回影响条数
+     */
+    @Override
+    public int deleteByPrimaryKey(Integer id) {
+        return fullHouseDesignPlanMapper.deleteByPrimaryKey(id);
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/8/15 18:28
+     * 插入一条全屋方案
+     * @param record 插入的数据
+     * @return 返回影响条数
+     */
+    @Override
+    public int insert(FullHouseDesignPlan record) {
+        return fullHouseDesignPlanMapper.insert(record);
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/8/15 18:29
+     * 动态插入一条全屋方案
+     * @param record 插入的数据
+     * @return 返回影响条数
+     */
+    @Override
+    public int insertSelective(FullHouseDesignPlan record) {
+        return fullHouseDesignPlanMapper.insertSelective(record);
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/8/15 18:32
+     * 根据主键查询数据
+     * @param id 全屋方案表id
+     * @return 返回一行数据
+     */
+    @Override
+    public FullHouseDesignPlan selectByPrimaryKey(Integer id) {
+        return fullHouseDesignPlanMapper.selectByPrimaryKey(id);
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/8/15 18:33
+     * 根据主键动态更新数据
+     * @param record 更新的数据
+     * @return 返回影响条数
+     */
+    @Override
+    public int updateByPrimaryKeySelective(FullHouseDesignPlan record) {
+        return fullHouseDesignPlanMapper.updateByPrimaryKeySelective(record);
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/8/15 18:33
+     * 根据主键更新数据
+     * @param record 更新的数据
+     * @return 返回影响条数
+     */
+    @Override
+    public int updateByPrimaryKey(FullHouseDesignPlan record) {
+        return fullHouseDesignPlanMapper.updateByPrimaryKey(record);
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/8/17 11:05
+     * 查询当前登录用户制作的符合查询条件的全屋方案
+     * @param query 查询参数
+     * @return 全屋方案集合
+     */
+    @Override
+    public List<FullHouseDesignPlanVO> selectFullHouseDesignPlan(FullHouseDesignPlanQuery query) {
+        // 处理分页
+        if (query.getCurPage() == null || query.getCurPage() <= 0){
+            query.setCurPage(DEFAULT_CURRENT_PAGE);
+        }
+        if (query.getPageSize() == null || query.getPageSize() <= 0){
+            query.setPageSize(DEFAULT_FULL_HOUSE_DESIGN_PLAN_PAGE_SIZE);
+        }
+        if (query.getPageSize() != null && query.getCurPage() != null){
+            query.setStart((query.getCurPage() - 1) * query.getPageSize());
+        }else {
+            query.setStart(DEFAULT_START);
+        }
+        return fullHouseDesignPlanMapper.selectFullHouseDesignPlan(query);
+    }
+
+    /**
+     * created by zhangchengda
+     * 2018/8/17 11:05
+     * 查询当前登录用户制作的符合查询条件的全屋方案总数
+     * @param query 查询参数
+     * @return 全屋方案总数
+     */
+    @Override
+    public Integer selectFullHouseDesignPlanCount(FullHouseDesignPlanQuery query) {
+        // 处理分页
+        query.setCurPage(null);
+        query.setPageSize(null);
+        query.setStart(null);
+        return fullHouseDesignPlanMapper.selectFullHouseDesignPlanCount(query);
+    }
+}

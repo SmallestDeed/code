@@ -1,0 +1,84 @@
+<view class='seek-house'>
+  <!-- 搜索框 -->
+  <view class='seek-box'>
+    <view class='input-box'>
+      <image class='region-icon' src='/static/images/home_icon_position.png'></image>
+      <view class='seek-title'>所在地区</view>
+      <text bindtap='operation' 
+        data-type='open' 
+        class='{{site?"text":"gray"}} ellipsis' 
+        decode="nbsp">{{site?site:'请选择所在地'}}</text>
+    </view>
+    <view class='input-box'>
+      <image class='region-icon' src='/static/images/search_icon_xiaoqu.png'></image>
+      <view class='seek-title'>所在小区</view>
+      <input class='input' 
+        bindinput='getLivingName'
+        value='{{livingName}}' 
+        placeholder="请输入小区名称" 
+        placeholder-style='color: #333;font-weight:normal'>
+      </input>
+    </view>
+    <view class='seek-btn' bindtap='seekRegion'>搜索</view>
+  </view>
+  <!-- 历史搜索 -->
+  <view class='history-box' wx:if='{{isHistory && historyList.length > 0}}'>
+    <view class='history-title'>
+      历史搜索
+      <image bindtap='deleteHistory' src='/static/images/huxing_icon_delete.png'></image>
+    </view>
+    <view class='history-list'>
+      <text 
+        wx:for='{{historyList}}' 
+        wx:key='{{index}}' 
+        data-item='{{item}}'
+        bindtap='historySeek'>{{item.livingName}}</text>      
+    </view>
+  </view>
+  <!-- 搜索结果列表 -->
+  <view class='result-box' wx:if='{{regionList.length > 0}}'>
+    <view class='result-title'>
+      <text></text>
+      共 {{totalCount}} 个搜索结果
+      <text></text>
+    </view>
+    <view class='result-list'>
+      <view class='result' 
+        wx:for='{{regionList}}'
+        wx:key='{{index}}'
+        bindtap='goHouse' 
+        data-item='{{item}}'>
+        <view class='name'>{{item.livingName}}</view>
+        <view class='quantity'>{{item.houseCount}}个户型</view>
+      </view>
+    </view>
+  </view>
+  <!-- 无结果 -->
+  <view class='empty' wx:if='{{isEmpty}}'>
+    <view>抱歉，您的小区未被录入</view>
+  </view>
+  <!-- 三级联动 -->
+  <view class='shade' wx:if='{{isShowSelector}}'>
+    <view class='selector-box'>
+      <view class='selector-header'>
+        <text class='cancel' bindtap='operation' data-type='cancel'>取消</text>
+        <text class='confirm' bindtap='operation' data-type='confirm'>确定</text>
+      </view>
+        <picker-view 
+            indicator-style="height: 40px;"
+            class='picker-box'
+            value="{{indexArr}}" 
+            bindchange="bindChange">
+          <picker-view-column>
+            <view wx:for="{{province}}" wx:key='{{index}}' class='picker-item'>{{item.areaName}}</view>
+          </picker-view-column>
+          <picker-view-column>
+            <view wx:for="{{city}}" wx:key='{{index}}' class='picker-item'>{{item.areaName}}</view>
+          </picker-view-column>
+          <picker-view-column>
+            <view wx:for="{{district}}" wx:key='{{index}}' class='picker-item'>{{item.areaName}}</view>
+          </picker-view-column>
+      </picker-view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,50 @@
+package com.nork.system.dao;
+
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.nork.system.model.SysRole;
+import com.nork.system.model.search.SysRoleSearch;
+
+/**   
+ * @Title: SysRoleMapper.java 
+ * @Package com.nork.system.dao
+ * @Description:系统-角色Mapper
+ * @createAuthor pandajun 
+ * @CreateDate 2015-05-26 17:30:08
+ * @version V1.0   
+ */
+@Repository
+@Transactional
+public interface SysRoleMapper {
+    int insertSelective(SysRole record);
+
+    int updateByPrimaryKeySelective(SysRole record);
+  
+    int deleteByPrimaryKey(Integer id);
+        
+    SysRole selectByPrimaryKey(Integer id);
+    
+    int selectCount(SysRoleSearch sysRoleSearch);
+    
+	List<SysRole> selectPaginatedList(
+			SysRoleSearch sysRoleSearch);
+			
+    List<SysRole> selectList(SysRole sysRole);
+    /**
+	 * 通过userId 获取该用户的角色列表
+	 * @param userId
+	 * @return
+	 */
+	List<SysRole> getListByUserId(int userId);
+
+    int getRoleByCode(String roleU3dDefault);
+
+    /**
+	 * 其他
+	 * 
+	 */
+	Integer getIdByCode();
+}

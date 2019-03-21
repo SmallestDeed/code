@@ -1,0 +1,266 @@
+package com.nork.render.service.impl;
+
+
+import com.nork.common.exception.GeneratePanoramaException;
+import com.nork.common.model.LoginUser;
+import com.nork.common.model.ResponseEnvelope;
+import com.nork.common.util.StringUtils;
+import com.nork.common.util.Utils;
+import com.nork.design.model.AutoRenderTask;
+import com.nork.design.model.DesignPlanRecommended;
+import com.nork.design.model.DesignPlanRenderScene;
+import com.nork.design.model.DesignTemplet;
+import com.nork.design.service.DesignPlanAutoRenderService;
+import com.nork.design.service.DesignPlanRecommendedService;
+import com.nork.design.service.DesignPlanRenderSceneService;
+import com.nork.design.service.DesignTempletService;
+import com.nork.home.model.SpaceCommon;
+import com.nork.home.service.SpaceCommonService;
+import com.nork.pay.metadata.ProductType;
+import com.nork.pay.service.PayOrderService;
+import com.nork.platform.model.BasePlatform;
+import com.nork.platform.service.BasePlatformService;
+import com.nork.product.model.AutoRenderTaskConstant;
+import com.nork.system.model.ResRenderPic;
+import com.nork.system.model.SysUser;
+import com.nork.system.service.SysUserService;
+import com.nork.user.service.UserFinanceService;
+
+import net.sf.json.JSONObject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Description: 移动端和网站运营逻辑抽象类
+ * @author 何文
+ * @version 1.0
+ * Company:Sandu
+ * Copyright:Copyright(c)2017
+ * @date 2017/12/8
+ */
+public abstract class AbstractAutoRenderProcessor {
+
+    protected Logger logger = LoggerFactory.getLogger(AbstractAutoRenderProcessor.class);
+
+    @Autowired
+    protected DesignTempletService designTempletService;
+
+    @Autowired
+    protected SpaceCommonService spaceCommonService;
+
+    @Autowired
+    protected DesignPlanRecommendedService designPlanRecommendedService;
+
+    @Autowired
+    protected DesignPlanRenderSceneService designPlanRenderSceneService;
+
+    @Autowired
+    protected PayOrderService payOrderService;
+
+    @Autowired
+    protected SysUserService sysUserService;
+
+    @Autowired
+    private UserFinanceService userFinanceService;
+    @Autowired
+    private BasePlatformService basePlatformService;
+
+    @Autowired
+    protected DesignPlanAutoRenderService designPlanAutoRenderServiceImpl;
+
+    /**
+     * 适配构造自动渲染任务对象
+     * @return
+     * @throws GeneratePanoramaException
+     */
+    protected AutoRenderTask getAutoRenderTask(ResRenderPic resRenderPic) throws GeneratePanoramaException {
+
+        // 用户ID
+        Integer userId = resRenderPic.getUserId();
+        // 房型ID
+        Integer houseId = resRenderPic.getHouseId();
+        // 效果图ID
+        Integer designPlanSceneId = resRenderPic.getDesignPlanSceneId();
+        // 方案推荐ID
+        Integer planRecommendedId = resRenderPic.getPlanRecommendedId();
+        // 样板房ID
+        Integer templateId = resRenderPic.getTemplateId();
+        // 操作来源（0：我的设计效果图 1：方案推荐）
+        Integer operationSource = resRenderPic.getOperationSource();
+        // 渲染任务类型 （详见ProductType常量类）
+        String renderTaskType = resRenderPic.getRenderTaskType();
+        // 任务类型（0：自动渲染 1：产品替换）
+        Integer taskType = resRenderPic.getTaskType();
+        // 任务来源 （0：web 1：APP）
+        Integer taskSource = resRenderPic.getTaskSource();
+        //订单号
+        String orderNo = resRenderPic.getOrderNo();
+        
+        if(StringUtils.isEmpty(orderNo)){
+        	throw new GeneratePanoramaException(false, "订单号为空");
+        }
+        BasePlatform basePlatform = basePlatformService.getByCode(resRenderPic.getPlatformCode());
+        if (basePlatform == null) {
+        	throw new GeneratePanoramaException(false,"平台数据错误！");
+		}
+        //平台Id
+        Integer platformId = basePlatform.getId();
+
+        Integer spaceCommonId = null;
+        String templateCode = null;
+        String designCode = null;
+        String designName = null;
+        InetAddress addr = null;
+
+        AutoRenderTask autoRenderTask = new AutoRenderTask();
+        autoRenderTask.setOrderNumber(orderNo);
+        autoRenderTask.setPlatformId(platformId);
+        // 校验用户信息
+//        LoginUser loginUser = checkSysUserData(userId, houseId, totalFee);
+        SysUser sysUser = sysUserService.get(userId);
+        LoginUser loginUser = sysUser.toLoginUser();
+
+        try {
+            addr = InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            logger.error("获取IP地址发生异常");
+            throw new GeneratePanoramaException(false, "获取IP地址发生异常");
+        }
+        String hostIp=addr.getHostAddress().toString();
+
+        //生成替换渲染任务start
+        if (operationSource.intValue() == AutoRenderTaskConstant.OPERATION_SOURCE_MY_DESIGN) {
+            DesignPlanRenderScene designPlanRenderScene = designPlanRenderSceneService.get(designPlanSceneId);
+            if(null == designPlanRenderScene){
+                logger.error("get by designPlanSceneId:{}", designPlanSceneId+" not found DesignPlanRenderScene data");
+                throw new GeneratePanoramaException(false,"未找到方案效果图信息");
+            }
+            spaceCommonId = designPlanRenderScene.getSpaceCommonId();
+            designCode = designPlanRenderScene.getPlanCode();
+            designName = designPlanRenderScene.getPlanName();
+            autoRenderTask.setPlanId(designPlanSceneId);
+        }else if (operationSource.intValue() == AutoRenderTaskConstant.OPERATION_SOURCE_REMMONED) {
+            DesignPlanRecommended designPlanRecommended = designPlanRecommendedService.get(planRecommendedId);
+            if(null == designPlanRecommended){
+                logger.error("get by planRecommendedId:{}", planRecommendedId+" not found DesignPlanRecommended data");
+                throw new GeneratePanoramaException(false, "未找到方案推荐信息");
+            }
+            spaceCommonId = designPlanRecommended.getSpaceCommonId();
+            designCode = designPlanRecommended.getPlanCode();
+            designName = designPlanRecommended.getPlanName();
+            autoRenderTask.setPlanId(planRecommendedId);
+        }
+        if (templateId != null && templateId.intValue() > 0) {
+            DesignTemplet designTemplet = designTempletService.selectByPrimaryKey(templateId);
+            if(null == designTemplet){
+                logger.error("templateId:{},not found data", templateId);
+                throw new GeneratePanoramaException(false, "未找到样板房信息");
+            }
+            templateCode = designTemplet.getDesignCode();
+            autoRenderTask.setTemplateCode(templateCode);
+        }
+
+        SpaceCommon spaceCommon = getSpaceCommon(spaceCommonId);
+        String spaceCode = spaceCommon.getSpaceCode();
+        autoRenderTask.setSpaceCode(spaceCode);
+        autoRenderTask.setOperationSource(operationSource);
+        autoRenderTask.setCreator(loginUser.getName());
+        autoRenderTask.setModifier(loginUser.getName());
+        autoRenderTask.setGmtCreate(new Date());
+        autoRenderTask.setGmtModified(new Date());
+        autoRenderTask.setTaskType(taskType.intValue());
+        // 0:自动渲染 1：替换
+        if(taskType.intValue() == AutoRenderTaskConstant.TASK_TYPE_AUTO_RENDER){
+            autoRenderTask.setTemplateId(templateId);
+        }else if(taskType.intValue() == AutoRenderTaskConstant.TASK_TYPE_REPLACE){
+            autoRenderTask.setTemplateId(-1);
+            autoRenderTask.setPriority(99);
+        }
+        autoRenderTask.setOperationUserId(loginUser.getId());
+        autoRenderTask.setOperationUserName(loginUser.getName());
+        autoRenderTask.setDesignCode(designCode);
+        autoRenderTask.setDesignName(designName);
+        autoRenderTask.setTaskSource(taskSource);
+        autoRenderTask.setHostIp(hostIp);
+        if (taskSource.intValue() == 0 && taskType.intValue() == 0) {
+        	autoRenderTask.setHouseId(houseId);
+		}
+        if (ProductType.COMMON_RENDER.equals(renderTaskType)) {
+            // 普通照片级
+            autoRenderTask.setRenderTypesStr(ProductType.PHOTO);
+            autoRenderTask.setRenderPic(AutoRenderTaskConstant.NO_RENDER_TASK);
+        } else if (ProductType.PANORAMA_RENDER.equals(renderTaskType)) {
+            // 720全景
+            autoRenderTask.setRenderTypesStr(ProductType.ROAM720);
+            autoRenderTask.setRender720(AutoRenderTaskConstant.NO_RENDER_TASK);
+        } else if (ProductType.ROAM_VIDEO_RENDER.equals(renderTaskType)) {
+            // 漫游视频
+            autoRenderTask.setRenderTypesStr(ProductType.VIDEO);
+            autoRenderTask.setRenderVideo(AutoRenderTaskConstant.NO_RENDER_TASK);
+        } else if (ProductType.ROAM_PANORAMA_RENDER.equals(renderTaskType)) {
+            // 720多点
+            autoRenderTask.setRenderTypesStr(ProductType.ROAMN720);
+            autoRenderTask.setRenderN720(AutoRenderTaskConstant.NO_RENDER_TASK);
+        }else{
+            throw new GeneratePanoramaException(false, "未知渲染类型");
+        }
+        return autoRenderTask;
+    }
+
+    private SpaceCommon getSpaceCommon(Integer spaceCommonId) throws GeneratePanoramaException {
+        SpaceCommon spaceCommon = spaceCommonService.get(spaceCommonId);
+        if(null == spaceCommon){
+            logger.error("spaceCommonId:{},not found data", spaceCommonId);
+            throw new GeneratePanoramaException(false, "未找到空间信息");
+        }
+        return spaceCommon;
+    }
+
+    private LoginUser checkSysUserData(Integer userId, Integer houseId, Double totalFee) throws GeneratePanoramaException {
+        SysUser sysUser = sysUserService.get(userId);
+        LoginUser loginUser = sysUser.toLoginUser();
+        //判断用户余额是不是充足
+//        if(sysUser.getBalanceAmount().intValue() < totalFee.intValue()) {
+//            logger.error("用户：",loginUser.getLoginName()+"余额不足，当前余额：{}",sysUser.getBalanceAmount()+"--订单需要付款金额:{}",totalFee);
+//            throw new GeneratePanoramaException(false, "您的余额不足，请到PC端充值！");
+//        }
+
+        if(null != houseId && houseId > 0){
+            //检查用户户型是否可用(已购买的户型不算入户型数计算) 移动端不需要校验数量
+            logger.info("检查用户户型是否可用(已购买的户型不算入户型数计算):userId:{}, houseId:{}.", userId, houseId);
+            boolean houseIsAbleUse = userFinanceService.checkUserHouseIsAbleUse(userId, houseId);
+            logger.info("检查用户户型是否可用(已购买的户型不算入户型数计算)完成:houseIsAbleUse:{}", houseIsAbleUse);
+
+            if (!houseIsAbleUse) {
+                logger.warn("用户：{}，账户互相不足，请购买户型",sysUser.getUserName());
+                throw new GeneratePanoramaException(false, "账户户型不足，请购买户型.");
+            }
+        }
+        return loginUser;
+    }
+    
+    public  boolean backFillTaskId( String orderNo,Integer taskId,String token,String platformCode){
+    	String payPath = Utils.getPropertyName("app","pay.server.url","");
+    	String url = payPath+"/web/pay/payOrder/updatePayoOrder?orderNo="+orderNo+"&taskId="+taskId;
+    	Map<String,String> params=new HashMap<String,String>();
+    	params.put("orderNo", orderNo);
+		params.put("taskId", taskId.toString());
+		try {
+			String result = Utils.doPostMethod(url, params,token,platformCode);
+			JSONObject jsonObject = JSONObject.fromObject(result);
+        	boolean status = (boolean) jsonObject.get("status");
+			return status;
+		} catch (Exception e) {
+			return false;
+		}
+    }
+
+}

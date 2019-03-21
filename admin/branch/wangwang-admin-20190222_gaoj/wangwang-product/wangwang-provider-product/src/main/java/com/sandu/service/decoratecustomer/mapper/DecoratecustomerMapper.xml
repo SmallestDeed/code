@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.decoratecustomer.dao.DecorateCustomerMapper">
+    <resultMap id="BaseResultMap" type="com.sandu.api.decoratecustomer.model.DecorateCustomer">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="customer_type" jdbcType="TINYINT" property="customerType"/>
+        <result column="proprietor_info_id" jdbcType="INTEGER" property="proprietorInfoId"/>
+        <result column="company_id" jdbcType="INTEGER" property="companyId"/>
+        <result column="inner_company_id" jdbcType="INTEGER" property="innerCompanyId"/>
+        <result column="first_seckill_company" jdbcType="INTEGER" property="firstSeckillCompany"/>
+        <result column="second_seckill_company" jdbcType="INTEGER" property="secondSeckillCompany"/>
+        <result column="design_plan_id" jdbcType="INTEGER" property="designPlanId"/>
+        <result column="revisit_time" jdbcType="VARCHAR" property="revisitTime"/>
+        <result column="decorate_type" jdbcType="TINYINT" property="decorateType"/>
+        <result column="contract_company" jdbcType="INTEGER" property="contractCompany"/>
+        <result column="contract_price" jdbcType="VARCHAR" property="contractPrice"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="decorate_budget" jdbcType="INTEGER" property="decorateBudget"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,customer_type,proprietor_info_id,company_id,inner_company_id,first_seckill_company,second_seckill_company,design_plan_id,revisit_time,decorate_type,contract_company,contract_price,remark,creator,gmt_create,modifier,gmt_modified,is_deleted
+    </sql>
+
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true"
+            parameterType="com.sandu.api.decoratecustomer.model.DecorateCustomer">
+        insert into decorate_customer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="customerType != null">
+                customer_type,
+            </if>
+            <if test="proprietorInfoId != null">
+                proprietor_info_id,
+            </if>
+            <if test="companyId != null">
+                company_id,
+            </if>
+            <if test="innerCompanyId != null">
+                inner_company_id,
+            </if>
+            <if test="firstSeckillCompany != null">
+                first_seckill_company,
+            </if>
+            <if test="secondSeckillCompany != null">
+                second_seckill_company,
+            </if>
+            <if test="designPlanId != null">
+                design_plan_id,
+            </if>
+            <if test="revisitTime != null">
+                revisit_time,
+            </if>
+            <if test="decorateType != null">
+                decorate_type,
+            </if>
+            <if test="contractCompany != null">
+                contract_company,
+            </if>
+            <if test="contractPrice != null">
+                contract_price,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="decorateBudget != null">
+                decorate_budget,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="customerType != null">
+                #{customerType,jdbcType=TINYINT},
+            </if>
+            <if test="proprietorInfoId != null">
+                #{proprietorInfoId,jdbcType=INTEGER},
+            </if>
+            <if test="companyId != null">
+                #{companyId,jdbcType=INTEGER},
+            </if>
+            <if test="innerCompanyId != null">
+                #{innerCompanyId,jdbcType=INTEGER},
+            </if>
+            <if test="firstSeckillCompany != null">
+                #{firstSeckillCompany,jdbcType=INTEGER},
+            </if>
+            <if test="secondSeckillCompany != null">
+                #{secondSeckillCompany,jdbcType=INTEGER},
+            </if>
+            <if test="designPlanId != null">
+                #{designPlanId,jdbcType=INTEGER},
+            </if>
+            <if test="revisitTime != null">
+                #{revisitTime,jdbcType=VARCHAR},
+            </if>
+            <if test="decorateType != null">
+                #{decorateType,jdbcType=TINYINT},
+            </if>
+            <if test="contractCompany != null">
+                #{contractCompany,jdbcType=INTEGER},
+            </if>
+            <if test="contractPrice != null">
+                #{contractPrice,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="decorateBudget != null">
+                #{decorateBudget},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKey" parameterType="com.sandu.api.decoratecustomer.model.DecorateCustomer">
+        update decorate_customer
+        <set>
+            <if test="id != null">
+                id = #{id,jdbcType=INTEGER},
+            </if>
+            <if test="customerType != null">
+                customer_type = #{customerType,jdbcType=TINYINT},
+            </if>
+            <if test="proprietorInfoId != null">
+                proprietor_info_id = #{proprietorInfoId,jdbcType=INTEGER},
+            </if>
+            <if test="companyId != null">
+                company_id = #{companyId,jdbcType=INTEGER},
+            </if>
+            <if test="innerCompanyId != null">
+                inner_company_id = #{innerCompanyId,jdbcType=INTEGER},
+            </if>
+            <if test="firstSeckillCompany != null">
+                first_seckill_company = #{firstSeckillCompany,jdbcType=INTEGER},
+            </if>
+            <if test="secondSeckillCompany != null">
+                second_seckill_company = #{secondSeckillCompany,jdbcType=INTEGER},
+            </if>
+            <if test="designPlanId != null">
+                design_plan_id = #{designPlanId,jdbcType=INTEGER},
+            </if>
+            <if test="revisitTime != null">
+                revisit_time = #{revisitTime},
+            </if>
+            <if test="decorateType != null">
+                decorate_type = #{decorateType,jdbcType=TINYINT},
+            </if>
+            <if test="contractCompany != null">
+                contract_company = #{contractCompany,jdbcType=INTEGER},
+            </if>
+            <if test="contractPrice != null">
+                contract_price = #{contractPrice,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="decorateBudget != null">
+                decorate_budget = #{decorateBudget},
+            </if>
+            <if test="bidEndTime != null">
+                bid_end_time = #{bidEndTime},
+            </if>
+            <if test="bidStatus != null">
+                bid_status = #{bidStatus},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        update decorate_customer set is_deleted = 1
+        where id IN
+        <foreach separator="," open="(" close=")" collection="decorateCustomerIds" item="decorateCustomerId">
+            #{decorateCustomerId}
+        </foreach>
+    </update>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        *
+        from decorate_customer
+        where id = #{decorateCustomerId,jdbcType=INTEGER}
+    </select>
+
+    <select id="findAll" resultType="com.sandu.api.decoratecustomer.model.bo.DecorateCustomerListBO"
+            parameterType="com.sandu.api.decoratecustomer.input.DecorateCustomerQuery">
+        select dc.id,dc.proprietor_info_id,
+        dc.company_id ,dc.first_seckill_company,dc.second_seckill_company,
+        dc.inner_company_id,dc.decorate_type,dc.revisit_time,dc.remark,dc.contract_company,dc.contract_price,
+        pi.user_name,pi.mobile,pi.city_code
+        from decorate_customer dc,
+        proprietor_info pi
+        where dc.proprietor_info_id = pi.id
+        and dc.is_deleted = 0
+        and pi.is_deleted = 0
+        <if test="cityCode != null">
+            and pi.city_code = #{cityCode}
+        </if>
+        <if test="decorateType != null">
+            and dc.decorate_Type = #{decorateType}
+        </if>
+        <if test="revisitTime != null">
+            and dc.revisit_Time = #{revisitTime}
+        </if>
+        <if test="userName != null">
+            and pi.user_name like concat('%',#{userName},'%')
+        </if>
+        <if test="mobile != null">
+            and pi.mobile like concat('%',#{mobile},'%')
+        </if>
+        order by dc.id desc
+    </select>
+
+    <select id="findByOption" resultType="com.sandu.api.decoratecustomer.model.DecorateCustomer">
+        select *
+        from decorate_customer
+        where is_deleted = 0
+            <if test="id != null">
+                and id = #{id,jdbcType=INTEGER}
+            </if>
+            <if test="customerType != null">
+                and customer_type = #{customerType,jdbcType=TINYINT}
+            </if>
+            <if test="proprietorInfoId != null">
+                and proprietor_info_id = #{proprietorInfoId,jdbcType=INTEGER}
+            </if>
+            <if test="companyId != null">
+                and company_id = #{companyId,jdbcType=INTEGER}
+            </if>
+            <if test="innerCompanyId != null">
+                and inner_company_id = #{innerCompanyId,jdbcType=INTEGER}
+            </if>
+            <if test="firstSeckillCompany != null">
+                and first_seckill_company = #{firstSeckillCompany,jdbcType=INTEGER}
+            </if>
+            <if test="secondSeckillCompany != null">
+                and second_seckill_company = #{secondSeckillCompany,jdbcType=INTEGER}
+            </if>
+            <if test="designPlanId != null">
+                and design_plan_id = #{designPlanId,jdbcType=INTEGER}
+            </if>
+            <if test="revisitTime != null">
+                and revisit_time = #{revisitTime,jdbcType=VARCHAR}
+            </if>
+            <if test="decorateType != null">
+                and decorate_type = #{decorateType,jdbcType=TINYINT}
+            </if>
+            <if test="contractCompany != null">
+                and contract_company = #{contractCompany,jdbcType=INTEGER}
+            </if>
+            <if test="contractPrice != null">
+                and contract_price = #{contractPrice,jdbcType=VARCHAR}
+            </if>
+            <if test="remark != null">
+                and remark = #{remark,jdbcType=VARCHAR}
+            </if>
+            <if test="creator != null">
+                and creator = #{creator,jdbcType=VARCHAR}
+            </if>
+            <if test="gmtCreate != null">
+                and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+            </if>
+            <if test="modifier != null">
+                and modifier = #{modifier,jdbcType=VARCHAR}
+            </if>
+            <if test="gmtModified != null">
+                and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+            </if>
+
+    </select>
+    <select id="getByIdWithProprietorInfo"
+            resultType="com.sandu.api.decoratecustomer.model.bo.DecorateCustomerBO">
+        select dc.id,dc.proprietor_info_id,
+        pi.user_name,
+        pi.area_name,
+        pi.address,
+        pi.house_acreage,
+        concat(pi.bedroom_num,'室',pi.living_room_num,'厅',pi.toilet_num,'卫') as houseType,
+        pi.decorate_budget,
+        pi.decorate_house_type,
+        pi.decorate_type ,
+        pi.decorate_style,
+         pi.city_code
+        from decorate_customer dc inner join  proprietor_info pi on dc.proprietor_info_id = pi.id
+        where
+        dc.is_deleted = 0
+        and pi.is_deleted = 0
+        and dc.id = #{decorateCustomerId}
+    </select>
+    <select id="listForDispatchDecoratePrice"
+            resultType="com.sandu.api.decoratecustomer.model.DecorateCustomer">
+
+    </select>
+    <select id="findWithNullCompanyId" resultType="com.sandu.api.decoratecustomer.model.DecorateCustomer">
+        select * from decorate_customer where company_id is null  ;
+    </select>
+
+    <select id="getByProprietorInfoId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from decorate_customer
+        where proprietor_info_id = #{proprietorInfoId,jdbcType=INTEGER}
+    </select>
+    <select id="listCustomerWithInnerCompanyAndNoneOrder"
+            resultType="com.sandu.api.decoratecustomer.model.DecorateCustomer">
+        select dc.*
+        from decorate_customer dc
+        where is_deleted = 0
+          and dc.company_id > 0
+        and not exists(select 1 from decorate_order do where dc.id = do.customer_id and dc.company_id = do.company_id and do.order_type = 0 );
+    </select>
+    <select id="getCustomerByProprietorIds" resultType="com.sandu.api.decoratecustomer.model.DecorateCustomer">
+        select * from decorate_customer
+        where is_deleted = 0
+        and proprietor_info_id in
+        <foreach collection="propIds" item="propId" separator="," close=")" open="(">
+            #{propId}
+        </foreach>
+    </select>
+</mapper>

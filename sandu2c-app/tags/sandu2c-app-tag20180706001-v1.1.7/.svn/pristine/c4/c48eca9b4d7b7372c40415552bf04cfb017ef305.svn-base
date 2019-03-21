@@ -1,0 +1,1 @@
+update sys_role set platform_id = 1 where code = 'CITY_UNION_BASE_ROLE'

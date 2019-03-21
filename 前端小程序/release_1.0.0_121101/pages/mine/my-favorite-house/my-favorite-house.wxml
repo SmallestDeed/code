@@ -1,0 +1,33 @@
+<view class='collect-house'>
+  <view class='house-item' 
+    wx:for='{{houseList}}' 
+    wx:key='{{index}}'
+    wx:if="{{houseList&&houseList.length>0}}">
+    <image src='{{item.thumbnailPath?resourcePath+item.thumbnailPath:staticImageUrl+"huxing_pic_no.png"}}' 
+        bindtap='lookImg'
+        data-item='{{item}}'
+        class='house-img'></image>
+    <view class='house-info'>
+      <view class='house-title ellipsis'>{{item.houseName}}</view>
+      <view class='house-type ellipsis'>{{item.houseTypeStr+'  '+item.totalArea}}㎡</view>
+      <view class='btn' bindtap='goFinish' data-item='{{item}}'>一键装修</view>
+      <view class='operate-box'>
+        <view bindtap='goCollect' data-index='{{index}}' class='icon-box'>
+          <image src='{{staticImageUrl+"news_icon_collect_"+(item.isFavorite==1?"sct":"nor")+".png"}}'
+            class='operate-iocn'>
+          </image>
+          {{item.favoriteNum?item.favoriteNum:0}}
+        </view>
+        <button class='toHouseDetail' data-item='{{item}}' open-type='share'>
+          <image src='{{staticImageUrl}}page_icon_share.png' class='operate-iocn'></image>
+          分享
+        </button>
+        <view bindtap='goPublish' data-item='{{item}}' class='icon-box'>
+          <image src='{{staticImageUrl}}page_icon_fabu.png' class='operate-iocn margin'></image>
+          发布互动区
+        </view>
+      </view>
+    </view>
+  </view>
+  <empty-page emptyPageObj="{{emptyPageObj}}" wx:if="{{!houseList.length>0}}"></empty-page>
+</view>

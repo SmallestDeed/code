@@ -1,0 +1,110 @@
+package com.nork.mobile.service.impl;
+
+import com.google.gson.Gson;
+import com.nork.common.model.LoginUser;
+import com.nork.common.model.ResponseEnvelope;
+import com.nork.common.util.Utils;
+import com.nork.design.dao.DesignPlanRecommendedMapperV2;
+import com.nork.design.model.DesignPlanRecommendedResult;
+import com.nork.design.model.PlanRecommendedListModel;
+import com.nork.design.service.DesignPlanRecommendedServiceV2;
+import com.nork.mobile.model.search.DesignPlanRecommendedModel;
+import com.nork.mobile.service.MobileDesignPlanRecommendedService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service("mobileDesignPlanRecommendedService")
+public class MobileDesignPlanRececommendedServiceImpl implements MobileDesignPlanRecommendedService {
+
+    private Logger logger = LoggerFactory.getLogger(MobileDesignPlanRececommendedServiceImpl.class);
+    private Gson gson = new Gson();
+    @Autowired
+    private DesignPlanRecommendedServiceV2 designPlanRecommendedServiceV2;
+    @Autowired
+    private DesignPlanRecommendedMapperV2 designPlanRecommendedMapper;
+
+    /**
+     * 获取设计方案推荐列表
+     */
+    @Override
+    public Object getPlanRecommendedList(String creator, String brandName, String houseType,
+                                         String livingName, String areaValue, String designRecommendedStyleId, String displayType, String msgId,
+                                         LoginUser loginUser, Integer limit, Integer start, Integer templateId,
+                                         String planName, Integer platformId, Long companyId) {
+
+        PlanRecommendedListModel model = new PlanRecommendedListModel();
+        model.setCreator(creator);
+        model.setBrandName(brandName);
+        model.setHouseType(houseType);
+        model.setLivingName(livingName);
+        model.setAreaValue(areaValue);
+        model.setDesignRecommendedStyleId(designRecommendedStyleId);
+        model.setDisplayType(displayType);
+        model.setMsgId(msgId);
+        model.setLoginUser(loginUser);
+        model.setLimit(limit);
+        model.setStart(start);
+        model.setTemplateId(templateId);
+        model.setPlanName(planName);
+        model.setPlatformId(platformId);
+        model.setCompanyId(companyId);
+
+        return designPlanRecommendedServiceV2.getPlanRecommendedList(model);
+    }
+
+    /**
+     * 获取最适合样板房的推荐方案
+     *
+     * @param designPlanRecommendedModel
+     * @return
+     */
+    @Override
+    public DesignPlanRecommendedResult getMatchPlan(DesignPlanRecommendedModel designPlanRecommendedModel) {
+        Integer planRecommendedId = designPlanRecommendedModel.getPlanRecommendedId();
+        Integer templateId = designPlanRecommendedModel.getTemplateId();
+
+        String result = getMatchPlanResult(planRecommendedId, templateId);
+        logger.error("getMatchPlan -------- onekey result = {}", result);
+        if (result == null || "".equals(result)) {
+            return null;
+        }
+        ResponseEnvelope responseEnvelope = gson.fromJson(result, ResponseEnvelope.class);
+        if (!responseEnvelope.isSuccess()) {
+            return null;
+        }
+        if (responseEnvelope.getObj() == null) {
+            return null;
+        }
+        planRecommendedId = ((Double) responseEnvelope.getObj()).intValue();
+        logger.error("getMatchPlan -------- get the bast match plan id = {}", planRecommendedId);
+        if (null == planRecommendedId || planRecommendedId.intValue() == 0) {
+            return null;
+        }
+//        planRecommendedId = Integer.parseInt(obj.toString());
+        DesignPlanRecommendedResult designPlanRecommended = designPlanRecommendedMapper.getAllByRecommendedId(planRecommendedId);
+
+        return designPlanRecommended;
+    }
+
+    /**
+     * 调用http请求
+     *
+     * @param planRecommendedId
+     * @param templateId
+     * @return
+     */
+    private String getMatchPlanResult(Integer planRecommendedId, Integer templateId) {
+        String domainName = Utils.getPropertyName("app", "app.onekey.url", "");
+        String url = domainName + "/online/web/design/intelligenceDecoration/getBestMatchInPlanGroup.htm?designTemplateId=" + templateId + "&recommendedPlanId=" + planRecommendedId;
+        logger.error("getMatchPlan----------- url : {}", url);
+//        HashMap<String, Integer> params = new HashMap<>();
+//        params.put("designTemplateId",templateId);
+//        params.put("recommendedPlanId",planRecommendedId);
+
+//        return Utils.doPostMethod(url, params);
+        return Utils.doGetMethod(url);
+    }
+
+}

@@ -1,0 +1,209 @@
+package com.sandu.schedule;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+
+import com.sandu.cart.MallBaseCart;
+import com.sandu.cart.service.MallBaseCartService;
+import com.sandu.customer.model.CustomerBaseInfo;
+import com.sandu.customer.service.ICustomerBaseInfoService;
+import com.sandu.customer.service.ICustomerOperateLogService;
+import com.sandu.order.MallBaseOrder;
+import com.sandu.order.service.MallBaseOrderService;
+import com.sandu.product.service.UserProductCollectService;
+import com.sandu.user.model.UserVo;
+import com.sandu.user.service.SysUserService;
+import com.sandu.user.service.UserFinanceService;
+import com.sandu.useraddress.MallUserAddress;
+
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * 计算客户积分
+ * @author Sandu
+ * @datetime 2018/7/31 17:39
+ */
+@Configuration
+@EnableScheduling
+@Slf4j
+public class SchedulingConfig {
+
+	@Resource
+	private SysUserService sysUserService;
+
+	@Autowired
+	private ICustomerBaseInfoService customerBaseInfoService;
+	
+	@Autowired
+	private MallBaseOrderService mallBaseOrderService;
+	
+	@Autowired
+	private ICustomerOperateLogService customerOperateLogService;
+	
+	@Autowired
+	private  MallBaseCartService mallBaseCartService;
+	
+	@Autowired
+	private UserProductCollectService userProductCollectService;
+	
+	@Autowired
+	private UserFinanceService userFinanceService;
+	
+	/**
+	 * 计算客户积分规则
+	 * 绑定手机号+1;
+	 * 收货地址或所在区域+1;
+	 * 产品替换渲染+2，后每次+1，最大6;
+	 * 购物车商品（我的购物车）+8;
+	 * 商品收藏 （我的收藏）+6
+	 * 购买（我的订单）+10;
+	 * 购买包年包月（我的服务渲染） +2；
+	 * 装进我家 +8;
+	 * 上传户型（我的户型)+6
+	 * 查看商品详情 + 0.5  每次+0.5，上限5
+	 */
+	@Scheduled(cron = "0 0/5 * * * ? ")
+	public void modifyCustomerScore() {
+		final int limit = 1000;
+		int pageNo = 0;
+		List<CustomerBaseInfo> infoList = new ArrayList<CustomerBaseInfo>();
+		do {
+			try {
+				Map<String, Object> infoMap = new HashMap<String, Object>();
+				infoMap.put("limitString", "limit " + (pageNo * limit) + ", " + limit);
+				infoList = customerBaseInfoService.queryCustomerInfoByMap(infoMap);
+				pageNo++;
+				List<CustomerBaseInfo> updateList = new ArrayList<CustomerBaseInfo>();
+				if (infoList != null && infoList.size() > 0) {
+					for (CustomerBaseInfo customerBaseInfo : infoList) {
+						try {
+							double score= 0.00;
+							StringBuffer sb = new StringBuffer();
+							sb.append("[userId]:"+customerBaseInfo.getUserId());
+							//绑定手机号+1;
+							UserVo user = sysUserService.getUserInfo(customerBaseInfo.getUserId());
+							if(user!= null && StringUtils.isNoneBlank(user.getMobile())) {
+								score += 1;
+								sb.append(",");
+								sb.append("[手机号积分]:"+1);
+							}
+							
+							//收货地址或所在区域+1;
+							List<MallUserAddress> addrList = mallBaseOrderService.getAddressByUserId(customerBaseInfo.getUserId());
+							if(addrList != null && addrList.size() > 0) {
+								score += 1;
+								sb.append(",");
+								sb.append("[收货地址或所在区域积分]:"+1);
+							}
+							
+							//产品替换渲染+2，后每次+1，最大6;
+							int replaceCount = customerOperateLogService.queryAutoRenderTaskStateCount(customerBaseInfo.getUserId(),"1");
+							if(replaceCount > 0) {
+								int replaceScore = 0;
+								if(replaceCount > 5) {
+									score += 6;
+									replaceScore = 6;
+								}else {
+									score += (2+ (replaceCount-1)*1);
+									replaceScore = 2+ (replaceCount-1)*1;
+
+								}
+								sb.append(",");
+								sb.append("[产品替换渲染]:"+replaceScore);
+							}
+							
+							//购物车商品（我的购物车）+8;
+					        MallBaseCart baseCart = mallBaseCartService.getByUserId(customerBaseInfo.getUserId());
+					        if (baseCart != null) {
+								score += 8;
+								sb.append(",");
+								sb.append("[购物车商品（我的购物车）]:"+8);
+					        }
+							
+					        //商品收藏 （我的收藏）+6
+					        int count = userProductCollectService.getFarivorateCollectCount(customerBaseInfo.getUserId());
+					        if(count > 0) {
+								score += 6;
+								sb.append(",");
+								sb.append("[商品收藏 （我的收藏）]:"+6);
+					        }
+					        
+					        //购买（我的订单）+10;
+				            int countOrder = mallBaseOrderService.countUserOrder(customerBaseInfo.getUserId(),2);
+							if(countOrder > 0) {
+								score += 10;
+								sb.append(",");
+								sb.append("[购买（我的订单）]:"+10);
+							}
+
+							//购买包年包月（我的服务渲染） +2；
+							int countPayModel = customerOperateLogService.queryPayModelGroupRef(customerBaseInfo.getUserId());
+							if(countPayModel > 0) {
+								score += 2;
+								sb.append(",");
+								sb.append("[购买包年包月（我的服务渲染）]:"+2);
+							}
+							
+							//装进我家 +8;
+							int decroateCount = customerOperateLogService.queryAutoRenderTaskStateCount(customerBaseInfo.getUserId(),"1");
+							if(decroateCount > 0) {
+								score += 8;
+								sb.append(",");
+								sb.append("[装进我家]:"+8);
+							}
+							
+							//上传户型（我的户型)+6
+							Integer userAlreadyBoughtHouseCount = userFinanceService.queryUserAlreadyBoughtHouseCount(customerBaseInfo.getUserId());
+							if(userAlreadyBoughtHouseCount > 0) {
+								score += 6;
+								sb.append(",");
+								sb.append("[上传户型（我的户型)]:"+6);
+							}
+							
+							//查看商品详情 + 0.5  每次+0.5，上限5
+							int goodsCount = customerOperateLogService.queryCustomerOperateLog(customerBaseInfo.getUserId(),"1");
+							if(goodsCount > 0) {
+								double goodsScore = 0;
+								if(goodsCount > 10) {
+									score += 5;
+									goodsScore = 5;
+								}else {
+									score += goodsCount * 0.5;
+									goodsScore = goodsCount * 0.5;
+								}
+								sb.append(",");
+								sb.append("[查看商品详情]:"+goodsScore);
+							}
+							log.info("用户:{},积分详情:{}",customerBaseInfo.getUserId(),sb.toString());
+							log.info("用户:{},总积分:{}",customerBaseInfo.getUserId(),score);
+							//同步客户积分
+							if(score > 0) {
+								CustomerBaseInfo insertInfoVo = new CustomerBaseInfo();
+								insertInfoVo.setUserId(customerBaseInfo.getUserId());
+								insertInfoVo.setScore(score);
+								updateList.add(insertInfoVo);
+							}
+						}catch(Exception e) {
+							log.error("同步客户：{}积分失败,失败信息:{}",customerBaseInfo.getUserId(),e);
+						}
+					}
+				}
+				//执行批量更新
+				if(updateList!=null && updateList.size() > 0) {
+					customerBaseInfoService.batchUpdate(updateList);
+				}
+			} catch (Exception e) {
+				log.error("modifyCustomerScore方法执行失败,失败信息{}", e.getMessage());
+			}
+		} while (infoList.size() > 0);
+	}
+}

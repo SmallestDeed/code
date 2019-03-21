@@ -1,0 +1,286 @@
+package com.sandu.service.base.impl;/**
+ * @ Author     ：weisheng.
+ * @ Date       ：Created in AM 10:29 2019/1/8 0008
+ * @ Description：${description}
+ * @ Modified By：
+ * @Version: $version$
+ */
+
+import com.google.gson.Gson;
+import com.sandu.api.base.common.LoginUser;
+import com.sandu.api.base.common.util.GsonUtil;
+import com.sandu.api.base.input.UserCardAccessOperationLogAdd;
+import com.sandu.api.base.input.UserCardAccessRecordAdd;
+import com.sandu.api.base.model.*;
+import com.sandu.api.base.output.SmsVo;
+import com.sandu.api.base.output.UserCardAccessOperationLogMsg;
+import com.sandu.api.base.output.UserCardAccessRecordMsg;
+import com.sandu.api.base.output.UserCardAccessRecordVo;
+import com.sandu.api.base.service.RedisService;
+import com.sandu.api.base.service.SysUserService;
+import com.sandu.api.base.service.UserCardAccessService;
+import com.sandu.api.base.service.UserCardService;
+import com.sandu.service.base.dao.UserCardAccessMapper;
+import com.sandu.websocket.SocketIOUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+
+/**
+ * @author weisheng
+ * @Title:
+ * @Package
+ * @Description:
+ * @date 2019/1/8 0008AM 10:29
+ */
+@Service("userCardAccessService")
+@Slf4j
+public class UserCardAccessServiceImpl implements UserCardAccessService {
+    @Autowired
+    private UserCardAccessMapper userCardAccessMapper;
+    @Autowired
+    private SysUserService sysUserService;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private UserCardService userCardService;
+
+    @Override
+    public int addUserCardAccessRecord(UserCardAccessRecordAdd userCardAccessRecordAdd, LoginUser loginUser) {
+        UserCardAccessRecord userCardAccessRecord = this.createUserCardAccessRecord(userCardAccessRecordAdd, loginUser);
+        userCardAccessMapper.insertUserCardAccessRecord(userCardAccessRecord);
+
+        this.sendUserCardAccessRecordWebSocket(userCardAccessRecordAdd.getUserCardId());
+
+        return userCardAccessRecord.getId().intValue();
+    }
+
+    @Override
+    public void sendUserCardAccessRecordWebSocket(Integer userCardId) {
+        //调用websocket发送消息
+        try {
+            UserCard userCard = userCardService.getById(userCardId);
+            if (null != userCard) {
+                Integer userId = userCard.getUserId();
+                if (null != userId && 0 < userId) {
+                    UserCardAccessRecordMsg userCardAccessRecordMsg = new UserCardAccessRecordMsg();
+                    int unReadMsgCount = userCardAccessMapper.selectUnReadUserCardAccessRecord(userCardId);
+                    userCardAccessRecordMsg.setUnReadMsgCount(unReadMsgCount);
+                    SysUser sysUser = sysUserService.selectByPrimaryKey(userId.longValue());
+                    PushMessageInfo pushMessageInfo = new PushMessageInfo();
+                    pushMessageInfo.setTargetSessionId(sysUser.getUuid());
+                    pushMessageInfo.setMsgCode(SocketIOUtil.IM_PUSH_CARD_ACCESS_MSG_CODE);
+                    pushMessageInfo.setMsgContent(new Gson().toJson(userCardAccessRecordMsg));
+                    SocketIOUtil.sendEventMessage(SocketIOUtil.IM_PUSH_MSG_EVENT, pushMessageInfo);
+                    log.info("记录用户访问数据成功,调用websocket发送消息成功,pushMessageInfo={}", GsonUtil.bean2Json(pushMessageInfo));
+                }
+            }
+        } catch (Exception e) {
+            log.error("记录用户访问数据成功,调用websocket发送消息异常" + e);
+        }
+    }
+
+    private UserCardAccessRecord createUserCardAccessRecord(UserCardAccessRecordAdd userCardAccessRecordAdd, LoginUser loginUser) {
+        UserCardAccessRecord userCardAccessRecord = new UserCardAccessRecord();
+        Date date = new Date();
+        userCardAccessRecord.setAccessType(userCardAccessRecordAdd.getAccessType());
+        userCardAccessRecord.setUserCardId(userCardAccessRecordAdd.getUserCardId());
+        userCardAccessRecord.setUserId(loginUser.getId());
+        userCardAccessRecord.setCreator(loginUser.getName());
+        userCardAccessRecord.setGmtCreate(date);
+        userCardAccessRecord.setIsRead(0);
+        userCardAccessRecord.setModifier(loginUser.getName());
+        userCardAccessRecord.setGmtModified(date);
+        userCardAccessRecord.setIsDeleted(0);
+        return userCardAccessRecord;
+    }
+
+    @Override
+    public int addUserCardAccessOperationLog(UserCardAccessOperationLogAdd userCardAccessOperationLogAdd, LoginUser loginUser) {
+
+        UserCardAccessOperationLog userCardAccessOperationLog = this.createUserCardAccessOperationLog(userCardAccessOperationLogAdd, loginUser);
+        userCardAccessMapper.insertUserCardAccessOperationLog(userCardAccessOperationLog);
+        if (userCardAccessOperationLog.getId() == 0) {
+            return 0;
+        }
+
+        //webSocket推送消息
+        sendUserCardAccessOperationWebSocket(userCardAccessOperationLogAdd.getUserCardId());
+
+        return userCardAccessOperationLog.getId().intValue();
+    }
+
+    @Override
+    public void sendUserCardAccessOperationWebSocket(Integer userCardId) {
+        //调用websocket发送消息
+        try {
+            UserCard userCard = userCardService.getById(userCardId);
+            if (null != userCard) {
+                Integer userId = userCard.getUserId();
+                if (null != userId && 0 < userId) {
+                    UserCardAccessOperationLogMsg userCardAccessOperationLogMsg = new UserCardAccessOperationLogMsg();
+                    int unReadMsgCount = userCardAccessMapper.selectUnReadUserCardAccessOperationLog(userCardId);
+                    userCardAccessOperationLogMsg.setUnReadMsgCount(unReadMsgCount);
+
+                    SysUser sysUser = sysUserService.selectByPrimaryKey(userId.longValue());
+                    PushMessageInfo pushMessageInfo = new PushMessageInfo();
+                    pushMessageInfo.setTargetSessionId(sysUser.getUuid());
+                    pushMessageInfo.setMsgCode(SocketIOUtil.IM_PUSH_CARD_ACCESS_OPERATION_LOG_MSG_CODE);
+                    pushMessageInfo.setMsgContent(new Gson().toJson(userCardAccessOperationLogMsg));
+                    SocketIOUtil.sendEventMessage(SocketIOUtil.IM_PUSH_MSG_EVENT, pushMessageInfo);
+                    log.info("记录用户操作电子名片数据成功,调用websocket发送消息成功,pushMessageInfo={}", GsonUtil.bean2Json(pushMessageInfo));
+                }
+            }
+        } catch (Exception e) {
+            log.info("记录用户操作电子名片数据成功,调用websocket发送消息异常" + e);
+        }
+    }
+
+    private UserCardAccessOperationLog createUserCardAccessOperationLog(UserCardAccessOperationLogAdd userCardAccessOperationLogAdd, LoginUser loginUser) {
+        UserCardAccessOperationLog userCardAccessOperationLog = new UserCardAccessOperationLog();
+        userCardAccessOperationLog.setUserCardId(userCardAccessOperationLogAdd.getUserCardId());
+        userCardAccessOperationLog.setUserCardAccessRecordId(userCardAccessOperationLogAdd.getUserCardAccessRecordId());
+        userCardAccessOperationLog.setOperationType(userCardAccessOperationLogAdd.getOperationType());
+        userCardAccessOperationLog.setContactPhone(userCardAccessOperationLogAdd.getPhone());
+        userCardAccessOperationLog.setUserId(loginUser.getId());
+        userCardAccessOperationLog.setIsRead(0);
+        if (UserCardAccessOperationLog.OperationType.PUT_PHONE_NUMBER.equals(userCardAccessOperationLogAdd.getOperationType())) {
+            userCardAccessOperationLog.setPurposeType(2);
+        } else {
+            userCardAccessOperationLog.setPurposeType(1);
+        }
+        Date date = new Date();
+        userCardAccessOperationLog.setCreator(loginUser.getName());
+        userCardAccessOperationLog.setGmtCreate(date);
+        userCardAccessOperationLog.setModifier(loginUser.getName());
+        userCardAccessOperationLog.setGmtModified(date);
+        userCardAccessOperationLog.setIsDeleted(0);
+        return userCardAccessOperationLog;
+
+    }
+
+    @Override
+    public int getUserCardAccessCount(Integer userAccessId, LoginUser loginUser) {
+        return userCardAccessMapper.getUserCardAccessCount(userAccessId, loginUser.getId());
+    }
+
+    @Override
+    public List<UserCardAccessRecordVo> getUserCardAccessList(Integer userAccessId, LoginUser loginUser, int start, int limit) {
+        List<UserCardAccessRecordVo> userCardAccessRecordVoList = userCardAccessMapper.getUserCardAccessList(userAccessId, loginUser.getId(), start, limit);
+
+        if (null != userCardAccessRecordVoList && userCardAccessRecordVoList.size() > 0) {
+            String boyPic = sysUserService.getUserDefaultPic(1);
+            String girlPic = sysUserService.getUserDefaultPic(2);
+            if (StringUtils.isNotBlank(boyPic) && StringUtils.isNotBlank(girlPic)) {
+                for (UserCardAccessRecordVo userCardAccessRecordVo : userCardAccessRecordVoList) {
+                    if (StringUtils.isBlank(userCardAccessRecordVo.getAccessUserHeadPicPath())) {
+                        if (userCardAccessRecordVo.getSex() == 0 || userCardAccessRecordVo.getSex() == 1) {
+                            userCardAccessRecordVo.setAccessUserHeadPicPath(boyPic);
+                        } else {
+                            userCardAccessRecordVo.setAccessUserHeadPicPath(girlPic);
+                        }
+
+
+                    }
+                }
+            }
+
+
+        }
+
+
+        return userCardAccessRecordVoList;
+    }
+
+    @Override
+    public int getUserCardAccessOperationLogCount(Integer userAccessId, LoginUser loginUser, Integer purposeType) {
+        return userCardAccessMapper.selectUserCardAccessOperationLogCount(userAccessId, loginUser.getId(), purposeType);
+    }
+
+    @Override
+    public List<UserCardAccessRecordVo> getUserCardAccessOperationLogList(Integer userAccessId, LoginUser loginUser, Integer purposeType, int start, int limit) {
+        List<UserCardAccessRecordVo> userCardAccessRecordVoList = userCardAccessMapper.selectUserCardAccessOperationLogList(userAccessId, loginUser.getId(), purposeType, start, limit);
+
+
+        if (null != userCardAccessRecordVoList && userCardAccessRecordVoList.size() > 0) {
+            String boyPic = sysUserService.getUserDefaultPic(1);
+            String girlPic = sysUserService.getUserDefaultPic(2);
+            if (StringUtils.isNotBlank(boyPic) && StringUtils.isNotBlank(girlPic)) {
+                for (UserCardAccessRecordVo userCardAccessRecordVo : userCardAccessRecordVoList) {
+                    if (StringUtils.isBlank(userCardAccessRecordVo.getAccessUserHeadPicPath())) {
+                        if (userCardAccessRecordVo.getSex() == 0 || userCardAccessRecordVo.getSex() == 1) {
+                            userCardAccessRecordVo.setAccessUserHeadPicPath(boyPic);
+                        } else {
+                            userCardAccessRecordVo.setAccessUserHeadPicPath(girlPic);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        return userCardAccessRecordVoList;
+    }
+
+    @Override
+    public UserCardAccessRecordCount getUserCardAccessRecordCountInfo(Integer userAccessId) {
+        return userCardAccessMapper.selectUserCardAccessRecordCountInfo(userAccessId);
+    }
+
+    @Override
+    public int updateUserCardAccessRecordToIsRead(Integer userAccessId, LoginUser loginUser, int start, int limit) {
+        return userCardAccessMapper.updateUserCardAccessRecordToIsRead(userAccessId, loginUser.getId(), start, limit);
+    }
+
+    @Override
+    public int updateUserCardAccessOperationLogToIsRead(Integer userAccessId, LoginUser loginUser, Integer purposeType, int start, int limit) {
+        return userCardAccessMapper.updateUserCardAccessOperationLogToIsRead(userAccessId, loginUser.getId(), purposeType, start, limit);
+    }
+
+    @Override
+    public boolean checkPhoneAndCode(UserCardAccessOperationLogAdd userCardAccessOperationLogAdd) {
+        String phone = userCardAccessOperationLogAdd.getPhone();
+        String authCode = userCardAccessOperationLogAdd.getCode();
+        log.info("校验用户验证码，phone={},authCode={}", phone, authCode);
+        if (StringUtils.isBlank(phone) || StringUtils.isBlank(authCode)) {
+            return false;
+        }
+
+        String jsonValue = redisService.getMap(SmsVo.REDIS_SMS_CODE_KEY, phone);
+        log.info("校验用户验证码，redis数据：{}", jsonValue);
+        SmsVo smsVo = new Gson().fromJson(jsonValue, SmsVo.class);
+        if (smsVo == null) {
+            return false;
+        }
+        String redisCode = smsVo.getCode();
+
+        Long sendCodeTime = 0L;
+        sendCodeTime = smsVo.getSendTime();
+        Long currentTime = System.currentTimeMillis();
+        log.info("校验用户验证码，redisCode={}", redisCode);
+        if (StringUtils.isEmpty(redisCode) || !(authCode.equals(redisCode))) {
+            return false;
+        }
+        log.info("校验用户验证码，剩余有效时间：{}", currentTime - sendCodeTime - SmsVo.SMS_CODE_VALID_TIME);
+        //是否超时 默认3分钟
+        if ((currentTime - sendCodeTime) > SmsVo.SMS_CODE_VALID_TIME) {
+            log.info("校验用户验证码，currentTime - sendCodeTime={},SmsVo.SMS_CODE_VALID_TIME={}",
+                    currentTime - sendCodeTime, SmsVo.SMS_CODE_VALID_TIME);
+            log.info("校验用户验证码，超时了，返回false");
+            return false;
+        }
+
+        try {
+            redisService.delMap(SmsVo.REDIS_SMS_CODE_KEY, phone);
+        } catch (Exception e) {
+            log.error("校验用户验证码，删除缓存中的key异常：{}", e);
+        }
+
+        log.info("校验用户验证码，正确，返回true");
+        return true;
+    }
+}

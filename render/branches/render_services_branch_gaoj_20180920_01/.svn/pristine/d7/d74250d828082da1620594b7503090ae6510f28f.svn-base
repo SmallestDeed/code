@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.render.dao.BaseHouseGuidePicInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.nork.render.model.BaseHouseGuidePicInfo" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="pic_id" property="picId" jdbcType="BIGINT" />
+    <result column="house_id" property="houseId" jdbcType="BIGINT" />
+    <result column="space_type" property="spaceType" jdbcType="SMALLINT" />
+    <result column="space_common_id" property="spaceCommonId" jdbcType="BIGINT" />
+    <result column="design_templet_id" property="designTempletId" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="x_coordinate" property="xCoordinate" jdbcType="VARCHAR" />
+    <result column="y_coordinate" property="yCoordinate" jdbcType="VARCHAR" />
+    <result column="coordinate_info" property="coordinateInfo" jdbcType="VARCHAR" />
+    <result column="unique_id" property="uniqueId" jdbcType="VARCHAR" />
+    <result column="draw_design_templet_id" property="drawDesignTempletId" jdbcType="BIGINT" />
+    <result column="is_deleted" property="isDeleted" jdbcType="SMALLINT" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    id, pic_id, house_id, space_type, space_common_id, design_templet_id, name, x_coordinate, 
+    y_coordinate, coordinate_info, unique_id, draw_design_templet_id, is_deleted, creator, 
+    modifier, gmt_create, gmt_modified
+  </sql>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from base_house_guide_pic_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" />
+    from base_house_guide_pic_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <insert id="insert" parameterType="com.nork.render.model.BaseHouseGuidePicInfo" >
+    insert into base_house_guide_pic_info (id, pic_id, house_id, 
+      space_type, space_common_id, design_templet_id, 
+      name, x_coordinate, y_coordinate, 
+      coordinate_info, unique_id, draw_design_templet_id, 
+      is_deleted, creator, modifier, 
+      gmt_create, gmt_modified)
+    values (#{id,jdbcType=BIGINT}, #{picId,jdbcType=BIGINT}, #{houseId,jdbcType=BIGINT},
+      #{spaceType,jdbcType=SMALLINT}, #{spaceCommonId,jdbcType=BIGINT}, #{designTempletId,jdbcType=BIGINT},
+      #{name,jdbcType=VARCHAR}, #{xCoordinate,jdbcType=VARCHAR}, #{yCoordinate,jdbcType=VARCHAR},
+      #{coordinateInfo,jdbcType=VARCHAR}, #{uniqueId,jdbcType=VARCHAR}, #{drawDesignTempletId,jdbcType=BIGINT},
+      #{isDeleted,jdbcType=SMALLINT}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.nork.render.model.BaseHouseGuidePicInfo" >
+    insert into base_house_guide_pic_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="picId != null" >
+        pic_id,
+      </if>
+      <if test="houseId != null" >
+        house_id,
+      </if>
+      <if test="spaceType != null" >
+        space_type,
+      </if>
+      <if test="spaceCommonId != null" >
+        space_common_id,
+      </if>
+      <if test="designTempletId != null" >
+        design_templet_id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="xCoordinate != null" >
+        x_coordinate,
+      </if>
+      <if test="yCoordinate != null" >
+        y_coordinate,
+      </if>
+      <if test="coordinateInfo != null" >
+        coordinate_info,
+      </if>
+      <if test="uniqueId != null" >
+        unique_id,
+      </if>
+      <if test="drawDesignTempletId != null" >
+        draw_design_templet_id,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="picId != null" >
+        #{picId,jdbcType=BIGINT},
+      </if>
+      <if test="houseId != null" >
+        #{houseId,jdbcType=BIGINT},
+      </if>
+      <if test="spaceType != null" >
+        #{spaceType,jdbcType=SMALLINT},
+      </if>
+      <if test="spaceCommonId != null" >
+        #{spaceCommonId,jdbcType=BIGINT},
+      </if>
+      <if test="designTempletId != null" >
+        #{designTempletId,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="xCoordinate != null" >
+        #{xCoordinate,jdbcType=VARCHAR},
+      </if>
+      <if test="yCoordinate != null" >
+        #{yCoordinate,jdbcType=VARCHAR},
+      </if>
+      <if test="coordinateInfo != null" >
+        #{coordinateInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="uniqueId != null" >
+        #{uniqueId,jdbcType=VARCHAR},
+      </if>
+      <if test="drawDesignTempletId != null" >
+        #{drawDesignTempletId,jdbcType=BIGINT},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=SMALLINT},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.nork.render.model.BaseHouseGuidePicInfo" >
+    update base_house_guide_pic_info
+    <set >
+      <if test="picId != null" >
+        pic_id = #{picId,jdbcType=BIGINT},
+      </if>
+      <if test="houseId != null" >
+        house_id = #{houseId,jdbcType=BIGINT},
+      </if>
+      <if test="spaceType != null" >
+        space_type = #{spaceType,jdbcType=SMALLINT},
+      </if>
+      <if test="spaceCommonId != null" >
+        space_common_id = #{spaceCommonId,jdbcType=BIGINT},
+      </if>
+      <if test="designTempletId != null" >
+        design_templet_id = #{designTempletId,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="xCoordinate != null" >
+        x_coordinate = #{xCoordinate,jdbcType=VARCHAR},
+      </if>
+      <if test="yCoordinate != null" >
+        y_coordinate = #{yCoordinate,jdbcType=VARCHAR},
+      </if>
+      <if test="coordinateInfo != null" >
+        coordinate_info = #{coordinateInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="uniqueId != null" >
+        unique_id = #{uniqueId,jdbcType=VARCHAR},
+      </if>
+      <if test="drawDesignTempletId != null" >
+        draw_design_templet_id = #{drawDesignTempletId,jdbcType=BIGINT},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=SMALLINT},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.nork.render.model.BaseHouseGuidePicInfo" >
+    update base_house_guide_pic_info
+    set pic_id = #{picId,jdbcType=BIGINT},
+      house_id = #{houseId,jdbcType=BIGINT},
+      space_type = #{spaceType,jdbcType=SMALLINT},
+      space_common_id = #{spaceCommonId,jdbcType=BIGINT},
+      design_templet_id = #{designTempletId,jdbcType=BIGINT},
+      name = #{name,jdbcType=VARCHAR},
+      x_coordinate = #{xCoordinate,jdbcType=VARCHAR},
+      y_coordinate = #{yCoordinate,jdbcType=VARCHAR},
+      coordinate_info = #{coordinateInfo,jdbcType=VARCHAR},
+      unique_id = #{uniqueId,jdbcType=VARCHAR},
+      draw_design_templet_id = #{drawDesignTempletId,jdbcType=BIGINT},
+      is_deleted = #{isDeleted,jdbcType=SMALLINT},
+      creator = #{creator,jdbcType=VARCHAR},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="selectList" resultMap="BaseResultMap" parameterType="com.nork.render.model.BaseHouseGuidePicInfo">
+    select
+    <include refid="Base_Column_List" />
+    from base_house_guide_pic_info
+    where 1=1
+    <if test="picId != null" >
+        and pic_id = #{picId,jdbcType=BIGINT}
+    </if>
+    <if test="houseId != null" >
+        and house_id = #{houseId,jdbcType=BIGINT}
+    </if>
+    <if test="spaceType != null" >
+       and space_type = #{spaceType,jdbcType=SMALLINT}
+    </if>
+    <if test="spaceCommonId != null" >
+       and space_common_id = #{spaceCommonId,jdbcType=BIGINT}
+    </if>
+    <if test="designTempletId != null" >
+       and design_templet_id = #{designTempletId,jdbcType=BIGINT}
+    </if>
+    <if test="name != null" >
+       and name = #{name,jdbcType=VARCHAR}
+    </if>
+    <if test="xCoordinate != null" >
+       andx_coordinate = #{xCoordinate,jdbcType=VARCHAR}
+    </if>
+    <if test="yCoordinate != null" >
+       and y_coordinate = #{yCoordinate,jdbcType=VARCHAR}
+    </if>
+    <if test="coordinateInfo != null" >
+       and coordinate_info = #{coordinateInfo,jdbcType=VARCHAR}
+    </if>
+    <if test="uniqueId != null" >
+       and unique_id = #{uniqueId,jdbcType=VARCHAR}
+    </if>
+    <if test="drawDesignTempletId != null" >
+       and draw_design_templet_id = #{drawDesignTempletId,jdbcType=BIGINT}
+    </if>
+    <if test="isDeleted != null" >
+       and is_deleted = #{isDeleted,jdbcType=SMALLINT}
+    </if>
+    <if test="creator != null" >
+       and creator = #{creator,jdbcType=VARCHAR}
+    </if>
+    <if test="modifier != null" >
+       and modifier = #{modifier,jdbcType=VARCHAR}
+    </if>
+    <if test="gmtCreate != null" >
+       and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+    </if>
+    <if test="gmtModified != null" >
+      and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+    </if>
+
+  </select>
+
+</mapper>

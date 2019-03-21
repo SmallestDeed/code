@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.sandu.service.system.dao.SysUserBankcardInfoMapper">
+
+	<resultMap id="BaseResultMap"
+		type="com.sandu.api.system.model.SysUserBankcardInfo">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="card_number" jdbcType="VARCHAR"
+			property="cardNumber" />
+		<result column="issuing_bank_value" jdbcType="TINYINT"
+			property="issuingBankValue" />
+		<result column="sub_branch_info" jdbcType="VARCHAR"
+			property="subBranchInfo" />
+		<result column="user_id" jdbcType="BIGINT" property="userId" />
+		<result column="creator" jdbcType="VARCHAR" property="creator" />
+		<result column="gmt_create" jdbcType="TIMESTAMP"
+			property="gmtCreate" />
+		<result column="modifier" jdbcType="VARCHAR"
+			property="modifier" />
+		<result column="gmt_modified" jdbcType="TIMESTAMP"
+			property="gmtModified" />
+		<result column="is_deleted" jdbcType="TINYINT"
+			property="isDeleted" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, name, card_number, issuing_bank_value, sub_branch_info, user_id,
+		creator, gmt_create,
+		modifier, gmt_modified, is_deleted
+	</sql>
+
+	<select id="selectByPrimaryKey" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from sys_user_bankcard_info
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from sys_user_bankcard_info
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+
+	<insert id="insert"
+		parameterType="com.sandu.api.system.model.SysUserBankcardInfo">
+		insert into sys_user_bankcard_info (id, name, card_number,
+		issuing_bank_value, sub_branch_info, user_id,
+		creator, gmt_create, modifier,
+		gmt_modified, is_deleted)
+		values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR},
+		#{cardNumber,jdbcType=VARCHAR},
+		#{issuingBankValue,jdbcType=TINYINT}, #{subBranchInfo,jdbcType=VARCHAR}, #{userId,jdbcType=BIGINT},
+		#{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP},
+		#{modifier,jdbcType=VARCHAR},
+		#{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=TINYINT})
+	</insert>
+
+	<insert id="insertSelective"
+		parameterType="com.sandu.api.system.model.SysUserBankcardInfo">
+		insert into sys_user_bankcard_info
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="name != null">
+				name,
+			</if>
+			<if test="cardNumber != null">
+				card_number,
+			</if>
+			<if test="issuingBankValue != null">
+				issuing_bank_value,
+			</if>
+			<if test="subBranchInfo != null">
+				sub_branch_info,
+			</if>
+			<if test="userId != null">
+				user_id,
+			</if>
+			<if test="creator != null">
+				creator,
+			</if>
+			<if test="gmtCreate != null">
+				gmt_create,
+			</if>
+			<if test="modifier != null">
+				modifier,
+			</if>
+			<if test="gmtModified != null">
+				gmt_modified,
+			</if>
+			<if test="isDeleted != null">
+				is_deleted,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="cardNumber != null">
+				#{cardNumber,jdbcType=VARCHAR},
+			</if>
+			<if test="issuingBankValue != null">
+				#{issuingBankValue,jdbcType=TINYINT},
+			</if>
+			<if test="subBranchInfo != null">
+				#{subBranchInfo,jdbcType=VARCHAR},
+			</if>
+			<if test="userId != null">
+				#{userId,jdbcType=BIGINT},
+			</if>
+			<if test="creator != null">
+				#{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtCreate != null">
+				#{gmtCreate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifier != null">
+				#{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null">
+				#{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDeleted != null">
+				#{isDeleted,jdbcType=TINYINT},
+			</if>
+		</trim>
+	</insert>
+
+	<update id="updateByPrimaryKeySelective"
+		parameterType="com.sandu.api.system.model.SysUserBankcardInfo">
+		update sys_user_bankcard_info
+		<set>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="cardNumber != null">
+				card_number = #{cardNumber,jdbcType=VARCHAR},
+			</if>
+			<if test="issuingBankValue != null">
+				issuing_bank_value = #{issuingBankValue,jdbcType=TINYINT},
+			</if>
+			<if test="subBranchInfo != null">
+				sub_branch_info = #{subBranchInfo,jdbcType=VARCHAR},
+			</if>
+			<if test="userId != null">
+				user_id = #{userId,jdbcType=BIGINT},
+			</if>
+			<if test="creator != null">
+				creator = #{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtCreate != null">
+				gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifier != null">
+				modifier = #{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null">
+				gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDeleted != null">
+				is_deleted = #{isDeleted,jdbcType=TINYINT},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="updateByPrimaryKey"
+		parameterType="com.sandu.api.system.model.SysUserBankcardInfo">
+		update sys_user_bankcard_info
+		set name = #{name,jdbcType=VARCHAR},
+		card_number = #{cardNumber,jdbcType=VARCHAR},
+		issuing_bank_value = #{issuingBankValue,jdbcType=TINYINT},
+		sub_branch_info = #{subBranchInfo,jdbcType=VARCHAR},
+		user_id = #{userId,jdbcType=BIGINT},
+		creator = #{creator,jdbcType=VARCHAR},
+		gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+		modifier = #{modifier,jdbcType=VARCHAR},
+		gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+		is_deleted = #{isDeleted,jdbcType=TINYINT}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<select id="selectListBySearch" resultType="com.sandu.api.system.model.SysUserBankcardInfo" parameterType="com.sandu.api.system.search.SysUserBankcardInfoSearch">
+		select
+		<include refid="Base_Column_List" />
+		from sys_user_bankcard_info
+		<where>
+			<if test="userId != null">
+				and user_id = #{userId}
+			</if>
+			<if test="isDeleted != null">
+				and is_deleted = #{isDeleted}
+			</if>
+		</where>
+	</select>
+
+	<select id="selectCountBySearch" resultType="int" parameterType="com.sandu.api.system.search.SysUserBankcardInfoSearch">
+		select
+		count(1)
+		from sys_user_bankcard_info
+		<where>
+			<if test="userId != null">
+				and user_id = #{userId}
+			</if>
+			<if test="isDeleted != null">
+				and is_deleted = #{isDeleted}
+			</if>
+		</where>
+	</select>
+
+</mapper>

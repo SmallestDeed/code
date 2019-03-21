@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.user.dao.SysRoleGroupDao">
+	<update id="updateUserRoleGroup">
+		update sys_user_role_group
+		<set>
+			<if test="isDeleted != null"> is_deleted = #{isDeleted}, </if>
+		</set>
+		where id in
+		<foreach collection="list" item="item" open="(" close=")" separator=",">
+			#{item.id}
+		</foreach>
+	</update>
+
+	<select id="selectRoleGroupsByUserId" resultType="com.sandu.api.user.model.SysUserRoleGroup">
+		select userRoleGroup.* 
+			from sys_role_group roleGroup
+			join sys_user_role_group userRoleGroup on roleGroup.id = userRoleGroup.role_group_id
+			where userRoleGroup.user_id=#{userId}
+			and userRoleGroup.is_deleted = 0;
+	</select>
+	
+	<insert id="batchInsertUserRoleGroupSet" parameterType="com.sandu.api.user.model.SysUserRoleGroup">
+		INSERT INTO sys_user_role_group
+		(
+			user_id, role_group_id, creator, gmt_create, 
+			modifier, gmt_modified, is_deleted
+		)
+		values
+		<foreach collection="urgs" item="item" index="index"  separator="," >
+			(#{item.userId},#{item.roleGroupId},#{item.creator},#{item.gmtCreate},
+			#{item.modifier},#{item.gmtModified},#{item.isDeleted}
+			)
+		</foreach>
+		
+	</insert>
+
+	<select id="listRoleGroup" resultType="com.sandu.api.user.output.RoleGroupVO">
+		SELECT rg.id, rg.name, rg.type FROM sys_role_group rg WHERE rg.is_deleted = 0
+		<if test="type != null"> AND rg.type IN (0, #{type}) </if>
+	</select>
+
+	<select id="listAvailableRoleGroup" resultType="com.sandu.api.user.model.SysUserRoleGroup">
+		select id, user_id, role_group_id, is_deleted from sys_user_role_group where user_id = #{userId}
+	</select>
+
+	<update id="batchDel">
+		update
+		sys_user_role_group
+		set
+		is_deleted = 1
+		WHERE
+		user_id = #{userId}
+		and role_group_id in
+		<foreach collection="roleGroupIds" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</update>
+</mapper>

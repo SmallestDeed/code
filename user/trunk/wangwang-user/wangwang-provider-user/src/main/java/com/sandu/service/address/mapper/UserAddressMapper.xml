@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.address.dao.UserAddressDao">
+
+    <!--新增用户地址-->
+    <insert id="insert" parameterType="com.sandu.api.address.model.MallUserAddress">
+        INSERT INTO mall_user_address (address_name,user_id,consignee,
+        province,city,district,address,zipcode,mobile,
+        sys_code,creator,gmt_create,modifier,is_deleted
+        )
+        VALUES (#{addressName},#{userId},#{consignee},#{province},
+        #{city},#{district},#{address},#{zipcode},#{mobile},
+        #{sysCode},#{creator},#{gmtCreate},#{modifier},#{isDeleted})
+    </insert>
+
+    <!--删除用户地址-->
+    <delete id="delete" parameterType="java.lang.Long" >
+        DELETE FROM mall_user_address WHERE id = #{addressId}
+    </delete>
+
+    <!--通过id查询用户地址-->
+    <select id="selectById" parameterType="java.lang.Long" resultType="com.sandu.api.address.model.MallUserAddress">
+        SELECT *
+        FROM mall_user_address
+        WHERE id = #{addressId}
+    </select>
+
+    <!--通过用户Id查询用户地址列表-->
+    <select id="selectList" parameterType="java.lang.Long" resultType="com.sandu.api.address.model.MallUserAddress">
+        SELECT *
+        FROM mall_user_address
+        WHERE user_id = #{userId}
+    </select>
+
+</mapper>

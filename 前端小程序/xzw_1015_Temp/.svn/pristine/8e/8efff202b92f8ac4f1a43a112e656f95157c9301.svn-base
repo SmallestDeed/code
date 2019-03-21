@@ -1,0 +1,193 @@
+<!-- /pages/course/course?img=/AA/bannerpic/upload//1540262173881.png -->
+<view class="bgView">
+  <view class='viewRows'>
+    <!-- <view class="search">
+      <view class="am-dropdown {{isShowCitys?'am-active':''}}" bindtap="toggleCitys">
+        <view class="am-dropdown-toggle" data-am-dropdown-toggle>{{cityItem.areaName||"全部"}}
+          <image src='/static/image/selD.png'></image>
+        </view>
+      </view>
+    </view> -->
+    <view class='newsView' wx:if="{{!showNews}}" data-url="/pages/my-news/my-news" bindtap='navigat'>
+      <image src='/static/image/home-news.png'></image>
+      <view wx:if='{{systemNewObj.isRead == 0 || unreadMsg == 1 || renderMessageIsRead === 1}}' class='render-logo-hint'></view>
+    </view>
+  </view>
+  <swiper circular class='swiper-box' indicator-dots="{{imageArray.length>1}}" autoplay="true" duration="1000">
+    <swiper-item class="scroll-view-item swiper-cover" wx:for="{{imageArray}}" wx:key="{{index}}">
+      <image class='bgImg' src='{{item.picPath }}' data-url='{{item.skipPath}}' data-type='{{item.type}}' bindtap='navigat'></image>
+    </swiper-item>
+  </swiper>
+</view>
+
+<view class='gridView clearfix'>
+  <view class='items' catchtap='navigat' data-url='bHIndex'>
+    <image src='../../static/image/furnishing.png'></image>
+    <view>找商品</view>
+  </view>
+  <view class='items' catchtap='navigat' data-url='/pages/decoration/brandList/brandList?tab=3&name=设计师&code='>
+    <image src='../../static/image/design.png'></image>
+    <view>找设计</view>
+  </view>
+  <view class='items' catchtap='navigat' data-url='/pages/decoration/brandList/brandList?tab=5&name=装修公司&code='>
+    <image src='../../static/image/renovation.png'></image>
+    <view>找装修</view>
+  </view>
+  <view class='items' catchtap='navigat' data-url='/pages/decoration/supplyList/supplyList?id=2,5&' data-type="信息栏">
+    <image src='../../static/image/info.png'></image>
+    <view>信息栏</view>
+  </view>
+  <view class='clearfix'></view>
+  <view class='iconRow'>
+    <view bindtap='navigat' data-url='/pages/landing/landing?userId={{userid}}'>
+      <text class='big'>免费报价</text>
+      <text class='small'>装修需要多少钱</text>
+      <image src='{{staticImage}}home_icon_free.png' style='width:95rpx; height:112rpx'></image>
+    </view>
+    <view bindtap='navigat' data-url='/pages/enterprise-entry/enterprise-entry'>
+      <text class='big'>企业入驻</text>
+      <text class='small'>一键快递抢单</text>
+      <image src='{{staticImage}}/home_icon_qiye.png' style='width:120rpx; height:100rpx'></image>
+    </view>
+  </view>
+</view>
+
+<view class='caseMain'>
+  <view class='title'>
+    装修案例
+    <view class='showMore' bindtap='toCase'>查看更多
+      <image src='../../static/image/more.png'></image>
+    </view>
+  </view>
+  <view class='caseBody'>
+    <view class='items' wx:for="{{caseObj}}" 
+      wx:key="key" wx:for-index="key" 
+      wx:for-index="i" 
+      wx:if='{{(i<=1||showType)&&value}}'
+    wx:for-item="value">
+      <view class='typeName' wx:if='{{value.designPlanRecommendedSuperiorList.length > 0}} '>{{value.spaceName}}</view>
+      <scroll-view scroll-x='true'>
+        <view class="items-item scroll-item" 
+          wx:for='{{value.designPlanRecommendedSuperiorList}}' 
+          wx:for-item="val" wx:key='{{index}}'>
+          <case-list 
+            recommendCaseList='{{[val]}}' 
+            border='{{true}}' 
+            isHomeCase='{{true}}' showCopyRightPrice='{{true}}' 
+            bindshowDecoratePriceBox='showDecoratePriceBox'></case-list>
+        </view>
+      </scroll-view>
+    </view>
+    <view class='showType' bindtap='changeType'>{{showType?'收起分类':'更多分类'}}
+      <image class='{{showType?"active":""}}' src='../../static/image/more.png'></image>
+    </view>
+  </view>
+
+</view>
+
+<view class='showMoreView' wx:if='{{popularList1.length>0}}'>
+  <view class='title'>
+    设计大咖
+    <view class='showMore' bindtap='navigatTo' data-url='/pages/decoration/brandList/brandList' data-tab='3' data-name="设计师">查看更多
+      <image src='../../static/image/more.png'></image>
+    </view>
+  </view>
+  <swiper>
+    <swiper-item class="scroll-view-item swiper-cover" wx:for='{{popularList1}}' wx:key='{{index}}'>
+      <view wx:for="{{item}}" wx:for-item="popular" wx:for-index="i" wx:key="{{i}}" catchtap='toDetail' data-id='{{popular.shopId}}'>
+        <image src='{{resourcePath+popular.picPath}}'></image>
+        <view class='views1'>
+          <view class='p1'>{{popular.shopName}}</view>
+        </view>
+      </view>
+    </swiper-item>
+  </swiper>
+</view>
+<view class='popularShop'>
+  <view class='title'>
+    品牌设计
+    <view class='showMore' bindtap='navigatTo' data-url='/pages/decoration/brandList/brandList' data-tab='4' data-name="设计公司">
+      查看更多
+      <image src='../../static/image/more.png'></image>
+    </view>
+  </view>
+  <swiper class="scroll-view-box">
+    <swiper-item class='shopList {{index ? "pl15" : ""}}' wx:for='{{popularList2}}' wx:key='{{index}}' catchtap='toDetail' data-id='{{item.shopId}}'>
+      <view class='shop-image'>
+        <image src='{{item.caseCoverPath?resourcePath+item.caseCoverPath: "/static/image/goods_pic_no.png"}}'></image>
+      </view>
+      <view class='logo-name'>
+        <image src='{{item.picPath?resourcePath + item.picPath : "/static/image/goods_pic_no.png"}}' class='logo'></image>
+        <view class='name'>{{item.shopName}}</view>
+      </view>
+    </swiper-item>
+  </swiper>
+</view>
+<view class='popularShop' style='border-bottom:none;'>
+  <view class='title'>
+    口碑装修
+    <view class='showMore' bindtap='navigatTo' data-url='/pages/decoration/brandList/brandList' data-tab='5' data-name="装修公司">查看更多
+      <image src='../../static/image/more.png'></image>
+    </view>
+  </view>
+  <view class='shop-box top-shop-box' catchtap='toDetail' data-id='{{popularList3[0].shopId}}'>
+    <image src='{{popularList3[0].caseCoverPath?resourcePath+popularList3[0].caseCoverPath:"/static/image/goods_pic_no.png"}}'></image>
+    <view class='shop-box-message clearfix'>
+      <view class='box-message-image fl'>
+        <image src='{{popularList3[0].picPath?resourcePath + popularList3[0].picPath: staticImage+"goods_pic_no.png"}}'></image>
+      </view>
+      <view class='box-message-name fl ellipsis'>{{popularList3[0].shopName}}</view>
+    </view>
+  </view>
+  <swiper class="praise-container">
+    <swiper-item class="praise-content" wx:for='{{praiseList}}' wx:key='{{index}}'>
+      <view class='shop-box bottom-shop-box' wx:for="{{item}}" wx:for-item="praise" wx:for-index="i" catchtap='toDetail' data-id='{{praise.shopId}}' wx:key="{{i}}">
+        <image mode='aspectFill' src='{{praise.caseCoverPath ? resourcePath + praise.caseCoverPath :staticImage+"goods_pic_no.png"}}'></image>
+        <view class='shop-box-message clearfix'>
+          <view class='box-message-image fl'>
+            <image mode='aspectFill' src='{{praise.picPath?resourcePath + praise.picPath: staticImage+"goods_pic_no.png"}}'></image>
+          </view>
+          <view class='box-message-name fl box-message-short-name ellipsis'>{{praise.shopName}}</view>
+        </view>
+      </view>
+    </swiper-item>
+  </swiper>
+</view>
+<view class='to-top' wx:if='{{ifShowToTopLogo}}' catchtap='goToTop'>
+  <image src='/static/image/to_top.png'></image>
+</view>
+<view class='homeZzc' wx:if="{{showZzc}}"></view>
+<view class='homeToast' catchtap='toNav' wx:if="{{showZzc}}">
+  <image src='{{staticImage+"home_pop_free.png"}}'></image>
+  <view class='btns' catchtap='navigat' data-url='/pages/landing/landing?userId={{userid}}'>立即计算</view>
+  <image class='closeImg' catchtap="openZzc" src='{{staticImage+"home_icon_close.png"}}'></image>
+</view>
+<!-- 装修报价说明弹框 -->
+<view class='decorate-mask' wx:if='{{decoratePriceBox}}' catchtouchmove='{{true}}'>
+  <view class='decorate-price-box'>
+    <view class='price-box-title'>装修报价</view>
+    <view class='price-box-list'>
+      <view class='price-box-item' wx:for='{{decoratePriceList}}' wx:key='{{index}}'>
+        <view class='box-item-main clearfix'>
+          <view class='fl'>{{item.decorateTypeName}}</view>
+          <view class='fr'>￥{{item.decoratePrice}}/m²</view>
+        </view>
+        <view class='box-item-secondary'>{{item.text}}</view>
+      </view>
+    </view>
+    <view class='price-box-confirm' catchtap='hideDecoratePriceBox'>我知道了</view>
+  </view>
+</view>
+<!-- 一键家装弹窗 -->
+<view class='homePopup' wx:if="{{homePopup}}" catchtouchmove="true">
+  <view class='homePopupBox'>
+    <image class='homePopupImg' src='{{staticImageUrl}}home_pop_pic.png'></image>
+    <image class='goDesignImg'
+    catchtap='navigat2'
+    data-url="/pages/course/course"
+    src='{{staticImageUrl}}home_pop_btn.png'></image>
+    <image class='closeButtonImg'
+    catchtap='closeButton'
+    src='{{staticImageUrl}}home_pop_close.png'></image>
+  </view>
+</view>

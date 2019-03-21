@@ -1,0 +1,116 @@
+package com.sandu.design.service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+
+import com.sandu.common.model.LoginUser;
+import com.sandu.design.model.DesignPlan;
+import com.sandu.design.model.DesignPlanModel;
+import com.sandu.design.model.DesignPlanProduct;
+import com.sandu.design.model.DesignPlanRecommended;
+import com.sandu.design.model.DesignTemplet;
+import com.sandu.design.model.PosNameInfo;
+import com.sandu.design.model.UnityDesignPlan;
+import com.sandu.design.model.UnityPlanProduct;
+import com.sandu.product.model.BaseProduct;
+
+public interface DesignPlanService {
+
+	public DesignPlan createDesignPlanForOneKey(DesignPlan designPlan,DesignPlanRecommended designPlanRecommended,
+			DesignTemplet designTemplet,String mediaType,LoginUser loginUser, Integer isDeleted, Integer opType);
+	
+	/**
+	 *    更新数据
+	 * @param designPlan
+	 * @return  int 
+	 */
+	public int update(DesignPlan designPlan);
+	
+	/**
+     * 根据配置文件新建设计方案,返回设计方案id
+     * 
+     * @author huangsongbo
+     * @param designTempletId
+     * @param recommendedPlanId
+     * @param configEncrypt
+     * @param loginUser 
+     * @param mediaType 
+     * @param posNameInfoList 
+     * @return
+     */
+	public Integer createPlanByConfig(
+			Integer designTempletId, Integer recommendedPlanId,
+			String configEncrypt, String mediaType,
+			LoginUser loginUser, List<PosNameInfo> posNameInfoList,
+			Integer opType);
+	
+	/**
+	 * 获取进入设计方案信息
+	 * @param designPlanId
+	 * @param newFlag
+	 * @param houseId
+	 * @param livingId
+	 * @param residentialUnitsName
+	 * @param nO_CACHE 
+	 * @param request
+	 * @return Object
+	 */
+	public Object getDesignPlanInfoForOneKey(Integer designPlanId,Integer newFlag,String houseId,String livingId,String residentialUnitsName, Boolean isRelease, LoginUser loginUser, String mediaType, String needOrNoCache);
+	
+	/**
+	 * describe: 获取初始白膜类型
+	 * creat_user: xiaoxc
+	 * creat_date: 2017-09-05
+	 **/
+	public UnityDesignPlan wrapperData(Integer designPlanId, UnityDesignPlan unityDesignPlan);
+	
+	/**
+     * 进入设计方案
+     * @param houseId   户型ID
+     * @param livingId  小区ID
+     * @param designPlanId  设计方案ID
+     * @param newFlag
+     * @param loginUser 登录用户信息
+     * @param isRelease
+     * @param modelType
+     * @return
+     */
+	Object getDesignPlan(String houseId, String livingId, Integer designPlanId, String residentialUnitsName,
+			Integer newFlag, String msgId, LoginUser loginUser, Boolean isRelease, String mediaType, Long startTime,
+			String modelType);
+
+	int add(DesignPlan designPlan);
+
+	DesignPlan get(Integer id);
+
+	DesignPlanModel selectDesignPlanInfo(Integer id);
+
+	void getProductCeilingVO(UnityPlanProduct unityPlanProduct, DesignPlanProduct planProduct, BaseProduct baseProduct,
+			List<Integer> putawayStateList);
+	
+	/**
+	 * 获取进入设计方案信息
+	 * @param designPlanId
+	 * @param newFlag
+	 * @param houseId
+	 * @param livingId
+	 * @param residentialUnitsName
+	 * @param nO_CACHE
+	 * @param request
+	 * @return Object
+	 */
+	public Object getDesignPlanInfo(Integer designPlanId,Integer newFlag,String houseId,String livingId,String residentialUnitsName, Boolean isRelease, LoginUser loginUser, String mediaType, String needOrNoCache,String modelType);
+
+	UnityPlanProduct getPlanProductStructureJson(UnityPlanProduct unityPlanProduct, DesignPlanProduct planProduct,
+			DesignPlanModel designPlan, LoginUser loginUser);
+
+	List<UnityPlanProduct> getDecorationNavigationInfo(List<UnityPlanProduct> unityPlanProductList,
+			List<UnityPlanProduct> newUnityPlanProductList, TreeSet<String> productTypeCodeSet,
+			Map<String, UnityPlanProduct> unityPlanProductMap_p);
+	
+	DesignPlanModel selectIosDesignPlanInfo(Integer id);
+	
+	DesignPlanModel selectAndroidDesignPlanInfo(Integer id);
+	
+}

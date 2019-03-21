@@ -1,0 +1,93 @@
+package com.nork.common.properties;
+
+import com.nork.common.util.Utils;
+
+import java.util.ResourceBundle;
+
+public class AppProperties {
+
+	public static final ResourceBundle APP=ResourceBundle.getBundle("app");
+	
+	public static final String SYSTEM_FORMAT_FILEKEY = "app.system.format";
+	
+	/**系统默认上传根目录*/
+	public static final String UPLOAD_ROOT_FILEKEY = "app.upload.root";
+	
+	/**
+	 * app.resources.encrypt.upload.root.distribute 加密文件分布式存储路径配置
+	 */
+	public static final String APP_RESOURCES_ENCRYPT_UPLOAD_ROOT_DISTRIBUTE_FILEKEY = "app.resources.encrypt.upload.root.distribute";
+	
+	public static final String DEL_RESOURCE_BAK = "del_resource_bak";
+	/**
+	 * app.upload.root.distribute 分布式未加密文件上传路径配置
+	 */
+	public static final String APP_RESOURCES_UPLOAD_ROOT_DISTRIBUTE_FILEKEY = "app.resources.upload.root.distribute";
+	
+	/**
+	 * app.resources.url.distribute 分布式文件域名配置
+	 */
+	public static final String APP_RESOURCES_URL_DISTRIBUTE_FILEKEY = "app.resources.url.distribute";
+	
+	public static final String RESOURCES_URL_FILEKEY = "app.resources.url";
+	
+	/**
+	 * 背景墙所有小分类
+	 */
+	public static final String SMALLPRODUCTTYPE_BEIJINGWALL_FILEKEY = "app.smallProductType.beiJingWall";
+	
+	/**
+	 * 产品系列分类配置
+	 */
+	public static final String DESIGN_PRODUCT_SERIES_CONFIG_FILEKEY = "design.product.series.config";
+
+	/**
+	 * app产品搜索全铺长度拉伸缩放分类长度比例配置
+	 */
+	public static final String APP_SEARCH_STRETCH_ZOOM_PRODUCT_TYPE = "app.search.stretch.zoom.product.type";
+
+	/**
+	 * 产品互搜、互相匹配配置
+	 */
+	public static final String PRODUCT_SEARCHPRODUCT_SHOWMORESMALLTYPE_FILEKEY = "product.searchProduct.showMoreSmallType";
+
+	/**
+	 * in 小类List配置
+	 */
+	public static final String SPECIAL_PRODUCTTYPE_FILEKEY = "special.productType";
+	
+	/**
+	 * 替换浴缸/面盆,要把水龙头带上(浴缸/面盆与对应水龙头绑定关系)
+	 */
+	public static final String PRODUCT_SEARCHPRODUCTFORREPLACETUB_REPLACETUBPROPERTIES = "app.product.searchProductForReplaceTub.replaceTubProperties";
+	
+	/**
+	 * 外部用户用户类型
+	 */
+	public static final String APP_SYSUSER_EXTERNALUSER_FILEKEY = "app.sysUser.externalUser";
+
+	/**
+	 * app多个服务化地址配置
+	 */
+	public static final String APP_SERVITIZATION_URLS = "app.servitization.urls";
+	/**
+         * 序列号是否绑定三度空间
+         */
+        public static final String APP_SYSUSRE_ISSANDU= "app.sysUser.isSandu";
+
+	/**
+	 * 设计空间布局类型分配
+	 */
+	public static final String DESIGN_SPACE_LAYOUT_TYPE = "design.space.layout.type";
+
+	/**
+	 * 产品默认天花截面数据
+	 */
+	public static final String PRODUCT_DEFAULT_CEILING_CROSS_SECTION_DATA = "product.default.ceiling.cross.section.data";
+
+	/**
+	 * 默认天花截面产品数据ID
+	 */
+	public static final String DEFAULT_JIEM_TIANH_PRODUCT_ID = "default.jiem.tianh.product.id";
+
+}

@@ -1,0 +1,61 @@
+package com.sandu.search.service.groupproduct.impl;
+
+import com.sandu.search.common.constant.IndexInfoQueryConfig;
+import com.sandu.search.common.constant.QueryConditionField;
+import com.sandu.search.entity.elasticsearch.constant.IndexConstant;
+import com.sandu.search.entity.elasticsearch.index.GroupProductIndexMappingData;
+import com.sandu.search.entity.elasticsearch.response.SearchObjectResponse;
+import com.sandu.search.exception.ElasticSearchException;
+import com.sandu.search.exception.GroupProductSearchException;
+import com.sandu.search.service.elasticsearch.ElasticSearchService;
+import com.sandu.search.service.groupproduct.GroupProductSearchService;
+import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.List;
+
+@Service("groupProductSearchService")
+@Slf4j
+public class GroupProductSearchServiceImpl implements GroupProductSearchService {
+
+    private final static String CLASS_LOG_PREFIX = "组合产品搜索服务";
+
+    private final ElasticSearchService elasticSearchService;
+
+    @Autowired
+    public GroupProductSearchServiceImpl(ElasticSearchService elasticSearchService) {
+        this.elasticSearchService = elasticSearchService;
+    }
+
+    @Override
+    public GroupProductIndexMappingData SearchGroupProductById(Integer groupId) throws GroupProductSearchException{
+        if (null == groupId || 0 >= groupId) {
+            return null;
+        }
+
+        //构造查询体
+        QueryBuilder matchQueryBuilder = QueryBuilders.matchQuery(QueryConditionField.QUERY_CONDITION_FIELD_GROUP_PRODUCT_ID, groupId);
+
+        SearchObjectResponse searchObjectResponse;
+        try {
+            searchObjectResponse = elasticSearchService.search(Collections.singletonList(matchQueryBuilder),null,null,null,null, IndexInfoQueryConfig.DEFAULT_SEARCH_DATA_START,1, IndexConstant.GROUP_PRODUCT_INFO);
+        } catch (ElasticSearchException e) {
+            log.error(CLASS_LOG_PREFIX + "通过组合id搜索组合异常,QueryBuilder={},exception={}", matchQueryBuilder, e);
+            throw new GroupProductSearchException(CLASS_LOG_PREFIX + "搜索组合异常，QueryBuilder="+matchQueryBuilder+",exception="+e);
+        }
+
+        if (null != searchObjectResponse) {
+            List<GroupProductIndexMappingData> list = (List<GroupProductIndexMappingData>) searchObjectResponse.getHitResult();
+            if (null != list && 0 < list.size()) {
+                return list.get(0);
+            }
+        }
+
+        return null;
+
+    }
+}

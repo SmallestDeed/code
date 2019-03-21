@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.goods.dao.BaseGoodsSKUMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.goods.model.BaseGoodsSKU" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="product_id" property="productId" jdbcType="INTEGER" />
+    <result column="spu_id" property="spuId" jdbcType="INTEGER" />
+    <result column="attribute_ids" property="attributeIds" jdbcType="VARCHAR" />
+    <result column="inventory" property="inventory" jdbcType="INTEGER" />
+    <result column="price" property="price" jdbcType="DECIMAL" />
+    <result column="list_pic_id" property="listPicId" jdbcType="INTEGER" />
+    <result column="specification_pic_id" property="specificationPicId" jdbcType="INTEGER" />
+    <result column="main_pic_id" property="mainPicId" jdbcType="INTEGER" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, product_id, spu_id, attribute_ids, inventory, price, list_pic_id, specification_pic_id, 
+    main_pic_id, creator, gmt_create, modifier, gmt_modified, is_deleted
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from base_goods_sku
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+  <resultMap id="getSkusBySpuIdResultMap" type="com.sandu.goods.model.BO.GoodsSkuBO">
+    <result column="id" property="skuId" jdbcType="INTEGER" />
+    <result column="product_id" property="productId" jdbcType="INTEGER" />
+    <result column="inventory" property="inventory" jdbcType="INTEGER" />
+    <result column="price" property="price" jdbcType="DECIMAL" />
+    <result column="specification_pic_id" property="spePicId" jdbcType="INTEGER" />
+    <result column="pic_id" property="defaultPicId" jdbcType="INTEGER" />
+    <result column="sale_price" property="salePrice" jdbcType="DECIMAL" />
+    <result column="product_name" property="productName" jdbcType="VARCHAR" />
+    <result column="fix_transport_expense" property="transportMoney" jdbcType="DECIMAL" />
+    <result column="attr_value_ids" property="attributeValueIds" jdbcType="VARCHAR"/>
+    <result column="attr_value_names" property="attributeValueNames" jdbcType="VARCHAR" />
+    <result column="product_spec" property="productSpec" jdbcType="VARCHAR" />
+    <result column="product_model_number" property="productModelNumber" jdbcType="VARCHAR" />
+    <result column="brand_name" property="brandName" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <select id="getSkusBySpuId" resultMap="getSkusBySpuIdResultMap" parameterType="java.lang.Integer" >
+    select
+        t2.id
+        ,t3.id product_id
+        ,t2.inventory
+        ,t2.price
+        ,t2.specification_pic_id
+        ,t4.pic_id
+        ,t4.sale_price
+        ,t3.product_name
+        ,t6.fix_transport_expense
+        ,group_concat(t5.attribute_value_id) attr_value_ids
+        ,group_concat(t5.attribute_value_name) attr_value_names
+        ,t3.product_spec
+        ,t3.product_model_number
+        ,t7.brand_name
+    from
+        base_goods_spu t1
+        left join base_product t3 on t3.goods_spu_id = t1.id
+        left join base_goods_sku t2 on t2.product_id = t3.id
+        inner join platform2c_product_rel t4 on t4.product_id = t3.id and t4.platform_id = 14 and t4.putaway_state = 1
+        left join product_attribute t5 on t5.product_id = t3.id
+        left join spu_sale_info t6 on t6.spu_id = t1.id
+        left join base_brand t7 on t7.id = t3.brand_id
+    where
+        t1.id = #{spuId,jdbcType=INTEGER}
+        and t1.is_deleted = 0
+    group by
+        t3.id
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from base_goods_sku
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.goods.model.BaseGoodsSKU" >
+    insert into base_goods_sku (id, product_id, spu_id, 
+      attribute_ids, inventory, price, 
+      list_pic_id, specification_pic_id, main_pic_id, 
+      creator, gmt_create, modifier, 
+      gmt_modified, is_deleted)
+    values (#{id,jdbcType=INTEGER}, #{productId,jdbcType=INTEGER}, #{spuId,jdbcType=INTEGER}, 
+      #{attributeIds,jdbcType=VARCHAR}, #{inventory,jdbcType=INTEGER}, #{price,jdbcType=DECIMAL}, 
+      #{listPicId,jdbcType=INTEGER}, #{specificationPicId,jdbcType=INTEGER}, #{mainPicId,jdbcType=INTEGER}, 
+      #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.goods.model.BaseGoodsSKU" >
+    insert into base_goods_sku
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="productId != null" >
+        product_id,
+      </if>
+      <if test="spuId != null" >
+        spu_id,
+      </if>
+      <if test="attributeIds != null" >
+        attribute_ids,
+      </if>
+      <if test="inventory != null" >
+        inventory,
+      </if>
+      <if test="price != null" >
+        price,
+      </if>
+      <if test="listPicId != null" >
+        list_pic_id,
+      </if>
+      <if test="specificationPicId != null" >
+        specification_pic_id,
+      </if>
+      <if test="mainPicId != null" >
+        main_pic_id,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="productId != null" >
+        #{productId,jdbcType=INTEGER},
+      </if>
+      <if test="spuId != null" >
+        #{spuId,jdbcType=INTEGER},
+      </if>
+      <if test="attributeIds != null" >
+        #{attributeIds,jdbcType=VARCHAR},
+      </if>
+      <if test="inventory != null" >
+        #{inventory,jdbcType=INTEGER},
+      </if>
+      <if test="price != null" >
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="listPicId != null" >
+        #{listPicId,jdbcType=INTEGER},
+      </if>
+      <if test="specificationPicId != null" >
+        #{specificationPicId,jdbcType=INTEGER},
+      </if>
+      <if test="mainPicId != null" >
+        #{mainPicId,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.goods.model.BaseGoodsSKU" >
+    update base_goods_sku
+    <set >
+      <if test="productId != null" >
+        product_id = #{productId,jdbcType=INTEGER},
+      </if>
+      <if test="spuId != null" >
+        spu_id = #{spuId,jdbcType=INTEGER},
+      </if>
+      <if test="attributeIds != null" >
+        attribute_ids = #{attributeIds,jdbcType=VARCHAR},
+      </if>
+      <if test="inventory != null" >
+        inventory = #{inventory,jdbcType=INTEGER},
+      </if>
+      <if test="price != null" >
+        price = #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="listPicId != null" >
+        list_pic_id = #{listPicId,jdbcType=INTEGER},
+      </if>
+      <if test="specificationPicId != null" >
+        specification_pic_id = #{specificationPicId,jdbcType=INTEGER},
+      </if>
+      <if test="mainPicId != null" >
+        main_pic_id = #{mainPicId,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.goods.model.BaseGoodsSKU" >
+    update base_goods_sku
+    set product_id = #{productId,jdbcType=INTEGER},
+      spu_id = #{spuId,jdbcType=INTEGER},
+      attribute_ids = #{attributeIds,jdbcType=VARCHAR},
+      inventory = #{inventory,jdbcType=INTEGER},
+      price = #{price,jdbcType=DECIMAL},
+      list_pic_id = #{listPicId,jdbcType=INTEGER},
+      specification_pic_id = #{specificationPicId,jdbcType=INTEGER},
+      main_pic_id = #{mainPicId,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="getProductIdsBySpuId" resultType="java.lang.Integer" parameterType="java.lang.Integer" >
+    select
+        id
+    from
+        base_product
+    where
+        goods_spu_id = #{spuId,jdbcType=INTEGER}
+  </select>
+
+  <resultMap id="getProductAttrBySpuIdResultMap" type="com.sandu.goods.model.BO.ProductAttrBO">
+    <result column="id" property="id" jdbcType="INTEGER" />
+    <result column="product_name" property="productName" jdbcType="VARCHAR" />
+    <result column="pic_path" property="picPath" jdbcType="VARCHAR" />
+    <result column="attrs" property="attrValueIds" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <select id="getProductAttrBySpuId" resultMap="getProductAttrBySpuIdResultMap" parameterType="java.lang.Integer" >
+    select
+        t1.id
+        ,t1.product_name
+        ,t3.pic_path
+        ,group_concat(t2.attribute_value_id) attrs
+    from
+        base_product t1
+        left join product_attribute t2 on t2.product_id = t1.id
+        left join res_pic t3 on t3.id = t1.pic_id
+    where
+        t1.goods_spu_id = #{spuId,jdbcType=INTEGER}
+    group by
+        t1.id
+  </select>
+
+  <resultMap id="getSkuPriceAndAttrResultMap" type="com.sandu.goods.model.BO.SkuPriceAndAttrBO">
+    <result column="id" property="productId" jdbcType="INTEGER" />
+    <result column="product_name" property="productName" jdbcType="VARCHAR" />
+    <result column="sku_id" property="skuId" jdbcType="INTEGER" />
+    <result column="price" property="price" jdbcType="DECIMAL" />
+    <result column="sale_price" property="salePrice" jdbcType="DECIMAL" />
+    <result column="pic_path" property="spePicPath" jdbcType="VARCHAR" />
+    <result column="default_pic_path" property="defaultPicPath" jdbcType="VARCHAR" />
+    <result column="inventory" property="inventory" jdbcType="INTEGER" />
+    <result column="fix_transport_expense" property="transportMoney" jdbcType="DECIMAL" />
+    <result column="attribute_value_ids" property="attrValueIds" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <select id="getSkuPriceAndAttr" resultMap="getSkuPriceAndAttrResultMap" parameterType="java.lang.Integer" >
+    select
+        t1.id
+        ,t1.product_name
+        ,t2.id sku_id
+        ,t2.price
+        ,t3.sale_price
+        ,t5.pic_path
+        ,t6.pic_path default_pic_path
+        ,t2.inventory
+        ,t8.fix_transport_expense
+        ,group_concat(t4.attribute_value_id) attribute_value_ids
+    from
+        base_product t1
+        left join base_goods_spu t7 on t7.id = t1.goods_spu_id
+        left join spu_sale_info t8 on t8.spu_id = t7.id
+        left join base_goods_sku t2 on t2.product_id = t1.id
+        left join platform2c_product_rel t3 on t3.product_id = t1.id
+        left join product_attribute t4 on t4.product_id = t1.id
+        left join res_pic t5 on t5.id = t2.specification_pic_id
+        left join res_pic t6 on t6.id = t3.pic_id
+    where
+        t1.goods_spu_id = #{spuId,jdbcType=INTEGER}
+        and t3.platform_id = 14
+        and t3.putaway_state = 1
+    group by
+        t1.id
+  </select>
+
+  <select id="getListByProductIdList" resultMap="BaseResultMap" parameterType="java.util.ArrayList" >
+    select
+        <include refid="Base_Column_List" />
+    from
+        base_goods_sku
+    where
+        is_deleted = 0
+        and product_id in
+        <foreach collection="collection" item="item" index="index" open="(" separator="," close=")">
+          #{item}
+        </foreach>
+  </select>
+
+  <resultMap id="getAllProductAttributeResultMap" type="com.sandu.goods.model.BO.ProductAttrBoV2">
+    <result column="id" property="productId" jdbcType="INTEGER" />
+    <result column="product_name" property="productName" jdbcType="VARCHAR" />
+    <result column="pic_id" property="picId" jdbcType="INTEGER" />
+    <result column="default_pic_id" property="defaultPicId" jdbcType="INTEGER" />
+    <result column="price" property="price" jdbcType="DECIMAL" />
+    <result column="inventory" property="inventory" jdbcType="INTEGER" />
+    <result column="sale_price" property="salePrice" jdbcType="DECIMAL" />
+    <collection property="productAttributeList" ofType="com.sandu.product.model.ProductAttribute" >
+        <result column="product_attribute_id" property="id" jdbcType="INTEGER" />
+        <result column="attribute_id" property="attributeId" jdbcType="INTEGER" />
+        <result column="attribute_name" property="attributeName" jdbcType="VARCHAR" />
+        <result column="attribute_value_id" property="attributeValueId" jdbcType="INTEGER" />
+        <result column="attribute_value_name" property="attributeValueName" jdbcType="VARCHAR" />
+    </collection>
+  </resultMap>
+
+  <select id="getAllProductAttribute" resultMap="getAllProductAttributeResultMap" parameterType="java.lang.Integer" >
+    select
+        t2.id
+        ,t2.product_name
+        ,t4.specification_pic_id pic_id
+        ,t1.pic_id default_pic_id
+        ,t3.id product_attribute_id
+        ,t3.attribute_id
+        ,t3.attribute_name
+        ,t3.attribute_value_id
+        ,t3.attribute_value_name
+        ,t4.price
+        ,t4.inventory
+        ,t5.sale_price
+    from
+        base_product t2
+        left join product_attribute t3 on t3.product_id = t2.id
+        left join base_goods_sku t4 on t4.product_id = t2.id
+        left join platform2c_product_rel t5 on t5.product_id = t2.id
+        left join base_goods_spu t1 on t1.id = t2.goods_spu_id
+    where
+        t1.id = #{spuId}
+        and t5.putaway_state = 1
+  </select>
+
+  <select id="mapGoodsSKU" resultType="com.sandu.goods.model.BO.GoodsSkuBO">
+    SELECT
+      sku.id sku_id,
+      GROUP_CONCAT(a.attribute_value_name) attribute_value_names
+    FROM
+      base_goods_sku sku
+      LEFT JOIN product_attribute a
+        ON a.product_id = sku.product_id
+    WHERE sku.id in
+      <foreach collection="list" item="item" open="(" separator="," close=")">
+        #{item}
+      </foreach>
+    GROUP BY sku.id
+  </select>
+    <update id="changeInventory" >
+        update
+            base_goods_sku
+        set
+            inventory = (inventory + #{num})
+        where
+            id = #{id}
+    </update>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

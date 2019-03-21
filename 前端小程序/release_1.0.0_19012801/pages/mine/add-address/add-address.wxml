@@ -1,0 +1,66 @@
+<view> 
+<view class='add-address'>
+  <view class='address-main'>
+    <view class='main-name clearfix'>
+      <view class='fl text'>收货人</view>
+      <view class='fl input'>
+        <input bindinput='changeInput' 
+        value='{{userInformation.consignee}}' 
+        data-type='consignee' type='text' maxlength='10' 
+        placeholder='请输入收货人姓名'>
+        </input>
+      </view>
+    </view>
+    <view class='main-phone clearfix'>
+     <view class='fl text'>手机号</view>
+     <view class='fl input'>
+      <input bindinput='changeInput'
+      value='{{userInformation.mobile}}'
+       data-type='mobile' type='number' maxlength='11' placeholder='请输入收货人电话'></input>
+     </view>
+    </view>    
+  </view>
+  <view class='address-details'>
+    <view class='details-region clearfix' bindtap='provincialLinkageShow'> 
+      <view class='fl text'> 所在地区</view>
+      <view class='fl input'>
+        <input bindfocus='provincialLinkageShow' value='{{userInformation.region}}'
+         data-type='region' disabled='true' type='text'  maxlength='30' placeholder='省市区'></input>
+      </view>
+    </view>
+    <view class='details-street clearfix'>
+      <view class='fl text'>详细地址</view>
+      <view class='fl input'>
+        <input bindinput='changeInput'
+        value='{{userInformation.address}}'
+         data-type='address' type='text' maxlength='30' placeholder='街道、门牌号等'></input>
+      </view>   
+    </view>    
+  </view>
+  <view class='confirm-address' bindtap='confirmAddAddress'>
+    确认
+  </view>
+  <view class='provincial-linkage' wx:if='{{provincialLinkageShow}}'>
+    <view class='controller'>
+      <view class='' bindtap='provincialLinkageHide' data-type='none'>取消</view>
+      <view class='' bindtap='provincialLinkageHide' data-type='confirm'>确定</view>      
+    </view>
+    <picker-view indicator-style="height: 50px;" style="width: 100%; height: 300px;" value="{{value}}" bindchange="bindChange">
+      <picker-view-column>
+        <view wx:for="{{provinceList}}" data-type='province' wx:key='index' style="line-height: 50px">{{item.areaName}}</view>
+      </picker-view-column>
+      <picker-view-column>
+        <view wx:for="{{cityList}}" data-type='city' wx:key='index' style="line-height: 50px">{{item.areaName}}</view>
+      </picker-view-column>
+      <picker-view-column>
+        <view wx:for="{{districtList}}" wx:key='index' style="line-height: 50px">{{item.areaName}}</view>
+      </picker-view-column>
+    </picker-view>
+  </view>
+</view>
+
+</view> 
+<!-- 快速导航模块 -->
+  <!-- <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav" data="{{ ...newNav }}"/> -->
+  <jdNav></jdNav>

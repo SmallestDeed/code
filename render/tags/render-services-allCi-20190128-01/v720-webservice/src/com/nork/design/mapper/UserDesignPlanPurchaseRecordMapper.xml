@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.design.dao.UserDesignPlanPurchaseRecordMapper">
+
+    <select id="isExistBuyDesignPlanCopyRight" resultType="int">
+          SELECT
+             count(*)
+          FROM
+             company_design_plan_income
+          WHERE
+             buyer_id = #{userId} AND
+             plan_id = #{designPlanId} AND
+             is_deleted = 0
+    </select>
+
+    <insert id="insert" parameterType="com.nork.design.model.UserDesignPlanPurchaseRecord">
+        INSERT INTO
+            user_design_plan_purchase_record
+            (
+              user_id,design_plan_id,plan_name,trade_no,
+              trade_status,trade_amount,trade_type,trade_time,creator,
+              gmt_create,modifier,gmt_modified,is_deleted,use_type
+            )VALUES
+            (
+              #{userId},#{designPlanId},#{planName},#{tradeNo},
+              #{tradeStatus},#{tradeAmount},#{tradeType},#{tradeTime},#{creator},
+              #{gmtCreate},#{modifier},#{gmtModified},#{isDeleted},#{useType}
+            )
+    </insert>
+
+    <update id="updateTradeStatusByTradeNo">
+        UPDATE
+           user_design_plan_purchase_record
+           SET
+           trade_status = #{tradeStatus}
+           WHERE
+           is_deleted =0 AND
+           trade_No = #{tradeNo}
+    </update>
+
+    <select id="getRecordByUserIdAndDesignPlanId" resultType="com.nork.design.model.UserDesignPlanPurchaseRecord">
+        SELECT
+           id,
+           user_id as userId,
+           design_plan_id as designPlanId,
+           plan_name as planName,
+           trade_status as tradeStatus,
+           trade_no as tradeNo,
+           trade_amount as tradeAmount,
+           trade_type as tradeType,
+           trade_time as tradeTime
+        FROM
+           user_design_plan_purchase_record
+        WHERE
+           is_deleted = 0 AND
+           user_id = #{userId} AND
+           design_plan_id = #{planRecommendedId} AND
+           trade_status = 2
+    </select>
+
+    <select id="getByTradeNo" resultType="com.nork.design.model.UserDesignPlanPurchaseRecord">
+        SELECT
+           id,
+           user_id as userId,
+           design_plan_id as designPlanId,
+           plan_name as planName,
+           trade_status as tradeStatus,
+           trade_no as tradeNo,
+           trade_amount as tradeAmount,
+           trade_type as tradeType,
+           trade_time as tradeTime,
+           use_type as useType
+        FROM
+           user_design_plan_purchase_record
+        WHERE
+           is_deleted = 0 AND
+           trade_no = #{tradeNo} AND
+           trade_status = #{tradeStatus}
+    </select>
+
+    <select id="getRecommendedPlanId" resultType="integer">
+        SELECT
+           plan_id
+        FROM
+           auto_render_task_state
+        WHERE
+           business_id = #{designPlanRenderSceneId} limit 1
+    </select>
+
+</mapper>

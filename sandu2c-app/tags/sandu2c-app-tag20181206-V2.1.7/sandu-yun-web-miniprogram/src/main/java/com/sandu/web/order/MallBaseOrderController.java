@@ -1,0 +1,388 @@
+package com.sandu.web.order;
+
+import com.google.gson.Gson;
+import com.nork.common.model.LoginUser;
+import com.sandu.common.LoginContext;
+import com.sandu.common.model.PageModel;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.common.util.Utils;
+import com.sandu.order.MallBaseOrder;
+import com.sandu.order.service.MallBaseOrderService;
+import com.sandu.product.model.BaseCompany;
+import com.sandu.product.service.BaseCompanyService;
+import com.sandu.shop.service.CompanyShopService;
+import com.sandu.shop.vo.CompanyShopVO;
+import com.sandu.user.service.SysUserService;
+import com.sandu.useraddress.MallUserAddress;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
+
+
+@Controller
+@RequestMapping("/v1/miniprogram/order")
+public class MallBaseOrderController {
+    private final static Gson gson = new Gson();
+    private final static String CLASS_LOG_PREFIX = "[订单服务]:";
+    private final static Logger logger = LoggerFactory.getLogger(MallBaseOrderController.class);
+    @Autowired
+    private BaseCompanyService baseCompanyService;
+    @Autowired
+    private MallBaseOrderService mallBaseOrderService;
+    @Autowired
+    private SysUserService sysUserService;
+
+    @Autowired
+    private CompanyShopService companyShopService;
+
+
+    /**
+     * 生成订单
+     *
+     * @param mallBaseOrder
+     * @return
+     */
+    @RequestMapping(value = "/createorder", method = RequestMethod.POST)
+    @ResponseBody
+    public Object getList(@RequestBody MallBaseOrder mallBaseOrder, HttpServletRequest request) {
+        if (StringUtils.isBlank(mallBaseOrder.getConsignee()) || StringUtils.isBlank(mallBaseOrder.getMobile()) || StringUtils.isBlank(mallBaseOrder.getProvince())
+                || StringUtils.isBlank(mallBaseOrder.getDistrict()) || StringUtils.isBlank(mallBaseOrder.getCity()) ||
+                StringUtils.isBlank(mallBaseOrder.getAddress())) {
+            return new ResponseEnvelope(false, "参数缺失!");
+        }
+
+        if(StringUtils.isNotEmpty(mallBaseOrder.getCouponUserNo())){
+            mallBaseOrder.setReceiveNo(Long.parseLong(mallBaseOrder.getCouponUserNo()));
+        }
+
+        logger.info("接受参数:"+new Gson().toJson(mallBaseOrder));
+        if (mallBaseOrder.getOrderProductList() == null || mallBaseOrder.getOrderProductList().size() == 0) {
+            return new ResponseEnvelope(false, "未提交产品!");
+        }
+        //获取用户信息
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, "请登录!");
+        }
+        mallBaseOrder.setUserId(loginUser.getId());
+        //获取当前的企业ID
+        String domainUrl = null;
+        try {
+            domainUrl = request.getHeader("Referer");
+            if (domainUrl == null) {
+                domainUrl = request.getHeader("Custom-Referer");
+            }
+        } catch (Exception e) {
+            domainUrl = request.getHeader("Custom-Referer");
+        }
+        BaseCompany baseCompany = baseCompanyService.getCompanyByDomainUrl(domainUrl);
+        if (baseCompany == null) {
+            return new ResponseEnvelope(false, "未获取到该公司!");
+        }
+        mallBaseOrder.setAppId(baseCompany.getAppId());
+        mallBaseOrder.setCompanyId(baseCompany.getId());
+
+        //生成订单
+        int orderId = mallBaseOrderService.createOrder(mallBaseOrder);
+        if (orderId <= 0) {
+            return new ResponseEnvelope(false, "生成订单失败!");
+        }
+        // 查询订单详细信息
+        MallBaseOrder order = new MallBaseOrder();
+        order.setId(orderId);
+        order.setIsDeleted(0);
+        order.setReceiveNo(mallBaseOrder.getReceiveNo());
+        MallBaseOrder orderDetail = mallBaseOrderService.getOrderByOrderId(order);
+
+
+        return new ResponseEnvelope(true, "生成订单成功", orderDetail);
+    }
+
+
+    /**
+     * 根据传入的参数动态查询订单
+     * 分页根据订单来分页
+     *
+     * @param
+     * @return
+     */
+    @RequestMapping(value = "/dynamicQueryOrder", method = RequestMethod.GET)
+    @ResponseBody
+    public Object dynamicQueryOrder(MallBaseOrder mallBaseOrder, PageModel pageModel) {
+        if (mallBaseOrder.getUserId() == null) {
+            // 获取当前登录用户信息
+            LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+            if (loginUser == null) {
+                return new ResponseEnvelope(false, "请登录!");
+            }
+
+            // 设置查询的用户id
+            mallBaseOrder.setUserId(loginUser.getId());
+        }
+
+        if(!StringUtils.isEmpty(mallBaseOrder.getOrderStatusStr())){
+            List<Integer> list = Utils.getIntegerListFromStringList(mallBaseOrder.getOrderStatusStr(), ",");
+            mallBaseOrder.setOrderStatusList(list);
+        }
+
+        if(!StringUtils.isEmpty(mallBaseOrder.getPayStatusStr())){
+            List<Integer> list = Utils.getIntegerListFromStringList(mallBaseOrder.getPayStatusStr(), ",");
+            mallBaseOrder.setPayStatusList(list);
+        }
+        // pageSize等于0则不分页，根据订单分页
+        logger.info("");
+        if (pageModel == null || pageModel.getPageSize() <= 0) {
+            // 不分页查询用户订单信息
+            List<MallBaseOrder> orderList = mallBaseOrderService.dynamicQueryOrder(mallBaseOrder);
+            if (orderList == null || orderList.size() == 0) {
+                return new ResponseEnvelope(false, "没有查询出订单", orderList);
+            } else {
+                return new ResponseEnvelope(true, "success", orderList);
+            }
+        } else {
+            // pageSize不等于0时分页
+            mallBaseOrder.setStart(pageModel.getCurPage()-1);
+            mallBaseOrder.setLimit(pageModel.getPageSize());
+            // 分页查询用户订单信息
+            List<MallBaseOrder> orderList = mallBaseOrderService.dynamicQueryOrder(mallBaseOrder);
+
+            if (orderList == null || orderList.size() == 0) {
+                return new ResponseEnvelope(false, "没有查询出订单", orderList);
+            } else {
+                return new ResponseEnvelope(true, "success", orderList);
+            }
+        }
+    }
+
+    /**
+     * 通过订单id查询订单详细信息
+     *
+     * @param order
+     * @return
+     */
+    @RequestMapping(value = "/getOrderByOrderId", method = RequestMethod.GET)
+    @ResponseBody
+    public Object getOrderByOrderId(MallBaseOrder order) {
+        // 获取当前登录用户信息
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, "请登录!");
+        }
+        if (order == null || order.getId() == null) {
+            return new ResponseEnvelope(false, "未输入订单id");
+        } else {
+            // 查询订单详细信息
+            MallBaseOrder orderDetail = mallBaseOrderService.getOrderByOrderId(order);
+
+            if (orderDetail == null) {
+                return new ResponseEnvelope(false, "订单不存在");
+            } else {
+                return new ResponseEnvelope(true, "success", orderDetail);
+            }
+        }
+    }
+
+    /**
+     * 通过用户id查询用户地址
+     *
+     * @param
+     * @return
+     */
+    @RequestMapping(value = "/getAddressByUserId", method = RequestMethod.GET)
+    @ResponseBody
+    public Object getAddressByUserId() {
+        // 获取当前登录用户信息
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, "请登录!");
+        }
+
+        // 查询当前用户地址
+        List<MallUserAddress> addrList = mallBaseOrderService.getAddressByUserId(loginUser.getId());
+
+        return new ResponseEnvelope(true, "success", addrList);
+    }
+
+
+    /**
+     * 新增或修改用户地址
+     *
+     * @param mallUserAddress
+     * @return
+     */
+    @RequestMapping(value = "/adduseraddress", method = RequestMethod.POST)
+    @ResponseBody
+    public Object getList(@RequestBody MallUserAddress mallUserAddress, HttpServletRequest request) {
+        //获取用户信息
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, "请登录!");
+        }
+        mallUserAddress.setUserId(loginUser.getId());
+
+        if (null == mallUserAddress.getIsEdit()) {
+            return new ResponseEnvelope(false, "缺失参数isEdit!");
+        }
+
+        if (StringUtils.isBlank(mallUserAddress.getAddressName()) || StringUtils.isBlank(mallUserAddress.getProvince()) || StringUtils.isBlank(mallUserAddress.getCity()) ||
+                StringUtils.isBlank(mallUserAddress.getDistrict()) || StringUtils.isBlank(mallUserAddress.getConsignee()) || StringUtils.isBlank(mallUserAddress.getAddress()) ||
+                StringUtils.isBlank(mallUserAddress.getMobile()) || mallUserAddress.getIsDefault() == null) {
+            return new ResponseEnvelope(false, "参数缺失!");
+        }
+        //新增地址
+        if (mallUserAddress.getIsEdit() == 0) {
+
+            int useraddressId = mallBaseOrderService.addUserAddress(mallUserAddress);
+            if (useraddressId <= 0) {
+                return new ResponseEnvelope(false, "新增用户地址失败!");
+            }
+            return new ResponseEnvelope(true, "新增用户地址成功");
+        } else if (mallUserAddress.getIsEdit() == 1) {
+            //修改地址
+            int useraddressId = mallBaseOrderService.updateUserAddress(mallUserAddress);
+            if (useraddressId <= 0) {
+                return new ResponseEnvelope(false, "修改用户地址失败!");
+            }
+            return new ResponseEnvelope(true, "修改用户地址成功");
+
+        }
+
+        return new ResponseEnvelope(false, "参数传入错误!");
+    }
+
+    /**
+     * 删除用户地址
+     *
+     * @param addressId
+     * @return
+     */
+    @RequestMapping(value = "/deluseraddress", method = RequestMethod.GET)
+    @ResponseBody
+    public Object delUserAddress(Integer addressId, HttpServletRequest request) {
+        //获取用户信息
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, "请登录!");
+        }
+        int userAddressId = mallBaseOrderService.delUserAddress(addressId);
+        if (userAddressId == 0) {
+            return new ResponseEnvelope(false, "删除用户地址失败!");
+        }
+        return new ResponseEnvelope(true, "", "删除用户地址成功");
+    }
+
+    /**
+     * 用户取消订单
+     *
+     * @param mallBaseOrder
+     * @return
+     */
+    @RequestMapping(value = "/updateorderstatus", method = RequestMethod.GET)
+    @ResponseBody
+    public Object updateOrderStatus(@ModelAttribute MallBaseOrder mallBaseOrder) {
+        // 获取当前登录用户信息
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, "请登录!");
+        }
+
+        if (mallBaseOrder.getId() == null) {
+            return new ResponseEnvelope(false, "订单ID参数缺失!");
+        }
+        if (mallBaseOrder.getOrderStatus() == null && mallBaseOrder.getShippingStatus() == null && mallBaseOrder.getPayStatus() == null) {
+            return new ResponseEnvelope(false, "订单状态参数缺失!");
+        }
+
+        //修改订单状态
+        ResponseEnvelope res = mallBaseOrderService.updateOrderStatusByOrderList(mallBaseOrder);
+
+
+        return res;
+    }
+
+
+    /**
+     * 查询分配店铺
+     * @param addressId 收货地址Id
+     * @return List 店铺信息集合
+     */
+    @RequestMapping(value = "/get/deliver/shop", method = RequestMethod.GET)
+    @ResponseBody
+    public Object getDeliverCompanyShopInfo(Integer addressId,Integer companyId, HttpServletRequest request){
+        List<CompanyShopVO> areaShopList=new ArrayList<>();//区级匹配
+        List<CompanyShopVO> cityShopList=new ArrayList<>();//市级匹配
+        List<CompanyShopVO> companyShopList=new ArrayList<>();//厂商级匹配
+        //1.获取收货地址信息()
+        MallUserAddress address=null;
+        if (null==addressId){
+            // 获取当前登录用户信息
+            LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+            if (loginUser == null) {
+                return new ResponseEnvelope(false, "请登录!");
+            }
+            List<MallUserAddress> addressList = mallBaseOrderService.getAddressByUserId(loginUser.getId());
+            if (addressList!=null){
+                address=addressList.get(0);
+            }
+        }else{
+            MallUserAddress userAddress = mallBaseOrderService.getAddressById(addressId);
+            if (userAddress!=null){
+                address=userAddress;
+            }
+        }
+        logger.info("订单分配----收货地址信息："+new Gson().toJson(address));
+        //2.获取当前的企业ID
+        /*BaseCompany baseCompany = baseCompanyService.get(companyId);
+        logger.info("订单分配----当前企业信息："+new Gson().toJson(baseCompany));*/
+
+        //3.从数据库中查出企业所有店铺
+        List<CompanyShopVO> shopList = companyShopService.getShopByCompanyId(companyId.longValue());
+        logger.info("订单分配----待处理店铺信息："+new Gson().toJson(shopList));
+        //4.处理匹配店铺数据
+        if (shopList.size()>0&&address!=null){
+            for (CompanyShopVO shop:shopList) {
+                if (shop.getAreaCode().equals(address.getDistrict())){
+                    areaShopList.add(shop);
+                    continue;
+                }
+                if (shop.getCityCode().equals(address.getCity())){
+                    cityShopList.add(shop);
+                    continue;
+                }
+                if(shop.getCompanyId().equals(shop.getCompanyPid())){
+                    companyShopList.add(shop);
+                }
+            }
+        }
+        //5.返回数据处理
+        if (areaShopList.size()>0){
+            logger.info("订单分配----返回店铺信息："+new Gson().toJson(areaShopList));
+            return new ResponseEnvelope(true, "success", areaShopList);
+        }else if(cityShopList.size()>0){
+            logger.info("订单分配----返回店铺信息："+new Gson().toJson(cityShopList));
+            return new ResponseEnvelope(true, "success", cityShopList);
+        }else{
+            logger.info("订单分配----返回店铺信息："+new Gson().toJson(companyShopList));
+            return new ResponseEnvelope(true, "success", companyShopList);
+        }
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+

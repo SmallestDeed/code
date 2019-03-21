@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.cart.dao.MallCartProductRefMapper">
+    <!-- **插入定义** -->
+    <insert id="insertSelective" parameterType="com.sandu.cart.MallCartProductRef" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into mall_cart_product_ref
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="cartId!= null">cart_id,</if>
+            <if test="productId!= null">product_id,</if>
+            <if test="productCode!= null">product_code,</if>
+            <if test="productNumber!= null">product_number,</if>
+            <if test="productName!= null">product_name,</if>
+            <if test="productPrice!= null">product_price,</if>
+            <if test="sysCode!= null">sys_code,</if>
+            <if test="creator!= null">creator,</if>
+            <if test="gmtCreate!= null">gmt_create,</if>
+            <if test="modifier!= null">modifier,</if>
+            <if test="gmtModified!= null">gmt_modified,</if>
+            <if test="isDeleted!= null">is_deleted,</if>
+            <if test="remark!= null">remark,</if>
+            <if test="productStyleName != null">product_color_name ,</if>
+            <if test="productColorName!= null">product_style_name,</if>
+            <if test="productPicPath!= null">product_pic_path ,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="cartId!= null">#{cartId,jdbcType=INTEGER},</if>
+            <if test="productId!= null">#{productId,jdbcType=INTEGER},</if>
+            <if test="productCode!= null">#{productCode,jdbcType=VARCHAR},</if>
+            <if test="productNumber!= null">#{productNumber,jdbcType=INTEGER},</if>
+            <if test="productName!= null">#{productName,jdbcType=VARCHAR},</if>
+            <if test="productPrice!= null">#{productPrice,jdbcType=DOUBLE},</if>
+            <if test="sysCode!= null">#{sysCode,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">#{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">#{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER},</if>
+            <if test="remark!= null">#{remark,jdbcType=VARCHAR},</if>
+            <if test="productStyleName != null">#{productStyleName ,jdbcType=VARCHAR},</if>
+            <if test="productColorName!= null">#{productColorName,jdbcType=VARCHAR},</if>
+            <if test="productPicPath!= null">#{productPicPath,jdbcType=VARCHAR},</if>
+        </trim>
+    </insert>
+
+    <!-- **更新定义** -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.cart.MallCartProductRef">
+        update mall_cart_product_ref
+        <set>
+            <if test="cartId!= null">cart_id = #{cartId,jdbcType=INTEGER},</if>
+            <if test="productId!= null">product_id = #{productId,jdbcType=INTEGER},</if>
+            <if test="productCode!= null">product_code = #{productCode,jdbcType=VARCHAR},</if>
+            <if test="productNumber!= null">product_number = #{productNumber,jdbcType=INTEGER},</if>
+            <if test="productName!= null">product_name = #{productName,jdbcType=VARCHAR},</if>
+            <if test="productPrice!= null">product_price = #{productPrice,jdbcType=DOUBLE},</if>
+            <if test="sysCode!= null">sys_code = #{sysCode,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">creator = #{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">modifier = #{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">is_deleted = #{isDeleted,jdbcType=INTEGER},</if>
+            <if test="remark!= null">remark = #{remark,jdbcType=VARCHAR},</if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!-- **删除定义** -->
+    <delete id="deleteByIds">
+        UPDATE mall_cart_product_ref SET is_deleted = 1
+        where id IN
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+		id,cart_id,product_id,product_code,product_number,product_name,product_price,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,remark,product_color_name,product_style_name,product_pic_path
+	</sql>
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.sandu.cart.MallCartProductRef">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="cart_id" property="cartId" jdbcType="INTEGER"/>
+        <result column="product_id" property="productId" jdbcType="INTEGER"/>
+        <result column="product_code" property="productCode" jdbcType="VARCHAR"/>
+        <result column="product_number" property="productNumber" jdbcType="INTEGER"/>
+        <result column="product_name" property="productName" jdbcType="VARCHAR"/>
+        <result column="product_price" property="productPrice" jdbcType="DOUBLE"/>
+        <result column="sys_code" property="sysCode" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="product_color_name" property="productColorName" jdbcType="VARCHAR"/>
+        <result column="product_style_name" property="productStyleName" jdbcType="VARCHAR"/>
+        <result column="product_pic_path" property="productPicPath" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- **查询定义** -->
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="AllResultMap"
+            parameterType="java.lang.Integer">
+        select
+        <include refid="All_Column_List"/>
+        from mall_cart_product_ref
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+            parameterType="com.sandu.cart.MallCartProductRef">
+        select
+            t1.id
+            ,t1.cart_id
+            ,t1.product_id
+            ,t1.product_code
+            ,t1.product_number
+            ,t1.product_name
+            ,t1.product_price
+            ,t1.sys_code
+            ,t1.creator
+            ,t1.gmt_create
+            ,t1.modifier
+            ,t1.gmt_modified
+            ,t1.is_deleted
+            ,t1.remark
+            ,t1.product_color_name
+            ,t1.product_style_name
+            ,t1.product_pic_path
+            ,group_concat(t2.attribute_value_name) attribute
+        from
+            mall_cart_product_ref t1,
+            product_attribute t2
+        where
+            1=1
+            and t1.is_deleted = 0
+            AND t2.product_id = t1.product_id
+            <if test="cartId!= null">and cart_id = #{cartId,jdbcType=INTEGER}</if>
+            <if test="productId!= null">and product_id = #{productId,jdbcType=INTEGER}</if>
+            <if test="productCode!= null">and product_code = #{productCode,jdbcType=VARCHAR}</if>
+            <if test="productNumber!= null">and product_number = #{productNumber,jdbcType=INTEGER}</if>
+            <if test="productName!= null">and product_name = #{productName,jdbcType=VARCHAR}</if>
+            <if test="productPrice!= null">and product_price = #{productPrice,jdbcType=DOUBLE}</if>
+            <if test="sysCode!= null">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+            <if test="creator!= null">and creator = #{creator,jdbcType=VARCHAR}</if>
+            <if test="gmtCreate!= null">and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}</if>
+            <if test="modifier!= null">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+            <if test="gmtModified!= null">and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}</if>
+            <if test="isDeleted!= null">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+            <if test="remark!= null">and remark = #{remark,jdbcType=VARCHAR}</if>
+        GROUP BY
+            t1.id
+            <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderNum != null and  orderNum !='' ">
+                ${orderNum}
+            </if>
+        </if>
+        <if test="orders != null and  orders !=''  ">
+            order by ${orders}
+        </if>
+    </select>
+
+
+    <!-- 其他Map等查询方式 -->
+    <select id="selectMallCartProductRefByProductId" resultMap="AllResultMap"
+            parameterType="com.sandu.cart.MallCartProductRef">
+    select
+    <include refid="All_Column_List"/>
+    from mall_cart_product_ref
+    where 1=1
+        <if test="cartId!= null">and cart_id = #{cartId,jdbcType=INTEGER}</if>
+        <if test="productId!= null">and product_id = #{productId,jdbcType=INTEGER}</if>
+        <if test="isDeleted!= null">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+    </select>
+    <!-- end-->
+</mapper>

@@ -1,0 +1,81 @@
+<!--pages/goods-list/goods-list.wxml-->
+<view class='goods-list' style='height:{{goodListheight}};overflow:{{goodListOverflow}}'>
+  <!-- 头部 -->
+  <view class='good-list-header'>
+    <view class='header-left fl' bindtap='getAllGoodList'>
+      全部
+    </view>
+    <view class='header-right fr' bindtap='showScreenBox'>
+      <view class='right-text fl'>筛选</view>
+      <view class='right-img fl'>
+        <image src='./image/@2x筛选.png'></image>
+      </view>
+    </view>
+  </view>
+  <!-- 产品内容 -->
+  <scroll-view >
+    <view class='good-list-content clearfix'>
+      <view class='content-item fl' wx:for='{{goodsList}}' wx:key='{{index}}'>
+        <view  class='image-box' data-id='{{item.spuId}}' bindtap='linkToGoodsDetails'>
+          <image src='{{item.picPath?item.picPath:"image/goods_pic_no.png"}}' binderror="errorFunction" data-img="goodsList[{{index}}].picPath"></image>
+          <image wx:if="{{item.isPresell}}"  class='tapView' src='../static/image/home_icon_new.png'></image>
+          <image 
+            wx:if="{{item.isSpecialOffer}}"  
+            class='tapView' src='../static/image/home_icon_sale.png'
+            style='{{item.isPresell?"top:60rpx":""}}'
+          ></image>
+        </view>
+        <view class='text-box'>
+          <view class='name'>{{item.productName}}</view>
+          <view class='price'>￥{{item.salePrice!='0.0' && item.salePrice!='0'?item.salePrice:'暂无定价' }}</view>
+        </view>
+      </view>
+  </view>
+  </scroll-view>
+  <!-- 筛选条件 -->
+  <view class='good-list-screen' wx:if='{{goodListScreen}}' bindtap='closeGoodListScreen'>
+    <view class='list-screen-box' catchtap='preventBubbling'>
+      <view class='screen-item' wx:for='{{threeClassificationList}}' wx:key='{{index}}'  wx:for-index='indexP'>
+          <view class='item-first'>
+          {{item.name}}
+          <block wx:if='{{item.fourClassificationList.length>3}}'> 
+            <view class='right fr' bindtap='alloptions' data-id='{{indexP}}'>
+              <view class='{{optionsList[indexP].show=="全部"?"txt":"txt2"}}'>{{optionsList[indexP].show}}</view>
+              <image src='{{styleList[indexP]==false?"./image/720_icon_down.png":"./image/720_icon_up.png"}}'></image>
+            </view>
+          </block>
+          <block wx:if='{{item.fourClassificationList.length<=3}}'>
+            <view class='right fr' bindtap='alloptions' data-id='{{indexP}}'>
+              <view class='{{optionsList[indexP].show=="全部"?"txt":"txt2"}}'>{{optionsList[indexP].show}}</view>
+              <image src='{{styleList[indexP]==false?"./image/720_icon_down.png":"./image/720_icon_up.png"}}'></image>
+            </view>
+          </block>
+
+          </view>
+          <view class="{{styleList[indexP]==false?'clearfix':'clearfixall'}}" >
+            <view catchtap='fourActiveSwitch' 
+            class='item-second {{threeClassificationActive[indexP] === indexC ? "item-second-active" : ""}}'                   wx:for-item="fourClassificationList"
+             wx:for-index="indexC"
+             data-indexp='{{indexP}}'
+             data-indexc='{{indexC}}'           
+             wx:for='{{item.fourClassificationList}}' 
+             wx:key='indexC'>
+              {{fourClassificationList.name}}
+            </view>
+          </view>
+      </view>
+      <view class='space'></view>
+    </view>
+    <view class='reset-comfirm'>
+      <view class='reset-btn' catchtap='resetActive'>重置</view>
+      <view class='comfirm-btn' catchtap='confirmClassification'>确定</view>        
+    </view>
+  </view>
+   <import src="../../component/emptyTemplate/emptyTemplate.wxml"/>
+   <template is="emptyTemplate" data="{{ ...emptyTemplate }}"/> 
+</view>
+  <!-- 快速导航 -->
+  <import src="../../component/quick-navigation/quick-navigation.wxml"/>
+  <template is="quickNavigation" data="{{ ...quickNavigation }}"/>
+
+

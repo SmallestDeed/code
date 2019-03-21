@@ -1,0 +1,207 @@
+// pages/confirm-order/confirm-order.js
+let fetch = getApp().fetch
+var {
+    shareTitle
+} = require('../../../utils/config.js');
+var shareTitle = {
+    shareTitle
+}.shareTitle;
+let $App = getApp()
+let lastSalePriceTotal = ''
+let lastTap = '';
+let flagTitle = shareTitle == '诺克照明';
+let urltType = 'system'
+Page({
+    /**
+     * 页面的初始数据
+     */
+    data: {
+        productDetailsObj: {},
+        orderRemask: '',
+        defaultAddress: {}, // 默认地址
+        resourcePath: getApp().resourcePath,
+        totalPrice: 0, //总价格
+        couponList: [],
+        couponListT: [],
+        couponListF: [],
+        wxInfo:'',
+        fCilck: false,
+        isShowZzc: false,
+        active: false,
+        userpointamount: 0,
+        ssMoney: '',
+        chindex: 0,
+        couponId: '',
+        allMoney: '',
+        flagTitle: flagTitle,
+        fastList: '',
+        goodsPrice: '',
+        lastChindex: 0,
+        receiveNo: null,
+        giftpoint: '',
+        gift:'',
+    },
+    pointless: function(e) {
+        wx.showModal({
+            title: '错误提示',
+            content: '积分余额不足,无法兑换!'
+        })
+    },
+    getAddressList() { // 获取用户地址列表
+        
+        let that = this;
+        if (wx.getStorageSync('defaultAddress')){
+            console.log(wx.getStorageSync('defaultAddress'));
+            this.setData({
+                defaultAddress: wx.getStorageSync('defaultAddress')
+            })
+            return;
+        }
+        let url = `/order/getAddressByUserId`
+        fetch(url, 'get').then(res => {
+            let obj = res.obj.length>0 ? res.obj[0] : ''
+            console.log(res.obj,obj);
+            that.setData({
+                defaultAddress: obj
+            })
+        })
+    },
+    //注册：立即兑换单击事件
+    immediatePayment: function(e) {
+        let flag = this.data.defaultAddress;
+        if (JSON.stringify(flag) === '{}' || flag == "" || !flag ) {
+            wx.showModal({
+                title: '提示',
+                content: '请填写收货地址',
+                success: (res) => {
+                    if (res.confirm) {
+                        wx.navigateTo({
+                            url: '../../add-address/add-address',
+                        })
+                    }
+                }
+            })
+            return
+        }
+        wx.showModal({
+            title: '兑换确认',
+            content: '您确认花费' + this.data.gift.point+'积分兑换此礼品吗?',
+            success: (res) => {
+                if (res.confirm) {
+                    //如果剩余积分不足
+                    if (this.data.giftpoint > this.data.userpointamount) {
+                        wx.showToast({
+                            title: '您的积分不足',
+                            icon:'none'
+                        })
+                        return
+                    }
+                    //如果积分余额充裕，则可以兑换所需礼品，兑换完成后，显示我的订单
+                    let url = '/v1/point/order/insertOrder',
+                        that = this,
+                        data =  {
+                            totalPoint: this.data.giftpoint,
+                            totalCount: 1,
+                            paymentPoint: this.data.giftpoint,
+                            expressFee: this.data.gift.expressFee,
+                            expressNo: null,
+                            uid: this.data.defaultAddress.userId,
+                            expressCompay: null,
+                            remark: this.data.orderRemask,
+                            country: 0,
+                            province: this.data.defaultAddress.province,
+                            city: this.data.defaultAddress.city,
+                            area: this.data.defaultAddress.district,
+                            address:  this.data.defaultAddress.address,
+                            province: this.data.defaultAddress.province,
+                            zipcode: this.data.defaultAddress.zipcode,
+                            consignee: this.data.defaultAddress.consignee,
+                            mobile: this.data.defaultAddress.mobile,
+                            giftsId: this.data.gift.id,
+                            creator: this.data.wxInfo.userInfo.nickName ? this.data.wxInfo.userInfo.nickName : '',
+                        }
+                    fetch(url, 'POST', data, urltType).then((res) => {
+                        if (res.code == 200) {
+                            wx.showToast({
+                                title: '兑换成功！',
+                                icon: 'success'
+                            })
+                            wx.navigateTo({
+                                url: '../minegift/minegift',
+                                data: {
+                                    uid: that.data.uid
+                                }
+                            })
+                        } else {
+                            wx.showModal({
+                                title: '错误提示',
+                                content: '兑换失败！'
+                            })
+                        }
+                    })
+                }
+            }
+        })
+    },
+    bindPickerChange: function(e) {
+        this.setData({
+            index: e.detail.value
+        })
+    },
+    getminegift: function(e) {
+        wx.navigateTo({
+            url: '/minegift/minegift',
+        })
+    },
+    onShow:function(){
+        this.getAddressList() // 获取用户地址
+    },
+    onLoad: function(options) {
+        var that = this;
+        that.setData({
+            giftid: options.Index
+        });
+        var wxInfo = getApp().globalData;
+        this.setData({
+            wxInfo: wxInfo
+        })
+        let url = '/v1/point/gift/get';
+        fetch(url, 'get', {
+            id: options.Index
+        }, urltType).then((res) => {
+            if (res.code == 200) {
+                that.setData({
+                    gift: res.data,
+                    giftpoint: res.data.point
+                });
+            }
+        })
+        this.getUserPoint();
+    },
+    getUserPoint: function () {
+        let url = '/v1/point/userPoint/getUserPoint',
+            that = this;
+        fetch(url, 'get', {}, urltType).then((res) => {
+            if (res.code == 200) {
+                that.setData({
+                    userpointamount: res.data.endPoint
+                })
+            }
+        })
+    },
+    toAddAddress() { // 跳转到添加收货地址
+        wx.navigateTo({
+            url: '../../add-address/add-address',
+        })
+    },
+    toAddressList() { // 跳转到地址列表
+        wx.navigateTo({
+            url: '../../address-list/address-list',
+        })
+    },
+    inputRemask(e) {
+        this.setData({
+            orderRemask: e.detail.value
+        })
+    }
+});

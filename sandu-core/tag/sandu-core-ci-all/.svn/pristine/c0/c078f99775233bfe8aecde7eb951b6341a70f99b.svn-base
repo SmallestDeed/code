@@ -1,0 +1,48 @@
+package com.sandu.api.base.input;
+
+import com.sandu.api.base.common.model.PageModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * @ClassName: InteractiveZoneTopicQuery
+ * @Auther: gaoj
+ * @Date: 2019/3/13 10:47
+ * @Description:
+ * @Version 1.0
+ */
+@EqualsAndHashCode(callSuper = true)
+@Data
+public class InteractiveZoneTopicQuery extends PageModel implements Serializable{
+
+    /**主题类型key**/
+        @ApiModelProperty("askAndAnswer,1,问答\n" +
+                "topic,2,话题\n" +
+                "share,3,大咖分享\n" +
+                "designReform,4,设计改造\n")
+    private String blockTypeValueKey;
+
+    /**主题类型value**/
+    @ApiModelProperty(hidden =  true)
+    private Integer blockTypeValue;
+
+	@ApiModelProperty(hidden =  true)
+    private Integer blockType;
+    /**标题**/
+    private String title;
+    /**发布时间**/
+    private Date publishTime;
+
+    private Integer userId;
+    /** id集合 **/
+    private List<Integer> idList;
+    /** 是否删除 **/
+    private Integer isDeleted;
+    /** 逗号分隔的ids **/
+    private String ids;
+}

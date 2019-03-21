@@ -1,0 +1,485 @@
+package com.sandu.search.service.metadata.impl;
+
+import com.sandu.search.dao.MetaDataDao;
+import com.sandu.search.entity.designplan.po.DesignPlanProductPo;
+import com.sandu.search.entity.elasticsearch.po.*;
+import com.sandu.search.entity.elasticsearch.po.house.HouseLivingPo;
+import com.sandu.search.entity.elasticsearch.po.metadate.*;
+import com.sandu.search.exception.MetaDataException;
+import com.sandu.search.service.metadata.MetaDataService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * 元数据服务
+ *
+ * @date 20171213
+ * @auth pengxuangang
+ */
+@Slf4j
+@Service("metaDataService")
+public class MetaDataServiceImpl implements MetaDataService {
+
+    private final static String CLASS_LOG_PREFIX = "元数据服务:";
+
+    private final MetaDataDao metaDataDao;
+
+    @Autowired
+    public MetaDataServiceImpl(MetaDataDao metaDataDao) {
+        this.metaDataDao = metaDataDao;
+    }
+
+    @Override
+    public List<ProductCategoryPo> queryProductCategoryMetaData() throws MetaDataException {
+
+        //查询产品分类元数据
+        log.info(CLASS_LOG_PREFIX + "查询产品分类元数据...");
+        List<ProductCategoryPo> productCategoryPoList;
+        try {
+            productCategoryPoList = metaDataDao.queryProductCategoryMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询产品分类元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询产品分类元数据失败!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询产品分类元数据完成.List<ProductCategoryPo>:{}", null == productCategoryPoList ? 0 : productCategoryPoList.size());
+        return productCategoryPoList;
+    }
+
+    @Override
+    public List<ProductStylePo> queryProductStyleMetaData() throws MetaDataException {
+        //查询产品风格元数据
+        log.info(CLASS_LOG_PREFIX + "查询产品风格元数据...");
+        List<ProductStylePo> productStylePoList;
+        try {
+            productStylePoList = metaDataDao.queryProductStyleMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询产品风格元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询产品风格元数据失败!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询产品风格元数据完成.List<ProductStylePo>:{}", null == productStylePoList ? 0 : productStylePoList.size());
+        return productStylePoList;
+    }
+
+    @Override
+    public List<ProductTexturePo> queryProductTextureMetaData() throws MetaDataException {
+        //查询产品材质元数据
+        log.info(CLASS_LOG_PREFIX + "查询产品材质元数据...");
+        List<ProductTexturePo> productTexturePoList;
+        try {
+            productTexturePoList = metaDataDao.queryProductTextureMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询产品材质元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询产品材质元数据失败!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询产品材质元数据完成.List<ProductStylePo>:{}", null == productTexturePoList ? 0 : productTexturePoList.size());
+        return productTexturePoList;
+    }
+
+    @Override
+    public List<BrandPo> queryBrandMetaData() throws MetaDataException {
+
+        //查询品牌元数据
+        log.info(CLASS_LOG_PREFIX + "查询品牌元数据...");
+        List<BrandPo> brandPoList;
+        try {
+            brandPoList = metaDataDao.queryBrandMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询品牌元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询品牌元数据失败!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询品牌元数据完成.List<BrandPo>:{}", null == brandPoList ? 0 : brandPoList.size());
+
+        return brandPoList;
+    }
+
+    @Override
+    public List<ProductCategoryRelPo> queryProductCategoryRelMetaData() throws MetaDataException {
+        //查询产品分类关联信息
+        log.info(CLASS_LOG_PREFIX + "查询产品分类关联信息...");
+        List<ProductCategoryRelPo> productCategoryRelList;
+        try {
+            productCategoryRelList = metaDataDao.queryProductCategoryRelMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询产品分类关联信息失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询产品分类关联信息失败!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询产品分类关联信息完成.List<ProductCategoryRelPo>:{}", null == productCategoryRelList ? 0 : productCategoryRelList.size());
+
+        return productCategoryRelList;
+    }
+
+    @Override
+    public List<ResPicPo> queryResPicMetaData() throws MetaDataException {
+        //查询图片资源元数据
+        log.info(CLASS_LOG_PREFIX + "查询图片资源元数据...");
+        List<ResPicPo> resPicList;
+        try {
+            resPicList = metaDataDao.queryResPicMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询图片资源元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询图片资源元数据失败!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询图片资源元数据完成.List<ResPicPo>:{}", null == resPicList ? 0 : resPicList.size());
+
+        return resPicList;
+    }
+
+    @Override
+    public ResPicPo getResPicMetaDataById(int id) throws MetaDataException {
+        //根据ID查询图片资源元数据
+        log.info(CLASS_LOG_PREFIX + "根据ID查询图片资源元数据...");
+        ResPicPo resPicPo;
+        try {
+            resPicPo = metaDataDao.getResPicMetaDataById(id);
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "根据ID查询图片资源元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "根据ID查询图片资源元数据失败!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "根据ID查询图片资源元数据完成.resPicPo:{}", resPicPo);
+
+        return resPicPo;
+    }
+
+    @Override
+    public List<ProductGroupRelPo> queryProductGroupRelMetaData() throws MetaDataException {
+        //查询产品组合关联元数据
+        log.info(CLASS_LOG_PREFIX + "查询产品组合关联元数据...");
+        List<ProductGroupRelPo> productGroupRelPoList;
+        try {
+            productGroupRelPoList = metaDataDao.queryProductGroupRelMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询产品组合关联元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询产品组合关联元数据失败!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询产品组合关联元数据完成.List<ProductGroupRelPo>:{}", null == productGroupRelPoList ? 0 : productGroupRelPoList.size());
+
+        return productGroupRelPoList;
+    }
+
+    @Override
+    public List<ProductGroupPo> queryProductGroupMetaData() throws MetaDataException {
+        //查询产品组合元数据
+        log.info(CLASS_LOG_PREFIX + "查询产品组合元数据...");
+        List<ProductGroupPo> productGroupPoList;
+        try {
+            productGroupPoList = metaDataDao.queryProductGroupMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询产品组合元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询产品组合元数据失败!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询产品组合元数据完成.List<ProductGroupPo>:{}", null == productGroupPoList ? 0 : productGroupPoList.size());
+
+        return productGroupPoList;
+    }
+
+    @Override
+    public List<DesignPlanProductPo> queryTempDesignPlanProductMetaData() throws MetaDataException {
+
+        //查询草稿设计方案产品元数据
+        log.info(CLASS_LOG_PREFIX + "查询草稿设计方案产品元数据...");
+
+        List<DesignPlanProductPo> designPlanProductPoList;
+        try {
+            designPlanProductPoList = metaDataDao.queryTempDesignPlanProductMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询草稿设计方案产品元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询草稿设计方案产品元数据失败!Exception:{}" + e);
+        }
+
+        log.info(CLASS_LOG_PREFIX + "查询草稿设计方案产品元数据完成.List<DesignPlanProductPo>数据条数:{}", null == designPlanProductPoList ? 0 : designPlanProductPoList.size());
+
+        return designPlanProductPoList;
+    }
+
+    @Override
+    public List<DesignPlanProductPo> queryRecommendDesignPlanProductMetaData() throws MetaDataException {
+
+        //查询推荐设计方案产品元数据
+        log.info(CLASS_LOG_PREFIX + "查询推荐设计方案产品元数据...");
+
+        List<DesignPlanProductPo> designPlanProductPoList;
+        try {
+            designPlanProductPoList = metaDataDao.queryRecommendDesignPlanProductMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询推荐设计方案产品元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询推荐设计方案产品元数据失败!Exception:{}" + e);
+        }
+
+        log.info(CLASS_LOG_PREFIX + "查询推荐设计方案产品元数据完成.List<DesignPlanProductPo>数据条数:{}", null == designPlanProductPoList ? 0 : designPlanProductPoList.size());
+
+        return designPlanProductPoList;
+    }
+
+    @Override
+    public List<DesignPlanProductPo> queryDiyDesignPlanProductMetaData() throws MetaDataException {
+
+        //查询自定义设计方案产品元数据
+        log.info(CLASS_LOG_PREFIX + "查询自定义设计方案产品元数据...");
+
+        List<DesignPlanProductPo> designPlanProductPoList;
+        try {
+            designPlanProductPoList = metaDataDao.queryDiyDesignPlanProductMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询自定义设计方案产品元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询自定义设计方案产品元数据失败!Exception:{}" + e);
+        }
+
+        log.info(CLASS_LOG_PREFIX + "查询自定义设计方案产品元数据完成.List<DesignPlanProductPo>数据条数:{}", null == designPlanProductPoList ? 0 : designPlanProductPoList.size());
+
+        return designPlanProductPoList;
+    }
+
+    @Override
+    public List<SystemDictionaryPo> querySystemDictionaryMetaData() throws MetaDataException {
+        //查询系统字典元数据
+        log.info(CLASS_LOG_PREFIX + "查询系统字典元数据...");
+        List<SystemDictionaryPo> systemDictionaryPoList;
+        try {
+            systemDictionaryPoList = metaDataDao.querySystemDictionaryMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询系统字典元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询系统字典元数据失败!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询系统字典元数据完成.List<SystemDictionaryPo>:{}", null == systemDictionaryPoList ? 0 : systemDictionaryPoList.size());
+
+        return systemDictionaryPoList;
+    }
+
+    @Override
+    public List<HouseLivingPo> queryHouseLivingMetaData() throws MetaDataException {
+        //查询户型小区元数据
+        log.info(CLASS_LOG_PREFIX + "查询户型小区元数据...");
+        List<HouseLivingPo> houseLivingPoList;
+        try {
+            houseLivingPoList = metaDataDao.queryHouseLivingMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询户型小区元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询户型小区元数据失败!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询户型小区元数据完成.List<HouseLivingPo>:{}", null == houseLivingPoList ? 0 : houseLivingPoList.size());
+
+        return houseLivingPoList;
+    }
+
+    @Override
+    public List<AreaPo> queryAreaMetaData() throws MetaDataException {
+        //查询区域元数据
+        log.info(CLASS_LOG_PREFIX + "查询区域元数据...");
+        List<AreaPo> areaPoList;
+        try {
+            areaPoList = metaDataDao.queryAreaMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询区域元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询区域元数据失败!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询区域元数据完成.List<AreaPo>:{}", null == areaPoList ? 0 : areaPoList.size());
+
+        return areaPoList;
+    }
+
+    @Override
+    public List<CompanyPo> queryCompanyMetaData() throws MetaDataException {
+        //查询公司元数据
+        log.info(CLASS_LOG_PREFIX + "查询公司元数据...");
+        List<CompanyPo> companyPoList;
+        try {
+            companyPoList = metaDataDao.queryCompanyMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询公司元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询公司元数据失败!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询公司元数据完成.List<CompanyPo>:{}", null == companyPoList ? 0 : companyPoList.size());
+
+        return companyPoList;
+    }
+
+    @Override
+    public List<CompanyCategoryRelPo> queryCompanyCategoryRelMetaData() throws MetaDataException {
+        //查询公司分类关联元数据
+        log.info(CLASS_LOG_PREFIX + "查询公司分类关联元数据...");
+        List<CompanyCategoryRelPo> companyCategoryRelPoList;
+        try {
+            companyCategoryRelPoList = metaDataDao.queryCompanyCategoryRelMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询公司分类关联元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询公司分类关联元数据失败!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询公司分类关联元数据完成.List<CompanyCategoryRelPo>:{}", null == companyCategoryRelPoList ? 0 : companyCategoryRelPoList.size());
+
+        return companyCategoryRelPoList;
+    }
+
+    @Override
+    public List<DesignTemplatePo> queryDesignTemplatePoMetaData() throws MetaDataException {
+        //查询设计方案样板房元数据
+        log.info(CLASS_LOG_PREFIX + "查询设计方案样板房元数据...");
+        List<DesignTemplatePo> designTemplatePoList;
+        try {
+            designTemplatePoList = metaDataDao.queryDesignTemplatePoMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询设计方案样板房元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询设计方案样板房元数据失败!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询设计方案样板房元数据完成.List<DesignTemplatePo>:{}", null == designTemplatePoList ? 0 : designTemplatePoList.size());
+
+        return designTemplatePoList;
+    }
+
+    @Override
+    public List<ProductPlatformRelPo> queryAllPlatformProductMetaData() throws MetaDataException {
+
+        //查询所有平台产品数据(平台数据过滤)
+        log.info(CLASS_LOG_PREFIX + "查询所有平台产品数据(平台数据过滤)...");
+
+        //所有数据
+        List<ProductPlatformRelPo> productPlatformRelPoList = new ArrayList<>();
+
+        //TOB数据
+        List<ProductPlatformRelPo> productToBPlatformRelPoList;
+        //TOC数据
+        List<ProductPlatformRelPo> productToCPlatformRelPoList;
+        //Sandu数据
+        List<ProductPlatformRelPo> productSanduPlatformRelPoList;
+
+        /************************** TOB ******************************/
+        log.info(CLASS_LOG_PREFIX + "查询TOB平台产品数据(平台数据过滤1/3)...");
+        try {
+            productToBPlatformRelPoList = metaDataDao.queryToBPlatformProductMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询TOB平台产品数据(平台数据过滤)失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询TOB平台产品数据(平台数据过滤)失败!Exception:{}" + e);
+        }
+        if (null != productToBPlatformRelPoList && 0 < productToBPlatformRelPoList.size()) {
+            productPlatformRelPoList.addAll(productToBPlatformRelPoList);
+        }
+
+        /************************** TOC ******************************/
+        log.info(CLASS_LOG_PREFIX + "查询TOC平台产品数据(平台数据过滤2/3)...");
+        try {
+            productToCPlatformRelPoList = metaDataDao.queryToCPlatformProductMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询TOC平台产品数据(平台数据过滤)失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询TOC平台产品数据(平台数据过滤)失败!Exception:{}" + e);
+        }
+        if (null != productToCPlatformRelPoList && 0 < productToCPlatformRelPoList.size()) {
+            productPlatformRelPoList.addAll(productToCPlatformRelPoList);
+        }
+
+        /************************** Sandu ******************************/
+        log.info(CLASS_LOG_PREFIX + "查询Sandu平台产品数据(平台数据过滤3/3)...");
+        try {
+            productSanduPlatformRelPoList = metaDataDao.querySanduPlatformProductMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询Sandu平台产品数据(平台数据过滤)失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询Sandu平台产品数据(平台数据过滤)失败!Exception:{}" + e);
+        }
+        if (null != productSanduPlatformRelPoList && 0 < productSanduPlatformRelPoList.size()) {
+            productPlatformRelPoList.addAll(productSanduPlatformRelPoList);
+        }
+
+        log.info(CLASS_LOG_PREFIX + "查询所有平台产品数据(平台数据过滤)完成.List<ProductPlatformRelPo>:{}", productPlatformRelPoList.size());
+
+        return productPlatformRelPoList;
+    }
+
+    @Override
+    public List<ProductAttributePo> queryProductAttrMetaData() throws MetaDataException {
+        //查询产品属性元信息
+        log.info(CLASS_LOG_PREFIX + "查询产品属性元信息...");
+        List<ProductAttributePo> productAttributePoList;
+        try {
+            productAttributePoList = metaDataDao.queryProductAttrMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询产品属性元信息失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询产品属性元信息失败!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询产品属性元信息完成.List<ProductAttributePo>:{}", null == productAttributePoList ? 0 : productAttributePoList.size());
+
+        return productAttributePoList;
+    }
+
+
+    @Override
+    public List<ProductUsagePo> queryProductUsageCountSatatistics() throws MetaDataException {
+        //查询产品使用次数统计信息
+        log.info(CLASS_LOG_PREFIX + "查询产品使用次数统计信息...");
+        List<ProductUsagePo> productAttributePoList;
+        try {
+            productAttributePoList = metaDataDao.queryProductUsageCountSatatistics();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询产品使用次数统计信息失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询产品使用次数统计信息失败!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询产品使用次数统计信息完成.List<ProductUsagePo>:{}", null == productAttributePoList ? 0 : productAttributePoList.size());
+
+        return productAttributePoList;
+    }
+
+    @Override
+    public List<UnionBrandPo> queryUnionBrandMetaData() throws MetaDataException {
+        //查询联盟品牌元数据
+        log.info(CLASS_LOG_PREFIX + "查询联盟品牌元数据...");
+        List<UnionBrandPo> unionBrandPoList;
+        try {
+            unionBrandPoList = metaDataDao.queryUnionBrandMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询联盟品牌元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询联盟品牌元数据!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询联盟品牌元数据.List<UnionBrandPo>:{}", null == unionBrandPoList ? 0 : unionBrandPoList.size());
+
+        return unionBrandPoList;
+    }
+
+    @Override
+    public List<ResPicPo> queryRenderPicMetaData() throws MetaDataException {
+        //查询渲染图片资源元数据
+        log.info(CLASS_LOG_PREFIX + "查询渲染图片资源元数据...");
+        List<ResPicPo> renderPicList;
+        try {
+            renderPicList = metaDataDao.queryRenderPicMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询渲染图片资源元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询渲染图片资源元数据!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询渲染图片资源元数据.List<ResPicPo>:{}", null == renderPicList ? 0 : renderPicList.size());
+
+        return renderPicList;
+    }
+
+    @Override
+    public List<DesignPlanBrandPo> queryDesignPlanBrandMetaData() throws MetaDataException {
+        //查询设计方案品牌元数据
+        log.info(CLASS_LOG_PREFIX + "查询设计方案品牌元数据...");
+        List<DesignPlanBrandPo> designPlanBrandList;
+        try {
+            designPlanBrandList = metaDataDao.queryDesignPlanBrandMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询设计方案品牌元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询设计方案品牌元数据!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询设计方案品牌元数据.List<DesignPlanBrandPo>:{}", null == designPlanBrandList ? 0 : designPlanBrandList.size());
+
+        return designPlanBrandList;
+    }
+
+    @Override
+    public List<SpaceCommonPo> querySpaceCommonMetaData() throws MetaDataException {
+        //查询空间元数据
+        log.info(CLASS_LOG_PREFIX + "查询空间元数据...");
+        List<SpaceCommonPo> spaceCommonList;
+        try {
+            spaceCommonList = metaDataDao.querySpaceCommonMetaData();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "查询空间元数据失败!Exception:{}", e);
+            throw new MetaDataException(CLASS_LOG_PREFIX + "查询空间元数据!Exception:{}" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询空间元数据.List<SpaceCommonPo>:{}", null == spaceCommonList ? 0 : spaceCommonList.size());
+
+        return spaceCommonList;
+    }
+}

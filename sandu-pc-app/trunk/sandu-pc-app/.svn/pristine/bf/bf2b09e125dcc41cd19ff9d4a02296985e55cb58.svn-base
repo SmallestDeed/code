@@ -1,0 +1,54 @@
+package com.sandu.house.service.impl;
+
+import com.sandu.common.util.StringUtils;
+import com.sandu.house.dao.BaseHouseMapper;
+import com.sandu.house.model.input.BaseHouseSearch;
+import com.sandu.house.model.output.BaseHouseVo;
+import com.sandu.house.service.BaseHouseService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+@Service("baseHouseService")
+@Transactional
+@Slf4j
+public class BaseHouseServiceImpl implements BaseHouseService {
+
+    @Autowired
+    private BaseHouseMapper baseHouseMapper;
+
+    /**
+     * 获取渲染过的户型
+     * @param search
+     * @return
+     */
+    @Override
+    public int getMyUsedCount(BaseHouseSearch search) {
+        List<Integer> livingIds = new ArrayList<>();
+        if( search != null && StringUtils.isNotBlank(search.getLivingName()) ){
+            livingIds = baseHouseMapper.getIdsByName(search.getLivingName());
+            search.setLivingIds(livingIds);
+        }
+        return baseHouseMapper.getMyUsedCount(search);
+    }
+
+    /**
+     * 获取渲染过的户型
+     * @param search
+     * @return
+     */
+    @Override
+    public List<BaseHouseVo> getMyUsed(BaseHouseSearch search) {
+        List<Integer> livingIds = new ArrayList<>();
+        if( search != null && StringUtils.isNotBlank(search.getLivingName()) ){
+            livingIds = baseHouseMapper.getIdsByName(search.getLivingName());
+            search.setLivingIds(livingIds);
+        }
+        return baseHouseMapper.getMyUsed(search);
+    }
+}

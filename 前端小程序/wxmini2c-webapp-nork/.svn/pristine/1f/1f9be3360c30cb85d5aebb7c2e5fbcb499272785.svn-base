@@ -1,0 +1,137 @@
+ <view class="order-iteam clearfix">
+    <view class="order-iteam-title clearfix">
+        <view class="title-left fl big">商品信息</view>
+        <block wx:if='{{detailList.orderStatus==0||detailList.orderStatus==1}}'>
+              <!--付款中和未付款-->
+              <block wx:if='{{detailList.payStatus==0||detailList.payStatus==1}}'>
+                <view class="title-right fr">待付款</view>
+              </block>
+              <!--已付款-->
+              <block wx:if='{{detailList.payStatus==2}}'>
+                <view class="title-right fr" wx:if="{{detailList.shippingStatus==0}}">待发货</view>
+                <view class="title-right fr" wx:if="{{detailList.shippingStatus==1}}">待收货</view>
+              </block>
+            </block>
+            <!--已 取消-->
+            <block wx:if='{{detailList.orderStatus==2}}'>
+              <view class="title-right fr">已取消</view>
+            </block>
+            <!--无效-->
+            <block wx:if='{{detailList.orderStatus==3}}'>
+              <view class="title-right fr">已取消</view>
+            </block>
+            <!--已完成-->
+            <block wx:if='{{detailList.orderStatus==4}}'>
+              <view class="title-right fr">已完成</view>
+            </block>
+            <!--退货-->
+            <block wx:if='{{detailList.orderStatus==5}}'>
+              <view class="title-right fr">退货</view>
+            </block>
+    </view>
+    <view class="order-iteam-body" wx:for='{{detailList.orderProductList}}'>
+        <view class="order-iteam-list" style='{{index==0?"margin-top:30rpx":""}}'>
+            <view class="order-left fl">
+                <image src="{{item.productPicPath?(resourcePath+item.productPicPath):'../goods-list/image/goods_pic_no.png'}}" class="headimg"></image>
+            </view>
+            <view class="order-mid fl">
+                <view class="order-mid-top">{{item.productName}}</view>
+                <view class='order-mid-view'>
+                <block wx:if='{{item.attribute}}'>
+                    <view class="order-mid-mid">{{item.attribute}}</view>
+                </block>
+                <!-- <block wx:if='{{item.attribute}}'>
+                    <view class="order-mid-mid">;{{item.attribute}}</view>
+                </block> -->
+                </view>
+                <view class="order-mid-bottom">￥{{item.productPrice}}</view>
+            </view>
+            <view class="order-right fr">
+                <text>× {{item.productNumber}}</text>
+            </view>
+        </view>
+    </view>
+    <view class="order-message-list total " style='margin-top:20rpx'>
+        <view class='rows'>
+          <view class="items">
+            <view class="l">商品合计</view>
+            <view class="r money">￥{{allMoney}}</view>
+          </view>
+          <!-- flagTitle -->
+          <view class="items" wx:if="{{discountPrice}}">
+              <view class="l">优惠券</view>
+              <view class="r money">-￥{{discountPrice}}</view>
+          </view>
+          <view class="items">
+              <view class="l">物流费用</view>
+              <view class="r money">+￥{{totalTransportCost}}</view>
+          </view>
+        </view>
+        <view class="message-iteam-2 clearfix">
+            <view class="fl">实付款</view>
+            <view class="fr money b">￥{{detailList.orderAmount}}</view>
+        </view>
+        <view class="message-iteam bottom clearfix">
+            <view class="fl">备注信息</view>
+            <view class="fr">{{detailList.remark?detailList.remark:"暂无"}}</view>
+        </view>
+    </view>
+</view>
+
+
+
+<view class="order-adress">
+    <view class="order-adress-title">收货地址</view>
+    <view class="order-adress-container">
+        <view class="order-adress-info clearfix">
+            <view class="fl">{{detailList.consignee}}</view>
+            <view class="fr">{{detailList.mobile}}</view>
+        </view>
+        <view class="order-adress-detail">{{detailList.fullAddress}}</view>
+    </view>
+</view>
+
+
+
+<view class="order-number">
+    <view class="clearfix">
+        <view class="fl big">订单编号</view>
+        <view class="fr">{{detailList.orderCode}}</view>
+    </view>
+    <view class="order-number-bottom clearfix">
+        <view class="fl big">下单时间</view>
+        <view class="fr">{{detailList.gmtCreate}}</view>
+    </view>
+</view>
+
+<view class='space'>　</view>
+
+
+<block wx:if='{{(detailList.payStatus==0||detailList.payStatus==1) && (detailList.orderStatus!=2) && (detailList.shippingStatus!=1)}}'>
+<view class="order-pay clearfix">
+    <view class="go fr" bindtap='pay'>去支付</view>
+    <view class="pay-cancel fr" bindtap='cancle'>取消订单</view>
+</view>
+</block>
+
+<!-- <block wx:if='{{detailList.payStatus==2 && detailList.orderStatus!=2 && detailList.shippingStatus!=1}}'>
+<view class="order-pay clearfix" bindtap='buyAgain'>
+    <view class="go fr">再次购买</view>
+</view>
+</block> -->
+
+
+<block wx:if='{{detailList.shippingStatus==1}}'>
+<view class="order-pay clearfix" bindtap='confirm'>
+    <view class="go fr"  >确认收货</view>
+</view>
+</block>
+<!--<block wx:if='{{detailList.orderStatus==4}}'>
+<view class="order-pay clearfix">
+    <view class="go fr">再次购买</view>
+    <view class="pay-cancel fr">删除订单</view>
+</view>
+</block>-->
+  <!-- 快速导航 -->
+  <import src="../../component/quick-navigation/quick-navigation.wxml"/>
+  <template is="quickNavigation" data="{{ ...quickNavigation }}"/>

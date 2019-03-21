@@ -1,0 +1,335 @@
+package com.sandu.designplan.service.impl;
+
+import com.google.gson.Gson;
+import com.sandu.design.model.DesignPlanProduct;
+import com.sandu.design.model.DesignPlanRecommendedProduct;
+import com.sandu.design.model.ProductsCost;
+import com.sandu.design.model.ProductsCostType;
+import com.sandu.designplan.dao.DesignPlanRecommendedMapper;
+import com.sandu.designplan.dao.DesignPlanRecommendedProductMapper;
+import com.sandu.designplan.model.*;
+import com.sandu.designplan.service.DesignPlanLikeService;
+import com.sandu.designplan.service.DesignPlanRecommendedProductService;
+import com.sandu.designplan.service.DesignPlanRecommendedService;
+import com.sandu.designplan.vo.RecommendedPlanProductRelatedVo;
+import com.sandu.product.model.BaseCompany;
+import com.sandu.product.model.ProductCostDetail;
+import com.sandu.system.service.ResRenderPicService;
+import com.sandu.user.model.LoginUser;
+import com.sandu.user.model.UserTypeCode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service("designPlanRecommendedProductService")
+public class DesignPlanRecommendedProductServiceImpl implements DesignPlanRecommendedProductService {
+
+    private final static Gson GSON = new Gson();
+    private final static String CLASS_LOG_PREFIX = "[推荐方案产品服务]:";
+    private static Logger logger = LoggerFactory.getLogger(DesignPlanRecommendedProductServiceImpl.class);
+
+    @Autowired
+    private DesignPlanRecommendedService designPlanRecommendedService;
+    @Autowired
+    private DesignPlanRecommendedProductMapper designPlanRecommendedProductMapper;
+    @Autowired
+    private DesignPlanLikeService designPlanLikeService;
+    @Autowired
+    private ResRenderPicService resRenderPicService;
+    @Autowired
+    private DesignPlanRecommendedMapper designPlanRecommendedMapper;
+
+    @Override
+    public int add(DesignPlanRecommendedProduct DesignPlanRecommendedProduct) {
+        return designPlanRecommendedProductMapper.insertSelective(DesignPlanRecommendedProduct);
+    }
+
+    @Override
+    public int costTypeListCount(DesignPlanProduct designPlanProduct) {
+        return designPlanRecommendedProductMapper.costTypeListCount(designPlanProduct);
+    }
+
+    @Override
+    public List<ProductsCostType> costTypeList(DesignPlanProduct designPlanProduct) {
+        return designPlanRecommendedProductMapper.costTypeList(designPlanProduct);
+    }
+
+    @Override
+    public List<ProductsCost> costList(ProductsCostType productsCostType) {
+        return designPlanRecommendedProductMapper.costList(productsCostType);
+    }
+
+    @Override
+    public List<ProductCostDetail> costDetail(ProductsCost cost) {
+        return designPlanRecommendedProductMapper.costDetail(cost);
+    }
+
+    @Override
+    public int getCount(DesignPlanRecommendedProduct DesignPlanRecommendedProduct) {
+        return designPlanRecommendedProductMapper.selectCount(DesignPlanRecommendedProduct);
+    }
+
+    @Override
+    public List<RecommendedPlanProductRelatedVo> queryRecommendedPlanOfProductRelatedByProductId(Integer productId, List<Integer> brandList, Integer platformId, LoginUser loginUser) {
+        if (null == productId || productId == 0 || null == brandList || 0 == brandList.size()) {
+            logger.warn(CLASS_LOG_PREFIX + "查询产品相关推荐方案失败,ProductId or brandList is null.productId:{}, brandList:{}", productId, brandList);
+            return null;
+        }
+        if (null == loginUser) {
+            loginUser = new LoginUser();
+            loginUser.setId(0);
+            loginUser.setUserType(UserTypeCode.USER_TYPE_OUTER_B2C);
+        }
+        Integer userId = loginUser.getId();
+        List<Integer> recommendedTypes = new ArrayList<>();
+        recommendedTypes.add(DesignPlanConstants.RECOMMENDED_TYPE_DECORATE);
+
+
+        logger.info(CLASS_LOG_PREFIX + "查询产品相关推荐方案--ProductId:{}", productId);
+        List<RecommendedPlanProductRelatedVo> recommendedPlanProductRelatedList = designPlanRecommendedProductMapper.queryRecommendedPlanOfProductRelatedByProductId(productId, brandList, platformId, userId,recommendedTypes);
+        logger.info(CLASS_LOG_PREFIX + "查询产品相关推荐方案完成--List<RecommendedPlanProductRelatedVo>:{}", GSON.toJson(recommendedPlanProductRelatedList));
+
+        //拼接图片HOST前缀
+        if (null != recommendedPlanProductRelatedList && recommendedPlanProductRelatedList.size() > 0) {
+            recommendedPlanProductRelatedList.forEach(recommendedPlanProductRelatedVo -> {
+                //拼接封面图片
+                recommendedPlanProductRelatedVo.setRecommendPlanCover(recommendedPlanProductRelatedVo.getRecommendPlanCover());
+
+                //从缓存中获取最新的方案点赞收藏数量信息、
+                //从缓存中获取最新的用户对方案是否点赞，是否收藏
+                DesignPlanSummaryInfo summaryInfo =
+                        designPlanLikeService.getPlanInfoOfCache(userId, recommendedPlanProductRelatedVo.getRecommendPlanId());
+                if (null != summaryInfo) {
+                    if (null != summaryInfo.getLikeNum()) {
+                        recommendedPlanProductRelatedVo.setLikeNum(summaryInfo.getLikeNum());
+                    }
+                    if (null != summaryInfo.getCollectNum()) {
+                        recommendedPlanProductRelatedVo.setCollectNum(summaryInfo.getCollectNum());
+                    }
+                    if (null != summaryInfo.getIsLike()) {
+                        recommendedPlanProductRelatedVo.setIsLike(summaryInfo.getIsLike());
+                    }
+                    if (null != summaryInfo.getIsFavorite()) {
+                        recommendedPlanProductRelatedVo.setIsFavorite(summaryInfo.getIsFavorite());
+                    }
+                }
+
+                //获取渲染数据
+                logger.info(CLASS_LOG_PREFIX + "查询产品相关推荐方案--查询推荐方案的渲染数据:RecommendPlanId:{}", recommendedPlanProductRelatedVo.getRecommendPlanId());
+                DesignPlanRecommended designPlanRecommend = designPlanRecommendedService.getAllRenderFromDesignPlanRecommend(recommendedPlanProductRelatedVo.getRecommendPlanId(), recommendedPlanProductRelatedVo.getRecommendPlanCoverPicId());
+                logger.info(CLASS_LOG_PREFIX + "查询产品相关推荐方案--查询推荐方案的渲染数据完成:DesignPlanRecommended:{}", designPlanRecommend.toString());
+                if (null != designPlanRecommend) {
+                    recommendedPlanProductRelatedVo.setRenderMap(designPlanRecommend.getRenderMap());
+                }
+            });
+        }
+
+        return recommendedPlanProductRelatedList;
+    }
+
+
+
+
+    @Override
+    public List<RecommendedPlanProductRelatedVo> queryRecommendedPlanOfProductRelatedByProductId2(Integer productId, Integer platformId, LoginUser loginUser,String companyCode,BaseCompany baseCompany,List<Integer> enableBrandIdList) {
+        if (null == productId || productId == 0 ) {
+            logger.warn(CLASS_LOG_PREFIX + "查询产品相关推荐方案失败,ProductId or brandList is null.productId:{}", productId);
+            return null;
+        }
+        if (null == loginUser) {
+            loginUser = new LoginUser();
+            loginUser.setId(0);
+            loginUser.setUserType(UserTypeCode.USER_TYPE_OUTER_B2C);
+        }
+        Integer userId = loginUser.getId();
+        List<Integer> recommendedTypes = new ArrayList<>();
+        recommendedTypes.add(DesignPlanConstants.RECOMMENDED_TYPE_DECORATE);
+        Integer companyId = baseCompany.getId();
+
+        /*三度云享家展示平台所有已发布的一键方案+公开方案*/
+        if(companyCode.equals(baseCompany.getCompanyCode())){
+            companyId = 0;
+            platformId =null;
+            recommendedTypes.add(DesignPlanConstants.RECOMMENDED_TYPE_SHARE);
+        }
+
+
+        logger.info(CLASS_LOG_PREFIX + "查询产品相关推荐方案--ProductId:{}", productId);
+        List<RecommendedPlanProductRelatedVo> recommendedPlanProductRelatedList =
+                designPlanRecommendedProductMapper.queryRecommendedPlanOfProductRelatedByProductId2(productId,platformId, userId,recommendedTypes,companyId,enableBrandIdList);
+        logger.info(CLASS_LOG_PREFIX + "查询产品相关推荐方案完成--List<RecommendedPlanProductRelatedVo>:{}", GSON.toJson(recommendedPlanProductRelatedList));
+
+        //获取渲染截图的缩略图集合
+        List <Integer> recommendedIds = new ArrayList <Integer>();
+        for (RecommendedPlanProductRelatedVo result : recommendedPlanProductRelatedList) {
+            recommendedIds.add(result.getRecommendPlanId());
+        }
+        List<ResRenderPic> resPicList = resRenderPicService.getResRenderPicListByRecommendedIds(recommendedIds);
+
+        //拼接图片HOST前缀
+        if (null != recommendedPlanProductRelatedList && recommendedPlanProductRelatedList.size() > 0) {
+            recommendedPlanProductRelatedList.forEach(recommendedPlanProductRelatedVo -> {
+                //把图片换成渲染截图的缩略图，之前关联的照片级缩略图有问题
+                for(ResRenderPic res : resPicList){
+                    if(res!=null && res.getPlanRecommendedId().intValue() == recommendedPlanProductRelatedVo.getRecommendPlanId().intValue()){
+                        recommendedPlanProductRelatedVo.setRecommendPlanCover(res.getPicPath());
+                        recommendedPlanProductRelatedVo.setDesignPlanCoverPath(res.getPicPath());
+                    }
+                }
+                //从缓存中获取最新的方案点赞收藏数量信息、
+                //从缓存中获取最新的用户对方案是否点赞，是否收藏
+                DesignPlanSummaryInfo summaryInfo =
+                        designPlanLikeService.getPlanInfoOfCache(userId, recommendedPlanProductRelatedVo.getRecommendPlanId());
+                if (null != summaryInfo) {
+                    if (null != summaryInfo.getLikeNum()) {
+                        recommendedPlanProductRelatedVo.setLikeNum(summaryInfo.getLikeNum());
+                    }
+                    if (null != summaryInfo.getCollectNum()) {
+                        recommendedPlanProductRelatedVo.setCollectNum(summaryInfo.getCollectNum());
+                    }
+                    if (null != summaryInfo.getIsLike()) {
+                        recommendedPlanProductRelatedVo.setIsLike(summaryInfo.getIsLike());
+                    }
+                    if (null != summaryInfo.getIsFavorite()) {
+                        recommendedPlanProductRelatedVo.setIsFavorite(summaryInfo.getIsFavorite());
+                    }
+                }
+                if(!companyCode.equals(baseCompany.getCompanyCode())){
+                    //获取渲染数据
+                    logger.info(CLASS_LOG_PREFIX + "查询产品相关推荐方案--查询推荐方案的渲染数据:RecommendPlanId:{}", recommendedPlanProductRelatedVo.getRecommendPlanId());
+                    DesignPlanRecommended designPlanRecommend = designPlanRecommendedService.getAllRenderFromDesignPlanRecommend(recommendedPlanProductRelatedVo.getRecommendPlanId(), recommendedPlanProductRelatedVo.getRecommendPlanCoverPicId());
+                    logger.info(CLASS_LOG_PREFIX + "查询产品相关推荐方案--查询推荐方案的渲染数据完成:DesignPlanRecommended:{}", designPlanRecommend.toString());
+                    if (null != designPlanRecommend) {
+                        recommendedPlanProductRelatedVo.setRenderMap(designPlanRecommend.getRenderMap());
+                    }
+                }
+
+            });
+        }
+
+        return recommendedPlanProductRelatedList;
+    }
+
+    @Override
+    public List<RecommendedPlanProductRelatedVo> getRecommendedPlanByProductIdList(List<Integer> productIds, Integer platformId, LoginUser loginUser, String companyCode, BaseCompany baseCompany,List<Integer> enableBrandIdList) {
+        if (null == productIds || productIds.size() == 0 ) {
+            logger.warn(CLASS_LOG_PREFIX + "查询产品相关推荐方案失败,ProductId or brandList is null.productIds:{}", productIds);
+            return null;
+        }
+        if (null == loginUser) {
+            loginUser = new LoginUser();
+            loginUser.setId(0);
+            loginUser.setUserType(UserTypeCode.USER_TYPE_OUTER_B2C);
+        }
+        Integer userId = loginUser.getId();
+        List<Integer> recommendedTypes = new ArrayList<>();
+        recommendedTypes.add(DesignPlanConstants.RECOMMENDED_TYPE_DECORATE);
+        Integer companyId = baseCompany.getId();
+
+        /*三度云享家展示平台所有已发布的一键方案+公开方案*/
+        if(companyCode.equals(baseCompany.getCompanyCode())){
+            companyId = 0;
+            platformId =null;
+            // 经守泽的需求确认改为只显示一键方案
+            // recommendedTypes.add(DesignPlanConstants.RECOMMENDED_TYPE_SHARE);
+        }
+
+
+        logger.info(CLASS_LOG_PREFIX + "查询产品相关推荐方案--ProductId:{}", productIds);
+        List<RecommendedPlanProductRelatedVo> recommendedPlanProductRelatedList =
+                designPlanRecommendedProductMapper.queryRecommendedPlanOfProductRelatedByProductIds(productIds,platformId, userId,recommendedTypes,companyId,enableBrandIdList);
+        if(recommendedPlanProductRelatedList ==null || recommendedPlanProductRelatedList.size() ==0 ){
+            return null;
+        }
+        logger.info(CLASS_LOG_PREFIX + "查询产品相关推荐方案完成--List<RecommendedPlanProductRelatedVo>:{}", GSON.toJson(recommendedPlanProductRelatedList));
+
+        //获取渲染截图的缩略图集合
+        List <Integer> recommendedIds = new ArrayList <Integer>();
+        for (RecommendedPlanProductRelatedVo result : recommendedPlanProductRelatedList) {
+            recommendedIds.add(result.getRecommendPlanId());
+            /**
+             * 添加方案收费逻辑
+             */
+            List<Integer> designPlanIds = new ArrayList<>();
+            //添加方案收费逻辑
+            designPlanIds =  designPlanRecommendedMapper.selectDesignPlanIdsFromRecord(userId);
+
+            if (result.getChargeType().intValue() == 1 && !designPlanIds.contains(result.getRecommendPlanId())){
+                result.setCopyRightPermission(1);
+            }else{
+                //免费方案,无需购买版权
+                result.setCopyRightPermission(0);
+            }
+
+            if (designPlanIds.contains(result.getRecommendPlanId())){
+                result.setHavePurchased(1);
+            }else{
+                result.setHavePurchased(0);
+            }
+        }
+
+        List<ResRenderPic> resPicList = resRenderPicService.getResRenderPicListByRecommendedIds(recommendedIds);
+
+        //拼接图片HOST前缀
+        if (null != recommendedPlanProductRelatedList && recommendedPlanProductRelatedList.size() > 0) {
+            recommendedPlanProductRelatedList.forEach(recommendedPlanProductRelatedVo -> {
+
+                //把图片换成渲染截图的缩略图，之前关联的照片级缩略图有问题
+                for(ResRenderPic res : resPicList){
+                    if(res!=null && res.getPlanRecommendedId().intValue() == recommendedPlanProductRelatedVo.getRecommendPlanId().intValue()){
+                        recommendedPlanProductRelatedVo.setRecommendPlanCover(res.getPicPath());
+                        recommendedPlanProductRelatedVo.setDesignPlanCoverPath(res.getPicPath());
+                    }
+                }
+
+                if (recommendedPlanProductRelatedVo.getViewNum() == null) {
+                    //浏览量为空就置为0
+                    recommendedPlanProductRelatedVo.setViewNum(0);
+                }
+
+                //从缓存中获取最新的方案点赞收藏数量信息、
+                //从缓存中获取最新的用户对方案是否点赞，是否收藏
+                DesignPlanSummaryInfo summaryInfo =
+                        designPlanLikeService.getPlanInfoOfCache(userId, recommendedPlanProductRelatedVo.getRecommendPlanId());
+                if (null != summaryInfo) {
+                    if (null != summaryInfo.getLikeNum()) {
+                        recommendedPlanProductRelatedVo.setLikeNum(summaryInfo.getLikeNum());
+                    }
+                    if (null != summaryInfo.getCollectNum()) {
+                        recommendedPlanProductRelatedVo.setCollectNum(summaryInfo.getCollectNum());
+                    }
+                    if (null != summaryInfo.getViewNum()) {
+                        recommendedPlanProductRelatedVo.setViewNum(summaryInfo.getViewNum());
+                    }
+                    if (null != summaryInfo.getIsLike()) {
+                        recommendedPlanProductRelatedVo.setIsLike(summaryInfo.getIsLike());
+                    }
+                    if (null != summaryInfo.getIsFavorite()) {
+                        recommendedPlanProductRelatedVo.setIsFavorite(summaryInfo.getIsFavorite());
+                    }
+                }
+                if(!companyCode.equals(baseCompany.getCompanyCode())){
+                    //获取渲染数据
+                    logger.info(CLASS_LOG_PREFIX + "查询产品相关推荐方案--查询推荐方案的渲染数据:RecommendPlanId:{}", recommendedPlanProductRelatedVo.getRecommendPlanId());
+                    DesignPlanRecommended designPlanRecommend = designPlanRecommendedService.getAllRenderFromDesignPlanRecommend(recommendedPlanProductRelatedVo.getRecommendPlanId(), recommendedPlanProductRelatedVo.getRecommendPlanCoverPicId());
+                    logger.info(CLASS_LOG_PREFIX + "查询产品相关推荐方案--查询推荐方案的渲染数据完成:DesignPlanRecommended:{}", designPlanRecommend.toString());
+                    if (null != designPlanRecommend) {
+                        recommendedPlanProductRelatedVo.setRenderMap(designPlanRecommend.getRenderMap());
+                    }
+                }
+
+            });
+        }
+
+        return recommendedPlanProductRelatedList;
+    }
+
+    @Override
+    public List<DesignPlanRecommendedResult> getDesignPlanRecommendedInfoList(Integer userId, List<Integer> signleSpaceRecommendedPlanIds) {
+        return designPlanRecommendedMapper.getAllDesignPlanRecommendedInfo(userId,signleSpaceRecommendedPlanIds);
+    }
+}

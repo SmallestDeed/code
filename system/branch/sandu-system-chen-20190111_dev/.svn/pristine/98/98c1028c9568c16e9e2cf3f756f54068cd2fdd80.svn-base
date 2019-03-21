@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.imallSlide.dao.ImallSlideDao">
+
+    <insert id="insert" parameterType="com.sandu.api.imallSlide.model.ImallSlide" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO `imall_slide`
+        (`filename`,`order`,creator,`gmt_create`,sys_code)
+        VALUES (#{fileName},#{order},#{creator},CURRENT_TIMESTAMP,#{sysCode})
+    </insert>
+
+    <!-- 删除图片 -->
+    <delete id="deleteImallSlide" >
+        DELETE FROM imall_slide
+        <where>
+            id=#{id}
+        </where>
+    </delete>
+
+    <select id="getList" resultType="com.sandu.api.imallSlide.model.ImallSlide">
+        SELECT `id`,fileName,`order`
+        FROM `imall_slide`
+        <where>
+            1=1
+            <if test="type != null"> and `type`=#{type}</if>
+        </where>
+        order by `order`
+    </select>
+
+    <select id="getByFileName" resultType="com.sandu.api.imallSlide.model.ImallSlide">
+        SELECT * from imall_slide WHERE filename = #{fileName}
+    </select>
+
+</mapper>

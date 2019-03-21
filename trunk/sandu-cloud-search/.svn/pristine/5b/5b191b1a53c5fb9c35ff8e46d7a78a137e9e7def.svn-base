@@ -1,0 +1,225 @@
+package com.sandu.search.storage.design;
+
+import com.sandu.search.common.constant.DesignPlanType;
+import com.sandu.search.entity.elasticsearch.po.design.DesignPlanProductPo;
+import com.sandu.search.exception.MetaDataException;
+import com.sandu.search.service.metadata.MetaDataService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 设计方案产品元数据存储
+ *
+ * @date 20180131
+ * @auth pengxuangang
+ */
+@Slf4j
+@Component
+public class DesignPlanProductMetaDataStorage {
+
+    private final static String CLASS_LOG_PREFIX = "设计方案产品元数据存储:";
+
+    @Autowired
+    private MetaDataService metaDataService;
+
+    //草稿设计方案产品元数据Map<DesignPlanProductId, WhiteMembraneProductId>
+    private static Map<Integer, Integer> tempDesignPlanProductMap = new HashMap<>();
+    //推荐设计方案产品元数据Map<DesignPlanProductId, WhiteMembraneProductId>
+    private static Map<Integer, Integer> recommendDesignPlanProductMap = new HashMap<>();
+    //自定义设计方案产品元数据Map<DesignPlanProductId, WhiteMembraneProductId>
+    private static Map<Integer, Integer> diyDesignPlanProductMap = new HashMap<>();
+
+    /**
+     * 更新数据
+     * @param isEnforceLoad 是否强制更新
+     */
+    public void updateData(boolean isEnforceLoad) {
+
+        //若无强制更新则更新前判断是否已有数据
+        if (!isEnforceLoad) {
+            if ((null != tempDesignPlanProductMap && 0 < tempDesignPlanProductMap.size())
+                    || (null != recommendDesignPlanProductMap && 0 < recommendDesignPlanProductMap.size())
+                    || (null != diyDesignPlanProductMap && 0 < diyDesignPlanProductMap.size())) {
+                return;
+            }
+        }
+
+        //设计方案产品元数据
+        List<DesignPlanProductPo> designPlanProductList;
+
+        /***************************** 草稿设计方案 *********************************/
+        //获取数据
+        log.info(CLASS_LOG_PREFIX + "开始获取草稿设计方案产品元数据....");
+        try {
+            designPlanProductList = metaDataService.queryTempDesignPlanProductMetaData();
+        } catch (MetaDataException e) {
+            log.error(CLASS_LOG_PREFIX + "获取草稿设计方案产品元数据失败: MetaDataException:{}", e);
+            throw new NullPointerException(CLASS_LOG_PREFIX + "获取草稿设计方案产品元数据失败,List<DesignPlanProductPo> is null.MetaDataException:" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "获取草稿设计方案产品元数据完成,总条数:{}", (null == designPlanProductList ? 0 : designPlanProductList.size()));
+
+        if (null == designPlanProductList || 0 >= designPlanProductList.size()) {
+            log.error(CLASS_LOG_PREFIX + "初始化草稿设计方案产品元数据失败,数据为空，请检查数据库design_plan_product数据。");
+            throw new RuntimeException(CLASS_LOG_PREFIX + "初始化草稿设计方案产品元数据失败,数据为空，请检查数据库design_plan_product数据。");
+        }
+
+        //转换为Map元数据
+        designPlanProductList.forEach(designPlanProductPo -> {
+            tempDesignPlanProductMap.put(designPlanProductPo.getId(), designPlanProductPo.getInitProductId());
+        });
+
+        /***************************** 推荐设计方案 *********************************/
+        //获取数据
+        log.info(CLASS_LOG_PREFIX + "开始获取推荐设计方案产品元数据....");
+        try {
+            designPlanProductList = metaDataService.queryRecommendDesignPlanProductMetaData();
+        } catch (MetaDataException e) {
+            log.error(CLASS_LOG_PREFIX + "获取推荐设计方案产品元数据失败: MetaDataException:{}", e);
+            throw new NullPointerException(CLASS_LOG_PREFIX + "获取推荐设计方案产品元数据失败,List<DesignPlanProductPo> is null.MetaDataException:" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "获取推荐设计方案产品元数据完成,总条数:{}", (null == designPlanProductList ? 0 : designPlanProductList.size()));
+
+        if (null == designPlanProductList || 0 >= designPlanProductList.size()) {
+            log.error(CLASS_LOG_PREFIX + "初始化推荐设计方案产品元数据失败,数据为空，请检查数据库design_plan_product数据。");
+            throw new RuntimeException(CLASS_LOG_PREFIX + "初始化推荐设计方案产品元数据失败,数据为空，请检查数据库design_plan_product数据。");
+        }
+
+        //转换为Map元数据
+        designPlanProductList.forEach(designPlanProductPo -> recommendDesignPlanProductMap.put(designPlanProductPo.getId(), designPlanProductPo.getInitProductId()));
+
+        /***************************** 自定义设计方案 *********************************/
+        //获取数据
+        log.info(CLASS_LOG_PREFIX + "开始获取自定义设计方案产品元数据....");
+        try {
+            designPlanProductList = metaDataService.queryDiyDesignPlanProductMetaData();
+        } catch (MetaDataException e) {
+            log.error(CLASS_LOG_PREFIX + "获取自定义设计方案产品元数据失败: MetaDataException:{}", e);
+            throw new NullPointerException(CLASS_LOG_PREFIX + "获取自定义设计方案产品元数据失败,List<DesignPlanProductPo> is null.MetaDataException:" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "获取自定义设计方案产品元数据完成,总条数:{}", (null == designPlanProductList ? 0 : designPlanProductList.size()));
+
+        if (null == designPlanProductList || 0 >= designPlanProductList.size()) {
+            log.error(CLASS_LOG_PREFIX + "初始化自定义设计方案产品元数据失败,数据为空，请检查数据库design_plan_product数据。");
+            throw new RuntimeException(CLASS_LOG_PREFIX + "初始化自定义设计方案产品元数据失败,数据为空，请检查数据库design_plan_product数据。");
+        }
+
+        //转换为Map元数据
+        designPlanProductList.forEach(designPlanProductPo -> diyDesignPlanProductMap.put(designPlanProductPo.getId(), designPlanProductPo.getInitProductId()));
+    }
+
+    /**
+     * 根据方案产品ID获取白膜产品ID
+     *
+     * @param designPlanProductId 设计方案产品ID
+     * @param designPlanType      设计方案类型
+     * @return
+     */
+    public int getWhiteMembraneProductIdById(int designPlanProductId, int designPlanType) {
+
+        if (0 == designPlanProductId) {
+            return 0;
+        }
+
+        if (null == tempDesignPlanProductMap || 0 >= tempDesignPlanProductMap.size()
+                || null == recommendDesignPlanProductMap || 0 >= recommendDesignPlanProductMap.size()
+                || null == diyDesignPlanProductMap || 0 >= diyDesignPlanProductMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        //白膜产品ID
+        int whiteMembraneProductId = 0;
+
+        //设计方案类型
+        switch (designPlanType) {
+            //草稿
+            case DesignPlanType.TEMP_DESIGN_PLAN_TYPE:
+                //查询内存对象
+                if (tempDesignPlanProductMap.containsKey(designPlanProductId)) {
+                    whiteMembraneProductId = tempDesignPlanProductMap.get(designPlanProductId);
+                } else {
+                    //查询数据库
+                    DesignPlanProductPo designPlanProductPo;
+                    try {
+                        designPlanProductPo = metaDataService.getTempDesignPlanProductMetaDataById(designPlanProductId);
+                    } catch (MetaDataException e) {
+                        log.error(CLASS_LOG_PREFIX + "数据库查询草稿设计方案产品白膜失败! MetaDataException:{}", e);
+                        return 0;
+                    }
+
+                    if (null == designPlanProductPo) {
+                        log.info(CLASS_LOG_PREFIX + "数据库查询草稿设计方案产品白膜未找到....designPlanProductId:{}.", designPlanProductId);
+                        return 0;
+                    }
+
+                    //装回内存对象
+                    tempDesignPlanProductMap.put(designPlanProductPo.getId(), designPlanProductPo.getInitProductId());
+                    log.info(CLASS_LOG_PREFIX + "数据库查询草稿设计方案产品白膜成功!DesignPlanProductPo:{}.", designPlanProductPo.toString());
+
+                    whiteMembraneProductId = designPlanProductPo.getInitProductId();
+                }
+                break;
+            //推荐
+            case DesignPlanType.RECOMMEND_DESIGN_PLAN_TYPE:
+                if (recommendDesignPlanProductMap.containsKey(designPlanProductId)) {
+                    whiteMembraneProductId = recommendDesignPlanProductMap.get(designPlanProductId);
+                } else {
+                    //查询数据库
+                    DesignPlanProductPo designPlanProductPo;
+                    try {
+                        designPlanProductPo = metaDataService.getRecommendDesignPlanProductMetaDataById(designPlanProductId);
+                    } catch (MetaDataException e) {
+                        log.error(CLASS_LOG_PREFIX + "数据库查询推荐设计方案产品白膜失败! MetaDataException:{}", e);
+                        return 0;
+                    }
+
+                    if (null == designPlanProductPo) {
+                        log.info(CLASS_LOG_PREFIX + "数据库查询推荐设计方案产品白膜未找到....designPlanProductId:{}.", designPlanProductId);
+                        return 0;
+                    }
+
+                    //装回内存对象
+                    recommendDesignPlanProductMap.put(designPlanProductPo.getId(), designPlanProductPo.getInitProductId());
+                    log.info(CLASS_LOG_PREFIX + "数据库查询推荐设计方案产品白膜成功!DesignPlanProductPo:{}.", designPlanProductPo.toString());
+
+                    whiteMembraneProductId = designPlanProductPo.getInitProductId();
+                }
+                break;
+            //自定义
+            case DesignPlanType.DIY_DESIGN_PLAN_TYPE:
+                if (diyDesignPlanProductMap.containsKey(designPlanProductId)) {
+                    whiteMembraneProductId = diyDesignPlanProductMap.get(designPlanProductId);
+                } else {
+                    //查询数据库
+                    DesignPlanProductPo designPlanProductPo;
+                    try {
+                        designPlanProductPo = metaDataService.getDiyDesignPlanProductMetaDataById(designPlanProductId);
+                    } catch (MetaDataException e) {
+                        log.error(CLASS_LOG_PREFIX + "数据库查询自定义设计方案产品白膜失败! MetaDataException:{}", e);
+                        return 0;
+                    }
+
+                    if (null == designPlanProductPo) {
+                        log.info(CLASS_LOG_PREFIX + "数据库查询自定义设计方案产品白膜未找到....designPlanProductId:{}.", designPlanProductId);
+                        return 0;
+                    }
+
+                    //装回内存对象
+                    diyDesignPlanProductMap.put(designPlanProductPo.getId(), designPlanProductPo.getInitProductId());
+                    log.info(CLASS_LOG_PREFIX + "数据库查询设计方案产品白膜成功!DesignPlanProductPo:{}.", designPlanProductPo.toString());
+
+                    whiteMembraneProductId = designPlanProductPo.getInitProductId();
+                }
+                break;
+            default:
+                log.warn(CLASS_LOG_PREFIX + "根据方案产品ID获取白膜产品ID失败，设计方案类型异常,DesignPlanType:{}.", designPlanType);
+        }
+
+        return whiteMembraneProductId;
+    }
+}

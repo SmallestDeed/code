@@ -1,0 +1,60 @@
+package com.sandu.product.service.impl;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.product.dao.GroupProductMapper;
+import com.sandu.product.model.GroupProduct;
+import com.sandu.product.service.GroupProductService;
+
+@Service("groupProductService")
+public class GroupProductServiceImpl implements GroupProductService {
+
+	@Autowired
+	private GroupProductMapper groupProductMapper;
+	
+	Logger logger = LoggerFactory.getLogger(GroupProductServiceImpl.class);
+	
+	@Override
+	public GroupProduct getGroupProductByCache(Map<Integer, GroupProduct> groupInfoMap, Integer groupId) {
+		// 参数验证/处理 ->start
+		if(groupId == null) {
+			logger.error("GroupProductServiceImpl.getGroupProductByCache ->groupId = null");
+		}
+		if(groupInfoMap == null) {
+			groupInfoMap = new HashMap<Integer, GroupProduct>();
+		}
+		// 参数验证/处理 ->end
+		
+		GroupProduct groupProduct = null;
+		
+		if(groupInfoMap.containsKey(groupId)) {
+			groupProduct = groupInfoMap.get(groupId);
+		}else {
+			groupProduct = this.get(groupId);
+			if(groupProduct != null) {
+				// 查询主产品关联的过滤属性信息
+				/*groupProduct.setProductFilterPropList(this.getProductFilterPropList(groupId));*/
+				groupInfoMap.put(groupId, groupProduct);
+			}
+		}
+		return groupProduct;
+	}
+
+	/**
+     *    获取数据详情
+     *
+     * @param id
+     * @return  GroupProduct 
+     */
+    @Override
+    public GroupProduct get(Integer id) {
+        return groupProductMapper.selectByPrimaryKey(id);
+    }
+
+}

@@ -1,0 +1,183 @@
+package com.sandu.system.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.common.util.Utils;
+import com.sandu.common.util.collections.CustomerListUtils;
+import com.sandu.common.util.collections.Lists;
+import com.sandu.system.cache.service.SysDictionaryCacheService;
+import com.sandu.system.dao.SysDictionaryMapper;
+import com.sandu.system.model.SysDictionary;
+import com.sandu.system.model.search.SysDictionarySearch;
+import com.sandu.system.service.SysDictionaryService;
+
+@Service("sysDictionaryService")
+public class SysDictionaryServiceImpl implements SysDictionaryService {
+
+	Logger logger = LoggerFactory.getLogger(SysDictionaryServiceImpl.class);
+	
+	@Autowired
+	private SysDictionaryMapper sysDictionaryMapper;
+	
+	@Autowired
+	private SysDictionaryCacheService sysDictionaryCacheService;
+	
+	private static Integer tvbenchSysDictionaryValue = null;
+	
+	@Override
+	public Integer getTvbenchSysDictionaryValue() {
+		if(tvbenchSysDictionaryValue != null) {
+			return tvbenchSysDictionaryValue;
+		}
+		
+		Integer value = sysDictionaryMapper.getTvbenchSysDictionaryValue();
+		tvbenchSysDictionaryValue = value;
+		return value;
+	}
+
+	@Override
+	public List<Integer> getValueByTypeAndValueKeylist(String bigType, List<String> smallTypeList) {
+		return sysDictionaryMapper.getValueByTypeAndValueKeylist(bigType, smallTypeList);
+	}
+
+	@Override
+	public SysDictionary findOneByValueKey(String smallTypeValuekey) {
+		SysDictionarySearch sysDictionarySearch = new SysDictionarySearch();
+		sysDictionarySearch.setStart(0);
+		sysDictionarySearch.setLimit(1);
+		sysDictionarySearch.setValuekey(smallTypeValuekey);
+		sysDictionarySearch.setIsDeleted(0);
+		List<SysDictionary> sysDictionarieList = this.getPaginatedList(sysDictionarySearch);
+		if(sysDictionarieList != null && sysDictionarieList.size() > 0){
+			return sysDictionarieList.get(0);
+		}
+		return null;
+	}
+
+	@Override
+	public List<Integer> getValueListBySmallTypeValueKeyList(List<String> smallTypeValueKeyList) {
+		// 参数验证 ->start
+		if(Lists.isEmpty(smallTypeValueKeyList)) {
+			return null;
+		}
+		// 参数验证 ->end
+
+		return sysDictionaryMapper.getValueListBySmallTypeValueKeyList(smallTypeValueKeyList);
+	}
+
+	/**
+	 *    分页获取数据
+	 *
+	 * @return   List<SysDictionary>
+	 */
+	@Override
+	//@Cacheable(value = "baseCache")
+	public List<SysDictionary> getPaginatedList(
+			SysDictionarySearch sysDictionarySearch) {
+		logger.info("getPaginatedList");
+		return sysDictionaryMapper.selectPaginatedList(sysDictionarySearch);
+	}
+
+	public SysDictionary selectSmallTypeObj(Map<String,Object> map){
+		return sysDictionaryMapper.selectSmallTypeObj(map);
+	}
+
+	/**
+	 *    获取SysDictionary对象
+	 *
+	 * @param  type,value
+	 * @return  SysDictionary
+	 */
+	@Override
+	public SysDictionary getSysDictionary(String type, Integer value) {
+		if(StringUtils.isEmpty(type)||value==null||new Integer(value).intValue()<=0){
+			return new SysDictionary();
+		}
+		
+		List<SysDictionary> dictionaryList = null;
+		if(Utils.enableRedisCache()){
+			dictionaryList = sysDictionaryCacheService.getSysDictionary(type, value);
+		}else{
+			SysDictionary sysDictionary=new SysDictionary();
+			sysDictionary.setIsDeleted(0);
+			sysDictionary.setType(type);
+			sysDictionary.setValue(value);
+			dictionaryList = this.getList(sysDictionary);
+		}
+		if(Lists.isNotEmpty(dictionaryList) && dictionaryList.size()>0){
+			return dictionaryList.get(0);
+		}
+		
+		return new SysDictionary();
+	}
+
+	/**
+	 * 所有数据
+	 * 
+	 * @param  sysDictionary
+	 * @return   List<SysDictionary>
+	 */
+	@Override
+	public List<SysDictionary> getList(SysDictionary sysDictionary) {
+	    return sysDictionaryMapper.selectList(sysDictionary);
+	}
+
+	@Override
+	public SysDictionary getSysDictionaryByValue(String type, Integer value) {
+		if(StringUtils.isEmpty(type)||value==null||new Integer(value).intValue()<=0){
+			return new SysDictionary();
+		}
+		
+		List<SysDictionary> dictionaryList=null;
+		if(Utils.enableRedisCache()){
+			dictionaryList=sysDictionaryCacheService.getAllListWithType(type);
+		}else{
+			SysDictionary sysDictionary=new SysDictionary();
+			sysDictionary.setIsDeleted(0);
+			sysDictionary.setType(type);
+			dictionaryList=getList(sysDictionary);
+		}
+		if(CustomerListUtils.isNotEmpty(dictionaryList)){
+			for(SysDictionary dictionary:dictionaryList){
+				if(dictionary==null||dictionary.getType()==null||dictionary.getValue()==null){
+					logger.info("dictionary="+dictionary+";dictionary.type="+(dictionary!=null?dictionary.getType():"")
+							+";dictionary.value="+(dictionary!=null?dictionary.getValue():""));
+					continue;
+				}
+				if(type.equals(dictionary.getType()) && value.equals(dictionary.getValue())){
+					return dictionary;
+				}
+			}
+		}
+		return new SysDictionary();
+	}
+
+	@Override
+	public SysDictionary findOneByTypeAndValue(String type, Integer value) {
+		SysDictionarySearch sysDictionarySearch=new SysDictionarySearch();
+		sysDictionarySearch.setStart(0);
+		sysDictionarySearch.setLimit(1);
+		sysDictionarySearch.setType(type);
+		sysDictionarySearch.setValue(value);
+		
+		List<SysDictionary> sysDictionaries=null;
+		if(Utils.enableRedisCache()){
+			sysDictionaries = sysDictionaryCacheService.getPageList(sysDictionarySearch);
+		}else{
+			sysDictionaries=getPaginatedList(sysDictionarySearch);
+		}
+		
+		if(sysDictionaries!=null&&sysDictionaries.size()>0){
+			return sysDictionaries.get(0);
+		}
+		return null;
+	}
+	
+}

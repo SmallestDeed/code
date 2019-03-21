@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.goods.dao.BaseGoodsBizMapper" >
+  <resultMap id="getMainPageGoodsBOListResultMap" type="com.sandu.api.goods.model.bo.BizGoodsBO">
+    <result column="id" property="spuId" jdbcType="INTEGER" />
+    <result column="spu_code" property="spuCode" jdbcType="VARCHAR" />
+    <result column="pic_path" property="picPath" jdbcType="VARCHAR" />
+    <result column="spu_name" property="spuName" jdbcType="VARCHAR" />
+    <result column="big_type" property="bigType" jdbcType="VARCHAR" />
+    <result column="small_type" property="smallType" jdbcType="VARCHAR" />
+    <result column="min_sale_price" property="minSalePrice" jdbcType="INTEGER" />
+    <result column="max_sale_price" property="maxSalePrice" jdbcType="INTEGER" />
+    <result column="min_price" property="minPrice" jdbcType="DECIMAL" />
+    <result column="max_price" property="maxPrice" jdbcType="DECIMAL" />
+    <result column="total_inventory" property="totalInventory" jdbcType="INTEGER" />
+    <result column="deposit" property="deposit" jdbcType="DECIMAL" />
+    <result column="presell_deadline" property="presellDDL" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <select id="getMainPageGoodsBOList" resultMap="getMainPageGoodsBOListResultMap" parameterType="com.sandu.api.goods.model.po.BizGoodsQueryPO">
+    select
+        t1.id
+        ,t1.spu_code
+        ,t6.pic_path
+        ,t1.spu_name
+        ,t5.name big_type
+        ,t4.name small_type
+        ,min(t7.sale_price) min_sale_price
+        ,max(t7.sale_price) max_sale_price
+        ,min(t3.price) min_price
+        ,max(t3.price) max_price
+        ,t1.total_inventory
+        ,t2.deposit
+        ,t2.presell_deadline
+    from
+        base_goods_spu t1
+        left join spu_sale_info t2 on t2.spu_id = t1.id
+        left join base_goods_sku t3 on t3.spu_id = t1.id
+        left join sys_dictionary t4 on t4.valuekey = t1.small_type_mark
+        left join sys_dictionary t5 on t5.valuekey = t4.type
+        left join res_pic t6 on t6.id = t1.pic_id
+        left join platform2c_product_rel t7 on t7.product_id = t3.product_id and t7.platform_id = 14
+    where
+        t1.is_putaway = 1
+        and t7.putaway_state = 1
+        and t7.allot_state = 1
+        <if test="companyId != null">
+          and t1.company_id = #{companyId}
+        </if>
+        <if test="isSpecialSell != null">
+          and t2.is_special_offer = #{isSpecialSell}
+        </if>
+        <if test="isPresell != null">
+          and t2.is_presell = #{isPresell}
+        </if>
+        <if test="presellMainPageState != null">
+          and t2.presell_main_page_state = #{presellMainPageState}
+        </if>
+        <if test="specialMainPageState != null">
+            and t2.special_main_page_state = #{specialMainPageState}
+        </if>
+    group by
+        t1.id
+    <if test="start != null and pageSize != null">
+      limit #{start},#{pageSize}
+    </if>
+  </select>
+
+  <update id="updateMainPageState">
+    update
+        spu_sale_info
+    <if test="type == 1">
+        SET
+        presell_main_page_state = #{state}
+    </if>
+    <if test="type == 2">
+        SET
+        special_main_page_state = #{state}
+    </if>
+    where
+        spu_id = #{spuId}
+  </update>
+</mapper>

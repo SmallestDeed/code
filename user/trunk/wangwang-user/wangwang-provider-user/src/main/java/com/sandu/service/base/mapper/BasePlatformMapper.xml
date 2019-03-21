@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.base.dao.BasePlatformDao">
+
+    <select id="selectByPlatformCode" resultType="com.sandu.api.base.model.BasePlatform">
+		select * from base_platform
+			where platform_code=#{platformCode}
+	</select>
+
+	<select id="queryList" resultType="com.sandu.api.base.model.BasePlatform">
+		SELECT
+		 *
+		 FROM
+		 base_platform
+		 WHERE
+		 is_deleted = 0
+	</select>
+
+	<select id="listPlatform" resultType="com.sandu.api.user.output.BasePlatformVO">
+		SELECT id, platform_name as name FROM base_platform WHERE is_deleted = 0
+		<choose>
+			<when test="bussinessType != null"> and platform_bussiness_type = #{bussinessType} </when>
+			<otherwise> and platform_bussiness_type != '2c'</otherwise>
+		</choose>
+	</select>
+
+	<select id="getUsedPlatformQty" resultType="java.lang.Integer">
+		SELECT
+		  COUNT(*)
+		FROM
+		  user_jurisdiction uj,
+		  sys_user u,
+		  base_platform p
+		WHERE uj.user_id = u.id
+		  AND uj.platform_id = p.id
+		  AND uj.is_deleted = 0
+		  AND u.is_deleted = 0
+		  AND p.is_deleted = 0
+		  AND uj.jurisdiction_status != 3
+		  AND u.business_administration_id = #{businessAdministrationId}
+		  AND p.platform_code = #{platformCode}
+	</select>
+
+	<select id="queryByIds" resultType="com.sandu.api.base.model.BasePlatform">
+		SELECT
+		  *
+		FROM
+		  base_platform
+		WHERE
+		  is_deleted = 0 AND
+		  id in
+		  <foreach collection="platformIds" item="id" open="(" separator="," close=")">
+			  #{id}
+		  </foreach>
+	</select>
+
+	<select id="getPC2BAndMobile2BPlatform" resultType="com.sandu.api.base.model.BasePlatform">
+		select platform_code, id from base_platform where platform_code in ('pc2b', 'mobile2b') and id in
+		<foreach collection="list" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+</mapper>

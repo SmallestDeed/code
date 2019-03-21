@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.product.dao.ProductCategoryRelDao">
+    <resultMap id="BaseResultMap" type="com.sandu.api.product.model.ProductCategoryRel">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="product_id" property="productId" jdbcType="INTEGER"/>
+        <result column="category_id" property="categoryId" jdbcType="INTEGER"/>
+        <result column="sys_code" property="sysCode" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="att1" property="att1" jdbcType="VARCHAR"/>
+        <result column="att2" property="att2" jdbcType="VARCHAR"/>
+        <result column="att3" property="att3" jdbcType="VARCHAR"/>
+        <result column="att4" property="att4" jdbcType="VARCHAR"/>
+        <result column="att5" property="att5" jdbcType="VARCHAR"/>
+        <result column="att6" property="att6" jdbcType="VARCHAR"/>
+        <result column="date_att1" property="dateAtt1" jdbcType="TIMESTAMP"/>
+        <result column="date_att2" property="dateAtt2" jdbcType="TIMESTAMP"/>
+        <result column="num_att1" property="numAtt1" jdbcType="INTEGER"/>
+        <result column="num_att2" property="numAtt2" jdbcType="INTEGER"/>
+        <result column="num_att3" property="numAtt3" jdbcType="DECIMAL"/>
+        <result column="num_att4" property="numAtt4" jdbcType="DECIMAL"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, product_id, category_id, sys_code, creator, gmt_create, modifier, gmt_modified, 
+    is_deleted, att1, att2, att3, att4, att5, att6, date_att1, date_att2, num_att1, num_att2, 
+    num_att3, num_att4, remark, status
+  </sql>
+    <select id="getProductCategoryRelById" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from product_category_rel
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <select id="getProductCategoryRelByCategoryId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from product_category_rel
+        where category_Id = #{categoryId}
+    </select>
+    <select id="getProductCategoryRelByProductId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from product_category_rel
+        where product_Id = #{productId}
+        order by num_att1 desc
+    </select>
+    <delete id="delete">
+    delete from product_category_rel
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <delete id="deleteProductCategoryRelByProductId">
+    delete from product_category_rel
+    where product_id = #{productId}
+  </delete>
+    <delete id="deleteProductCategoryRelByProductIds">
+        delete from product_category_rel
+        where product_id in
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <insert id="save" parameterType="com.sandu.api.product.model.ProductCategoryRel" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into product_category_rel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="productId != null">
+                product_id,
+            </if>
+            <if test="categoryId != null">
+                category_id,
+            </if>
+            <if test="sysCode != null">
+                sys_code,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="att1 != null">
+                att1,
+            </if>
+            <if test="att2 != null">
+                att2,
+            </if>
+            <if test="att3 != null">
+                att3,
+            </if>
+            <if test="att4 != null">
+                att4,
+            </if>
+            <if test="att5 != null">
+                att5,
+            </if>
+            <if test="att6 != null">
+                att6,
+            </if>
+            <if test="dateAtt1 != null">
+                date_att1,
+            </if>
+            <if test="dateAtt2 != null">
+                date_att2,
+            </if>
+            <if test="numAtt1 != null">
+                num_att1,
+            </if>
+            <if test="numAtt2 != null">
+                num_att2,
+            </if>
+            <if test="numAtt3 != null">
+                num_att3,
+            </if>
+            <if test="numAtt4 != null">
+                num_att4,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="productId != null">
+                #{productId,jdbcType=INTEGER},
+            </if>
+            <if test="categoryId != null">
+                #{categoryId,jdbcType=INTEGER},
+            </if>
+            <if test="sysCode != null">
+                #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="att1 != null">
+                #{att1,jdbcType=VARCHAR},
+            </if>
+            <if test="att2 != null">
+                #{att2,jdbcType=VARCHAR},
+            </if>
+            <if test="att3 != null">
+                #{att3,jdbcType=VARCHAR},
+            </if>
+            <if test="att4 != null">
+                #{att4,jdbcType=VARCHAR},
+            </if>
+            <if test="att5 != null">
+                #{att5,jdbcType=VARCHAR},
+            </if>
+            <if test="att6 != null">
+                #{att6,jdbcType=VARCHAR},
+            </if>
+            <if test="dateAtt1 != null">
+                #{dateAtt1,jdbcType=TIMESTAMP},
+            </if>
+            <if test="dateAtt2 != null">
+                #{dateAtt2,jdbcType=TIMESTAMP},
+            </if>
+            <if test="numAtt1 != null">
+                #{numAtt1,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt2 != null">
+                #{numAtt2,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt3 != null">
+                #{numAtt3,jdbcType=DECIMAL},
+            </if>
+            <if test="numAtt4 != null">
+                #{numAtt4,jdbcType=DECIMAL},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <insert id="saveProductCategoryRelList">
+        INSERT INTO product_category_rel
+        (product_id, category_id, sys_code, creator, gmt_create, modifier,
+        gmt_modified, is_deleted, status)
+        VALUES
+        <foreach collection="list" item="tmp" separator=",">
+            (
+            #{tmp.productId}, #{tmp.categoryId}, #{tmp.sysCode},
+            #{tmp.creator}, #{tmp.gmtCreate}, #{tmp.modifier,}, #{tmp.gmtModified}, #{tmp.isDeleted}, #{tmp.status}
+            )
+        </foreach>
+    </insert>
+    <update id="update" parameterType="com.sandu.api.product.model.ProductCategoryRel">
+        update product_category_rel
+        <set>
+            <if test="productId != null">
+                product_id = #{productId,jdbcType=INTEGER},
+            </if>
+            <if test="categoryId != null">
+                category_id = #{categoryId,jdbcType=INTEGER},
+            </if>
+            <if test="sysCode != null">
+                sys_code = #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="att1 != null">
+                att1 = #{att1,jdbcType=VARCHAR},
+            </if>
+            <if test="att2 != null">
+                att2 = #{att2,jdbcType=VARCHAR},
+            </if>
+            <if test="att3 != null">
+                att3 = #{att3,jdbcType=VARCHAR},
+            </if>
+            <if test="att4 != null">
+                att4 = #{att4,jdbcType=VARCHAR},
+            </if>
+            <if test="att5 != null">
+                att5 = #{att5,jdbcType=VARCHAR},
+            </if>
+            <if test="att6 != null">
+                att6 = #{att6,jdbcType=VARCHAR},
+            </if>
+            <if test="dateAtt1 != null">
+                date_att1 = #{dateAtt1,jdbcType=TIMESTAMP},
+            </if>
+            <if test="dateAtt2 != null">
+                date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},
+            </if>
+            <if test="numAtt1 != null">
+                num_att1 = #{numAtt1,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt2 != null">
+                num_att2 = #{numAtt2,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt3 != null">
+                num_att3 = #{numAtt3,jdbcType=DECIMAL},
+            </if>
+            <if test="numAtt4 != null">
+                num_att4 = #{numAtt4,jdbcType=DECIMAL},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="checkExistNewProductCategoryRel" resultType="java.lang.Integer">
+    select count(1)
+    from product_category_rel t
+    where t.num_att1 = 1
+    and product_id = #{productId};
+  </select>
+
+    <update id="updateByProductIdAndAttr1">
+        update product_category_rel
+        <set>
+            <if test="productId != null">
+                product_id = #{productId,jdbcType=INTEGER},
+            </if>
+            <if test="categoryId != null">
+                category_id = #{categoryId,jdbcType=INTEGER},
+            </if>
+            <if test="sysCode != null">
+                sys_code = #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="att1 != null">
+                att1 = #{att1,jdbcType=VARCHAR},
+            </if>
+            <if test="att2 != null">
+                att2 = #{att2,jdbcType=VARCHAR},
+            </if>
+            <if test="att3 != null">
+                att3 = #{att3,jdbcType=VARCHAR},
+            </if>
+            <if test="att4 != null">
+                att4 = #{att4,jdbcType=VARCHAR},
+            </if>
+            <if test="att5 != null">
+                att5 = #{att5,jdbcType=VARCHAR},
+            </if>
+            <if test="att6 != null">
+                att6 = #{att6,jdbcType=VARCHAR},
+            </if>
+            <if test="dateAtt1 != null">
+                date_att1 = #{dateAtt1,jdbcType=TIMESTAMP},
+            </if>
+            <if test="dateAtt2 != null">
+                date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},
+            </if>
+            <if test="numAtt1 != null">
+                num_att1 = #{numAtt1,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt2 != null">
+                num_att2 = #{numAtt2,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt3 != null">
+                num_att3 = #{numAtt3,jdbcType=DECIMAL},
+            </if>
+            <if test="numAtt4 != null">
+                num_att4 = #{numAtt4,jdbcType=DECIMAL},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+        </set>
+        where num_att1 = #{numAtt1,jdbcType=INTEGER}
+        and product_id = #{productId,jdbcType=INTEGER};
+    </update>
+</mapper>

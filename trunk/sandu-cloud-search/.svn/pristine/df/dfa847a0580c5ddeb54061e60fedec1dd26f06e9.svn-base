@@ -1,0 +1,62 @@
+package com.sandu.search.controller;
+
+import com.sandu.search.common.constant.IndexInfoQueryConfig;
+import com.sandu.search.common.tools.JsonUtil;
+import com.sandu.search.entity.elasticsearch.index.CategoryProductIndexMappingData;
+import com.sandu.search.entity.elasticsearch.response.SearchObjectResponse;
+import com.sandu.search.exception.ProductTextureSearchException;
+import com.sandu.search.service.product.ProductTextureSearchService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+/**
+ * 产品材质
+ *
+ * @date 20171218
+ * @auth pengxuangang
+ */
+@Slf4j
+@RestController
+@EnableAutoConfiguration
+@RequestMapping("/product/texture")
+public class ProductTextureController {
+
+    private final static String CLASS_LOG_PREFIX = "产品材质:";
+
+    @Autowired
+    private ProductTextureSearchService productTextureSearchService;
+
+    /**
+     * 根据产品材质搜索产品列表
+     *
+     * @param textureName 产品材质名
+     * @return
+     */
+    @RequestMapping("/{textureName}")
+    List<CategoryProductIndexMappingData> productByProductTexture(@PathVariable String textureName) {
+
+        SearchObjectResponse searchObjectResponse;
+        log.info(CLASS_LOG_PREFIX + "根据产品材质搜索产品列表:TextureName:{}.", textureName);
+        try {
+            searchObjectResponse = productTextureSearchService.queryProductListByProductTextureName(textureName, IndexInfoQueryConfig.DEFAULT_SEARCH_DATA_SIZE);
+        } catch (ProductTextureSearchException e) {
+            log.error(CLASS_LOG_PREFIX + "根据产品材质搜索产品列表失败! ProductTextureSearchException:{}.", e);
+            return null;
+        }
+        log.info(CLASS_LOG_PREFIX + "根据产品材质搜索产品列表完成!List<CategoryProductIndexMappingData>:{}.", JsonUtil.toJson(searchObjectResponse));
+
+        if (null == searchObjectResponse) {
+            log.warn(CLASS_LOG_PREFIX + "根据产品材质搜索产品列表完成!SearchObjectResponse is null,textureName:{}.", textureName);
+            return null;
+        }
+
+        return (List<CategoryProductIndexMappingData>) searchObjectResponse.getHitResult();
+    }
+
+}

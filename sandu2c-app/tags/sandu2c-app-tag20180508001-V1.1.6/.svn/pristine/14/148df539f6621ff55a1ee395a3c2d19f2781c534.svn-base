@@ -1,0 +1,134 @@
+package com.sandu.supplydemand.convert;/**
+ * @ Author     ：weisheng.
+ * @ Date       ：Created in PM 4:42 2018/5/2 0002
+ * @ Description：${description}
+ * @ Modified By：
+ * @Version: $version$
+ */
+
+
+import com.sandu.common.util.StringUtils;
+import com.sandu.supplydemand.model.BaseSupplyDemand;
+import com.sandu.supplydemand.output.BaseSupplyDemandVo;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @Title: 供求信息封装
+ * @Package 供求信息封装
+ * @Description: 供求信息封装
+ * @author weisheng
+ * @date 2018/5/2 0002PM 4:42
+ */
+public class BaseSupplyDemandConvert {
+
+    public static List<BaseSupplyDemandVo> parseToBaseSupplyDemandVoList(List<BaseSupplyDemand> baseSupplyDemandList){
+        List<BaseSupplyDemandVo> baseSupplyDemandVoList = new ArrayList<>();
+        if(baseSupplyDemandList!=null && baseSupplyDemandList.size()>0){
+            for (BaseSupplyDemand baseSupplyDemand : baseSupplyDemandList){
+                BaseSupplyDemandVo baseSupplyDemandVo = new BaseSupplyDemandVo();
+                baseSupplyDemandVo.setTitle(baseSupplyDemand.getTitle());
+                baseSupplyDemandVo.setProvinceAddress(baseSupplyDemand.getProvinceName());
+                baseSupplyDemandVo.setCityAddress(baseSupplyDemand.getCityName());
+                baseSupplyDemandVo.setDistrictAddress(baseSupplyDemand.getDistrictName());
+                baseSupplyDemandVo.setStreetAddress(baseSupplyDemand.getStreetName());
+                baseSupplyDemandVo.setGmtModified(baseSupplyDemand.getGmtModified());
+                baseSupplyDemandVo.setSupplyDemandCategoryName(baseSupplyDemand.getSupplyDemandCategoryName());
+                baseSupplyDemandVo.setTypeName(baseSupplyDemand.getType()==1?"供应":"需求");
+                baseSupplyDemandVo.setPushStatus(baseSupplyDemand.getPushStatus());
+                baseSupplyDemandVo.setViewNum(baseSupplyDemand.getViewNum());
+                baseSupplyDemandVo.setSupplyDemandPicPath(baseSupplyDemand.getSupplyDemandPicPath());
+                baseSupplyDemandVo.setSupplyDemandCategoryPicPath(baseSupplyDemand.getSupplyDemandCategoryPicPath());
+                baseSupplyDemandVo.setDescription(baseSupplyDemand.getDescription());
+                baseSupplyDemandVo.setPublisher(baseSupplyDemand.getPublisher());
+                baseSupplyDemandVo.setUserName(baseSupplyDemand.getNickName());
+                baseSupplyDemandVo.setUserPicPath(baseSupplyDemand.getUserPicPath());
+                baseSupplyDemandVo.setSupplyDemandId(baseSupplyDemand.getId());
+                baseSupplyDemandVo.setAddress(baseSupplyDemand.getAddress());
+
+                baseSupplyDemandVo.setProvince(baseSupplyDemand.getProvince());
+                baseSupplyDemandVo.setCity(baseSupplyDemand.getCity());
+                baseSupplyDemandVo.setDistrict(baseSupplyDemand.getDistrict());
+                baseSupplyDemandVo.setStreet(baseSupplyDemand.getStreet());
+                //如果有联系人,就去联系人名称,没有就去发布者名称
+                if(StringUtils.isEmpty(baseSupplyDemand.getContact())){
+                    baseSupplyDemandVo.setContact(baseSupplyDemand.getNickName());
+                }else{
+                    baseSupplyDemandVo.setContact(baseSupplyDemand.getContact());
+                }
+
+                baseSupplyDemandVo.setPhone(baseSupplyDemand.getPhone());
+                String[] supplyDemandCategoryIds = baseSupplyDemand.getSupplyDemandCategoryId().split(",");
+                if (supplyDemandCategoryIds != null && supplyDemandCategoryIds.length > 1) {
+                    baseSupplyDemandVo.setSupplyDemandCategoryId(Integer.parseInt(supplyDemandCategoryIds[0]));
+                    baseSupplyDemandVo.setSupplyDemandSmallCategoryId(Integer.parseInt(supplyDemandCategoryIds[1]));
+                }
+                baseSupplyDemandVo.setUserId(baseSupplyDemand.getCreatorId());
+                baseSupplyDemandVo.setSupplyDemandCategoryName(baseSupplyDemand.getSupplyDemandCategoryName());
+                baseSupplyDemandVo.setSupplyDemandSmallCategoryName(baseSupplyDemand.getSupplyDemandSmallCategoryName());
+                baseSupplyDemandVo.setSupplyDemandPicList(baseSupplyDemand.getSupplyDemandPicList());
+                baseSupplyDemandVo.setSupplyDemandCoverPic(baseSupplyDemand.getSupplyDemandCoverPic());
+                baseSupplyDemandVo.setDecorationCompany(baseSupplyDemand.getDecorationCompany());
+                baseSupplyDemandVo.setDesigner(baseSupplyDemand.getDesigner());
+                baseSupplyDemandVo.setMaterialShop(baseSupplyDemand.getMaterialShop());
+                baseSupplyDemandVo.setProprietor(baseSupplyDemand.getProprietor());
+                baseSupplyDemandVo.setBuilder(baseSupplyDemand.getBuilder());
+                baseSupplyDemandVoList.add(baseSupplyDemandVo);
+            }
+
+        }
+
+        return baseSupplyDemandVoList;
+    }
+
+    public static BaseSupplyDemandVo parseToBaseSupplyDemandVo(BaseSupplyDemand baseSupplyDemand) {
+        if(baseSupplyDemand==null){
+            return null;
+        }
+        BaseSupplyDemandVo baseSupplyDemandVo = new BaseSupplyDemandVo();
+        baseSupplyDemandVo.setTitle(baseSupplyDemand.getTitle());
+        baseSupplyDemandVo.setProvinceAddress(baseSupplyDemand.getProvinceName());
+        baseSupplyDemandVo.setCityAddress(baseSupplyDemand.getCityName());
+        baseSupplyDemandVo.setDistrictAddress(baseSupplyDemand.getDistrictName());
+        baseSupplyDemandVo.setStreetAddress(baseSupplyDemand.getStreetName());
+        baseSupplyDemandVo.setGmtModified(baseSupplyDemand.getGmtModified());
+        baseSupplyDemandVo.setSupplyDemandCategoryName(baseSupplyDemand.getSupplyDemandCategoryName());
+        baseSupplyDemandVo.setTypeName(baseSupplyDemand.getType()==1?"供应":"需求");
+        baseSupplyDemandVo.setPushStatus(baseSupplyDemand.getPushStatus());
+        baseSupplyDemandVo.setViewNum(baseSupplyDemand.getViewNum());
+        baseSupplyDemandVo.setSupplyDemandPicPath(baseSupplyDemand.getSupplyDemandPicPath());
+        baseSupplyDemandVo.setSupplyDemandCategoryPicPath(baseSupplyDemand.getSupplyDemandCategoryPicPath());
+        baseSupplyDemandVo.setDescription(baseSupplyDemand.getDescription());
+        baseSupplyDemandVo.setPublisher(baseSupplyDemand.getPublisher());
+        baseSupplyDemandVo.setUserName(baseSupplyDemand.getNickName());
+        baseSupplyDemandVo.setUserPicPath(baseSupplyDemand.getUserPicPath());
+        baseSupplyDemandVo.setSupplyDemandId(baseSupplyDemand.getId());
+        baseSupplyDemandVo.setAddress(baseSupplyDemand.getAddress());
+        //如果有联系人,就去联系人名称,没有就去发布者名称
+        if(StringUtils.isEmpty(baseSupplyDemand.getContact())){
+            baseSupplyDemandVo.setContact(baseSupplyDemand.getNickName());
+        }else{
+            baseSupplyDemandVo.setContact(baseSupplyDemand.getContact());
+        }
+
+        baseSupplyDemandVo.setPhone(baseSupplyDemand.getPhone());
+        String[] supplyDemandCategoryIds = baseSupplyDemand.getSupplyDemandCategoryId().split(",");
+        if (supplyDemandCategoryIds != null && supplyDemandCategoryIds.length > 1) {
+            baseSupplyDemandVo.setSupplyDemandCategoryId(Integer.parseInt(supplyDemandCategoryIds[0]));
+            baseSupplyDemandVo.setSupplyDemandSmallCategoryId(Integer.parseInt(supplyDemandCategoryIds[1]));
+        }
+        baseSupplyDemandVo.setUserId(baseSupplyDemand.getCreatorId());
+        baseSupplyDemandVo.setSupplyDemandCategoryName(baseSupplyDemand.getSupplyDemandCategoryName());
+        baseSupplyDemandVo.setSupplyDemandSmallCategoryName(baseSupplyDemand.getSupplyDemandSmallCategoryName());
+        baseSupplyDemandVo.setSupplyDemandPicList(baseSupplyDemand.getSupplyDemandPicList());
+        baseSupplyDemandVo.setSupplyDemandCoverPic(baseSupplyDemand.getSupplyDemandCoverPic());
+        baseSupplyDemandVo.setDecorationCompany(baseSupplyDemand.getDecorationCompany());
+        baseSupplyDemandVo.setDesigner(baseSupplyDemand.getDesigner());
+        baseSupplyDemandVo.setMaterialShop(baseSupplyDemand.getMaterialShop());
+        baseSupplyDemandVo.setProprietor(baseSupplyDemand.getProprietor());
+        baseSupplyDemandVo.setBuilder(baseSupplyDemand.getBuilder());
+        return baseSupplyDemandVo;
+
+    }
+}

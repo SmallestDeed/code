@@ -1,0 +1,503 @@
+<!--pages/goods-details/goods-details.wxml-->
+<!-- <view class='infoView'>1/8</view> -->
+<import src="../../utils/wxParse/wxParse.wxml"/> 
+<view class='goods-details' style='height:{{goodDetailsheight}};overflow:{{goodDetailsOverflow}}'>
+<!-- 头部 -->
+  <!-- <view class='goods-details-header'>
+    <view class='content-text' bindtap='switchGoodsAndCase' data-index='{{0}}'>
+      <text bindtap='switchGoodsAndCase' data-index='{{0}}' class='{{textActive === 0?"text-active" : ""}}'>商品</text>
+    </view>
+    <view class='case-text' bindtap='switchGoodsAndCase' data-index='{{1}}'>
+      <text bindtap='switchGoodsAndCase' data-index='{{1}}' class='{{textActive === 1?"text-active" : ""}}'>案例</text>
+    </view>    
+  </view> -->
+  <!-- 商品模块 -->
+  <view class='goods-details-content' wx:if='{{textActive === 0}}'>
+  <!-- 轮播图区域 -->
+    <view class='index-container'>
+      <swiper indicator-dots="true"	autoplay="{{autoplay}}"  interval="{{interval}}" duration="{{duration}}" indicator-active-color="#ff6419" indicator-color="#fff" indicator-dots="true">
+        <block wx:for="{{prodetailsObj.smallPiclist}}" wx:key='index'>
+          <swiper-item>
+            <image src="{{item?item:''}}" data-url="{{item?item:''}}" bindtap='showImg' class="slide-image" binderror="bannerError" data-img="prodetailsObj.smallPiclist[{{index}}]"/>
+          </swiper-item>
+        </block>
+      </swiper>
+      <view class="dots">
+        <block wx:for="{{prodetailsObj.smallPiclist}}" wx:key="unique">
+          <view class="dot{{index == swiperCurrent ? 'active' : ''}}"></view>
+        </block>
+      </view>
+      <block wx:if="{{isAssemble}}">
+          <view class="header-bottombox clear">
+            <text class="header-bottombox__text">超值拼团</text>
+            <view class="header-bottombox-timebox" wx:if="{{prodetailsObj.activity.activityStatus==1 ||  prodetailsObj.activity.activityStatus==2}}">
+              距<text wx:if="{{prodetailsObj.activity.activityStatus==1}}">开始</text><text wx:if="{{prodetailsObj.activity.activityStatus==2}}">结束仅剩</text>
+              <text class="numbg">{{assembleDayNum}}</text>
+              天
+              <text class="numbg">{{assembleHourNum}}</text>
+              :
+              <text class="numbg">{{assembleMinNum}}</text>
+              :
+              <text class="numbg">{{assembleSecNum}}</text>
+            </view>
+            <view class="header-bottombox-timebox" wx:else>
+              <text>该商品已结束拼团活动</text>
+            </view>
+        </view>
+      </block>
+    </view>
+    <!-- 主要文字 -->
+    <view class='main-text'>
+      <view class='main-text-name'>{{detailName}}</view>
+      <view class='main-text-funtion clearfix'>
+        <block wx:if="{{prodetailsObj.price!='0'&&!isAssemble}}">
+          <view class='funtion-price fl'>￥{{prodetailsObj.price}}
+          </view>
+          <view class='goodsPrice fl'>优惠价</view>
+        </block>
+        <!--团购的价格-->
+        <block  wx:if="{{isAssemble}}">
+           <view class="main-text__money  fl">
+                ￥{{prodetailsObj.activityPrice}}
+           </view>
+           <view class="main-text__tab  fl">
+              {{prodetailsObj.activity.totalNumber}}人拼团价
+           </view>
+        </block>
+        <block wx:if="{{prodetailsObj.price=='0'}}">
+        <view class='funtion-price fl'>
+          来电询价
+        </view>
+        </block>
+        <view class='fr funtion clearfix'>
+          <view class='funtion-collect identical fl' data-id='{{prodetailsObj.id}}' bindtap='goodCollect'>
+            <image src='{{prodetailsObj.isFavorite  == 0 ?staticImageUrl+"tuan_icon_collect_nor.png" : staticImageUrl+"tuan_icon_collect_sct.png" }}'></image>
+          </view> 
+          <view class='fl ico-Text collect-text'></view>                
+          <!-- <view bindtap='leaveAMessage' class='funtion-leavemes identical fl'>
+            <image src='{{staticImageUrl}}goods_icon_message@2x.png'></image>
+          </view> -->
+          <!-- <view class='fl ico-Text'>留言</view> -->
+        </view> 
+      </view>
+      <block wx:if="{{!isAssemble}}">
+          <view class='costPrice' wx:if="{{prodetailsObj.salePrice!='0'&&prodetailsObj.price!='0'}}">
+            原价：
+            <text>￥{{prodetailsObj.salePrice}}</text>
+            <text class='onlypay' wx:if="{{prodetailsObj.limitation>0}}">
+              每人限购{{prodetailsObj.limitation}}件
+            </text>
+          </view>
+      </block>
+
+      <block wx:if="{{isAssemble}}">
+         <view class='costPrice' >
+           优惠价：
+           <text>￥{{assembleSalePrice}}</text>
+           <!-- <text class='onlypay' wx:if="{{prodetailsObj.activity.purchaseLimitAmount>0}}">
+             每人限购{{prodetailsObj.activity.purchaseLimitAmount}}件
+           </text> -->
+         </view>
+       </block>
+      <view class='costPrice2' wx:if="{{prodetailsObj.sendOutDay>0}}">
+        最早发货时间 : 下单{{prodetailsObj.sendOutDay}}天后
+      </view>      
+    </view>
+     <view class='toWeb' bindtap='toOfficalWeb' wx:if="{{businessType!=9&&!isAssemble}}">
+      <view class='text fl'>
+        <image class='toWebImage' src='{{staticImageUrl}}wei_icon_store.png'></image>
+        <view class='txt'>查看门店</view>
+      </view>
+      <view class='arrow fr'><image src='{{staticImageUrl}}home_icon_more.png' class='toWebicon'></image></view>
+    </view>  
+
+      <view class="main-playbox" wx:if="{{isAssemble}}">
+        <view class="bgwrap">
+          <text class="main-playbox__title">拼团玩法</text>
+          <view class="main-playbox__numbox">
+            <view class="numberwrap">
+              <view class="number">1</view>
+              <view class="numbertext">选择商品开团/参团</view>
+            </view>
+            <view class="numberwrap">
+              <view class="number line">2</view>
+              <view class="numbertext">邀请好友参团</view>
+            </view>
+            <view class="numberwrap">
+              <view class="number">3</view>
+              <view class="numbertext">人满成团并发货</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+    <view class='chose-specifications clearfix' bindtap='choseSpecifications'>
+      <view class='text fl'>选择规格数量</view>
+      <view class='arrow fr'><image src='{{staticImageUrl}}home_icon_more.png'></image></view>
+    </view> 
+    
+    <view class="main-changePersonbox"  wx:if="{{isAssemble&&assembleChangePerson.length>0&&prodetailsObj.activity.gatherFlag==1&&!isShare&& prodetailsObj.activity.activityStatus==2}}">
+      <view class="bgwrap">
+        <view class="main-changePersonbox__changebox">
+          <view class="text">懒人凑团挤一挤</view>
+          <view class="changeBtn" bindtap="changePerson">
+            换一批
+            <image class="image" src="{{staticImageUrl}}page_icon_change.png" />
+          </view>
+        </view>
+        <view class="main-changePersonbox__person {{index==!0?'line':''}}"  wx:for="{{assembleChangePerson}}" wx:for-index="index"  wx:for-item="item" wx:key='{{index}}'>
+          <image class="personImg" src="{{item.userPhoto}}" />
+          <view class="personInfo">
+            <view class="name">{{item.nickName}}</view>
+            <view class="time">
+              还差
+              <text class="num" decode="{{true}}">&nbsp;{{item.unJoinNumber}}&nbsp;</text>
+              人成团
+              <text decode="{{true}}">&nbsp;&nbsp;&nbsp;</text>
+              <text wx:if="{{item.personTime!=='该团已失效!'}}">剩余:</text>{{item.personTime}}
+            </view>
+          </view>
+         <view class="joinBtn"  wx:if="{{item.personTime!=='该团已失效!'}}" data-type="couyicou" data-purchaseopenid="{{item.purchaseOpenId}}" data-activityid="{{item.activityId}}"  bindtap='purchaseImmediately'  >参团</view>
+          <view class="joinBtn--none" wx:if="{{item.personTime=='该团已失效!'}}" data-type="couyicou" data-purchaseopenid="{{item.purchaseOpenId}}" data-activityid="{{item.activityId}}" >参团</view>
+
+        </view>
+        <!-- <view class="main-changePersonbox__person">
+          <image class="personImg" />
+          <view class="personInfo">
+            <view class="name">晓晓李</view>
+            <view class="time">
+              还差
+              <text class="num" decode="{{true}}">&nbsp;1&nbsp;</text>
+              人成团
+              <text decode="{{true}}">&nbsp;&nbsp;&nbsp;</text>
+              剩余23:05:26
+            </view>
+          </view>
+          <view class="joinBtn">参团</view>
+        </view> -->
+      </view>
+    </view>
+    <view class="main-assembleStatus"  wx:if="{{isShare}}"> 
+      <view class="main-assembleStatus__personImgbox"  >
+
+         <block wx:if="{{isHidden}}">
+           <view class="Imgbox" wx:for="{{hiddenList}}" wx:for-item="item" wx:key='{{index}}'>
+             <image class="personImg" src="{{item.picPath}}" />
+             <view wx:if="{{item.isMaster==1}}" class="Imgbox__commander  commander">团长</view>
+           </view>
+           <view class="Imgbox">
+             <image class="personImg" src="{{staticImageUrl}}tuan_user_more.png" />
+           </view>
+         </block>
+         <block wx:if="{{!isHidden}}">
+           <view class="Imgbox" wx:for="{{hiddenList}}" wx:for-item="item" wx:key='{{index}}'>
+             <image class="personImg" src="{{item.picPath}}" />
+             <view wx:if="{{item.isMaster==1}}" class="Imgbox__commander  commander">团长</view>
+           </view>
+           <view class="Imgbox" wx:if="{{assembleDetail.openStatus==0}}">
+             <image wx:for="{{assembleDetail.totalNumber-assembleDetail.joinNumber}}" class="personImg" src="{{staticImageUrl}}tuan_user_nor.png"   wx:key='{{index}}' />
+           </view>
+         </block>
+      </view>
+
+      <block wx:if="{{assembleDetail.openStatus==0}}">
+        <view class="main-assembleStatus__text">
+          <image class="timeImg" src="{{staticImageUrl}}tuan_icon_open.png" />
+          已开团，离成团还差
+          <text class="num">{{assembleDetail.totalNumber-assembleDetail.joinNumber}}</text>
+          人
+        </view>
+        <view class="main-assembleStatus__timebox">
+          剩余
+          <text class="numbg">{{assembleHourNumStatus}}</text>
+          :
+          <text class="numbg">{{assembleMinNumStatus}}</text>
+          :
+          <text class="numbg">{{assembleSecNumStatus}}</text>
+          结束
+        </view>
+      </block>
+      <block wx:if="{{assembleDetail.openStatus==2}}">
+        <view class="main-assembleStatus__text">
+          <image class="timeImg" src="{{staticImageUrl}}tuan_icon_fail.png" />
+          拼团失败，下次再试吧
+        </view>
+      </block>
+      <block>
+        <view class="main-assembleStatus__text"  wx:if="{{assembleDetail.openStatus==1}}">
+          <image class="timeImg" src="{{staticImageUrl}}tuan_icon_success.png" />
+          拼团成功，棒棒哒
+        </view>
+      </block>
+    </view>
+    <view class='srcView' wx:if="{{couponList.length>0&&!specificationListShow}}">
+      <view class='title'>优惠券</view>
+      <scroll-view scroll-x="true" style=''>
+        <view class='scroll-item'>
+          <view class='items {{item.isAlreadyGet==0?"":"glay"}}' wx:for="{{couponList}}" wx:key="index">
+            <image src='{{item.isAlreadyGet==0?staticImageUrl+"home_bg_coupons_02.png":staticImageUrl+"home_bg_coupons_01.png"}}'></image>
+            <text class='money  {{item.discountAmount>=10000?"small":""}}'>{{item.discountAmount!=0?'￥'+item.discountAmount:item.rebateFactor+"折"}}</text>
+            <text class='type'>
+              {{item.couponType==1?"新人专享":(item.orderAmount!=0?"满"+item.orderAmount+"元立减":"无门槛")}}
+            </text>
+            <text class='click' data-id='{{item.couponId}}' wx:if="{{item.isAlreadyGet==0}}" bindtap='receive'>立即领取</text>
+            <text class='click' wx:if="{{item.isAlreadyGet!=0}}" bindtap='unreceive'>已领取</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!--商品匹配的方案-->
+    <view class='goodsPlan' wx:if='{{planNum>0}}'>
+        <view class='chose-specifications-plan clearfix'>
+          <view class='text fl'>商品效果展示</view>
+          <block wx:if='{{planNum>1}}'>
+            <view class='arrow fr' bindtap='toRecommendPlan'>
+              <image src='{{staticImageUrl}}home_icon_more.png' class='image'></image>
+            </view>
+            <view class='more fr' bindtap='toRecommendPlan'>查看更多</view>
+          </block>
+        </view> 
+        <view class='goods-details-case'>
+          <case-list border='{{true}}' recommendCaseList='{{[recommendPlanList]}}' bindshowDecoratePriceBox='showDecoratePriceBox'></case-list>
+       <import src="../../component/emptyTemplate/emptyTemplate.wxml"/>
+       <template is="emptyTemplate" data="{{ ...emptyTemplate }}"/> 
+     </view>
+    </view>
+    <!-- 商品评价 -->
+    <view class='goods-evaluation' wx:if='{{evaluation}}'>
+      <view class='title-box'>
+        商品评价（{{allTotal}}）
+        <view bindtap='goEvaluation'>全部评价<image src='{{staticImageUrl}}home_icon_more.png'></image></view>
+      </view>
+      <view class='evaluation-message'>
+        <image 
+          src='{{evaluation.headPath?resourcePath+evaluation.headPath:staticImageUrl+"index (2).png"}}'>
+        </image>
+        <view class='right-box'>
+          <view class='evaluation-name'>{{evaluation.nickName}}</view>
+          <view class='evaluation-date'>{{evaluation.gmtCreate}}  {{evaluation.skuInfo}}</view>
+        </view>
+      </view>
+      <view class='evaluation-content'>{{evaluation.comment}}</view>
+      <view class='evaluation-img-box' wx:if='{{evaluation.commentPics}}'>
+        <image src='{{resourcePath + item}}' 
+          wx:for='{{evaluation.commentPics}}' 
+          wx:key='{{index}}' 
+          data-item='{{item}}'
+          bindtap='examineImg'
+          class='{{(index + 1)%4 == 0?"evaluation-img": ""}}'></image>
+      </view>
+    </view>
+    <!-- 商品信息 -->
+    <view class='goods-message'>
+      <view class='g-m-info-box'>
+        <view class='g-m-title g-m-info-title'>
+          商品信息
+        </view>
+        <view class='g-m-info-row clearfix' wx:if = '{{ basegoodsSku.brandName }}'>
+          <view class='g-m-info-row-title fl'>产品品牌</view>
+          <view class='g-m-info-row-content fl'>{{ basegoodsSku.brandName }}</view>
+        </view>
+        <view class='g-m-info-row clearfix' wx:if = '{{ basegoodsSku.productModelNumber }}'>
+          <view class='g-m-info-row-title fl'>产品型号</view>
+          <view class='g-m-info-row-content fl'>{{ basegoodsSku.productModelNumber }}</view>
+        </view>
+        <view class='g-m-info-row clearfix' wx:if = '{{ basegoodsSku.productSpec }}' style='{{!prodetailsObj.productDesc?"margin-bottom:20rpx;":""}}'>
+          <view class='g-m-info-row-title fl'>产品规格</view>
+          <view class='g-m-info-row-content fl'>{{ basegoodsSku.productSpec }}</view>
+        </view>
+        <!-- <view class='g-m-info-row clearfix' wx:if = '{{ prodetailsObj.productDesc }}'>
+          <view class='g-m-info-row-title fl'>产品描述</view>
+          <view class='g-m-info-row-content fl'>{{ prodetailsObj.productDesc}}</view>
+        </view> -->
+      </view>
+      <view class='g-m-table' wx:if="{{prodetailsObj.productDesc}}"><template is="wxParse" data="{{wxParseData:article.nodes}}"/> </view>
+    </view>
+  </view>
+  <!-- 规格选择列表 -->
+  <view class='specifications-table' wx:if='{{specificationListShow}}'>
+    <view class='table-main'> 
+    <view class='close-icon' bindtap='closeSpecificationsTable'><image src='{{staticImageUrl}}goods_icon_close@2x.png'></image></view>
+     <view class='main-datails clearfix'>
+       <view class='m-d-image fl'>
+         <image src='{{basegoodsSku.productPicPath?resourcePath + basegoodsSku.productPicPath : "image/goods_pic_no.png"}}'></image>
+       </view>
+       <view class='m-d-text fl'>
+          <view class='name'>{{basegoodsSku.productName}}</view>
+          <block wx:if='{{basegoodsSku.price != "0"&&!isAssemble ||  isOneBuy}}'>
+             <view class='price'>￥{{basegoodsSku.price}}  <text class='goodsPrice'>优惠价</text></view>
+          </block> 
+
+          <block wx:if='{{isAssemble&&!isOneBuy}}'>
+             <view class='price'>
+               ￥{{basegoodsSku.activityPrice}}
+               <text class='goodsPrice'>拼团价</text>
+             </view>
+           </block>
+
+           <block wx:if='{{basegoodsSku.price == "0"}}'>
+             <view class='funtion-price'> 来电询价</view>
+          </block>  
+          <view class='costPrice' wx:if="{{basegoodsSku.salePrice!='0'&&basegoodsSku.price!='0'}}"> <text wx:if="{{isOneBuy}}">原价：￥{{prodetailsObj.salePrice}}</text><text wx:else>优惠价：￥{{assembleSalePrice}}</text></view>
+          <view class='chooseing'>已选择： {{chooseText}}</view>           
+       </view>       
+     </view>
+     <view class='color-style'>
+      <view class='c-s-style' wx:for='{{goodsType}}' wx:key='index'>
+        <view class='c-s-c-title'>{{item.attrName}}</view>
+        <view class='c-s-c-style clearfix'>
+          <view bindtap='chooseGoodsType' data-item='{{item}}' data-items='{{items}}' data-index='{{index}}' data-number='{{index1}}' class="c-style-box fl {{items.isSelected==1 ? 'style-box-active':''}}" wx:for='{{item.attrValue}}' wx:for-item="items" wx:for-index="index1">{{items.attrValueName || '默认'}}</view>
+        </view>          
+      </view>      
+     </view> 
+      <view class='purchase-number'>
+        <view class='p-n-title'>购买数量</view>
+        <block wx:if="{{basegoodsSku.inventory>0}}">
+        <view class='p-n-accumulator clearfix'>
+          <view class='accumulator-box fl'>
+            <view class='' data-index='{{0}}' bindtap='changePurchaseNumber'>-</view>
+            <view class='number'>{{purchaseNumber}}</view>
+            <view class='' data-index='{{1}}' bindtap='changePurchaseNumber'>+</view>          
+          </view>
+          <view class='accumulator-text fl'></view>     
+          <view class="accumulator-inventory">
+               库存{{basegoodsSku.inventory}}件
+          </view>   
+        </view>
+         </block>
+        <block wx:else>
+           <view>暂无库存</view>
+        </block>  
+      </view>
+    </view>    
+  </view>
+  <!-- 底部 -->
+  <view class='goods-details-footer' wx:if='{{textActive === 0}}'>
+    <view class='footer-purchase clearfix' wx:if='{{confirmOrFooter}}'>
+      <view class='purchase-icon fl'>
+        <contact-button type="default-light" size="100" session-from="weapp"></contact-button>
+        <image src='{{staticImageUrl}}list_icon_kefu.png'></image>
+        <image src='{{staticImageUrl}}list_icon_shoppingcar.png' bindtap='toPurchasecar'></image>
+        <view class='count' wx:if='{{carCount>0}}'>{{carCount}}</view>
+      </view>
+      <block wx:if="{{!isAssemble}}">
+          <block wx:if="{{prodetailsObj.price!='0'&&basegoodsSku.inventory!=0}}">
+            <view class='purchase-join-car fl' bindtap='joinPurchaseCar'>加入购物车</view>
+          </block>
+          <block wx:if="{{prodetailsObj.price=='0'||basegoodsSku.inventory==0}}">
+            <view class='purchase-join-carban fl'>加入购物车</view>
+          </block>
+          <block wx:if="{{prodetailsObj.price!='0'&&basegoodsSku.inventory!=0}}">
+            <view class='purchase-btn fl' bindtap='purchaseImmediately'   data-type="once" >立即购买</view>
+          </block>
+          <block wx:if="{{prodetailsObj.price=='0'||basegoodsSku.inventory==0}}"   data-type="once" >
+            <view class='purchase-btnban fl'>立即购买</view>
+          </block>
+      </block> 
+
+      <!--拼团购买按钮--> 
+      <block wx:if="{{isAssemble&&!isShare}}">
+          <view class="bottomNav__onceBuy fl"  data-type="once"  bindtap='purchaseImmediately'>
+            <view class="num">￥{{prodetailsObj.price}}
+            </view>
+           <view class="text">单独购买</view>
+          </view>
+          <view   wx:if="{{prodetailsObj.activity.activityStatus==2}}" class="bottomNav__assembleBuy  bottomNav__assembleBuy--active fl"  data-type="two"   bindtap='purchaseImmediately'>
+            <view class="num">￥{{prodetailsObj.activityPrice}}</view>
+            <view class="text" >开启拼团</view>
+          </view>
+           <view wx:if="{{prodetailsObj.activity.activityStatus!=2}}" class="bottomNav__assembleBuy   fl"  >
+            <view class="num">￥{{prodetailsObj.activityPrice}}</view>
+            <view class="text">开启拼团</view>
+          </view>
+      </block>
+      <block wx:if="{{isShare}}">
+        <view class="bottomNav__onceBuy fl" wx:if="{{prodetailsObj.activity.activityStatus==2}}"  data-type="two"  bindtap='purchaseImmediately' >
+          <view class="num open">我要开团</view>
+        </view>
+         <view wx:if="{{prodetailsObj.activity.activityStatus!=2}}" class="bottomNav__assembleBuy  fl">
+           <view class="num join">我要开团</view>
+         </view>
+        <view  wx:if="{{!isFail&&prodetailsObj.activity.activityStatus==2&&assembleDetail.openStatus==0}}"  data-type="join"  bindtap='purchaseImmediately' class="bottomNav__assembleBuy  bottomNav__assembleBuy--active fl">
+          <view class="num join">立即参团</view>
+        </view>
+        <view  wx:if="{{isFail||prodetailsObj.activity.activityStatus!=2||assembleDetail.openStatus!=0}}" class="bottomNav__assembleBuy  fl">
+          <view class="num join">立即参团</view>
+        </view>
+      </block>
+    </view>
+     <block wx:if="{{basegoodsSku.price!='0'&&basegoodsSku.inventory!=0}}">
+        <view class='footer-car' bindtap='purchaseConfirm' wx:if='{{!confirmOrFooter}}'>确定</view>
+      </block>      
+      <block wx:if="{{basegoodsSku.price==0||basegoodsSku.inventory==0}}">
+         <view class='confirm-btn' wx:if='{{!confirmOrFooter}}'>确定</view>
+      </block> 
+  </view>
+  <!-- 方案模块 -->
+  <view class='goods-details-case' wx:if='{{textActive === 1}}'>
+    <view class='case-list'>
+      <view class='case-item' wx:for='{{recommendPlanList}}' wx:key='{{index}}'>
+        <view class='case-image'>
+          <image class='bigPth' src='{{resourcePath + item.recommendPlanCover}}' 
+                 data-type='photo' bindtap='toThreeD' data-item='{{item}}'>
+                 </image>
+          <block wx:if='{{item.groupPrimaryId!=0 && item.groupPrimaryId!=null}}'>
+                  <image class='tag' src='{{staticImageUrl}}home_msg_group.png'></image>
+                </block>
+          <view class='Renovation-house' bindtap='putInMyhouse' data-item='{{item}}'>
+            装进我家 <image class='arrow' src='{{staticImageUrl}}page_icon_more_white@2x.png'></image>
+          </view>
+          <view class='seven-two-ico clearfix'>
+            <view class='video identical-class' data-type='video' bindtap='toThreeD' data-item='{{item}}'>
+              <image src='{{staticImageUrl}}place_icon_vedio@2x.png'></image>
+            </view>  
+            <view class='single-point identical-class' data-type='720' data-item='{{item}}' bindtap='toThreeD'>
+              <image src='{{staticImageUrl}}place_icon_720@2x.png'></image>
+            </view>
+            <view class='multi-point identical-class' data-type='roam' data-item='{{item}}' bindtap='toThreeD'>
+              <image src='{{staticImageUrl}}place_icon_morepoint@2x.png'></image>
+            </view> 
+          </view>      
+        </view>
+        <view class='case-text'>
+          <view class='case-mes clearfix'>
+            <view class='case-mes-name fl'>
+              {{item.designPlanName}}
+            </view>
+            <view class='case-mes-function fr clearfix'>
+              <view class='collet fl clearfix' data-index='{{index}}' bindtap='collectCase' data-item='{{item}}'>
+                 <image src='{{item.isFavorite!=1?staticImageUrl+"page_icon_collect_nor@2x.png":staticImageUrl+"page_icon_collect_sct@2x.png"}}'>
+                 </image> 
+                <text>{{item.collectNum || 0}}</text>
+              </view>
+              <view class='thumbs-up fl clearfix' data-index='{{index}}'  data-item='{{item}}' bindtap='likeCase'>
+                 <image src='{{item.isLike != 1?staticImageUrl+"page_icon_like_nor@2x.png":staticImageUrl+"page_icon_like_sct@2x.png"}}'></image> 
+                <text>{{item.likeNum || 0}}</text>
+              </view>              
+            </view>            
+          </view>
+          <view class='case-style'>{{item.houseStyleName}}</view>          
+        </view>
+      </view>
+    </view>
+    <import src="../../component/emptyTemplate/emptyTemplate.wxml"/>
+    <template is="emptyTemplate" data="{{ ...emptyTemplate }}"/> 
+  </view>
+  <!--加入失败弹框-->
+    <view class="joinFail-dialog" wx:if="{{showFailDialog}}">
+     <view class="dialogBox">
+       <image class="close" bindtap="cloesDialog" src="{{staticImageUrl}}pop_nav_icon_close_02.png" />
+       <image class="failImg" src="{{staticImageUrl}}pop_icon_sorry.png" />
+       <view class="text">哎呀，您来晚啦，该团已满员！</view>
+       <view class="tip">您可以直接开团，或选择其他团参加</view>
+       <view class="openAssembleBtn"   bindtap="cloesDialog">知道了</view>
+     </view>
+   </view>
+  <!-- 渲染选择框 -->
+  <import src="../../component/render-type/render-type.wxml"/>
+  <template is="renderType" data="{{ ...renderType }}"/>
+</view>
+  <!-- 快速导航 -->
+  <import src="../../component/quick-navigation/quick-navigation.wxml"/>
+  <template is="quickNavigation" data="{{ ...quickNavigation }}"/>

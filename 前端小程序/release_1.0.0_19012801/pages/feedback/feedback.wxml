@@ -1,0 +1,26 @@
+  <form bindsubmit='submit' report-submit='true'>
+<view class='titles'>反馈内容</view>
+<view class='ttMain'>
+    <textarea maxlength='200' placeholder='输入您要反馈的内容' bindinput='contsInput' value='{{conts}}'></textarea>
+    <view class='txts'>{{num}}/200</view>
+</view>
+<view class='titles'>问题截图（选填，四张以内）</view>
+<view class='mainUpImg'>
+    <view wx:for="{{imgList}}" wx:key="{{index}}">
+        <image class='close' src='{{staticImageUrl}}me_icon_delete.png' data-i="{{index}}" bindtap='deleteImg'></image>
+        <image class='imgs' src='{{item.path}}' bindtap='showImg' data-index="{{index}}"></image>
+    </view>
+    <image class='upImg' bindtap='upImg' wx:if="{{imgList.length<4}}" src='{{staticImageUrl}}me_icon_add_pic.png'></image>
+</view>
+<view class='titles' wx:if="{{!havePhone}}">联系方式（选填）</view>
+<input type="number" placeholder='请输入电话' 
+    value='{{phone}}' class='phone' wx:if="{{!havePhone}}" bindinput='phoneInput' maxlength='11'></input>
+
+<button class='btns' bindtap='{{true}}' form-type='submit' style='{{havePhone?"margin-top:30rpx;":""}}'>提交</button>
+<view class='toList' bindtap='toLisst'>反馈记录</view>
+<view class='toast' wx:if="{{showToasts}}">
+    <image src='{{staticImageUrl}}pop_icon_mile.png'></image>
+    <view class='p1'>感谢您的宝贵建议</view>
+    <view class='p2'>我们会尽快处理并回复你</view>
+</view>
+  </form>

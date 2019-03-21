@@ -1,0 +1,1726 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sandu.service.product.dao.DrawBaseProductMapper">
+ 	<select id="listBaseProductBo" resultType="com.sandu.api.house.bo.DrawBaseProductBO">
+		SELECT 
+		  bp.id,
+		  bp.product_code,
+		  bp.product_name,
+		  dt.space_common_id AS space_id,
+		  rf.id AS file_id,
+		  rf.file_name,
+		  rf.file_path,
+		  dtp.unique_id  
+		FROM
+		  draw_design_templet dt 
+		  LEFT JOIN draw_design_templet_product dtp 
+		    ON dt.id = dtp.design_templet_id 
+		  LEFT JOIN draw_base_product bp 
+		    ON bp.id = dtp.product_id 
+		  LEFT JOIN draw_res_file rf 
+		    ON bp.bake_before_file_id = rf.id
+		WHERE 1 = 1
+		  AND dt.is_deleted = 0
+		  AND dtp.is_deleted = 0
+		  AND bp.is_deleted = 0
+		  AND rf.is_deleted = 0
+		  AND dt.space_common_id IN 
+		  <foreach collection="spaceIds" item="spaceId" open="(" separator="," close=")">
+		  	#{spaceId}
+		  </foreach>
+		  <if test="createProductStatus != null">
+		  	and dtp.create_product_status = #{createProductStatus, jdbcType=INTEGER}
+		  </if>
+    </select>
+
+    <select id="listDrawBaseProductByIds" resultType="com.sandu.api.house.model.DrawBaseProduct">
+        SELECT
+            id, is_deleted
+        FROM draw_base_product
+        WHERE is_deleted = 0
+          AND id IN
+          <foreach collection="ids" item="item" open="(" close=")" separator=",">
+            #{item}
+          </foreach>
+    </select>
+
+    <insert id="saveBaseProduct" useGeneratedKeys="true" keyProperty="id">
+        insert into base_product
+        (
+                product_code, product_name, brand_id, pro_style_id, product_spec, color_id,
+                product_length, product_width, product_height, sale_price, pic_id, model_id,
+                product_desc, sys_code, creator, gmt_create, modifier, gmt_modified,
+                is_deleted, pic_ids, material_pic_ids, house_type_values, product_type_value, u3dmodel_Id,
+                merge_product_ids, putaway_modified, date_att2, product_small_type_value, putaway_state, num_att3,
+                num_att4, remark, ipad_u3dmodel_id, ios_u3dmodel_id, android_u3dmodel_id, macbook_u3dmodel_id,
+                windows_u3dmodel_id, web_u3dmodel_id, decoration_id, designer_id, modeling_id, rendering_id,
+                product_type_mark, product_small_type_mark, original_product_code, spaceComon_id, product_short_code,
+                bm_ids, code_number, parent_id, designTemplet_id, material_file_id, material3d_pic_ids,
+                sync_status, code_is_employ, code_batch, product_model_number, full_pave_length, test_modified,
+                sale_price_value, min_height, product_material_desc, colors_long_code, config_id, fbx_file_id,
+                fbx_texture, fbx_state, product_style_id_info, style_id, region_mark, measure_code,
+                wall_type, product_smallpox_identify, product_ground_identify, series_id, spelling_flower_file_id, app_pic_texture_ids,
+                product_smallpox_identify_str, split_textures_info
+        ) values (
+                #{productCode}, #{productName}, #{brandId}, #{proStyleId}, #{productSpec}, #{colorId},
+                #{productLength}, #{productWidth}, #{productHeight}, #{salePrice}, #{picId}, #{modelId},
+                #{productDesc}, #{sysCode}, #{creator}, #{gmtCreate}, #{modifier}, #{gmtModified},
+                #{isDeleted}, #{picIds}, #{materialPicIds}, #{houseTypeValues}, #{productTypeValue}, #{u3dmodelId},
+                #{mergeProductIds}, #{putawayModified}, #{dateAtt2}, #{productSmallTypeValue}, #{putawayState}, #{numAtt3},
+                #{numAtt4}, #{remark}, #{ipadU3dmodelId}, #{iosU3dmodelId}, #{androidU3dmodelId}, #{macbookU3dmodelId},
+                #{windowsU3dmodelId}, #{webU3dmodelId}, #{decorationId}, #{designerId}, #{modelingId}, #{renderingId},
+                #{productTypeMark}, #{productSmallTypeMark}, #{originalProductCode}, #{spacecomonId}, #{productShortCode},
+                #{bmIds}, #{codeNumber}, #{parentId}, #{designtempletId}, #{materialFileId}, #{material3dPicIds},
+                #{syncStatus}, #{codeIsEmploy}, #{codeBatch}, #{productModelNumber}, #{fullPaveLength}, #{testModified},
+                #{salePriceValue}, #{minHeight}, #{productMaterialDesc}, #{colorsLongCode}, #{configId}, #{fbxFileId},
+                #{fbxTexture}, #{fbxState}, #{productStyleIdInfo}, #{styleId}, #{regionMark}, #{measureCode},
+                #{wallType}, #{productSmallpoxIdentify}, #{productGroundIdentify}, #{seriesId}, #{spellingFlowerFileId}, #{appPicTextureIds},
+                #{productSmallpoxIdentifyStr}, #{splitTexturesInfo}
+        )
+    </insert>
+
+    <update id="updateBaseProduct">
+        update base_product set
+        <if test="type != '' and type == 'windowsPc'"> pc_model_u3d_id = #{fileId}</if>
+        <if test="type != '' and type == 'macBook'"> macBookpc_model_u3d_id = #{fileId}</if>
+        <if test="type != '' and type == 'android'"> android_model_u3d_id = #{fileId}</if>
+        <if test="type != '' and type == 'ios'"> ios_model_u3d_id = #{fileId}</if>
+        <if test="type != '' and type == 'ipad'"> ipad_model_u3d_id = #{fileId}</if>
+        where id = #{productId}
+    </update>
+
+    <insert id="saveDrawBaseProduct" useGeneratedKeys="true" keyProperty="id">
+        insert into draw_base_product
+        (
+                product_code, product_name, brand_id, pro_style_id, product_spec, color_id,
+                product_length, product_width, product_height, sale_price, pic_id, model_id,
+                product_desc, sys_code, creator, gmt_create, modifier, gmt_modified,
+                is_deleted, pic_ids, material_pic_ids, house_type_values, product_type_value, u3dmodel_Id,
+                merge_product_ids, putaway_modified, date_att2, product_small_type_value, putaway_state, num_att3,
+                num_att4, remark, ipad_u3dmodel_id, ios_u3dmodel_id, android_u3dmodel_id, macbook_u3dmodel_id,
+                windows_u3dmodel_id, web_u3dmodel_id, decoration_id, designer_id, modeling_id, rendering_id,
+                product_type_mark, product_small_type_mark, original_product_code, spaceComon_id, product_short_code,
+                bm_ids, code_number, parent_id, designTemplet_id, material_file_id, material3d_pic_ids,
+                sync_status, code_is_employ, code_batch, product_model_number, full_pave_length, test_modified,
+                sale_price_value, min_height, product_material_desc, colors_long_code, config_id, fbx_file_id,
+                fbx_texture, fbx_state, product_style_id_info, style_id, region_mark, measure_code,
+                wall_type, product_smallpox_identify, product_ground_identify, series_id, spelling_flower_file_id, app_pic_texture_ids,
+                product_smallpox_identify_str, split_textures_info
+        ) values (
+                #{productCode}, #{productName}, #{brandId}, #{proStyleId}, #{productSpec}, #{colorId},
+                #{productLength}, #{productWidth}, #{productHeight}, #{salePrice}, #{picId}, #{modelId},
+                #{productDesc}, #{sysCode}, #{creator}, #{gmtCreate}, #{modifier}, #{gmtModified},
+                #{isDeleted}, #{picIds}, #{materialPicIds}, #{houseTypeValues}, #{productTypeValue}, #{u3dmodelId},
+                #{mergeProductIds}, #{putawayModified}, #{dateAtt2}, #{productSmallTypeValue}, #{putawayState}, #{numAtt3},
+                #{numAtt4}, #{remark}, #{ipadU3dmodelId}, #{iosU3dmodelId}, #{androidU3dmodelId}, #{macbookU3dmodelId},
+                #{windowsU3dmodelId}, #{webU3dmodelId}, #{decorationId}, #{designerId}, #{modelingId}, #{renderingId},
+                #{productTypeMark}, #{productSmallTypeMark}, #{originalProductCode}, #{spacecomonId}, #{productShortCode},
+                #{bmIds}, #{codeNumber}, #{parentId}, #{designtempletId}, #{materialFileId}, #{material3dPicIds},
+                #{syncStatus}, #{codeIsEmploy}, #{codeBatch}, #{productModelNumber}, #{fullPaveLength}, #{testModified},
+                #{salePriceValue}, #{minHeight}, #{productMaterialDesc}, #{colorsLongCode}, #{configId}, #{fbxFileId},
+                #{fbxTexture}, #{fbxState}, #{productStyleIdInfo}, #{styleId}, #{regionMark}, #{measureCode},
+                #{wallType}, #{productSmallpoxIdentify}, #{productGroundIdentify}, #{seriesId}, #{spellingFlowerFileId}, #{appPicTextureIds},
+                #{productSmallpoxIdentifyStr}, #{splitTexturesInfo}
+        )
+    </insert>
+
+    <delete id="batchDelete">
+        delete from draw_base_product where id in (
+        <foreach collection="productIds" index="index" item="id" separator=",">
+            #{id}
+        </foreach>
+        )
+    </delete>
+    
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.sandu.api.house.model.DrawBaseProduct">
+    <result column="split_textures_info" jdbcType="LONGVARCHAR" property="splitTexturesInfo" />
+  </resultMap>
+  
+  <resultMap id="BaseResultMap" type="com.sandu.api.house.model.DrawBaseProduct">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="product_code" jdbcType="VARCHAR" property="productCode" />
+    <result column="product_name" jdbcType="VARCHAR" property="productName" />
+    <result column="brand_id" jdbcType="INTEGER" property="brandId" />
+    <result column="pro_style_id" jdbcType="INTEGER" property="proStyleId" />
+    <result column="product_spec" jdbcType="VARCHAR" property="productSpec" />
+    <result column="color_id" jdbcType="INTEGER" property="colorId" />
+    <result column="product_length" jdbcType="VARCHAR" property="productLength" />
+    <result column="product_width" jdbcType="VARCHAR" property="productWidth" />
+    <result column="product_height" jdbcType="VARCHAR" property="productHeight" />
+    <result column="sale_price" jdbcType="DECIMAL" property="salePrice" />
+    <result column="pic_id" jdbcType="INTEGER" property="picId" />
+    <result column="model_id" jdbcType="INTEGER" property="modelId" />
+    <result column="product_desc" jdbcType="VARCHAR" property="productDesc" />
+    <result column="sys_code" jdbcType="VARCHAR" property="sysCode" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+    <result column="pic_ids" jdbcType="VARCHAR" property="picIds" />
+    <result column="material_pic_ids" jdbcType="VARCHAR" property="materialPicIds" />
+    <result column="house_type_values" jdbcType="VARCHAR" property="houseTypeValues" />
+    <result column="product_type_value" jdbcType="VARCHAR" property="productTypeValue" />
+    <result column="u3dmodel_Id" jdbcType="VARCHAR" property="u3dmodelId" />
+    <result column="merge_product_ids" jdbcType="VARCHAR" property="mergeProductIds" />
+    <result column="putaway_modified" jdbcType="TIMESTAMP" property="putawayModified" />
+    <result column="date_att2" jdbcType="TIMESTAMP" property="dateAtt2" />
+    <result column="product_small_type_value" jdbcType="INTEGER" property="productSmallTypeValue" />
+    <result column="putaway_state" jdbcType="INTEGER" property="putawayState" />
+    <result column="num_att3" jdbcType="DECIMAL" property="numAtt3" />
+    <result column="num_att4" jdbcType="DECIMAL" property="numAtt4" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="ipad_u3dmodel_id" jdbcType="INTEGER" property="ipadU3dmodelId" />
+    <result column="ios_u3dmodel_id" jdbcType="INTEGER" property="iosU3dmodelId" />
+    <result column="android_u3dmodel_id" jdbcType="INTEGER" property="androidU3dmodelId" />
+    <result column="macbook_u3dmodel_id" jdbcType="INTEGER" property="macbookU3dmodelId" />
+    <result column="windows_u3dmodel_id" jdbcType="INTEGER" property="windowsU3dmodelId" />
+    <result column="web_u3dmodel_id" jdbcType="INTEGER" property="webU3dmodelId" />
+    <result column="decoration_id" jdbcType="VARCHAR" property="decorationId" />
+    <result column="designer_id" jdbcType="INTEGER" property="designerId" />
+    <result column="modeling_id" jdbcType="INTEGER" property="modelingId" />
+    <result column="rendering_id" jdbcType="INTEGER" property="renderingId" />
+    <result column="product_type_mark" jdbcType="VARCHAR" property="productTypeMark" />
+    <result column="product_small_type_mark" jdbcType="VARCHAR" property="productSmallTypeMark" />
+    <result column="original_product_code" jdbcType="VARCHAR" property="originalProductCode" />
+    <result column="spaceComon_id" jdbcType="INTEGER" property="spacecomonId" />
+    <result column="product_short_code" jdbcType="VARCHAR" property="productShortCode" />
+    <result column="bm_ids" jdbcType="VARCHAR" property="bmIds" />
+    <result column="code_number" jdbcType="INTEGER" property="codeNumber" />
+    <result column="parent_id" jdbcType="INTEGER" property="parentId" />
+    <result column="designTemplet_id" jdbcType="INTEGER" property="designtempletId" />
+    <result column="material_file_id" jdbcType="INTEGER" property="materialFileId" />
+    <result column="material3d_pic_ids" jdbcType="VARCHAR" property="material3dPicIds" />
+    <result column="sync_status" jdbcType="VARCHAR" property="syncStatus" />
+    <result column="code_is_employ" jdbcType="INTEGER" property="codeIsEmploy" />
+    <result column="code_batch" jdbcType="VARCHAR" property="codeBatch" />
+    <result column="product_model_number" jdbcType="VARCHAR" property="productModelNumber" />
+    <result column="full_pave_length" jdbcType="VARCHAR" property="fullPaveLength" />
+    <result column="test_modified" jdbcType="TIMESTAMP" property="testModified" />
+    <result column="sale_price_value" jdbcType="INTEGER" property="salePriceValue" />
+    <result column="min_height" jdbcType="VARCHAR" property="minHeight" />
+    <result column="product_material_desc" jdbcType="VARCHAR" property="productMaterialDesc" />
+    <result column="colors_long_code" jdbcType="VARCHAR" property="colorsLongCode" />
+    <result column="config_id" jdbcType="INTEGER" property="configId" />
+    <result column="fbx_file_id" jdbcType="INTEGER" property="fbxFileId" />
+    <result column="fbx_texture" jdbcType="VARCHAR" property="fbxTexture" />
+    <result column="fbx_state" jdbcType="INTEGER" property="fbxState" />
+    <result column="product_style_id_info" jdbcType="VARCHAR" property="productStyleIdInfo" />
+    <result column="style_id" jdbcType="BIGINT" property="styleId" />
+    <result column="region_mark" jdbcType="VARCHAR" property="regionMark" />
+    <result column="measure_code" jdbcType="VARCHAR" property="measureCode" />
+    <result column="wall_type" jdbcType="VARCHAR" property="wallType" />
+    <result column="product_smallpox_identify" jdbcType="INTEGER" property="productSmallpoxIdentify" />
+    <result column="product_ground_identify" jdbcType="INTEGER" property="productGroundIdentify" />
+    <result column="series_id" jdbcType="INTEGER" property="seriesId" />
+    <result column="spelling_flower_file_id" jdbcType="INTEGER" property="spellingFlowerFileId" />
+    <result column="app_pic_texture_ids" jdbcType="VARCHAR" property="appPicTextureIds" />
+    <result column="product_smallpox_identify_str" jdbcType="VARCHAR" property="productSmallpoxIdentifyStr" />
+    <result column="create_product_status" jdbcType="INTEGER" property="createProductStatus" />
+  </resultMap>
+    
+  <sql id="Base_Column_List">
+    id, product_code, product_name, brand_id, pro_style_id, product_spec, color_id, product_length, 
+    product_width, product_height, sale_price, pic_id, model_id, product_desc, sys_code, 
+    creator, gmt_create, modifier, gmt_modified, is_deleted, pic_ids, material_pic_ids, 
+    house_type_values, product_type_value, u3dmodel_Id, merge_product_ids, putaway_modified, 
+    date_att2, product_small_type_value, putaway_state, num_att3, num_att4, remark, ipad_u3dmodel_id, 
+    ios_u3dmodel_id, android_u3dmodel_id, macbook_u3dmodel_id, windows_u3dmodel_id, web_u3dmodel_id, 
+    decoration_id, designer_id, modeling_id, rendering_id, product_type_mark, product_small_type_mark, 
+    original_product_code, spaceComon_id, product_short_code, bm_ids, code_number, parent_id, 
+    designTemplet_id, material_file_id, material3d_pic_ids, sync_status, code_is_employ, 
+    code_batch, product_model_number, full_pave_length, test_modified, sale_price_value, 
+    min_height, product_material_desc, colors_long_code, config_id, fbx_file_id, fbx_texture, 
+    fbx_state, product_style_id_info, style_id, region_mark, measure_code, wall_type, 
+    product_smallpox_identify, product_ground_identify, series_id, spelling_flower_file_id, 
+    app_pic_texture_ids, product_smallpox_identify_str
+  </sql>
+  
+  <sql id="Blob_Column_List">
+    split_textures_info
+  </sql>
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from draw_base_product
+    where is_deleted = 0 
+       and id = #{id,jdbcType=BIGINT}
+  </select>
+    
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.house.model.DrawBaseProduct">
+    update draw_base_product
+    <set>
+      <if test="productCode != null">
+        product_code = #{productCode,jdbcType=VARCHAR},
+      </if>
+      <if test="productName != null">
+        product_name = #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="brandId != null">
+        brand_id = #{brandId,jdbcType=INTEGER},
+      </if>
+      <if test="proStyleId != null">
+        pro_style_id = #{proStyleId,jdbcType=INTEGER},
+      </if>
+      <if test="productSpec != null">
+        product_spec = #{productSpec,jdbcType=VARCHAR},
+      </if>
+      <if test="colorId != null">
+        color_id = #{colorId,jdbcType=INTEGER},
+      </if>
+      <if test="productLength != null">
+        product_length = #{productLength,jdbcType=VARCHAR},
+      </if>
+      <if test="productWidth != null">
+        product_width = #{productWidth,jdbcType=VARCHAR},
+      </if>
+      <if test="productHeight != null">
+        product_height = #{productHeight,jdbcType=VARCHAR},
+      </if>
+      <if test="salePrice != null">
+        sale_price = #{salePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="picId != null">
+        pic_id = #{picId,jdbcType=INTEGER},
+      </if>
+      <if test="modelId != null">
+        model_id = #{modelId,jdbcType=INTEGER},
+      </if>
+      <if test="productDesc != null">
+        product_desc = #{productDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="sysCode != null">
+        sys_code = #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="picIds != null">
+        pic_ids = #{picIds,jdbcType=VARCHAR},
+      </if>
+      <if test="materialPicIds != null">
+        material_pic_ids = #{materialPicIds,jdbcType=VARCHAR},
+      </if>
+      <if test="houseTypeValues != null">
+        house_type_values = #{houseTypeValues,jdbcType=VARCHAR},
+      </if>
+      <if test="productTypeValue != null">
+        product_type_value = #{productTypeValue,jdbcType=VARCHAR},
+      </if>
+      <if test="u3dmodelId != null">
+        u3dmodel_Id = #{u3dmodelId,jdbcType=VARCHAR},
+      </if>
+      <if test="mergeProductIds != null">
+        merge_product_ids = #{mergeProductIds,jdbcType=VARCHAR},
+      </if>
+      <if test="putawayModified != null">
+        putaway_modified = #{putawayModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="dateAtt2 != null">
+        date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},
+      </if>
+      <if test="productSmallTypeValue != null">
+        product_small_type_value = #{productSmallTypeValue,jdbcType=INTEGER},
+      </if>
+      <if test="putawayState != null">
+        putaway_state = #{putawayState,jdbcType=INTEGER},
+      </if>
+      <if test="numAtt3 != null">
+        num_att3 = #{numAtt3,jdbcType=DECIMAL},
+      </if>
+      <if test="numAtt4 != null">
+        num_att4 = #{numAtt4,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="ipadU3dmodelId != null">
+        ipad_u3dmodel_id = #{ipadU3dmodelId,jdbcType=INTEGER},
+      </if>
+      <if test="iosU3dmodelId != null">
+        ios_u3dmodel_id = #{iosU3dmodelId,jdbcType=INTEGER},
+      </if>
+      <if test="androidU3dmodelId != null">
+        android_u3dmodel_id = #{androidU3dmodelId,jdbcType=INTEGER},
+      </if>
+      <if test="macbookU3dmodelId != null">
+        macbook_u3dmodel_id = #{macbookU3dmodelId,jdbcType=INTEGER},
+      </if>
+      <if test="windowsU3dmodelId != null">
+        windows_u3dmodel_id = #{windowsU3dmodelId,jdbcType=INTEGER},
+      </if>
+      <if test="webU3dmodelId != null">
+        web_u3dmodel_id = #{webU3dmodelId,jdbcType=INTEGER},
+      </if>
+      <if test="decorationId != null">
+        decoration_id = #{decorationId,jdbcType=VARCHAR},
+      </if>
+      <if test="designerId != null">
+        designer_id = #{designerId,jdbcType=INTEGER},
+      </if>
+      <if test="modelingId != null">
+        modeling_id = #{modelingId,jdbcType=INTEGER},
+      </if>
+      <if test="renderingId != null">
+        rendering_id = #{renderingId,jdbcType=INTEGER},
+      </if>
+      <if test="productTypeMark != null">
+        product_type_mark = #{productTypeMark,jdbcType=VARCHAR},
+      </if>
+      <if test="productSmallTypeMark != null">
+        product_small_type_mark = #{productSmallTypeMark,jdbcType=VARCHAR},
+      </if>
+      <if test="originalProductCode != null">
+        original_product_code = #{originalProductCode,jdbcType=VARCHAR},
+      </if>
+      <if test="spacecomonId != null">
+        spaceComon_id = #{spacecomonId,jdbcType=INTEGER},
+      </if>
+      <if test="productShortCode != null">
+        product_short_code = #{productShortCode,jdbcType=VARCHAR},
+      </if>
+      <if test="bmIds != null">
+        bm_ids = #{bmIds,jdbcType=VARCHAR},
+      </if>
+      <if test="codeNumber != null">
+        code_number = #{codeNumber,jdbcType=INTEGER},
+      </if>
+      <if test="parentId != null">
+        parent_id = #{parentId,jdbcType=INTEGER},
+      </if>
+      <if test="designtempletId != null">
+        designTemplet_id = #{designtempletId,jdbcType=INTEGER},
+      </if>
+      <if test="materialFileId != null">
+        material_file_id = #{materialFileId,jdbcType=INTEGER},
+      </if>
+      <if test="material3dPicIds != null">
+        material3d_pic_ids = #{material3dPicIds,jdbcType=VARCHAR},
+      </if>
+      <if test="syncStatus != null">
+        sync_status = #{syncStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="codeIsEmploy != null">
+        code_is_employ = #{codeIsEmploy,jdbcType=INTEGER},
+      </if>
+      <if test="codeBatch != null">
+        code_batch = #{codeBatch,jdbcType=VARCHAR},
+      </if>
+      <if test="productModelNumber != null">
+        product_model_number = #{productModelNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="fullPaveLength != null">
+        full_pave_length = #{fullPaveLength,jdbcType=VARCHAR},
+      </if>
+      <if test="testModified != null">
+        test_modified = #{testModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="salePriceValue != null">
+        sale_price_value = #{salePriceValue,jdbcType=INTEGER},
+      </if>
+      <if test="minHeight != null">
+        min_height = #{minHeight,jdbcType=VARCHAR},
+      </if>
+      <if test="productMaterialDesc != null">
+        product_material_desc = #{productMaterialDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="colorsLongCode != null">
+        colors_long_code = #{colorsLongCode,jdbcType=VARCHAR},
+      </if>
+      <if test="configId != null">
+        config_id = #{configId,jdbcType=INTEGER},
+      </if>
+      <if test="fbxFileId != null">
+        fbx_file_id = #{fbxFileId,jdbcType=INTEGER},
+      </if>
+      <if test="fbxTexture != null">
+        fbx_texture = #{fbxTexture,jdbcType=VARCHAR},
+      </if>
+      <if test="fbxState != null">
+        fbx_state = #{fbxState,jdbcType=INTEGER},
+      </if>
+      <if test="productStyleIdInfo != null">
+        product_style_id_info = #{productStyleIdInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="styleId != null">
+        style_id = #{styleId,jdbcType=BIGINT},
+      </if>
+      <if test="regionMark != null">
+        region_mark = #{regionMark,jdbcType=VARCHAR},
+      </if>
+      <if test="measureCode != null">
+        measure_code = #{measureCode,jdbcType=VARCHAR},
+      </if>
+      <if test="wallType != null">
+        wall_type = #{wallType,jdbcType=VARCHAR},
+      </if>
+      <if test="productSmallpoxIdentify != null">
+        product_smallpox_identify = #{productSmallpoxIdentify,jdbcType=INTEGER},
+      </if>
+      <if test="productGroundIdentify != null">
+        product_ground_identify = #{productGroundIdentify,jdbcType=INTEGER},
+      </if>
+      <if test="seriesId != null">
+        series_id = #{seriesId,jdbcType=INTEGER},
+      </if>
+      <if test="spellingFlowerFileId != null">
+        spelling_flower_file_id = #{spellingFlowerFileId,jdbcType=INTEGER},
+      </if>
+      <if test="appPicTextureIds != null">
+        app_pic_texture_ids = #{appPicTextureIds,jdbcType=VARCHAR},
+      </if>
+      <if test="productSmallpoxIdentifyStr != null">
+        product_smallpox_identify_str = #{productSmallpoxIdentifyStr,jdbcType=VARCHAR},
+      </if>
+      <if test="splitTexturesInfo != null">
+        split_textures_info = #{splitTexturesInfo,jdbcType=LONGVARCHAR},
+      </if>
+   	  <if test="baseProductId != null">
+        base_product_id = #{baseProductId,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+	<!-- findAllByDrawDesignTempletId -->
+	<select id="findAllByDrawDesignTempletId" resultMap="ResultMapWithBLOBs">
+		SELECT 
+		  dbp.*,
+		  ddtp.create_product_status 
+		FROM
+		  draw_base_product dbp 
+		  LEFT JOIN draw_design_templet_product ddtp 
+		    ON ddtp.product_id = dbp.id 
+		WHERE dbp.is_deleted = 0 
+		  AND ddtp.is_deleted = 0
+		  AND ddtp.design_templet_id = #{drawDesignTempletId, jdbcType=BIGINT}
+	</select>
+   
+   <!-- transformToBaseProduct -->
+	<insert id="transformToBaseProduct" parameterType="com.sandu.api.house.model.DrawBaseProduct" keyProperty="baseProductId" useGeneratedKeys="true">
+		insert into base_product
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="productCode != null">
+				product_code,
+			</if>
+			<if test="productName != null">
+				product_name,
+			</if>
+			<if test="brandId != null">
+				brand_id,
+			</if>
+			<if test="proStyleId != null">
+				pro_style_id,
+			</if>
+			<if test="productSpec != null">
+				product_spec,
+			</if>
+			<if test="colorId != null">
+				color_id,
+			</if>
+			<if test="productLength != null">
+				product_length,
+			</if>
+			<if test="productWidth != null">
+				product_width,
+			</if>
+			<if test="productHeight != null">
+				product_height,
+			</if>
+			<if test="salePrice != null">
+				sale_price,
+			</if>
+			<if test="salePriceAdvice != null">
+				sale_price_advice,
+			</if>
+			<if test="picId != null">
+				pic_id,
+			</if>
+			<if test="modelId != null">
+				model_id,
+			</if>
+			<if test="productDesc != null">
+				product_desc,
+			</if>
+			<if test="sysCode != null">
+				sys_code,
+			</if>
+			<if test="creator != null">
+				creator,
+			</if>
+			<if test="gmtCreate != null">
+				gmt_create,
+			</if>
+			<if test="modifier != null">
+				modifier,
+			</if>
+			<if test="gmtModified != null">
+				gmt_modified,
+			</if>
+			<if test="isDeleted != null">
+				is_deleted,
+			</if>
+			<if test="picIds != null">
+				pic_ids,
+			</if>
+			<if test="materialPicIds != null">
+				material_pic_ids,
+			</if>
+			<if test="houseTypeValues != null">
+				house_type_values,
+			</if>
+			<if test="productTypeValue != null">
+				product_type_value,
+			</if>
+			<if test="u3dmodelId != null">
+				u3dmodel_Id,
+			</if>
+			<if test="mergeProductIds != null">
+				merge_product_ids,
+			</if>
+			<if test="putawayModified != null">
+				putaway_modified,
+			</if>
+			<if test="dateAtt2 != null">
+				date_att2,
+			</if>
+			<if test="productSmallTypeValue != null">
+				product_small_type_value,
+			</if>
+			<if test="putawayState != null">
+				putaway_state,
+			</if>
+			<if test="numAtt3 != null">
+				num_att3,
+			</if>
+			<if test="numAtt4 != null">
+				num_att4,
+			</if>
+			<if test="remark != null">
+				remark,
+			</if>
+			<if test="ipadU3dmodelId != null">
+				ipad_u3dmodel_id,
+			</if>
+			<if test="iosU3dmodelId != null">
+				ios_u3dmodel_id,
+			</if>
+			<if test="androidU3dmodelId != null">
+				android_u3dmodel_id,
+			</if>
+			<if test="macbookU3dmodelId != null">
+				macbook_u3dmodel_id,
+			</if>
+			<if test="windowsU3dmodelId != null">
+				windows_u3dmodel_id,
+			</if>
+			<if test="webU3dmodelId != null">
+				web_u3dmodel_id,
+			</if>
+			<if test="decorationId != null">
+				decoration_id,
+			</if>
+			<if test="designerId != null">
+				designer_id,
+			</if>
+			<if test="modelingId != null">
+				modeling_id,
+			</if>
+			<if test="renderingId != null">
+				rendering_id,
+			</if>
+			<if test="productTypeMark != null">
+				product_type_mark,
+			</if>
+			<if test="productSmallTypeMark != null">
+				product_small_type_mark,
+			</if>
+			<if test="originalProductCode != null">
+				original_product_code,
+			</if>
+			<if test="spacecomonId != null">
+				spaceComon_id,
+			</if>
+			<if test="productShortCode != null">
+				product_short_code,
+			</if>
+			<if test="bmIds != null">
+				bm_ids,
+			</if>
+			<if test="codeNumber != null">
+				code_number,
+			</if>
+			<if test="parentId != null">
+				parent_id,
+			</if>
+			<if test="designtempletId != null">
+				designTemplet_id,
+			</if>
+			<if test="materialFileId != null">
+				material_file_id,
+			</if>
+			<if test="material3dPicIds != null">
+				material3d_pic_ids,
+			</if>
+			<if test="syncStatus != null">
+				sync_status,
+			</if>
+			<if test="codeIsEmploy != null">
+				code_is_employ,
+			</if>
+			<if test="codeBatch != null">
+				code_batch,
+			</if>
+			<if test="productModelNumber != null">
+				product_model_number,
+			</if>
+			<if test="fullPaveLength != null">
+				full_pave_length,
+			</if>
+			<if test="testModified != null">
+				test_modified,
+			</if>
+			<if test="salePriceValue != null">
+				sale_price_value,
+			</if>
+			<if test="minHeight != null">
+				min_height,
+			</if>
+			<if test="productMaterialDesc != null">
+				product_material_desc,
+			</if>
+			<if test="colorsLongCode != null">
+				colors_long_code,
+			</if>
+			<if test="configId != null">
+				config_id,
+			</if>
+			<if test="fbxFileId != null">
+				fbx_file_id,
+			</if>
+			<if test="fbxTexture != null">
+				fbx_texture,
+			</if>
+			<if test="fbxState != null">
+				fbx_state,
+			</if>
+			<if test="productStyleIdInfo != null">
+				product_style_id_info,
+			</if>
+			<if test="styleId != null">
+				style_id,
+			</if>
+			<if test="regionMark != null">
+				region_mark,
+			</if>
+			<if test="measureCode != null">
+				measure_code,
+			</if>
+			<if test="wallType != null">
+				wall_type,
+			</if>
+			<if test="productSmallpoxIdentify != null">
+				product_smallpox_identify,
+			</if>
+			<if test="productGroundIdentify != null">
+				product_ground_identify,
+			</if>
+			<if test="seriesId != null">
+				series_id,
+			</if>
+			<if test="spellingFlowerFileId != null">
+				spelling_flower_file_id,
+			</if>
+			<if test="appPicTextureIds != null">
+				app_pic_texture_ids,
+			</if>
+			<if test="productSmallpoxIdentifyStr != null">
+				product_smallpox_identify_str,
+			</if>
+			<if test="isComplexParquet != null">
+				is_complex_parquet,
+			</if>
+			<if test="parquetTextureIds != null">
+				parquet_texture_ids,
+			</if>
+			<if test="relDrawId != null">
+				rel_draw_id,
+			</if>
+			<if test="splitTexturesInfo != null">
+				split_textures_info,
+			</if>
+			<if test="dataType != null">
+				data_type,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="productCode != null">
+				#{productCode,jdbcType=VARCHAR},
+			</if>
+			<if test="productName != null">
+				#{productName,jdbcType=VARCHAR},
+			</if>
+			<if test="brandId != null">
+				#{brandId,jdbcType=INTEGER},
+			</if>
+			<if test="proStyleId != null">
+				#{proStyleId,jdbcType=INTEGER},
+			</if>
+			<if test="productSpec != null">
+				#{productSpec,jdbcType=VARCHAR},
+			</if>
+			<if test="colorId != null">
+				#{colorId,jdbcType=INTEGER},
+			</if>
+			<if test="productLength != null">
+				#{productLength,jdbcType=VARCHAR},
+			</if>
+			<if test="productWidth != null">
+				#{productWidth,jdbcType=VARCHAR},
+			</if>
+			<if test="productHeight != null">
+				#{productHeight,jdbcType=VARCHAR},
+			</if>
+			<if test="salePrice != null">
+				#{salePrice,jdbcType=DECIMAL},
+			</if>
+			<if test="salePriceAdvice != null">
+				#{salePriceAdvice,jdbcType=DECIMAL},
+			</if>
+			<if test="picId != null">
+				#{picId,jdbcType=INTEGER},
+			</if>
+			<if test="modelId != null">
+				#{modelId,jdbcType=INTEGER},
+			</if>
+			<if test="productDesc != null">
+				#{productDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="sysCode != null">
+				#{sysCode,jdbcType=VARCHAR},
+			</if>
+			<if test="creator != null">
+				#{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtCreate != null">
+				#{gmtCreate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifier != null">
+				#{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null">
+				#{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDeleted != null">
+				#{isDeleted,jdbcType=INTEGER},
+			</if>
+			<if test="picIds != null">
+				#{picIds,jdbcType=VARCHAR},
+			</if>
+			<if test="materialPicIds != null">
+				#{materialPicIds,jdbcType=VARCHAR},
+			</if>
+			<if test="houseTypeValues != null">
+				#{houseTypeValues,jdbcType=VARCHAR},
+			</if>
+			<if test="productTypeValue != null">
+				#{productTypeValue,jdbcType=VARCHAR},
+			</if>
+			<if test="u3dmodelId != null">
+				#{u3dmodelId,jdbcType=VARCHAR},
+			</if>
+			<if test="mergeProductIds != null">
+				#{mergeProductIds,jdbcType=VARCHAR},
+			</if>
+			<if test="putawayModified != null">
+				#{putawayModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="dateAtt2 != null">
+				#{dateAtt2,jdbcType=TIMESTAMP},
+			</if>
+			<if test="productSmallTypeValue != null">
+				#{productSmallTypeValue,jdbcType=INTEGER},
+			</if>
+			<if test="putawayState != null">
+				#{putawayState,jdbcType=INTEGER},
+			</if>
+			<if test="numAtt3 != null">
+				#{numAtt3,jdbcType=DECIMAL},
+			</if>
+			<if test="numAtt4 != null">
+				#{numAtt4,jdbcType=DECIMAL},
+			</if>
+			<if test="remark != null">
+				#{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="ipadU3dmodelId != null">
+				#{ipadU3dmodelId,jdbcType=INTEGER},
+			</if>
+			<if test="iosU3dmodelId != null">
+				#{iosU3dmodelId,jdbcType=INTEGER},
+			</if>
+			<if test="androidU3dmodelId != null">
+				#{androidU3dmodelId,jdbcType=INTEGER},
+			</if>
+			<if test="macbookU3dmodelId != null">
+				#{macbookU3dmodelId,jdbcType=INTEGER},
+			</if>
+			<if test="windowsU3dmodelId != null">
+				#{windowsU3dmodelId,jdbcType=INTEGER},
+			</if>
+			<if test="webU3dmodelId != null">
+				#{webU3dmodelId,jdbcType=INTEGER},
+			</if>
+			<if test="decorationId != null">
+				#{decorationId,jdbcType=VARCHAR},
+			</if>
+			<if test="designerId != null">
+				#{designerId,jdbcType=INTEGER},
+			</if>
+			<if test="modelingId != null">
+				#{modelingId,jdbcType=INTEGER},
+			</if>
+			<if test="renderingId != null">
+				#{renderingId,jdbcType=INTEGER},
+			</if>
+			<if test="productTypeMark != null">
+				#{productTypeMark,jdbcType=VARCHAR},
+			</if>
+			<if test="productSmallTypeMark != null">
+				#{productSmallTypeMark,jdbcType=VARCHAR},
+			</if>
+			<if test="originalProductCode != null">
+				#{originalProductCode,jdbcType=VARCHAR},
+			</if>
+			<if test="spacecomonId != null">
+				#{spacecomonId,jdbcType=INTEGER},
+			</if>
+			<if test="productShortCode != null">
+				#{productShortCode,jdbcType=VARCHAR},
+			</if>
+			<if test="bmIds != null">
+				#{bmIds,jdbcType=VARCHAR},
+			</if>
+			<if test="codeNumber != null">
+				#{codeNumber,jdbcType=INTEGER},
+			</if>
+			<if test="parentId != null">
+				#{parentId,jdbcType=INTEGER},
+			</if>
+			<if test="designtempletId != null">
+				#{designtempletId,jdbcType=INTEGER},
+			</if>
+			<if test="materialFileId != null">
+				#{materialFileId,jdbcType=INTEGER},
+			</if>
+			<if test="material3dPicIds != null">
+				#{material3dPicIds,jdbcType=VARCHAR},
+			</if>
+			<if test="syncStatus != null">
+				#{syncStatus,jdbcType=VARCHAR},
+			</if>
+			<if test="codeIsEmploy != null">
+				#{codeIsEmploy,jdbcType=INTEGER},
+			</if>
+			<if test="codeBatch != null">
+				#{codeBatch,jdbcType=VARCHAR},
+			</if>
+			<if test="productModelNumber != null">
+				#{productModelNumber,jdbcType=VARCHAR},
+			</if>
+			<if test="fullPaveLength != null">
+				#{fullPaveLength,jdbcType=VARCHAR},
+			</if>
+			<if test="testModified != null">
+				#{testModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="salePriceValue != null">
+				#{salePriceValue,jdbcType=INTEGER},
+			</if>
+			<if test="minHeight != null">
+				#{minHeight,jdbcType=VARCHAR},
+			</if>
+			<if test="productMaterialDesc != null">
+				#{productMaterialDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="colorsLongCode != null">
+				#{colorsLongCode,jdbcType=VARCHAR},
+			</if>
+			<if test="configId != null">
+				#{configId,jdbcType=INTEGER},
+			</if>
+			<if test="fbxFileId != null">
+				#{fbxFileId,jdbcType=INTEGER},
+			</if>
+			<if test="fbxTexture != null">
+				#{fbxTexture,jdbcType=VARCHAR},
+			</if>
+			<if test="fbxState != null">
+				#{fbxState,jdbcType=INTEGER},
+			</if>
+			<if test="productStyleIdInfo != null">
+				#{productStyleIdInfo,jdbcType=VARCHAR},
+			</if>
+			<if test="styleId != null">
+				#{styleId,jdbcType=BIGINT},
+			</if>
+			<if test="regionMark != null">
+				#{regionMark,jdbcType=VARCHAR},
+			</if>
+			<if test="measureCode != null">
+				#{measureCode,jdbcType=VARCHAR},
+			</if>
+			<if test="wallType != null">
+				#{wallType,jdbcType=VARCHAR},
+			</if>
+			<if test="productSmallpoxIdentify != null">
+				#{productSmallpoxIdentify,jdbcType=INTEGER},
+			</if>
+			<if test="productGroundIdentify != null">
+				#{productGroundIdentify,jdbcType=INTEGER},
+			</if>
+			<if test="seriesId != null">
+				#{seriesId,jdbcType=INTEGER},
+			</if>
+			<if test="spellingFlowerFileId != null">
+				#{spellingFlowerFileId,jdbcType=INTEGER},
+			</if>
+			<if test="appPicTextureIds != null">
+				#{appPicTextureIds,jdbcType=VARCHAR},
+			</if>
+			<if test="productSmallpoxIdentifyStr != null">
+				#{productSmallpoxIdentifyStr,jdbcType=VARCHAR},
+			</if>
+			<if test="isComplexParquet != null">
+				#{isComplexParquet,jdbcType=INTEGER},
+			</if>
+			<if test="parquetTextureIds != null">
+				#{parquetTextureIds,jdbcType=VARCHAR},
+			</if>
+			<if test="relDrawId != null">
+				#{relDrawId,jdbcType=BIGINT},
+			</if>
+			<if test="splitTexturesInfo != null">
+				#{splitTexturesInfo,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="dataType != null">
+				#{dataType},
+			</if>
+		</trim>
+	</insert>
+
+	<insert id="insertSelective" parameterType="com.sandu.api.house.model.DrawBaseProduct" useGeneratedKeys="true" keyProperty="id">
+		insert into draw_base_product
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="productCode != null">
+				product_code,
+			</if>
+			<if test="productName != null">
+				product_name,
+			</if>
+			<if test="brandId != null">
+				brand_id,
+			</if>
+			<if test="proStyleId != null">
+				pro_style_id,
+			</if>
+			<if test="productSpec != null">
+				product_spec,
+			</if>
+			<if test="colorId != null">
+				color_id,
+			</if>
+			<if test="productLength != null">
+				product_length,
+			</if>
+			<if test="productWidth != null">
+				product_width,
+			</if>
+			<if test="productHeight != null">
+				product_height,
+			</if>
+			<if test="salePrice != null">
+				sale_price,
+			</if>
+			<if test="picId != null">
+				pic_id,
+			</if>
+			<if test="modelId != null">
+				model_id,
+			</if>
+			<if test="productDesc != null">
+				product_desc,
+			</if>
+			<if test="sysCode != null">
+				sys_code,
+			</if>
+			<if test="creator != null">
+				creator,
+			</if>
+			<if test="gmtCreate != null">
+				gmt_create,
+			</if>
+			<if test="modifier != null">
+				modifier,
+			</if>
+			<if test="gmtModified != null">
+				gmt_modified,
+			</if>
+			<if test="isDeleted != null">
+				is_deleted,
+			</if>
+			<if test="picIds != null">
+				pic_ids,
+			</if>
+			<if test="materialPicIds != null">
+				material_pic_ids,
+			</if>
+			<if test="houseTypeValues != null">
+				house_type_values,
+			</if>
+			<if test="productTypeValue != null">
+				product_type_value,
+			</if>
+			<if test="u3dmodelId != null">
+				u3dmodel_Id,
+			</if>
+			<if test="mergeProductIds != null">
+				merge_product_ids,
+			</if>
+			<if test="putawayModified != null">
+				putaway_modified,
+			</if>
+			<if test="dateAtt2 != null">
+				date_att2,
+			</if>
+			<if test="productSmallTypeValue != null">
+				product_small_type_value,
+			</if>
+			<if test="putawayState != null">
+				putaway_state,
+			</if>
+			<if test="numAtt3 != null">
+				num_att3,
+			</if>
+			<if test="numAtt4 != null">
+				num_att4,
+			</if>
+			<if test="remark != null">
+				remark,
+			</if>
+			<if test="ipadU3dmodelId != null">
+				ipad_u3dmodel_id,
+			</if>
+			<if test="iosU3dmodelId != null">
+				ios_u3dmodel_id,
+			</if>
+			<if test="androidU3dmodelId != null">
+				android_u3dmodel_id,
+			</if>
+			<if test="macbookU3dmodelId != null">
+				macbook_u3dmodel_id,
+			</if>
+			<if test="windowsU3dmodelId != null">
+				windows_u3dmodel_id,
+			</if>
+			<if test="webU3dmodelId != null">
+				web_u3dmodel_id,
+			</if>
+			<if test="decorationId != null">
+				decoration_id,
+			</if>
+			<if test="designerId != null">
+				designer_id,
+			</if>
+			<if test="modelingId != null">
+				modeling_id,
+			</if>
+			<if test="renderingId != null">
+				rendering_id,
+			</if>
+			<if test="productTypeMark != null">
+				product_type_mark,
+			</if>
+			<if test="productSmallTypeMark != null">
+				product_small_type_mark,
+			</if>
+			<if test="originalProductCode != null">
+				original_product_code,
+			</if>
+			<if test="spacecomonId != null">
+				spaceComon_id,
+			</if>
+			<if test="productShortCode != null">
+				product_short_code,
+			</if>
+			<if test="bmIds != null">
+				bm_ids,
+			</if>
+			<if test="codeNumber != null">
+				code_number,
+			</if>
+			<if test="parentId != null">
+				parent_id,
+			</if>
+			<if test="designtempletId != null">
+				designTemplet_id,
+			</if>
+			<if test="materialFileId != null">
+				material_file_id,
+			</if>
+			<if test="material3dPicIds != null">
+				material3d_pic_ids,
+			</if>
+			<if test="syncStatus != null">
+				sync_status,
+			</if>
+			<if test="codeIsEmploy != null">
+				code_is_employ,
+			</if>
+			<if test="codeBatch != null">
+				code_batch,
+			</if>
+			<if test="productModelNumber != null">
+				product_model_number,
+			</if>
+			<if test="fullPaveLength != null">
+				full_pave_length,
+			</if>
+			<if test="testModified != null">
+				test_modified,
+			</if>
+			<if test="salePriceValue != null">
+				sale_price_value,
+			</if>
+			<if test="minHeight != null">
+				min_height,
+			</if>
+			<if test="productMaterialDesc != null">
+				product_material_desc,
+			</if>
+			<if test="colorsLongCode != null">
+				colors_long_code,
+			</if>
+			<if test="configId != null">
+				config_id,
+			</if>
+			<if test="fbxFileId != null">
+				fbx_file_id,
+			</if>
+			<if test="fbxTexture != null">
+				fbx_texture,
+			</if>
+			<if test="fbxState != null">
+				fbx_state,
+			</if>
+			<if test="productStyleIdInfo != null">
+				product_style_id_info,
+			</if>
+			<if test="styleId != null">
+				style_id,
+			</if>
+			<if test="regionMark != null">
+				region_mark,
+			</if>
+			<if test="measureCode != null">
+				measure_code,
+			</if>
+			<if test="wallType != null">
+				wall_type,
+			</if>
+			<if test="productSmallpoxIdentify != null">
+				product_smallpox_identify,
+			</if>
+			<if test="productGroundIdentify != null">
+				product_ground_identify,
+			</if>
+			<if test="seriesId != null">
+				series_id,
+			</if>
+			<if test="spellingFlowerFileId != null">
+				spelling_flower_file_id,
+			</if>
+			<if test="appPicTextureIds != null">
+				app_pic_texture_ids,
+			</if>
+			<if test="productSmallpoxIdentifyStr != null">
+				product_smallpox_identify_str,
+			</if>
+			<if test="baseProductId != null">
+				base_product_id,
+			</if>
+			<if test="splitTexturesInfo != null">
+				split_textures_info,
+			</if>
+			<!-- bakeBeforeFileId -->
+			<if test="bakeBeforeFileId != null">
+				bake_before_file_id,
+			</if>
+            <if test="proAttrKey != null">
+                pro_attr_key,
+            </if>
+            <if test="proAttrValKey != null">
+                pro_attr_val_key,
+            </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="productCode != null">
+				#{productCode,jdbcType=VARCHAR},
+			</if>
+			<if test="productName != null">
+				#{productName,jdbcType=VARCHAR},
+			</if>
+			<if test="brandId != null">
+				#{brandId,jdbcType=INTEGER},
+			</if>
+			<if test="proStyleId != null">
+				#{proStyleId,jdbcType=INTEGER},
+			</if>
+			<if test="productSpec != null">
+				#{productSpec,jdbcType=VARCHAR},
+			</if>
+			<if test="colorId != null">
+				#{colorId,jdbcType=INTEGER},
+			</if>
+			<if test="productLength != null">
+				#{productLength,jdbcType=VARCHAR},
+			</if>
+			<if test="productWidth != null">
+				#{productWidth,jdbcType=VARCHAR},
+			</if>
+			<if test="productHeight != null">
+				#{productHeight,jdbcType=VARCHAR},
+			</if>
+			<if test="salePrice != null">
+				#{salePrice,jdbcType=DECIMAL},
+			</if>
+			<if test="picId != null">
+				#{picId,jdbcType=INTEGER},
+			</if>
+			<if test="modelId != null">
+				#{modelId,jdbcType=INTEGER},
+			</if>
+			<if test="productDesc != null">
+				#{productDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="sysCode != null">
+				#{sysCode,jdbcType=VARCHAR},
+			</if>
+			<if test="creator != null">
+				#{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtCreate != null">
+				#{gmtCreate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifier != null">
+				#{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null">
+				#{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDeleted != null">
+				#{isDeleted,jdbcType=INTEGER},
+			</if>
+			<if test="picIds != null">
+				#{picIds,jdbcType=VARCHAR},
+			</if>
+			<if test="materialPicIds != null">
+				#{materialPicIds,jdbcType=VARCHAR},
+			</if>
+			<if test="houseTypeValues != null">
+				#{houseTypeValues,jdbcType=VARCHAR},
+			</if>
+			<if test="productTypeValue != null">
+				#{productTypeValue,jdbcType=VARCHAR},
+			</if>
+			<if test="u3dmodelId != null">
+				#{u3dmodelId,jdbcType=VARCHAR},
+			</if>
+			<if test="mergeProductIds != null">
+				#{mergeProductIds,jdbcType=VARCHAR},
+			</if>
+			<if test="putawayModified != null">
+				#{putawayModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="dateAtt2 != null">
+				#{dateAtt2,jdbcType=TIMESTAMP},
+			</if>
+			<if test="productSmallTypeValue != null">
+				#{productSmallTypeValue,jdbcType=INTEGER},
+			</if>
+			<if test="putawayState != null">
+				#{putawayState,jdbcType=INTEGER},
+			</if>
+			<if test="numAtt3 != null">
+				#{numAtt3,jdbcType=DECIMAL},
+			</if>
+			<if test="numAtt4 != null">
+				#{numAtt4,jdbcType=DECIMAL},
+			</if>
+			<if test="remark != null">
+				#{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="ipadU3dmodelId != null">
+				#{ipadU3dmodelId,jdbcType=INTEGER},
+			</if>
+			<if test="iosU3dmodelId != null">
+				#{iosU3dmodelId,jdbcType=INTEGER},
+			</if>
+			<if test="androidU3dmodelId != null">
+				#{androidU3dmodelId,jdbcType=INTEGER},
+			</if>
+			<if test="macbookU3dmodelId != null">
+				#{macbookU3dmodelId,jdbcType=INTEGER},
+			</if>
+			<if test="windowsU3dmodelId != null">
+				#{windowsU3dmodelId,jdbcType=INTEGER},
+			</if>
+			<if test="webU3dmodelId != null">
+				#{webU3dmodelId,jdbcType=INTEGER},
+			</if>
+			<if test="decorationId != null">
+				#{decorationId,jdbcType=VARCHAR},
+			</if>
+			<if test="designerId != null">
+				#{designerId,jdbcType=INTEGER},
+			</if>
+			<if test="modelingId != null">
+				#{modelingId,jdbcType=INTEGER},
+			</if>
+			<if test="renderingId != null">
+				#{renderingId,jdbcType=INTEGER},
+			</if>
+			<if test="productTypeMark != null">
+				#{productTypeMark,jdbcType=VARCHAR},
+			</if>
+			<if test="productSmallTypeMark != null">
+				#{productSmallTypeMark,jdbcType=VARCHAR},
+			</if>
+			<if test="originalProductCode != null">
+				#{originalProductCode,jdbcType=VARCHAR},
+			</if>
+			<if test="spacecomonId != null">
+				#{spacecomonId,jdbcType=INTEGER},
+			</if>
+			<if test="productShortCode != null">
+				#{productShortCode,jdbcType=VARCHAR},
+			</if>
+			<if test="bmIds != null">
+				#{bmIds,jdbcType=VARCHAR},
+			</if>
+			<if test="codeNumber != null">
+				#{codeNumber,jdbcType=INTEGER},
+			</if>
+			<if test="parentId != null">
+				#{parentId,jdbcType=INTEGER},
+			</if>
+			<if test="designtempletId != null">
+				#{designtempletId,jdbcType=INTEGER},
+			</if>
+			<if test="materialFileId != null">
+				#{materialFileId,jdbcType=INTEGER},
+			</if>
+			<if test="material3dPicIds != null">
+				#{material3dPicIds,jdbcType=VARCHAR},
+			</if>
+			<if test="syncStatus != null">
+				#{syncStatus,jdbcType=VARCHAR},
+			</if>
+			<if test="codeIsEmploy != null">
+				#{codeIsEmploy,jdbcType=INTEGER},
+			</if>
+			<if test="codeBatch != null">
+				#{codeBatch,jdbcType=VARCHAR},
+			</if>
+			<if test="productModelNumber != null">
+				#{productModelNumber,jdbcType=VARCHAR},
+			</if>
+			<if test="fullPaveLength != null">
+				#{fullPaveLength,jdbcType=VARCHAR},
+			</if>
+			<if test="testModified != null">
+				#{testModified,jdbcType=TIMESTAMP},
+			</if>
+			<if test="salePriceValue != null">
+				#{salePriceValue,jdbcType=INTEGER},
+			</if>
+			<if test="minHeight != null">
+				#{minHeight,jdbcType=VARCHAR},
+			</if>
+			<if test="productMaterialDesc != null">
+				#{productMaterialDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="colorsLongCode != null">
+				#{colorsLongCode,jdbcType=VARCHAR},
+			</if>
+			<if test="configId != null">
+				#{configId,jdbcType=INTEGER},
+			</if>
+			<if test="fbxFileId != null">
+				#{fbxFileId,jdbcType=INTEGER},
+			</if>
+			<if test="fbxTexture != null">
+				#{fbxTexture,jdbcType=VARCHAR},
+			</if>
+			<if test="fbxState != null">
+				#{fbxState,jdbcType=INTEGER},
+			</if>
+			<if test="productStyleIdInfo != null">
+				#{productStyleIdInfo,jdbcType=VARCHAR},
+			</if>
+			<if test="styleId != null">
+				#{styleId,jdbcType=BIGINT},
+			</if>
+			<if test="regionMark != null">
+				#{regionMark,jdbcType=VARCHAR},
+			</if>
+			<if test="measureCode != null">
+				#{measureCode,jdbcType=VARCHAR},
+			</if>
+			<if test="wallType != null">
+				#{wallType,jdbcType=VARCHAR},
+			</if>
+			<if test="productSmallpoxIdentify != null">
+				#{productSmallpoxIdentify,jdbcType=INTEGER},
+			</if>
+			<if test="productGroundIdentify != null">
+				#{productGroundIdentify,jdbcType=INTEGER},
+			</if>
+			<if test="seriesId != null">
+				#{seriesId,jdbcType=INTEGER},
+			</if>
+			<if test="spellingFlowerFileId != null">
+				#{spellingFlowerFileId,jdbcType=INTEGER},
+			</if>
+			<if test="appPicTextureIds != null">
+				#{appPicTextureIds,jdbcType=VARCHAR},
+			</if>
+			<if test="productSmallpoxIdentifyStr != null">
+				#{productSmallpoxIdentifyStr,jdbcType=VARCHAR},
+			</if>
+			<if test="baseProductId != null">
+				#{baseProductId,jdbcType=BIGINT},
+			</if>
+			<if test="splitTexturesInfo != null">
+				#{splitTexturesInfo,jdbcType=LONGVARCHAR},
+			</if>
+			<!-- bakeBeforeFileId -->
+			<if test="bakeBeforeFileId != null">
+				#{bakeBeforeFileId,jdbcType=BIGINT},
+			</if>
+            <if test="proAttrKey != null">
+                #{proAttrKey},
+            </if>
+            <if test="proAttrValKey != null">
+                #{proAttrValKey},
+            </if>
+		</trim>
+	</insert>
+
+    <insert id="batchSaveDrawBaseProduct" useGeneratedKeys="true" keyProperty="id">
+      INSERT INTO draw_base_product
+        (
+          product_code, product_name, brand_id,
+          product_length, product_width, product_height,
+          sys_code, creator, gmt_create,
+          MODIFIER, gmt_modified, is_deleted,
+          house_type_values, product_type_value, product_small_type_value,
+          putaway_state, product_type_mark, product_small_type_mark,
+          sync_status, code_is_employ, bake_before_file_id,
+          full_pave_length, pro_attr_key, pro_attr_val_key
+        )
+      VALUES
+      <foreach collection="list" item="item" separator=",">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          #{item.productCode}, #{item.productName}, #{item.brandId},
+          #{item.productLength}, #{item.productWidth}, #{item.productHeight},
+          #{item.sysCode}, #{item.creator}, #{item.gmtCreate},
+          #{item.modifier}, #{item.gmtModified}, #{item.isDeleted},
+          #{item.houseTypeValues}, #{item.productTypeValue}, #{item.productSmallTypeValue},
+          #{item.putawayState}, #{item.productTypeMark}, #{item.productSmallTypeMark},
+          #{item.syncStatus}, #{item.codeIsEmploy}, #{item.bakeBeforeFileId},
+          #{item.fullPaveLength}, #{item.proAttrKey}, #{item.proAttrValKey},
+        </trim>
+      </foreach>
+    </insert>
+
+    <select id="findBaseProductByProductCode" resultType="java.lang.Integer">
+    	SELECT COUNT(*) FROM draw_base_product p WHERE p.product_code = #{productCode}; 
+    </select>
+
+    <!--
+    <select id="getDeleteDrawBaseProductId" resultType="long">
+      SELECT 
+	    dtp.product_id
+	  FROM
+	    draw_design_templet_product dtp 
+	  WHERE 1 = 1 
+	    AND is_deleted = 1
+	    AND dtp.create_product_status = 1 
+	    AND dtp.design_templet_id IN 
+	    (SELECT 
+	      dt.id 
+	    FROM
+	      draw_design_templet dt 
+	    WHERE 1 = 1 
+	      AND dt.is_deleted = 1
+    	  AND dt.space_common_id IN 
+    	  <foreach collection="emptySpaces" item="item" open="(" separator="," close=")">
+    		#{item}
+    	  </foreach>
+	     )
+    </select>
+    -->
+
+    <select id="getDeleteDrawBaseProductId" resultType="java.lang.Long">
+        SELECT
+          dtp.product_id
+        FROM
+          draw_design_templet dt,
+          draw_design_templet_product dtp
+        WHERE dt.id = dtp.design_templet_id
+          AND dt.is_deleted = 1
+          AND dtp.is_deleted = 1
+          AND dtp.create_product_status = 1
+          AND dt.space_common_id IN
+          <foreach collection="emptySpaces" item="item" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+    </select>
+    
+    <update id="deleteDrawBaseProduct">
+    	UPDATE 
+		  draw_base_product p 
+		SET
+		  p.is_deleted = #{status}
+		WHERE p.is_deleted = 0 
+		  AND p.id IN
+		  <foreach collection="baseProducts" item="item" open="(" separator="," close=")">
+		  	#{item}
+		  </foreach>	  	
+    </update>
+    
+    <update id="deleteBaseProduct">
+	   	UPDATE 
+		  base_product p 
+		SET
+		  p.is_deleted = #{status}
+		WHERE p.is_deleted = 0 
+		  AND p.id IN
+		  <foreach collection="baseProducts" item="item" open="(" separator="," close=")">
+		 	#{item}
+		  </foreach>	  	
+    </update>
+    
+    <update id="emptyBaseProduct">
+	   	UPDATE 
+		  base_product p 
+		SET
+		  p.is_deleted = #{status}
+		WHERE
+          <!-- p.is_deleted = 0
+		  AND -->
+          p.id IN
+		  <foreach collection="baseProducts" item="item" open="(" separator="," close=")">
+		 	#{item}
+		  </foreach>	  	
+    </update>
+
+    <update id="batchUpdateDrawBaseProduct">
+        UPDATE
+          draw_base_product dp
+        SET
+          dp.windows_u3dmodel_id = <include refid="windowsU3dmodelId" />
+        WHERE dp.id IN
+        <foreach collection="products" item="item" open="(" separator="," close=")">
+            #{item.id}
+        </foreach>
+    </update>
+
+    <update id="updateBatchDrawBaseProduct">
+      UPDATE draw_base_product bp
+      <set>
+        bp.base_product_id =
+        <trim prefix="(CASE bp.id " suffix=" END)">
+            <foreach collection="list" item="item">
+                WHEN #{item.id} THEN #{item.baseProductId}
+            </foreach>
+        </trim>
+      </set>
+      WHERE bp.id IN
+      <foreach collection="list" item="item" open="(" close=")" separator=",">
+        #{item.id}
+      </foreach>
+    </update>
+
+    <sql id="windowsU3dmodelId">
+        <trim prefix="(CASE dp.id " suffix=" END)">
+            <foreach collection="products" item="item">
+                WHEN #{item.id} THEN #{item.windowsU3dmodelId}
+            </foreach>
+        </trim>
+    </sql>
+
+    <select id="getDeleteBaseProductId" resultType="java.lang.Long">
+	    SELECT 
+		  p.base_product_id 
+		FROM
+		  draw_design_templet dt,
+		  draw_design_templet_product dtp,
+		  draw_base_product p 
+		WHERE p.is_deleted = 1 
+		  AND dt.is_deleted = 1 
+		  AND dtp.is_deleted = 1 
+		  AND dtp.create_product_status = 1
+		  AND dtp.product_id = p.id 
+		  AND dtp.design_templet_id = dt.id  
+		  AND dt.space_common_id = #{drawSpaceId}
+    </select>
+    
+    <select id="getEmptyBaseProduct" resultType="java.lang.Long">
+	   SELECT 
+		  dtp.product_id 
+		FROM
+		  design_templet dt,
+		  design_templet_product dtp,
+		  draw_design_templet_product ddtp 
+		WHERE dt.id = dtp.design_templet_id 
+		  AND dtp.id = ddtp.design_templet_product_id 
+		  AND dt.is_deleted = 1 
+		  AND dtp.is_deleted = 1 
+		  AND ddtp.is_deleted = 1
+		  AND ddtp.create_product_status = 1 
+		  AND dt.space_common_id IN 
+		  <foreach collection="emptySpaces" item="item" open="(" separator="," close=")">
+		 	#{item}
+		  </foreach>	
+    </select>
+
+    <select id="listProductByProductCode" resultType="com.sandu.api.product.model.BaseProduct">
+      SELECT
+        *
+      FROM
+        base_product p
+      WHERE p.product_code IN
+      <foreach collection="list" item="item" open="(" close=")" separator=",">
+         #{item}
+      </foreach>
+    </select>
+</mapper>

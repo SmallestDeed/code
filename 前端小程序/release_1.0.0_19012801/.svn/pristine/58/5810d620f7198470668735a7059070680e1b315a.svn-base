@@ -1,0 +1,33 @@
+var filters = {
+    toFix: function(v, n) {
+        return v.toFixed(n);
+    },
+    phoneFilter: function(v) {
+        var arr = v.split('');
+        var str = '';
+        for(var i = 0;i < arr.length; i++){
+            str = str + ((i<=2||i>=7)?arr[i]:'*')
+        }
+        return str;
+    },
+    maxNum: function(num){
+        var n = parseInt(num);
+        return n?(n>=1000?'999+':n):0
+    },
+    // rzd 2018/12/11 方案装修优化 需求XZW-376
+    maxNumber: function(num) {
+      var n = parseInt(num);
+      if(n>9999) {
+        n = (n/10000).toFixed(1)*10+'K';
+      }else {
+
+      }
+      return n ? (n > 9999 ? (n / 10000).toFixed(1) * 10 + 'K':n):0;
+    }
+}
+module.exports = {
+    toFix: filters.toFix,
+    phoneFilter: filters.phoneFilter,
+    maxNum: filters.maxNum,
+    maxNumber: filters.maxNumber
+}

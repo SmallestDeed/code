@@ -1,0 +1,1822 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.designplan.dao.DesignPlanRecommendedProductMapper">
+    <!--<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/> -->
+    <!-- **插入定义** -->
+    <insert id="insertSelective" parameterType="com.sandu.design.model.DesignPlanRecommendedProduct"
+            useGeneratedKeys="true" keyProperty="id">
+        insert into design_plan_recommended_product
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sysCode!= null">sys_code,</if>
+            <if test="splitTexturesChooseInfo!= null">split_textures_choose_info,</if>
+            <if test="planGroupId!= null">plan_group_id,</if>
+            <if test="creator!= null">creator,</if>
+            <if test="gmtCreate!= null">gmt_create,</if>
+            <if test="modifier!= null">modifier,</if>
+            <if test="gmtModified!= null">gmt_modified,</if>
+            <if test="isDeleted!= null">is_deleted,</if>
+            <if test="groupType!= null">group_type,</if>
+            <if test="modelProductId!= null">model_product_id,</if>
+            <if test="planRecommendedId!= null">plan_recommended_id,</if>
+            <if test="isDirty!= null">is_dirty,</if>
+            <if test="productId!= null">product_id,</if>
+            <if test="initProductId!= null">init_product_id,</if>
+            <if test="locationFileId!= null">location_file_id,</if>
+            <if test="productSequence!= null">product_sequence,</if>
+            <if test="materialPicId!= null">material_pic_id,</if>
+            <if test="att2!= null">att2,</if>
+            <if test="att3!= null">att3,</if>
+            <if test="att4!= null">att4,</if>
+            <if test="att5!= null">att5,</if>
+            <if test="att6!= null">att6,</if>
+            <if test="dateAtt1!= null">date_att1,</if>
+            <if test="dateAtt2!= null">date_att2,</if>
+            <if test="planProductId!= null">planProduct_id,</if>
+            <if test="displayStatus!= null">display_status,</if>
+            <if test="numAtt3!= null">num_att3,</if>
+            <if test="numAtt4!= null">num_att4,</if>
+            <if test="remark!= null">remark,</if>
+            <if test="isHide!= null">is_hide,</if>
+            <if test="posIndexPath!= null">pos_index_path,</if>
+            <if test="productGroupId!= null">product_group_id,</if>
+            <if test="isMainProduct!= null">is_main_product,</if>
+            <if test="posName!= null">pos_name,</if>
+            <if test="bindParentProductId!= null">bind_parent_productId,</if>
+            <if test="sameProductTypeIndex!= null">same_product_type_index,</if>
+            <if test="isStandard!= null">is_standard,</if>
+            <if test="center!= null and center!='' ">center,</if>
+            <if test="regionMark!= null and regionMark!='' ">region_mark,</if>
+            <if test="styleId!= null">style_id,</if>
+            <if test="measureCode!= null and measureCode!='' ">measure_code,</if>
+            <if test="describeInfo!= null and describeInfo!=''">describe_info,</if>
+            <if test="productIndex!= null">product_index,</if>
+            <if test="isMainStructureProduct!= null">is_main_structure_product,</if>
+            <if test="isGroupReplaceWay!= null">is_group_replace_way,</if>
+            <if test="wallOrientation!= null">wall_orientation,</if>
+            <if test="wallType!= null">wall_type,</if>
+            <if test="groupProductUniqueId!= null">group_product_uniqueId,</if>
+        </trim>
+
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sysCode!= null">#{sysCode,jdbcType=VARCHAR},</if>
+            <if test="splitTexturesChooseInfo!= null">#{splitTexturesChooseInfo,jdbcType=VARCHAR},</if>
+            <if test="planGroupId!= null">#{planGroupId,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">#{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">#{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER},</if>
+            <if test="groupType!= null">#{groupType,jdbcType=INTEGER},</if>
+            <if test="modelProductId!= null">#{modelProductId,jdbcType=INTEGER},</if>
+            <if test="planRecommendedId!= null">#{planRecommendedId,jdbcType=INTEGER},</if>
+            <if test="isDirty!= null">#{isDirty,jdbcType=INTEGER},</if>
+            <if test="productId!= null">#{productId,jdbcType=INTEGER},</if>
+            <if test="initProductId!= null">#{initProductId,jdbcType=INTEGER},</if>
+            <if test="locationFileId!= null">#{locationFileId,jdbcType=INTEGER},</if>
+            <if test="productSequence!= null">#{productSequence,jdbcType=VARCHAR},</if>
+            <if test="materialPicId!= null">#{materialPicId,jdbcType=VARCHAR},</if>
+            <if test="att2!= null">#{att2,jdbcType=VARCHAR},</if>
+            <if test="att3!= null">#{att3,jdbcType=VARCHAR},</if>
+            <if test="att4!= null">#{att4,jdbcType=VARCHAR},</if>
+            <if test="att5!= null">#{att5,jdbcType=VARCHAR},</if>
+            <if test="att6!= null">#{att6,jdbcType=VARCHAR},</if>
+            <if test="dateAtt1!= null">#{dateAtt1,jdbcType=TIMESTAMP},</if>
+            <if test="dateAtt2!= null">#{dateAtt2,jdbcType=TIMESTAMP},</if>
+            <if test="planProductId!= null">#{planProductId,jdbcType=INTEGER},</if>
+            <if test="displayStatus!= null">#{displayStatus,jdbcType=INTEGER},</if>
+            <if test="numAtt3!= null">#{numAtt3,jdbcType=DOUBLE},</if>
+            <if test="numAtt4!= null">#{numAtt4,jdbcType=DOUBLE},</if>
+            <if test="remark!= null">#{remark,jdbcType=VARCHAR},</if>
+            <if test="isHide!= null">#{isHide,jdbcType=INTEGER},</if>
+            <if test="posIndexPath!= null">#{posIndexPath,jdbcType=VARCHAR},</if>
+            <if test="productGroupId!= null">#{productGroupId,jdbcType=INTEGER},</if>
+            <if test="isMainProduct!= null">#{isMainProduct,jdbcType=INTEGER},</if>
+            <if test="posName!= null">#{posName,jdbcType=VARCHAR},</if>
+            <if test="bindParentProductId!= null">#{bindParentProductId,jdbcType=VARCHAR},</if>
+            <if test="sameProductTypeIndex!= null">#{sameProductTypeIndex,jdbcType=INTEGER},</if>
+            <if test="isStandard!= null">#{isStandard,jdbcType=INTEGER},</if>
+            <if test="center!= null and center!='' ">#{center,jdbcType=VARCHAR},</if>
+            <if test="regionMark!= null and regionMark!='' ">#{regionMark,jdbcType=VARCHAR},</if>
+            <if test="styleId!= null">#{styleId,jdbcType=INTEGER},</if>
+            <if test="measureCode!= null and measureCode!='' ">#{measureCode,jdbcType=VARCHAR},</if>
+            <if test="describeInfo!= null and describeInfo!=''">#{describeInfo,jdbcType=VARCHAR},</if>
+            <if test="productIndex!= null">#{productIndex,jdbcType=INTEGER},</if>
+            <if test="isMainStructureProduct!= null">#{isMainStructureProduct,jdbcType=INTEGER},</if>
+            <if test="isGroupReplaceWay!= null">#{isGroupReplaceWay,jdbcType=INTEGER},</if>
+            <if test="wallOrientation!= null">#{wallOrientation,jdbcType=VARCHAR},</if>
+            <if test="wallType!= null">#{wallType,jdbcType=VARCHAR},</if>
+            <if test="groupProductUniqueId!= null">#{groupProductUniqueId,jdbcType=VARCHAR},</if>
+        </trim>
+    </insert>
+
+    <!-- **更新定义** -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.design.model.DesignPlanRecommendedProduct">
+        update design_plan_recommended_product
+        <set>
+            <if test="sysCode!= null">sys_code = #{sysCode,jdbcType=VARCHAR},</if>
+            <if test="splitTexturesChooseInfo!= null">split_textures_choose_info =
+                #{splitTexturesChooseInfo,jdbcType=VARCHAR},
+            </if>
+            <if test="planGroupId!= null">plan_group_id = #{planGroupId,jdbcType=VARCHAR},</if>
+            <if test="creator!= null">creator = #{creator,jdbcType=VARCHAR},</if>
+            <if test="gmtCreate!= null">gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},</if>
+            <if test="modifier!= null">modifier = #{modifier,jdbcType=VARCHAR},</if>
+            <if test="gmtModified!= null">gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},</if>
+            <if test="isDeleted!= null">is_deleted = #{isDeleted,jdbcType=INTEGER},</if>
+            <if test="groupType!= null">group_type = #{groupType,jdbcType=INTEGER},</if>
+            <if test="modelProductId!= null">model_product_id = #{modelProductId,jdbcType=INTEGER},
+            </if>
+            <if test="planRecommendedId!= null">plan_recommended_id =
+                #{planRecommendedId,jdbcType=INTEGER},
+            </if>
+            <if test="isDirty!= null">is_dirty = #{isDirty,jdbcType=INTEGER},</if>
+            <if test="productId!= null">product_id = #{productId,jdbcType=INTEGER},</if>
+            <if test="initProductId!= null">init_product_id = #{initProductId,jdbcType=INTEGER},
+            </if>
+            <if test="locationFileId!= null">location_file_id = #{locationFileId,jdbcType=VARCHAR},
+            </if>
+            <if test="productSequence!= null">product_sequence = #{productSequence,jdbcType=VARCHAR},
+            </if>
+            <if test="materialPicId!= null">material_pic_id = #{materialPicId,jdbcType=VARCHAR},
+            </if>
+            <if test="att2!= null">att2 = #{att2,jdbcType=VARCHAR},</if>
+            <if test="att3!= null">att3 = #{att3,jdbcType=VARCHAR},</if>
+            <if test="att4!= null">att4 = #{att4,jdbcType=VARCHAR},</if>
+            <if test="att5!= null">att5 = #{att5,jdbcType=VARCHAR},</if>
+            <if test="att6!= null">att6 = #{att6,jdbcType=VARCHAR},</if>
+            <if test="dateAtt1!= null">date_att1 = #{dateAtt1,jdbcType=TIMESTAMP},</if>
+            <if test="dateAtt2!= null">date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},</if>
+            <if test="planProductId!= null">planProduct_id = #{planProductId,jdbcType=INTEGER},</if>
+            <if test="displayStatus!= null">display_status = #{displayStatus,jdbcType=INTEGER},</if>
+            <if test="numAtt3!= null">num_att3 = #{numAtt3,jdbcType=DOUBLE},</if>
+            <if test="numAtt4!= null">num_att4 = #{numAtt4,jdbcType=DOUBLE},</if>
+            <if test="remark!= null">remark = #{remark,jdbcType=VARCHAR},</if>
+            <if test="isHide!= null">is_hide = #{isHide,jdbcType=INTEGER},</if>
+            <if test="posIndexPath!= null">pos_index_path = #{posIndexPath,jdbcType=VARCHAR},</if>
+            <if test="productGroupId!= null">product_group_id = #{productGroupId,jdbcType=INTEGER},
+            </if>
+            <if test="isMainProduct!= null">is_main_product = #{isMainProduct,jdbcType=INTEGER},
+            </if>
+            <if test="posName!= null">pos_name = #{posName,jdbcType=VARCHAR},</if>
+            <if test="bindParentProductId!= null">bind_parent_productId =
+                #{bindParentProductId,jdbcType=VARCHAR},
+            </if>
+            <if test="isStandard!= null">is_standard = #{isStandard,jdbcType=INTEGER},</if>
+            <if test="center!= null and center!='' ">center = #{center,jdbcType=VARCHAR},</if>
+            <if test="regionMark!= null and regionMark!='' ">region_mark = #{regionMark,jdbcType=VARCHAR},</if>
+            <if test="styleId!= null">style_id = #{styleId,jdbcType=INTEGER},</if>
+            <if test="measureCode!= null and measureCode!='' ">measure_code = #{measureCode,jdbcType=VARCHAR},</if>
+            <if test="describeInfo!= null and describeInfo!=''">describe_info = #{describeInfo,jdbcType=VARCHAR},</if>
+            <if test="productIndex!= null">product_index = #{productIndex,jdbcType=INTEGER},</if>
+            <if test="isMainStructureProduct!= null">is_main_structure_product =
+                #{isMainStructureProduct,jdbcType=INTEGER},
+            </if>
+            <if test="isGroupReplaceWay!= null">is_group_replace_way =
+                #{isGroupReplaceWay,jdbcType=INTEGER},
+            </if>
+            <if test="wallOrientation!= null">wall_orientation = #{wallOrientation,jdbcType=VARCHAR},
+            </if>
+            <if test="wallType!= null">wall_type = #{wallType,jdbcType=VARCHAR},</if>
+            <if test="groupProductUniqueId!= null">group_product_uniqueId =
+                #{groupProductUniqueId,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!-- **删除定义** -->
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		design_plan_recommended_product
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+		id,plan_recommended_id,is_main_structure_product,is_group_replace_way,product_index,is_standard,center,region_mark,style_id,
+		measure_code,describe_info,sys_code,split_textures_choose_info,plan_group_id,creator,gmt_create,modifier,gmt_modified,is_deleted,
+		group_type,model_product_id,plan_recommended_id,is_dirty,product_id,init_product_id,location_file_id,product_sequence,
+		material_pic_id,att2,att3,att4,att5,att6,date_att1,date_att2,planProduct_id,display_status,num_att3,num_att4,remark,is_hide,
+		pos_index_path,product_group_id,is_main_product,pos_name,bind_parent_productId,same_product_type_index,wall_orientation,wall_type,
+		group_product_uniqueId
+	</sql>
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap"
+               type="com.sandu.design.model.DesignPlanRecommendedProduct">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="sys_code" property="sysCode" jdbcType="VARCHAR"/>
+        <result column="split_textures_choose_info" property="splitTexturesChooseInfo"
+                jdbcType="VARCHAR"/>
+        <result column="plan_group_id" property="planGroupId" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="group_type" property="groupType" jdbcType="INTEGER"/>
+        <result column="model_product_id" property="modelProductId"
+                jdbcType="INTEGER"/>
+        <result column="plan_recommended_id" property="planRecommendedId"
+                jdbcType="INTEGER"/>
+        <result column="is_dirty" property="isDirty" jdbcType="INTEGER"/>
+        <result column="product_id" property="productId" jdbcType="INTEGER"/>
+        <result column="init_product_id" property="initProductId"
+                jdbcType="INTEGER"/>
+        <result column="location_file_id" property="locationFileId"
+                jdbcType="INTEGER"/>
+        <result column="product_sequence" property="productSequence"
+                jdbcType="VARCHAR"/>
+        <result column="material_pic_id" property="materialPicId"
+                jdbcType="VARCHAR"/>
+        <result column="att2" property="att2" jdbcType="VARCHAR"/>
+        <result column="att3" property="att3" jdbcType="VARCHAR"/>
+        <result column="att4" property="att4" jdbcType="VARCHAR"/>
+        <result column="att5" property="att5" jdbcType="VARCHAR"/>
+        <result column="att6" property="att6" jdbcType="VARCHAR"/>
+        <result column="date_att1" property="dateAtt1" jdbcType="TIMESTAMP"/>
+        <result column="date_att2" property="dateAtt2" jdbcType="TIMESTAMP"/>
+        <result column="planProduct_id" property="planProductId"
+                jdbcType="INTEGER"/>
+        <result column="display_status" property="displayStatus"
+                jdbcType="INTEGER"/>
+        <result column="num_att3" property="numAtt3" jdbcType="DOUBLE"/>
+        <result column="num_att4" property="numAtt4" jdbcType="DOUBLE"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="is_hide" property="isHide" jdbcType="INTEGER"/>
+        <result column="pos_index_path" property="posIndexPath"
+                jdbcType="VARCHAR"/>
+        <result column="product_group_id" property="productGroupId"
+                jdbcType="INTEGER"/>
+        <result column="is_main_product" property="isMainProduct"
+                jdbcType="INTEGER"/>
+        <result column="pos_name" property="posName" jdbcType="VARCHAR"/>
+        <result column="bind_parent_productId" property="bindParentProductId"
+                jdbcType="VARCHAR"/>
+        <result column="same_product_type_index" property="sameProductTypeIndex"
+                jdbcType="INTEGER"/>
+        <result column="is_standard" property="isStandard" jdbcType="INTEGER"/>
+        <result column="center" property="center" jdbcType="VARCHAR"/>
+        <result column="region_mark" property="regionMark" jdbcType="VARCHAR"/>
+        <result column="style_id" property="styleId" jdbcType="INTEGER"/>
+        <result column="measure_code" property="measureCode" jdbcType="VARCHAR"/>
+        <result column="describe_info" property="describeInfo"
+                jdbcType="VARCHAR"/>
+        <result column="product_index" property="productIndex"
+                jdbcType="INTEGER"/>
+        <result column="is_main_structure_product" property="isMainStructureProduct"
+                jdbcType="INTEGER"/>
+        <result column="is_group_replace_way" property="isGroupReplaceWay"
+                jdbcType="INTEGER"/>
+        <result column="brand_id" property="brandId" jdbcType="INTEGER"/>
+        <result column="brand_name" property="brandName" jdbcType="VARCHAR"/>
+        <result column="product_code" property="productCode" jdbcType="VARCHAR"/>
+        <result column="wall_orientation" property="wallOrientation"
+                jdbcType="VARCHAR"/>
+        <result column="wall_type" property="wallType" jdbcType="VARCHAR"/>
+        <result column="product_big_type_value" property="productBigTypeValue"
+                jdbcType="INTEGER"/>
+        <result column="product_small_type_value" property="productSmallTypeValue"
+                jdbcType="INTEGER"/>
+        <result column="file_path" property="filePath" jdbcType="VARCHAR"/>
+        <result column="location" property="location" jdbcType="VARCHAR"/>
+        <result column="composite_type" property="compositeType"
+                jdbcType="INTEGER"/>
+        <result column="big_type_valuekey" property="bigTypeValuekey"
+                jdbcType="VARCHAR"/>
+        <result column="small_type_valuekey" property="smallTypeValuekey"
+                jdbcType="VARCHAR"/>
+        <result column="big_type_valuekey_init" property="bigTypeValuekeyInit"
+                jdbcType="VARCHAR"/>
+        <result column="small_type_valuekey_init" property="smallTypeValuekeyInit"
+                jdbcType="VARCHAR"/>
+        <result column="product_length" property="productLength"
+                jdbcType="VARCHAR"/>
+        <result column="product_height" property="productHeight"
+                jdbcType="VARCHAR"/>
+        <result column="product_width" property="productWidth"
+                jdbcType="VARCHAR"/>
+        <result column="group_product_uniqueId" property="groupProductUniqueId"
+                jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- **查询定义** -->
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="AllResultMap"
+            parameterType="java.lang.Integer">
+        select
+        <include refid="All_Column_List"/>
+        from design_plan_recommended_product
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+            parameterType="com.sandu.design.model.DesignPlanRecommendedProduct">
+        select
+        <include refid="All_Column_List"/>
+        from design_plan_recommended_product
+        where 1=1
+        <if test="resIdList !=  null and  resIdList.size > 0  ">
+            and id in
+            <foreach collection="resIdList" index="index" item="item"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="planRecommendedId!= null">and plan_recommended_id =
+            #{planRecommendedId,jdbcType=INTEGER}
+        </if>
+        <if test="isMainStructureProduct!= null">and is_main_structure_product =
+            #{isMainStructureProduct,jdbcType=INTEGER}
+        </if>
+        <if test="isGroupReplaceWay!= null">and is_group_replace_way =
+            #{isGroupReplaceWay,jdbcType=INTEGER}
+        </if>
+        <if test="productIndex!= null">and product_index = #{product_index,jdbcType=INTEGER}
+        </if>
+        <if test="isStandard!= null">and is_standard = #{isStandard,jdbcType=INTEGER}</if>
+        <if test="center!= null and center!='' ">and center = #{center,jdbcType=VARCHAR}</if>
+        <if test="regionMark!= null and regionMark!='' ">and region_mark = #{regionMark,jdbcType=VARCHAR}</if>
+        <if test="styleId!= null">and style_id = #{styleId,jdbcType=INTEGER}</if>
+        <if test="measureCode!= null and measureCode!='' ">and measure_code = #{measureCode,jdbcType=VARCHAR}</if>
+        <if test="describeInfo!= null and describeInfo!=''">and describe_info = #{describeInfo,jdbcType=VARCHAR}</if>
+
+        <if test="sysCode!= null">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="planGroupId!= null">and plan_group_id = #{planGroupId,jdbcType=VARCHAR}</if>
+        <if test="creator!= null">and creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="gmtCreate!= null">and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}</if>
+        <if test="modifier!= null">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="gmtModified!= null">and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}</if>
+        <if test="isDeleted!= null">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="groupType!= null">and group_type = #{groupType,jdbcType=INTEGER}</if>
+        <if test="modelProductId!= null">and model_product_id = #{modelProductId,jdbcType=INTEGER}
+        </if>
+        <if test="planRecommendedId!= null">and plan_recommended_id =
+            #{planRecommendedId,jdbcType=INTEGER}
+        </if>
+        <if test="isDirty!= null">and is_dirty = #{isDirty,jdbcType=INTEGER}</if>
+        <if test="productId!= null">and product_id = #{productId,jdbcType=INTEGER}</if>
+        <if test="initProductId!= null">and init_product_id = #{initProductId,jdbcType=INTEGER}
+        </if>
+        <if test="locationFileId!= null">and location_file_id = #{locationFileId,jdbcType=INTEGER}
+        </if>
+        <if test="productSequence!= null">and product_sequence =
+            #{productSequence,jdbcType=VARCHAR}
+        </if>
+        <if test="materialPicId!= null">and material_pic_id = #{materialPicId,jdbcType=VARCHAR}
+        </if>
+        <if test="att2!= null">and att2 = #{att2,jdbcType=VARCHAR}</if>
+        <if test="att3!= null">and att3 = #{att3,jdbcType=VARCHAR}</if>
+        <if test="att4!= null">and att4 = #{att4,jdbcType=VARCHAR}</if>
+        <if test="att5!= null">and att5 = #{att5,jdbcType=VARCHAR}</if>
+        <if test="att6!= null">and att6 = #{att6,jdbcType=VARCHAR}</if>
+        <if test="dateAtt1!= null">and date_att1 = #{dateAtt1,jdbcType=TIMESTAMP}</if>
+        <if test="dateAtt2!= null">and date_att2 = #{dateAtt2,jdbcType=TIMESTAMP}</if>
+        <if test="planProductId!= null">and planProduct_id = #{planProductId,jdbcType=INTEGER}
+        </if>
+        <if test="displayStatus!= null">and display_status = #{displayStatus,jdbcType=INTEGER}
+        </if>
+        <if test="numAtt3!= null">and num_att3 = #{numAtt3,jdbcType=DOUBLE}</if>
+        <if test="numAtt4!= null">and num_att4 = #{numAtt4,jdbcType=DOUBLE}</if>
+        <if test="remark!= null">and remark = #{remark,jdbcType=VARCHAR}</if>
+        <if test="isHide!= null">and is_hide = #{isHide,jdbcType=INTEGER}</if>
+        <if test="posIndexPath!= null">and pos_index_path = #{posIndexPath,jdbcType=VARCHAR}
+        </if>
+        <if test="productGroupId!= null">and product_group_id = #{productGroupId,jdbcType=INTEGER}
+        </if>
+        <if test="isMainProduct!= null">and is_main_product = #{isMainProduct,jdbcType=INTEGER}
+        </if>
+        <if test="posName!= null">and pos_name = #{posName,jdbcType=VARCHAR}</if>
+        <if test="bindParentProductId!= null">and bind_parent_productId =
+            #{bindParentProductId,jdbcType=VARCHAR}
+        </if>
+        <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderNum != null and  orderNum !='' ">
+                ${orderNum}
+            </if>
+        </if>
+        <if test="orders != null and  orders !=''  ">
+            order by ${orders}
+        </if>
+    </select>
+
+    <!-- 分页汇总 -->
+    <select id="selectCount" resultType="int"
+            parameterType="com.sandu.design.model.search.DesignPlanProductSearch">
+        select count(*)
+        from design_plan_recommended_product
+        where 1=1
+        <if test="resIdList !=  null and  resIdList.size > 0  ">
+            and id in
+            <foreach collection="resIdList" index="index" item="item"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="planRecommendedId!= null">and plan_recommended_id =
+            #{planRecommendedId,jdbcType=INTEGER}
+        </if>
+        <if test="isMainStructureProduct!= null">and is_main_structure_product =
+            #{isMainStructureProduct,jdbcType=INTEGER}
+        </if>
+        <if test="isGroupReplaceWay!= null">and is_group_replace_way =
+            #{isGroupReplaceWay,jdbcType=INTEGER}
+        </if>
+        <if test="productIndex!= null">and product_index = #{product_index,jdbcType=INTEGER}
+        </if>
+        <if test="isStandard!= null">and is_standard = #{isStandard,jdbcType=INTEGER}</if>
+        <if test="center!= null and center!='' ">and center = #{center,jdbcType=VARCHAR}</if>
+        <if test="regionMark!= null and regionMark!='' ">and region_mark = #{regionMark,jdbcType=VARCHAR}</if>
+        <if test="styleId!= null">and style_id = #{styleId,jdbcType=INTEGER}</if>
+        <if test="measureCode!= null and measureCode!='' ">and measure_code = #{measureCode,jdbcType=VARCHAR}</if>
+        <if test="describeInfo!= null and describeInfo!=''">and describe_info = #{describeInfo,jdbcType=VARCHAR}</if>
+
+        <if test="sysCode!= null">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="planGroupId!= null">and plan_group_id = #{planGroupId,jdbcType=VARCHAR}</if>
+        <if test="creator!= null">and creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="gmtCreate!= null">and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}</if>
+        <if test="modifier!= null">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="gmtModified!= null">and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}</if>
+        <if test="isDeleted!= null">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="groupType!= null">and group_type = #{groupType,jdbcType=INTEGER}</if>
+        <if test="modelProductId!= null">and model_product_id = #{modelProductId,jdbcType=INTEGER}
+        </if>
+        <if test="planRecommendedId!= null">and plan_recommended_id =
+            #{planRecommendedId,jdbcType=INTEGER}
+        </if>
+        <if test="isDirty!= null">and is_dirty = #{isDirty,jdbcType=INTEGER}</if>
+        <if test="productId!= null">and product_id = #{productId,jdbcType=INTEGER}</if>
+        <if test="initProductId!= null">and init_product_id = #{initProductId,jdbcType=INTEGER}
+        </if>
+        <if test="locationFileId!= null">and location_file_id = #{locationFileId,jdbcType=INTEGER}
+        </if>
+        <if test="productSequence!= null">and product_sequence =
+            #{productSequence,jdbcType=VARCHAR}
+        </if>
+        <if test="materialPicId!= null">and material_pic_id = #{materialPicId,jdbcType=VARCHAR}
+        </if>
+        <if test="att2!= null">and att2 = #{att2,jdbcType=VARCHAR}</if>
+        <if test="att3!= null">and att3 = #{att3,jdbcType=VARCHAR}</if>
+        <if test="att4!= null">and att4 = #{att4,jdbcType=VARCHAR}</if>
+        <if test="att5!= null">and att5 = #{att5,jdbcType=VARCHAR}</if>
+        <if test="att6!= null">and att6 = #{att6,jdbcType=VARCHAR}</if>
+        <if test="dateAtt1!= null">and date_att1 = #{dateAtt1,jdbcType=TIMESTAMP}</if>
+        <if test="dateAtt2!= null">and date_att2 = #{dateAtt2,jdbcType=TIMESTAMP}</if>
+        <if test="planProductId!= null">and planProduct_id = #{planProductId,jdbcType=INTEGER}
+        </if>
+        <if test="displayStatus!= null">and display_status = #{displayStatus,jdbcType=INTEGER}
+        </if>
+        <if test="numAtt3!= null">and num_att3 = #{numAtt3,jdbcType=DOUBLE}</if>
+        <if test="numAtt4!= null">and num_att4 = #{numAtt4,jdbcType=DOUBLE}</if>
+        <if test="remark!= null">and remark = #{remark,jdbcType=VARCHAR}</if>
+        <if test="isHide!= null">and is_hide = #{isHide,jdbcType=INTEGER}</if>
+        <if test="posIndexPath!= null">and pos_index_path = #{posIndexPath,jdbcType=VARCHAR}
+        </if>
+        <if test="productGroupId!= null">and product_group_id = #{productGroupId,jdbcType=INTEGER}
+        </if>
+        <if test="isMainProduct!= null">and is_main_product = #{isMainProduct,jdbcType=INTEGER}
+        </if>
+        <if test="posName!= null">and pos_name = #{posName,jdbcType=VARCHAR}</if>
+        <if test="bindParentProductId!= null">and bind_parent_productId =
+            #{bindParentProductId,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+
+    <!-- 设计方案推荐产品 批量插入 ，只需要对数据库连接一次 -->
+    <insert id="batchAdd" useGeneratedKeys="true" parameterType="java.util.List">
+        <selectKey resultType="long" keyProperty="id" order="AFTER">
+            SELECT
+            LAST_INSERT_ID()
+        </selectKey>
+        insert into design_plan_recommended_product (
+
+        sys_code,
+        split_textures_choose_info,
+        plan_group_id,
+        creator,
+        gmt_create,
+        modifier,
+        gmt_modified,
+        is_deleted,
+        group_type,
+        model_product_id,
+        plan_recommended_id,
+        is_dirty,
+        product_id,
+        init_product_id,
+        location_file_id,
+        product_sequence,
+        material_pic_id,
+        att2,
+        att3,
+        att4,
+        att5,
+        att6,
+        <!-- date_att1, -->
+        <!-- date_att2, -->
+        planProduct_id,
+        display_status,
+        num_att3,
+        num_att4,
+        remark,
+        is_hide,
+        pos_index_path,
+        product_group_id,
+        is_main_product,
+        pos_name,
+        bind_parent_productId,
+        same_product_type_index,
+
+        is_standard,
+        center,
+        region_mark,
+        style_id,
+        measure_code,
+        describe_info,
+        product_index,
+
+        is_main_structure_product,
+        is_group_replace_way,
+        wall_orientation,
+        wall_type,
+        group_product_uniqueId
+        )
+        values
+        <foreach collection="list" item="item" index="index"
+                 separator=",">
+            (
+            #{item.sysCode,jdbcType=VARCHAR},
+            #{item.splitTexturesChooseInfo,jdbcType=VARCHAR},
+            #{item.planGroupId,jdbcType=VARCHAR},
+            #{item.creator,jdbcType=VARCHAR},
+            #{item.gmtCreate,jdbcType=TIMESTAMP},
+            #{item.modifier,jdbcType=VARCHAR},
+            #{item.gmtModified,jdbcType=TIMESTAMP},
+            #{item.isDeleted,jdbcType=INTEGER},
+            #{item.groupType,jdbcType=INTEGER},
+            #{item.modelProductId,jdbcType=INTEGER},
+            #{item.planRecommendedId,jdbcType=INTEGER},
+            #{item.isDirty,jdbcType=INTEGER},
+            #{item.productId,jdbcType=INTEGER},
+            #{item.initProductId,jdbcType=INTEGER},
+            #{item.locationFileId,jdbcType=INTEGER},
+            #{item.productSequence,jdbcType=VARCHAR},
+            #{item.materialPicId,jdbcType=VARCHAR},
+            #{item.att2,jdbcType=VARCHAR},
+            #{item.att3,jdbcType=VARCHAR},
+            #{item.att4,jdbcType=VARCHAR},
+            #{item.att5,jdbcType=VARCHAR},
+            #{item.att6,jdbcType=VARCHAR},
+            <!-- #{item.dateAtt1,jdbcType=TIMESTAMP}, -->
+            <!-- #{item.dateAtt2,jdbcType=TIMESTAMP}, -->
+            #{item.planProductId,jdbcType=INTEGER},
+            #{item.displayStatus,jdbcType=INTEGER},
+            #{item.numAtt3,jdbcType=DOUBLE},
+            #{item.numAtt4,jdbcType=DOUBLE},
+            #{item.remark,jdbcType=VARCHAR},
+            #{item.isHide,jdbcType=INTEGER},
+            #{item.posIndexPath,jdbcType=VARCHAR},
+            #{item.productGroupId,jdbcType=INTEGER},
+            #{item.isMainProduct,jdbcType=INTEGER},
+            #{item.posName,jdbcType=VARCHAR},
+            #{item.bindParentProductId,jdbcType=VARCHAR},
+            #{item.sameProductTypeIndex,jdbcType=INTEGER},
+            #{item.isStandard,jdbcType=INTEGER},
+            #{item.center,jdbcType=VARCHAR},
+            #{item.regionMark,jdbcType=VARCHAR},
+            #{item.styleId,jdbcType=INTEGER},
+            #{item.measureCode,jdbcType=VARCHAR},
+            #{item.describeInfo,jdbcType=VARCHAR},
+            #{item.productIndex,jdbcType=INTEGER},
+            #{item.isMainStructureProduct,jdbcType=INTEGER},
+            #{item.isGroupReplaceWay,jdbcType=INTEGER},
+            #{item.wallOrientation,jdbcType=VARCHAR},
+            #{item.wallType,jdbcType=VARCHAR},
+            #{item.groupProductUniqueId,jdbcType=VARCHAR}
+            )
+        </foreach>
+
+    </insert>
+
+    <select id="getListLeftProductCount" resultType="int"
+            parameterType="com.sandu.design.model.DesignPlanRecommendedProduct">
+        SELECT
+        count(bp.id)
+        FROM
+        design_plan_recommended_product AS dprp
+        LEFT JOIN
+        base_product AS bp ON (dprp.product_id = bp.id)
+        LEFT JOIN base_brand bb
+        ON (bp.brand_id = bb.id)
+        LEFT JOIN res_pic rp ON bp.pic_id = rp.id
+        LEFT
+        JOIN (
+        SELECT * FROM sys_dictionary WHERE type = 'productUnitPrice') AS
+        sd ON
+        (sd.VALUE= bp.sale_price_value)
+        WHERE
+        1 = 1
+        <if test="resIdList !=  null and  resIdList.size > 0  ">
+            and id in
+            <foreach collection="resIdList" index="index" item="item"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="planRecommendedId!= null">and dprp.plan_recommended_id =
+            #{planRecommendedId,jdbcType=INTEGER}
+        </if>
+        <if test="isMainStructureProduct!= null">and dprp.is_main_structure_product =
+            #{isMainStructureProduct,jdbcType=INTEGER}
+        </if>
+        <if test="isGroupReplaceWay!= null">and dprp.is_group_replace_way =
+            #{isGroupReplaceWay,jdbcType=INTEGER}
+        </if>
+        <if test="productIndex!= null">and dprp.product_index =
+            #{product_index,jdbcType=INTEGER}
+        </if>
+        <if test="isStandard!= null">and dprp.is_standard = #{isStandard,jdbcType=INTEGER}
+        </if>
+        <if test="center!= null and center!='' ">and dprp.center = #{center,jdbcType=VARCHAR}</if>
+        <if test="regionMark!= null and regionMark!='' ">and dprp.region_mark = #{regionMark,jdbcType=VARCHAR}</if>
+        <if test="styleId!= null">and dprp.style_id = #{styleId,jdbcType=INTEGER}</if>
+        <if test="measureCode!= null and measureCode!='' ">and dprp.measure_code = #{measureCode,jdbcType=VARCHAR}
+        </if>
+        <if test="describeInfo!= null and describeInfo!=''">and dprp.describe_info = #{describeInfo,jdbcType=VARCHAR}
+        </if>
+
+        <if test="sysCode!= null">and dprp.sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="planGroupId!= null">dprp.and plan_group_id = #{planGroupId,jdbcType=VARCHAR}
+        </if>
+        <if test="creator!= null">and dprp.creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="gmtCreate!= null">and dprp.gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="modifier!= null">and dprp.modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="gmtModified!= null">and dprp.gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+        </if>
+        <if test="isDeleted!= null">and dprp.is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="groupType!= null">and dprp.group_type = #{groupType,jdbcType=INTEGER}</if>
+        <if test="modelProductId!= null">and dprp.model_product_id =
+            #{modelProductId,jdbcType=INTEGER}
+        </if>
+        <if test="planRecommendedId!= null">and dprp.plan_recommended_id =
+            #{planRecommendedId,jdbcType=INTEGER}
+        </if>
+        <if test="isDirty!= null">and dprp.is_dirty = #{isDirty,jdbcType=INTEGER}</if>
+        <if test="productId!= null">and dprp.product_id = #{productId,jdbcType=INTEGER}</if>
+        <if test="initProductId!= null">and dprp.init_product_id =
+            #{initProductId,jdbcType=INTEGER}
+        </if>
+        <if test="locationFileId!= null">and dprp.location_file_id =
+            #{locationFileId,jdbcType=INTEGER}
+        </if>
+        <if test="productSequence!= null">and dprp.product_sequence =
+            #{productSequence,jdbcType=VARCHAR}
+        </if>
+        <if test="materialPicId!= null">and dprp.material_pic_id =
+            #{materialPicId,jdbcType=VARCHAR}
+        </if>
+        <if test="att2!= null">and dprp.att2 = #{att2,jdbcType=VARCHAR}</if>
+        <if test="att3!= null">and dprp.att3 = #{att3,jdbcType=VARCHAR}</if>
+        <if test="att4!= null">and dprp.att4 = #{att4,jdbcType=VARCHAR}</if>
+        <if test="att5!= null">and dprp.att5 = #{att5,jdbcType=VARCHAR}</if>
+        <if test="att6!= null">and dprp.att6 = #{att6,jdbcType=VARCHAR}</if>
+        <if test="dateAtt1!= null">and dprp.date_att1 = #{dateAtt1,jdbcType=TIMESTAMP}</if>
+        <if test="dateAtt2!= null">and dprp.date_att2 = #{dateAtt2,jdbcType=TIMESTAMP}</if>
+        <if test="planProductId!= null">and dprp.planProduct_id =
+            #{planProductId,jdbcType=INTEGER}
+        </if>
+        <if test="displayStatus!= null">and dprp.display_status =
+            #{displayStatus,jdbcType=INTEGER}
+        </if>
+        <if test="numAtt3!= null">and dprp.num_att3 = #{numAtt3,jdbcType=DOUBLE}</if>
+        <if test="numAtt4!= null">and dprp.num_att4 = #{numAtt4,jdbcType=DOUBLE}</if>
+        <if test="remark!= null">and dprp.remark = #{remark,jdbcType=VARCHAR}</if>
+        <if test="isHide!= null">and dprp.is_hide = #{isHide,jdbcType=INTEGER}</if>
+        <if test="posIndexPath!= null">and dprp.pos_index_path =
+            #{posIndexPath,jdbcType=VARCHAR}
+        </if>
+        <if test="productGroupId!= null">and dprp.product_group_id =
+            #{productGroupId,jdbcType=INTEGER}
+        </if>
+        <if test="isMainProduct!= null">and dprp.is_main_product =
+            #{isMainProduct,jdbcType=INTEGER}
+        </if>
+        <if test="posName!= null">and dprp.pos_name = #{posName,jdbcType=VARCHAR}</if>
+        <if test="bindParentProductId!= null">and dprp.bind_parent_productId =
+            #{bindParentProductId,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+
+    <select id="getListLeftProduct" resultMap="designPlanRecommendedProductResultMap"
+            parameterType="com.sandu.design.model.DesignPlanRecommendedProduct">
+        SELECT
+        bp.pic_id,
+        bp.id,
+        bp.product_name,
+        bp.sale_price,
+        bp.pro_style_id,
+        bp.product_code,
+        bp.product_type_value,
+        bb.id AS 'brand_id',
+        bb.brand_name,
+        rp.pic_path,
+        bp.sale_price_value
+        FROM
+        design_plan_recommended_product AS dprp
+        LEFT JOIN base_product AS bp ON
+        (dprp.product_id = bp.id)
+        LEFT
+        JOIN base_brand bb ON (bp.brand_id =
+        bb.id)
+        LEFT JOIN res_pic rp ON
+        bp.pic_id = rp.id
+        LEFT JOIN (
+        SELECT * FROM
+        sys_dictionary WHERE type = 'productUnitPrice') AS sd ON
+        (sd.VALUE=
+        bp.sale_price_value)
+        WHERE
+        1 = 1
+        <if test="resIdList !=  null and  resIdList.size > 0  ">
+            and id in
+            <foreach collection="resIdList" index="index" item="item"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="planRecommendedId!= null">and dprp.plan_recommended_id =
+            #{planRecommendedId,jdbcType=INTEGER}
+        </if>
+        <if test="isMainStructureProduct!= null">and dprp.is_main_structure_product =
+            #{isMainStructureProduct,jdbcType=INTEGER}
+        </if>
+        <if test="isGroupReplaceWay!= null">and dprp.is_group_replace_way =
+            #{isGroupReplaceWay,jdbcType=INTEGER}
+        </if>
+        <if test="productIndex!= null">and dprp.product_index =
+            #{product_index,jdbcType=INTEGER}
+        </if>
+        <if test="isStandard!= null">and dprp.is_standard = #{isStandard,jdbcType=INTEGER}
+        </if>
+        <if test="center!= null and center!='' ">and dprp.center = #{center,jdbcType=VARCHAR}</if>
+        <if test="regionMark!= null and regionMark!='' ">and dprp.region_mark = #{regionMark,jdbcType=VARCHAR}</if>
+        <if test="styleId!= null">and dprp.style_id = #{styleId,jdbcType=INTEGER}</if>
+        <if test="measureCode!= null and measureCode!='' ">and dprp.measure_code = #{measureCode,jdbcType=VARCHAR}
+        </if>
+        <if test="describeInfo!= null and describeInfo!=''">and dprp.describe_info = #{describeInfo,jdbcType=VARCHAR}
+        </if>
+
+        <if test="sysCode!= null">and dprp.sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="planGroupId!= null">dprp.and plan_group_id = #{planGroupId,jdbcType=VARCHAR}
+        </if>
+        <if test="creator!= null">and dprp.creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="gmtCreate!= null">and dprp.gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="modifier!= null">and dprp.modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="gmtModified!= null">and dprp.gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+        </if>
+        <if test="isDeleted!= null">and dprp.is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="groupType!= null">and dprp.group_type = #{groupType,jdbcType=INTEGER}</if>
+        <if test="modelProductId!= null">and dprp.model_product_id =
+            #{modelProductId,jdbcType=INTEGER}
+        </if>
+        <if test="planRecommendedId!= null">and dprp.plan_recommended_id =
+            #{planRecommendedId,jdbcType=INTEGER}
+        </if>
+        <if test="isDirty!= null">and dprp.is_dirty = #{isDirty,jdbcType=INTEGER}</if>
+        <if test="productId!= null">and dprp.product_id = #{productId,jdbcType=INTEGER}</if>
+        <if test="initProductId!= null">and dprp.init_product_id =
+            #{initProductId,jdbcType=INTEGER}
+        </if>
+        <if test="locationFileId!= null">and dprp.location_file_id =
+            #{locationFileId,jdbcType=INTEGER}
+        </if>
+        <if test="productSequence!= null">and dprp.product_sequence =
+            #{productSequence,jdbcType=VARCHAR}
+        </if>
+        <if test="materialPicId!= null">and dprp.material_pic_id =
+            #{materialPicId,jdbcType=VARCHAR}
+        </if>
+        <if test="att2!= null">and dprp.att2 = #{att2,jdbcType=VARCHAR}</if>
+        <if test="att3!= null">and dprp.att3 = #{att3,jdbcType=VARCHAR}</if>
+        <if test="att4!= null">and dprp.att4 = #{att4,jdbcType=VARCHAR}</if>
+        <if test="att5!= null">and dprp.att5 = #{att5,jdbcType=VARCHAR}</if>
+        <if test="att6!= null">and dprp.att6 = #{att6,jdbcType=VARCHAR}</if>
+        <if test="dateAtt1!= null">and dprp.date_att1 = #{dateAtt1,jdbcType=TIMESTAMP}</if>
+        <if test="dateAtt2!= null">and dprp.date_att2 = #{dateAtt2,jdbcType=TIMESTAMP}</if>
+        <if test="planProductId!= null">and dprp.planProduct_id =
+            #{planProductId,jdbcType=INTEGER}
+        </if>
+        <if test="displayStatus!= null">and dprp.display_status =
+            #{displayStatus,jdbcType=INTEGER}
+        </if>
+        <if test="numAtt3!= null">and dprp.num_att3 = #{numAtt3,jdbcType=DOUBLE}</if>
+        <if test="numAtt4!= null">and dprp.num_att4 = #{numAtt4,jdbcType=DOUBLE}</if>
+        <if test="remark!= null">and dprp.remark = #{remark,jdbcType=VARCHAR}</if>
+        <if test="isHide!= null">and dprp.is_hide = #{isHide,jdbcType=INTEGER}</if>
+        <if test="posIndexPath!= null">and dprp.pos_index_path =
+            #{posIndexPath,jdbcType=VARCHAR}
+        </if>
+        <if test="productGroupId!= null">and dprp.product_group_id =
+            #{productGroupId,jdbcType=INTEGER}
+        </if>
+        <if test="isMainProduct!= null">and dprp.is_main_product =
+            #{isMainProduct,jdbcType=INTEGER}
+        </if>
+        <if test="posName!= null">and dprp.pos_name = #{posName,jdbcType=VARCHAR}</if>
+        <if test="bindParentProductId!= null">and dprp.bind_parent_productId =
+            #{bindParentProductId,jdbcType=VARCHAR}
+        </if>
+        <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderNum != null and  orderNum !='' ">
+                ${orderNum}
+            </if>
+        </if>
+        <if test="orders != null and  orders !=''  ">
+            order by ${orders}
+        </if>
+    </select>
+
+    <!-- 设计方案产品Result -->
+    <resultMap id="designPlanRecommendedProductResultMap"
+               type="com.sandu.designplan.model.DesignPlanRecommendedProductResult">
+        <id column="id" property="productId" jdbcType="INTEGER"/>
+        <result column="product_name" property="productName" jdbcType="VARCHAR"/>
+        <result column="pro_style_id" property="proStyleValue"
+                jdbcType="VARCHAR"/>
+        <result column="product_type_value" property="productTypeValue"
+                jdbcType="VARCHAR"/>
+        <result column="sale_price" property="salePrice" jdbcType="VARCHAR"/>
+        <result column="brand_name" property="brandName" jdbcType="VARCHAR"/>
+        <result column="pic_path" property="picPath" jdbcType="VARCHAR"/>
+        <result column="product_code" property="productCode" jdbcType="VARCHAR"/>
+        <result column="location" property="location" jdbcType="VARCHAR"/>
+        <result column="file_path" property="filePath" jdbcType="VARCHAR"/>
+        <result column="pos_name" property="posName" jdbcType="VARCHAR"/>
+        <result column="pos_index_path" property="posIndexPath"
+                jdbcType="VARCHAR"/>
+        <result column="group_id" property="groupId" jdbcType="INTEGER"/>
+        <result column="planProductId" property="planProductId"
+                jdbcType="INTEGER"/>
+        <result column="brand_id" property="brandId" jdbcType="INTEGER"/>
+        <result column="pic_id" property="picId" jdbcType="INTEGER"/>
+        <result column="sale_price_value" property="salePriceValue"
+                jdbcType="INTEGER"/>
+        <result column="product_small_type_value" property="productSmallTypeValue"
+                jdbcType="INTEGER"/>
+        <result column="plan_group_id" property="planGroupId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+    <update id="deletedByPlanRecommendedId" parameterType="java.lang.Integer">
+		update
+		design_plan_recommended_product set is_deleted = 1 where
+		plan_recommended_id = #{planRecommendedId,jdbcType=INTEGER}
+	</update>
+
+    <!-- getMainProductListByPlanRecommendedId -->
+    <select id="getMainProductListByPlanRecommendedId" resultMap="AllResultMap">
+        select
+
+        dprp.id,dprp.plan_recommended_id,dprp.is_main_structure_product,dprp.is_group_replace_way,dprp.product_index,dprp.is_standard,dprp.center,dprp.region_mark,dprp.style_id,dprp.
+        measure_code,dprp.describe_info,dprp.sys_code,dprp.split_textures_choose_info,dprp.plan_group_id,dprp.creator,dprp.gmt_create,dprp.modifier,dprp.gmt_modified,dprp.is_deleted,dprp.
+        group_type,dprp.model_product_id,dprp.plan_recommended_id,dprp.is_dirty,dprp.product_id,dprp.init_product_id,dprp.location_file_id,dprp.product_sequence,dprp.
+        material_pic_id,dprp.att2,dprp.att3,dprp.att4,dprp.att5,dprp.att6,dprp.date_att1,dprp.date_att2,dprp.planProduct_id,dprp.display_status,dprp.num_att3,dprp.num_att4,dprp.remark,dprp.is_hide,dprp.
+        pos_index_path,dprp.product_group_id,dprp.is_main_product,dprp.pos_name,dprp.bind_parent_productId,dprp.same_product_type_index,dprp.wall_orientation,dprp.wall_type,
+        gp.location,gp.composite_type,
+        <!-- base_product表信息 -->
+        bp.product_type_value as product_big_type_value,
+        bp.product_small_type_value as product_small_type_value,
+        bp.product_code,
+        <!-- res_file表信息(组合配置文件) -->
+        rf.file_path
+
+        from design_plan_recommended_product dprp
+        left join
+        group_product gp on
+        gp.id = dprp.product_group_id
+        left join base_product
+        bp on bp.id =
+        dprp.product_id
+        left join res_file rf on rf.id =
+        gp.location and
+        rf.is_deleted = 0
+        where dprp.plan_recommended_id = #{id}
+        and
+        dprp.is_deleted = 0
+        and dprp.group_type = 0
+        and dprp.is_main_product
+        = 1
+        and gp.design_templet_id = 0
+    </select>
+
+    <!-- getListByPlanIdAndGroupId -->
+    <select id="getListByPlanIdAndGroupId" resultMap="AllResultMap">
+		select
+
+		dprp.id,dprp.plan_recommended_id,dprp.is_main_structure_product,dprp.is_group_replace_way,dprp.product_index,dprp.is_standard,dprp.center,dprp.region_mark,dprp.style_id,dprp.
+		measure_code,dprp.describe_info,dprp.sys_code,dprp.split_textures_choose_info,dprp.plan_group_id,dprp.creator,dprp.gmt_create,dprp.modifier,dprp.gmt_modified,dprp.is_deleted,dprp.
+		group_type,dprp.model_product_id,dprp.plan_recommended_id,dprp.is_dirty,dprp.product_id,dprp.init_product_id,dprp.location_file_id,dprp.product_sequence,dprp.
+		material_pic_id,dprp.att2,dprp.att3,dprp.att4,dprp.att5,dprp.att6,dprp.date_att1,dprp.date_att2,dprp.planProduct_id,dprp.display_status,dprp.num_att3,dprp.num_att4,dprp.remark,dprp.is_hide,dprp.
+		pos_index_path,dprp.product_group_id,dprp.is_main_product,dprp.pos_name,dprp.bind_parent_productId,dprp.same_product_type_index,dprp.wall_orientation,dprp.wall_type,
+		bp.product_code
+
+		from design_plan_recommended_product dprp
+		left join
+		base_product bp on
+		bp.id = dprp.product_id
+		where
+		dprp.plan_recommended_id =
+		#{planRecommendedId}
+		and
+		dprp.product_group_id = #{productGroupId}
+		and
+		dprp.group_type = 0
+		and
+		dprp.is_deleted = 0
+	</select>
+
+    <!-- **结果定义** -->
+    <resultMap id="DesignProductResultMap"
+               type="com.sandu.product.model.result.DesignProductResult">
+        <id column="id" property="productId" jdbcType="INTEGER"/>
+        <result column="product_code" property="productCode" jdbcType="VARCHAR"/>
+        <result column="product_name" property="productName" jdbcType="VARCHAR"/>
+        <result column="product_length" property="productLength"
+                jdbcType="VARCHAR"/>
+        <result column="product_width" property="productWidth"
+                jdbcType="VARCHAR"/>
+        <result column="product_height" property="productHeight"
+                jdbcType="VARCHAR"/>
+        <result column="min_height" property="minHeight" jdbcType="VARCHAR"/>
+        <result column="full_pave_length" property="fullPaveLength"
+                jdbcType="VARCHAR"/>
+        <result column="product_type_value" property="bigTypeValue"
+                jdbcType="VARCHAR"/>
+        <result column="bigTypeKey" property="bigTypeKey" jdbcType="VARCHAR"/>
+        <result column="product_small_type_value" property="smallTypeValue"
+                jdbcType="INTEGER"/>
+        <result column="smallTypeKey" property="smallTypeKey" jdbcType="VARCHAR"/>
+        <result column="bmSmallTypeValue" property="bmSmallTypeValue"
+                jdbcType="INTEGER"/>
+        <result column="product_index" property="productIndex"
+                jdbcType="INTEGER"/>
+        <result column="style_id" property="styleId" jdbcType="INTEGER"/>
+        <result column="color_id" property="colorId" jdbcType="INTEGER"/>
+        <result column="product_style_id_info" property="productStyleIdInfo"
+                jdbcType="VARCHAR"/>
+        <result column="is_standard" property="isStandard" jdbcType="INTEGER"/>
+        <result column="center" property="center" jdbcType="VARCHAR"/>
+        <result column="region_mark" property="regionMark" jdbcType="VARCHAR"/>
+        <result column="measure_code" property="measureCode" jdbcType="VARCHAR"/>
+        <result column="is_main_structure_product" property="isMainStructureProduct"
+                jdbcType="INTEGER"/>
+        <result column="is_group_replace_way" property="isGroupReplaceWay"
+                jdbcType="INTEGER"/>
+        <result column="wall_orientation" property="wallOrientation"
+                jdbcType="VARCHAR"/>
+        <result column="wall_type" property="wallType" jdbcType="VARCHAR"/>
+        <result column="pos_name" property="posName" jdbcType="VARCHAR"/>
+        <result column="split_textures_choose_info" property="splitTexturesChooseInfo"
+                jdbcType="VARCHAR"/>
+        <result column="model_product_id" property="modelProductId"
+                jdbcType="INTEGER"/>
+        <result column="is_main_product" property="isMainProduct"
+                jdbcType="INTEGER"/>
+        <result column="plan_group_id" property="planGroupId" jdbcType="VARCHAR"/>
+        <result column="product_group_id" property="productGroupId"
+                jdbcType="INTEGER"/>
+        <result column="group_type" property="groupType" jdbcType="INTEGER"/>
+        <result column="bind_parent_productId" property="bindParentProductId"
+                jdbcType="VARCHAR"/>
+        <result column="pro_style_id" property="proStyleId" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="getPlanProductList" resultMap="DesignProductResultMap">
+		SELECT
+		bp1.id,bp1.product_code,bp1.product_length,bp1.product_width,bp1.`product_height`,bp1.`product_small_type_value`,bp1.product_type_value,
+		bp2.`product_small_type_value` as bmSmallTypeValue,bp1.style_id as
+		pro_style_id,dpp.product_index,bp1.color_id,bp1.product_style_id_info,dpp.is_standard,
+		dpp.style_id,dpp.center,dpp.region_mark,dpp.measure_code,dpp.is_main_structure_product,dpp.is_group_replace_way,dpp.wall_orientation,
+		dpp.wall_type,b.type AS bigTypeKey,b.valuekey as
+		smallTypeKey,dpp.pos_name,dpp.is_main_product,dpp.plan_group_id,dpp.product_group_id,
+		dpp.group_type,dpp.`split_textures_choose_info`,dpp.model_product_id
+		FROM design_plan_recommended_product dpp
+		LEFT JOIN base_product bp1 ON
+		bp1.id = dpp.product_id AND bp1.`is_deleted` = 0
+		LEFT JOIN base_product
+		bp2 ON bp2.id = dpp.`init_product_id` AND bp2.`is_deleted` = 0
+		LEFT
+		JOIN sys_dictionary a ON a.is_deleted = 0 AND a.type ='productType'
+		AND a.value = bp2.product_type_value
+		LEFT JOIN sys_dictionary b ON
+		b.is_deleted = 0 AND b.type = a.valuekey AND b.value
+		=bp2.product_small_type_value
+		WHERE dpp.plan_recommended_id =
+		#{recommendedPlanId,jdbcType=INTEGER} AND dpp.`is_deleted` = 0
+		order by
+		product_type_value,region_mark,product_index ASC
+	</select>
+
+    <!-- getListByRecommendedId -->
+    <select id="getListByRecommendedId" resultMap="AllResultMap">
+		select
+		dprp.product_id,
+		bp.product_code,
+		bp.product_length,
+		bp.product_height,
+		bp.product_width,
+		dprp.wall_orientation,
+		dprp.wall_type,
+		dprp.region_mark,
+		dprp.measure_code,
+		dprp.is_main_product,
+		dprp.pos_name,
+		sdbig.valuekey as big_type_valuekey,
+		sdsmall.valuekey as
+		small_type_valuekey,
+		dprp.product_group_id,
+		dprp.plan_group_id,
+		dprp.group_type,
+		sdbigInit.valuekey as big_type_valuekey_init,
+		sdsmallInit.valuekey as small_type_valuekey_init,
+		dprp.bind_parent_productId,
+		dprp.split_textures_choose_info,
+		dprp.is_standard,
+		dprp.style_id,
+		dprp.product_index,
+		dprp.is_main_structure_product,
+		dprp.is_group_replace_way,
+		dprp.init_product_id,
+		dprp.group_product_uniqueId
+		from
+		design_plan_recommended_product dprp
+		left join base_product bp on bp.id
+		= dprp.product_id
+		left join sys_dictionary sdbig on sdbig.type =
+		"productType" and sdbig.value = bp.product_type_value
+		left join
+		sys_dictionary sdsmall on sdsmall.type = sdbig.valuekey and
+		sdsmall.value = bp.product_small_type_value
+		left join base_product
+		bpInit on bpInit.id = dprp.init_product_id
+		left join sys_dictionary
+		sdbigInit on sdbigInit.type = "productType" and sdbigInit.value =
+		bpInit.product_type_value
+		left join sys_dictionary sdsmallInit on
+		sdsmallInit.type = sdbig.valuekey and sdsmallInit.value =
+		bpInit.product_small_type_value
+		where dprp.plan_recommended_id =
+		#{planRecommendedId} and dprp.is_deleted = 0
+	</select>
+
+    <!-- costTypeListCount -->
+    <!-- 结算汇总清单 -->
+    <select id="costTypeListCount" resultType="int"
+            parameterType="com.sandu.design.model.DesignPlanProduct">
+        SELECT COUNT(*) FROM
+        (SELECT GROUP_CONCAT(C.costTypeCode)
+        costCodes,SUM(C.totalPrice) totalPrice ,s2.value
+        costTypeValue,s2.valuekey costTypeCode,s2.name costTypeName
+        FROM
+        (SELECT GROUP_CONCAT(bp.id) productIds,SUM(bp.sale_price)
+        totalPrice,s3.value costTypeValue,s3.valuekey costTypeCode,s3.name
+        costTypeName
+        FROM design_plan_recommended_product dp
+        LEFT JOIN
+        base_product bp ON bp.id
+        = dp.product_id
+        LEFT JOIN (SELECT
+        bs.type,bs.valuekey,bs.value,bs.name,bs.ordering FROM sys_dictionary
+        bs WHERE bs.type = 'productType' ORDER BY bs.ordering) s1 ON
+        bp.product_type_value = s1.value
+        LEFT JOIN sys_dictionary s2 ON
+        s2.value = bp.product_small_type_value AND s2.type = s1.valuekey
+        LEFT
+        JOIN (SELECT tal.type,tal.valuekey,tal.value,tal.name,tal.ordering
+        FROM sys_dictionary tal WHERE tal.type = 'total' ORDER BY
+        tal.ordering) s3 ON s3.valuekey = s2.att2
+        WHERE 1=1 AND dp.is_deleted =
+        0
+        <if test="planId != null and planId != ''">
+            AND dp.plan_recommended_id = #{planId,jdbcType=INTEGER}
+        </if>
+        AND s2.att3 != 'baimo'
+        GROUP BY s2.att2
+        ORDER BY
+        s3.ordering,s2.ordering) C
+        LEFT JOIN
+        (SELECT bs.type, bs.valuekey,
+        bs.value, bs.name, bs.ordering, bs.att1
+        FROM sys_dictionary bs
+        WHERE
+        bs.type = 'total'
+        ORDER BY bs.ordering) s1
+        ON C.costTypeCode =
+        s1.valuekey
+        LEFT JOIN
+        (SELECT sd.type, sd.valuekey, sd.value, sd.name,
+        sd.ordering
+        FROM sys_dictionary sd
+        WHERE sd.type = 'totalType'
+        ORDER BY
+        sd.ordering) s2
+        ON s1.att1 = s2.valuekey
+        WHERE 1 = 1
+        AND s1.att1 IS NOT
+        NULL
+        GROUP BY s1.att1) t
+    </select>
+
+    <!-- 结算大类型清单 -->
+    <resultMap id="costTypeListResult" type="com.sandu.design.model.ProductsCostType">
+        <result column="costCodes" property="costCodes" jdbcType="VARCHAR"/>
+        <result column="totalPrice" property="totalPrice" jdbcType="DECIMAL"/>
+        <result column="costTypeValue" property="costTypeValue"
+                jdbcType="VARCHAR"/>
+        <result column="costTypeCode" property="costTypeCode" jdbcType="VARCHAR"/>
+        <result column="costTypeName" property="costTypeName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- costTypeList -->
+    <select id="costTypeList" resultMap="costTypeListResult"
+            parameterType="com.sandu.design.model.DesignPlanProduct">
+        SELECT GROUP_CONCAT(C.costTypeCode) costCodes,SUM(C.totalPrice)
+        totalPrice ,s2.value costTypeValue,s2.valuekey costTypeCode,s2.name
+        costTypeName
+        FROM
+        (SELECT GROUP_CONCAT(bp.id)
+        productIds,SUM(bp.sale_price) totalPrice,s3.value
+        costTypeValue,s3.valuekey costTypeCode,s3.name costTypeName FROM
+        design_plan_recommended_product dp
+        LEFT JOIN base_product bp ON bp.id =
+        dp.product_id
+        LEFT JOIN (SELECT
+        bs.type,bs.valuekey,bs.value,bs.name,bs.ordering FROM sys_dictionary
+        bs WHERE bs.type = 'productType' ORDER BY bs.ordering) s1 ON
+        bp.product_type_value = s1.value
+        LEFT JOIN sys_dictionary s2 ON
+        s2.value = bp.product_small_type_value AND s2.type = s1.valuekey
+        LEFT
+        JOIN (SELECT tal.type,tal.valuekey,tal.value,tal.name,tal.ordering
+        FROM sys_dictionary tal WHERE tal.type = 'total' ORDER BY
+        tal.ordering) s3 ON s3.valuekey = s2.att2
+        left join platform2c_product_rel ppr ON ppr.product_id = dp.product_id AND
+        ppr.is_deleted = 0
+        WHERE 1=1 AND dp.is_deleted =
+        0
+        <if test="platformId != null and platformId != 0">
+            AND ppr.platform_id = #{platformId}
+            AND ppr.putaway_state
+            = 1
+            AND ppr.allot_state = 1
+        </if>
+        <if test=" brandList !=null and brandList.size > 0">
+            and bp.brand_id in
+            <foreach collection="brandList" index="index" item="item"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="planId != null and planId != ''">
+            AND dp.plan_recommended_id = #{planId,jdbcType=INTEGER}
+        </if>
+        AND s2.att3 != 'baimo'
+        GROUP BY s2.att2
+        ORDER BY
+        s3.ordering,s2.ordering) C
+        LEFT JOIN
+        (SELECT bs.type, bs.valuekey,
+        bs.value, bs.name, bs.ordering, bs.att1
+        FROM sys_dictionary bs
+        WHERE
+        bs.type = 'total'
+        ORDER BY bs.ordering) s1
+        ON C.costTypeCode =
+        s1.valuekey
+        LEFT JOIN
+        (SELECT sd.type, sd.valuekey, sd.value, sd.name,
+        sd.ordering
+        FROM sys_dictionary sd
+        WHERE sd.type = 'totalType'
+        ORDER BY
+        sd.ordering) s2
+        ON s1.att1 = s2.valuekey
+        WHERE 1 = 1
+        AND s1.att1 IS NOT
+        NULL
+        GROUP BY s1.att1
+    </select>
+
+    <!-- 结算清单 -->
+    <resultMap id="costListResult" type="com.sandu.design.model.ProductsCost">
+        <result column="productIds" property="productIds" jdbcType="VARCHAR"/>
+        <result column="totalPrice" property="totalPrice" jdbcType="DECIMAL"/>
+        <result column="costTypeValue" property="costTypeValue"
+                jdbcType="VARCHAR"/>
+        <result column="costTypeCode" property="costTypeCode" jdbcType="VARCHAR"/>
+        <result column="costTypeName" property="costTypeName" jdbcType="VARCHAR"/>
+        <result column="productCount" property="productCount" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!-- costList -->
+    <select id="costList" resultMap="costListResult"
+            parameterType="com.sandu.design.model.ProductsCostType">
+        SELECT GROUP_CONCAT(bp.id) productIds,SUM(bp.sale_price)
+        totalPrice,s3.value costTypeValue,s3.valuekey costTypeCode,s3.name
+        costTypeName,COUNT(bp.id) productCount FROM
+        design_plan_recommended_product dp
+        LEFT JOIN base_product bp ON bp.id =
+        dp.product_id
+        LEFT JOIN (SELECT
+        bs.type,bs.valuekey,bs.value,bs.name,bs.ordering FROM sys_dictionary
+        bs WHERE bs.type = 'productType' ORDER BY bs.ordering) s1 ON
+        bp.product_type_value = s1.value
+        LEFT JOIN sys_dictionary s2 ON
+        s2.value = bp.product_small_type_value AND s2.type = s1.valuekey
+        LEFT
+        JOIN (SELECT tal.type,tal.valuekey,tal.value,tal.name,tal.ordering
+        FROM sys_dictionary tal WHERE tal.type = 'total' ORDER BY
+        tal.ordering) s3 ON s3.valuekey = s2.att2
+        LEFT JOIN
+        platform2c_product_rel ppr ON ppr.product_id = dp.product_id AND
+        ppr.is_deleted = 0
+        WHERE 1=1 AND dp.is_deleted = 0
+        <if test="platformId != null and platformId != 0">
+            AND ppr.platform_id = #{platformId}
+            AND ppr.putaway_state
+            = 1
+            AND ppr.allot_state = 1
+        </if>
+        <if test=" brandList !=null and brandList.size > 0">
+            and bp.brand_id in
+            <foreach collection="brandList" index="index" item="item"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="planId != null and planId != ''">
+            AND dp.plan_recommended_id = #{planId,jdbcType=INTEGER}
+        </if>
+        <if test="costCodes != null and costCodes != ''">
+            AND FIND_IN_SET(s3.valuekey, #{costCodes,jdbcType=VARCHAR})
+        </if>
+        AND s2.att3 != 'baimo'
+        GROUP BY s2.att2
+        ORDER BY s3.ordering,s2.ordering
+        <if test="start !=-1 and limit !=-1">LIMIT #{start}, #{limit}</if>
+    </select>
+
+    <select id="getProductCount" parameterType="com.sandu.product.model.ProductCostDetail"
+            resultType="java.lang.Integer">
+		SELECT count(1) from design_plan_recommended_product where
+		plan_recommended_id = #{designPlanId,jdbcType=INTEGER}
+		and product_id =
+		#{productId,jdbcType=INTEGER} and is_deleted = 0
+	</select>
+
+
+    <!-- 结算清单明细 -->
+    <resultMap id="costDetailResult" type="com.sandu.product.model.ProductCostDetail">
+        <id column="id" property="productId" jdbcType="VARCHAR"/>
+        <result column="product_name" property="productName" jdbcType="VARCHAR"/>
+        <result column="brand_name" property="brandName" jdbcType="VARCHAR"/>
+        <result column="unitPrice" property="unitPrice" jdbcType="DECIMAL"/>
+        <result column="totalPrice" property="totalPrice" jdbcType="DECIMAL"/>
+        <result column="totalCount" property="productCount" jdbcType="INTEGER"/>
+        <result column="productPicPath" property="productPicPath"
+                jdbcType="VARCHAR"/>
+        <result column="productModelNumber" property="productModelNumber"
+                jdbcType="VARCHAR"/>
+        <result column="productSpec" property="productSpec" jdbcType="VARCHAR"/>
+        <result column="productDesc" property="productDesc" jdbcType="VARCHAR"/>
+        <result column="productOriginalPicPath" property="productOriginalPicPath"
+                jdbcType="VARCHAR"/>
+        <result column="productUnit" property="productUnit" jdbcType="VARCHAR"/>
+        <result column="houseType" property="houseType" jdbcType="INTEGER"/>
+        <result column="spaceCommonId" property="spaceCommonId"
+                jdbcType="INTEGER"/>
+        <result column="posIndexPath" property="posIndexPath" jdbcType="VARCHAR"/>
+        <result column="isStandard" property="isStandard" jdbcType="INTEGER"/>
+        <result column="styleId" property="styleId" jdbcType="INTEGER"/>
+        <result column="smallTypeValue" property="smallTypeValue"
+                jdbcType="VARCHAR"/>
+        <result column="productTypeValue" property="productTypeValue"
+                jdbcType="VARCHAR"/>
+        <result column="planProductId" property="planProductId"
+                jdbcType="INTEGER"/>
+        <result column="measureCode" property="measureCode" jdbcType="VARCHAR"/>
+        <result column="regionMark" property="regionMark" jdbcType="VARCHAR"/>
+        <result column="isMainProduct" property="isMainProduct"
+                jdbcType="INTEGER"/>
+        <result column="categoryCode" property="categoryCode" jdbcType="VARCHAR"/>
+        <result column="costTypeCode" property="costTypeCode" jdbcType="VARCHAR"/>
+        <result column="smallCategoryCode" property="smallCategoryCode"
+                jdbcType="VARCHAR"/>
+        <result column="productCode" property="productCode" jdbcType="VARCHAR"/>
+        <result column="sourcePlanGroupId" property="sourcePlanGroupId"
+                jdbcType="VARCHAR"/>
+        <result column="sourceProductGroupId" property="sourceProductGroupId"
+                jdbcType="INTEGER"/>
+        <result column="sourceGroupProductUniqueId" property="sourceGroupProductUniqueId"
+                jdbcType="VARCHAR"/>
+        <result column="sourceGroupProductId" property="sourceGroupProductId"
+                jdbcType="INTEGER"/>
+        <result column="sourceGroupProductCode" property="sourceGroupProductCode"
+                jdbcType="INTEGER"/>
+        <result column="houseId" property="houseId" jdbcType="INTEGER"/>
+        <result column="design_plan_id" property="designPlanId" jdbcType="INTEGER"/>
+        <result column="isFavorite" property="isFavorite" jdbcType="INTEGER"/>
+        <result column="is_replace_texture" property="isReplaceTexture"
+                jdbcType="INTEGER"/>
+
+        <result column="company_id" property="companyId" jdbcType="INTEGER"/>
+
+        <result column="designTemplet_id" property="designTempletId" jdbcType="INTEGER"/>
+        <result column="pro_category_id" property="proCategoryId" jdbcType="INTEGER"/>
+        <result column="pro_category_long_code" property="proCategoryLongCode" jdbcType="VARCHAR"/>
+        <result column="secrecy" property="secrecy" jdbcType="INTEGER"/>
+
+    </resultMap>
+
+    <!-- 结算清单明细 -->
+    <select id="costDetail" resultMap="costDetailResult"
+            parameterType="com.sandu.design.model.ProductsCost">
+        SELECT dpr.id design_plan_id,bp.id,bp.product_name,bb.brand_name,bp.sale_price
+        unitPrice,(bp.sale_price*COUNT(bp.id)) totalPrice,COUNT(bp.id)
+        totalCount,rp.pic_path productPicPath,
+        bp.product_model_number
+        productModelNumber,bp.product_spec productSpec,bp.product_desc
+        productDesc,rp1.pic_path productOriginalPicPath,sd.name productUnit,
+        sc.space_function_id AS houseType,sc.id AS
+        spaceCommonId,dp.pos_index_path AS posIndexPath,
+        dp.is_standard AS
+        isStandard,bp.style_id AS styleId,bp.product_small_type_value AS
+        smallTypeValue,
+        bp.product_type_value AS productTypeValue,dp.id AS
+        planProductId,bp.measure_code AS
+        measureCode,
+        dp.region_mark AS
+        regionMark,dp.is_main_product AS isMainProduct,
+        bp.product_type_mark as
+        categoryCode          <!-- 产品分类编码 -->
+        ,bp.product_small_type_mark as smallCategoryCode<!-- 产品小分类编码 -->
+        ,bp.product_code as productCode
+        ,dp.plan_group_id as sourcePlanGroupId              <!--
+			设计方案组合ID -->
+        ,dp.product_group_id as sourceProductGroupId      <!-- 产品组合ID -->
+        ,dp.group_product_uniqueId as sourceGroupProductUniqueId        <!-- 组合产品唯一标识 -->
+        ,gp.id as sourceGroupProductId            <!-- 组合id -->
+        ,gp.group_code as sourceGroupProductCode    <!-- 组合code -->
+        ,dpr.house_id houseId
+        ,dp.is_replace_texture<!-- 是否做了材质替换(0:否;1:是) add by
+			yangz 2018年1月17日23:26:55 -->
+        ,s2.att2 costTypeCode
+        ,count(upc.id) isFavorite
+
+        ,dpr.design_template_id as designTemplet_id    <!-- 关联样板房id -->
+        ,pc.id as pro_category_id                    <!-- 产品分类id -->
+        ,pc.long_code as pro_category_long_code        <!-- 产品分类长编码 -->
+        ,bp.secrecy_flag as secrecy,
+        bp.company_id as company_id
+        FROM design_plan_recommended_product dp
+        LEFT JOIN
+        base_product bp ON bp.id = dp.product_id
+        left join pro_category pc on bp.product_small_type_mark = pc.code
+        LEFT JOIN (SELECT
+        bs.type,bs.valuekey,bs.value,bs.name,bs.ordering FROM sys_dictionary
+        bs WHERE bs.type = 'productType' ORDER BY bs.ordering) s1 ON
+        bp.product_type_value = s1.value
+        LEFT JOIN sys_dictionary s2 ON
+        s2.value = bp.product_small_type_value AND s2.type = s1.valuekey
+        LEFT
+        JOIN res_pic rp ON bp.pic_id = rp.id
+        LEFT JOIN res_pic rp1 ON
+        bp.pic_ids = rp1.id
+        LEFT JOIN base_brand bb ON bb.id = bp.brand_id
+        LEFT
+        JOIN sys_dictionary sd on sd.value = bp.sale_price_value and
+        sd.type='productUnitPrice'
+
+        LEFT JOIN group_product gp on gp.id =
+        dp.product_group_id
+        LEFT JOIN
+        platform2c_product_rel ppr ON
+        ppr.product_id = dp.product_id AND
+        ppr.is_deleted = 0
+        LEFT JOIN
+        design_plan_recommended dpr ON dpr.id = dp.plan_recommended_id
+        LEFT
+        JOIN space_common sc ON sc.id = dpr.space_common_id
+        left join user_product_collect upc on bp.id = upc.product_id and upc.is_deleted = 0 and upc.user_id = #{userId}
+        WHERE 1=1 AND dp.is_deleted = 0
+
+        <!-- 非同行产品可见逻辑 start -->
+        <if test="sysDictionaryBOList != null and sysDictionaryBOList.size > 0 and
+			ownBrandIdList != null and ownBrandIdList.size > 0">
+            and bp.id not in (
+            select id from base_product where
+            <foreach collection="sysDictionaryBOList" index="index" item="item"
+                     open="(" separator="," close=")">
+                product_type_value = #{item.bigTypeValue} and product_small_type_value = #{item.smallTypeValue}
+            </foreach>
+            and brand_id not in
+            <foreach collection="ownBrandIdList" index="index" item="item"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            )
+        </if>
+        <!-- 非同行产品可见逻辑 end -->
+
+        <if test="platformId != null and platformId != 0">
+            AND ppr.platform_id = #{platformId}
+            AND ppr.putaway_state = 1
+            AND ppr.allot_state = 1
+        </if>
+        <if test=" brandList !=null and brandList.size > 0">
+            and bp.brand_id in
+            <foreach collection="brandList" index="index" item="item"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="planId != null and planId != ''">
+            AND dp.plan_recommended_id = #{planId,jdbcType=INTEGER}
+        </if>
+        <if test=" costTypeCodeList !=null and costTypeCodeList.size > 0">
+            AND s2.att2 in
+            <foreach collection="costTypeCodeList" index="index" item="item"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        AND s2.att3 != 'baimo'
+        GROUP BY bp.id
+    </select>
+
+    <!-- getWallOrientationList -->
+    <select id="getWallOrientationList" resultType="java.lang.String">
+        select dprp.wall_orientation from design_plan_recommended_product dprp
+        left join base_product bp on bp.id = dprp.product_id
+        where
+        dprp.plan_recommended_id = #{id}
+        and dprp.is_deleted = 0
+        and
+        wall_orientation is not null
+        and wall_orientation != ""
+        <!-- 只要墙面 -->
+        and bp.product_type_value = "3";
+    </select>
+
+    <!-- 查询产品相关推荐方案 -->
+    <select id="queryRecommendedPlanOfProductRelatedByProductId"
+            parameterType="object"
+            resultType="com.sandu.designplan.vo.RecommendedPlanProductRelatedVo">
+        SELECT
+        RE.id AS recommendPlanId,
+        RE.apply_space_areas as applySpaceAreas,
+        RE.plan_name AS recommendPlanName,
+        RE.cover_pic_Id AS recommendPlanCoverPicId,
+        PIC.pic_path AS recommendPlanCover,
+
+        PIC.pic_path AS designPlanCoverPath,
+        RE.plan_name AS designPlanName,
+        STY.`name` AS spaceStyleName,
+        CO.space_areas AS spaceArea,
+        RE.id AS designPlanRecommendId,
+
+        STY.`name` AS houseStyleName,
+        SD.`NAME` AS
+        houseTypeName,
+        CO.space_areas AS houseArea,
+        CO.space_function_id AS spaceType,
+        fr.status AS isFavorite,
+        dpl.status AS isLike,
+        dpsi.like_num AS likeNum,
+        dpsi.collect_num AS collectNum,
+        RE.group_primary_id AS groupPrimaryId
+        FROM
+        design_plan_recommended RE
+        LEFT JOIN
+        design_plan_summary_info AS dpsi ON dpsi.design_id =
+        RE.id AND
+        dpsi.is_deleted = 0
+        LEFT JOIN design_plan_like AS dpl ON
+        dpl.design_id =
+        RE.id AND dpl.user_id = #{userId}
+        LEFT JOIN
+        (SELECT fid,recommendId,bid,status from
+        design_plan_recommend_favorite_ref
+        where fid
+        in (SELECT bid from
+        sys_business_favorite where userId =#{userId}) ) AS fr
+        ON(fr.recommendId = RE.id)
+        LEFT JOIN
+        design_plan_recommended_product PR
+        ON PR.plan_recommended_id = RE.id
+        LEFT JOIN design_templet TE ON
+        RE.design_template_id = TE.id
+        LEFT JOIN
+        (SELECT
+        id,space_function_id,space_areas FROM space_common WHERE
+        is_deleted =
+        0) AS CO ON(CO.id = TE.space_common_id)
+        LEFT JOIN
+        base_product_style STY
+        ON (STY.id = RE.design_recommended_style_id)
+        LEFT JOIN (SELECT
+        NAME,VALUE FROM sys_dictionary WHERE is_deleted = 0
+        AND type =
+        'houseType' ) AS SD ON (CO.space_function_id = SD.VALUE)
+        LEFT JOIN
+        res_render_pic PIC ON RE.cover_pic_Id = PIC.id
+        LEFT JOIN
+        (SELECT
+        plan_id,is_deleted,brand_id from design_plan_brand ) AS PLANB
+        ON (RE.id
+        = PLANB.plan_id)
+        LEFT JOIN (SELECT id,brand_name from
+        base_brand where
+        is_deleted = 0 ) AS BRAND ON (PLANB.brand_id =
+        BRAND.id)
+
+        <if test="platformId != null and platformId != 0">
+        LEFT JOIN
+        design_plan_2c_platform dpp ON dpp.plan_id = RE.id AND
+        dpp.is_deleted =
+        0
+        </if>
+        WHERE
+        RE.is_deleted = 0
+        AND
+        PR.product_id = #{productId}
+        <if test="platformId != null and platformId != 0">
+            AND dpp.platform_id = #{platformId}
+            AND dpp.putaway_state = 1
+            AND dpp.allot_state = 1
+        </if>
+        <if test="brandList != null and brandList.size() > 0">
+            AND
+            PLANB.brand_id in
+            <foreach collection="brandList" index="index" item="item1"
+                     open="(" separator="," close=")">
+                #{item1}
+            </foreach>
+        </if>
+
+        <if test="brandList == null or brandList.size() == 0">
+            AND PLANB.brand_id != 0
+        </if>
+
+
+
+        AND RE.is_release = 1
+        <if test="recommendedTypes != null and recommendedTypes.size() >0">
+            AND RE.recommended_type in
+            <foreach collection="recommendedTypes" index="index" item="item2"
+                     open="(" separator="," close=")">
+                #{item2}
+            </foreach>
+        </if>
+        GROUP BY
+        PR.plan_recommended_id;
+    </select>
+
+
+
+    <!-- 查询产品相关推荐方案 -->
+    <select id="queryRecommendedPlanOfProductRelatedByProductId2"
+            parameterType="object"
+            resultType="com.sandu.designplan.vo.RecommendedPlanProductRelatedVo">
+        SELECT
+        RE.id AS recommendPlanId,
+        RE.apply_space_areas as applySpaceAreas,
+        RE.plan_name AS recommendPlanName,
+        RE.cover_pic_Id AS recommendPlanCoverPicId,
+        PIC.pic_path AS recommendPlanCover,
+
+        PIC.pic_path AS designPlanCoverPath,
+        RE.plan_name AS designPlanName,
+        STY.`name` AS spaceStyleName,
+        CO.space_areas AS spaceArea,
+        RE.id AS designPlanRecommendId,
+
+        STY.`name` AS houseStyleName,
+        SD.`NAME` AS
+        houseTypeName,
+        CO.space_areas AS houseArea,
+        CO.space_function_id AS spaceType,
+        fr.status AS isFavorite,
+        dpl.status AS isLike,
+        dpsi.like_num AS likeNum,
+        dpsi.collect_num AS collectNum,
+        dpsi.view_num as viewNum,
+        RE.group_primary_id AS groupPrimaryId
+        FROM
+        design_plan_recommended RE
+        LEFT JOIN
+        design_plan_summary_info AS dpsi ON dpsi.design_id =
+        RE.id AND
+        dpsi.is_deleted = 0
+        LEFT JOIN design_plan_like AS dpl ON
+        dpl.design_id =
+        RE.id AND dpl.user_id = #{userId}
+        LEFT JOIN
+        (SELECT fid,recommendId,bid,status from
+        design_plan_recommend_favorite_ref
+        where fid
+        in (SELECT bid from
+        sys_business_favorite where userId =#{userId}) ) AS fr
+        ON(fr.recommendId = RE.id)
+        LEFT JOIN
+        design_plan_recommended_product PR
+        ON PR.plan_recommended_id = RE.id
+        LEFT JOIN design_templet TE ON
+        RE.design_template_id = TE.id
+        LEFT JOIN
+        (SELECT
+        id,space_function_id,space_areas FROM space_common WHERE
+        is_deleted =
+        0) AS CO ON(CO.id = TE.space_common_id)
+        LEFT JOIN
+        base_product_style STY
+        ON (STY.id = RE.design_recommended_style_id)
+        LEFT JOIN (SELECT
+        NAME,VALUE FROM sys_dictionary WHERE is_deleted = 0
+        AND type =
+        'houseType' ) AS SD ON (CO.space_function_id = SD.VALUE)
+        LEFT JOIN
+        res_render_pic PIC ON RE.cover_pic_Id = PIC.id
+        LEFT JOIN
+        (SELECT
+        plan_id,is_deleted,brand_id,company_id from design_plan_brand ) AS PLANB
+        ON (RE.id
+        = PLANB.plan_id)
+        LEFT JOIN (SELECT id,brand_name from
+        base_brand where
+        is_deleted = 0 ) AS BRAND ON (PLANB.brand_id =
+        BRAND.id)
+
+        <if test="platformId != null and platformId != 0">
+            LEFT JOIN
+            design_plan_2c_platform dpp ON dpp.plan_id = RE.id AND
+            dpp.is_deleted =
+            0
+        </if>
+        WHERE
+        RE.is_deleted = 0
+        AND
+        PR.product_id = #{productId}
+        <if test="platformId != null and platformId != 0">
+            AND dpp.platform_id = #{platformId}
+            AND dpp.putaway_state = 1
+            AND dpp.allot_state = 1
+        </if>
+
+        <if test="brandIds != null and brandIds.size > 0">
+            AND PLANB.brand_id in
+            <foreach collection="brandIds" index="index" item="item"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="companyId != null and companyId != 0">
+            AND (PLANB.company_id = #{companyId,jdbcType=INTEGER} or RE.company_id = #{companyId,jdbcType=INTEGER})
+        </if>
+
+
+        AND RE.is_release = 1
+        <if test="recommendedTypes != null and recommendedTypes.size() >0">
+            AND RE.recommended_type in
+            <foreach collection="recommendedTypes" index="index" item="item2"
+                     open="(" separator="," close=")">
+                #{item2}
+            </foreach>
+        </if>
+        GROUP BY
+        PR.plan_recommended_id;
+    </select>
+
+    <!-- 查询产品相关推荐方案 -->
+    <select id="queryRecommendedPlanOfProductRelatedByProductIds"
+            parameterType="object"
+            resultType="com.sandu.designplan.vo.RecommendedPlanProductRelatedVo">
+        SELECT
+        RE.id AS recommendPlanId,
+        RE.apply_space_areas as applySpaceAreas,
+        RE.plan_name AS recommendPlanName,
+        RE.cover_pic_Id AS recommendPlanCoverPicId,
+        PIC.pic_path AS recommendPlanCover,
+
+        PIC.pic_path AS designPlanCoverPath,
+        RE.plan_name AS designPlanName,
+        STY.`name` AS spaceStyleName,
+        CO.space_areas AS spaceArea,
+        RE.id AS designPlanRecommendId,
+
+        STY.`name` AS houseStyleName,
+        SD.`NAME` AS
+        houseTypeName,
+        CO.space_areas AS houseArea,
+        CO.space_function_id AS spaceType,
+        fr.status AS isFavorite,
+        dpl.status AS isLike,
+        dpsi.like_num AS likeNum,
+        dpsi.collect_num AS collectNum,
+        dpsi.view_num AS viewNum,
+        RE.group_primary_id AS groupPrimaryId,
+        RE.charge_type as chargeType,
+        RE.plan_price as planPrice,
+        RE.company_id as companyId
+        FROM
+        design_plan_recommended RE
+        LEFT JOIN
+        design_plan_summary_info AS dpsi ON dpsi.design_id =
+        RE.id AND
+        dpsi.is_deleted = 0
+        LEFT JOIN design_plan_like AS dpl ON
+        dpl.design_id =
+        RE.id AND dpl.user_id = #{userId}
+        LEFT JOIN
+        (SELECT fid,recommendId,bid,status from
+        design_plan_recommend_favorite_ref
+        where fid
+        in (SELECT bid from
+        sys_business_favorite where userId =#{userId}) ) AS fr
+        ON(fr.recommendId = RE.id)
+        LEFT JOIN
+        design_plan_recommended_product PR
+        ON PR.plan_recommended_id = RE.id
+        LEFT JOIN design_templet TE ON
+        RE.design_template_id = TE.id
+        LEFT JOIN
+        (SELECT
+        id,space_function_id,space_areas FROM space_common WHERE
+        is_deleted =
+        0) AS CO ON(CO.id = TE.space_common_id)
+        LEFT JOIN
+        base_product_style STY
+        ON (STY.id = RE.design_recommended_style_id)
+        LEFT JOIN (SELECT
+        NAME,VALUE FROM sys_dictionary WHERE is_deleted = 0
+        AND type =
+        'houseType' ) AS SD ON (CO.space_function_id = SD.VALUE)
+        LEFT JOIN
+        res_render_pic PIC ON RE.cover_pic_Id = PIC.id
+        LEFT JOIN
+        (SELECT
+        plan_id,is_deleted,brand_id,company_id from design_plan_brand ) AS PLANB
+        ON (RE.id
+        = PLANB.plan_id)
+        LEFT JOIN (SELECT id,brand_name from
+        base_brand where
+        is_deleted = 0 ) AS BRAND ON (PLANB.brand_id =
+        BRAND.id)
+
+        <if test="platformId != null and platformId != 0">
+            LEFT JOIN
+            design_plan_2c_platform dpp ON dpp.plan_id = RE.id AND
+            dpp.is_deleted =
+            0
+        </if>
+        WHERE
+        RE.is_deleted = 0
+        AND
+        PR.product_id in
+        <foreach collection="productIds" item="productId" index="index" open="(" separator="," close=")">
+            #{productId}
+        </foreach>
+        <if test="platformId != null and platformId != 0">
+            AND dpp.platform_id = #{platformId}
+            AND dpp.putaway_state = 1
+            AND dpp.allot_state = 1
+        </if>
+
+
+
+        <if test="companyId != null and companyId != 0">
+            AND (PLANB.company_id = #{companyId,jdbcType=INTEGER} or RE.company_id = #{companyId,jdbcType=INTEGER})
+        </if>
+
+
+        AND RE.is_release = 1
+        <if test="recommendedTypes != null and recommendedTypes.size() >0">
+            AND RE.recommended_type in
+            <foreach collection="recommendedTypes" index="index" item="item2"
+                     open="(" separator="," close=")">
+                #{item2}
+            </foreach>
+        </if>
+        GROUP BY
+        PR.plan_recommended_id;
+    </select>
+</mapper>

@@ -1,0 +1,85 @@
+package com.sandu.service.task.impl;
+
+import com.sandu.api.base.common.exception.BizException;
+import com.sandu.api.task.model.AutoRenderTask;
+import com.sandu.api.task.service.AutoRenderTaskService;
+import com.sandu.api.user.model.SysUser;
+import com.sandu.service.task.dao.AutoRenderTaskMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+
+@Slf4j
+@Service("autoRenderTaskService")
+public class AutoRenderTaskServiceImpl implements AutoRenderTaskService {
+
+    @Autowired
+    private AutoRenderTaskMapper autoRenderTaskMapper;
+
+    @Override
+    public AutoRenderTask getById(Integer mainTaskId) {
+        return autoRenderTaskMapper.selectById(mainTaskId);
+    }
+
+    @Override
+    public int insertSelective(AutoRenderTask autoRenderTask) {
+        autoRenderTaskMapper.insertSelective(autoRenderTask);
+        return autoRenderTask.getId();
+    }
+
+    @Override
+    public List<AutoRenderTask> getSubTaskByMainTaskId(Integer mainTaskId) {
+        return autoRenderTaskMapper.getSubTaskByMainTaskId(mainTaskId);
+    }
+
+    @Override
+    public int insertSubTaskBatch(List<AutoRenderTask> subTaskList) {
+        return autoRenderTaskMapper.insertSubTaskBatch(subTaskList);
+    }
+
+    @Override
+    public int updateMainTaskId(Integer newMainTaskId) {
+        return autoRenderTaskMapper.updateMainTaskId(newMainTaskId);
+    }
+
+    @Override
+    public Integer getUserHouseCount(Integer userId, Integer houseId, String houseName) {
+        return autoRenderTaskMapper.getUserHouseCount(userId, houseId, houseName);
+    }
+
+    @Override
+    public Integer addMainTask(Integer fullHouseId, Integer houseId, SysUser user) {
+        AutoRenderTask autoRenderTask = new AutoRenderTask();
+        autoRenderTask.setPlanId(-1);
+        autoRenderTask.setTemplateId(-1);
+        autoRenderTask.setRender720(0);
+        autoRenderTask.setIsDeleted(1);
+        autoRenderTask.setGmtModified(new Date());
+        autoRenderTask.setModifier(user.getNickName());
+        autoRenderTask.setCreator(user.getNickName());
+        autoRenderTask.setOperationSource(1);
+        autoRenderTask.setOperationUserId(user.getId().intValue());
+        autoRenderTask.setOperationUserName(user.getNickName());
+        autoRenderTask.setTaskType(0);
+        autoRenderTask.setRenderTypesStr("2");
+        autoRenderTask.setTaskSource(0);
+        autoRenderTask.setPlatformId(16);
+        autoRenderTask.setFullHousePlanId(fullHouseId);
+        autoRenderTask.setPlanHouseType(3);
+        autoRenderTask.setHouseId(houseId);
+        autoRenderTask.setNewFullHousePlanId(fullHouseId);
+        autoRenderTask.setFullHousePlanAction(1);
+        int i = autoRenderTaskMapper.insertSelective(autoRenderTask);
+        if (i <= 0) {
+            throw new BizException("生成主任务失败");
+        }
+        i = autoRenderTaskMapper.updateMainTaskId(autoRenderTask.getId());
+        if (i <= 0) {
+            throw new BizException("更新主任务ID失败");
+        }
+        return autoRenderTask.getId();
+    }
+}

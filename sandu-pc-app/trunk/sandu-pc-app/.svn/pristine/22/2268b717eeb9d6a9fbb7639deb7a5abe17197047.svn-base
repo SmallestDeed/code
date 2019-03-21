@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.house.dao.BaseHouseMapper">
+
+    <!-- 通过封面图获取720多点信息 TEMP -->
+    <select id="getIdsByName" resultType="java.lang.Integer"
+            parameterType="java.lang.String">
+        select id from base_living where living_name like CONCAT(CONCAT('%',#{livingName,jdbcType=VARCHAR}),'%')
+    </select>
+
+    <resultMap id="getMyUsedResultMap" type="com.sandu.house.model.output.BaseHouseVo">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="living_id" property="livingId" jdbcType="INTEGER"/>
+        <result column="house_common_code" property="houseCommonCode" jdbcType="VARCHAR"/>
+        <result column="total_area" property="totalArea" jdbcType="VARCHAR"/>
+        <result column="house_pic_id" property="housePicId" jdbcType="INTEGER"/>
+        <result column="pic_path" property="picPath" jdbcType="VARCHAR"/>
+        <result column="old_house_pic_id" property="oldHousePicId" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!-- 获取渲染过的户型数量 -->
+    <select id="getMyUsedCount" resultType="java.lang.Integer"
+            parameterType="com.sandu.house.model.input.BaseHouseSearch">
+        select count(DISTINCT bh.id) from base_house bh
+        left join base_living bl on bl.id = bh.living_id
+        left join base_area ba on ba.area_code = bl.area_id
+        left join house_space_new sh on sh.house_id = bh.id
+        left join space_common sc on sc.id = sh.standard_space_id
+        left join design_templet dt on dt.space_common_id = sc.id
+        left join design_plan_render_scene dprs on dprs.design_template_id = dt.id
+        where 1=1
+        <if test="userId != null">
+          and dprs.user_id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="areaCode != null and areaCode != ''">
+          and ba.long_code like CONCAT(CONCAT('%.',#{areaCode,jdbcType=VARCHAR}),'.%')
+        </if>
+        <if test="livingId != null">
+            and bh.living_id = #{livingId,jdbcType=INTEGER}
+        </if>
+        <if test="livingIds != null and livingIds.size > 0 and livingId == null">
+          and bh.living_id in
+          <foreach collection="livingIds" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+        </if>
+    </select>
+
+    <!-- 获取渲染过的户型 -->
+    <select id="getMyUsed" resultMap="getMyUsedResultMap"
+            parameterType="com.sandu.house.model.input.BaseHouseSearch">
+        select DISTINCT bh.id,bh.living_id,bh.house_common_code,bh.total_area,bh.pic_res1_id as 'old_house_pic_id',bh.snap_pic_id as 'house_pic_id',rhp.pic_path from base_house bh
+        left join base_living bl on bl.id = bh.living_id
+        left join base_area ba on ba.area_code = bl.area_id
+        left join house_space_new sh on sh.house_id = bh.id
+        left join space_common sc on sc.id = sh.standard_space_id
+        left join design_templet dt on dt.space_common_id = sc.id
+        left join design_plan_render_scene dprs on dprs.design_template_id = dt.id
+        left join res_house_pic rhp on rhp.id = bh.snap_pic_id
+        where 1=1
+        <if test="userId != null">
+          and dprs.user_id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="areaCode != null and areaCode != ''">
+          and ba.long_code like CONCAT(CONCAT('%.',#{areaCode,jdbcType=VARCHAR}),'.%')
+        </if>
+        <if test="livingId != null">
+            and bh.living_id = #{livingId,jdbcType=INTEGER}
+        </if>
+        <if test="livingIds != null and livingIds.size > 0 and livingId == null">
+          and bh.living_id in
+          <foreach collection="livingIds" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+        </if>
+        order by dprs.gmt_modified desc
+        <if test="start != null and limit != null">
+          LIMIT #{start}, #{limit}
+        </if>
+    </select>
+</mapper>

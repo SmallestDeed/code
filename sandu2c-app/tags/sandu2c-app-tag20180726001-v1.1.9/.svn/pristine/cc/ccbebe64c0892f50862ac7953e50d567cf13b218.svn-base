@@ -1,0 +1,147 @@
+package com.sandu.web.decorate;
+
+import com.google.common.collect.Lists;
+import com.nork.common.model.LoginUser;
+import com.sandu.common.BaseController;
+import com.sandu.common.LoginContext;
+import com.sandu.common.ReturnData;
+import com.sandu.common.exception.BizException;
+import com.sandu.constant.ResponseEnum;
+import com.sandu.decorate.input.PlanDecoratePriceAdd;
+import com.sandu.decorate.input.PlanDecoratePriceQuery;
+import com.sandu.decorate.input.PlanDecoratePriceUpdate;
+import com.sandu.decorate.model.PlanDecoratePrice;
+import com.sandu.decorate.output.PlanDecoratePriceVO;
+import com.sandu.decorate.output.SysDictionaryVO;
+import com.sandu.decorate.service.biz.PlanDecoratePriceBizService;
+import com.sandu.system.model.SysDictionary;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
+
+
+/**
+ * CopyRight (c) 2018 Sandu Technology Inc.
+ * <p>
+ *
+ * @author sandu <dev@sanduspace.cn>
+ * @datetime 2018-Aug-08 15:37
+ */
+@Api(value = "planDecoratePrice", tags = "planDecoratePrice", description = "planDecoratePrice")
+@RestController
+@RequestMapping(value = "/v1/union/planDecoratePrice")
+@Slf4j
+public class PlanDecoratePriceController extends BaseController {
+
+    @Autowired
+    private PlanDecoratePriceBizService planDecoratePriceBizService;
+
+
+    @ApiOperation(value = "查询PlanDecoratePrice列表", response = PlanDecoratePriceVO.class)
+    @GetMapping(value = "/list")
+    public ReturnData queryPlanDecoratePriceList(@Valid PlanDecoratePriceQuery query, BindingResult validResult) {
+        ReturnData data = ReturnData.builder();
+        if (validResult.hasErrors()) {
+            return processValidError(validResult, data);
+        }
+
+        final List<PlanDecoratePrice> results = planDecoratePriceBizService.query(query);
+        log.debug("Result: {}", results);
+        if (results != null && results.size() > 0) {
+            final List<PlanDecoratePriceVO> planDecoratePrices = Lists.newArrayList();
+            results.stream().forEach(planDecoratePrice -> {
+                PlanDecoratePriceVO output = new PlanDecoratePriceVO();
+                BeanUtils.copyProperties(planDecoratePrice, output);
+                //原字段ID转模块ID
+                output.setPlanDecoratePriceId(planDecoratePrice.getId());
+
+                planDecoratePrices.add(output);
+            });
+
+            return data.code(ResponseEnum.SUCCESS).success(true).list(planDecoratePrices).total(results.size());
+        }
+
+        return data.code(ResponseEnum.NOT_CONTENT).message("暂无数据");
+    }
+
+
+    @ApiOperation(value = "查询装修报价分类", response = SysDictionaryVO.class)
+    @GetMapping(value = "/getDecorateType")
+    public ReturnData getDecoratePriceType() {
+        ReturnData data = ReturnData.builder();
+        List<SysDictionary> decoratePriceType = planDecoratePriceBizService.getDecoratePriceType();
+
+        if (decoratePriceType == null || decoratePriceType.size() <= 0) {
+            return data.code(ResponseEnum.NOT_CONTENT).message("暂无数据");
+        }
+        List<SysDictionaryVO> sysDictionaryVOList = SysDictionaryVO.copyToSysDictionaryVO(decoratePriceType);
+        return data.code(ResponseEnum.SUCCESS).success(true).list(sysDictionaryVOList);
+    }
+
+
+    @ApiOperation(value = "批量插入装修报价值", response = ReturnData.class)
+    @PostMapping("/insertAll")
+    public ReturnData insertBatch(@Valid @RequestBody List<PlanDecoratePriceAdd> addList, BindingResult result) {
+        ReturnData data = ReturnData.builder();
+        if (addList == null || addList.size() == 0) {
+            return data.success(false).message("参数为空").code(ResponseEnum.PARAM_ERROR);
+        }
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return data.success(false).message("请登录").code(ResponseEnum.UNAUTHORIZED);
+        }
+
+        try {
+            planDecoratePriceBizService.insertBatch(addList, loginUser);
+        } catch (BizException e) {
+            log.warn("批量插入装修报价值 ===> BizException:{}", e);
+            return data.success(false).message(e.getMessage());
+        } catch (Exception e) {
+            log.error("批量插入装修报价值 ===> exception:{}", e);
+            return data.success(false).message(e.getMessage());
+        }
+
+        return data.success(true).message("设置成功").code(ResponseEnum.CREATED);
+    }
+
+
+    @ApiOperation(value = "批量修改某一效果图的装修报价")
+    @PutMapping(value = "/updateAll")
+    public ReturnData updateBatch(@Valid @RequestBody List<PlanDecoratePriceUpdate> list, BindingResult validResult) {
+        ReturnData data = ReturnData.builder();
+        if (list == null) {
+            return data.success(false).message("参数为空").code(ResponseEnum.PARAM_ERROR);
+        }
+        if (validResult.hasErrors()) {
+            return processValidError(validResult, data);
+        }
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return data.success(false).message("请登录").code(ResponseEnum.UNAUTHORIZED);
+        }
+
+        try {
+            planDecoratePriceBizService.updateBatch(list, loginUser);
+        } catch (BizException e) {
+            log.warn("批量修改装修报价值 ===> BizException:{}", e);
+            return data.success(false).message(e.getMessage());
+        } catch (Exception e) {
+            log.error("批量修改装修报价值 ===> exception:{}", e);
+            return data.success(false).message(e.getMessage());
+        }
+
+        return data.success(true).message("修改成功").code(ResponseEnum.SUCCESS);
+
+    }
+
+
+}

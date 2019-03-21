@@ -1,0 +1,32 @@
+package com.nork.common.metadata;
+
+import java.io.Serializable;
+
+/***
+ * 查询参数
+ * 
+ * @author qiu.jun
+ * @date 2016-05-12
+ */
+public class QueryParameter implements Serializable {
+	private static final long serialVersionUID = 1L;
+	private String name;
+	private String value;
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+}

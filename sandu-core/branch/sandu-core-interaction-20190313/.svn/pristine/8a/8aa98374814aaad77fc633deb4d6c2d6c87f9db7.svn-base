@@ -1,0 +1,166 @@
+package com.sandu.service.base.impl;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.sandu.api.base.common.constant.InteractiveZoneConstant;
+import com.sandu.api.base.common.exception.BizException;
+import com.sandu.api.base.input.InteracitveZoneTopicAdd;
+import com.sandu.api.base.input.InteractiveZoneTopicAdd;
+import com.sandu.api.base.input.InteractiveZoneTopicQuery;
+import com.sandu.api.base.model.InteractiveZoneTopic;
+import com.sandu.api.base.model.SysDictionary;
+import com.sandu.api.base.output.InteractiveZoneTopicVO;
+import com.sandu.api.base.service.InteractiveZoneTopicService;
+import com.sandu.api.base.service.SysDictionaryService;
+import com.sandu.api.user.model.SysUser;
+import com.sandu.service.base.dao.InteractiveZoneTopicMapper;
+import com.sandu.system.service.NodeInfoBizService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * @ClassName: InteractiveZoneTopicServiceImpl
+ * @Auther: gaoj
+ * @Date: 2019/3/13 10:00
+ * @Description:
+ * @Version 1.0
+ */
+@Service("interactiveZoneTopicService")
+@Slf4j
+public class InteractiveZoneTopicServiceImpl implements InteractiveZoneTopicService {
+
+    private final String CLASS_LOG_PREFIX = "【互动区主题业务层】";
+
+    @Autowired
+    private InteractiveZoneTopicMapper interactiveZoneTopicMapper;
+    @Autowired
+    private SysDictionaryService sysDictionaryService;
+    @Autowired
+    private NodeInfoBizService nodeInfoBizService;
+
+    @Override
+    public List<InteractiveZoneTopic> list(InteractiveZoneTopicQuery interactiveZoneTopicQuery) {
+        this.packageParam(interactiveZoneTopicQuery);
+
+        List<InteractiveZoneTopic> interactiveZoneTopicList = interactiveZoneTopicMapper.getList(interactiveZoneTopicQuery);
+
+        return interactiveZoneTopicList;
+    }
+
+    private void packageParam(InteractiveZoneTopicQuery interactiveZoneTopicQuery) {
+        String blockTypeValueKey = interactiveZoneTopicQuery.getBlockTypeValueKey();
+        Integer value = this.getBlockTypeValue(blockTypeValueKey);
+        interactiveZoneTopicQuery.setBlockTypeValue(value);
+    }
+
+    private Integer getBlockTypeValue(String blockTypeValueKey) {
+        SysDictionary sysDictionary = new SysDictionary();
+        sysDictionary.setType(InteractiveZoneConstant.TOPIC_TYPE);
+        sysDictionary.setValuekey(blockTypeValueKey);
+        sysDictionary = sysDictionaryService.getNameByType(sysDictionary);
+        if (null == sysDictionary) {
+            throw new BizException("参数有误");
+        }
+        return sysDictionary.getValue();
+    }
+
+
+    @Override
+    public int add(InteracitveZoneTopicAdd add) {
+        InteractiveZoneTopic topic = new InteractiveZoneTopic();
+        BeanUtils.copyProperties(add, topic);
+        return interactiveZoneTopicMapper.insert(topic);
+    }
+
+
+    @Override
+    public PageInfo<InteractiveZoneTopicVO> queryBiz(InteractiveZoneTopicQuery query) {
+
+        PageHelper.startPage(query.getStart(), query.getPageSize());
+        PageInfo<InteractiveZoneTopicVO> page = interactiveZoneTopicMapper.queryBiz(query);
+
+        return page;
+    }
+
+
+    @Override
+    public Integer totalCount(InteractiveZoneTopicQuery interactiveZoneTopicQuery) {
+        this.packageParam(interactiveZoneTopicQuery);
+        return interactiveZoneTopicMapper.totalCount(interactiveZoneTopicQuery);
+    }
+
+    @Override
+    public Integer add(InteractiveZoneTopicAdd interactiveZoneTopicAdd, SysUser sysUser) {
+        InteractiveZoneTopic interactiveZoneTopic = new InteractiveZoneTopic();
+        BeanUtils.copyProperties(interactiveZoneTopicAdd, interactiveZoneTopic);
+        String blockTypeValueKey = interactiveZoneTopicAdd.getBlockTypeValueKey();
+        Integer blockTypeValue = this.getBlockTypeValue(blockTypeValueKey);
+        interactiveZoneTopic.setBlockType(blockTypeValue);
+        this.addCommonParam(interactiveZoneTopic, sysUser);
+
+        int insertResult = interactiveZoneTopicMapper.insertSelective(interactiveZoneTopic);
+
+        if (insertResult > 0){
+            //假设是大咖分享,需要造假数
+            if (Objects.equals(
+                    interactiveZoneTopicAdd.getBlockType(),
+                    InteractiveZoneConstant.TOPIC_TYPE_VALUE)
+            ){
+                //需要造假数据 =>{}浏览数
+                this.makeFalseData(7,insertResult,interactiveZoneTopicAdd.getVirtualViewNum(),InteractiveZoneConstant.INTERACTIVE_ZONE_NODE_TYPE_VALUE);
+                //需要造假数据 =>{}收藏数
+                this.makeFalseData(5,insertResult,interactiveZoneTopicAdd.getVirtualViewNum(),InteractiveZoneConstant.INTERACTIVE_ZONE_NODE_TYPE_VALUE);
+            }
+        }
+        return insertResult;
+    }
+
+    /**
+     * 插入假数据
+     * @param detailType node_info_detail 表中类型
+     * @param insertResult 主题id
+     * @param num 数量
+     * @param type  主题类型:7.互动区,8.互动区回复
+     */
+    private void makeFalseData(Integer detailType, int insertResult, Integer num,Integer type) {
+        if (num > 0){
+//            List<SysDictionary> lists = sysDictionaryService.findListByType(NODE_TYPE);
+            //需要插入虚拟的浏览数量
+            nodeInfoBizService.updateNodeInfoDetailValue(insertResult,type,detailType,num);
+        }
+
+//        if (virtualFavoriteNum > 0){
+////            List<SysDictionary> lists = sysDictionaryService.findListByType(NODE_TYPE);
+//            //需要插入虚拟的浏览数量
+//            nodeInfoBizService.updateNodeInfoDetailValue(insertResult,type,detailType,virtualViewNum);
+//        }
+    }
+
+    @Override
+    public Integer update(InteractiveZoneTopicAdd interactiveZoneTopicAdd, SysUser sysUser) {
+        InteractiveZoneTopic interactiveZoneTopic = new InteractiveZoneTopic();
+        BeanUtils.copyProperties(interactiveZoneTopicAdd, interactiveZoneTopic);
+        interactiveZoneTopic.setModifier(sysUser.getId() + "");
+        interactiveZoneTopic.setGmtModified(new Date());
+        return interactiveZoneTopicMapper.updateByPrimaryKeySelective(interactiveZoneTopic);
+    }
+
+    private void addCommonParam(InteractiveZoneTopic interactiveZoneTopic, SysUser sysUser) {
+        Long userId = sysUser.getId();
+        interactiveZoneTopic.setCreator(userId + "");
+        interactiveZoneTopic.setModifier(userId + "");
+        interactiveZoneTopic.setCreateUserId(userId.intValue());
+        interactiveZoneTopic.setPublishUserId(userId.intValue());
+        Date date = new Date();
+        interactiveZoneTopic.setGmtCreate(date);
+        interactiveZoneTopic.setGmtModified(date);
+        interactiveZoneTopic.setPublishTime(date);
+        interactiveZoneTopic.setIsDeleted(0);
+    }
+}

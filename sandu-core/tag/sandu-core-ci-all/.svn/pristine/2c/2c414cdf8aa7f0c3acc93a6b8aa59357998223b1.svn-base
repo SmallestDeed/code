@@ -1,0 +1,107 @@
+package com.sandu.api.base.model;
+
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
+
+@Data
+public class UserCard implements Serializable{
+    /**
+     * 主键Id
+     */
+    private Integer id;
+
+    /**
+     * 用户id
+     */
+    private Integer userId;
+
+    /**
+     * 用户名称
+     */
+    private String userName;
+
+    /**
+     * 用户头像ID关联res_pic表
+     */
+    private Integer userHeadPicId;
+
+    /**
+     * 用户头像图片地址
+     */
+    private String userHeadPicPath;
+
+    /**
+     * 用户手机号
+     */
+    private String phone;
+
+    /**
+     * 用户微信
+     */
+    private String userWechat;
+
+    /**
+     * 公司名称
+     */
+    private String companyName;
+
+    /**
+     * 公司职位
+     */
+    private String companyPost;
+
+    /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
+     * 地址
+     */
+    private String address;
+
+    /**
+     * 个人介绍
+     */
+    private String resume;
+
+    /**
+     * 用户照片ID关联res_pic表
+     */
+    private String userPicIds;
+
+    /**
+     * 创建者
+     */
+    private String creator;
+
+    /**
+     * 创建时间
+     */
+    private Date gmtCreate;
+
+    /**
+     * 更新者
+     */
+    private String modifier;
+
+    /**
+     * 修改时间，自动更新
+     */
+    private Date gmtModified;
+
+    /**
+     * 逻辑删除字段,0:正常 1:已删除
+     */
+    private Byte isDeleted;
+
+    /**
+     * 备注
+     */
+    private String remark;
+    
+    /**自定义按钮名称**/
+    private String buttonName;
+}

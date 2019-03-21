@@ -1,0 +1,78 @@
+package com.sandu.interceptor;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+public class LoginUserInterceptor implements HandlerInterceptor{
+    private final static Logger log  = LoggerFactory.getLogger(LoginUserInterceptor.class);
+    private final static String MOBILE_PLACTFORM_CODE = "mobile2b";
+
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    	//*********************检验用户登录转态start *************************
+		/*String platformCode = request.getParameter("Platform-Code");
+		if (org.apache.commons.lang3.StringUtils.isNotEmpty(platformCode) ||
+				Objects.equals(MOBILE_PLACTFORM_CODE,platformCode)
+				){
+			Integer loginStatus = LoginContext.getLoginStatus();
+			String message;
+			switch (loginStatus){
+				case 1 :
+					message = "请登录";
+					break;
+				case 2:
+					message = "请登录";
+					break;
+				case 3:
+					message = "您的账号已在其他地方登录";
+					break;
+				case 5:
+					message = "无效的token";
+					break;
+				default:
+					message = null;
+					break;
+			}
+
+			if (org.apache.commons.lang3.StringUtils.isNotEmpty(message)){
+				JSONObject outputMSg = new JSONObject();
+				outputMSg.put("success", false);
+				outputMSg.put("message", message);
+				output(outputMSg.toJSONString(), response);
+				return false;
+			}
+		}*/
+		//*********************检验用户登录转态END *************************
+		return true;
+    }
+    
+	@Override
+	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
+			ModelAndView modelAndView) throws Exception {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
+			throws Exception {
+		// TODO Auto-generated method stub
+	}
+
+	public void output(String jsonStr, HttpServletResponse response) throws IOException {
+		response.setContentType("text/html;charset=UTF-8;");
+		PrintWriter out = response.getWriter();
+		// out.println();
+		out.write(jsonStr);
+		out.flush();
+		out.close();
+
+	}
+
+}

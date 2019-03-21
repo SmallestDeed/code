@@ -1,0 +1,102 @@
+package com.sandu.service.springFestivalActivity.impl;
+
+import com.sandu.api.base.common.exception.BizException;
+import com.sandu.api.springFestivalActivity.model.WxUserSignin;
+import com.sandu.api.springFestivalActivity.output.DateVo;
+import com.sandu.api.springFestivalActivity.output.UserSignInRecordVo;
+import com.sandu.api.springFestivalActivity.service.WxSpringActivityService;
+import com.sandu.api.springFestivalActivity.service.WxUserSigninService;
+import com.sandu.service.springFestivalActivity.dao.WxUserSigninMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+@Slf4j
+@Service("wxUserSigninService")
+public class WxUserSigninServiceImpl implements WxUserSigninService {
+
+    private static final String CLASS_LOG_PREFIX = "【签到记录service】";
+
+    @Autowired
+    private WxUserSigninMapper wxUserSigninMapper;
+    @Autowired
+    private WxSpringActivityService wxSpringActivityService;
+
+    /**
+     * 获取用户签到记录列表
+     * 1.获取活动时间段（是否需要判断活动是否结束？我想的是在签到的时候判断，活动列表一直会显示）
+     * 2.获取用户签到记录
+     * 3.组装所有数据
+     */
+    @Override
+    public List<UserSignInRecordVo> getUserSignInRecordList(long activityId, Integer userId) throws BizException {
+        if (0L == activityId) {
+            throw new BizException("获取用户签到记录，参数activityId为空");
+        }
+        if (null == userId || 0 == userId) {
+            throw new BizException("获取用户签到记录，参数userId为空");
+        }
+        log.info(CLASS_LOG_PREFIX + "获取用户签到记录，activityId={},userId={}", activityId, userId);
+        //获取活动的每一天的签到记录集合
+        List<UserSignInRecordVo> allSignInList = this.getActivitySignInList(activityId);
+        //获取用户已经签到天数的集合
+        List<WxUserSignin> userSigninList = wxUserSigninMapper.getSignInListByUserId(activityId, userId.longValue());
+        //把已经签到的数据放入返回的签到集合中
+        byte signIn = 1;
+        if (!CollectionUtils.isEmpty(userSigninList)) {
+            for (WxUserSignin wxUserSignin : userSigninList) {
+                for (UserSignInRecordVo daySignIn : allSignInList) {
+                    if (wxUserSignin.getSigninDate().equals(daySignIn.getSigninDate())) {
+                        BeanUtils.copyProperties(wxUserSignin, daySignIn);
+                        daySignIn.setIsSignIn(signIn);
+                    }
+                }
+            }
+        }
+        return allSignInList;
+    }
+
+    /**
+     * 功能描述: 获取活动时间并组装每天的签到列表集合
+     *
+     * @param activityId
+     * @return List<UserSignInRecordVo>
+     * @author gaoj
+     * @date 2019/1/20 22:12
+     */
+    private List<UserSignInRecordVo> getActivitySignInList(long activityId) {
+        // 查询起始时间和截止时间
+        DateVo signInDateVo = wxSpringActivityService.getSignInDate(activityId);
+        if (null == signInDateVo) {
+            throw new BizException("获取用户签到记录，获取活动时间为空");
+        }
+        Date beginDate = signInDateVo.getBeginDate();
+        Date endDate = signInDateVo.getEndDate();
+        if (null == beginDate || null == endDate) {
+            throw new BizException("获取用户签到记录，获取活动时间为空");
+        }
+        log.info(CLASS_LOG_PREFIX + "获取用户签到记录，beginDate={},endDate={}", beginDate, endDate);
+        // 算出起始时间和截止时间中间的每一天，返回每天对象集合
+        long day = (endDate.getTime() - beginDate.getTime()) / (1000 * 60 * 60 * 24) + 1;
+        log.info(CLASS_LOG_PREFIX + "获取用户签到记录，活动间隔天数：{}", day);
+        List<UserSignInRecordVo> allSignInRecordVoList = new ArrayList<>((int) day);
+        UserSignInRecordVo daySignInRecordVo;
+        Calendar calendar = Calendar.getInstance();
+        for (int i = 0; i < day; i++) {
+            calendar.setTime(beginDate);
+            calendar.add(Calendar.DAY_OF_MONTH, i);
+            daySignInRecordVo = new UserSignInRecordVo();
+            daySignInRecordVo.setSigninDate(calendar.getTime());
+            daySignInRecordVo.setSigninDay(calendar.get(Calendar.DAY_OF_MONTH));
+            allSignInRecordVoList.add(daySignInRecordVo);
+        }
+        return allSignInRecordVoList;
+    }
+}

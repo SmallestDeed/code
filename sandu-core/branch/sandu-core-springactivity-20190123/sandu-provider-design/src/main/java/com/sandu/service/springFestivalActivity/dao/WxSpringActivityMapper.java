@@ -1,0 +1,25 @@
+package com.sandu.service.springFestivalActivity.dao;
+
+import com.sandu.api.springFestivalActivity.model.WxSpringActivity;
+import com.sandu.api.springFestivalActivity.output.DateVo;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface WxSpringActivityMapper {
+    int deleteByPrimaryKey(Long id);
+
+    int insert(WxSpringActivity record);
+
+    int insertSelective(WxSpringActivity record);
+
+    WxSpringActivity selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(WxSpringActivity record);
+
+    int updateByPrimaryKey(WxSpringActivity record);
+
+    DateVo getSignInDate(@Param("activityId") long activityId);
+
+    int decrRedPacketRemainNum(WxSpringActivity wxSpringActivity);
+}

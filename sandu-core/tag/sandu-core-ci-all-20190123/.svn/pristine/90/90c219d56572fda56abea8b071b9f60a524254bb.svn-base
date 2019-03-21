@@ -1,0 +1,33 @@
+package com.sandu.service.springFestivalActivity.impl;
+
+import com.sandu.api.springFestivalActivity.model.WxSigninSummary;
+import com.sandu.api.springFestivalActivity.service.WxSigninSummaryService;
+import com.sandu.service.springFestivalActivity.dao.WxSigninSummaryMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service("wxSigninSummaryService")
+public class WxSigninSummaryServiceImpl implements WxSigninSummaryService {
+    @Autowired
+    private WxSigninSummaryMapper wxSigninSummaryMapper;
+
+    @Override
+    public WxSigninSummary getBySelective(WxSigninSummary wxSigninSummary) {
+        return wxSigninSummaryMapper.getBySelective(wxSigninSummary);
+    }
+
+    @Override
+    public int insert(WxSigninSummary wxSigninSummary) {
+        return wxSigninSummaryMapper.insert(wxSigninSummary);
+    }
+
+    @Override
+    public int update(WxSigninSummary wxSigninSummary) {
+        return wxSigninSummaryMapper.updateByPrimaryKeySelective(wxSigninSummary);
+    }
+
+    @Override
+    public int decrOnceLotteryCount(Long activityId, Long userId) {
+        return wxSigninSummaryMapper.decrOnceLotteryCount(activityId, userId);
+    }
+}

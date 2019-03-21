@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.company.dao.CompanyShopDao">
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+        id,company_id,company_pid,user_id,shop_code,shop_name,business_type,category_ids,first_category_ids,province_code,
+        city_code,area_code,street_code,long_area_code,shop_address,contact_phone,contact_name,
+        logo_pic_id,cover_res_ids,cover_res_type,introduced_file_id,release_platform_values,display_status,visit_count,praise_rate,
+        sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,remark,longitude,latitude,design_fee_starting,design_fee_ending
+    </sql>
+    <!--<select id="listCompanyShop" resultType="com.sandu.api.company.model.bo.CompanyShopListBO">-->
+    <!--select-->
+    <!--count(1) as dealNumber ,-->
+    <!--ifnull(avg(score.score),0) as praiseRates,-->
+    <!--shop.*-->
+    <!--from-->
+    <!--company_shop shop-->
+    <!--inner join base_company bc on shop.company_id = bc.id-->
+    <!--left join decorate_order o on shop.company_id = o.company_id-->
+    <!--left join decorate_order_score score on o.id = score.order_id-->
+    <!--where shop.is_deleted = 0-->
+    <!--and shop.business_type = 5-->
+    <!--<if test="isReceivePlatformDispatch != null">-->
+    <!--and bc.is_receive_platform_dispatch = #{isReceivePlatformDispatch}-->
+    <!--</if>-->
+    <!--<if test="isReceiveInteriorDispatch != null">-->
+    <!--and bc.is_receive_interior_dispatch = #{isReceiveInteriorDispatch}-->
+    <!--</if>-->
+    <!--<if test="companyName != null and companyName != ''">-->
+    <!--and bc.company_name like concat(#{companyName},'%')-->
+    <!--</if>-->
+    <!--<if test="cityCode != null and cityCode != ''">-->
+    <!--and shop.city_code = #{cityCode}-->
+    <!--</if>-->
+    <!--<if test="goodStyle != null">-->
+    <!--and concat(',',shop.category_ids,',') like concat('%,',#{goodStyle},',%')-->
+    <!--</if>-->
+    <!--<if test="designFeeStarting!= null">-->
+    <!--and shop.design_fee_starting &lt;= #{designFeeStarting}-->
+    <!--</if>-->
+    <!--<if test="designFeeEnding!= null">-->
+    <!--and shop.design_fee_ending &gt;= #{designFeeEnding}-->
+    <!--</if>-->
+    <!--and shop.release_platform_values != ''-->
+    <!--group by shop.company_id-->
+    <!--order by-->
+    <!--<choose>-->
+    <!--<when test="orderBy !=null and orderBy == 'dealNumber'">-->
+    <!--count(1)-->
+    <!--</when>-->
+    <!--<when test="orderBy !=null and orderBy == 'praiseRate'">-->
+    <!--avg(score.score)-->
+    <!--</when>-->
+    <!--<otherwise>-->
+    <!--shop.id-->
+    <!--</otherwise>-->
+    <!--</choose>-->
+    <!--<if test="orderMethod !=null and orderMethod != ''">-->
+    <!--${orderMethod}-->
+    <!--</if>-->
+    <!--</select>-->
+    <select id="listCompanyShop" resultType="com.sandu.api.company.model.bo.CompanyShopListBO">
+        select
+        bc.company_name,
+        bc.id as company_id,
+        ifnull(o.dealNumber,0) as dealNumber,
+        ifnull(score.score,0) as praiseRates,
+        shop.city_code,
+        shop.category_ids,
+        shop.design_fee_starting,
+        shop.design_fee_ending
+        from base_company bc
+        left join company_shop shop on bc.id = shop.company_pid
+        left join (select company_id,count(1) as dealNumber from decorate_order group by company_id) o on bc.id =
+        o.company_id
+        left join (select company_id,avg(score) as score from decorate_order_score group by company_id) score on bc.id =
+        score.company_id
+        where bc.business_type = 5 and bc.is_deleted = 0
+        <if test="isReceivePlatformDispatch != null">
+            and bc.is_receive_platform_dispatch = #{isReceivePlatformDispatch}
+        </if>
+        <if test="isReceiveInteriorDispatch != null">
+            and bc.is_receive_interior_dispatch = #{isReceiveInteriorDispatch}
+        </if>
+        <if test="companyName != null and companyName != ''">
+            and bc.company_name like concat(#{companyName},'%')
+        </if>
+        <if test="cityCode != null and cityCode != ''">
+            and shop.city_code = #{cityCode}
+        </if>
+        <if test="goodStyle != null">
+            and concat(',',shop.category_ids,',') like concat('%,',#{goodStyle},',%')
+        </if>
+        <if test="designFeeStarting!= null">
+            and shop.design_fee_starting &lt;= #{designFeeStarting}
+        </if>
+        <if test="designFeeEnding!= null">
+            and shop.design_fee_ending &gt;= #{designFeeEnding}
+        </if>
+        group by bc.id
+        order by
+        <choose>
+            <when test="orderBy !=null and orderBy == 'dealNumber'">
+                dealNumber
+            </when>
+            <when test="orderBy !=null and orderBy == 'praiseRate'">
+                praiseRates
+            </when>
+            <otherwise>
+                bc.id
+            </otherwise>
+        </choose>
+        <if test="orderMethod !=null and orderMethod != ''">
+            ${orderMethod}
+        </if>
+    </select>
+
+    <select id="get" resultType="com.sandu.api.shop.model.CompanyShop">
+        select * from company_shop where is_deleted = 0 and  id = #{id}
+    </select>
+    <select id="shopId2CompanyName" resultType="java.util.Map">
+        select shop.id as shopId,bc.company_name as companyName from company_shop shop ,base_company bc
+        where shop.company_pid = bc.id
+        and shop.id in
+        <foreach collection="shopIds" item="id" separator="," close=")" open="(">
+            #{id}
+        </foreach>
+    </select>
+
+
+</mapper>

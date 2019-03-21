@@ -1,0 +1,111 @@
+package com.sandu.api.springFestivalActivity.service.biz;
+
+import com.sandu.api.springFestivalActivity.input.UserInviteRecordBo;
+import com.sandu.api.springFestivalActivity.input.GetUserTaskBo;
+import com.sandu.api.springFestivalActivity.output.*;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+@Component
+public interface FilmTicketActivityService {
+    /**
+     * 获取红点标识
+     *
+     * @param userId     用户ID
+     * @param activityId 活动ID
+     * @return hasTaskFlag 是否有可领取的任务，activityOverFlag 活动是否结束，cardNumFlag 今日是否还有可领的卡片
+     */
+    RedPointFlagVo getRedPointFlag(Long userId, Long activityId);
+
+    /**
+     * 助力
+     *
+     * @param giveUserId    助力的用户ID
+     * @param getUserId     获得助力的用户ID
+     * @param activityId    活动ID
+     * @param isLoginBefore 助力用户是否第一次登陆
+     * @return success 助力是否成功, message 助力消息
+     */
+    GiveMeFiveVo giveMeFive(Long giveUserId, Long getUserId, Long activityId, Integer isLoginBefore);
+
+    /**
+     * 获取邀请好友记录列表
+     *
+     * @param search 查询参数
+     * @return 邀请记录列表
+     */
+    List<UserInviteRecordVo> getInviteRecord(UserInviteRecordBo search);
+
+    /**
+     * 获取用户任务状态
+     *
+     * @param userId     用户ID
+     * @param activityId 活动ID
+     * @return
+     */
+    UserTaskVo getUserTaskState(Long userId, Long activityId);
+
+    /**
+     * 领取任务
+     *
+     * @param getUserTaskBo 参数
+     * @return
+     */
+    Boolean getTask(GetUserTaskBo getUserTaskBo);
+
+    /**
+     * 完成任务
+     *
+     * @param userId       用户ID
+     * @param activityId   活动ID
+     * @param businessType 业务类型
+     * @return
+     */
+    Boolean taskDone(Long userId, Long activityId, Byte businessType);
+
+    /**
+     * 查询拼图页面数据
+     *
+     * @param userId     用户ID
+     * @param activityId 活动ID
+     * @return
+     */
+    CardPageVo getCardPageVo(Long userId, Long activityId);
+
+    /**
+     * 获取电影票信息
+     *
+     * @param userId     用户ID
+     * @param activityId 活动ID
+     * @return
+     */
+    FilmTicketVo getFilmTicket(Long userId, Long activityId);
+
+    /**
+     * 增加中奖几率
+     *
+     * @param userId     用户ID
+     * @param activityId 活动ID
+     * @return
+     */
+    Integer increaseLotteryRate(Long userId, Long activityId);
+
+    /**
+     * 校验验证码
+     *
+     * @param phone 手机号
+     * @param code  验证码
+     * @return
+     */
+    Boolean checkPermission(String phone, String code);
+
+    /**
+     * 绑定手机号
+     *
+     * @param userId 用户ID
+     * @param phone  手机号
+     * @return
+     */
+    Boolean bindingMobile(Long userId, String phone);
+}

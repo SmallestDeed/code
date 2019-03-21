@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.system.dao.ResTextureDao">
+	
+	
+	<select id="getResTexturePicByDefaultID" parameterType="java.util.List" resultType="map">
+		<foreach collection="list" index="index" item="item" separator=" union " open="" close="">
+			select ${item.productID} as productID,
+				rt.id as resTextureID, rt.texture_attr_value as textureAttrValue, rt.file_height as fileHeight, rt.file_width as fileWidth, rt.lay_modes as layModes,
+				rt.pic_id as picID, rp.pic_path as picPath
+			from res_texture rt
+			inner join res_pic rp on rp.id=rt.pic_id
+				where rt.id=#{item.resTextureID, jdbcType=}
+		</foreach>
+	</select>
+	
+</mapper>

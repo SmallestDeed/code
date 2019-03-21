@@ -1,0 +1,142 @@
+package com.sandu.designplan.service;
+
+
+import com.sandu.common.exception.BizException;
+import com.sandu.common.model.PageModel;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.designplan.model.*;
+import com.sandu.designplan.view.SharePlanDTO;
+import com.sandu.product.model.BaseCompany;
+
+import java.util.List;
+
+/**
+ * @desc:设计方案推荐服务
+ * @auth：pengxuangang
+ * @date：20170920
+ */
+public interface DesignPlanRecommendedService {
+
+    int add(DesignPlanRecommended designPlanRecommended);
+
+    int update(DesignPlanRecommended designPlanRecommended);
+
+    int delete(Integer id);
+
+    DesignPlanRecommended get(Integer id);
+
+    List<DesignPlanRecommended> getList(DesignPlanRecommended designPlanRecommended);
+
+    int getCount(DesignPlanRecommended designPlanRecommended);
+
+    /**
+     * 方案推荐数据
+     *
+     * @return
+     */
+    List<DesignPlanRecommendedResult> getPlanRecommendedList(DesignPlanRecommended designPlanRecommended);
+
+    /**
+     * 方案推荐列表数据
+     *
+     * @param model
+     * @return
+     */
+    ResponseEnvelope getPlanRecommendedList(PlanRecommendedListModel model);
+
+    /**
+     * 微信小程序方案推荐列表数据
+     *
+     * @param model
+     * @return
+     */
+    ResponseEnvelope getPlanRecommendedList2(PlanRecommendedListModel model,String companyCode, BaseCompany baseCompany);
+
+    /**
+     * 方案推荐总条数
+     *
+     * @return
+     */
+    Integer getPlanRecommendedCount(DesignPlanRecommended designPlanRecommended);
+
+    /**
+     * 方案推荐详情
+     *
+     * @param planRecommendedId
+     * @return
+     */
+    DesignPlanRecommended designPlanRecommendedDetails(String planRecommendedId);
+    
+    /**
+     * 获取方案推荐收藏夹数据量
+     *
+     * @param designPlanRecommended
+     * @return
+     */
+    Integer getFavoritePlanRecommendedCount(DesignPlanRecommended designPlanRecommended);
+
+    /**
+     * 获取方案推荐收藏夹列表
+     *
+     * @param designPlanRecommended
+     * @return
+     */
+    List<DesignPlanRecommendedResult> getFavoritePlanRecommendedList(DesignPlanRecommended designPlanRecommended);
+
+    /**
+     * 获取推荐方案中的渲染图片数据
+     * @param designPlanRecommended
+     * @return
+     */
+    DesignPlanRecommended getRenderPicFromDesignPlanRecommend(DesignPlanRecommended designPlanRecommended);
+
+    /**
+     * 获取推荐方案中的渲染视频数据
+     * @param designPlanRecommended
+     * @return
+     */
+    DesignPlanRecommended getRenderVideoFromDesignPlanRecommend(DesignPlanRecommended designPlanRecommended);
+
+    /**
+     * 获取推荐方案中的渲染图片和渲染视频数据---此接口包含(getRenderPicFromDesignPlanRecommend和getRenderVideoFromDesignPlanRecommend)
+     * @param designPlanRecommendedId           推荐方案ID
+     * @param designPlanRecommendedCoverPicId   推荐方案图片ID
+     * @return
+     */
+    DesignPlanRecommended getAllRenderFromDesignPlanRecommend(Integer designPlanRecommendedId, Integer designPlanRecommendedCoverPicId);
+
+	List<DesignPlanRecommended> getStatusByIds(List<Long> ids);
+	
+	/**
+	 * 选装网 方案列表
+	 * 
+	 * */
+	List<DesignPlanRecommendedResult> designPlanRecommendList(DesignPlanRecommenInput designPlanRecommenInput,Integer userId);
+	
+    List<DesignPlanRecommendedResult> designPlanRecommendOpenList(DesignPlanRecommenInput designPlanRecommenInput,Integer userId);
+
+    /**
+     * 获取最适合样板房的推荐方案
+     * @param designPlanRecommendedVo
+     * @return
+     */
+    DesignPlanRecommendedResult getMatchPlan(DesignPlanRecommendedVo designPlanRecommendedVo) throws BizException;
+
+    List<SharePlanDTO> getSharePlanList(PageModel pageModel);
+
+    Integer getSharePlanCount();
+
+    /**
+     * created by zhangchengda
+     * 2018/8/31 11:36
+     * 小程序查询推荐方案详情
+     * last modified by zhangchengda
+     * 2018/8/31 17:23
+     *
+     * @param model
+     * @param baseCompany
+     * @return
+     * @throws BizException
+     */
+    DesignPlanRecommendedResult getRecommendedDesignPlanDetail(PlanRecommendedListModel model, BaseCompany baseCompany) throws BizException;
+}

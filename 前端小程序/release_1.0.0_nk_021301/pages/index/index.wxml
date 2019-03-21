@@ -1,0 +1,197 @@
+
+<!-- banner -->
+
+  <view class='index-container' wx:if='{{bannerInfo.configDetails}}'>
+   <!-- <form bindsubmit="getFormId" report-submit='true'> -->
+     <swiper style='{{bannerInfo.configDetails.length<=0?"height:0":""}}' circular indicator-active-color="#ff6419" indicator-dots autoplay="true" duration="1000">
+     
+      <swiper-item wx:for="{{bannerInfo.configDetails}}" wx:key='{{index}}'>
+        <image class='bannerImg' src='{{item.picAddress}}' bindtap='linkTo' data-url='{{item.linkToAddress}}'></image>
+        <!-- <button formType="submit" class='submitBtn' data-num='{{index}}'>
+          <form bindsubmit="getFormId" report-submit="{{true}}">
+              <button formType="submit" class='submitBtn' data-num='{{index}}'>
+                 <form bindsubmit="getFormId" report-submit="{{true}}">
+                    <button formType="submit" class='submitBtn' data-num='{{index}}'>
+                      <form bindsubmit="getFormId" report-submit="{{true}}">
+                        <button formType="submit" class='submitBtn' data-num='{{index}}'>
+                           <form bindsubmit="getFormId" report-submit="{{true}}">
+                             <button formType="submit" class='submitBtn' data-num='{{index}}'>        
+                                <view class='index-banner' bindtap='' data-num='{{index}}'>
+                                  
+                                </view>
+                              </button>
+                            </form>
+                        </button>
+                      </form>
+                    </button>
+                  </form>
+              </button>
+          </form>
+         </button> -->
+      </swiper-item>
+    </swiper> 
+   <!-- </form> -->
+  </view>
+<view class='gridView'>
+    <view class='tabRows {{businessType!=9?"":"g3Rows"}}' >
+        <view class="items g3" bindtap='toUrl' data-url='/pages/brandSuggest/brandSuggest'>
+            <image src='{{staticImageUrl}}brand.png'></image>
+            <view>品牌介绍</view>  
+        </view>
+        <view wx:if="{{businessType!=9}}" class="items g3" bindtap='toUrl' data-url='/pages/mini-offcial-web/mini-offcial-web'>
+            <image src='{{staticImageUrl}}xianxiamendian@2x.png'></image>
+            <view>线下门店</view>  
+        </view>
+        <view class="items g3" bindtap='toUrl' data-url='/pages/storeCoupon/storeCoupon'>
+            <image src='{{staticImageUrl}}lingquanzhongxin@2x.png'></image>
+            <view>领券中心</view>  
+        </view>
+        <view class="items g3" bindtap='toUrl' data-url='/pages/house-case/house-case'>
+            <image src='{{staticImageUrl}}tuijianfangan@2x.png'></image>
+            <view>推荐方案</view>  
+        </view>
+    </view>                                                                                                                                                                                                                                          
+</view>
+<!-- 推荐方案 肖文后台没做这里 -->
+<view class='gary' wx:if='{{recommendCaseList.length>0}}'></view>
+<view class='planIndex' wx:if='{{recommendCaseList.length>0}}'>
+  <view class='title'>
+    <!-- <view class='titleTxt'>设计师推荐方案</view> -->
+    <image class='titleImg2' src='{{staticImageUrl}}shejishituijianfangan@2x.png'></image>
+    <view class='num'>
+      <view class='planNum'>{{planNum}}</view>
+      <view class='planCount'>/{{planCount}}</view>
+    </view>
+  </view>
+  <view class='content' wx:if='{{recommendCaseList.length>0}}'>
+    <swiper bindchange='scroll' class='planSwiper'>
+      <swiper-item class='Planlist' wx:for='{{recommendCaseList}}' wx:key="{{index}}">
+        <view class='topImg'>
+          <image src='{{resourcePath+item.coverPath}}' 
+                bindtap='routerToCaseDetails'
+                data-id='{{item.designPlanRecommendId || item.planRecommendedId}}' 
+                data-type='{{item.planTableType}}'></image>
+        </view>
+        <view class='bottom'>
+          <view class='left'>
+            <view class='tit'>{{item.planName}}</view>
+            <view class='nameArea'>{{item.styleName}}  {{item.spaceAreas?item.spaceAreas+"m²" : ""}}</view>
+          </view>
+          <view class='right'>
+            <view class='toHouseDetail' data-item='{{item}}' bindtap='putInMyhouse' data-type='house' >
+              <text>装进我家</text>
+              <image class='putIcon' src='{{staticImageUrl}}zhuangjinwojia@2x.png'></image>
+            </view>
+          </view>
+        </view>
+      </swiper-item>
+    </swiper>
+  </view>
+</view>
+<!-- data-id='{{item.designPlanRecommendId || item.planRecommendedId}}' 
+      data-type='{{item.planTableType}}'      
+      catchtap='routerToCaseDetails' -->
+<!-- 热门活动 -->
+<view class='gary2'></view>
+<view class='active'>
+  <view class='title'>
+    <!-- <view class='titleTxt'>热门活动</view> -->
+    <image class='titleImg' src='{{staticImageUrl}}remenhuodong@2x.png'></image>
+  </view>
+  <image class='activeBack'></image>
+  <image class='activePic' src='{{staticImageUrl}}kanjia2x.png' bindtap='toActive' data-type='1'></image>
+  <image class='activePic2' src='{{staticImageUrl}}pingtuan@2x.png' bindtap='toActive' data-type='2'></image>
+</view>
+
+<!-- 爆款推荐 -->
+<view class='gary' wx:if='{{hotGoodsInfo.configDetails.length>0}}'></view>
+<view class='goods' wx:if='{{hotGoodsInfo.configDetails.length>0}}'>
+  <view class='title'>
+    <view class='titleTxt'>{{hotGoodsInfo.title || "爆款推荐"}}</view>
+  </view>
+  <view class='goodsList'>
+    <view class='goodsItem' wx:for='{{hotGoodsInfo.configDetails}}' wx:key="{{index}}" bindtap='toGoods' data-id='{{item.id}}'>
+      <image class='goodsPic' src='{{resourcePath+item.picAddress}}'></image>
+      <view class='goodsName'>{{item.detailName}}</view>
+      <view class='goodPrice' wx:if='{{item.price}}'>￥{{item.price}}</view>
+      <view class='goodPrice' wx:if='{{!item.price}}'>来电询价</view>
+    </view>
+  </view>
+</view>
+
+<!-- 新品推荐 -->
+<view class='gary' wx:if='{{newGoodsInfo.configDetails.length>0}}'></view>
+<view class='goods' wx:if='{{newGoodsInfo.configDetails.length>0}}'>
+  <view class='title'>
+    <view class='titleTxt'>{{newGoodsInfo.title || "新品推荐"}}</view>
+  </view>
+  <view class='goodsList'>
+    <view class='goodsItem' wx:for='{{newGoodsInfo.configDetails}}' wx:key="{{index}}" bindtap='toGoods' data-id='{{item.id}}'>
+      <image class='goodsPic' src='{{resourcePath+item.picAddress}}'></image>
+      <view class='goodsName'>{{item.detailName}}</view>
+      <view class='goodPrice' wx:if='{{item.price}}'>￥{{item.price}}</view>
+      <view class='goodPrice' wx:if='{{!item.price}}'>来电询价</view>
+    </view>
+  </view>
+</view>
+<!-- 更多商品 -->
+<view wx:if='{{moreGoodsInfo.configList && moreGoodsInfo.configList.length>0}}' wx:for='{{moreGoodsInfo.configList}}'>
+<view>{{item.length}}</view>
+<view class='gary' wx:if='{{item.configDetails.length>0}}'></view>
+<view class='goods' wx:if='{{item.configDetails.length>0}}'>
+  <view class='title'>
+    <view class='titleTxt'>{{item.title || "精选商品"}}</view>
+  </view>
+  <view class='goodsList'>
+    <view class='goodsItem' wx:for='{{item.configDetails}}' wx:key="{{index}}" bindtap='toGoods' data-id='{{item.id}}'>
+      <image class='goodsPic' src='{{resourcePath+item.picAddress}}'></image>
+      <view class='goodsName'>{{item.detailName}}</view>
+      <view class='goodPrice' wx:if='{{item.price}}'>￥{{item.price}}</view>
+      <view class='goodPrice' wx:if='{{!item.price}}'>来电询价</view>
+    </view>
+  </view>
+</view>
+</view>
+<!-- 品牌介绍 -->
+<view class='gary' wx:if='{{brandInfo}}'></view>
+<view class='brand' wx:if='{{brandInfo}}'>
+  <view class='brandTit'>品牌介绍</view>
+  <image class='brandImg' src='{{resourcePath+brandInfo.picPath}}'></image>
+  <view class='brandTxt'>
+    <view class='txtTitle'>{{brandInfo.introduceTitle}}</view>
+    <view class='txt'>{{brandInfo.introduce}}</view>
+    <view class='seeMore' bindtap='toUrl' data-url='/pages/brandSuggest/brandSuggest'>查看更多 >></view>
+  </view>
+  
+</view>
+
+<!-- 微信授权 -->
+<view class='authorizationShade' wx:if='{{wxInfo}}'>
+  <view class='authorizationBox'>
+    <image class='closeBtn' bindtap='closeBtn' src='{{staticImageUrl}}goods_icon_close@2x.png'></image>
+    <view class='authorizationTit'>登录后可获得更完整的体验</view>
+    <button open-type="getUserInfo" 
+          class='login-btn'
+          lang="zh_CN" 
+          bindgetuserinfo="onGotUserInfo">
+        去授权
+    </button>
+  </view>
+</view>
+
+
+<view class='zzcs' wx:if="{{getPhone}}"></view>
+<view class='showView' wx:if="{{getPhone}}">
+    <image src='{{staticImageUrl}}zhuce01@2x.png' class='bgImg'></image>
+    <view class='items' style='margin-top:50rpx;'>
+        <input placeholder='手机号' maxlength='11' type='number' value='{{getObj.phone}}' bindinput='changeInput' data-type="phone"></input>
+    </view>
+    <view class='items code'>
+        <input placeholder='验证码' data-type="code" maxlength='8' type='number' disabled='{{!inputFlag2}}' bindinput='changeInput' value='{{getObj.code}}'></input>
+        <view class='pubCode  {{inputFlag?"":"disableds"}}' bindtap='{{inputFlag&&message=="获取验证码"?"getCodeFun":""}}'>
+            {{message?message:"获取验证码"}}
+        </view>
+    </view>
+    <view class='items btns {{inputFlag2?"":"disableds"}}' bindtap='{{inputFlag2?"submitFun":""}}'>确认</view>
+    <image src='{{staticImageUrl}}home_pop_close.png' class='close' bindtap='closeFun'></image>
+</view> 

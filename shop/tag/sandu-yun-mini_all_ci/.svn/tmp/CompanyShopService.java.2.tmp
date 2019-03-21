@@ -1,0 +1,130 @@
+package com.sandu.company.service;
+
+import com.sandu.common.exception.ElasticSearchException;
+import com.sandu.company.model.query.CompanyShopDetailQuery;
+import com.sandu.company.model.query.CompanyShopQuery;
+import com.sandu.company.model.query.ProjectCaseQuery;
+import com.sandu.company.model.query.ShopStyleQuery;
+import com.sandu.company.model.vo.*;
+import com.sandu.matadata.Page;
+
+import java.util.List;
+
+/***
+ * 店铺服务
+ * @author Administrator
+ *
+ */
+public interface CompanyShopService {
+   /***
+    * 获取单个门店的详情
+    * @param query
+    * @return
+    */
+   CompanyShopDetailVo get(CompanyShopDetailQuery query);
+   /***
+    * 条件分页查询店铺信息
+    * @param query
+    * @return
+    */
+   Page<CompanyShopVo> list(CompanyShopQuery query) throws ElasticSearchException;
+
+   /***
+    * 动态店铺列表
+    * @param query
+    * @return
+    */
+   Page<CompanyShopVo> dynamicShopList(CompanyShopQuery query);
+
+   /**
+    * 查询店铺人气列表
+    * @param query
+    * @return
+    */
+   Page<ShopPopularityListVo> findShopPopularityList(CompanyShopQuery query);
+
+
+   Page<ShopPopularityInfoVO> getAllShopPopularityList(CompanyShopQuery query);
+   /***
+    * 获取店铺推荐列表
+    * @return
+    */
+<<<<<<< .working
+   List<CompanyShopVo> getRecommendList() throws ElasticSearchException;
+
+||||||| .merge-left.r46676
+   List<CompanyShopVo> getRecommendList();
+   
+=======
+   List<CompanyShopVo> getRecommendList() throws ElasticSearchException;
+   
+>>>>>>> .merge-right.r59125
+   /**
+    * 更新店铺浏览次数
+    * @param shopId
+    */
+   boolean updateVisitCount(long shopId);
+
+   /**
+    * 店铺工程案例列表
+    * @param query
+    * @return
+    */
+   List<ProjectCaseVo> getShopProjectCaseList(ProjectCaseQuery query);
+<<<<<<< .working
+
+   /**
+    * 修改案例浏览数量
+    * @param caseId 案例Id
+    * @param browseCount 数量
+    * @return int 操作结果
+    */
+   int updateBrowseCount(Long caseId,Integer browseCount);
+
+   /**
+    * 获取企业店铺风格列表
+    * @param query 查询入参
+    * @return list 返回结果
+    */
+   List<CompanyShopStyleListVO> getShopStyleList(ShopStyleQuery query);
+
+    /**
+     * created by songjianming@sanduspace.cn
+     * <p>
+     * 获取线下门店接口
+     *
+     * @param query
+     * @return
+     */
+    Page<CompanyShopVo> listShopOffline(CompanyShopQuery query) throws ElasticSearchException;
+
+    CompanyShopDetailVo getOfflineDetail(CompanyShopDetailQuery query);
+||||||| .merge-left.r46676
+=======
+
+   /**
+    * 修改案例浏览数量
+    * @param caseId 案例Id
+    * @param browseCount 数量
+    * @return int 操作结果
+    */
+   int updateBrowseCount(Long caseId,Integer browseCount);
+
+   /**
+    * 获取企业店铺风格列表
+    * @param query 查询入参
+    * @return list 返回结果
+    */
+   List<CompanyShopStyleListVO> getShopStyleList(ShopStyleQuery query);
+
+   /**
+    * created by zhangchengda
+    * 2018/11/21 11:50
+    * 获取店铺列表
+    *
+    * @param query 查询条件数据对象
+    * @return
+    */
+    Page<CompanyShopVo> getShopList(CompanyShopQuery query);
+>>>>>>> .merge-right.r59125
+}

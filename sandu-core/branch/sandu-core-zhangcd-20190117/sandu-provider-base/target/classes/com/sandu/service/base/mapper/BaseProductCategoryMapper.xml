@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.base.dao.BaseProductCategoryMapper" >
+
+  <resultMap id="AllResultMap" type="com.sandu.api.base.model.BaseProductCategory">
+    <id column="id" property="id" jdbcType="INTEGER"/>
+    <result column="code" property="code" jdbcType="VARCHAR"/>
+    <result column="long_code" property="longCode" jdbcType="VARCHAR"/>
+    <result column="pid" property="pid" jdbcType="INTEGER"/>
+    <result column="name" property="name" jdbcType="VARCHAR"/>
+    <result column="level" property="level" jdbcType="INTEGER"/>
+    <result column="pic_path" property="picPath" jdbcType="VARCHAR"/>
+  </resultMap>
+
+  <select id="getBaseProductCategoryList" resultMap="AllResultMap"
+          parameterType="com.sandu.api.base.model.BaseProductCategorySearch">
+    SELECT
+    pc.id,
+    pc.pid,
+    pc.name,
+    pc.level,
+    pc.long_code,
+    pc.code,
+    pc.pic_path
+    FROM
+    pro_category pc
+    where
+    pc.is_deleted = 0
+    <if test="level !=0 and level !=null">
+      and
+      pc.level = #{level,jdbcType=INTEGER}
+    </if>
+
+    <if test="pId !=0 and pId !=null">
+      and
+      pc.pid = #{pId,jdbcType=INTEGER}
+    </if>
+    <if test="pIds !=  null and pIds.size>0">
+      pc.pid in
+      <foreach collection="pIds" item="item" index="index"
+               open="(" close=")" separator=",">
+        #{item,jdbcType=INTEGER}
+      </foreach>
+    </if>
+
+
+    ORDER BY pc.ordering ASC
+  </select>
+
+  <select id="selectAllCompanyMainCategory" resultType="java.lang.String"
+          parameterType="java.lang.Integer">
+    SELECT company_main_category from base_company WHERE id = #{conpanyId,jdbcType=INTEGER}  AND is_deleted = 0
+  </select>
+
+</mapper>

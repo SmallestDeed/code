@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.brand.dao.BaseBrandMapper" >
+
+  <resultMap id="BaseResultMap" type="com.sandu.api.brand.model.BaseBrand" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+    <result column="brand_name" property="brandName" jdbcType="VARCHAR" />
+    <result column="company_id" property="companyId" jdbcType="INTEGER" />
+    <result column="brand_logo" property="brandLogo" jdbcType="VARCHAR" />
+    <result column="brand_desc" property="brandDesc" jdbcType="VARCHAR" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    <result column="brand_code" property="brandCode" jdbcType="VARCHAR" />
+    <result column="att1" property="att1" jdbcType="VARCHAR" />
+    <result column="att2" property="att2" jdbcType="VARCHAR" />
+    <result column="att3" property="att3" jdbcType="VARCHAR" />
+    <result column="att4" property="att4" jdbcType="VARCHAR" />
+    <result column="att5" property="att5" jdbcType="VARCHAR" />
+    <result column="att6" property="att6" jdbcType="VARCHAR" />
+    <result column="date_att1" property="dateAtt1" jdbcType="TIMESTAMP" />
+    <result column="date_att2" property="dateAtt2" jdbcType="TIMESTAMP" />
+    <result column="num_att1" property="numAtt1" jdbcType="INTEGER" />
+    <result column="num_att2" property="numAtt2" jdbcType="INTEGER" />
+    <result column="num_att3" property="numAtt3" jdbcType="DECIMAL" />
+    <result column="num_att4" property="numAtt4" jdbcType="DECIMAL" />
+    <result column="brand_style_id" property="brandStyleId" jdbcType="INTEGER" />
+    <result column="brand_referred" property="brandReferred" jdbcType="VARCHAR" />
+    <result column="status_show_wu" property="statusShowWu" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="LONGVARCHAR" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    id, sys_code, brand_name, company_id, brand_logo, brand_desc, creator, gmt_create, 
+    modifier, gmt_modified, is_deleted, brand_code, att1, att2, att3, att4, att5, att6, 
+    date_att1, date_att2, num_att1, num_att2, num_att3, num_att4, brand_style_id, brand_referred, 
+    status_show_wu,remark
+  </sql>
+
+  <!-- 根据主键 查询 品牌基础信息 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from base_brand
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <!-- 根据主键 物理删除 品牌基础信息 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from base_brand
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <!-- 根据主键 逻辑删除 品牌基础信息 -->
+  <delete id="deleteLogicByPrimaryKey">
+    UPDATE
+      pro_category
+    SET
+      is_deleted = 1,
+      modifier = #{loginName,jdbcType=VARCHAR},
+      gmt_modified = NOW(),
+      remark = concat( remark,';delMark;')
+    WHERE id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <!-- 根据品牌基础实体类 新增 品牌基础信息 -->
+  <insert id="insertSelective" parameterType="com.sandu.api.brand.model.BaseBrand" useGeneratedKeys="true" keyProperty="id" >
+    insert into base_brand
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="sysCode != null" >
+        sys_code,
+      </if>
+      <if test="brandName != null" >
+        brand_name,
+      </if>
+      <if test="companyId != null" >
+        company_id,
+      </if>
+      <if test="brandLogo != null" >
+        brand_logo,
+      </if>
+      <if test="brandDesc != null" >
+        brand_desc,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="brandCode != null" >
+        brand_code,
+      </if>
+      <if test="att1 != null" >
+        att1,
+      </if>
+      <if test="att2 != null" >
+        att2,
+      </if>
+      <if test="att3 != null" >
+        att3,
+      </if>
+      <if test="att4 != null" >
+        att4,
+      </if>
+      <if test="att5 != null" >
+        att5,
+      </if>
+      <if test="att6 != null" >
+        att6,
+      </if>
+      <if test="dateAtt1 != null" >
+        date_att1,
+      </if>
+      <if test="dateAtt2 != null" >
+        date_att2,
+      </if>
+      <if test="numAtt1 != null" >
+        num_att1,
+      </if>
+      <if test="numAtt2 != null" >
+        num_att2,
+      </if>
+      <if test="numAtt3 != null" >
+        num_att3,
+      </if>
+      <if test="numAtt4 != null" >
+        num_att4,
+      </if>
+      <if test="brandStyleId != null" >
+        brand_style_id,
+      </if>
+      <if test="brandReferred != null" >
+        brand_referred,
+      </if>
+      <if test="statusShowWu != null" >
+        status_show_wu,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="sysCode != null" >
+        #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="brandName != null" >
+        #{brandName,jdbcType=VARCHAR},
+      </if>
+      <if test="companyId != null" >
+        #{companyId,jdbcType=INTEGER},
+      </if>
+      <if test="brandLogo != null" >
+        #{brandLogo,jdbcType=VARCHAR},
+      </if>
+      <if test="brandDesc != null" >
+        #{brandDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="brandCode != null" >
+        #{brandCode,jdbcType=VARCHAR},
+      </if>
+      <if test="att1 != null" >
+        #{att1,jdbcType=VARCHAR},
+      </if>
+      <if test="att2 != null" >
+        #{att2,jdbcType=VARCHAR},
+      </if>
+      <if test="att3 != null" >
+        #{att3,jdbcType=VARCHAR},
+      </if>
+      <if test="att4 != null" >
+        #{att4,jdbcType=VARCHAR},
+      </if>
+      <if test="att5 != null" >
+        #{att5,jdbcType=VARCHAR},
+      </if>
+      <if test="att6 != null" >
+        #{att6,jdbcType=VARCHAR},
+      </if>
+      <if test="dateAtt1 != null" >
+        #{dateAtt1,jdbcType=TIMESTAMP},
+      </if>
+      <if test="dateAtt2 != null" >
+        #{dateAtt2,jdbcType=TIMESTAMP},
+      </if>
+      <if test="numAtt1 != null" >
+        #{numAtt1,jdbcType=INTEGER},
+      </if>
+      <if test="numAtt2 != null" >
+        #{numAtt2,jdbcType=INTEGER},
+      </if>
+      <if test="numAtt3 != null" >
+        #{numAtt3,jdbcType=DECIMAL},
+      </if>
+      <if test="numAtt4 != null" >
+        #{numAtt4,jdbcType=DECIMAL},
+      </if>
+      <if test="brandStyleId != null" >
+        #{brandStyleId,jdbcType=INTEGER},
+      </if>
+      <if test="brandReferred != null" >
+        #{brandReferred,jdbcType=VARCHAR},
+      </if>
+      <if test="statusShowWu != null" >
+        #{statusShowWu,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+  <!-- 根据主键 修改 品牌基础信息 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.brand.model.BaseBrand" >
+    update base_brand
+    <set >
+      <if test="sysCode != null" >
+        sys_code = #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="brandName != null" >
+        brand_name = #{brandName,jdbcType=VARCHAR},
+      </if>
+      <if test="companyId != null" >
+        company_id = #{companyId,jdbcType=INTEGER},
+      </if>
+      <if test="brandLogo != null" >
+        brand_logo = #{brandLogo,jdbcType=VARCHAR},
+      </if>
+      <if test="brandDesc != null" >
+        brand_desc = #{brandDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="brandCode != null" >
+        brand_code = #{brandCode,jdbcType=VARCHAR},
+      </if>
+      <if test="att1 != null" >
+        att1 = #{att1,jdbcType=VARCHAR},
+      </if>
+      <if test="att2 != null" >
+        att2 = #{att2,jdbcType=VARCHAR},
+      </if>
+      <if test="att3 != null" >
+        att3 = #{att3,jdbcType=VARCHAR},
+      </if>
+      <if test="att4 != null" >
+        att4 = #{att4,jdbcType=VARCHAR},
+      </if>
+      <if test="att5 != null" >
+        att5 = #{att5,jdbcType=VARCHAR},
+      </if>
+      <if test="att6 != null" >
+        att6 = #{att6,jdbcType=VARCHAR},
+      </if>
+      <if test="dateAtt1 != null" >
+        date_att1 = #{dateAtt1,jdbcType=TIMESTAMP},
+      </if>
+      <if test="dateAtt2 != null" >
+        date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},
+      </if>
+      <if test="numAtt1 != null" >
+        num_att1 = #{numAtt1,jdbcType=INTEGER},
+      </if>
+      <if test="numAtt2 != null" >
+        num_att2 = #{numAtt2,jdbcType=INTEGER},
+      </if>
+      <if test="numAtt3 != null" >
+        num_att3 = #{numAtt3,jdbcType=DECIMAL},
+      </if>
+      <if test="numAtt4 != null" >
+        num_att4 = #{numAtt4,jdbcType=DECIMAL},
+      </if>
+      <if test="brandStyleId != null" >
+        brand_style_id = #{brandStyleId,jdbcType=INTEGER},
+      </if>
+      <if test="brandReferred != null" >
+        brand_referred = #{brandReferred,jdbcType=VARCHAR},
+      </if>
+      <if test="statusShowWu != null" >
+        status_show_wu = #{statusShowWu,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <!-- 根据企业id 查询 所属品牌信息 -->
+  <select id="selectBrandByCompanyId" parameterType="com.sandu.api.brand.input.CompanyBrandQuery" resultType="com.sandu.api.brand.output.CompanyBrandVO" >
+    SELECT
+        id          AS brandId,
+        brand_name  AS brandName
+    FROM
+        base_brand
+    WHERE company_id = #{companyId,jdbcType=VARCHAR}
+      AND is_deleted = 0
+  </select>
+  
+  
+  <select id="selectBrandnamesByCompanyId" resultType="java.lang.String">
+    SELECT
+        GROUP_CONCAT(brand_name)
+    FROM
+        base_brand
+    WHERE company_id = #{companyId}
+      AND is_deleted = 0
+  </select>
+
+  <select id="selectBrandNamesByIds" resultType="java.lang.String">
+    SELECT
+        GROUP_CONCAT(brand_name)
+    FROM
+        base_brand
+    WHERE id IN
+          <foreach collection="idList" item="item" open="(" separator="," close=")">
+              #{item}
+          </foreach>
+      AND is_deleted = 0
+  </select>
+
+  <!-- 根据企业id 查询 所属品牌信息 -->
+  <select id="selectBrandList" resultType="com.sandu.api.brand.output.FranchiserBrandVO" >
+    SELECT
+        id          AS brandId,
+        brand_name  AS brandName
+    FROM
+        base_brand
+    WHERE id IN
+          <foreach collection="idList" item="item" open="(" separator="," close=")">
+              #{item}
+          </foreach>
+      AND is_deleted = 0
+  </select>
+
+  <!-- 查询当前企业下是否存在 该品牌数据  -->
+  <select id="selectCountByCompanyIdList" resultType="java.lang.Integer">
+    SELECT
+        COUNT(1)
+    FROM
+        base_brand
+    WHERE id IN
+          <foreach collection="idList" item="item" open="(" separator="," close=")">
+              #{item}
+          </foreach>
+      AND company_id = #{companyId}
+      AND is_deleted = 0
+  </select>
+  
+</mapper>

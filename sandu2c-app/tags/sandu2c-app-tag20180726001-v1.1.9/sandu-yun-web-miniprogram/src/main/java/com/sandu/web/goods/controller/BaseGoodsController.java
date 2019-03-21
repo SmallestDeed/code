@@ -1,0 +1,326 @@
+package com.sandu.web.goods.controller;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.nork.common.model.LoginUser;
+import com.sandu.common.LoginContext;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.common.objectconvert.user.UserObject;
+import com.sandu.common.util.PlatformConstant;
+import com.sandu.designplan.service.DesignPlanRecommendedProductService;
+import com.sandu.designplan.vo.RecommendedPlanProductRelatedVo;
+import com.sandu.goods.input.GoodsListQuery;
+import com.sandu.goods.input.GoodsSkuQuery;
+import com.sandu.goods.model.PO.GoodsListPO;
+import com.sandu.goods.output.*;
+import com.sandu.goods.service.BaseGoodsSKUService;
+import com.sandu.goods.service.BaseGoodsSPUService;
+import com.sandu.platform.BasePlatform;
+import com.sandu.product.model.BaseCompany;
+import com.sandu.product.model.UserProductCollect;
+import com.sandu.product.service.BaseCompanyService;
+import com.sandu.product.service.UserProductCollectService;
+import com.sandu.system.service.BasePlatformService;
+import com.sandu.user.model.UserSO;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+
+
+@Api(tags = "BaseGoodsController", description = "商品")
+@Log4j2
+@RestController
+@RequestMapping("/v1/miniprogram/goods/basegoods")
+public class BaseGoodsController {
+    @Autowired
+    private BaseCompanyService baseCompanyService;
+    @Autowired
+    private BaseGoodsSPUService baseGoodsSPUService;
+    @Autowired
+    private BaseGoodsSKUService baseGoodsSKUService;
+    @Autowired
+    private UserProductCollectService userProductCollectService;
+    @Autowired
+    private DesignPlanRecommendedProductService designPlanRecommendedProductService;
+    @Autowired
+    private BasePlatformService basePlatformService;
+    @Value("${sanducloudhome.company.code}")
+    private String companyCode;
+
+    private static final int DEFAULT_PAGE_START = 0;
+    private static final int DEFAULT_PAGE_SIZE = 10;
+
+    private Gson gson = new GsonBuilder().serializeNulls().create();
+    public static List<String> indexProductModelNumberList = Arrays.asList("S105122-06-304","S405152-06-367","S125169-02-304");
+    public static List<String> moreProductModelNumberList = Arrays.asList("S105122-08-304","S105122-06-304","S405152-06-367","S405152-12-367","S125169-02-304","S125169-03-304");
+
+
+    /**
+     * @Author: zhangchengda
+     * @Description: 获取商品列表
+     * @Date: 18:08 2018/5/30
+     */
+    @ApiOperation(value = "获取商品列表", response = ResponseEnvelope.class)
+    @GetMapping("/list")
+    public ResponseEnvelope getGoodsList(GoodsListQuery goodsListQuery, HttpServletRequest request) {
+        GoodsListPO goodsListPO = new GoodsListPO();
+        //----------------------- 查询访问平台 -----------------------//
+        BaseCompany baseCompany;
+        BasePlatform basePlatform;
+        // 获取平台
+        String platformCode = request.getHeader("Platform-Code");
+        if (platformCode == null || "".equals(platformCode)) {
+            return new ResponseEnvelope(false, "未获取到平台编码");
+        }else {
+            basePlatform = basePlatformService.getBasePlatform(platformCode);
+            if (basePlatform == null){
+                return new ResponseEnvelope(false, "未知平台");
+            }
+        }
+        log.info("访问平台:{}", gson.toJson(basePlatform));
+        //----------------------- 查询访问公司 -----------------------//
+        // 获取公司
+        baseCompany = baseCompanyService.getCompanyByDomainUrl(request.getHeader("Referer"));
+        if (baseCompany == null) {
+            baseCompany = baseCompanyService.getCompanyByDomainUrl(request.getHeader("Custom-Referer"));
+        }
+        if (baseCompany == null){
+            return new ResponseEnvelope(false, "未获取到公司");
+        }
+        log.info("访问公司,baseCompany:{}", gson.toJson(baseCompany));
+        //----------------------- 增加品牌过滤 -----------------------//
+        if (companyCode.equals(baseCompany.getCompanyCode())){
+            // 三度云享家下所有产品可见
+            goodsListPO.setCompanyId(null);
+        }else {
+            goodsListPO.setCompanyId(baseCompany.getId());
+            // 增加品牌过滤
+            List<Integer> enableBrandIdList = null;
+            if(PlatformConstant.PLATFORM_CODE_MINI_PROGRAM.equalsIgnoreCase(basePlatform.getPlatformCode())) {
+                enableBrandIdList = baseCompanyService.getEnableBrandIdsByAppId(baseCompany.getAppId());
+            }else {
+                enableBrandIdList = baseCompanyService.getBrandIdListByCompanyId(baseCompany.getId(), null,
+                        basePlatform.getPlatformCode());
+            }
+            if (enableBrandIdList != null && enableBrandIdList.size() > 0) {
+                goodsListPO.setBrandIdList(enableBrandIdList);
+                log.info("品牌ID列表,enableBrandIdList:{}", gson.toJson(enableBrandIdList));
+            }else {
+                return new ResponseEnvelope(true, "没有找到品牌");
+            }
+        }
+        //----------------------- 处理查询条件 -----------------------//
+        // 处理分类条件
+        if (goodsListQuery.getCategoryCode() != null) {
+            if (goodsListQuery.getCategoryCode().contains(",")) {
+                // 有多个分类编码参数时，只可能都是五级分类编码
+                goodsListPO.setCodeList(Arrays.asList(goodsListQuery.getCategoryCode().split(",")));
+                goodsListPO.setCodeListSize(goodsListPO.getCodeList().size());
+            } else {
+                // 只有一个分类编码参数时，可能是一个三级分类编码也可能是一个五级分类编码，此时用like查询
+                goodsListPO.setGoodsType("%." + goodsListQuery.getCategoryCode().trim() + ".%");
+            }
+        }
+        // 处理分页参数
+        if (goodsListQuery.getCurPage() != null && goodsListQuery.getPageSize() != null) {
+            goodsListPO.setStart((goodsListQuery.getCurPage() - 1) * goodsListQuery.getPageSize());
+            goodsListPO.setLimit(goodsListQuery.getPageSize());
+        }else {
+            goodsListPO.setStart(DEFAULT_PAGE_START);
+            goodsListPO.setLimit(DEFAULT_PAGE_SIZE);
+        }
+        // 是否查询预售商品
+        goodsListPO.setIsPresell(goodsListQuery.getIsPresell());
+        // 是否查询特卖商品
+        goodsListPO.setIsSpecialOffer(goodsListQuery.getIsSpecialOffer());
+        log.info("商品列表查询条件:{}", gson.toJson(goodsListPO));
+        //----------------------- 查询商品列表 -----------------------//
+        // 商品记录总数
+        Integer total = baseGoodsSPUService.getGoodsListCount(goodsListPO);
+        log.info("商品总数量,total:{}", total);
+        if (total > 0) {
+            List<GoodsVO> goodsVOList = baseGoodsSPUService.getGoodsList(goodsListPO);
+            log.info("查询商品列表结果:{}", gson.toJson(goodsVOList));
+            if (goodsVOList == null || goodsVOList.size() == 0) {
+                return new ResponseEnvelope(true, "查询产品出错");
+            }
+            return new ResponseEnvelope(true, "success", goodsVOList, total);
+        }
+        return new ResponseEnvelope(true, "该分类下没有产品");
+    }
+
+    /**
+     * @Author: zhangchengda
+     * @Description: 商品详情
+     * @Date: 18:10 2018/5/30
+     */
+    @ApiOperation(value = "获取商品详情", response = ResponseEnvelope.class)
+    @GetMapping("/detail")
+    public ResponseEnvelope getGoodsDetail(Integer id) {
+        if (id == null){
+            return new ResponseEnvelope(false, "必要参数为空");
+        }
+        //----------------------- 查询商品详情 -----------------------//
+        log.info("查询商品详情,id:{}", id);
+        GoodsDetailVO goodsDetailVO = baseGoodsSPUService.getGoodsDetail(id);
+        if (goodsDetailVO == null) {
+            return new ResponseEnvelope(false, "查询商品详情错误");
+        }
+        log.info("商品详情:{}", gson.toJson(goodsDetailVO));
+
+        //----------------------- 查询用户是否收藏该商品 -----------------------//
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            goodsDetailVO.setIsFavorite(0);
+        } else {
+            log.info("登录的用户，loginUser:{}", gson.toJson(loginUser));
+            UserProductCollect collect = new UserProductCollect();
+            collect.setUserId(loginUser.getId());
+            collect.setSpuId(id);
+            List<UserProductCollect> userProductCollect = userProductCollectService.getList(collect);
+            log.info("收藏列表结果", userProductCollect.size());
+            if (userProductCollect == null || userProductCollect.size() == 0) {
+                goodsDetailVO.setIsFavorite(0);
+            } else {
+                goodsDetailVO.setIsFavorite(1);
+            }
+        }
+        return new ResponseEnvelope(true, "success", goodsDetailVO);
+    }
+
+    /**
+     * @Author: zhangchengda
+     * @Description: 商品案例
+     * @Date: 10:02 2018/5/31
+     */
+    @ApiOperation(value = "商品案例", response = ResponseEnvelope.class)
+    @GetMapping("/design")
+    public ResponseEnvelope getGoodsDesign(@RequestParam("spuId") Integer spuId, HttpServletRequest request) {
+        if (spuId == null){
+            return new ResponseEnvelope(false, "必要参数为空");
+        }
+        log.info("查询商品案例,spuId:{}", spuId);
+        // 通过spuId找到商品下的所有产品ID
+        List<Integer> productIds = baseGoodsSKUService.getProductIdsBySpuId(spuId);
+        //----------------------- 获取方案查询条件 -----------------------//
+        // 获取当前小程序所属企业
+        BaseCompany baseCompany;
+        baseCompany = baseCompanyService.getCompanyByDomainUrl(request.getHeader("Referer"));
+        if (baseCompany == null) {
+            baseCompany = baseCompanyService.getCompanyByDomainUrl(request.getHeader("Custom-Referer"));
+        }
+        if (baseCompany == null) {
+            return new ResponseEnvelope(false, "未获取到公司");
+        }
+        log.info("访问公司,baseCompany:{}", gson.toJson(baseCompany));
+        // 获取当前登录用户
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (loginUser == null) {
+            return new ResponseEnvelope(false, "用户未登陆!!!");
+        }
+        log.info("当前登录用户,loginUser:{}", gson.toJson(loginUser));
+        // 获取当前平台
+        String platformCode = request.getHeader("Platform-Code");
+        if (platformCode == null){
+            return new ResponseEnvelope(false, "未获取到平台编码");
+        }
+        BasePlatform basePlatform = basePlatformService.getByPlatformCode(platformCode);
+        if (basePlatform == null){
+            return new ResponseEnvelope(false, "未知平台");
+        }
+        log.info("当前所在平台,loginUser:{}", gson.toJson(basePlatform));
+        // 组装查询条件
+        UserSO userSo = new UserSO();
+        userSo.setUserId(loginUser.getId());
+        // WEIXIN-121, Update by steve;
+        // 增加品牌过滤
+        List<Integer> enableBrandIdList = new ArrayList<>();
+        if(PlatformConstant.PLATFORM_CODE_MINI_PROGRAM.equalsIgnoreCase(basePlatform.getPlatformCode())) {
+            enableBrandIdList = baseCompanyService.getEnableBrandIdsByAppId(baseCompany.getAppId());
+        }
+        //----------------------- 查询商品案例 -----------------------//
+        List<RecommendedPlanProductRelatedVo> recommendedPlanProductRelatedList =
+                designPlanRecommendedProductService.getRecommendedPlanByProductIdList(
+                        productIds, basePlatform.getId(), UserObject.parseUserSoToLoginUser(userSo),companyCode,baseCompany,enableBrandIdList);
+
+        if (recommendedPlanProductRelatedList == null || recommendedPlanProductRelatedList.size() == 0){
+            return new ResponseEnvelope(false, "查询案例失败");
+        }
+        return new ResponseEnvelope(true, "", recommendedPlanProductRelatedList);
+    }
+
+    /**
+     * @Author: zhangchengda
+     * @Description: 商品具有的规格属性
+     * @Date: 10:28 2018/5/31
+     */
+    @ApiOperation(value = "获取商品具有的规格属性", response = ResponseEnvelope.class)
+    @GetMapping("/attr")
+    public ResponseEnvelope getGoodsAttribute(Integer id) {
+        if (id == null){
+            return new ResponseEnvelope(false, "必要参数为空");
+        }
+        log.info("获取商品具有的规格属性,spuId:{}", id);
+        GoodsSkuVO goodsSkuVO = baseGoodsSPUService.getSpuAttrList(id);
+        String selected = "";
+        for (SpuAttributeVO spuAttributeVO : goodsSkuVO.getAttr()) {
+            for (SpuAttrValueVO spuAttrValueVO : spuAttributeVO.getAttrValue()) {
+                if (spuAttrValueVO.getIsSelected() == 1) {
+                    selected += "".equals(selected) ? spuAttrValueVO.getAttrValueName() : "," + spuAttrValueVO.getAttrValueName();
+                }
+            }
+        }
+        goodsSkuVO.setAttribute(selected);
+        log.info("规格属性查询结果", gson.toJson(goodsSkuVO));
+        return new ResponseEnvelope(true, "success", goodsSkuVO);
+    }
+
+    /**
+     * @Author: zhangchengda
+     * @Description: 根据选择的规格获取sku信息
+     * @Date: 10:29 2018/5/31
+     */
+    @ApiOperation(value = "根据选择的规格获取sku信息", response = ResponseEnvelope.class)
+    @GetMapping("/sku")
+    public ResponseEnvelope getSkuInfoByAttribute(GoodsSkuQuery goodsSkuQuery) {
+        log.info("根据选择的规格查询产品,查询参数:{}", goodsSkuQuery);
+        GoodsSkuVO goodsSkuVO = baseGoodsSKUService.getSkuInfoByAttrs(goodsSkuQuery);
+        log.info("查询结果:{}", goodsSkuVO);
+        return new ResponseEnvelope(true, "success", goodsSkuVO);
+    }
+
+    /**
+     * 特卖商品列表
+     * @param type
+     * @return
+     */
+    @Deprecated
+    @ApiOperation(value = "获取特卖商品",response = ResponseEnvelope.class)
+    @GetMapping("/getSpecialSale")
+    public ResponseEnvelope getSpecialSaleGoods(Integer type) {
+        if (type == null) {
+            type = 0;
+        }
+        List<GoodsDetailVO> specialSaleGoodsList;
+        try {
+            if (type.intValue() == 0) {
+                specialSaleGoodsList = baseGoodsSPUService.getSpecialSaleGoods(indexProductModelNumberList);
+            } else {
+                specialSaleGoodsList = baseGoodsSPUService.getSpecialSaleGoods(moreProductModelNumberList);
+            }
+        } catch (Exception e) {
+            log.error("获取特卖商品 ===> exception:"+e);
+            return new ResponseEnvelope(false,"获取特卖商品失败");
+        }
+        return new ResponseEnvelope(true,specialSaleGoodsList);
+    }
+}

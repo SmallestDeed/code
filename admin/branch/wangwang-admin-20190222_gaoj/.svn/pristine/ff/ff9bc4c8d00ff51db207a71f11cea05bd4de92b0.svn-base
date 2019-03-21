@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>wangwang-parent-provider</artifactId>
+        <groupId>com.sandu</groupId>
+        <version>1.0.4</version>
+        <relativePath>../../wangwang-parent-provider/pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <properties>
+        <release-api-verison>1.0.8</release-api-verison>
+    </properties>
+    <artifactId>wangwang-provider-solution</artifactId>
+    <version>${sandu.version}</version>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.sandu</groupId>
+            <artifactId>wangwang-common</artifactId>
+            <version>${sandu-common.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sandu</groupId>
+            <artifactId>wangwang-api-solution</artifactId>
+            <version>${release-api-verison}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sandu</groupId>
+            <artifactId>wangwang-api-product</artifactId>
+            <version>${release-api-verison}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sandu</groupId>
+            <artifactId>wangwang-api-storage</artifactId>
+            <version>${release-api-verison}</version>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>SanduDev</id>
+            <name>Sandu Public Repositories</name>
+            <url>http://192.168.1.118:8081/nexus/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.sandu.SolutionProvider</mainClass>
+                    <layout>ZIP</layout>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

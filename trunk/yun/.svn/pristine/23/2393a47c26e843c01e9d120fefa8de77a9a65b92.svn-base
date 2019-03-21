@@ -1,0 +1,1044 @@
+package com.sandu.pay.order.service.impl;
+
+import com.google.gson.Gson;
+import com.sandu.cache.service.PayRedisService;
+import com.sandu.common.constant.PlatformConstants;
+import com.sandu.common.constant.UserConstants;
+import com.sandu.common.util.StringUtils;
+import com.sandu.common.util.UtilDate;
+import com.sandu.common.util.Utils;
+import com.sandu.pay.base.model.BasePlatform;
+import com.sandu.pay.base.service.BasePlatformService;
+import com.sandu.pay.order.PayModelVo;
+import com.sandu.pay.order.dao.PayModelGroupRefMapper;
+import com.sandu.pay.order.metadata.PayModelConstantType;
+import com.sandu.pay.order.model.PayModelConfig;
+import com.sandu.pay.order.model.PayModelGroupRef;
+import com.sandu.pay.order.model.PayOrder;
+import com.sandu.pay.order.model.ResultMessage;
+import com.sandu.pay.order.service.PayModelConfigService;
+import com.sandu.pay.order.service.PayModelGroupRefService;
+import com.sandu.pay.order.service.PayOrderService;
+import com.sandu.user.model.CompanyFranchiserGroup;
+import com.sandu.user.model.CompanyVo;
+import com.sandu.user.model.SysUser;
+import com.sandu.user.service.CompanyFranchiserGroupService;
+import com.sandu.user.service.SysUserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * @Author yzw
+ * @Date 2018/1/16 15:57
+ */
+@Service("payModelGroupRefService")
+public class PayModelGroupRefServiceImpl implements PayModelGroupRefService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PayModelGroupRefServiceImpl.class);
+    private final static Gson gson = new Gson();
+    @Autowired
+    private PayModelGroupRefMapper payModelGroupRefMapper;
+    @Resource
+    private PayModelConfigService payModelConfigService;
+    @Resource
+    private SysUserService sysUserService;
+    @Resource
+    private PayOrderService payOrderService;
+    @Resource
+    private PayRedisService payRedisService;
+    @Resource
+    private CompanyFranchiserGroupService companyFranchiserGroupService;
+    @Resource
+    private BasePlatformService basePlatformService;
+
+    /**
+     * 添加
+     *
+     * @param record
+     * @return
+     */
+    public PayModelGroupRef add(PayModelGroupRef record) {
+        if (this.payModelGroupRefMapper.insertSelective(record) == 1)
+            return record;
+        return null;
+    }
+
+    /**
+     * 删除
+     *
+     * @param id 付款方式业务关联表id
+     * @return
+     */
+    public boolean delete(Integer id) {
+        return this.payModelGroupRefMapper.deleteByPrimaryKey(id) == 1;
+    }
+
+    /**
+     * 更新
+     *
+     * @param record
+     * @return
+     */
+    public PayModelGroupRef update(PayModelGroupRef record) {
+        if (this.payModelGroupRefMapper.updateByPrimaryKeySelective(record) == 1)
+            return record;
+        return null;
+    }
+
+    /**
+     * 查询
+     *
+     * @param id
+     * @return 付款方式业务关联表id
+     */
+    public PayModelGroupRef get(Integer id) {
+        return this.payModelGroupRefMapper.selectByPrimaryKey(id);
+    }
+
+    /**
+     * 判断是否具备渲染权限接口
+     *
+     * @param platformId 平台id
+     * @param userId     用户id
+     * @return
+     */
+    @Override
+    public ResultMessage checkRenderGroopRef(Integer platformId, Integer userId) {
+        ResultMessage message = new ResultMessage();
+        if (null == platformId || null == userId) {
+            message.setMessage("参数为空：platformId：{}" + platformId + ",userId:{}" + userId);
+            logger.info("参数为空：platformId：{}" + platformId + ",userId:{}" + userId);
+            return message;
+        }
+        Map<String, Object> map = new HashMap<String, Object>();
+        map = this.getUserPayModelState(platformId, userId);
+        boolean flag = false;
+        String showMsg = "";
+        if (null != map && map.size() > 0) {
+            logger.info("计算时间start，用户id：userId：{}" + userId);
+            if (null != map.get("expiryTime")) {
+                try {
+                    Date endDate = (Date) map.get("expiryTime");
+                    int dayNumber = UtilDate.getDayNumber(new Date(), endDate);
+                    logger.info("剩余的时间：" + dayNumber + "天，用户id：userId:{}" + userId);
+                    if (dayNumber <= PayModelConstantType.FIRST_CHECK_DAY && dayNumber >= 0) {
+                        boolean b1 = this.checkMessage(userId);
+                        logger.info("用户id：userId:{}" + userId + "，是否要显示：" + b1);
+                        if (b1) {
+                            // 显示
+                            flag = true;
+                            PayModelConfig payModelConfig = payModelConfigService.get(Integer.valueOf(map.get("payModelConfigId").toString()));
+                            StringBuffer sb = new StringBuffer();
+                            String packageName = "";
+                            if (payModelConfig.getBizType().equals(PayModelConstantType.RENDER_TYPE_GIVE)) {
+                                packageName = PayModelConstantType.PACKAGE_GIVE;
+                            } else {
+                                if (String.valueOf(payModelConfig.getTimeType()).equals(PayModelConstantType.TIME_TYPE_MOUTH)) {
+                                    packageName = PayModelConstantType.PACKAGE_MONTH;
+                                } else {
+                                    packageName = PayModelConstantType.PACKAGE_YEAR;
+                                }
+                            }
+                            sb.append("您当前享受的“" + packageName + "”服务剩余时间为" + dayNumber);
+                            sb.append("天，为了不影响您的使用，请及时充值。");
+                            showMsg = sb.toString();
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    logger.info("计算时间异常，内容是：" + e.getMessage());
+                }
+            }
+            logger.info("计算时间end，用户id：userId{}" + userId);
+        }
+        map.put("isShow", flag);
+        map.put("showMsg", showMsg);
+        message.setObj(map);
+        message.setSuccess(Boolean.TRUE);
+        message.setMessage("success");
+        return message;
+    }
+
+    /**
+     * 用户绑定序列号赠送
+     *
+     * @param basePlatform
+     * @param sysUser
+     * @return
+     */
+    @Override
+    public ResultMessage addGiveGroopRef(BasePlatform basePlatform, SysUser sysUser) {
+        logger.info("调用赠送包年包月service");
+        ResultMessage message = new ResultMessage();
+        CompanyFranchiserGroup companyFranchiserGroup = companyFranchiserGroupService.getCompanyFranchiserGroupByUserId(sysUser.getId());
+        Integer businessId = null;
+        List<PayModelConfig> payModelConfigList = null;
+        if (null == companyFranchiserGroup) {
+            businessId = sysUser.getId();
+            payModelConfigList  = payModelConfigService.getPayModelConfigList(basePlatform.getId(), PayModelConstantType.RENDER_TYPE_GIVE, PayModelConstantType.RANGER_TYPE_PERSONAGE);
+        } else {
+            businessId = companyFranchiserGroup.getId();
+            payModelConfigList  = payModelConfigService.getPayModelConfigList(basePlatform.getId(), PayModelConstantType.RENDER_TYPE_GIVE_FRANCHISER, PayModelConstantType.RANGE_TYPE_FRANCHISER);
+        }
+        if (null == payModelConfigList || payModelConfigList.size() == 0) {
+            message.setMessage("暂无可赠送的包年包月");
+            logger.info("暂无可赠送的包年包月");
+            return message;
+        } else {
+            /**
+             * 1、用户首次登录时赠送三个月免费渲染，以首次登录的时间为准开始计时，一个账号的情况，如果是PC端先登录则已PC登录时间开始计时，如果是移动2B先登录则以移动2B登录时间开始计时
+             2、如果是子账号，则以主账号首次登录PC端的时间为准开始计时赠送三个月
+             3、被设置为子账号之前，如果该账号已经有3个月免费渲染，设置为子账号后不带入共享，取消子账号后，免费渲染在有效期内的话还能正常使用
+             4、被设置为主账号之前，如果该账号已经有3月免费渲染，设置为主账号之后带入共享，与积分共享保持一致
+             */
+            PayModelGroupRef payModelGroupRef = getPayModelGroupRef(businessId, payModelConfigList.get(0).getId());
+            if (null == payModelGroupRef) {
+                payModelGroupRef = new PayModelGroupRef();
+                payModelGroupRef.setBusinessId(businessId);
+                payModelGroupRef.setPayModelConfigId(payModelConfigList.get(0).getId());
+                int timeType = payModelConfigList.get(0).getTimeType();
+                Date expriyTime = new Date();
+                Calendar calendar = new GregorianCalendar();
+                calendar.setTime(new Date());
+                if (timeType == 0) {
+                    calendar.add(calendar.MONTH, payModelConfigList.get(0).getTimeUnit());// 把日期往后增加月份.整数往后推,负数往前移动
+                } else if (timeType == 1) {
+                    calendar.add(calendar.YEAR, payModelConfigList.get(0).getTimeUnit());// 把日期往后增加年份.整数往后推,负数往前移动
+                }
+                expriyTime = calendar.getTime();
+                payModelGroupRef.setEffectiveTime(new Date());
+                payModelGroupRef.setExpiryTime(expriyTime);
+                payModelGroupRef.setIsDeleted(0);
+                payModelGroupRef.setCreator(sysUser.getMobile());
+                payModelGroupRef.setGmtCreate(new Date());
+                payModelGroupRef.setModifier(sysUser.getMobile());
+                payModelGroupRef.setGmtModified(new Date());
+                int i = this.payModelGroupRefMapper.insertSelective(payModelGroupRef);
+                if (i != 1) {
+                    message.setMessage("赠送包年包月套餐失败");
+                    logger.info("赠送包年包月套餐失败");
+                    return message;
+                }
+            } else {
+                message.setMessage("已赠送包年包月套餐");
+                logger.info("已赠送包年包月套餐");
+                return message;
+            }
+        }
+        message.setMessage("赠送包年包月套餐成功");
+        logger.info("赠送包年包月套餐成功");
+        message.setSuccess(Boolean.TRUE);
+        return message;
+    }
+
+    /**
+     * 获取付款方式业务关联表数据
+     *
+     * @param businessId       业务id
+     * @param payModelConfigId 付款方式业务关联表id
+     * @return
+     */
+    @Override
+    public PayModelGroupRef getPayModelGroupRef(Integer businessId, Integer payModelConfigId) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("businessId", businessId);
+        map.put("payModelConfigId", payModelConfigId);
+        return this.payModelGroupRefMapper.getPayModelGroupRef(map);
+    }
+
+    /**
+     * 用户付款后插入记录到付款方式业务关联表
+     *
+     * @param orderNo 订单号
+     */
+    @Override
+    public void addPayModelGroupRef(String orderNo) {
+        if (StringUtils.isEmpty(orderNo)) {
+            logger.info("orderNo：订单号为空");
+            return;
+        }
+        PayOrder payOrder = payOrderService.getOrderByOrderNo(orderNo);
+        logger.info("订单结果：payOrder:{}" + (null == payOrder ? "null" : gson.toJson(payOrder)));
+        if (null == payOrder) {
+            logger.info("payOrder:找不到订单信息");
+            return;
+        }
+        logger.info("回调成功，插入或者更新关联表信息，用户id：userId:{}" + payOrder.getUserId());
+        Integer businessId = StringUtils.isEmpty(payOrder.getAtt1()) == true ? null : Integer.valueOf(payOrder.getAtt1());
+        Integer payModelConfigId = StringUtils.isEmpty(payOrder.getAtt2()) == true ? null : Integer.valueOf(payOrder.getAtt2());
+        logger.info("businessId:业务id=" + businessId + ",payModelConfigId：付款方式表业务关联表id=" + payModelConfigId);
+        if (null == businessId || null == payModelConfigId) {
+            logger.info("payOrder:订单信息有误");
+            return;
+        }
+        PayModelConfig payModelConfig = payModelConfigService.get(payModelConfigId);
+        PayModelGroupRef payModelGroupRef = getPayModelGroupRef(businessId, payModelConfigId);
+        SysUser sysUser = sysUserService.get(payOrder.getUserId());
+        CompanyFranchiserGroup companyFranchiserGroup = companyFranchiserGroupService.getCompanyFranchiserGroupByUserId(payOrder.getUserId());
+        ResultMessage checkMessage = new ResultMessage();
+        if (null == companyFranchiserGroup) {
+            logger.info("回调成功，用户不具备共享积分的权限======");
+            checkMessage = this.checkRenderGroopRef(payModelConfig.getPlatformId(), payOrder.getUserId());
+        } else {
+            logger.info("回调成功，用户具备共享积分的权限======");
+            checkMessage = this.checkRenderShareGroopRef(payModelConfig.getPlatformId(), sysUser.getFranchiserGroupId(), payOrder.getUserId());
+        }
+        Map<String, Object> checkMap = (Map<String, Object>) checkMessage.getObj();
+        String state = String.valueOf(checkMap.get("state"));
+        Integer payModelGroupRefId = null == checkMap.get("payModelGroupRefId") ? null : Integer.valueOf(checkMap.get("payModelGroupRefId").toString());
+        this.addOrUpdate(state, payModelConfig, payModelGroupRef, businessId, payModelConfigId, payModelGroupRefId, sysUser);
+    }
+
+    /**
+     * 添加或者更新付款方式业务关联表
+     *
+     * @param state              包年包月权限的状态
+     * @param payModelConfig
+     * @param payModelGroupRef
+     * @param businessId         业务id
+     * @param payModelConfigId   付款方式表id
+     * @param payModelGroupRefId 付款方式业务关联表id
+     * @param sysUser            用户对象
+     */
+    public void addOrUpdate(String state, PayModelConfig payModelConfig, PayModelGroupRef payModelGroupRef, Integer businessId, Integer payModelConfigId, Integer payModelGroupRefId, SysUser sysUser) {
+        if (state.equals(PayModelConstantType.NOT_PERMISSION_STATE)) {
+            // 都不存在
+            if (null == payModelGroupRef) {
+                logger.info("用户id：userId:{}" + businessId + "付款方式表id：payModelConfigId：{}" + payModelConfigId + ",payModelGroupRef：{}为空，state的值：" + state);
+                payModelGroupRef = new PayModelGroupRef();
+                payModelGroupRef.setBusinessId(businessId);
+                payModelGroupRef.setPayModelConfigId(payModelConfigId);
+                int timeType = payModelConfig.getTimeType();
+                Date expriyTime = new Date();
+                Calendar calendar = new GregorianCalendar();
+                calendar.setTime(expriyTime);
+                if (timeType == 0) {
+                    calendar.add(calendar.MONTH, payModelConfig.getTimeUnit());// 把日期往后增加月份.整数往后推,负数往前移动
+                } else if (timeType == 1) {
+                    calendar.add(calendar.YEAR, payModelConfig.getTimeUnit());// 把日期往后增加年份.整数往后推,负数往前移动
+                }
+                expriyTime = calendar.getTime();
+                payModelGroupRef.setEffectiveTime(new Date());
+                payModelGroupRef.setExpiryTime(expriyTime);
+                payModelGroupRef.setIsDeleted(0);
+                payModelGroupRef.setCreator(sysUser.getMobile());
+                payModelGroupRef.setGmtCreate(new Date());
+                payModelGroupRef.setModifier(sysUser.getMobile());
+                payModelGroupRef.setGmtModified(new Date());
+                int i = this.payModelGroupRefMapper.insertSelective(payModelGroupRef);
+                if (i != 1) {
+                    logger.info("用户付款成功，插入付款方式关联表记录失败");
+                }
+            } else {
+                logger.info("用户id：userId:{}" + businessId + "付款方式表id：payModelConfigId：{}" + payModelConfigId + ",payModelGroupRef：{}不为空，state的值：" + state);
+                int timeType = payModelConfig.getTimeType();
+                Calendar calendar = new GregorianCalendar();
+                Date expiryTime = payModelGroupRef.getExpiryTime();
+                if (new Date().after(expiryTime)) {
+                    expiryTime = new Date();
+                }
+                calendar.setTime(expiryTime);
+                if (timeType == 0) {
+                    calendar.add(calendar.MONTH, payModelConfig.getTimeUnit());// 把日期往后增加月份.整数往后推,负数往前移动
+                } else if (timeType == 1) {
+                    calendar.add(calendar.YEAR, payModelConfig.getTimeUnit());// 把日期往后增加年份.整数往后推,负数往前移动
+                }
+                payModelGroupRef.setExpiryTime(calendar.getTime());
+                payModelGroupRef.setGmtModified(new Date());
+                int i = this.payModelGroupRefMapper.updateByPrimaryKeySelective(payModelGroupRef);
+                if (i != 1) {
+                    logger.info("用户付款成功，更新付款方式关联表记录失败");
+                }
+            }
+        } else if (state.equals(PayModelConstantType.GIVE_STATE)) {
+            // 存在赠送（用户可能是包月，也可能是包年），这里要计算赠送剩下的天数
+            PayModelGroupRef p = this.payModelGroupRefMapper.selectByPrimaryKey(payModelGroupRefId);
+            if (null == payModelGroupRef) {
+                logger.info("用户id：userId:{}" + businessId + "付款方式表id：payModelConfigId：{}" + payModelConfigId + ",payModelGroupRef：{}为空，state的值：" + state);
+                payModelGroupRef = new PayModelGroupRef();
+                payModelGroupRef.setBusinessId(businessId);
+                payModelGroupRef.setPayModelConfigId(payModelConfigId);
+                int timeType = payModelConfig.getTimeType();
+                Calendar calendar = new GregorianCalendar();
+                Date expiryTime = p.getExpiryTime();
+                if (new Date().after(expiryTime)) {
+                    expiryTime = new Date();
+                }
+                calendar.setTime(expiryTime);
+                if (timeType == 0) {
+                    calendar.add(calendar.MONTH, payModelConfig.getTimeUnit());// 把日期往后增加月份.整数往后推,负数往前移动
+                } else if (timeType == 1) {
+                    calendar.add(calendar.YEAR, payModelConfig.getTimeUnit());// 把日期往后增加年份.整数往后推,负数往前移动
+                }
+                expiryTime = calendar.getTime();
+                payModelGroupRef.setEffectiveTime(new Date());
+                payModelGroupRef.setExpiryTime(expiryTime);
+                payModelGroupRef.setIsDeleted(0);
+                payModelGroupRef.setCreator(sysUser.getMobile());
+                payModelGroupRef.setGmtCreate(new Date());
+                payModelGroupRef.setModifier(sysUser.getMobile());
+                payModelGroupRef.setGmtModified(new Date());
+                int i = this.payModelGroupRefMapper.insertSelective(payModelGroupRef);
+                if (i != 1) {
+                    logger.info("用户付款成功，插入付款方式关联表记录失败");
+                }
+            } else {
+                logger.info("用户id：userId:{}" + businessId + "付款方式表id：payModelConfigId：{}" + payModelConfigId + ",payModelGroupRef：{}不为空，state的值：" + state);
+                int timeType = payModelConfig.getTimeType();
+                Calendar calendar = new GregorianCalendar();
+                Date expriyTime = payModelGroupRef.getExpiryTime();
+                if (new Date().after(expriyTime)) {
+                    expriyTime = new Date();
+                }
+                calendar.setTime(expriyTime);
+                if (timeType == 0) {
+                    calendar.add(calendar.MONTH, payModelConfig.getTimeUnit());// 把日期往后增加月份.整数往后推,负数往前移动
+                } else if (timeType == 1) {
+                    calendar.add(calendar.YEAR, payModelConfig.getTimeUnit());// 把日期往后增加年份.整数往后推,负数往前移动
+                }
+                payModelGroupRef.setExpiryTime(expriyTime);
+                payModelGroupRef.setGmtModified(new Date());
+                int i = this.payModelGroupRefMapper.updateByPrimaryKeySelective(payModelGroupRef);
+                if (i != 1) {
+                    logger.info("用户付款成功，更新付款方式关联表记录失败");
+                }
+            }
+
+        } else if (state.equals(PayModelConstantType.PACKAGE_MONTH_STATE)) {
+            // 存在包月（用户可能是包月，也可能是包年），这里要计算赠送剩下的天数
+            if (payModelConfig.getTimeType() == 0) {
+                logger.info("用户id：userId:{}" + businessId + "付款方式表id：payModelConfigId：{}" + payModelConfigId + ",payModelGroupRef：{}不为空，state的值：" + state);
+                // 包月
+                if (null != payModelGroupRef) {
+                    Calendar calendar = new GregorianCalendar();
+                    Date expriyTime = payModelGroupRef.getExpiryTime();
+                    if (new Date().after(expriyTime)) {
+                        expriyTime = new Date();
+                    }
+                    calendar.setTime(expriyTime);
+                    calendar.add(calendar.MONTH, payModelConfig.getTimeUnit());// 把日期往后增加年份.整数往后推,负数往前移动
+                    payModelGroupRef.setExpiryTime(calendar.getTime());
+                    payModelGroupRef.setGmtModified(new Date());
+                    int i = this.payModelGroupRefMapper.updateByPrimaryKeySelective(payModelGroupRef);
+                    if (i != 1) {
+                        logger.info("用户付款成功，更新付款方式关联表记录失败，包年");
+                    }
+                }
+            } else if (payModelConfig.getTimeType() == 1) {
+                // 包年
+                PayModelGroupRef p = this.payModelGroupRefMapper.selectByPrimaryKey(payModelGroupRefId);
+                if (null == payModelGroupRef) {
+                    logger.info("用户id：userId:{}" + businessId + "付款方式表id：payModelConfigId：{}" + payModelConfigId + ",payModelGroupRef：{}为空，state的值：" + state);
+                    payModelGroupRef = new PayModelGroupRef();
+                    payModelGroupRef.setBusinessId(businessId);
+                    payModelGroupRef.setPayModelConfigId(payModelConfigId);
+                    Calendar calendar = new GregorianCalendar();
+                    Date expiryTime = p.getExpiryTime();
+                    if (new Date().after(expiryTime)) {
+                        expiryTime = new Date();
+                    }
+                    calendar.setTime(expiryTime);
+                    calendar.add(calendar.YEAR, payModelConfig.getTimeUnit());// 把日期往后增加年份.整数往后推,负数往前移动
+                    expiryTime = calendar.getTime();
+                    payModelGroupRef.setEffectiveTime(new Date());
+                    payModelGroupRef.setExpiryTime(expiryTime);
+                    payModelGroupRef.setIsDeleted(0);
+                    payModelGroupRef.setCreator(sysUser.getMobile());
+                    payModelGroupRef.setGmtCreate(new Date());
+                    payModelGroupRef.setModifier(sysUser.getMobile());
+                    payModelGroupRef.setGmtModified(new Date());
+                    int i = this.payModelGroupRefMapper.insertSelective(payModelGroupRef);
+                    if (i != 1) {
+                        logger.info("用户付款成功，插入付款方式关联表记录失败");
+                    }
+                } else {
+                    logger.info("用户id：userId:{}" + businessId + "付款方式表id：payModelConfigId：{}" + payModelConfigId + ",payModelGroupRef：{}不为空，state的值：" + state);
+                    payModelGroupRef.setGmtModified(new Date());
+                    Calendar calendar = new GregorianCalendar();
+                    Date expiryTime = p.getExpiryTime();
+                    if (new Date().after(expiryTime)) {
+                        expiryTime = new Date();
+                    }
+                    calendar.setTime(expiryTime);
+                    calendar.add(calendar.YEAR, payModelConfig.getTimeUnit());// 把日期往后增加年份.整数往后推,负数往前移动
+                    payModelGroupRef.setExpiryTime(calendar.getTime());
+                    payModelGroupRef.setGmtModified(new Date());
+                    int i = this.payModelGroupRefMapper.updateByPrimaryKeySelective(payModelGroupRef);
+                    if (i != 1) {
+                        logger.info("用户付款成功，更新付款方式关联表记录失败，包年");
+                    }
+                }
+
+            }
+        } else if (state.equals(PayModelConstantType.PACKAGE_YEAR_STATE)) {
+            logger.info("用户id：userId:{}" + businessId + "付款方式表id：payModelConfigId：{}" + payModelConfigId + ",payModelGroupRef：{}不为空，state的值：" + state);
+            // 存在包年（用户是包年）
+            PayModelGroupRef p = this.payModelGroupRefMapper.selectByPrimaryKey(payModelGroupRefId);
+            Date expiryTime = p.getExpiryTime();
+            if (new Date().after(expiryTime)) {
+                expiryTime = new Date();
+            }
+            Calendar calendar = new GregorianCalendar();
+            calendar.setTime(expiryTime);
+            calendar.add(calendar.YEAR, payModelConfig.getTimeUnit());// 把日期往后增加年份.整数往后推,负数往前移动
+            payModelGroupRef.setExpiryTime(calendar.getTime());
+            int i = this.payModelGroupRefMapper.updateByPrimaryKeySelective(payModelGroupRef);
+            if (i != 1) {
+                logger.info("用户付款成功，更新付款方式关联表记录失败，包年");
+            }
+        }
+
+    }
+
+    /**
+     * 获取渲染时候的提示信息
+     *
+     * @param payModelGroupRefId 付款方式业务关联表id
+     * @return
+     */
+    @Override
+    public Map<String, Object> getMessage(Integer payModelGroupRefId) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        boolean flag = false;
+        String showMsg = "";
+        PayModelGroupRef payModelGroupRef = this.payModelGroupRefMapper.selectByPrimaryKey(payModelGroupRefId);
+        logger.info("用户的付款方式业务关联表新：payModelGroupRef:{}" + (null == payModelGroupRef ? null : gson.toJson(payModelGroupRef)));
+        if (null != payModelGroupRef) {
+            PayModelConfig payModelConfig = payModelConfigService.get(payModelGroupRef.getPayModelConfigId());
+            if (null != payModelConfig) {
+                int dayNumber = 0;
+                int endNumber = 0;
+                dayNumber = UtilDate.getDayNumber(new Date(), payModelGroupRef.getExpiryTime()); // 计算时间差
+                if (payModelConfig.getBizType().equals(PayModelConstantType.RENDER_TYPE_GIVE)) {
+                    //绑定序列号赠送
+                    logger.info("绑定序列号赠送，还剩" + dayNumber + "过期，过期前" + PayModelConstantType.GIVE_DATA_NUMBER + "天要有通知");
+                    endNumber = PayModelConstantType.GIVE_DATA_NUMBER;
+                } else {
+                    if (payModelConfig.getTimeType() == 0) {
+                        // 月
+                        logger.info("包月，还剩" + dayNumber + "过期，过期前" + PayModelConstantType.CONFIG_MONTH + "天要有通知");
+                        endNumber = PayModelConstantType.CONFIG_MONTH;
+                    } else if (payModelConfig.getTimeType() == 1) {
+                        // 年
+                        logger.info("包年，还剩" + dayNumber + "过期，过期前" + PayModelConstantType.CONFIG_YEAR + "天要有通知");
+                        endNumber = PayModelConstantType.CONFIG_YEAR;
+                    }
+                }
+                //  时间差天数大于等于0，并且小于等于过期天数，并且过期天数不为0方可符合通知
+                if (dayNumber >= 0 && dayNumber <= endNumber) {
+                    flag = true;
+                    StringBuffer sb = new StringBuffer();
+                    String packageName = "";
+                    if (payModelConfig.getBizType().equals(PayModelConstantType.RENDER_TYPE_GIVE) || payModelConfig.getBizType().equals(PayModelConstantType.RENDER_TYPE_GIVE_FRANCHISER)) {
+                        packageName = PayModelConstantType.PACKAGE_GIVE;
+                    } else {
+                        if (String.valueOf(payModelConfig.getTimeType()).equals(PayModelConstantType.TIME_TYPE_MOUTH)) {
+                            packageName = PayModelConstantType.PACKAGE_MONTH;
+                        } else {
+                            packageName = PayModelConstantType.PACKAGE_YEAR;
+                        }
+                    }
+                    sb.append("您正使用“" + packageName + "”,该服务可用至" + UtilDate.getStringDate(payModelGroupRef.getExpiryTime()));
+                    logger.info("渲染通知信息为：" + sb.toString());
+                    showMsg = sb.toString();
+                }
+            }
+        }
+        map.put("isShow", flag);
+        map.put("showMsg", showMsg);
+        return map;
+    }
+
+    /**
+     * pc端查询账户余额信息（pc专用）
+     *
+     * @param platformId 平台id
+     * @param userId     用户id
+     * @return
+     */
+    @Override
+    public Map<String, Object> getPackageMapPc(Integer platformId, Integer userId) {
+        Map<String, Object> packageInfoMap = new HashMap<String, Object>();
+        Map<String, Object> map = getUserPayModelState(platformId, userId);
+        if (null == map || String.valueOf(map.get("state")).equals(PayModelConstantType.NOT_PERMISSION_STATE)) {
+            //都没有
+            return null;
+        }
+        Integer payModelConfigId = Integer.valueOf(String.valueOf(map.get("payModelConfigId"))); // 付款方式表id
+        PayModelConfig payModelConfig = payModelConfigService.get(payModelConfigId);
+        String enjoyPackageInfoStr = ""; // 享受的套餐信息
+        Integer remainDate = 0; // 剩余时间
+
+        PayModelGroupRef payModelGroupRef = this.payModelGroupRefMapper.
+                selectByPrimaryKey(Integer.valueOf(String.valueOf(map.get("payModelGroupRefId"))));
+
+        List<Map<String, Object>> refList = this.getUserRefInfoList(userId, PayModelConstantType.RENDER_TYPE, null);
+        StringBuffer stringBuffer = this.getPackageNameStringBuffer(refList);
+        StringBuffer sb = new StringBuffer();
+        sb.append("(");
+        sb.append("以上服务总共有效期至" + UtilDate.getStringDate(payModelGroupRef.getExpiryTime()));
+        sb.append(")");
+        enjoyPackageInfoStr = enjoyPackageInfoStr + stringBuffer.toString() + sb.toString();
+        remainDate = UtilDate.getDayNumber(new Date(), payModelGroupRef.getExpiryTime());
+        packageInfoMap.put("enjoyPackageInfo", enjoyPackageInfoStr);
+        packageInfoMap.put("remainDate", remainDate);
+        return packageInfoMap;
+    }
+
+    /**
+     * 拼接套餐
+     *
+     * @param refList
+     * @return
+     */
+    public StringBuffer getPackageNameStringBuffer(List<Map<String, Object>> refList) {
+        StringBuffer sb = new StringBuffer();
+        if (null != refList && refList.size() > 0) {
+            for (int i = 0; i < refList.size(); i++) {
+                String bizType = refList.get(i).get("bizType") == null ? "" : refList.get(i).get("bizType").toString();
+                String timeType = refList.get(i).get("timeType") == null ? "" : refList.get(i).get("timeType").toString();
+                if (bizType.equals(PayModelConstantType.RENDER_TYPE_GIVE)) {
+                    sb.append(PayModelConstantType.PACKAGE_GIVE);
+                } else {
+                    if (timeType.equals(PayModelConstantType.TIME_TYPE_YEAR)) {
+                        sb.append(PayModelConstantType.PACKAGE_YEAR);
+                    } else if (timeType.equals(PayModelConstantType.TIME_TYPE_MOUTH)) {
+                        sb.append(PayModelConstantType.PACKAGE_MONTH);
+                    }
+                }
+                if (i != refList.size() - 1) {
+                    sb.append("、");
+                }
+            }
+        }
+        return sb;
+    }
+
+    /**
+     * 获取用户的套餐列表
+     *
+     * @param businessId 业务id
+     * @param bizType    业务类型
+     * @param rangeType  范围类型
+     * @return
+     */
+    @Override
+    public List<Map<String, Object>> getUserRefInfoList(Integer businessId, String bizType, Integer rangeType) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("businessId", businessId);
+        map.put("bizType", bizType);
+        map.put("rangeType", rangeType);
+        return this.payModelGroupRefMapper.getUserRefInfoList(map);
+    }
+
+    /**
+     * 判断经销商用户是否具备包年包月的权限
+     *
+     * @param platformId        平台id
+     * @param franchiserGroupId 经销商账号组id
+     * @param userId            用户id
+     * @return
+     */
+    @Override
+    public ResultMessage checkRenderShareGroopRef(Integer platformId, Integer franchiserGroupId, Integer userId) {
+        ResultMessage message = new ResultMessage();
+        if (null == platformId) {
+            message.setMessage("平台id：platformId:{}为空");
+            return message;
+        }
+        if (null == franchiserGroupId) {
+            message.setMessage("经销商账号组id：franchiserGroupId：{}为空");
+            return message;
+        }
+        Map<String, Object> map = new HashMap<String, Object>();
+        map = this.getUserSharePayModelState(platformId, franchiserGroupId);
+        boolean flag = false;
+        String showMsg = "";
+        if (null != map && map.size() > 0) {
+            logger.info("计算时间start，经销商组id：franchiserGroupId：{}" + franchiserGroupId);
+            if (null != map.get("expiryTime")) {
+                try {
+                    Date endDate = (Date) map.get("expiryTime");
+                    int dayNumber = UtilDate.getDayNumber(new Date(), endDate);
+                    logger.info("剩余的时间：" + dayNumber + "天，经销商组id：franchiserGroupId:{}" + franchiserGroupId);
+                    if (dayNumber <= PayModelConstantType.FIRST_CHECK_DAY && dayNumber >= 0) {
+                        boolean b1 = this.checkMessage(userId);
+                        if (b1) {
+                            // 显示
+                            flag = true;
+                            PayModelConfig payModelConfig = payModelConfigService.get(Integer.valueOf(map.get("payModelConfigId").toString()));
+                            String packageName = "";
+                            if (payModelConfig.getBizType().equals(PayModelConstantType.RENDER_TYPE_GIVE_FRANCHISER)) {
+                                packageName = PayModelConstantType.PACKAGE_GIVE;
+                            } else {
+                                if (String.valueOf(payModelConfig.getTimeType()).equals(PayModelConstantType.TIME_TYPE_MOUTH)) {
+                                    packageName = PayModelConstantType.PACKAGE_MONTH;
+                                } else {
+                                    packageName = PayModelConstantType.PACKAGE_YEAR;
+                                }
+                            }
+                            StringBuffer sb = new StringBuffer();
+                            sb.append("您当前享受的“" + packageName + "”服务剩余时间为" + dayNumber);
+                            sb.append("天，为了不影响您的使用，请及时充值。");
+                            showMsg = sb.toString();
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    logger.info("计算时间异常，内容是：" + e.getMessage());
+                }
+            }
+            logger.info("计算时间end，经销商组id：franchiserGroupId：{}" + franchiserGroupId);
+        }
+        map.put("isShow", flag);
+        map.put("showMsg", showMsg);
+        message.setObj(map);
+        message.setSuccess(Boolean.TRUE);
+        message.setMessage("success");
+        return message;
+    }
+
+    /**
+     * pc端查询账户余额信息（pc专用，经销商用户专用）
+     *
+     * @param platformId        平台id
+     * @param franchiserGroupId 经销商账号组id
+     * @return
+     */
+    @Override
+    public Map<String, Object> getPackageMapSharePc(Integer platformId, Integer franchiserGroupId) {
+        Map<String, Object> packageInfoMap = new HashMap<String, Object>();
+        Map<String, Object> map = this.getUserSharePayModelState(platformId, franchiserGroupId);
+        if (null == map || String.valueOf(map.get("state")).equals(PayModelConstantType.NOT_PERMISSION_STATE)) {
+            //都没有
+            return null;
+        }
+        PayModelGroupRef payModelGroupRef = this.payModelGroupRefMapper.
+                selectByPrimaryKey(Integer.valueOf(String.valueOf(map.get("payModelGroupRefId"))));
+        String enjoyPackageInfoStr = ""; // 享受的套餐信息
+        Integer remainDate = 0; // 剩余时间
+        List<Map<String, Object>> refList = this.getUserRefInfoList(franchiserGroupId, PayModelConstantType.RENDER_TYPE_FRANCHISER,null);
+        StringBuffer stringBuffer = this.getPackageNameStringBuffer(refList);
+        StringBuffer sb = new StringBuffer();
+        sb.append("(");
+        sb.append("以上服务总共有效期至" + UtilDate.getStringDate(payModelGroupRef.getExpiryTime()));
+        sb.append(")");
+        enjoyPackageInfoStr = enjoyPackageInfoStr + stringBuffer.toString() + sb.toString();
+        remainDate = UtilDate.getDayNumber(new Date(), payModelGroupRef.getExpiryTime());
+        packageInfoMap.put("enjoyPackageInfo", enjoyPackageInfoStr);
+        packageInfoMap.put("remainDate", remainDate);
+        return packageInfoMap;
+    }
+
+    /**
+     * 获取用户套餐信息（移动端专用）
+     *
+     * @param sysUser
+     * @param isfranchiserGroup 是否属于经销商组  true表示属于  false表示不属于
+     * @return
+     */
+    @Override
+    public Map<String, String> getUserPackageMap(SysUser sysUser, boolean isfranchiserGroup) {
+        String platformCode = PlatformConstants.PC_2B; // 因为套餐服务目前只有pc版，所以暂时写死
+        BasePlatform basePlatform = basePlatformService.getBasePlatformByCode(platformCode);
+        Map<String, String> map = new HashMap<String, String>();
+        Map<String, Object> checkMap = new HashMap<String, Object>();
+        if (isfranchiserGroup) {
+            checkMap = this.getUserSharePayModelState(basePlatform.getId(), sysUser.getFranchiserGroupId());
+        } else {
+            checkMap = this.getUserPayModelState(basePlatform.getId(), sysUser.getId());
+        }
+        String state = String.valueOf(checkMap.get("state"));
+        map.put("state", state);
+        map.put("expiryTime", "");
+        if (state.equals(PayModelConstantType.NOT_PERMISSION_STATE)) {
+            return map;
+        }
+        Integer payModelGroupRefId = Integer.valueOf(checkMap.get("payModelGroupRefId").toString());
+        PayModelGroupRef payModelGroupRef = this.payModelGroupRefMapper.selectByPrimaryKey(payModelGroupRefId);
+        map.put("expiryTime", UtilDate.ConverToStringYMD((Date) payModelGroupRef.getExpiryTime()));
+        return map;
+    }
+
+
+    /**
+     * 获取用户可免费渲染的关联信息
+     *
+     * @param sysUser
+     * @param basePlatform      平台信息
+     * @param companyDomainName 公司品牌网站域名
+     * @return
+     */
+    @Override
+    public List<PayModelVo> getPayModelVoRenderList(SysUser sysUser, BasePlatform basePlatform, String companyDomainName) {
+        //用户的公司list
+        List<CompanyVo> companyVoList = new ArrayList<CompanyVo>();
+        if (basePlatform.getPlatformBussinessType().equals(PlatformConstants.TC)) {
+            if (StringUtils.isBlank(companyDomainName)) {
+                return null;
+            }
+            String[] arr = companyDomainName.split("//");
+            if (arr != null && arr.length > 1) {
+                companyDomainName = arr[1];
+            }
+            arr = companyDomainName.split("\\.");
+            logger.info("2c的域名：" + (arr.length == 0 ? companyDomainName : arr[0]));
+            Integer companyId = this.payModelGroupRefMapper.getCompanyNameByDoMianName(arr.length == 0 ? companyDomainName : arr[0]);
+            if (null == companyId) {
+                return null;
+            }
+            CompanyVo companyVo = new CompanyVo();
+            companyVo.setCompanyId(companyId);
+            companyVoList.add(companyVo);
+        } else {
+            if (null != sysUser.getUserType() && sysUser.getUserType().intValue() == UserConstants.FRANCHISER_USER_TYPE) {
+                // 经销商
+                companyVoList = sysUserService.getFranchiserCompanyVoList(sysUser.getMobile());
+            } else if (null != sysUser.getUserType() && sysUser.getUserType().intValue() == UserConstants.MANUFACTURER_USER_TYPE) {
+                // 厂商
+                companyVoList = sysUserService.getManufacturerCompanyVoList(sysUser.getMobile());
+            }
+        }
+        if (null != companyVoList && companyVoList.size() > 0) {
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("platformId", basePlatform.getId());
+            map.put("companyVoList", companyVoList);
+            map.put("packageUserType", PayModelConstantType.BIZ_TYPE); // 所有用户
+            map.put("userType", sysUser.getUserType());
+            map.put("businessType", PayModelConstantType.BUSINESS_TYPE_RENDER); // 渲染
+            return this.payModelGroupRefMapper.getPayModelVoRenderList(map);
+        }
+        return null;
+    }
+
+    /**
+     * 获取用户可免费购买户型的关联信息
+     *
+     * @param sysUser
+     * @param platformId        平台id
+     * @param companyDomainName 公司品牌网站域名
+     * @return
+     */
+    @Override
+    public List<PayModelVo> getPayModelVoHouseList(SysUser sysUser, Integer platformId, String companyDomainName) {
+        //用户的公司list
+        if (null != sysUser && StringUtils.isNotBlank(companyDomainName)) {
+            if (StringUtils.isBlank(companyDomainName)) {
+                return null;
+            }
+            String[] arr = companyDomainName.split("//");
+            if (arr != null && arr.length > 1) {
+                companyDomainName = arr[1];
+            }
+            arr = companyDomainName.split("\\.");
+            logger.info("2c的域名：" + (arr.length == 0 ? companyDomainName : arr[0]));
+            Integer companyId = this.payModelGroupRefMapper.getCompanyNameByDoMianName(arr.length == 0 ? companyDomainName : arr[0]);
+            if (null == companyId) {
+                return null;
+            }
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("platformId", platformId);
+            map.put("packageUserType", PayModelConstantType.BIZ_TYPE); // 所有用户
+            map.put("userType", sysUser.getUserType());
+            map.put("businessType", PayModelConstantType.BUSINESS_TYPE_HOUSE); // 户型
+            map.put("companyId", companyId);// 公司id
+            return this.payModelGroupRefMapper.getPayModelVoHouseList(map);
+        }
+        return null;
+    }
+
+    /**
+     * 判断经销商用户的包年包月的权限
+     *
+     * @param platformId        平台id
+     * @param franchiserGroupId 经销商组id
+     * @return
+     */
+    public Map<String, Object> getUserSharePayModelState(Integer platformId, Integer franchiserGroupId) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        // 判断购买 start
+        List<PayModelConfig> payModelConfigList = payModelConfigService.getPayModelConfigList(platformId, PayModelConstantType.RENDER_TYPE_FRANCHISER, PayModelConstantType.RANGE_TYPE_FRANCHISER);
+        if (null != payModelConfigList && payModelConfigList.size() > 0) {
+            Map<String, Object> refMap = new HashMap<String, Object>();
+            refMap.put("list", payModelConfigList);
+            refMap.put("businessId", franchiserGroupId);
+            refMap.put("rangeType", PayModelConstantType.RANGE_TYPE_FRANCHISER);
+            refMap.put("timeType", PayModelConstantType.TIME_TYPE_YEAR); // 1表示年
+            List<PayModelGroupRef> payModelGroupRefList = this.payModelGroupRefMapper.getPayModelGroupRefList(refMap);
+            if (null != payModelGroupRefList && payModelGroupRefList.size() > 0) {
+                // 表示用户存在购买的订单并且时间未过期
+                map.put("state", PayModelConstantType.PACKAGE_YEAR_STATE);
+                //免费渲染到期的时间
+                map.put("expiryTime", payModelGroupRefList.get(0).getExpiryTime());
+                //付款方式表id
+                map.put("payModelConfigId", payModelGroupRefList.get(0).getPayModelConfigId());
+                //付款方式业务关联表id
+                map.put("payModelGroupRefId", payModelGroupRefList.get(0).getId());
+                return map;
+            }
+            refMap.put("timeType", PayModelConstantType.TIME_TYPE_MOUTH); // 0表示月
+            payModelGroupRefList = this.payModelGroupRefMapper.getPayModelGroupRefList(refMap);
+            if (null != payModelGroupRefList && payModelGroupRefList.size() > 0) {
+                // 表示用户存在购买的订单并且时间未过期
+                map.put("state", PayModelConstantType.PACKAGE_MONTH_STATE);
+                //免费渲染到期的时间
+                map.put("expiryTime", payModelGroupRefList.get(0).getExpiryTime());
+                //付款方式表id
+                map.put("payModelConfigId", payModelGroupRefList.get(0).getPayModelConfigId());
+                //付款方式业务关联表id
+                map.put("payModelGroupRefId", payModelGroupRefList.get(0).getId());
+                return map;
+            }
+        }
+        // 判断赠送 start
+        payModelConfigList = payModelConfigService.getPayModelConfigList(platformId, PayModelConstantType.RENDER_TYPE_GIVE_FRANCHISER, PayModelConstantType.RANGE_TYPE_FRANCHISER);
+        if (null != payModelConfigList && payModelConfigList.size() > 0) {
+            Map<String, Object> refMap = new HashMap<String, Object>();
+            refMap.put("list", payModelConfigList);
+            refMap.put("businessId", franchiserGroupId);
+            refMap.put("rangeType", PayModelConstantType.RANGE_TYPE_FRANCHISER);
+            List<PayModelGroupRef> payModelGroupRefList = this.payModelGroupRefMapper.getPayModelGroupRefList(refMap);
+            if (null != payModelGroupRefList && payModelGroupRefList.size() > 0) {
+                // 表示用户存在购买的订单并且时间未过期
+                map.put("state", PayModelConstantType.GIVE_STATE);
+                //免费渲染到期的时间
+                map.put("expiryTime", payModelGroupRefList.get(0).getExpiryTime());
+                //付款方式表id
+                map.put("payModelConfigId", payModelGroupRefList.get(0).getPayModelConfigId());
+                //付款方式业务关联表id
+                map.put("payModelGroupRefId", payModelGroupRefList.get(0).getId());
+                return map;
+            }
+        }
+        // 判断赠送 end
+        map.put("state", PayModelConstantType.NOT_PERMISSION_STATE);
+        //免费渲染到期的时间
+        map.put("expiryTime", null);
+        //付款方式表id
+        map.put("payModelConfigId", null);
+        //付款方式业务关联表id
+        map.put("payModelGroupRefId", null);
+        return map;
+    }
+
+
+    /**
+     * 判断用户权限(个人)
+     *
+     * @param platformId 平台id
+     * @param userId     用户id
+     * @return
+     */
+    public Map<String, Object> getUserPayModelState(Integer platformId, Integer userId) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        // 判断购买 start
+        List<PayModelConfig> payModelConfigList = payModelConfigService.getPayModelConfigList(platformId, PayModelConstantType.RENDER_TYPE, PayModelConstantType.RANGER_TYPE_PERSONAGE);
+        if (null != payModelConfigList && payModelConfigList.size() > 0) {
+            Map<String, Object> refMap = new HashMap<String, Object>();
+            refMap.put("list", payModelConfigList);
+            refMap.put("businessId", userId);
+            refMap.put("rangeType", PayModelConstantType.RANGER_TYPE_PERSONAGE);
+            refMap.put("timeType", PayModelConstantType.TIME_TYPE_YEAR); // 1表示年
+            List<PayModelGroupRef> payModelGroupRefList = this.payModelGroupRefMapper.getPayModelGroupRefList(refMap);
+            logger.info("付款方式业务关联表数据：payModelGroupRefList：{}" + (null == payModelGroupRefList ? null : gson.toJson(payModelGroupRefList)));
+            if (null != payModelGroupRefList && payModelGroupRefList.size() > 0) {
+                // 表示用户存在购买的订单并且时间未过期
+                map.put("state", PayModelConstantType.PACKAGE_YEAR_STATE);
+                //免费渲染到期的时间
+                map.put("expiryTime", payModelGroupRefList.get(0).getExpiryTime());
+                //付款方式表id
+                map.put("payModelConfigId", payModelGroupRefList.get(0).getPayModelConfigId());
+                //付款方式业务关联表id
+                map.put("payModelGroupRefId", payModelGroupRefList.get(0).getId());
+                return map;
+            }
+            refMap.put("timeType", PayModelConstantType.TIME_TYPE_MOUTH); // 0表示月
+            payModelGroupRefList = this.payModelGroupRefMapper.getPayModelGroupRefList(refMap);
+            logger.info("付款方式业务关联表数据：payModelGroupRefList：{}" + (null == payModelGroupRefList ? null : gson.toJson(payModelGroupRefList)));
+            if (null != payModelGroupRefList && payModelGroupRefList.size() > 0) {
+                // 表示用户存在购买的订单并且时间未过期
+                map.put("state", PayModelConstantType.PACKAGE_MONTH_STATE);
+                //免费渲染到期的时间
+                map.put("expiryTime", payModelGroupRefList.get(0).getExpiryTime());
+                //付款方式表id
+                map.put("payModelConfigId", payModelGroupRefList.get(0).getPayModelConfigId());
+                //付款方式业务关联表id
+                map.put("payModelGroupRefId", payModelGroupRefList.get(0).getId());
+                return map;
+            }
+        }
+        // 判断购买 end
+        // 判断赠送 start
+        payModelConfigList = payModelConfigService.getPayModelConfigList(platformId, PayModelConstantType.RENDER_TYPE_GIVE, PayModelConstantType.RANGER_TYPE_PERSONAGE);
+        if (null != payModelConfigList && payModelConfigList.size() > 0) {
+            Map<String, Object> refMap = new HashMap<String, Object>();
+            refMap.put("list", payModelConfigList);
+            refMap.put("businessId", userId);
+            refMap.put("rangeType", PayModelConstantType.RANGER_TYPE_PERSONAGE);
+            List<PayModelGroupRef> payModelGroupRefList = this.payModelGroupRefMapper.getPayModelGroupRefList(refMap);
+            logger.info("付款方式业务关联表数据：payModelGroupRefList：{}" + (null == payModelGroupRefList ? null : gson.toJson(payModelGroupRefList)));
+            if (null != payModelGroupRefList && payModelGroupRefList.size() > 0) {
+                // 表示用户存在购买的订单并且时间未过期
+                map.put("state", PayModelConstantType.GIVE_STATE);
+                //免费渲染到期的时间
+                map.put("expiryTime", payModelGroupRefList.get(0).getExpiryTime());
+                //付款方式表id
+                map.put("payModelConfigId", payModelGroupRefList.get(0).getPayModelConfigId());
+                //付款方式业务关联表id
+                map.put("payModelGroupRefId", payModelGroupRefList.get(0).getId());
+                return map;
+            }
+        }
+        // 判断赠送 end
+        map.put("state", PayModelConstantType.NOT_PERMISSION_STATE);
+        //免费渲染到期的时间
+        map.put("expiryTime", null);
+        //付款方式表id
+        map.put("payModelConfigId", null);
+        //付款方式业务关联表id
+        map.put("payModelGroupRefId", null);
+        return map;
+    }
+
+    /**
+     * 判断点击按钮是否需要提示
+     *
+     * @param userId
+     * @return
+     */
+    public boolean checkMessage(Integer userId) {
+        logger.info("判断点击按钮是否需要提示start,用户id：userId:{}" + userId);
+        Date nowTime = new Date();
+        SimpleDateFormat time = new SimpleDateFormat("yyyyMMdd");
+        String str = time.format(nowTime) + userId;
+        Map map = payRedisService.getMap(str);
+        if (null == map || map.size() == 0) {
+            boolean flag = payRedisService.addMap(str, str, str);
+            logger.info("保存redis中是否成功？" + flag + ",用户id：userId:{}" + userId);
+            LocalTime midnight = LocalTime.MIDNIGHT;
+            LocalDate today = LocalDate.now();
+            LocalDateTime todayMidnight = LocalDateTime.of(today, midnight);
+            LocalDateTime tomorrowMidnight = todayMidnight.plusDays(1);
+            // 现在时间到今晚凌晨的秒数
+            long seconds = TimeUnit.NANOSECONDS.toSeconds(Duration.between(LocalDateTime.now(), tomorrowMidnight).toNanos());
+            payRedisService.expire(str, Math.toIntExact(seconds));
+            logger.info("判断点击按钮是否需要提示end,用户id：userId:{}" + userId + ",计算的秒数为：" + seconds);
+            return true;
+        }
+        return false;
+    }
+
+
+}

@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.activity.dao.CouponDao">
+
+    <delete id="batchDeleteCouponProduct" parameterType="com.sandu.activity.model.query.CouponProductQuery">
+        delete from
+        activity_coupon_goods
+        where coupon_id=#{couponId}
+        <choose>
+            <when test="lstGoodsIds != null and lstGoodsIds.size() > 0">
+                and goods_id in
+                <foreach item="item" collection="lstGoodsIds" separator="," open="(" close=")" index="index">
+                    #{item}
+                </foreach>
+            </when>
+            <otherwise>
+                and id = -1
+            </otherwise>
+        </choose>
+    </delete>
+
+    <delete id="deleteCouponProduct" parameterType="long">
+		delete from activity_coupon_goods  where id=#{id}
+	</delete>
+
+    <delete id="deleteCouponProductWithCouponId" parameterType="long">
+		delete from activity_coupon_goods  where coupon_id=#{id}
+	</delete>
+
+    <delete id="deleteCoupon" parameterType="long">
+		update activity_coupon set is_deleted=#{DEL_FLAG_DELETE}  where id=#{id}
+	</delete>
+
+    <select id="getCoupon" resultType="com.sandu.activity.model.vo.CouponVo" parameterType="long">
+		SELECT id,company_id,shop_id,coupon_name,qty,receive_qty,used_qty,coupon_state,discount_mode,discount_amount,rebate_factor,
+		order_amount,effective_date_mode,effective_days,start_time,end_time,expire_remind_mode,before_expire_days,coupon_type,max_receive_qty,
+		product_scope_type,scope_desc
+		FROM  activity_coupon a 
+		WHERE  a.id=#{couponId}
+	</select>
+
+    <select id="getCouponProductList" resultType="com.sandu.activity.model.vo.CouponProductVo"
+            parameterType="com.sandu.activity.model.query.CouponProductQuery">
+        SELECT a.id,a.coupon_id,b.spu_code,b.id as goods_id,b.spu_name,c.pic_path
+        FROM activity_coupon_goods a inner join base_goods_spu b on a.goods_id=b.id
+        left join res_pic c on b.pic_id=c.id
+        WHERE a.is_deleted = #{DEL_FLAG_NORMAL}
+        <if test="couponId != null and  couponId != '' ">
+            AND coupon_id = #{couponId}
+        </if>
+        <if test="goodsId != null and  goodsId != '' ">
+            AND goods_id = #{goodsId}
+        </if>
+    </select>
+
+    <select id="findCouponProductCount" resultType="long"
+            parameterType="com.sandu.activity.model.query.CouponProductQuery">
+        SELECT count(*)
+        FROM activity_coupon_goods b left join activity_coupon a on a.id=b.coupon_id
+        WHERE a.is_deleted = #{DEL_FLAG_NORMAL}
+        <if test="couponId != null and  couponId != '' ">
+            AND b.coupon_id = #{couponId}
+        </if>
+        <if test="goodsId != null and  goodsId != '' ">
+            AND goods_id = #{goodsId}
+        </if>
+    </select>
+
+    <select id="getCouponList" resultType="com.sandu.activity.model.vo.CouponVo"
+            parameterType="com.sandu.activity.model.query.CouponQuery">
+        SELECT
+        a.id,a.company_id,a.shop_id,a.coupon_name,a.qty,a.receive_qty,a.used_qty,a.coupon_state,a.discount_mode,a.discount_amount
+        ,a.rebate_factor,a.order_amount,a.effective_date_mode,
+        a.effective_days,a.start_time,a.end_time,a.expire_remind_mode,a.before_expire_days,a.coupon_type,max_receive_qty,
+        a.product_scope_type,a.scope_desc
+        FROM activity_coupon a
+        WHERE a.is_deleted = #{DEL_FLAG_NORMAL}
+        <if test="couponState != null and  couponState != '' ">
+            AND a.coupon_state = #{couponState}
+        </if>
+        <if test="companyId != null and  companyId != '' ">
+            AND a.company_id = #{companyId}
+        </if>
+        <if test="id != null and  id != '' ">
+            AND a.id = #{id}
+        </if>
+        order by a.gmt_create desc
+        limit #{start},#{pageSize}
+    </select>
+
+    <select id="findCouponCount" resultType="long"
+            parameterType="com.sandu.activity.model.query.CouponQuery">
+        SELECT count(*)
+        FROM activity_coupon a
+        WHERE a.is_deleted = #{DEL_FLAG_NORMAL}
+        <if test="couponState != null and  couponState != '' ">
+            AND coupon_state = #{couponState}
+        </if>
+        <if test="couponType != null and  couponType != '' ">
+            AND coupon_type = #{couponType}
+        </if>
+        <if test="companyId != null and  companyId != '' ">
+            AND company_id = #{companyId}
+        </if>
+        <if test="id != null and  id != '' ">
+            AND a.id = #{id}
+        </if>
+    </select>
+
+    <select id="findUserReceiveCount" resultType="int"
+            parameterType="com.sandu.activity.model.query.CouponUserQuery">
+		 SELECT COUNT(1) from(SELECT  user_id  from activity_coupon_user 
+		 where coupon_id=#{couponId} GROUP BY user_id)a
+	</select>
+
+    <select id="getExpiredList" resultType="com.sandu.activity.model.vo.CouponUserVo"
+            parameterType="com.sandu.activity.model.query.CouponUserQuery">
+        SELECT a.id,a.receive_time,a.used_state,a.receive_no,b.id as coupon_id,b.company_id,b.coupon_name,
+        b.discount_mode,b.discount_amount,b.rebate_factor,
+        b.order_amount,b.effective_date_mode,b.effective_days,a.start_time,
+        a.end_time,b.scope_desc,b.coupon_type,a.gmt_modified AS gmtModified
+        FROM activity_coupon_user a INNER JOIN activity_coupon b on a.coupon_id=b.id
+        WHERE a.is_deleted = #{DEL_FLAG_NORMAL} AND (a.coupon_state=3 or <![CDATA[ a.end_time< now()  ]]>)
+
+        <if test="userId != null and  userId != '' ">
+            AND a.user_id = #{userId}
+        </if>
+        <if test="companyId != null and companyId != '' ">
+            AND a.company_Id = #{companyId}
+        </if>
+        <if test="couponId != null and couponId != '' ">
+            AND a.coupon_id = #{couponId}
+        </if>
+        limit #{start},#{pageSize}
+    </select>
+
+    <select id="findExpiredCount" resultType="long"
+            parameterType="com.sandu.activity.model.query.CouponUserQuery">
+        SELECT count(*)
+        FROM activity_coupon_user a
+        WHERE a.is_deleted = #{DEL_FLAG_NORMAL} AND (a.coupon_state=3 or <![CDATA[ a.end_time< now()  ]]>)
+        <if test="userId != null and  userId != '' ">
+            AND a.user_id = #{userId}
+        </if>
+        <if test="companyId != null and companyId != '' ">
+            AND a.company_Id = #{companyId}
+        </if>
+        <if test="couponId != null and couponId != '' ">
+            AND a.coupon_id = #{couponId}
+        </if>
+    </select>
+
+    <select id="getUnUsedList" resultType="com.sandu.activity.model.vo.CouponUserVo"
+            parameterType="com.sandu.activity.model.query.CouponUserQuery">
+        SELECT a.id,a.receive_time,a.used_state,a.receive_no,b.id as coupon_id,b.company_id,b.coupon_name,
+        b.discount_mode,b.discount_amount,b.rebate_factor,
+        b.order_amount,b.effective_date_mode,b.effective_days,a.start_time,
+        a.end_time,b.scope_desc,b.coupon_type
+        FROM activity_coupon_user a INNER JOIN activity_coupon b on a.coupon_id=b.id
+        WHERE a.is_deleted = #{DEL_FLAG_NORMAL} and a.used_state=0 and a.coupon_state!=3
+        and <![CDATA[ a.end_time> now()  ]]>
+        <if test="userId != null and  userId != '' ">
+            AND a.user_id = #{userId}
+        </if>
+        <if test="companyId != null and companyId != '' ">
+            AND a.company_Id = #{companyId}
+        </if>
+        <if test="couponId != null and couponId != '' ">
+            AND a.coupon_id = #{couponId}
+        </if>
+        limit #{start},#{pageSize}
+    </select>
+
+    <select id="findUnUsedCount" resultType="long"
+            parameterType="com.sandu.activity.model.query.CouponUserQuery">
+        SELECT count(*)
+        FROM activity_coupon_user a
+        WHERE a.is_deleted = #{DEL_FLAG_NORMAL} and a.used_state=0 and a.coupon_state!=1
+        and <![CDATA[ a.end_time> now()  ]]>
+        <if test="userId != null and  userId != '' ">
+            AND a.user_id = #{userId}
+        </if>
+        <if test="companyId != null and companyId != '' ">
+            AND a.company_Id = #{companyId}
+        </if>
+        <if test="couponId != null and couponId != '' ">
+            AND a.coupon_id = #{couponId}
+        </if>
+    </select>
+
+    <select id="getUsedList" resultType="com.sandu.activity.model.vo.CouponUserVo"
+            parameterType="com.sandu.activity.model.query.CouponUserQuery">
+        SELECT
+           a.id as id,
+        a.receive_time as receiveTime,
+        a.used_time as usedTime,
+        a.used_state as usedState,
+        a.receive_no as receiveNo,
+        b.id as coupon_id,
+        b.company_id as compayId,
+        b.discount_mode as discountMode,
+        b.discount_amount  as discountAmount,
+        b.rebate_factor as rebateFactor,
+        b.order_amount as orderAmount,
+        b.effective_date_mode as effectiveDateMode,
+        b.effective_days as effectiveDays,
+        a.start_time as startTime,
+        a.end_time as endTime,
+        b.scope_desc as scopeDesc,
+        b.coupon_type as couponType
+        FROM activity_coupon_user a INNER JOIN activity_coupon b on a.coupon_id=b.id
+        WHERE a.is_deleted = #{DEL_FLAG_NORMAL} and a.used_state=1
+        <if test="userId != null and  userId != '' ">
+            AND a.user_id = #{userId}
+        </if>
+        <if test="companyId != null and companyId != '' ">
+            AND a.company_Id = #{companyId}
+        </if>
+        <if test="couponId != null and couponId != '' ">
+            AND a.coupon_id = #{couponId}
+        </if>
+        limit #{start},#{pageSize}
+    </select>
+
+    <select id="findUsedCount" resultType="long"
+            parameterType="com.sandu.activity.model.query.CouponUserQuery">
+        SELECT count(*)
+        FROM activity_coupon_user a
+        WHERE a.is_deleted = #{DEL_FLAG_NORMAL} and a.used_state=1
+        <if test="userId != null and  userId != '' ">
+            AND a.user_id = #{userId}
+        </if>
+        <if test="companyId != null and companyId != '' ">
+            AND a.company_Id = #{companyId}
+        </if>
+        <if test="couponId != null and couponId != '' ">
+            AND a.coupon_id = #{couponId}
+        </if>
+    </select>
+
+    <insert id="receive" parameterType="com.sandu.activity.model.CouponUser">
+		insert into  activity_coupon_user (company_id,shop_id,user_id,receive_no,
+		coupon_id,coupon_state,start_time,end_time,receive_time,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted)
+		values (#{companyId},#{shopId},#{userId},#{receiveNo},#{couponId},#{couponState},#{startTime},#{endTime},#{receiveTime},#{sysCode},#{creator},#{gmtCreate},#{modifier},#{gmtModified},#{isDeleted})
+	</insert>
+
+    <insert id="insert" parameterType="com.sandu.activity.model.Coupon">
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into activity_coupon (company_id,shop_id,coupon_name,qty,discount_mode,
+        discount_amount,rebate_factor,order_amount,effective_date_mode,
+        effective_days,start_time,end_time,expire_remind_mode,before_expire_days,coupon_type,
+        product_scope_type,scope_desc,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,max_receive_qty)
+        values
+        (#{companyId},#{shopId},#{couponName},#{qty},#{discountMode},#{discountAmount},#{rebateFactor},#{orderAmount},
+        #{effectiveDateMode},#{effectiveDays},#{startTime},#{endTime},#{expireRemindMode},#{beforeExpireDays},
+        #{couponType},#{productScopeType},#{scopeDesc},#{sysCode},#{creator},#{gmtCreate},#{modifier},#{gmtModified},#{isDeleted},#{maxReceiveQty})
+    </insert>
+    <update id="update" parameterType="com.sandu.activity.model.Coupon">
+        update activity_coupon
+        set gmt_modified = #{gmtModified},modifier=#{modifier},
+        qty = #{qty},max_receive_qty = #{maxReceiveQty},company_id = #{companyId}
+        ,shop_id = #{shopId},coupon_name = #{couponName},discount_mode = #{discountMode}
+        ,discount_amount = #{discountAmount},rebate_factor = #{rebateFactor}
+        ,order_amount = #{orderAmount},effective_date_mode = #{effectiveDateMode}
+        ,effective_days = #{effectiveDays},expire_remind_mode = #{expireRemindMode}
+        ,before_expire_days = #{beforeExpireDays},
+        coupon_type = #{couponType},
+        product_scope_type = #{productScopeType},
+        scope_desc = #{scopeDesc}
+        <if test="startTime != null">
+            ,start_time = #{startTime}
+        </if>
+        <if test="endTime != null">
+            ,end_time = #{endTime}
+        </if>
+        where id=#{id}
+    </update>
+
+    <update id="updateCouponState">
+		update activity_coupon 
+		set  coupon_state=#{coupon_state}  where id=#{id}
+	</update>
+
+    <update id="updateCouponUserState">
+		update activity_coupon_user 
+		set  coupon_state=#{coupon_state} where coupon_id=#{coupon_id} and used_state !=1
+	</update>
+
+    <update id="updateReceiveQty">
+		update activity_coupon 
+		set receive_qty =receive_qty+ #{receiveQty}  where id=#{id}
+	</update>
+
+    <select id="getWaitingReceiveList" resultType="com.sandu.activity.model.vo.CouponVo"
+            parameterType="com.sandu.activity.model.query.CouponUserQuery">
+        SELECT a.id,a.company_id,a.coupon_name,
+        a.discount_mode,a.discount_amount,a.rebate_factor,
+        a.order_amount,a.effective_date_mode,a.effective_days,a.start_time,
+        a.end_time,a.scope_desc,ifnull(b.id,0) as receive_id,a.coupon_type
+        FROM activity_coupon a LEFT JOIN activity_coupon_user b
+        on a.id=b.coupon_id
+        <if test="userId != null and  userId != '' ">
+            AND b.user_id = #{userId}  AND b.is_deleted = 0 AND b.used_state = 0
+        </if>
+        WHERE a.is_deleted = #{DEL_FLAG_NORMAL} and a.coupon_state=2
+        and ((a.effective_date_mode = 1 and <![CDATA[ a.end_time> now()  ]]>) or(a.effective_date_mode=2))
+        and ((a.qty=0) or(a.qty>0 and a.qty>a.receive_qty))
+        <if test="companyId != null and companyId != '' ">
+            AND a.company_Id = #{companyId}
+        </if>
+        order by a.gmt_create desc
+        limit #{start},#{pageSize}
+    </select>
+
+    <select id="findWaitingReceiveCount" resultType="long"
+            parameterType="com.sandu.activity.model.query.CouponUserQuery">
+        SELECT count(*)
+        FROM activity_coupon a LEFT JOIN activity_coupon_user b
+        on a.id=b.coupon_id
+        <if test="userId != null and  userId != '' ">
+            AND b.user_id = #{userId}
+        </if>
+        WHERE a.is_deleted = #{DEL_FLAG_NORMAL} and a.coupon_state=2
+        and ((a.effective_date_mode = 1 and <![CDATA[ a.end_time> now()  ]]>) or(a.effective_date_mode=2))
+        and ((a.qty=0) or(a.qty>0 and a.qty>a.receive_qty))
+        <if test="companyId != null and companyId != '' ">
+            AND a.company_Id = #{companyId}
+        </if>
+    </select>
+
+    <insert id="insertProductBatch" parameterType="java.util.List">
+        insert into activity_coupon_goods
+        (coupon_id,goods_id,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted)
+        values
+        <foreach collection="list" item="couponProduct" index="index" separator=",">
+            (
+            #{couponProduct.couponId}, #{couponProduct.goodsId},
+            #{couponProduct.sysCode},#{couponProduct.creator},
+            #{couponProduct.gmtCreate},#{couponProduct.modifier},
+            #{couponProduct.gmtModified},#{couponProduct.isDeleted}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteProductByCouponId" parameterType="long">
+		delete from activity_coupon_goods  where coupon_id=#{couponId}
+	</delete>
+
+    <select id="getCouponCountByUseId" resultType="int">
+		SELECT count(*)
+		FROM  activity_coupon_user a  
+		WHERE coupon_id=#{couponId} and user_id=#{userId} and used_state = 0
+	</select>
+
+    <!--create by wanghl 通过商品Id查询商品可使用优惠卷列表-->
+    <select id="selectCouponByGoodsId" resultType="com.sandu.activity.model.vo.GoodsCouponVO">
+		SELECT
+		   ac.id as couponId,
+		   ac.order_amount as orderAmount,
+		   ac.discount_amount as discountAmount,
+		   ac.rebate_factor as rebateFactor,
+		   ac.coupon_type as couponType,
+		   ac.max_receive_qty as maxReceiveQty,
+		   ac.qty as qty,
+		   ac.start_time as startTime,
+		   ac.end_time as endTime,
+		   ac.effective_date_mode as effectiveDateMode,
+		   ac.receive_qty as  receiveQty,
+		   ac.discount_mode as discountMode
+		FROM
+			activity_coupon ac
+			WHERE
+		id IN (
+			SELECT coupon_id FROM  activity_coupon_goods WHERE goods_id = #{goodsId}
+		)
+		AND ac.is_deleted=0
+		AND ac.company_id = #{companyId}
+		AND  coupon_state = 2
+	</select>
+
+    <select id="countCouponUser" resultType="int">
+		SELECT count(*) FROM activity_coupon_user
+		WHERE coupon_id = #{couponId} AND user_id = #{userId} AND used_state = 0 AND is_deleted = 0;
+	</select>
+
+
+    <!--create by wanghl 查询可使用的优惠卷-->
+    <select id="selectUserCanBeUsedCoupons" resultType="com.sandu.activity.model.CouponUser">
+		SELECT
+   		   *
+		FROM
+		   activity_coupon_user
+		WHERE
+		    used_state = 0
+		AND coupon_state = 2
+		AND NOW() BETWEEN start_time AND end_time
+		AND is_deleted=0
+		AND company_id = #{companyId}
+		AND user_id = #{userId}
+	</select>
+
+    <!--create by wanghl通过优惠卷Id获取优惠卷信息-->
+    <select id="selectCouponById" resultType="com.sandu.activity.model.Coupon">
+		SELECT * FROM activity_coupon
+		WHERE is_deleted = 0
+		AND id= #{id}
+	</select>
+
+    <!--create by wanghl通过优惠卷Id获取优惠卷商品信息-->
+    <select id="selectCouponProduct" resultType="com.sandu.activity.model.CouponProduct">
+		SELECT coupon_id as couponId,goods_id as goodsId
+		FROM activity_coupon_goods
+		WHERE is_deleted = 0
+		AND coupon_id = #{couponId}
+	</select>
+
+
+    <!--create by wanghl修改优惠卷使用状态-->
+    <update id="updateCouponUser">
+		UPDATE activity_coupon_user
+		SET used_state = #{usedState}
+		WHERE coupon_id = #{couponId}
+		AND  user_id = #{userId}
+	</update>
+
+    <!--create by wanghl通过Id查询用户优惠卷信息-->
+    <select id="getCouponUserById" resultType="com.sandu.activity.model.CouponUser">
+		SELECT * FROM activity_coupon_user
+		WHERE is_deleted=0
+		AND coupon_id = #{couponId}  and used_state = #{usedState}
+		user_id = #{userId} limit 1
+	</select>
+
+    <select id="selectCommonCouponByCompanyId" resultType="com.sandu.activity.model.vo.GoodsCouponVO">
+		 SELECT
+		   ac.id as couponId,
+		   ac.order_amount as orderAmount,
+		   ac.discount_amount as discountAmount,
+		   ac.rebate_factor as rebateFactor,
+		   ac.coupon_type as couponType,
+		   ac.max_receive_qty as maxReceiveQty,
+		   ac.qty as qty,
+		   ac.start_time as startTime,
+		   ac.end_time as endTime,
+		   ac.effective_date_mode as effectiveDateMode,
+		   ac.receive_qty as  receiveQty,
+		   ac.discount_mode as discountMode
+		FROM
+		   activity_coupon ac
+		WHERE
+           company_id = #{companyId} and
+           is_deleted = 0 and
+           coupon_state = 2 and product_scope_type = 1
+	</select>
+
+    <select id="selectCouponByIds" resultType="com.sandu.activity.model.vo.CouponCanBeUsedVO">
+        SELECT
+          a.id as couponId,
+          ac.start_time as startTime,
+          ac.end_time as endTime,
+          ac.receive_no as couponUserNo,
+          a.discount_amount as discountAmount,
+          a.rebate_factor as rebateFactor,
+          a.order_amount as orderAmount,
+          a.coupon_type as couponType,
+          a.max_receive_qty as maxReceiveQty,
+          a.product_scope_type as productScopeType,
+          c.goods_id as goodId,
+          a.discount_mode as discountMode
+        FROM
+        activity_coupon a,activity_coupon_goods c,activity_coupon_user ac
+        WHERE
+        a.is_deleted = 0
+        AND c.is_deleted = 0
+        AND a.product_scope_type = 2
+        AND NOW() BETWEEN ac.start_time AND ac.end_time
+        AND a.id = ac.coupon_id AND
+        a.id IN
+        <foreach collection="couponIds" open="(" close=")" separator="," item="c">
+            #{c}
+        </foreach>
+        AND
+        c.goods_id IN
+        <foreach collection="goodsIds" open="(" close=")" separator="," item="s">
+            #{s}
+        </foreach>
+    </select>
+
+    <select id="getCouponByCompanyId" resultType="com.sandu.activity.model.Coupon">
+		SELECT
+		    *
+		FROM
+		    activity_coupon
+		WHERE
+		    is_deleted = 0 AND
+		    company_id = #{companyId}
+	</select>
+
+    <select id="selectCouponByProductScopeTypeAndIds" resultType="com.sandu.activity.model.Coupon">
+        SELECT
+            a.id,a.order_amount,
+            a.product_scope_type,
+            a.discount_mode,
+            a.coupon_type,
+            a.coupon_state,
+            a.rebate_factor,
+            a.discount_amount,
+            ac.start_time,
+            ac.end_time,
+            a.effective_date_mode,
+            ac.receive_no as receiveNo
+        FROM
+        activity_coupon a,activity_coupon_user ac
+        WHERE
+        a.id = ac.coupon_id AND
+        a.is_deleted = 0 AND
+        ac.user_id = #{userId}
+        and ac.used_state = 0
+        and ac.is_deleted = 0
+        and a.id IN
+        <foreach collection="couponIds" open="(" close=")" separator="," item="c">
+            #{c}
+        </foreach>
+        AND a.product_scope_type = #{productScopeType}
+    </select>
+
+    <update id="updateCouponUserByPrimaryKey">
+		UPDATE
+		   activity_coupon_user
+		SET
+		   used_state = #{usedState},
+		   used_time = now(),
+		   gmt_modified = now()
+		WHERE
+		   id = #{id} and
+		   is_deleted = 0;
+	</update>
+
+    <select id="selectCountCouponByid" resultType="int">
+        SELECT
+           count(*)
+         FROM
+           activity_coupon_user
+         WHERE
+            coupon_id = #{id}
+            AND is_deleted = 0
+            AND now() BETWEEN start_time AND end_time;
+    </select>
+
+    <select id="selectBaseProduct" resultType="long">
+        SELECT
+           goods_spu_id
+        FROM
+           base_product
+        WHERE
+           id = #{productId} AND
+           is_deleted = 0
+    </select>
+
+    <select id="selectGoodSpuIds" resultType="long">
+        SELECT
+           goods_spu_id
+        FROM
+           base_product
+        WHERE
+           id IN
+           <foreach collection="productIds" open="(" separator="," close=")" item="item">
+               #{item}
+           </foreach>
+           AND
+           is_deleted = 0
+    </select>
+
+    <select id="getCouponUserCouponNo" resultType="com.sandu.activity.model.CouponUser">
+        SELECT
+            id,
+            company_id as companyId,
+            shop_id as shopId,
+            user_id as userId,
+            receive_no as receiveNo,
+            coupon_id as couponId,
+            coupon_state as couponState,
+            used_state as usedState,
+            start_time as startTime,
+            end_time as endTime,
+            receive_time as receiveTime
+        FROM
+            activity_coupon_user
+        WHERE
+            receive_no = #{receiveNo} and  used_state = #{usedState}  and is_deleted = 0;
+    </select>
+</mapper>

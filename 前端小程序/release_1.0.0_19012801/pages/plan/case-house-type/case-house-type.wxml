@@ -1,0 +1,142 @@
+<view class="maskLayer" wx:if="{{condition}}"></view>
+<view class="type-search flex">
+  <view class="my-container">
+    <view class="selectBody">
+      <view class="selectContext">
+        <view class="cell_select frist">
+          <image class='icon' src='{{staticImageUrl}}search_icon_gps.png'></image>
+          <view class="label">所在地区</view>
+          <view class="flex_iteam">
+            <input placeholder="选择省/市/区" disabled='false' value="{{region}}" focus="{{focus}}" bindtap='open' wx:if="{{!isAdress}}" placeholder-class='placeholder' />
+            <input placeholder="选择所在地区" disabled='false' value="{{province}} {{city}} {{county}}" focus="{{focus}}" bindtap='open' wx:if="{{isAdress}}" placeholder-class='placeholder' />
+          </view>
+        </view>
+        <view class="cell_select">
+          <image class='icon' src='{{staticImageUrl}}search_icon_xiaoqu.png'></image>
+          <view class="label">所在小区</view>
+          <view class="flex_iteam">
+            <input placeholder="请输入所在小区名称" data-name='livingName' bindinput="valChange" name="livingName" value="{{livingName}}" placeholder-class='placeholder' />
+          </view>
+        </view>
+      </view>
+      <form class='formBox' bindsubmit="getFormId" report-submit="{{true}}" style='width:100%;height:100%;display:block'>
+        <button form-type='submit' class='submitBtn-none'>
+          <form bindsubmit="getFormId" report-submit="{{true}}">
+            <button form-type='submit' class='submitBtn-none'>
+              <form bindsubmit='getFormId' report-submit="{{true}}">
+                <button form-type='submit' class='submitBtn-none'>
+                  <view class="type-button" bindtap=''>
+                    <view class="btn" bindtap=''>搜索</view>
+                  </view>
+                </button>
+              </form>
+            </button>
+          </form>
+        </button>
+      </form>
+      <view class='listconunt' wx:if="{{contentlist.length>0}}">———————— 共{{totalCount}}个搜索结果 ————————</view>
+      <view class="list " wx:if="{{contentlist.length>0}}">
+
+        <navigator url="/pages/house-type/house-list/house-list?id={{item.id}}&&name={{item.livingName}}&type={{type}}" bindtap='goHouse' class="list-iteam" hover-class="list-iteam-active" wx:for="{{contentlist}}" wx:key='{{index}}'>
+          <view class="iteam_left">{{item.livingName}}</view>
+          <view class="iteam_right">{{item.houseCount}}个户型</view>
+        </navigator>
+        <!-- 有列表无小区引导B -->
+      <view class='noHouseZone' wx:if='{{contentlist.length>0}}'>
+        <view class='noHouseZoneTit'>没有找到您的小区？</view>
+        <view class='noHouseZoneBtn'>
+          <button class='goService' open-type="contact">联系客服</button>
+          <view class='goUploadHouse' bindtap='goUploadHouse'>提交户型资料</view>
+        </view>
+      </view>
+      <!-- 有列表无小区引导E -->
+      </view>
+    </view>
+    <!-- <view class='uploading-house clearfix'>
+        <!-- <view class='uploading-house clearfix'>
+        <view class="cell_select">
+          <image class='icon' src='/static/image/search_icon_xiaoqu.png'></image>
+          <view class="label">所在小区</view>
+          <view class="flex_iteam">
+            <input placeholder="请输入所在小区名称" data-name='livingName' bindinput="valChange" name="livingName" value="{{livingName}}" placeholder-class='placeholder' />
+          </view>
+        </view>
+      </view>
+      <form class='formBox' bindsubmit="getFormId" report-submit="{{true}}" style='width:100%;height:100%;display:block'>
+        <button form-type='submit' class='submitBtn-none'>
+          <form bindsubmit="getFormId" report-submit="{{true}}">
+            <button form-type='submit' class='submitBtn-none'>
+              <form bindsubmit='getFormId' report-submit="{{true}}">
+                <button form-type='submit' class='submitBtn-none'>
+                  <view class="type-button" bindtap=''>
+                    <view class="btn" bindtap=''>搜索</view>
+                  </view>
+                </button>
+              </form>
+            </button>
+          </form>
+        </button>
+      </form>
+      <view class='listconunt' wx:if="{{contentlist.length>0}}">———————— 共{{totalCount}}个搜索结果 ————————</view>
+      <view class="list " wx:if="{{contentlist.length>0}}">
+
+        <navigator url="/pages/house-type/house-list/house-list?id={{item.id}}&&name={{item.livingName}}&type={{type}}" bindtap='goHouse' class="list-iteam" hover-class="list-iteam-active" wx:for="{{contentlist}}" wx:key='{{index}}'>
+          <view class="iteam_left">{{item.livingName}}</view>
+          <view class="iteam_right">{{item.houseCount}}个户型</view>
+        </navigator>
+      </view>
+    </view>
+    <!-- <view class='uploading-house clearfix'>
+          <view class='house-left fl' bindtap='routerToUploadHouse'><text>没有找到户型？ </text>  提交户型资料</view>
+          <view class='house-right fr' bindtap='routerToMyHouse'>我的户型</view>      
+        </view> -->
+    <view class='search-history' wx:if='{{historySearchList.length > 0 && historySearchListShow}}'>
+      <view class='history-title clearfix'>
+        <view class='title-text fl'>历史搜索</view>
+        <view class='title-icon fr' bindtap='deleteHistorySearchList'>
+          <image src='{{staticImageUrl}}huxing_icon_delete.png'></image>
+        </view>
+      </view>
+      <view class='history-list clearfix'>
+        <view class='list-item fl' bindtap='historySearch' wx:for='{{historySearchList}}' data-item='{{item}}' wx:key='{{index}}'>{{item.livingName}}</view>
+      </view>
+    </view>
+  </view>
+  <view wx:if="{{condition}}" class="citypicker" wx:key='{{index}}'>
+    <picker-view indicator-style="height: 50px;" style="width: 100%; height: 300px;" value="{{value}}" bindchange="bindChange" class="citybody">
+      <view class="cityheader">
+        <view bindtap="open" bindtap='provincialLinkageHide' data-flag="{{false}}" class="city-cancel">取消</view>
+        <view bindtap="open" bindtap='provincialLinkageHide' data-flag="{{true}}" class="city-true">确定</view>
+      </view>
+      <picker-view-column>
+        <view wx:for="{{provinces}}" wx:key="item" style="line-height: 50px;padding-left:10px;">{{item.areaName}}</view>
+      </picker-view-column>
+      <picker-view-column>
+        <view wx:for="{{citys}}" wx:key="item" style="line-height: 50px;padding-left:10px;">{{item.areaName}}</view>
+      </picker-view-column>
+      <picker-view-column>
+        <view wx:for="{{countys}}" wx:key="item" style="line-height: 50px;padding-left:10px;">{{item.areaName}}</view>
+      </picker-view-column>
+    </picker-view>
+  </view>
+</view>
+<!-- rzd 户型引导开始 -->
+<view class='emptyImage' wx:if='{{emptyFlag}}'>
+  <view class='txt informTop'>
+    <text class='livingName'>【{{livingName}}】</text> 暂时还未录入</view>
+  <view class='txt informTxt'>我们将在2个工作日内录入并通过微信通知您</view>
+  <view class='txt informTxt'>请随时关注~</view>
+</view>
+<!-- rzd 户型引导结束 -->
+<!-- ZB 跳转按钮B -->
+<view class='emptyBtn' wx:if='{{emptyFlag}}'>
+  <button class='serviceBtn' open-type="contact">联系客服</button>
+  <view class='uploadHouseBtn' bindtap='goUploadHouse'>提交户型资料</view>
+</view>
+<!-- ZB 跳转按钮E -->
+
+<!-- 快速导航模块 -->
+<!-- <import src="/component/newNav/newNav.wxml" />
+<template is="newNav" data="{{ ...newNav }}" /> -->
+
+  <jdNav></jdNav>

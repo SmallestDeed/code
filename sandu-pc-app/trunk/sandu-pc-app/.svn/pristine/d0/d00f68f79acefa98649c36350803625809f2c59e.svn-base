@@ -1,0 +1,130 @@
+package com.sandu.panorama.service;
+
+import com.sandu.cityunion.model.UnionGroup;
+import com.sandu.common.model.LoginUser;
+import com.sandu.panorama.model.input.UnionGroupAdd;
+import com.sandu.panorama.model.input.UnionGroupSearch;
+import com.sandu.panorama.model.input.UnionGroupUpdate;
+import com.sandu.panorama.model.output.UnionGroupVo;
+import com.sandu.panorama.service.exception.PanorameException;
+
+import java.util.List;
+
+
+
+/**   
+ * @Title: UnionGroupService.java 
+ * @Package com.nork.cityunion.service
+ * @Description:720制作-联盟分组表Service
+ * @createAuthor
+ */
+public interface UnionGroupService {
+	/**
+	 * 新增数据
+	 *
+	 * @param unionGroup
+	 * @return  int 
+	 */
+	public int add(UnionGroup unionGroup);
+
+	/**
+	 *    更新数据
+	 *
+	 * @param unionGroup
+	 * @return  int 
+	 */
+	public int update(UnionGroup unionGroup);
+
+	public int deleteById(Integer id);
+	/**
+	 *    删除数据
+	 *
+	 * @param id
+	 * @return  int 
+	 */
+	public int delete(Integer id);
+
+	/**
+	 *    获取数据详情
+	 *
+	 * @param id
+	 * @return  UnionGroup 
+	 */
+	public UnionGroup get(Integer id);
+
+	/**
+	 * 所有数据
+	 * 
+	 * @param  unionGroup
+	 * @return   List<UnionGroup>
+	 */
+	public List<UnionGroup> getList(UnionGroup unionGroup);
+	/**
+	 * 所有数据
+	 * 
+	 * @param
+	 * @return   List<UnionGroup>
+	 */
+	public List<UnionGroup> getListByUserId(Integer userId);
+
+	/**
+	 *    获取数据数量
+	 *
+	 * @param
+	 * @return   int
+	 */
+	public int getCount(UnionGroupSearch unionGroupSearch);
+
+	/**
+	 *    分页获取数据
+	 *
+	 * @param
+	 * @return   List<UnionGroup>
+	 */
+/*	public List<UnionGroup> getPaginatedList(
+            UnionGroupSearch unionGrouptSearch);*/
+
+	/**
+	 * 查询获取联盟分组信息列表
+	 * @param unionGroupSearch
+	 * @return
+	 */
+	public List<UnionGroupVo> getUnionGroupVoList(UnionGroupSearch unionGroupSearch);
+
+	/**
+	 * 根据id获取联盟分组信息
+	 * @param id
+	 * @return
+	 */
+	public UnionGroupVo getUnionGroupVo(Integer id);
+
+	/**
+	 * 新增联盟分组
+	 * @param unionGroupAdd
+	 * @param loginUser
+	 * @return
+	 */
+	public int addUnionGroup(UnionGroupAdd unionGroupAdd, LoginUser loginUser) throws PanorameException;
+
+	/**
+	 * 修改联盟分组信息
+	 * @param unionGroupUpdate
+	 * @param loginUser
+	 * @return
+	 */
+	int updateUnionGroup(UnionGroupUpdate unionGroupUpdate ,LoginUser loginUser) throws PanorameException;
+
+	/**
+	 * 删除联盟分组同时删除联盟分组信息
+	 * @param id
+	 * @return
+	 */
+	int deleteUnionGroupAndDetails(Integer id) throws PanorameException;
+
+	/**
+	 * 通过720制作 UUID 获取联盟门店组信息
+	 * @param uuid
+	 * @return
+	 */
+	 UnionGroupVo getUnionGroupInfoByUUID(String uuid);
+}

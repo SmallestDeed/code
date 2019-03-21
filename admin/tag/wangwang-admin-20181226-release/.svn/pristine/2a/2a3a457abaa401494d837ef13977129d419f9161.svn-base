@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.resmodel.dao.ModelAreaRelDao">
+    <resultMap id="BaseResultMap" type="com.sandu.api.resmodel.model.ModelAreaRel">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="model_id" jdbcType="INTEGER" property="modelId"/>
+        <result column="code" jdbcType="VARCHAR" property="code"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="is_deleted" jdbcType="TINYINT" property="isDeleted"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="width" jdbcType="INTEGER" property="width"/>
+        <result column="height" jdbcType="INTEGER" property="height"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, model_id, code, name, is_deleted, gmt_create, gmt_modified, creator, height, width
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from model_area_rel
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from model_area_rel
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <delete id="deleteAreaByModelId">
+        delete from model_area_rel
+    where model_id = #{modelId}
+    </delete>
+    <insert id="insert" parameterType="com.sandu.api.resmodel.model.ModelAreaRel" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+    insert into model_area_rel (id, model_id, code, 
+      name, is_deleted, gmt_create, 
+      gmt_modified, creator, width, height)
+    values (#{id,jdbcType=INTEGER}, #{modelId,jdbcType=INTEGER}, #{code,jdbcType=VARCHAR}, 
+      #{name,jdbcType=VARCHAR}, #{isDeleted,jdbcType=TINYINT}, #{gmtCreate,jdbcType=TIMESTAMP}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{creator,jdbcType=VARCHAR}, #{width}, #{height})
+  </insert>
+    <insert id="insertSelective" parameterType="com.sandu.api.resmodel.model.ModelAreaRel" useGeneratedKeys="true"
+            keyProperty="id" keyColumn="id">
+        insert into model_area_rel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="modelId != null">
+                model_id,
+            </if>
+            <if test="code != null">
+                code,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="height != null">
+                height,
+            </if>
+            <if test="width != null">
+                width,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="modelId != null">
+                #{modelId,jdbcType=INTEGER},
+            </if>
+            <if test="code != null">
+                #{code,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=TINYINT},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="height != null">
+                #{height},
+            </if>
+            <if test="width != null">
+                #{width},
+            </if>
+        </trim>
+    </insert>
+    <insert id="insertList" parameterType="com.sandu.api.resmodel.model.ModelAreaRel">
+        insert into model_area_rel
+        (model_Id,name,code,is_deleted,gmt_create)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.modelId},#{item.name},#{item.code},#{item.isDeleted},#{item.gmtCreate})
+        </foreach>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.resmodel.model.ModelAreaRel">
+        update model_area_rel
+        <set>
+            <if test="modelId != null">
+                model_id = #{modelId,jdbcType=INTEGER},
+            </if>
+            <if test="code != null">
+                code = #{code,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=TINYINT},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="height != null">
+                height = #{height},
+            </if>
+            <if test="width != null">
+                width = #{width},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.sandu.api.resmodel.model.ModelAreaRel">
+    update model_area_rel
+    set model_id = #{modelId,jdbcType=INTEGER},
+      code = #{code,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      is_deleted = #{isDeleted,jdbcType=TINYINT},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      creator = #{creator,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+    <select id="listByModelId" resultMap="BaseResultMap">
+        select * FROM model_area_rel
+        where model_id = #{modelId}
+    </select>
+    <select id="listByModelIds" resultType="com.sandu.api.resmodel.model.ModelAreaRel">
+        select * from model_area_rel where model_id in
+        <foreach collection="ids" open="(" close=")" item="id" separator=",">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

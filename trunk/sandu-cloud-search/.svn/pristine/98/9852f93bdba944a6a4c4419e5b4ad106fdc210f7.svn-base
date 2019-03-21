@@ -1,0 +1,106 @@
+package com.sandu.search.storage.product;
+
+import com.sandu.search.entity.elasticsearch.po.ProductStylePo;
+import com.sandu.search.exception.MetaDataException;
+import com.sandu.search.service.metadata.MetaDataService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 产品风格元数据存储
+ *
+ * @date 20171213
+ * @auth pengxuangang
+ */
+@Slf4j
+@Component
+public class ProductStyleMetaDataStorage {
+
+    private final static String CLASS_LOG_PREFIX = "产品风格元数据存储:";
+    //产品风格元数据
+    private static List<ProductStylePo> productStylePoList = null;
+    //产品风格map元数据
+    private static Map<Integer, String> productStylePoMap = new HashMap<>();
+    //元数据服务
+    @Autowired
+    private MetaDataService metaDataService;
+
+    /**
+     * 更新数据
+     * @param isEnforceLoad 是否强制更新
+     */
+    public void updateData(boolean isEnforceLoad) {
+
+        //若无强制更新则更新前判断是否已有数据
+        if (!isEnforceLoad) {
+            if (null != productStylePoList && 0 < productStylePoList.size()
+                        && null != productStylePoMap && 0 < productStylePoMap.size()) {
+                return;
+            }
+        }
+
+        try {
+            //获取数据
+            log.info(CLASS_LOG_PREFIX + "开始获取产品分类元数据....");
+            productStylePoList = metaDataService.queryProductStyleMetaData();
+            log.info(CLASS_LOG_PREFIX + "获取产品分类元数据完成,总条数:{}", (null == productStylePoList ? 0 : productStylePoList.size()));
+        } catch (MetaDataException e) {
+            log.error(CLASS_LOG_PREFIX + "获取产品分类元数据失败: MetaDataException:{}", e);
+            throw new NullPointerException(CLASS_LOG_PREFIX + "获取产品分类元数据失败,List<ProductStylePo> is null.MetaDataException:" + e);
+        }
+
+        //转换为Map元数据
+        if (null != productStylePoList && 0 != productStylePoList.size()) {
+            productStylePoList.forEach(productStylePo -> productStylePoMap.put(productStylePo.getId(), productStylePo.getStyleName()));
+        }
+    }
+
+    /**
+     * 根据风格ID获取产品风格名
+     *
+     * @return
+     */
+    public String getProductStyleNameById(int styleId) {
+        if (0 == styleId) {
+            return null;
+        }
+
+        if (null == productStylePoMap || 0 >= productStylePoMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        if (productStylePoMap.containsKey(styleId)) {
+            return productStylePoMap.get(styleId);
+        }
+
+        return null;
+    }
+
+    /**
+     * 根据父风格ID查询所有子节点风格ID
+     *
+     * @param parentId
+     * @return
+     */
+    public List<Integer> getProductStyleChildrenIdByParentId(Integer parentId) {
+        if (null == productStylePoList) {
+            //更新数据
+            updateData(false);
+        }
+
+        List<Integer> childrenStyleIdList = new ArrayList<>();
+        for (ProductStylePo productStylePo : productStylePoList) {
+            if (parentId.equals(productStylePo.getParentStyleId())) {
+                childrenStyleIdList.add(productStylePo.getId());
+            }
+        }
+        return childrenStyleIdList;
+    }
+}

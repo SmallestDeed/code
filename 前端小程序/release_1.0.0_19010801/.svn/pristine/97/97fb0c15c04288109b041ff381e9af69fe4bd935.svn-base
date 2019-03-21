@@ -1,0 +1,26 @@
+<view class="mains">
+    <view class='mainTs'>签约企业</view>
+    <view class='mainTs2' wx:if="{{companyName}}">{{companyName}}</view>
+    <view class='mainTs'>企业评分</view>
+    <view class='mainXX'>
+        <image bindtap='changeNum' wx:for="{{starsObj}}" 
+            wx:key="{{index}}" data-i="{{index}}" data-t="1" 
+            src='{{staticImageUrl}}me_icon_score_sct.png'></image>
+        <image bindtap='changeNum' wx:for="{{unStarsObj}}" 
+            wx:key="{{index}}" data-i="{{index}}" data-t="0" 
+            src='{{staticImageUrl}}me_icon_score_nor.png'></image>
+    </view>
+    <textarea maxlength='500' class='mainTA' placeholder='请输入你的评价' value='{{remark}}' bindinput='changeInput'></textarea>
+    <view class='mainUpImg'>
+        <view wx:for="{{imgList}}" wx:key="{{index}}">
+            <image class='close' src='{{staticImageUrl}}me_icon_delete.png' data-i="{{index}}" bindtap='deleteImg'></image>
+            <image class='imgs' src='{{item.path}}'></image>
+        </view>
+        <image class='upImg' bindtap='upImg' src='{{staticImageUrl}}me_icon_add_pic.png'></image>
+    </view>
+    <view class='mainT3'>
+        <image src='{{staticImageUrl}}{{chexd?"me_icon_choose_sct.png":"me_icon_choose_nor.png"}}' bindtap='chexd'></image>
+        匿名评价
+    </view>
+    <view class='btns' bindtap='submitFun'>提交评价</view>
+</view>

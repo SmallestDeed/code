@@ -1,0 +1,191 @@
+package com.sandu.service.task.refresh.service.impl;
+
+import com.google.gson.Gson;
+import com.sandu.api.house.model.DesignTempletJumpPositionRel;
+import com.sandu.api.task.refresh.model.*;
+import com.sandu.api.task.refresh.service.RefreshDoorPositionService;
+import com.sandu.service.task.refresh.dao.RefreshDoorPositionMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * @Author Gao Jun
+ * @Description
+ * @Date:Created Administrator in 下午 5:54 2018/7/5 0005
+ * @Modified By:
+ */
+@Slf4j
+@Service("refreshDoorPositionService")
+public class RefreshDoorPositionServiceImpl implements RefreshDoorPositionService {
+
+    private static final String CLASS_LOG_PREFIX = "[修复门数据服务]";
+    private static final Gson GSON = new Gson();
+    @Value("${resource.domain}")
+    private String resourceDomain;
+    @Autowired
+    private RefreshDoorPositionMapper refreshDoorPositionMapper;
+
+    @Override
+    public boolean refreshDoorPosition() {
+        long beginTime = System.currentTimeMillis();
+
+        //获取所有门的配置文件路径及样板房id等信息
+        List<FilePathBO> filePathList = null;
+        try {
+            filePathList = refreshDoorPositionMapper.getAllFilePath();
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + " ===> exception:{}", e);
+        }
+        if (filePathList == null || filePathList.size() <= 0) {
+            log.warn(CLASS_LOG_PREFIX + " ===> filePathList is empty !");
+            return false;
+        }
+        log.info(CLASS_LOG_PREFIX + " ===> filePathList finish !  size:{}", filePathList.size());
+
+        StringBuffer sb;
+        List<DesignTempletJumpPositionRel> positionRelList = new ArrayList<>();
+
+        for (FilePathBO filePathBO : filePathList) {
+
+            try {
+                //读取配置文件内容
+                String dbPath = filePathBO.getFilePath();
+                String fileUrl = resourceDomain + dbPath;
+                URL url = new URL(fileUrl);
+                InputStream inputStream = url.openConnection().getInputStream();
+
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                String readLine = null;
+                sb = new StringBuffer();
+                while ((readLine = bufferedReader.readLine()) != null) {
+                    sb.append(readLine);
+                }
+
+                //获取到配置文件里的json数据，解析
+                if (sb.length() > 0) {
+                    String jsonStr = sb.toString();
+                    FileJsonModel fileJsonModel = GSON.fromJson(jsonStr, FileJsonModel.class);
+                    if (fileJsonModel == null) {
+                        log.warn(CLASS_LOG_PREFIX + " ===> fileJsonModel is null ! fileId:{}", filePathBO.getFileId());
+                        continue;
+                    }
+
+                    //获取中心位置坐标
+                    Position centerPosition = fileJsonModel.getCenterPosition();
+                    BigDecimal centerDecimalX = new BigDecimal(centerPosition.getX());
+                    BigDecimal centerDecimalY = new BigDecimal(centerPosition.getY());
+                    BigDecimal centerDecimalZ = new BigDecimal(centerPosition.getZ());
+
+                    //参数初始化
+                    DesignTempletJumpPositionRel positionRel;
+                    JumpPosition jumpPosition;
+                    Position position;
+                    Position rotation;
+                    Position modelPositon;
+
+                    //获取房间模型数据集合
+                    List<RoomModel> roomModelsDataList = fileJsonModel.getRoomModelsDataList();
+                    for (RoomModel roomModel : roomModelsDataList) {
+                        //有相同的uniqueId就计算坐标值
+                        if (filePathBO.getUniqueId().equals(roomModel.getUniqueId())) {
+
+                            //获取模型位置坐标
+                            modelPositon = roomModel.getModelPositon();
+                            BigDecimal modelDecimalX = new BigDecimal(modelPositon.getX());
+                            BigDecimal modelDecimalY = new BigDecimal(modelPositon.getY());
+                            BigDecimal modelDecimalZ = new BigDecimal(modelPositon.getZ());
+
+                            //计算坐标值,输出为普通计数，不是科学计数
+                            position = new Position();
+                            position.setX((modelDecimalX.subtract(centerDecimalX)).toPlainString());
+                            position.setY((modelDecimalY.subtract(centerDecimalY)).toPlainString());
+                            position.setZ((modelDecimalZ.subtract(centerDecimalZ)).toPlainString());
+
+                            //格式化坐标值为普通计数
+                            rotation = roomModel.getModelEulerAngles();
+                            rotation.setX(new BigDecimal(rotation.getX()).toPlainString());
+                            rotation.setY(new BigDecimal(rotation.getY()).toPlainString());
+                            rotation.setZ(new BigDecimal(rotation.getZ()).toPlainString());
+
+                            //封装参数
+                            jumpPosition = new JumpPosition();
+                            jumpPosition.setPosition(position);
+                            jumpPosition.setRotation(rotation);
+                            String jumpPositionStr = GSON.toJson(jumpPosition, JumpPosition.class);
+
+                            Integer originTempletId = filePathBO.getTempletId();
+                            Integer targetTempletId = refreshDoorPositionMapper.getTargetTempletId(roomModel.getUniqueId(), originTempletId);
+
+                            if (targetTempletId == null || originTempletId == null || jumpPosition == null || jumpPositionStr.length() <= 0) {
+                                log.warn(CLASS_LOG_PREFIX + " ===> insert params have null ! targetTempletId:{}," +
+                                        "originTempletId:{},jumpPositionStr:{}", targetTempletId, originTempletId, jumpPositionStr);
+                                continue;
+                            }
+
+                            //组合insert的数据
+                            positionRel = new DesignTempletJumpPositionRel();
+                            positionRel.setJumpPosition(jumpPositionStr);
+                            positionRel.setOriginId(originTempletId.longValue());
+                            positionRel.setTargetId(targetTempletId.longValue());
+                            positionRel.setCreator("refreshDoorPosition");
+                            positionRel.setModifier("refreshDoorPosition");
+                            Date date = new Date();
+                            positionRel.setGmtModified(date);
+                            positionRel.setGmtCreate(date);
+                            positionRel.setDrawDtpId(0L);
+                            positionRel.setIsDeleted((short) 0);
+                            positionRel.setRemark("批量添加门的位置信息成功");
+
+                            positionRelList.add(positionRel);
+                        }
+
+                    }
+
+                    //批量插入
+                    if (positionRelList.size() > 100) {
+                        refreshDoorPositionMapper.insertBatch(positionRelList);
+                        positionRelList.clear();
+                    }
+
+                } else {
+                    log.warn(CLASS_LOG_PREFIX + " ===> file is empty or read file fail ! fileId:{}", filePathBO.getFileId());
+                    continue;
+                }
+
+            } catch (IOException e) {
+                log.error(CLASS_LOG_PREFIX + " ===> IOException : {}", e);
+                continue;
+
+            } catch (Exception e) {
+                log.error(CLASS_LOG_PREFIX + " ===> Exception : {}", e);
+                continue;
+            }
+        }
+
+        //批量插入
+        if (positionRelList.size() > 0) {
+            try {
+                refreshDoorPositionMapper.insertBatch(positionRelList);
+                positionRelList.clear();
+            } catch (Exception e) {
+                log.error(CLASS_LOG_PREFIX + " ===> insert batch exception:{}", e);
+            }
+        }
+
+        long endTime = System.currentTimeMillis();
+        log.info(CLASS_LOG_PREFIX + " ===> use time {}s", (endTime - beginTime) / 1000);
+
+        return true;
+    }
+}

@@ -1,0 +1,66 @@
+let fetch = getApp().fetch
+let myForEach = getApp().myForEach
+let $App = getApp();
+let urltType = 'system'
+Page({
+    data: {
+        index: 0,
+        gifts: [],
+      staticImageUrl: getApp().staticImageUrl,
+        mypointamount: 0,
+        myordercount: 0,
+        resourcePath: getApp().resourcePath,
+        pageSize:10,
+        pageNum:1,
+    },
+    getMyGifts: function(e) {
+        wx.navigateTo({
+            url: '../minegift/minegift'
+        })
+    },
+    imageclick: function(e) {
+        wx.navigateTo({
+            url: '../detail/detail?Index=' + e.currentTarget.id,
+        })
+    },
+    getGiftList: function() {
+        let url = '/v1/point/gift/list',
+            that = this;
+        fetch(url, 'get', {}, urltType).then((res) => {
+            if (res.code == 200) {
+                that.setData({
+                    gifts: res.data
+                })
+            }
+        })
+    },
+    getUserPoint: function() {
+        let url = '/v1/point/userPoint/getUserPoint',
+            that = this;
+        fetch(url, 'get', {}, urltType).then((res) => {
+            if (res.code == 200) {
+                that.setData({
+                    mypointamount: res.data.endPoint
+                })
+            }
+        })
+    },
+    getMyGiftNum: function() {
+        let url = '/v1/point/gift/getMyGiftNum',
+            that = this;
+        fetch(url, 'get', {}, urltType).then((res) => {
+            if (res.code == 200) {
+                that.setData({
+                    myordercount: res.message
+                })
+            }
+        })
+    },
+    onLoad: function(e) {
+    },
+    onShow: function(){
+        this.getUserPoint();//获取积分总数
+        this.getMyGiftNum();//获取订单数量
+        this.getGiftList(); //获取商城礼品列表
+    },
+})

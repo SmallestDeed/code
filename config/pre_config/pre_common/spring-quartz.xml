@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+    <bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		 <property name="corePoolSize" value="10" />
+		 <property name="maxPoolSize" value="100" />
+		 <property name="queueCapacity" value="500" />
+    </bean>
+	
+	<!-- 新渲染系统任务 -->
+	<bean id="renderTaskJob"  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+		<property name="targetObject"><bean class="com.nork.render.service.impl.RenderTaskServiceImpl"/></property>  
+		<property name="targetMethod" value="renderTask" />  
+		<property name="concurrent" value="false" /> 
+	</bean> 
+	<bean id="renderTaskJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">  
+		<property name="jobDetail" ref="renderTaskJob" />  
+		<property name="cronExpression" value="0/5 * * * * ?" />  
+		<property name="startDelay">    
+			<value>10000</value>    
+		</property>
+	</bean>
+
+	<!-- T除授权码到期的登录用户 -->
+	<bean id="delAuthorizedPastDueUserJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<bean class="com.nork.product.service.impl.AuthorizedConfigServiceImpl"/>
+		</property>
+		<property name="targetMethod" value="delAuthorizedPastDueUserCacheJob"/>
+		<property name="concurrent" value="false"/>
+	</bean>
+	<!--每天凌晨0点10分执行-->
+	<bean id="delAuthorizedPastDueUserTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="delAuthorizedPastDueUserJob"/>
+		<property name="cronExpression" value="0 10 0 * * ?" />
+	</bean>
+
+
+		<!-- txt数据录入 (用户登录日志) -->
+	<bean id="txtDataEntry"  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+		<property name="targetObject"><bean class="com.nork.system.service.impl.SysUserLoginLogServiceImpl"/></property>  
+		<property name="targetMethod" value="userLoginDataEntry" />  
+		<property name="concurrent" value="false" /> 
+		
+   </bean> 
+	<bean id="txtDataEntryJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">  
+		<property name="jobDetail" ref="txtDataEntry" />  
+		<property name="cronExpression" value="0 00 01 * * ?" />  
+	</bean>
+	
+	<!-- 	 txt数据录入(用户系统操作记录) -->
+	 <bean id="systemOperationTxtDataEntry"  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+		<property name="targetObject"><bean class="com.nork.system.service.impl.SysUserSystemOperationLogServiceImpl"/></property>  
+		<property name="targetMethod" value="userOperationLog" />  
+		<property name="concurrent" value="false" /> 
+		
+   </bean> 
+	<bean id="systemOperationTxt" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">  
+		<property name="jobDetail" ref="systemOperationTxtDataEntry" />  
+		<property name="cronExpression" value="0 03 01 * * ?" />  
+	</bean>  
+	
+	
+		<!-- txt数据录入(APP传过来的txt文件,用户系统操作记录) -->
+	 <bean id="appSystemTxtDataEntry"  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+		<property name="targetObject"><bean class="com.nork.system.service.impl.SysUserSystemOperationLogServiceImpl"/></property>  
+		<property name="targetMethod" value="analysisAppTextFile" />  
+		<property name="concurrent" value="false" /> 
+   </bean> 
+	<bean id="appSystemOperationTxt" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">  
+		<property name="jobDetail" ref="appSystemTxtDataEntry" />  
+		<property name="cronExpression" value="0 05 01 * * ?" />  
+	</bean> 
+	
+	<!-- 删除备份目录下的txt文件 -->
+	<bean id="deleteTxtFile"  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+		<property name="targetObject"><bean class="com.nork.system.service.impl.SysUserLoginLogServiceImpl"/></property>  
+		<property name="targetMethod" value="deleteText" />  
+		<property name="concurrent" value="false" /> 
+   </bean> 
+	<bean id="deleteTxtFileJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">  
+		<property name="jobDetail" ref="deleteTxtFile" />  
+		<property name="cronExpression" value="0 7 01 * * ?" />  
+	</bean>
+	
+	<!-- 清理渲染任务 -->
+	<!--
+	<bean id="cleanTaskJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<bean class="com.nork.design.service.impl.DesignPlanServiceImpl"/>
+		</property>
+		<property name="targetMethod" value="cleanRenderTaskJob"/>
+		<property name="concurrent" value="false"/>
+	</bean>
+	<bean id="cleanTaskTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<property name="jobDetail" ref="cleanTaskJob"/>
+		<property name="startDelay" value="5000"/>
+		<property name="repeatInterval" value="30000"/>
+	</bean>
+	-->
+
+	<bean id="jobScheduler" lazy-init="false" autowire="no"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+	<!-- txt数据录入 (用户登录日志) -->
+	<ref bean="txtDataEntryJobTrigger"/>
+	<!-- txt数据录入(用户系统操作记录) -->
+	<ref bean="systemOperationTxt"/>
+	<!-- txt数据录入(APP传过来的txt文件,用户系统操作记录) -->
+	<ref bean="appSystemOperationTxt"/>
+	<!-- 删除备份目录下的txt文件 -->
+	<ref bean="deleteTxtFileJobTrigger"/>
+		<!-- <ref bean="renderTaskJobTrigger"/> -->
+
+
+				<!-- 渲染处理 -->
+			<!--	<ref bean="renderTaskJobTrigger"/> -->
+				<!-- 序列号过期踢出用户 -->
+			<!--    <ref bean="delAuthorizedPastDueUserTrigger"/> -->
+			</list>
+		</property>
+	</bean>
+</beans>

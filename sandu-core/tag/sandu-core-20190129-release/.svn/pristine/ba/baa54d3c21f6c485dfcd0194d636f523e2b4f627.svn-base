@@ -1,0 +1,146 @@
+package com.sandu.web.springFestivalActivity;
+
+import com.sandu.api.base.common.ResponseEnvelope;
+import com.sandu.api.springFestivalActivity.input.UserInviteRecordBo;
+import com.sandu.api.springFestivalActivity.model.WxFilmTicket;
+import com.sandu.api.springFestivalActivity.output.*;
+import com.sandu.api.springFestivalActivity.service.WxUserSigninService;
+import com.sandu.api.springFestivalActivity.service.biz.FilmTicketActivityService;
+import com.sandu.api.user.model.SysUser;
+import com.sandu.job.FilmTicketActivityJob;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestController
+@Slf4j
+@RequestMapping("/v1/core/filmTicketActivity")
+public class FilmTicketActivityController {
+    private static final String CLASS_LOG_PREFIX = "[春节活动-电影票]";
+    @Autowired
+    private FilmTicketActivityService filmTicketActivityService;
+    @Autowired
+    private WxUserSigninService wxUserSigninService;
+
+    @GetMapping("/redPoint")
+    public ResponseEnvelope getRedPointFlag(@RequestParam("activityId") Long activityId, SysUser sysUser) {
+        FilmTicketActivityJob.setActivityId(activityId);
+        return new ResponseEnvelope(true, filmTicketActivityService.getRedPointFlag(sysUser.getId(), activityId));
+    }
+
+    @PostMapping("/giveMeFive")
+    public ResponseEnvelope giveMeFive(@RequestParam("inviteUserId") Long inviteUserId,
+                                       @RequestParam("activityId") Long activityId,
+                                       SysUser sysUser) {
+        if (!inviteUserId.equals(sysUser.getId())) {
+            SysUser inviteUser = wxUserSigninService.getUserById(inviteUserId.intValue());
+            GiveMeFiveVo res = filmTicketActivityService.giveMeFive(sysUser, inviteUser, activityId);
+            if (res == null) {
+                return new ResponseEnvelope(false, "助力失败");
+            }
+            return new ResponseEnvelope(res.getSuccess(), res.getMessage());
+        }
+        return new ResponseEnvelope(false, "不可以给自己助力，快去邀请好友来帮忙吧。");
+    }
+
+    @GetMapping("/getInviteRecord")
+    public ResponseEnvelope getInviteRecord(@RequestParam("activityId") Long activityId,
+                                            @RequestParam("pageNo") Integer pageNo,
+                                            @RequestParam("pageSize") Integer pageSize,
+                                            SysUser sysUser) {
+        UserInviteRecordBo bo = new UserInviteRecordBo(sysUser.getId(), activityId, pageNo, pageSize);
+        Integer count = filmTicketActivityService.getInviteRecordCount(bo);
+        if (count == null || count == 0) {
+            return new ResponseEnvelope(false, "无邀请记录");
+        }
+        return new ResponseEnvelope(true, count, filmTicketActivityService.getInviteRecord(bo));
+    }
+
+    @GetMapping("/getUserTaskState")
+    public ResponseEnvelope getUserTaskState(@RequestParam("activityId") Long activityId, SysUser sysUser) {
+        return new ResponseEnvelope(true, filmTicketActivityService.getUserTaskState(sysUser, activityId));
+    }
+
+    @PostMapping("/doTask")
+    public ResponseEnvelope doTask(@RequestParam("activityId") Long activityId, @RequestParam("id") Long id, SysUser sysUser) {
+        boolean flag = filmTicketActivityService.doTask(sysUser.getId(), activityId, id);
+        return new ResponseEnvelope(flag, flag ? "领取任务成功" : "领取任务失败");
+    }
+
+    @PostMapping("/doneTask")
+    public ResponseEnvelope doneTask(@RequestParam("activityId") Long activityId, SysUser sysUser) {
+        String word = filmTicketActivityService.doneTask(sysUser.getId(), activityId);
+        return new ResponseEnvelope(word == null, word == null ? "完成任务成功" : "完成任务失败", word);
+    }
+
+    @GetMapping("/cards")
+    public ResponseEnvelope getCardPage(@RequestParam("activityId") Long activityId, SysUser sysUser) {
+        CardPageVo vo = filmTicketActivityService.getCardPageVo(sysUser, activityId);
+        return new ResponseEnvelope(vo == null ? false : true, vo);
+    }
+
+    @GetMapping("/getFilmTicket")
+    public ResponseEnvelope getFilmTicket(@RequestParam("activityId") Long activityId, SysUser sysUser) {
+        FilmTicketVo ticket = filmTicketActivityService.getFilmTicket(sysUser, activityId);
+        return new ResponseEnvelope(ticket == null ? false : true, ticket == null ? "你没有获得电影票" : ticket);
+    }
+
+    @PostMapping("/increaseLotteryRate")
+    public ResponseEnvelope increaseLotteryRate(@RequestParam("activityId") Long activityId, SysUser sysUser) {
+        Integer i = filmTicketActivityService.increaseLotteryRate(sysUser.getId(), activityId);
+        return new ResponseEnvelope(i != null, i);
+    }
+
+    @PostMapping("/bindingMobile")
+    public ResponseEnvelope bindingMobile(@RequestParam("phone") String phone,
+                                          @RequestParam("code") String code,
+                                          @RequestParam("activityId") Long activityId,
+                                          SysUser sysUser) {
+        boolean flag = filmTicketActivityService.checkPermission(phone, code);
+        if (flag) {
+            sysUser.setMobile(phone);
+            int i = wxUserSigninService.updateUser(sysUser);
+            if (i <= 0) {
+                return new ResponseEnvelope(false, "绑定手机号失败");
+            }
+            String word = filmTicketActivityService.doneTask(sysUser.getId(), activityId);
+            return new ResponseEnvelope(true, "绑定手机号成功", word);
+        }
+        return new ResponseEnvelope(false, "验证码错误");
+    }
+
+    @GetMapping("/{activityId}/ticket/fetched/users/{limit}")
+    public ResponseEnvelope getTicketUserList(@PathVariable("activityId") Long activityId, @PathVariable("limit") Integer limit) {
+        List<WxFilmTicket> list = filmTicketActivityService.getNotEmptyTicketList(activityId, limit);
+        if (list == null || list.size() <= 0) {
+            return new ResponseEnvelope(false, "还没有用户领取电影票");
+        }
+        List<GetTicketUserVo> userList = list.stream().map(ticket -> {
+            SysUser user = wxUserSigninService.getUserById(ticket.getUserId().intValue());
+            if (user != null && user.getIsDeleted() != 1) {
+                return new GetTicketUserVo(ticket.getId(), user.getHeadPic(), user.getNickName());
+            }
+            return null;
+        }).collect(Collectors.toList());
+        return new ResponseEnvelope(true, userList.size(), userList);
+    }
+
+    @GetMapping("/getUnReceivedCard")
+    public ResponseEnvelope getUnReceivedCard(@RequestParam("activityId") Long activityId, SysUser sysUser) {
+        List<WxUserCardVo> wxUserCardVoList = filmTicketActivityService.getUnReceivedCard(activityId, sysUser);
+        if (CollectionUtils.isEmpty(wxUserCardVoList)) {
+            return new ResponseEnvelope(false, "没有未领取的卡片");
+        }
+        return new ResponseEnvelope(true, "获取未领取卡片成功", wxUserCardVoList.size(), wxUserCardVoList);
+    }
+
+    @GetMapping("/{activityId}")
+    public ResponseEnvelope getActivityId(@PathVariable("activityId") Long activityId) {
+        FilmTicketActivityJob.setActivityId(activityId);
+        return new ResponseEnvelope(true, activityId);
+    }
+}

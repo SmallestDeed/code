@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.company.dao.CompanyShopDao">
+	<sql id="shopListColumns">
+		a.id,a.business_type,
+		a.company_id,a.shop_name,
+		a.company_pid,
+		a.long_area_code,
+		a.contact_phone,
+		a.first_category_ids,
+		a.category_ids,a.user_id,
+		a.shop_address,a.visit_count,
+		a.praise_rate,
+		a.gmt_create as create_date,
+		a.cover_res_ids,
+		a.cover_res_type,
+		a.longitude,
+		a.latitude,
+		a.design_fee_starting,
+		a.design_fee_ending,
+		rp.pic_path as logo_url,
+		rf.file_path,
+		b.member_year,b.auth_grade,b.deposit,
+		d.area_name AS cityName,
+		d1.area_name as provinceName,
+		d2.area_name as areaName,
+		d3.area_name as streerName,
+		su.user_name,su.nick_name,
+		su.uuid as sessionId,
+		su.use_type,su.show_sandu_plan
+	</sql>
+
+	<select id="getDetail"
+		resultType="com.sandu.company.model.vo.CompanyShopDetailVo"
+		parameterType="long">
+		SELECT
+			<include refid="shopListColumns" />
+		FROM company_shop a INNER JOIN base_company b on a.company_id=b.id
+		left join res_pic rp on rp.id = a.logo_pic_id
+		left join res_file rf on rf.id = a.introduced_file_id
+		LEFT JOIN base_area d ON d.area_code = a.city_code
+		LEFT JOIN base_area d1 ON d1.area_code = a.province_code
+		LEFT JOIN base_area d2 ON d2.area_code = a.area_code
+		LEFT JOIN base_area d3 ON d3.area_code = a.street_code
+		left join sys_user su on su.id = a.user_id
+		WHERE a.id=#{id}
+	</select>
+	<select id="getRecommendList"
+		resultType="com.sandu.company.model.vo.CompanyShopVo">
+		SELECT
+		<include refid="shopListColumns" />
+		FROM company_shop a INNER JOIN base_company b on a.company_id=b.id
+		left join res_pic rp on rp.id = a.logo_pic_id
+		left join res_file rf on rf.id=a.introduced_file_id
+		LEFT JOIN base_area d ON d.area_code = a.city_code
+		LEFT JOIN base_area d1 ON d1.area_code = a.province_code
+		LEFT JOIN base_area d2 ON d2.area_code = a.area_code
+		LEFT JOIN base_area d3 ON d3.area_code = a.street_code
+		left join sys_user su on su.id = a.user_id
+		order by a.visit_count desc limit 0,5;
+	</select>
+	<select id="findFontPageList"
+		resultType="com.sandu.company.model.vo.CompanyShopVo"
+		parameterType="com.sandu.company.model.query.CompanyShopQuery">
+		SELECT
+		<include refid="shopListColumns" />
+		<if test="latitude != null and latitude != '' and longitude != null and longitude !=''">
+			,ROUND(6378.138*2*ASIN(SQRT(POW(SIN((${latitude}*PI()/180-a.latitude*PI()/180)/2),2)+COS(${latitude}*PI()/180)*COS(a.latitude*PI()/180)*POW(SIN((${longitude}*PI()/180-a.longitude*PI()/180)/2),2)))*1000)/1000 AS distance
+		</if>
+		FROM company_shop a INNER JOIN base_company b on a.company_id=b.id
+		left join res_pic rp on rp.id = a.logo_pic_id
+		left join res_file rf on rf.id=a.introduced_file_id
+		LEFT JOIN base_area d ON d.area_code = a.city_code
+		LEFT JOIN base_area d1 ON d1.area_code = a.province_code
+		LEFT JOIN base_area d2 ON d2.area_code = a.area_code
+		LEFT JOIN base_area d3 ON d3.area_code = a.street_code
+		left join sys_user su on su.id = a.user_id
+		WHERE su.is_deleted = 0
+		<if test="companyId != null and  companyId != '' ">
+			AND a.company_pid = #{companyId}
+		</if>
+		<if test="businessType != null and  businessType != '' ">
+			AND a.business_type = #{businessType}
+		</if>
+		
+		<if test="platformType != null and  platformType != '' ">
+			AND FIND_IN_SET(#{platformType},a.release_platform_values)
+		</if>
+		<if test="firstCategoryIds != null and  firstCategoryIds != '' ">
+			AND FIND_IN_SET(#{firstCategoryIds},a.first_category_ids)
+		</if>
+		<if test="categoryIds != null and  categoryIds != '' ">
+			AND FIND_IN_SET(#{categoryIds},a.category_ids)
+		</if>
+		<if test="shopName != null and  shopName != '' ">
+			AND a.shop_name like CONCAT(CONCAT('%',#{shopName}),'%')
+		</if>
+		<if test="companyName != null and  companyName != '' ">
+			AND b.company_name like CONCAT(CONCAT('%',#{companyName}),'%')
+		</if>
+		<if test="provinceCode != null and  provinceCode != '' ">
+			AND a.province_code = #{provinceCode}
+		</if>
+		<if test="cityCode != null and  cityCode != '' ">
+			AND a.city_code = #{cityCode}
+		</if>
+		<if test="areaCode != null and  areaCode != '' ">
+			AND a.area_code = #{areaCode}
+		</if>
+		<if test="streetCode != null and  streetCode != '' ">
+			AND a.street_code = #{streetCode}
+		</if>
+		<if test="displayType != null and displayType != ''">
+			AND a.logo_pic_id <![CDATA[ <> 0 ]]>
+		</if>
+		<if test="userType != null and  userType != '' ">
+			AND su.user_type = #{userType}
+		</if>
+		
+		AND display_status = 1
+		AND a.is_deleted = #{DEL_FLAG_NORMAL}
+	  	<choose>
+			<when test="orderBySql !=null and orderBySql != ''">
+				order by ${orderBySql}
+				<if test="latitude != null and latitude != '' and longitude != null and longitude != ''">
+					, distance IS NULL, distance ASC
+				</if>
+			</when>
+			<otherwise>
+				order by
+				<if test="latitude != null and latitude != '' and longitude != null and longitude != ''">
+					distance IS NULL,distance ASC,
+				</if>
+				a.id desc
+			</otherwise>
+		</choose>
+        limit #{start},#{pageSize}
+	</select>
+
+	<select id="findFontCount" resultType="long"
+		parameterType="com.sandu.company.model.query.CompanyShopQuery">
+		SELECT count(a.id)
+		FROM company_shop a INNER JOIN base_company b on a.company_id=b.id
+		left join sys_user su on su.id = a.user_id
+		WHERE su.is_deleted = 0
+		<if test="companyId != null and  companyId != '' ">
+			AND a.company_pid = #{companyId}
+		</if>
+		<if test="businessType != null and  businessType != '' ">
+			AND a.business_type = #{businessType}
+		</if>
+		<if test="platformType != null and  platformType != '' ">
+			AND
+			FIND_IN_SET(#{platformType},a.`release_platform_values`)
+		</if>
+		<if test="firstCategoryIds != null and  firstCategoryIds != '' ">
+			AND FIND_IN_SET(#{firstCategoryIds},a.first_category_ids)
+		</if>
+		<if test="categoryIds != null and  categoryIds != '' ">
+			AND FIND_IN_SET(#{categoryIds},a.category_ids)
+		</if>
+		<if test="shopName != null and  shopName != '' ">
+			AND a.shop_name like CONCAT(CONCAT('%',#{shopName}),'%')
+		</if>
+		<if test="companyName != null and  companyName != '' ">
+			AND b.company_name like CONCAT(CONCAT('%',#{companyName}),'%')
+		</if>
+		<if test="provinceCode != null and  provinceCode != '' ">
+			AND a.province_code = #{provinceCode}
+		</if>
+		<if test="cityCode != null and  cityCode != '' ">
+			AND a.city_code = #{cityCode}
+		</if>
+		<if test="areaCode != null and  areaCode != '' ">
+			AND a.area_code = #{areaCode}
+		</if>
+		<if test="streetCode != null and  streetCode != '' ">
+			AND a.street_code = #{streetCode}
+		</if>
+		<if test="userType != null and  userType != '' ">
+			AND su.user_type = #{userType}
+		</if>
+		AND display_status = 1
+		AND a.is_deleted = #{DEL_FLAG_NORMAL}
+	</select>
+
+	<select id="findShopPopularityList"
+		resultType="com.sandu.company.model.vo.ShopPopularityListVo"
+		parameterType="com.sandu.company.model.query.CompanyShopQuery">
+		SELECT
+		a.id as shop_id,a.shop_name,rp.pic_path,cover_res_ids AS case_pic_ids
+		FROM company_shop a
+		left join res_pic rp on a.logo_pic_id=rp.id
+		left join sys_user su on su.id = a.user_id
+		WHERE su.is_deleted = 0
+		<if test="businessType != null and  businessType != '' ">
+			AND a.business_type = #{businessType}
+		</if>
+		<if test="platformType != null and  platformType != '' ">
+			AND FIND_IN_SET(#{platformType},a.`release_platform_values`)
+		</if>
+		<if test="displayType != null and displayType != ''">
+			AND a.logo_pic_id <![CDATA[ <> 0 ]]>
+		</if>
+		AND a.display_status = 1
+		AND a.is_deleted = #{DEL_FLAG_NORMAL}
+		GROUP BY a.id
+		order by a.visit_count desc
+		limit 0,6
+	</select>
+	<update id="updateLikeCount"
+		parameterType="com.sandu.company.model.CompanyShop">
+		update company_shop set
+		like_count=like_count+#{likeCount},gmt_modified=#{gmtModified}
+		where id=#{id}
+	</update>
+	<update id="updateCollectionCount"
+		parameterType="com.sandu.company.model.CompanyShop">
+		update company_shop set
+		collection_count=collection_count+#{collectionCount},gmt_modified=#{gmtModified}
+		where id=#{id}
+	</update>
+	<update id="updateCommentCount"
+		parameterType="com.sandu.company.model.CompanyShop">
+		update company_shop set
+		comment_count=comment_count+#{commentCount},gmt_modified=#{gmtModified}
+		where id=#{id}
+	</update>
+	<update id="updateSalesVolume"
+		parameterType="com.sandu.company.model.CompanyShop">
+		update company_shop set
+		sales_volume=sales_volume+#{salesVolume},gmt_modified=#{gmtModified}
+		where id=#{id}
+	</update>
+	<update id="updateVisitCount"
+		parameterType="com.sandu.company.model.CompanyShop">
+		update company_shop set
+		visit_count=visit_count+1,gmt_modified=#{gmtModified}
+		where id=#{id}
+	</update>
+
+	<select id="findShopProjectCaseList"
+			resultType="com.sandu.company.model.vo.ProjectCaseVo">
+		SELECT
+			a.id as case_id,a.case_title,a.gmt_create as create_date,
+			cs.shop_name,rf.file_path,a.pic_ids as picIds,a.browse_count as browseCount
+		FROM project_case a
+		left join res_file rf on rf.id = a.file_id
+		LEFT join company_shop cs on cs.id = a.shop_id
+		WHERE 1=1
+		<if test="caseId != null and  caseId != 0 ">
+			AND a.id = #{caseId}
+		</if>
+		<if test="shopId != null and  shopId != 0 ">
+			AND a.shop_id = #{shopId}
+		</if>
+		AND a.release_status = 1
+		AND a.is_deleted = #{DEL_FLAG_NORMAL}
+		order by a.id desc
+		limit #{start},#{pageSize}
+	</select>
+
+	<!--修改浏览数量-->
+	<update id="updateBrowseCount" >
+		UPDATE project_case SET
+		browse_count = #{browseCount}
+		WHERE id = #{caseId}
+	</update>
+
+</mapper>

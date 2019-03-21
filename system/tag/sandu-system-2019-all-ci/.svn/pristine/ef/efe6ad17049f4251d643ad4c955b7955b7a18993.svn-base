@@ -1,0 +1,277 @@
+package com.sandu.web.banner;
+
+import com.sandu.api.banner.input.BaseBannerAdAdd;
+import com.sandu.api.banner.input.BaseBannerAdUpdate;
+import com.sandu.api.banner.model.BaseBannerAd;
+import com.sandu.api.banner.model.ResBannerPic;
+import com.sandu.api.banner.service.BaseBannerAdService;
+import com.sandu.api.banner.service.ResBannerPicService;
+import com.sandu.api.user.model.SysUser;
+import com.sandu.api.user.service.SysUserService;
+import com.sandu.common.LoginContext;
+import com.sandu.commons.LoginUser;
+import com.sandu.commons.ResponseEnvelope;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+@RestController
+@RequestMapping(value = "/v1/sxw/banner")
+@Slf4j
+public class SXWBannerAdminController {
+
+    @Value("${upload.base.path}")
+    private String basePath;
+
+    @Value("${upload.relative.path}")
+    private String relativePath;
+
+    @Autowired
+    private BaseBannerAdService baseBannerAdService;
+
+    @Autowired
+    private ResBannerPicService resBannerPicService;
+
+    @Autowired
+    private SysUserService sysUserService;
+
+    @PostMapping(value = "/uploadBannerImg")
+    public Object uploadBannerImg(@RequestParam("file") MultipartFile file) {
+
+        Assert.notNull(file, "图片不能为空");
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+
+        try {
+            //上传图片
+            ResBannerPic pic = this.addResBannerPic(file);
+            //1. 添加一张照片
+            Object picId = resBannerPicService.addResBannerPic(pic, loginUser);
+            //Object uploadPath = executeUploadImg(file);
+            return new ResponseEnvelope<>(true, picId);
+        } catch (Exception e) {
+            log.error("上传图片异常", e);
+            return new ResponseEnvelope<>(false, "上传图片异常");
+        }
+
+    }
+
+    @PostMapping("/add")
+    public Object addBanner(Integer picId, String bannerName, String positionCode, String url, HttpServletRequest request) {
+
+        Assert.notNull(bannerName, "banner名称不能为空");
+        Assert.notNull(positionCode, "banner位置不能为空");
+        Assert.notNull(picId, "资源id不能为空");
+
+        //获取平台编码
+        String platfromCode = request.getHeader("Platform-Code");
+        Assert.hasLength(platfromCode, "平台编码不能为空");
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+
+        try {
+            BaseBannerAdAdd baseBannerAdAdd = buildObj(bannerName, positionCode, url, picId, loginUser);
+            Object result = baseBannerAdService.saveBannerAd(baseBannerAdAdd, loginUser, platfromCode);
+            if ((Integer) result > 0) {
+                return new ResponseEnvelope<>(true, "新增banner成功");
+            }
+        } catch (IllegalArgumentException ill) {
+            return new ResponseEnvelope<>(false, ill.getMessage());
+        } catch (Exception e) {
+            log.error("新增banner失败", e);
+            return new ResponseEnvelope<>(false, "新增banner异常");
+        }
+        return new ResponseEnvelope<>(false, "新增banner失败");
+    }
+
+    @RequestMapping("/getList")
+    public Object lists(@RequestParam(value = "positionCode",required = true) String positionCode){
+
+        Assert.hasLength(positionCode,"banner位置编码不能为空");
+
+        try {
+            List<BaseBannerAd> lists = baseBannerAdService.getSXWIndexBannerList(positionCode);
+            return new ResponseEnvelope<>(true,lists);
+        }catch (IllegalArgumentException ill){
+            return new ResponseEnvelope<>(false,"参数异常");
+        }catch (Exception e){
+            log.error("获取列表异常",e);
+            return new ResponseEnvelope<>(false,"获取随选网首页banner列表异常");
+        }
+    }
+
+    @RequestMapping("/update")
+    public Object update(BaseBannerAdUpdate baseBannerAdUpdate) {
+
+        Assert.notNull(baseBannerAdUpdate.getBannerId(), "bannerId不能为空");
+
+        try {
+            int row = baseBannerAdService.updateSXWBanner(baseBannerAdUpdate);
+            if (row > 0) {
+                return new ResponseEnvelope<>(true, "修改banner成功");
+            }
+        } catch (IllegalArgumentException ill) {
+            return new ResponseEnvelope<>(false, "参数异常");
+        } catch (Exception e) {
+            log.error("获取列表异常", e);
+            return new ResponseEnvelope<>(false, "修改banner异常");
+        }
+        return new ResponseEnvelope<>(false, "修改banner失败");
+    }
+
+    @RequestMapping("/del")
+    public Object deleted(Integer bannerId) {
+
+        Assert.notNull(bannerId, "bannerId不能为空");
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+
+        try {
+            int row = baseBannerAdService.deleteBanner(bannerId,loginUser);
+            if (row > 0) {
+                return new ResponseEnvelope<>(true, "删除banner成功");
+            }
+        } catch (IllegalArgumentException ill) {
+            return new ResponseEnvelope<>(false, "参数异常");
+        } catch (Exception e) {
+            log.error("获取列表异常", e);
+            return new ResponseEnvelope<>(false, "删除banner异常");
+        }
+        return new ResponseEnvelope<>(false, "删除banner失败");
+    }
+
+    /**
+     * 修改banner状态
+     * @param bannerId
+     * @return
+     */
+    @RequestMapping(value = "/changeIsEnable")
+    public Object changeIsEnable(Integer bannerId){
+
+        Assert.notNull(bannerId, "bannerId不能为空");
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+
+        try {
+            int row = baseBannerAdService.changeBannerIsEnable(bannerId,loginUser);
+            if (row > 0) {
+                return new ResponseEnvelope<>(true, "启用banner成功");
+            }
+        } catch (IllegalArgumentException ill) {
+            return new ResponseEnvelope<>(false, "参数异常");
+        } catch (Exception e) {
+            log.error("获取列表异常", e);
+            return new ResponseEnvelope<>(false, "启用banner异常");
+        }
+        return new ResponseEnvelope<>(false, "启用banner失败");
+    }
+
+    private BaseBannerAdAdd buildObj(String bannerName, String positionCode, String url, int picId, LoginUser loginUser) {
+        BaseBannerAdAdd baseBannerAdAdd = new BaseBannerAdAdd();
+        baseBannerAdAdd.setBannerName(bannerName);
+        baseBannerAdAdd.setPositionCode(positionCode);
+        baseBannerAdAdd.setUrl(url);
+        baseBannerAdAdd.setResBannerPicId(picId);
+
+        return baseBannerAdAdd;
+    }
+
+    /**
+     * 添加广告图片
+     *
+     * @param file 文件
+     * @return ResBannerPic 广告图片实体类
+     * @throws Exception
+     */
+    private ResBannerPic addResBannerPic(MultipartFile file) throws Exception {
+        ResBannerPic pic = new ResBannerPic();
+        StringBuffer sb = new StringBuffer();
+//        sb.append(basePath);
+//        sb.append(relativePath);
+        sb.append("C:\\Users\\Sandu\\Desktop\\banner图片测试");
+        File dir = new File(sb.toString());
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        String name = file.getOriginalFilename();
+        //上传文件名
+        String filename = StringUtils.substringBeforeLast(name, ".");
+        //后缀
+        String suffix = StringUtils.substringAfterLast(name, ".");
+        //大小
+        Long size = file.getSize();
+        long millis = System.currentTimeMillis();
+        sb.append("/");
+        sb.append(millis);
+        sb.append(".");
+        sb.append(suffix);
+        String filePath = sb.toString();
+        log.error("${}", filePath);
+        File target = new File(filePath);
+        //上传
+        file.transferTo(target);
+
+        //路径
+        StringBuffer sBuffer = new StringBuffer(relativePath);
+        sBuffer.append("/");
+        sBuffer.append(millis);
+        sBuffer.append(".");
+        sBuffer.append(suffix);
+        String savePath = sBuffer.toString();
+        log.error("${}", savePath);
+        //为ResBannerPic添加 准备入参 1.ResBannerPicAdd转ResBannerPic  2.摄值(ResBannerPicAdd中未定义的属性值)
+        pic.setPicFileName(filename);
+        pic.setPicSize(size.intValue());
+        pic.setPicSuffix(suffix);
+        pic.setPicPath(savePath);
+        return pic;
+    }
+
+    private String executeUploadImg(MultipartFile file) throws IOException {
+
+        StringBuffer sb = new StringBuffer();
+        sb.append(basePath);
+        sb.append(relativePath);
+        File dir = new File(sb.toString());
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        String name = file.getOriginalFilename();
+        //上传文件名
+        String filename = StringUtils.substringBeforeLast(name, ".");
+        //后缀
+        String suffix = StringUtils.substringAfterLast(name, ".");
+        //大小
+        Long size = file.getSize();
+        long millis = System.currentTimeMillis();
+        sb.append("/");
+        sb.append(millis);
+        sb.append(".");
+        sb.append(suffix);
+        String filePath = sb.toString();
+        log.error("${}", filePath);
+        File target = new File(filePath);
+        //上传
+        file.transferTo(target);
+
+        //路径
+        StringBuffer sBuffer = new StringBuffer(relativePath);
+        sBuffer.append("/");
+        sBuffer.append(millis);
+        sBuffer.append(".");
+        sBuffer.append(suffix);
+        String savePath = sBuffer.toString();
+        log.error("${}", savePath);
+        return savePath;
+    }
+
+}

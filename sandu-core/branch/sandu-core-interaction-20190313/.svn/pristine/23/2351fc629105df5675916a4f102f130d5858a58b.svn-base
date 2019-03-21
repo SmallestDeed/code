@@ -1,0 +1,199 @@
+package com.sandu.web.interactivezone;
+
+import com.github.pagehelper.PageInfo;
+import com.sandu.api.banner.common.Utils;
+import com.sandu.api.base.common.ResponseEnvelope;
+import com.sandu.api.base.common.constant.InteractiveZoneConstant;
+import com.sandu.api.base.common.exception.BizException;
+import com.sandu.api.base.input.*;
+import com.sandu.api.base.model.InteractiveZoneReply;
+import com.sandu.api.base.model.InteractiveZoneTopic;
+import com.sandu.api.base.service.InteractiveZoneMsgService;
+import com.sandu.api.base.service.InteractiveZoneReplyService;
+import com.sandu.api.base.output.InteractiveZoneTopicDetail;
+import com.sandu.api.base.service.InteractiveZoneTopicService;
+import com.sandu.api.user.model.SysUser;
+import com.sandu.api.user.service.SysUserService;
+import com.sandu.interceptor.NeedNotLogin;
+import com.sandu.system.service.NodeInfoBizService;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.validation.Valid;
+import java.util.List;
+
+/**
+ * @ClassName: InteractiveZoneTopicController
+ * @Auther: gaoj
+ * @Date: 2019/3/13 10:06
+ * @Description:
+ * @Version 1.0
+ */
+@RequestMapping("/v1/core/interactiveZoneTopic")
+@Slf4j
+@RestController
+public class InteractiveZoneTopicController {
+
+    private final String CLASS_LOG_PREFIX = "【互动区主题控制层】";
+
+    @Autowired
+    private InteractiveZoneTopicService interactiveZoneTopicService;
+    @Autowired
+    private NodeInfoBizService nodeInfoBizService;
+    @Autowired
+    private InteractiveZoneMsgService interactiveZoneMsgService;
+    @Autowired
+    private InteractiveZoneReplyService interactiveZoneReplyService;
+    @Resource(name = "wangWangSysUserService")
+    private SysUserService sysUserService;
+
+    @ApiOperation("随选网互动区列表")
+    @GetMapping("/list")
+    @NeedNotLogin
+    public ResponseEnvelope list(InteractiveZoneTopicQuery interactiveZoneTopicQuery) {
+
+
+        if (null == interactiveZoneTopicQuery || StringUtils.isBlank(interactiveZoneTopicQuery.getBlockTypeValueKey())) {
+            return new ResponseEnvelope(false, "参数缺失");
+        }
+        PageInfo<InteractiveZoneTopic> list = interactiveZoneTopicService.list(interactiveZoneTopicQuery);
+        return new ResponseEnvelope(true, "查询成功", list.getTotal(), list.getList());
+    }
+
+
+    @ApiOperation("随选网主题详情")
+    @GetMapping("sxw/topic/{id}")
+    @NeedNotLogin
+    public ResponseEnvelope topicDetails(@PathVariable Integer id) {
+        InteractiveZoneTopicDetail details = interactiveZoneTopicService.getDetails(id);
+		return new ResponseEnvelope(true, details);
+    }
+
+
+
+    @RequestMapping("/add")
+    public ResponseEnvelope add(@RequestBody InteractiveZoneTopicAdd interactiveZoneTopicAdd,
+                                SysUser sysUser, BindingResult bindingResult) {
+        if (null == interactiveZoneTopicAdd) {
+            return new ResponseEnvelope(false, "参数缺失");
+        }
+        // 校验参数
+        // if (bindingResult.hasErrors()) {
+        //     String errorMessages = Utils.getErrorMessages(bindingResult);
+        //     return new ResponseEnvelope(false, CLASS_LOG_PREFIX + errorMessages);
+        // }
+        try {
+            Integer count = interactiveZoneTopicService.add(interactiveZoneTopicAdd, sysUser);
+            return new ResponseEnvelope(count == 1, count == 1 ? "添加成功" : "添加失败");
+        } catch (BizException e) {
+            log.warn(CLASS_LOG_PREFIX + "列表数据异常，bizException={}", e);
+            return new ResponseEnvelope(false, e.getMessage());
+        } catch (Exception e) {
+            log.warn(CLASS_LOG_PREFIX + "列表数据异常，exception={}", e);
+            return new ResponseEnvelope(false, "系统异常");
+        }
+    }
+
+    @RequestMapping("/update")
+    public ResponseEnvelope update(@RequestBody InteractiveZoneTopicUpdate interactiveZoneTopicUpdate,
+                                   SysUser sysUser, BindingResult bindingResult) {
+        if (null == interactiveZoneTopicUpdate) {
+            return new ResponseEnvelope(false, "参数缺失");
+        }
+        // 校验参数
+        // if (bindingResult.hasErrors()) {
+        //     String errorMessages = getErrorMessages(bindingResult);
+        //     return new ResponseEnvelope(false, errorMessages);
+        // }
+
+        Integer count = interactiveZoneTopicService.update(interactiveZoneTopicUpdate, sysUser);
+        return new ResponseEnvelope(count == 1, count == 1 ? "修改成功" : "修改失败");
+    }
+
+    @GetMapping("/{type}/favorite")
+    public ResponseEnvelope favoriteList(@PathVariable("type") String type,
+                                         Integer curPage,
+                                         Integer pageSize,
+                                         SysUser sysUser) {
+        if (!StringUtils.isNumeric(type) || curPage == null || pageSize == null) {
+            return new ResponseEnvelope(false, "参数错误");
+        }
+        List<Integer> idList = nodeInfoBizService.getContentIdList(sysUser.getId().intValue(), InteractiveZoneConstant.INTERACTIVE_ZONE_NODE_TYPE_VALUE.byteValue(), new Byte("1"));
+        if (idList != null && idList.size() > 0) {
+            InteractiveZoneTopicQuery queryParam = new InteractiveZoneTopicQuery();
+            queryParam.setBlockTypeValue(Integer.parseInt(type));
+            queryParam.setIdList(idList);
+            queryParam.setIds("," + idList.stream().map(id -> id.toString()).reduce((id1, id2) -> id1 + "," + id2).get() + ",");
+            queryParam.setCurPage(curPage);
+            queryParam.setPageSize(pageSize);
+            PageInfo<InteractiveZoneTopic> list = interactiveZoneTopicService.list(queryParam);
+            return new ResponseEnvelope(true, list.getTotal(), list.getList());
+        }
+        return new ResponseEnvelope(true, 0, null);
+    }
+
+    @GetMapping("/favoriteCount")
+    public ResponseEnvelope favoriteCount(SysUser sysUser) {
+        List<Integer> idList = nodeInfoBizService.getContentIdList(sysUser.getId().intValue(), InteractiveZoneConstant.INTERACTIVE_ZONE_NODE_TYPE_VALUE.byteValue(), new Byte("1"));
+        return new ResponseEnvelope(true, idList == null ? 0 : idList.size(), null);
+    }
+
+    @PostMapping("/status")
+    public ResponseEnvelope setNodeDetailStatus(@RequestBody @Validated NodeDetailStatusAdd add, BindingResult bindingResult, SysUser sysUser) {
+        if (bindingResult.hasErrors()) {
+            return new ResponseEnvelope(false, "参数错误");
+        }
+        int operateType = add.getNodeType() == 7 ? 0 : (add.getNodeType() == 8 ? 1 : -1);
+        if (operateType == -1) {
+            return new ResponseEnvelope(false, "类型错误");
+        }
+        // 添加数量
+        Integer nodeId = nodeInfoBizService.registerNodeInfo(add.getContentId(), add.getNodeType());
+        Integer num = nodeInfoBizService.updateUserNodeRelStatus(sysUser.getId().intValue(), nodeId, add.getContentId(),
+                add.getNodeType(), add.getDetailType(), add.getStatus());
+        // 新增信息
+        Long targetUserId = null;
+        if (operateType == 0) {
+            InteractiveZoneTopic topic = interactiveZoneTopicService.get(add.getContentId().longValue());
+            targetUserId = topic.getCreateUserId().longValue();
+        } else if (operateType == 1) {
+            InteractiveZoneReply reply = interactiveZoneReplyService.get(add.getContentId().longValue());
+            targetUserId = reply.getReplyUserId().longValue();
+        }
+        interactiveZoneMsgService.addMessage(operateType, add.getContentId().longValue(), add.getBlockType(), add.getDetailType() - 1, sysUser.getId(), targetUserId);
+        // 发送提醒
+        interactiveZoneMsgService.sendMessage(sysUserService.getUserById(targetUserId));
+        return new ResponseEnvelope(true, num, null);
+    }
+
+    @PostMapping(value = "/transport")
+    public Object transportShopWrite(@RequestBody List<TransportWriteInput> inputs, SysUser loginUser) {
+
+        if (CollectionUtils.isEmpty(inputs)) {
+            return new ResponseEnvelope<>(false, "请选择你要搬运的文章");
+        }
+        boolean isSuccess = interactiveZoneTopicService.transportShopWriteHandle(inputs, loginUser);
+        if (isSuccess) {
+            return new ResponseEnvelope<>(true, "搬运文章成功");
+        }
+        return new ResponseEnvelope<>(false, "搬运文章失败");
+    }
+
+    private String getErrorMessages(BindingResult bindingResult) {
+        List<ObjectError> errors = bindingResult.getAllErrors();
+        StringBuilder stringBuilder = new StringBuilder();
+        errors.forEach(error -> {
+            stringBuilder.append(error.getDefaultMessage())
+                    .append(";");
+        });
+        return stringBuilder.toString();
+    }
+}

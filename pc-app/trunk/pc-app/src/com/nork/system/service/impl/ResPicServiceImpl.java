@@ -1,0 +1,1913 @@
+package com.nork.system.service.impl;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.nork.common.model.ResponseEnvelope;
+import com.nork.design.model.DesignPlanRenderScene;
+import com.nork.design.model.DesignRenderRoam;
+import com.nork.design.service.DesignPlanRenderSceneService;
+import com.nork.design.service.DesignRenderRoamService;
+import com.nork.render.model.RenderTypeCode;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.nork.common.model.FileModel;
+import com.nork.common.model.LoginUser;
+import com.nork.common.properties.AppProperties;
+import com.nork.common.properties.ResProperties;
+import com.nork.common.util.FileUploadUtils;
+import com.nork.common.util.FtpUploadUtils;
+import com.nork.common.util.ResizeImage;
+import com.nork.common.util.Tools;
+import com.nork.common.util.Utils;
+import com.nork.common.util.collections.Lists;
+import com.nork.design.model.DesignPlan;
+import com.nork.design.service.DesignPlanService;
+import com.nork.sandu.model.dto.TDesignSketch;
+import com.nork.sync.model.ResEntity;
+import com.nork.system.dao.ResPicMapper;
+import com.nork.system.model.ResPic;
+import com.nork.system.model.ResRenderPic;
+import com.nork.system.model.search.ResPicSearch;
+import com.nork.system.service.ResPicService;
+import com.nork.system.service.ResRenderPicService;
+
+/**   
+ * @Title: ResPicServiceImpl.java 
+ * @Package com.nork.system.service.impl
+ * @Description:系统-图片资源库ServiceImpl
+ * @createAuthor pandajun 
+ * @CreateDate 2015-05-19 16:06:59
+ * @version V1.0   
+ */
+@Service("resPicService")
+@Transactional
+public class ResPicServiceImpl implements ResPicService {
+
+	/*private static Logger logger = Logger
+			.getLogger(ResPicServiceImpl.class);*/
+	private static final Logger logger = LoggerFactory.getLogger(ResPicServiceImpl.class);
+	
+	private String logPrefix = "custom:";
+	
+	@Autowired
+	private ResPicMapper resPicMapper;
+	
+	@Autowired
+	private DesignPlanService designPlanService;
+	
+	@Autowired
+	private ResRenderPicService resRenderPicService;
+
+	@Autowired
+	private DesignPlanRenderSceneService designPlanRenderSceneService;
+	
+	/**
+	 * 新增数据
+	 *
+	 * @param resPic
+	 * @return  int 
+	 */
+	@Override
+	public int add(ResPic resPic) {
+		resPicMapper.insertSelective(resPic);
+		return resPic.getId();
+	}
+
+	/**
+	 *    更新数据
+	 *
+	 * @param resPic
+	 * @return  int 
+	 */
+	@Override
+	public int update(ResPic resPic) {
+		//获取多个 resPic filekeys ,busniessIds
+		
+		return resPicMapper.updateByPrimaryKeySelective(resPic);
+	}
+	
+	/**
+	 *    更新数据
+	 *
+	 * @param resPic
+	 * @return  int 
+	 */
+	@Override
+	public int update(ResPic resPic,Integer businessId,String picKey,String sysCode) {
+		//获取多个 resPic filekeys ,busniessIds
+		String fileKey = resPic.getFileKey();
+		Integer bId = resPic.getBusinessId();
+		//当前资源 业务Id不为空，且fileKeys为空，就必须给fileKeys赋初始值
+		if(bId != null && bId > 0  && !bId.equals(businessId) && StringUtils.isBlank(resPic.getFileKeys())){
+			resPic.setFileKeys(fileKey);
+		}
+		String fileKeys = "" ;
+		//如果fileKeys不为空，累加fileKeys
+		if(StringUtils.isNotBlank(resPic.getFileKeys())){
+			fileKeys = resPic.getFileKeys()+","+picKey;
+		}else{
+			fileKeys = picKey+"";
+		}
+		resPic.setFileKeys(fileKeys);
+		
+		String businessIds = "";
+		//业务Ids为空或不为空，则赋值或累加
+		if(bId != null && bId > 0 && !bId.equals(businessId) && StringUtils.isBlank(resPic.getBusinessIds())){
+			businessIds =  bId + "," + businessId ;
+			resPic.setBusinessId(0);
+		}else if(StringUtils.isNotBlank(resPic.getBusinessIds())){
+			businessIds =   resPic.getBusinessIds()+","+businessId ;
+			resPic.setBusinessId(0);
+		}else{
+			businessIds = businessId+"";
+			resPic.setBusinessId(businessId);
+		}
+		resPic.setBusinessIds(businessIds);
+		resPic.setSysCode(sysCode);
+		resPic.setPicCode(sysCode);
+		return resPicMapper.updateByPrimaryKeySelective(resPic);
+	}
+	
+	/**
+	 *    删除数据
+	 *
+	 * @param id
+	 * @return  int 
+	 */
+	@Override
+	public int delete(Integer id) {
+		return resPicMapper.deleteByPrimaryKey(id);
+	}
+
+	/**
+	 *    获取数据详情
+	 *
+	 * @param id
+	 * @return  ResPic 
+	 */
+	@Override
+	public ResPic get(Integer id) {
+		return resPicMapper.selectByPrimaryKey(id);
+	}
+
+    public TDesignSketch findById(Integer id){
+    	return resPicMapper.findById(id);
+    }
+    
+    public int findCount(ResPicSearch resPicSearch){
+    	return resPicMapper.findCount(resPicSearch);
+    }
+    
+    public List<TDesignSketch> findList(ResPicSearch resPicSearch){
+    	return resPicMapper.findList(resPicSearch);
+    }
+	
+	/**
+	 * 所有数据
+	 * 
+	 * @param  resPic
+	 * @return   List<ResPic>
+	 */
+	@Override
+	public List<ResPic> getList(ResPic resPic) {
+	    return resPicMapper.selectList(resPic);
+	}
+	
+	/**
+	 *    获取数据数量
+	 *
+	 * @param  resPic
+	 * @return   int
+	 */
+	@Override
+	public int getCount(ResPicSearch resPicSearch){
+		return  resPicMapper.selectCount(resPicSearch);	
+    }
+	
+
+	/**
+	 *    分页获取数据
+	 *
+	 * @param  resPic
+	 * @return   List<ResPic>
+	 */
+	@Override
+	public List<ResPic> getPaginatedList(
+			ResPicSearch resPicSearch) {
+		return resPicMapper.selectPaginatedList(resPicSearch);
+	}
+
+	/**
+	 * 将图片信息记录到数据库中
+	 */
+	@Override
+	public Integer saveFiles(String planId,List<Map> list,String level,String renderingType){
+		Integer smallPicId=0;
+		if(StringUtils.isNotBlank(planId) ){
+
+			DesignPlan designPlan = designPlanService.get(Integer.valueOf(planId));
+//			ResPic smallRenderPic = null;
+			ResRenderPic smallRenderPic = null;
+			ResRenderPic renderPic = null;
+//			ResPic renderPic = null;
+			for( Map smallRenderPicMap : list ){
+				//保存渲染图原图
+				Map renderPicMap = (Map)smallRenderPicMap.get("original");
+				renderPic = assembleResPic(renderPicMap);
+				renderPic.setIsDeleted(0);
+				renderPic.setCreator(designPlan.getCreator());
+				renderPic.setModifier(designPlan.getCreator());
+				renderPic.setBusinessId(Integer.valueOf(planId));
+				renderPic.setPicLevel(Integer.getInteger(level));
+				renderPic.setRenderingType(Integer.getInteger(renderingType));
+				renderPic.setPicType("高清原图");
+				renderPic.setFileKey(ResProperties.DESIGNPLAN_RENDER_PIC_FILEKEY);
+				int original = resRenderPicService.add(renderPic);
+				
+				smallRenderPic = assembleResPic(smallRenderPicMap);
+				smallRenderPic.setPid(original);
+				smallRenderPic.setCreator(designPlan.getCreator());
+				smallRenderPic.setIsDeleted(0);
+				smallRenderPic.setModifier(designPlan.getCreator());
+				smallRenderPic.setBusinessId(Integer.valueOf(planId));
+				smallRenderPic.setPicLevel(Integer.getInteger(level));
+				smallRenderPic.setFileKey(ResProperties.DESIGNPLAN_RENDER_PIC_SMALL_FILEKEY);
+				smallRenderPic.setPicType("高清缩略图");
+				//保存缩略图
+				int small = resRenderPicService.add(smallRenderPic);
+				
+
+			}
+		}
+		 
+		return smallPicId;
+	}
+
+	/**
+	 * 组装resPic
+	 * @param map
+	 * @return
+	 */
+	public ResRenderPic assembleResPic(Map map){
+//		ResPic resPic = new ResPic();
+		ResRenderPic resPic = new ResRenderPic();
+		String dbFilePath = Utils.dealWithPath(map.get(FileUploadUtils.DB_FILE_PATH).toString(), "linux");
+		/*String dbFilePath = map.get(FileUploadUtils.DB_FILE_PATH).toString();*/
+		resPic.setSysCode(Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+		resPic.setPicCode(resPic.getSysCode());
+		resPic.setGmtCreate(new Date());
+		resPic.setGmtModified(new Date());
+		resPic.setIsDeleted(0);
+		resPic.setPicName(map.get(FileModel.FILE_ORIGINAL_NAME)==null?"":map.get(FileModel.FILE_ORIGINAL_NAME).toString());
+		resPic.setPicSize(map.get(FileModel.FILE_SIZE)==null?-1:Integer.valueOf(map.get(FileModel.FILE_SIZE).toString()));
+		resPic.setPicSuffix(map.get(FileModel.FILE_SUFFIX).toString());
+		resPic.setPicFileName(dbFilePath.substring(dbFilePath.lastIndexOf("/") + 1, dbFilePath.lastIndexOf(".")));
+		resPic.setPicPath(dbFilePath);
+		resPic.setFileKey(map.get(FileModel.FILE_KEY).toString());
+		resPic.setPicType("无");
+		resPic.setViewPoint(Integer.parseInt(map.get("viewPoint").toString()));
+		resPic.setScene(Integer.parseInt(map.get("scene").toString()));
+		return resPic;
+	}
+
+	/**
+	 * 回填图片资源
+	 * @param businessId 业务表ID
+	 * @param rePicId 图片资源表ID
+	 */
+	public void backFillResPic(Integer businessId,Integer rePicId,String picKey,String sysCode){
+		ResPic resPic = this.get(rePicId);
+		if(resPic != null){
+			this.update(resPic,businessId,picKey,sysCode);
+		}
+	}
+
+	/**
+	 * 删除当前资源信息
+	 * @param businessId 业务Id
+	 * @param picId  图片资源Id 
+	 */
+	public void clearBackfillResPic(Integer businessId,Integer picId){
+		StringBuffer bidSb = new StringBuffer();
+		StringBuffer keySb = new StringBuffer();
+		ResPic resPic = this.get(picId);
+		if(resPic != null){
+			String bids = resPic.getBusinessIds();
+			String keys = resPic.getFileKeys();
+			if( bids != null ){
+				String bidArr[] = bids.split(",");
+				String keyArr[] = keys.split(",");
+				for( int i=0;i<bidArr.length;i++ ){
+					if(!bidArr[i].equals(businessId+"")){
+						bidSb.append(bidArr[i]).append(",");
+						keySb.append(keyArr[i]).append(",");
+					}
+				}
+				String bid = bidSb.toString();
+				String key = keySb.toString();
+				if(bid.length()>0){
+					bid = bid.substring(0, bid.length()-1);
+					key = key.substring(0, key.length()-1);
+				}
+				resPic.setBusinessIds(bid);
+				resPic.setFileKeys(key);
+				//判断bid，给businessId赋值
+				if(StringUtils.isNotBlank(bid)){
+					if(bid.contains(","))
+						resPic.setBusinessId(0);
+					else
+						resPic.setBusinessId(Utils.getIntValue(bid));
+				}else{
+					resPic.setBusinessId(0);
+				}
+				this.update(resPic);
+			}
+		}
+	}
+	
+	private final static ResourceBundle app = ResourceBundle.getBundle("app");
+	
+	/**生成缩略图*/
+	public Map<String,ResPic> createThumbnail(ResPic resPic,HttpServletRequest request) throws IOException{
+		/*判断其是否要重新生成缩略图(查看smallPicInfo属性)*/
+		if(StringUtils.isNotBlank(resPic.getSmallPicInfo())){
+			/*判断为已生成过缩略图*/
+			return new HashMap<String,ResPic>();
+		}
+		String fileKey=resPic.getFileKey();
+		Integer fileKeyInfo=0;
+		if(StringUtils.equals("product.baseProduct.piclist", fileKey)){
+			/*识别为产品*/
+			fileKeyInfo=1;
+		}else if(StringUtils.equals("home.spaceCommon.pic", fileKey)){
+			/*识别为空间数据-*/
+			fileKeyInfo=2;
+		}else if(StringUtils.equals("home.spaceCommon.view3dPic", fileKey)){
+			/*识别为空间数据-*/
+			fileKeyInfo=3;
+		}else if(StringUtils.equals("design.designTemplet.pic", fileKey)){
+			//design.designTemplet.pic
+			/*识别为样板房-空间布局图*/
+			fileKeyInfo=4;
+		}else if(StringUtils.equals("design.designTemplet.piclist", fileKey)){
+			//design.designTemplet.piclist
+			/*识别为样板房-效果图*/
+			fileKeyInfo=5;
+		}
+		/*
+		 * FIXME productDecoration无用，已删
+		 * else if(StringUtils.equals("product.productDecoration.piclist", fileKey)){
+			//product.productDecoration.piclist
+			识别为饰品图片列表
+			fileKeyInfo=6;
+		}*/else if(StringUtils.equals("home.designRecommendation.piclist", fileKey)){
+			//home.designRecommendation.piclist
+			/*识别为效果图推荐图片列表*/
+			fileKeyInfo=7;
+		}else if(StringUtils.equals("system.sysUser.pic.upload.path", fileKey)){
+			//system.sysUser.pic
+			/*识别为设计师头像*/
+			fileKeyInfo=8;
+		}else if(StringUtils.equals("system.sysUser.designerWorks.piclist", fileKey)){
+			//system.sysUser.pic
+			/*识别为设计师作品图片*/
+			fileKeyInfo=9;
+		}else if(StringUtils.equals("design.designTemplet.effectPlan", fileKey)){
+			/*识别为样板房平面效果图*/
+			fileKeyInfo=11;
+		}else if(StringUtils.equals("home.spaceCommon.viewPlan", fileKey)){
+			/*识别为空间俯视平面图*/
+			fileKeyInfo=10;
+		}else{
+			/*不能识别*/
+			return new HashMap<String,ResPic>();
+		}
+		String UPLOAD_ROOT = Tools.getRootPath(resPic.getPicPath(), "D:\\app");
+		String resPicUrl=UPLOAD_ROOT+resPic.getPicPath();
+		String resSmallPicFolder="";
+		
+		if(fileKeyInfo==1){
+			//resSmallPicFolder=UPLOAD_ROOT+app.getString("product.baseProduct.pic.upload.path");//缩略图生成路径(不包括缩略图名)
+			resSmallPicFolder = UPLOAD_ROOT + Utils.getPropertyName("config/res", "product.baseProduct.pic.upload.path", "/product/baseProduct/pic/");
+		}else if(fileKeyInfo==2){
+			//resSmallPicFolder=UPLOAD_ROOT+app.getString("home.spaceCommon.pic.upload.path");//缩略图生成路径(不包括缩略图名)
+			resSmallPicFolder=UPLOAD_ROOT + Utils.getPropertyName("config/res", "home.spaceCommon.pic.upload.path", "/home/spaceCommon/pic/");
+		}else if(fileKeyInfo==3){
+			//resSmallPicFolder=UPLOAD_ROOT+app.getString("home.spaceCommon.view3dPic.upload.path");//缩略图生成路径(不包括缩略图名)
+			resSmallPicFolder=UPLOAD_ROOT + Utils.getPropertyName("config/res", "home.spaceCommon.view3dPic.upload.path", "/home/spaceCommon/view3dPic/");
+		}else if(fileKeyInfo==4){
+			//resSmallPicFolder=UPLOAD_ROOT+app.getString("design.designTemplet.pic.upload.path");//缩略图生成路径(不包括缩略图名)
+			resSmallPicFolder=UPLOAD_ROOT + Utils.getPropertyName("config/res", "design.designTemplet.pic.upload.path", "/design/designTemplet/[code]/pic/");
+		}else if(fileKeyInfo==5){
+			//resSmallPicFolder=UPLOAD_ROOT+app.getString("design.designTemplet.piclist.upload.path");//缩略图生成路径(不包括缩略图名)
+			resSmallPicFolder=UPLOAD_ROOT+Utils.getPropertyName("config/res", "design.designTemplet.piclist.upload.path", "/design/designTemplet/[code]/piclist/");
+		}
+		/*
+		 * FIXME productDecoration无用，已删
+		 * else if(fileKeyInfo==6){
+			//resSmallPicFolder=UPLOAD_ROOT+app.getString("product.productDecoration.pic.upload.path");//缩略图生成路径(不包括缩略图名)
+			resSmallPicFolder=UPLOAD_ROOT+Utils.getPropertyName("config/res", "product.productDecoration.pic.upload.path", "/product/productDecoration/pic/");//缩略图生成路径(不包括缩略图名)
+		}*/
+		else if(fileKeyInfo==7){
+			//resSmallPicFolder=UPLOAD_ROOT+app.getString("home.designRecommendation.pic.upload.path");//缩略图生成路径(不包括缩略图名)
+			resSmallPicFolder=UPLOAD_ROOT+Utils.getPropertyName("config/res", "home.designRecommendation.pic.upload.path", "/home/designRecommendation/pic/");
+		}else if(fileKeyInfo==8){
+			//resSmallPicFolder=UPLOAD_ROOT+app.getString("system.sysUser.pic.upload.path");//缩略图生成路径(不包括缩略图名)
+			resSmallPicFolder =  UPLOAD_ROOT + Utils.getPropertyName("config/res", "system.sysUser.pic.upload.path", "/system/sysUser/pic/");
+		}else if(fileKeyInfo==9){
+			//resSmallPicFolder=UPLOAD_ROOT+app.getString("system.sysUser.designerWorks.piclist.path");//缩略图生成路径(不包括缩略图名)
+			resSmallPicFolder = UPLOAD_ROOT + Utils.getPropertyName("config/res", "system.sysUser.designerWorks.piclist.path", "/system/sysUser/designerWorks/piclist/");
+		}else if(fileKeyInfo==11){
+			//resSmallPicFolder=UPLOAD_ROOT+app.getString("design.designTemplet.effectPlan.upload.path");//缩略图生成路径(不包括缩略图名)
+			resSmallPicFolder=UPLOAD_ROOT+Utils.getPropertyName("config/res", "design.designTemplet.effectPlan.upload.path", "/c_basedesign/design/designTemplet/effectPlan/");//缩略图生成路径(不包括缩略图名)
+		}else if(fileKeyInfo==10){
+			//resSmallPicFolder=UPLOAD_ROOT+app.getString("home.spaceCommon.viewPlan.upload.path");//缩略图生成路径(不包括缩略图名)
+			resSmallPicFolder = UPLOAD_ROOT+Utils.getPropertyName("config/res", "home.spaceCommon.viewPlan.upload.path", "/home/spaceCommon/[code]/viewPlan/");
+		}
+		/*由于特殊的路径要加code(样板房,所以加入以下逻辑处理)*/
+		//resSmallPicFolder=resSmallPicFolder.replace("[code]", resPic.getPicCode());
+		resSmallPicFolder = Utils.replaceDate(resSmallPicFolder);
+		/*生成缩略图*/
+		String resPicPath=resPic.getPicPath();
+		if(StringUtils.isBlank(resPicPath)){
+			logger.info("------id为"+resPic.getId()+"的图片没有存路径(picPath)");
+		}
+		String name=resPicPath.substring(resPicPath.lastIndexOf("/")+1);
+
+		String urlWeb="";
+		String urlIpad="";
+		
+		if(fileKeyInfo==1){
+			urlWeb=resSmallPicFolder+"web_"+name;
+			urlIpad=resSmallPicFolder+"ipad_"+name;
+		}else if(fileKeyInfo==2){
+			urlWeb=resSmallPicFolder+"small/web_"+name;
+			urlIpad=resSmallPicFolder+"small/ipad_"+name;
+		}else if(fileKeyInfo==3){
+			urlWeb=resSmallPicFolder+"small/web_"+name;
+			urlIpad=resSmallPicFolder+"small/ipad_"+name;
+		}else if(fileKeyInfo==4){
+			urlWeb=resSmallPicFolder+"small/web_"+name;
+			urlIpad=resSmallPicFolder+"small/ipad_"+name;
+		}else if(fileKeyInfo==5){
+			urlWeb=resSmallPicFolder+"small/web_"+name;
+			urlIpad=resSmallPicFolder+"small/ipad_"+name;
+		}else if(fileKeyInfo==6){
+			urlWeb=resSmallPicFolder+"web_"+name;
+			urlIpad=resSmallPicFolder+"ipad_"+name;
+		}else if(fileKeyInfo==7){
+			urlWeb=resSmallPicFolder+"web_"+name;
+			urlIpad=resSmallPicFolder+"ipad_"+name;
+		}else if(fileKeyInfo==8){
+			urlWeb=resSmallPicFolder+"small/web_"+name;
+			urlIpad=resSmallPicFolder+"small/ipad_"+name;
+		}else if(fileKeyInfo==9){
+			urlWeb=resSmallPicFolder+"small/web_"+name;
+			urlIpad=resSmallPicFolder+"small/ipad_"+name;
+		}else if(fileKeyInfo==11){
+			urlWeb=resSmallPicFolder+"small/web_"+name;
+			urlIpad=resSmallPicFolder+"small/ipad_"+name;
+		}else if(fileKeyInfo==10){
+			urlWeb=resSmallPicFolder+"small/web_"+name;
+			urlIpad=resSmallPicFolder+"small/ipad_"+name;
+		}
+		int ipadwidth=0;
+		int ipadheight=0;
+		int webwidth=0;
+		int webheight=0;
+		/*调整缩略图参考像素*/
+		if(fileKeyInfo==7){
+			/*效果图推荐(设计潮流)*/
+			ipadwidth=664;
+			ipadheight=381;
+			webwidth=320;
+			webheight=193;
+		}else if(fileKeyInfo==2){
+			ipadwidth=576;
+			ipadheight=348;
+			webwidth=296;
+			webheight=180;
+		}else if(fileKeyInfo==3){
+			ipadwidth=576;
+			ipadheight=348;
+			webwidth=296;
+			webheight=180;
+		}else if(fileKeyInfo==4){
+			/*样板房布局图*/
+			ipadwidth=576;
+			ipadheight=348;
+			webwidth=296;
+			webheight=180;
+		}else if(fileKeyInfo==5){
+			/*样板房效果图(俯视图)*/
+			ipadwidth=576;
+			ipadheight=348;
+			webwidth=296;
+			webheight=180;
+		}else if(fileKeyInfo==8){
+			/*设计师头像*/
+			ipadwidth=180;
+			ipadheight=180;
+			webwidth=92;
+			webheight=92;
+		}else if(fileKeyInfo==9){
+			/*设计师作品*/
+			ipadwidth=96;
+			ipadheight=96;
+			webwidth=54;
+			webheight=54;
+		}else if(fileKeyInfo==11){
+			ipadwidth=576;
+			ipadheight=348;
+			webwidth=296;
+			webheight=180;
+		}else if(fileKeyInfo==10){
+			ipadwidth=576;
+			ipadheight=348;
+			webwidth=296;
+			webheight=180;
+		}else{
+			/*产品*/
+			ipadwidth=265;
+			ipadheight=245;
+			webwidth=141;
+			webheight=132;
+		}
+		ResizeImage.createThumbnail(resPicUrl,urlIpad , ipadwidth, ipadheight);//生成ipad缩略图
+		ResizeImage.createThumbnail(resPicUrl,urlWeb , webwidth, webheight);//生成web缩略图
+		/*记录user*/
+		LoginUser loginUser = new LoginUser();
+		if (com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request) == null
+				|| com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request) == null) {
+			loginUser.setLoginName("nologin");
+		} else {
+			loginUser = com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request);
+		}
+		/*保存两张缩略图信息到respic表中*/
+		ResPic resPicIpad=new ResPic();
+		File fileIpad=new File(urlIpad);
+		File fileWeb=new File(urlWeb);
+		BufferedImage imageIpad=null;
+		BufferedImage imageWeb=null;
+		try {
+			imageIpad=javax.imageio.ImageIO.read(fileIpad);
+			imageWeb=javax.imageio.ImageIO.read(fileWeb);
+		} catch (IOException e) {
+			/*读取图片失败*/
+			e.printStackTrace();
+		}
+		resPicIpad.setPicName("ipad_"+name.substring(0,name.lastIndexOf(".")));
+		resPicIpad.setPicFileName("ipad_"+name.substring(0,name.lastIndexOf(".")));
+		resPicIpad.setPicSize((int)(fileIpad.length()));
+		resPicIpad.setPicWeight(""+imageIpad.getWidth());
+		resPicIpad.setPicHigh(""+imageIpad.getHeight());
+		resPicIpad.setPicSuffix(resPic.getPicSuffix());
+		
+		if(fileKeyInfo==1){
+			//resPicIpad.setPicPath(app.getString("product.baseProduct.pic.upload.path")+"ipad_"+name);
+			resPicIpad.setPicPath(Utils.getPropertyName("config/res", "product.baseProduct.pic.upload.path", "/product/baseProduct/pic/")+"ipad_"+name);
+			resPicIpad.setFileKey("product.baseProduct.pic");
+			resPicIpad.setPicType("产品ipad端缩略图");
+		}else if(fileKeyInfo==2){
+			//resPicIpad.setPicPath(app.getString("home.spaceCommon.pic.upload.path")+"small/ipad_"+name);
+			resPicIpad.setPicPath(Utils.getPropertyName("config/res", "home.spaceCommon.pic.upload.path", "/home/spaceCommon/pic/")+"small/ipad_"+name);
+			resPicIpad.setFileKey("home.spaceCommon.pic.small");
+			resPicIpad.setPicType("空间户型图ipad端缩略图");
+		}else if(fileKeyInfo==3){
+			//resPicIpad.setPicPath(app.getString("home.spaceCommon.view3dPic.upload.path")+"small/ipad_"+name);
+			resPicIpad.setPicPath(Utils.getPropertyName("config/res", "home.spaceCommon.view3dPic.upload.path", "/home/spaceCommon/view3dPic/")+"small/ipad_"+name);
+			resPicIpad.setFileKey("home.spaceCommon.view3dPic.small");
+			resPicIpad.setPicType("3D空间俯视图ipad端缩略图");
+		}else if(fileKeyInfo==4){
+			//resPicIpad.setPicPath(app.getString("design.designTemplet.pic.upload.path")+"small/ipad_"+name);
+			resPicIpad.setPicPath(Utils.getPropertyName("config/res", "design.designTemplet.pic.upload.path", "/design/designTemplet/[code]/pic/")+"small/ipad_"+name);
+			resPicIpad.setFileKey("design.designTemplet.pic.small");
+			resPicIpad.setPicType("样板房-空间布局图ipad端缩略图");
+		}else if(fileKeyInfo==5){
+			//resPicIpad.setPicPath(app.getString("design.designTemplet.piclist.upload.path")+"small/ipad_"+name);
+			resPicIpad.setPicPath(Utils.getPropertyName("config/res", "design.designTemplet.piclist.upload.path", "/design/designTemplet/[code]/piclist/")+"small/ipad_"+name);
+			resPicIpad.setFileKey("design.designTemplet.piclist.small");
+			resPicIpad.setPicType("样板房-效果图ipad端缩略图");
+		}/*
+		FIXME productDecoration无用，已删
+		else if(fileKeyInfo==6){
+			//resPicIpad.setPicPath(app.getString("product.productDecoration.pic.upload.path")+"ipad_"+name);
+			resPicIpad.setPicPath(Utils.getPropertyName("config/res", "product.productDecoration.pic.upload.path", "/product/productDecoration/pic/")+"ipad_"+name);
+			resPicIpad.setFileKey("product.productDecoration.pic");
+			resPicIpad.setPicType("饰品ipad端缩略图");
+		}*/else if(fileKeyInfo==7){
+			//resPicIpad.setPicPath(app.getString("home.designRecommendation.pic.upload.path")+"ipad_"+name);
+			resPicIpad.setPicPath(Utils.getPropertyName("config/res", "home.designRecommendation.pic.upload.path", "/home/designRecommendation/pic/")+"ipad_"+name);
+			resPicIpad.setFileKey("home.designRecommendation.pic");
+			resPicIpad.setPicType("效果图推荐ipad端缩略图");
+		}else if(fileKeyInfo==8){
+			//resPicIpad.setPicPath(app.getString("system.sysUser.pic.upload.path")+"small/ipad_"+name);
+			resPicIpad.setPicPath(Utils.getPropertyName("config/res", "system.sysUser.pic.upload.path", "/system/sysUser/pic/")+"small/ipad_"+name);
+			resPicIpad.setFileKey("system.sysUser.pic.small");
+			resPicIpad.setPicType("用户头像ipad端缩略图");
+		}else if(fileKeyInfo==9){
+			//resPicIpad.setPicPath(app.getString("system.sysUser.designerWorks.piclist.path")+"small/ipad_"+name);
+			resPicIpad.setPicPath(Utils.getPropertyName("config/res", "system.sysUser.designerWorks.piclist.path", "/system/sysUser/designerWorks/piclist/") + "small/ipad_"+name);
+			resPicIpad.setFileKey("system.sysUser.designerWorks.piclist.small");
+			resPicIpad.setPicType("设计师作品ipad端缩略图");
+		}else if(fileKeyInfo==11){
+			//resPicIpad.setPicPath(app.getString("design.designTemplet.effectPlan.upload.path")+"small/ipad_"+name);
+			resPicIpad.setPicPath(Utils.getPropertyName("config/res", "design.designTemplet.effectPlan.upload.path", "/c_basedesign/design/designTemplet/effectPlan/")+"small/ipad_"+name);
+			resPicIpad.setFileKey("design.designTemplet.effectPlan.small");
+			resPicIpad.setPicType("样板房平面效果图ipad端缩略图");
+		}else if(fileKeyInfo==10){
+			resPicIpad.setPicPath(app.getString("home.spaceCommon.viewPlan.upload.path")+"small/ipad_"+name);
+			resPicIpad.setFileKey("home.spaceCommon.viewPlan.small");
+			resPicIpad.setPicType("空间俯视平面图ipad端缩略图");
+		}
+		/*由于特殊的路径要加code(样板房,所以加入以下逻辑处理)*/
+		//resPicIpad.setPicPath(resPicIpad.getPicPath().replace("[code]", resPic.getPicCode()));
+		resPicIpad.setPicPath(Utils.replaceDate(resPicIpad.getPicPath()));
+		
+		//resPicIpad.setSysCode(Utils.getCurrentDateTime(Utils.DATETIMESSS)+ "_"+ Utils.generateRandomDigitString(6));
+		/*修改缩略图code和原图一致*/
+		resPicIpad.setSysCode(resPic.getSysCode());
+		resPicIpad.setGmtCreate(new Date());
+		resPicIpad.setCreator(loginUser.getLoginName());
+		resPicIpad.setIsDeleted(0);
+		resPicIpad.setGmtModified(new Date());
+		resPicIpad.setModifier(loginUser.getLoginName());
+		resPicIpad.setPicCode(resPicIpad.getSysCode());
+		resPicIpad.setPicFormat(resPic.getPicSuffix().substring(1,resPic.getPicSuffix().length()));
+		resPicIpad.setBusinessId(resPic.getBusinessId());
+		add(resPicIpad);//保存ipad端缩略图
+		/*支持ftp上传ipad端缩略图*/
+		String ipadImageName=resPicIpad.getPicName();
+		String ipadSuffix=resPicIpad.getPicSuffix();
+		String ipadDbFilePath=urlIpad;
+		String ipadFilePath=resPicIpad.getPicPath().substring(0,resPicIpad.getPicPath().lastIndexOf("/")+1);
+		try{
+			boolean flag = false;
+			//仅支持ftp服务器上传
+			if(Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD)==2){
+				logger.info("------用户头像上传ftp服务器删除本地文件");
+				flag = FtpUploadUtils.uploadFile(ipadImageName + ipadSuffix,ipadDbFilePath,ipadFilePath);
+				if(flag){
+					//删除本地
+					FileUploadUtils.deleteFile(ipadDbFilePath);
+				}else{
+					logger.info("---------仅支持ftp服务器文件上传异常！");
+				}
+			}
+			//3 本地和ftp同时上传(默认是本地上传)
+			if(Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD)==3){
+				logger.info("------用户头像上传ftp服务器不删除本地文件");
+				flag = FtpUploadUtils.uploadFile(ipadImageName + ipadSuffix,ipadDbFilePath,ipadFilePath);
+				if(!flag){
+					logger.info("---------本地和ftp服务器同时文件上传异常！");
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error("----ftp上传异常："+e.getMessage());
+		}
+		
+		/*保存web端缩略图*/
+		ResPic resPicWeb=new ResPic();
+		resPicWeb.setPicName("web_"+name.substring(0,name.lastIndexOf(".")));
+		resPicWeb.setPicFileName("web_"+name.substring(0,name.lastIndexOf(".")));
+		resPicWeb.setPicSize((int)(fileWeb.length()));
+		resPicWeb.setPicWeight(""+imageWeb.getWidth());
+		resPicWeb.setPicHigh(""+imageWeb.getHeight());
+		resPicWeb.setPicSuffix(resPic.getPicSuffix());
+		if(fileKeyInfo==1){
+			//resPicWeb.setPicPath(app.getString("product.baseProduct.pic.upload.path")+"web_"+name);
+			resPicWeb.setPicPath(Utils.getPropertyName("config/res", "product.baseProduct.pic.upload.path", "/product/baseProduct/pic/")+"web_"+name);
+			resPicWeb.setFileKey("product.baseProduct.pic");
+			resPicWeb.setPicType("产品web端缩略图");
+		}else if(fileKeyInfo==2){
+			//resPicWeb.setPicPath(app.getString("home.spaceCommon.pic.upload.path")+"small/web_"+name);
+			resPicWeb.setPicPath(Utils.getPropertyName("config/res", "home.spaceCommon.pic.upload.path", "/home/spaceCommon/pic/")+"small/web_"+name);
+			resPicWeb.setFileKey("home.spaceCommon.pic.small");
+			resPicWeb.setPicType("空间户型图web端缩略图");
+		}else if(fileKeyInfo==3){
+			//resPicWeb.setPicPath(app.getString("home.spaceCommon.view3dPic.upload.path")+"small/web_"+name);
+			resPicWeb.setPicPath(Utils.getPropertyName("config/res", "home.spaceCommon.view3dPic.upload.path", "/home/spaceCommon/view3dPic/")+"small/web_"+name);
+			resPicWeb.setFileKey("home.spaceCommon.view3dPic.small");
+			resPicWeb.setPicType("3D空间俯视图web端缩略图");
+		}else if(fileKeyInfo==4){
+			//resPicWeb.setPicPath(app.getString("design.designTemplet.pic.upload.path")+"small/web_"+name);
+			resPicWeb.setPicPath(Utils.getPropertyName("config/res", "design.designTemplet.pic.upload.path", "/design/designTemplet/[code]/pic/")+"small/web_"+name);
+			resPicWeb.setFileKey("design.designTemplet.pic.small");
+			resPicWeb.setPicType("样板房-空间布局图web端缩略图");
+		}else if(fileKeyInfo==5){
+			//resPicWeb.setPicPath(app.getString("design.designTemplet.piclist.upload.path")+"small/web_"+name);
+			resPicWeb.setPicPath(Utils.getPropertyName("config/res", "design.designTemplet.piclist.upload.path", "/design/designTemplet/[code]/piclist/")+"small/web_"+name);
+			resPicWeb.setFileKey("design.designTemplet.piclist.small");
+			resPicWeb.setPicType("样板房-效果图web端缩略图");
+		}
+		/*
+		 * FIXME productDecoration无用，已删
+		 * else if(fileKeyInfo==6){
+			//resPicWeb.setPicPath(app.getString("product.productDecoration.pic.upload.path")+"web_"+name);
+			resPicWeb.setPicPath(Utils.getPropertyName("config/res", "product.productDecoration.pic.upload.path", "/product/productDecoration/pic/")+"web_"+name);
+			resPicWeb.setFileKey("product.productDecoration.pic");
+			resPicWeb.setPicType("饰品web端缩略图");
+		}*/
+		else if(fileKeyInfo==7){
+			//resPicWeb.setPicPath(app.getString("home.designRecommendation.pic.upload.path")+"web_"+name);
+			resPicWeb.setPicPath(Utils.getPropertyName("config/res", "home.designRecommendation.pic.upload.path", "/home/designRecommendation/pic/")+"web_"+name);
+			resPicWeb.setFileKey("home.designRecommendation.pic");
+			resPicWeb.setPicType("效果图推荐web端缩略图");
+		}else if(fileKeyInfo==8){
+			//resPicWeb.setPicPath(app.getString("system.sysUser.pic.upload.path")+"small/web_"+name);
+			resPicWeb.setPicPath(Utils.getPropertyName("config/res", "system.sysUser.pic.upload.path", "/system/sysUser/pic/")+"small/web_"+name);
+			resPicWeb.setFileKey("system.sysUser.pic.small");
+			resPicWeb.setPicType("用户头像web端缩略图");
+		}else if(fileKeyInfo==9){
+			//resPicWeb.setPicPath(app.getString("system.sysUser.designerWorks.piclist.path")+"small/web_"+name);
+			resPicWeb.setPicPath(Utils.getPropertyName("config/res", "system.sysUser.designerWorks.piclist.path", "/system/sysUser/designerWorks/piclist/") + "small/web_"+name);
+			resPicWeb.setFileKey("system.sysUser.designerWorks.piclist.small");
+			resPicWeb.setPicType("设计师作品web端缩略图");
+		}else if(fileKeyInfo==11){
+			resPicWeb.setPicPath(app.getString("design.designTemplet.effectPlan.upload.path")+"small/web_"+name);
+			resPicWeb.setFileKey("design.designTemplet.effectPlan.small");
+			resPicWeb.setPicType("样板房平面效果图web端缩略图");
+		}else if(fileKeyInfo==10){
+			resPicWeb.setPicPath(app.getString("home.spaceCommon.viewPlan.upload.path")+"small/web_"+name);
+			resPicWeb.setFileKey("home.spaceCommon.viewPlan.small");
+			resPicWeb.setPicType("空间平面俯视图web端缩略图");
+		}
+		/*由于特殊的路径要加code(样板房,所以加入以下逻辑处理)*/
+		resPicWeb.setPicPath(resPicWeb.getPicPath().replace("[code]", resPic.getPicCode()));
+		
+		//resPicWeb.setSysCode(Utils.getCurrentDateTime(Utils.DATETIMESSS)+ "_"+ Utils.generateRandomDigitString(6));
+		/*修改为缩略图和原图sysCode一致*/
+		resPicWeb.setSysCode(resPic.getSysCode());
+		resPicWeb.setGmtCreate(new Date());
+		resPicWeb.setCreator(loginUser.getLoginName());
+		resPicWeb.setIsDeleted(0);
+		resPicWeb.setGmtModified(new Date());
+		resPicWeb.setModifier(loginUser.getLoginName());
+		resPicWeb.setPicCode(resPic.getSysCode());
+		resPicWeb.setPicFormat(resPic.getPicSuffix().substring(1,resPic.getPicSuffix().length()));
+		resPicWeb.setBusinessId(resPic.getBusinessId());
+		add(resPicWeb);//保存web端缩略图
+		
+		/*支持ftp上传web端缩略图*/
+		String webImageName=resPicWeb.getPicName();
+		String webSuffix=resPicWeb.getPicSuffix();
+		String webDbFilePath=urlWeb;
+		String webFilePath=resPicWeb.getPicPath().substring(0,resPicWeb.getPicPath().lastIndexOf("/")+1);
+		try{
+			boolean flag = false;
+			//仅支持ftp服务器上传
+			if(Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD)==2){
+				logger.info("------用户头像上传ftp服务器删除本地文件");
+				flag = FtpUploadUtils.uploadFile(webImageName + webSuffix,webDbFilePath,webFilePath);
+				if(flag){
+					//删除本地
+					FileUploadUtils.deleteFile(webDbFilePath);
+				}else{
+					logger.info("---------仅支持ftp服务器文件上传异常！");
+				}
+			}
+			//3 本地和ftp同时上传(默认是本地上传)
+			if(Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD)==3){
+				logger.info("------用户头像上传ftp服务器不删除本地文件");
+				flag = FtpUploadUtils.uploadFile(webImageName + webSuffix,webDbFilePath,webFilePath);
+				if(!flag){
+					logger.info("---------本地和ftp服务器同时文件上传异常！");
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error("----ftp上传异常："+e.getMessage());
+		}
+		
+		/*补充resPic信息(绑定其缩略图id:放在smallPicInfo字段)*/
+		String smallPicInfo="";
+		if(resPicWeb.getId()!=null&&resPicWeb.getId()>0){
+			smallPicInfo+="web:"+resPicWeb.getId()+";";
+		}
+		if(resPicIpad.getId()!=null&&resPicIpad.getId()>0){
+			smallPicInfo+="ipad:"+resPicIpad.getId()+";";
+		}
+		resPic.setSmallPicInfo(smallPicInfo);
+		update(resPic);
+		/*返回生成的两张缩略图信息*/
+		Map<String,ResPic> map=new HashMap<String,ResPic>();
+		map.put("web", resPicWeb);
+		map.put("ipad", resPicIpad);
+		return map;
+	}
+
+	/** 生成缩略图 */
+	public Map<String, ResPic> createThumbnailNew(ResPic resPic, HttpServletRequest request) throws IOException {
+
+		/*判断是否需要重新生成缩略图(该图片已生成过缩略图并保存,则不需要重新生成缩略图)*/
+		boolean needRebuild = false;
+		if(StringUtils.isNotBlank(resPic.getSmallPicInfo())){
+			Map<String, String> map = Utils.getMapFromStr(resPic.getSmallPicInfo());
+			if(map.containsKey("rebuild")){
+				if(StringUtils.equals("true", map.get("rebuild"))){
+					needRebuild = true;
+				}
+			}
+		}else{
+			needRebuild = true;
+		}
+		if (!needRebuild) {
+			 /*判断为已生成过缩略图 */
+			return new HashMap<String, ResPic>();
+		}
+
+
+		ResPic resPicOld = null;
+		Integer webPicId = null;
+		Integer ipadPicId = null;
+		Integer iosPicId = null;
+		Integer androidPicId = null;
+		if(resPic.getId() != null){
+			resPicOld = this.get(resPic.getId());
+			if(resPicOld != null){
+				String smallPicInfo = resPicOld.getSmallPicInfo();
+				if(StringUtils.isNotBlank(smallPicInfo)){
+					Map<String, String> smallPicInfoMap = Utils.getMapFromStr(smallPicInfo);
+					if(StringUtils.equals("system.resTexture.pic", resPic.getFileKey())) {
+						iosPicId = Integer.valueOf(smallPicInfoMap.get("ios"));
+						androidPicId = Integer.valueOf(smallPicInfoMap.get("android"));
+					}else {
+						webPicId = Integer.valueOf(smallPicInfoMap.get("web"));
+						ipadPicId = Integer.valueOf(smallPicInfoMap.get("ipad"));
+					}
+				}
+			}
+		}
+
+		String fileKey=resPic.getFileKey();
+		Integer fileKeyInfo=0;
+		if(StringUtils.equals("product.baseProduct.appPiclist", fileKey)){
+			/*识别为产品材质*/
+			fileKeyInfo=1;
+		}else if(StringUtils.equals("product.baseProduct.piclist", fileKey)){
+			/*识别为产品*/
+			fileKeyInfo=1;
+		}else if(StringUtils.equals("home.spaceCommon.pic", fileKey)){
+			/*识别为空间数据-*/
+			fileKeyInfo=2;
+		}else if(StringUtils.equals("home.spaceCommon.view3dPic", fileKey)){
+			/*识别为空间数据-*/
+			fileKeyInfo=3;
+		}else if(StringUtils.equals("design.designTemplet.pic", fileKey)){
+			//design.designTemplet.pic
+			/*识别为样板房-空间布局图*/
+			fileKeyInfo=4;
+		}else if(StringUtils.equals("design.designTemplet.piclist", fileKey)){
+			//design.designTemplet.piclist
+			/*识别为样板房-效果图*/
+			fileKeyInfo=5;
+		}else if(StringUtils.equals("home.designRecommendation.piclist", fileKey)){
+			//home.designRecommendation.piclist
+			/*识别为效果图推荐图片列表*/
+			fileKeyInfo=7;
+		}else if(StringUtils.equals("system.sysUser.pic.upload.path", fileKey)){
+			/*识别为设计师头像*/
+			fileKeyInfo=8;
+		}else if(StringUtils.equals("system.sysUser.designerWorks.piclist", fileKey)){
+			/*识别为设计师作品图片*/
+			fileKeyInfo=9;
+		}else if(StringUtils.equals("design.designTemplet.effectPlan", fileKey)){
+			/*识别为样板房平面效果图*/
+			fileKeyInfo=11;
+		}else if(StringUtils.equals("home.spaceCommon.viewPlan", fileKey)){
+			/*识别为空间俯视平面图*/
+			fileKeyInfo=10;
+		}else if(StringUtils.equals("product.structureProduct.pic", fileKey)){
+			/*识别为结构封面图*/
+			fileKeyInfo=12;
+		}else if(StringUtils.equals("product.baseSeries.pic", fileKey)){
+			/*识别为结构封面图*/
+			fileKeyInfo=13;
+		}else if(StringUtils.equals("system.resTexture.pic", fileKey)){
+			/*识别为材质表中的材质图片*/
+			fileKeyInfo=14;
+		}else if(StringUtils.equals("system.resTexture.normalPic", fileKey)){
+			/*识别为材质表中的材质图片*/
+			fileKeyInfo=15;
+		}else if(StringUtils.equals("product.baseWaterjetTemplate.templatePic", fileKey)){
+			/*识别为水刀模板图片*/
+			fileKeyInfo=16;
+		}else{
+			/*不能识别*/
+			return new HashMap<String,ResPic>();
+		}
+
+		String resPicUrl = Utils.getAbsolutePath(resPic.getPicPath(), null);
+
+		/* 生成缩略图 */
+		String resPicPath = resPic.getPicPath();
+		if (StringUtils.isBlank(resPicPath)) {
+			logger.debug("------id为" + resPic.getId() + "的图片没有存路径(picPath)");
+		}
+		String name = resPicPath.substring(resPicPath.lastIndexOf("/") + 1);
+
+		String urlWeb = "";
+		String urlIpad = "";
+		String fileKeyWeb = "";
+		String fileKeyIpad = "";
+		String urlAndroid = "";
+		String urlIos = "";
+		String fileKeyAndroid = "";
+		String fileKeyIos = "";
+		if (fileKeyInfo == 1) {
+			fileKeyWeb = "product.baseProduct.pic.web.upload.path";
+			fileKeyIpad = "product.baseProduct.pic.ipad.upload.path";
+		} else if (fileKeyInfo == 2) {
+			fileKeyWeb = "home.spaceCommon.pic.small.web.upload.path";
+			fileKeyIpad = "home.spaceCommon.pic.small.ipad.upload.path";
+		} else if (fileKeyInfo == 3) {
+			fileKeyWeb = "home.spaceCommon.view3dPic.small.web.upload.path";
+			fileKeyIpad = "home.spaceCommon.view3dPic.small.ipad.upload.path";
+		} else if (fileKeyInfo == 4) {
+			fileKeyWeb = "design.designTemplet.pic.small.web.upload.path";
+			fileKeyIpad = "design.designTemplet.pic.small.ipad.upload.path";
+		} else if (fileKeyInfo == 5) {
+			fileKeyWeb = "design.designTemplet.piclist.small.web.upload.path";
+			fileKeyIpad = "design.designTemplet.piclist.small.ipad.upload.path";
+		} /*else if (fileKeyInfo == 6) {
+			fileKeyWeb = "product.productDecoration.pic.web.upload.path";
+			fileKeyIpad = "product.productDecoration.pic.ipad.upload.path";
+		}*/ else if (fileKeyInfo == 7) {
+			fileKeyWeb = "home.designRecommendation.pic.web.upload.path";
+			fileKeyIpad = "home.designRecommendation.pic.ipad.upload.path";
+		} else if (fileKeyInfo == 8) {
+			fileKeyWeb = "system.sysUser.pic.small.web.upload.path";
+			fileKeyIpad = "system.sysUser.pic.small.ipad.upload.path";
+		} else if (fileKeyInfo == 9) {
+			fileKeyWeb = "system.sysUser.designerWorks.piclist.small.web.upload.path";
+			fileKeyIpad = "system.sysUser.designerWorks.piclist.small.ipad.upload.path";
+		} else if (fileKeyInfo == 11) {
+			fileKeyWeb = "design.designTemplet.effectPlan.small.web.upload.path";
+			fileKeyIpad = "design.designTemplet.effectPlan.small.ipad.upload.path";
+		} else if (fileKeyInfo == 10) {
+			fileKeyWeb = "home.spaceCommon.viewPlan.small.web.upload.path";
+			fileKeyIpad = "home.spaceCommon.viewPlan.small.ipad.upload.path";
+		}else if(fileKeyInfo==12){
+			fileKeyWeb="product.structureProduct.pic.small.web.upload.path";
+			fileKeyIpad="product.structureProduct.pic.small.ipad.upload.path";
+		}else if(fileKeyInfo==13){
+			fileKeyWeb="product.baseSeries.pic.small.web.upload.path";
+			fileKeyIpad="product.baseSeries.pic.small.ipad.upload.path";
+		}else if(14 == fileKeyInfo) {
+			fileKeyAndroid ="system.resTexture.pic.small.android.upload.path";
+			fileKeyIos ="system.resTexture.pic.small.ios.upload.path";
+		}else if(15 == fileKeyInfo) {
+			fileKeyAndroid ="system.resTexture.normalPic.small.android.upload.path";
+			fileKeyIos ="system.resTexture.normalPic.small.ios.upload.path";
+		}else if(16 == fileKeyInfo){
+			fileKeyIpad = "product.baseWaterjetTemplate.templatePic.small.ipad.upload.path";
+			fileKeyWeb = "product.baseWaterjetTemplate.templatePic.small.web.upload.path";
+		}
+
+		String fileKeyWebValue = null;
+		String fileKeyIpadValue = null;
+		String fileKeyAndroidValue = null;
+		String fileKeyIosValue = null;
+		if(14 == fileKeyInfo || 15 == fileKeyInfo) {
+			fileKeyAndroidValue = Utils.getValueByFileKey(ResProperties.RES, fileKeyAndroid, "");
+			fileKeyIosValue = Utils.getValueByFileKey(ResProperties.RES, fileKeyIos, "");
+			if (fileKeyAndroidValue == null || "".equals(fileKeyAndroidValue)) {
+				logger.warn("请配置key:" + fileKeyAndroid);
+				throw new RuntimeException("请配置key:" + fileKeyAndroid);
+			}
+			if (fileKeyIosValue == null || "".equals(fileKeyIosValue)) {
+				logger.warn("请配置key:" + fileKeyIos);
+				throw new RuntimeException("请配置key:" + fileKeyIos);
+			}
+		}else {
+			fileKeyWebValue = Utils.getValueByFileKey(ResProperties.RES, fileKeyWeb, "");
+			fileKeyIpadValue = Utils.getValueByFileKey(ResProperties.RES, fileKeyIpad, "");
+			if (fileKeyWebValue == null || "".equals(fileKeyWebValue)) {
+				logger.warn("请配置key:" + fileKeyWeb);
+				throw new RuntimeException("请配置key:" + fileKeyWeb);
+			}
+			if (fileKeyIpadValue == null || "".equals(fileKeyIpadValue)) {
+				logger.warn("请配置key:" + fileKeyIpad);
+				throw new RuntimeException("请配置key:" + fileKeyIpad);
+			}
+		}
+
+		// 相对路径(存在图片表中的pic_path字段)
+		String relativePathWeb = null;
+		String relativePathIpad = null;
+		String relativePathAndroid = null;
+		String relativePathIos = null;
+		/*if(14 == fileKeyInfo) {*/
+		if(14 == fileKeyInfo || 15 == fileKeyInfo) {
+			relativePathAndroid = Utils.getValueByFileKey(ResProperties.RES, fileKeyAndroid, "")+"android_"+name;
+			relativePathIos = Utils.getValueByFileKey(ResProperties.RES, fileKeyIos, "")+"ios_"+name;
+			urlAndroid = Utils.getAbsolutePath(relativePathAndroid, null);
+			urlIos = Utils.getAbsolutePath(relativePathIos, null);
+			/*由于特殊的路径要加code(样板房,所以加入以下逻辑处理)*/
+			urlAndroid=urlAndroid.replace("[code]", resPic.getPicCode());
+			urlIos=urlIos.replace("[code]", resPic.getPicCode());
+		}else {
+			relativePathWeb = Utils.getValueByFileKey(ResProperties.RES, fileKeyWeb,"")+"web_"+name;
+			relativePathIpad = Utils.getValueByFileKey(ResProperties.RES, fileKeyIpad,"")+"ipad_"+name;
+			urlWeb = Utils.getAbsolutePath(relativePathWeb, null);
+			urlIpad = Utils.getAbsolutePath(relativePathIpad, null);
+		}
+
+		int ipadwidth=0;
+		int ipadheight=0;
+		int webwidth=0;
+		int webheight=0;
+
+		int androidwidth = 0;
+		int androidheight = 0;
+		int ioswidth = 0;
+		int iosheight = 0;
+		/*调整缩略图参考像素*/
+		if(fileKeyInfo==7){
+			/*效果图推荐(设计潮流)*/
+			ipadwidth=664;
+			ipadheight=381;
+			webwidth=320;
+			webheight=193;
+		}else if(fileKeyInfo==2){
+			ipadwidth=576;
+			ipadheight=432;
+			webwidth=296;
+			webheight=180;
+		}else if(fileKeyInfo==3){
+			ipadwidth=576;
+			ipadheight=432;
+			webwidth=296;
+			webheight=180;
+		}else if(fileKeyInfo==4){
+			/*样板房布局图*/
+			ipadwidth=576;
+			ipadheight=432;
+			webwidth=296;
+			webheight=180;
+		}else if(fileKeyInfo==5){
+			/*样板房效果图(俯视图)*/
+			ipadwidth=576;
+			ipadheight=432;
+			webwidth=576;
+			webheight=432;
+		}else if(fileKeyInfo==8){
+			/*设计师头像*/
+			ipadwidth=180;
+			ipadheight=180;
+			webwidth=92;
+			webheight=92;
+		}else if(fileKeyInfo==9){
+			/*设计师作品*/
+			ipadwidth=96;
+			ipadheight=96;
+			webwidth=54;
+			webheight=54;
+		}else if(fileKeyInfo==11){
+			ipadwidth=576;
+			ipadheight=432;
+			webwidth=296;
+			webheight=180;
+		}else if(fileKeyInfo==10){
+			ipadwidth=576;
+			ipadheight=432;
+			webwidth=296;
+			webheight=180;
+		}else if(fileKeyInfo==12){
+			ipadwidth=576;
+			ipadheight=348;
+			webwidth=296;
+			webheight=180;
+		}else if(14 == fileKeyInfo || 15 == fileKeyInfo) {
+			androidwidth = 512;
+			androidheight = 512;
+			ioswidth = 512;
+			iosheight = 512;
+		}else{
+			/*产品 ipad缩略图 改为 256  256*/
+			ipadwidth=256;
+			ipadheight=256;
+			webwidth=141;
+			webheight=132;
+		}
+
+		/*if(14 == fileKeyInfo) {*/
+		if(14 == fileKeyInfo || 15 == fileKeyInfo) {
+			ResizeImage.createThumbnail(resPicUrl, urlIos, ioswidth, iosheight, fileKeyInfo, fileKey);
+			ResizeImage.createThumbnail(resPicUrl, urlAndroid, androidwidth, androidheight, fileKeyInfo, fileKey);
+		}else {
+			ResizeImage.createThumbnail(resPicUrl, urlIpad, ipadwidth, ipadheight, fileKeyInfo,fileKey);// 生成ipad缩略图
+			ResizeImage.createThumbnail(resPicUrl, urlWeb, webwidth, webheight, fileKeyInfo,fileKey);// 生成web缩略图
+		}
+
+		/* 记录user */
+		LoginUser loginUser = new LoginUser();
+		if (request.getSession() == null || request.getSession().getAttribute("loginUser") == null) {
+			loginUser.setLoginName("nologin");
+		} else {
+			loginUser = (LoginUser) request.getSession().getAttribute("loginUser");
+		}
+		/* 保存两张缩略图信息到respic表中 */
+		ResPic resPicIpad = null;
+		ResPic resPicIos = null;
+
+		File fileIpad = null;
+		File fileWeb = null;
+		File fileIos = null;
+		File fileAndroid = null;
+
+		BufferedImage imageIpad = null;
+		BufferedImage imageWeb = null;
+		BufferedImage imageIos = null;
+		BufferedImage imageAndroid = null;
+
+		/*if(14 == fileKeyInfo) {*/
+		if(14 == fileKeyInfo || 15 == fileKeyInfo) {
+			resPicIos =	new ResPic();
+			// 决定是否在old数据上update,而不是add一条数据(适用于客户端缓存功能 add by huangsongbo 20170628)
+			if(iosPicId != null){
+				// 如果该缩略图数据存在,则在这条数据更新
+				ResPic resPicIosOld = this.get(iosPicId);
+				if(resPicIosOld != null){
+					resPicIos.setId(iosPicId);
+					resPicIos.setIsDeleted(0);
+				}
+			}
+
+			fileIos = new File(urlIos);
+			fileAndroid = new File(urlAndroid);
+
+			// 加密文件/拷贝源文件到加密文件目录
+			/*FileEncrypt.judgeAndEncryptFile(fileIpad, relativePathIpad);
+			FileEncrypt.judgeAndEncryptFile(fileWeb, relativePathWeb);*/
+
+			try {
+				imageIos = javax.imageio.ImageIO.read(fileIos);
+				imageAndroid = javax.imageio.ImageIO.read(fileAndroid);
+			} catch (IOException e) {
+				/* 读取图片失败 */
+				e.printStackTrace();
+			}
+			resPicIos.setPicName("ios_" + name.substring(0, name.lastIndexOf(".")));
+			resPicIos.setPicFileName("ios_" + name.substring(0, name.lastIndexOf(".")));
+			resPicIos.setPicSize((int) (fileIos.length()));
+			resPicIos.setPicWeight("" + imageIos.getWidth());
+			resPicIos.setPicHigh("" + imageIos.getHeight());
+			resPicIos.setPicSuffix(resPic.getPicSuffix());
+			resPicIos.setPicPath(relativePathIos);
+			resPicIos.setFileKey(fileKeyIos.replace(".upload.path", ""));
+		}else {
+			resPicIpad =	new ResPic();
+			// 决定是否在old数据上update,而不是add一条数据(适用于客户端缓存功能 add by huangsongbo 20170628)
+			if(ipadPicId != null){
+				// 如果该缩略图数据存在,则在这条数据更新
+				ResPic resPicIpadOld = this.get(ipadPicId);
+				if(resPicIpadOld != null){
+					resPicIpad.setId(ipadPicId);
+					resPicIpad.setIsDeleted(0);
+				}
+			}
+
+			fileIpad = new File(urlIpad);
+			fileWeb = new File(urlWeb);
+
+			// 加密文件/拷贝源文件到加密文件目录
+			/*FileEncrypt.judgeAndEncryptFile(fileIpad, relativePathIpad);
+			FileEncrypt.judgeAndEncryptFile(fileWeb, relativePathWeb);*/
+
+			try {
+				imageIpad = javax.imageio.ImageIO.read(fileIpad);
+				imageWeb = javax.imageio.ImageIO.read(fileWeb);
+			} catch (IOException e) {
+				/* 读取图片失败 */
+				e.printStackTrace();
+			}
+			resPicIpad.setPicName("ipad_" + name.substring(0, name.lastIndexOf(".")));
+			resPicIpad.setPicFileName("ipad_" + name.substring(0, name.lastIndexOf(".")));
+			resPicIpad.setPicSize((int) (fileIpad.length()));
+			resPicIpad.setPicWeight("" + imageIpad.getWidth());
+			resPicIpad.setPicHigh("" + imageIpad.getHeight());
+			resPicIpad.setPicSuffix(resPic.getPicSuffix());
+			resPicIpad.setPicPath(relativePathIpad);
+			resPicIpad.setFileKey(fileKeyIpad.replace(".upload.path", ""));
+		}
+
+		if (fileKeyInfo == 1) {
+			resPicIpad.setPicType("产品ipad端缩略图");
+		} else if (fileKeyInfo == 2) {
+			resPicIpad.setPicType("空间户型图ipad端缩略图");
+		} else if (fileKeyInfo == 3) {
+			resPicIpad.setPicType("3D空间俯视图ipad端缩略图");
+		} else if (fileKeyInfo == 4) {
+			resPicIpad.setPicType("样板房-空间布局图ipad端缩略图");
+		} else if (fileKeyInfo == 5) {
+			resPicIpad.setPicType("样板房-效果图ipad端缩略图");
+		} else if (fileKeyInfo == 6) {
+			resPicIpad.setPicType("饰品ipad端缩略图");
+		} else if (fileKeyInfo == 7) {
+			resPicIpad.setPicType("效果图推荐ipad端缩略图");
+		} else if (fileKeyInfo == 8) {
+			resPicIpad.setPicType("用户头像ipad端缩略图");
+		} else if (fileKeyInfo == 9) {
+			resPicIpad.setPicType("设计师作品ipad端缩略图");
+		} else if (fileKeyInfo == 11) {
+			resPicIpad.setPicType("样板房平面效果图ipad端缩略图");
+		} else if (fileKeyInfo == 10) {
+			resPicIpad.setPicType("空间俯视平面图ipad端缩略图");
+		}else if(fileKeyInfo==12){
+			resPicIpad.setPicType("结构封面图ipad端缩略图");
+		}else if(fileKeyInfo==12){
+			resPicIpad.setPicType("系列ipad端缩略图");
+		}else if(fileKeyInfo == 14){
+			resPicIos.setPicType("材质图片ios端缩略图");
+		}else if(fileKeyInfo == 15){
+			resPicIos.setPicType("材质法线贴图ios端缩略图");
+		}else if(fileKeyInfo == 16){
+			resPicIpad.setPicType("水刀模板展示图片ipad端缩略图");
+		}
+
+
+		if(14 == fileKeyInfo || 15 == fileKeyInfo) {
+
+			/* 修改缩略图code和原图一致 */
+			resPicIos.setSysCode(resPic.getSysCode());
+			resPicIos.setGmtCreate(new Date());
+			resPicIos.setCreator(loginUser.getLoginName());
+			resPicIos.setIsDeleted(0);
+			resPicIos.setGmtModified(new Date());
+			resPicIos.setModifier(loginUser.getLoginName());
+			resPicIos.setPicCode(resPicIos.getSysCode());
+			resPicIos.setPicFormat(resPic.getPicSuffix().substring(1, resPic.getPicSuffix().length()));
+			resPicIos.setBusinessId(resPic.getBusinessId());
+			if(resPicIos.getId() != null && resPicIos.getId() > 0){
+				this.update(resPicIos);
+			}else{
+				this.add(resPicIos);// 保存ios端缩略图
+			}
+			/* 支持ftp上传ipad端缩略图 */
+			String iosImageName = resPicIos.getPicName();
+			String iosSuffix = resPicIos.getPicSuffix();
+			String iosDbFilePath = urlIos;
+			String iosFilePath = resPicIos.getPicPath().substring(0, resPicIos.getPicPath().lastIndexOf("/") + 1);
+			try {
+				boolean flag = false;
+				// 仅支持ftp服务器上传
+				if (Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD) == 2) {
+					logger.debug("------用户头像上传ftp服务器删除本地文件");
+					flag = FtpUploadUtils.uploadFile(iosImageName + iosSuffix, iosDbFilePath, iosFilePath);
+					if (flag) {
+						// 删除本地
+						FileUploadUtils.deleteFile(iosDbFilePath);
+					} else {
+						logger.error("---------仅支持ftp服务器文件上传异常！");
+					}
+				}
+				// 3 本地和ftp同时上传(默认是本地上传)
+				if (Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD) == 3) {
+					logger.debug("------用户头像上传ftp服务器不删除本地文件");
+					flag = FtpUploadUtils.uploadFile(iosImageName + iosSuffix, iosDbFilePath, iosFilePath);
+					if (!flag) {
+						logger.error("---------本地和ftp服务器同时文件上传异常！");
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("----ftp上传异常：" + e.getMessage());
+			}
+
+		}else {
+
+			/* 修改缩略图code和原图一致 */
+			resPicIpad.setSysCode(resPic.getSysCode());
+			resPicIpad.setGmtCreate(new Date());
+			resPicIpad.setCreator(loginUser.getLoginName());
+			resPicIpad.setIsDeleted(0);
+			resPicIpad.setGmtModified(new Date());
+			resPicIpad.setModifier(loginUser.getLoginName());
+			resPicIpad.setPicCode(resPicIpad.getSysCode());
+			resPicIpad.setPicFormat(resPic.getPicSuffix().substring(1, resPic.getPicSuffix().length()));
+			resPicIpad.setBusinessId(resPic.getBusinessId());
+			if(resPicIpad.getId() != null && resPicIpad.getId() > 0){
+				this.update(resPicIpad);
+			}else{
+				this.add(resPicIpad);// 保存ipad端缩略图
+			}
+			/* 支持ftp上传ipad端缩略图 */
+			String ipadImageName = resPicIpad.getPicName();
+			String ipadSuffix = resPicIpad.getPicSuffix();
+			String ipadDbFilePath = urlIpad;
+			String ipadFilePath = resPicIpad.getPicPath().substring(0, resPicIpad.getPicPath().lastIndexOf("/") + 1);
+			try {
+				boolean flag = false;
+				// 仅支持ftp服务器上传
+				if (Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD) == 2) {
+					logger.debug("------用户头像上传ftp服务器删除本地文件");
+					flag = FtpUploadUtils.uploadFile(ipadImageName + ipadSuffix, ipadDbFilePath, ipadFilePath);
+					if (flag) {
+						// 删除本地
+						FileUploadUtils.deleteFile(ipadDbFilePath);
+					} else {
+						logger.error("---------仅支持ftp服务器文件上传异常！");
+					}
+				}
+				// 3 本地和ftp同时上传(默认是本地上传)
+				if (Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD) == 3) {
+					logger.debug("------用户头像上传ftp服务器不删除本地文件");
+					flag = FtpUploadUtils.uploadFile(ipadImageName + ipadSuffix, ipadDbFilePath, ipadFilePath);
+					if (!flag) {
+						logger.error("---------本地和ftp服务器同时文件上传异常！");
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("----ftp上传异常：" + e.getMessage());
+			}
+		}
+
+		/* 保存web端缩略图 */
+		ResPic resPicWeb = null;
+		ResPic resPicAndroid = null;
+
+		/*if(14 == fileKeyInfo) {*/
+		if(14 == fileKeyInfo || 15 == fileKeyInfo) {
+			resPicAndroid = new ResPic();
+
+			// 决定是否在old数据上update,而不是add一条数据(适用于客户端缓存功能 add by huangsongbo 20170628)
+			if(androidPicId != null){
+				// 如果该缩略图数据存在,则在这条数据更新
+				ResPic resPicAndroidOld = this.get(androidPicId);
+				if(resPicAndroidOld != null){
+					resPicAndroid.setId(androidPicId);
+					resPicAndroid.setIsDeleted(0);
+				}
+			}
+
+			resPicAndroid.setPicName("android_" + name.substring(0, name.lastIndexOf(".")));
+			resPicAndroid.setPicFileName("android_" + name.substring(0, name.lastIndexOf(".")));
+			resPicAndroid.setPicSize((int) (fileAndroid.length()));
+			resPicAndroid.setPicWeight("" + imageAndroid.getWidth());
+			resPicAndroid.setPicHigh("" + imageAndroid.getHeight());
+			resPicAndroid.setPicSuffix(resPic.getPicSuffix());
+			resPicAndroid.setPicPath(relativePathAndroid);
+			resPicAndroid.setFileKey(fileKeyAndroid.replace(".upload.path", ""));
+		}else {
+			resPicWeb = new ResPic();
+
+			// 决定是否在old数据上update,而不是add一条数据(适用于客户端缓存功能 add by huangsongbo 20170628)
+			if(webPicId != null){
+				// 如果该缩略图数据存在,则在这条数据更新
+				ResPic resPicWebOld = this.get(webPicId);
+				if(resPicWebOld != null){
+					resPicWeb.setId(webPicId);
+					resPicWeb.setIsDeleted(0);
+				}
+			}
+
+			resPicWeb.setPicName("web_" + name.substring(0, name.lastIndexOf(".")));
+			resPicWeb.setPicFileName("web_" + name.substring(0, name.lastIndexOf(".")));
+			resPicWeb.setPicSize((int) (fileWeb.length()));
+			resPicWeb.setPicWeight("" + imageWeb.getWidth());
+			resPicWeb.setPicHigh("" + imageWeb.getHeight());
+			resPicWeb.setPicSuffix(resPic.getPicSuffix());
+			// resPicWeb.setPicPath(Utils.getValue(fileKeyWeb,"")+"Web_"+name);
+			/*resPicWeb.setPicPath(Utils.getValueByFileKey(ResProperties.RES, fileKeyWeb, "") + "web_" + name);*/
+			resPicWeb.setPicPath(relativePathWeb);
+			resPicWeb.setFileKey(fileKeyWeb.replace(".upload.path", ""));
+		}
+
+		if (fileKeyInfo == 1) {
+			/*
+			 * resPicWeb.setPicPath(app.getString(
+			 * "product.baseProduct.pic.upload.path")+"web_"+name);
+			 * resPicWeb.setFileKey("product.baseProduct.pic");
+			 */
+			resPicWeb.setPicType("产品web端缩略图");
+		} else if (fileKeyInfo == 2) {
+			/*
+			 * resPicWeb.setPicPath(app.getString(
+			 * "home.spaceCommon.pic.upload.path")+"small/web_"+name);
+			 * resPicWeb.setFileKey("home.spaceCommon.pic.small");
+			 */
+			resPicWeb.setPicType("空间户型图web端缩略图");
+		} else if (fileKeyInfo == 3) {
+			/*
+			 * resPicWeb.setPicPath(app.getString(
+			 * "home.spaceCommon.view3dPic.upload.path")+"small/web_"+name);
+			 * resPicWeb.setFileKey("home.spaceCommon.view3dPic.small");
+			 */
+			resPicWeb.setPicType("3D空间俯视图web端缩略图");
+		} else if (fileKeyInfo == 4) {
+			/*
+			 * resPicWeb.setPicPath(app.getString(
+			 * "design.designTemplet.pic.upload.path")+"small/web_"+name);
+			 * resPicWeb.setFileKey("design.designTemplet.pic.small");
+			 */
+			resPicWeb.setPicType("样板房-空间布局图web端缩略图");
+		} else if (fileKeyInfo == 5) {
+			/*
+			 * resPicWeb.setPicPath(app.getString(
+			 * "design.designTemplet.piclist.upload.path")+"small/web_"+name);
+			 * resPicWeb.setFileKey("design.designTemplet.piclist.small");
+			 */
+			resPicWeb.setPicType("样板房-效果图web端缩略图");
+		}
+		/*
+		 * FIXME productDecoration无用，可删
+		 * else if (fileKeyInfo == 6) {
+
+			 * resPicWeb.setPicPath(app.getString(
+			 * "product.productDecoration.pic.upload.path")+"web_"+name);
+			 * resPicWeb.setFileKey("product.productDecoration.pic");
+
+			resPicWeb.setPicType("饰品web端缩略图");
+		}*/
+		else if (fileKeyInfo == 7) {
+			/*
+			 * resPicWeb.setPicPath(app.getString(
+			 * "home.designRecommendation.pic.upload.path")+"web_"+name);
+			 * resPicWeb.setFileKey("home.designRecommendation.pic");
+			 */
+			resPicWeb.setPicType("效果图推荐web端缩略图");
+		} else if (fileKeyInfo == 8) {
+			/*
+			 * resPicWeb.setPicPath(app.getString(
+			 * "system.sysUser.pic.upload.path")+"small/web_"+name);
+			 * resPicWeb.setFileKey("system.sysUser.pic.small");
+			 */
+			resPicWeb.setPicType("用户头像web端缩略图");
+		} else if (fileKeyInfo == 9) {
+			/*
+			 * resPicWeb.setPicPath(app.getString(
+			 * "system.sysUser.designerWorks.piclist.upload.path")+"small/web_"+
+			 * name);
+			 * resPicWeb.setFileKey("system.sysUser.designerWorks.piclist.small"
+			 * );
+			 */
+			resPicWeb.setPicType("设计师作品web端缩略图");
+		} else if (fileKeyInfo == 11) {
+			/*
+			 * resPicWeb.setPicPath(app.getString(
+			 * "design.designTemplet.effectPlan.upload.path")+"small/web_"+name)
+			 * ; resPicWeb.setFileKey("design.designTemplet.effectPlan.small");
+			 */
+			resPicWeb.setPicType("样板房平面效果图web端缩略图");
+		} else if (fileKeyInfo == 10) {
+			/*
+			 * resPicWeb.setPicPath(app.getString(
+			 * "home.spaceCommon.viewPlan.upload.path")+"small/web_"+name);
+			 * resPicWeb.setFileKey("home.spaceCommon.viewPlan.small");
+			 */
+			resPicWeb.setPicType("空间平面俯视图web端缩略图");
+		}else if(fileKeyInfo==12){
+			/*resPicWeb.setPicPath(app.getString("home.spaceCommon.viewPlan.upload.path")+"small/web_"+name);
+			resPicWeb.setFileKey("home.spaceCommon.viewPlan.small");*/
+			resPicWeb.setPicType("结构封面图web端缩略图");
+		}else if(fileKeyInfo==12){
+			resPicWeb.setPicType("系列web端缩略图");
+		}else if(fileKeyInfo == 14) {
+			resPicAndroid.setPicType("材质图片android端缩略图");
+		}else if(fileKeyInfo == 15) {
+			resPicAndroid.setPicType("材质发现贴图android端缩略图");
+		}else if(fileKeyInfo == 16) {
+			resPicWeb.setPicType("水刀模板展示图片web端缩略图");
+		}
+
+		String smallPicInfo = "";
+
+		/*if(14 == fileKeyInfo) {*/
+		if(14 == fileKeyInfo || 15 == fileKeyInfo) {
+
+			/* 修改为缩略图和原图sysCode一致 */
+			resPicAndroid.setSysCode(resPic.getSysCode());
+			resPicAndroid.setGmtCreate(new Date());
+			resPicAndroid.setCreator(loginUser.getLoginName());
+			resPicAndroid.setIsDeleted(0);
+			resPicAndroid.setGmtModified(new Date());
+			resPicAndroid.setModifier(loginUser.getLoginName());
+			resPicAndroid.setPicCode(resPic.getSysCode());
+			resPicAndroid.setPicFormat(resPic.getPicSuffix().substring(1, resPic.getPicSuffix().length()));
+			resPicAndroid.setBusinessId(resPic.getBusinessId());
+
+			if(resPicAndroid.getId() != null && resPicAndroid.getId() > 0){
+				this.update(resPicAndroid);
+			}else{
+				this.add(resPicAndroid);// 保存web端缩略图
+			}
+
+			/* 支持ftp上传web端缩略图 */
+			String androidImageName = resPicAndroid.getPicName();
+			String androidSuffix = resPicAndroid.getPicSuffix();
+			String androidDbFilePath = urlAndroid;
+			String androidFilePath = resPicAndroid.getPicPath().substring(0, resPicAndroid.getPicPath().lastIndexOf("/") + 1);
+			try {
+				boolean flag = false;
+				// 仅支持ftp服务器上传
+				if (Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD) == 2) {
+					logger.debug("------用户头像上传ftp服务器删除本地文件");
+					flag = FtpUploadUtils.uploadFile(androidImageName + androidSuffix, androidDbFilePath, androidFilePath);
+					if (flag) {
+						// 删除本地
+						FileUploadUtils.deleteFile(androidDbFilePath);
+					} else {
+						logger.error("---------仅支持ftp服务器文件上传异常！");
+					}
+				}
+				// 3 本地和ftp同时上传(默认是本地上传)
+				if (Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD) == 3) {
+					logger.debug("------用户头像上传ftp服务器不删除本地文件");
+					flag = FtpUploadUtils.uploadFile(androidImageName + androidSuffix, androidDbFilePath, androidFilePath);
+					if (!flag) {
+						logger.error("---------本地和ftp服务器同时文件上传异常！");
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("----ftp上传异常：" + e.getMessage());
+			}
+
+			/* 补充resPic信息(绑定其缩略图id:放在smallPicInfo字段) */
+			if (resPicAndroid.getId() != null && resPicAndroid.getId() > 0) {
+				smallPicInfo += "android:" + resPicAndroid.getId() + ";";
+			}
+			if (resPicIos.getId() != null && resPicIos.getId() > 0) {
+				smallPicInfo += "ios:" + resPicIos.getId() + ";";
+			}
+		}else {
+
+			/* 修改为缩略图和原图sysCode一致 */
+			resPicWeb.setSysCode(resPic.getSysCode());
+			resPicWeb.setGmtCreate(new Date());
+			resPicWeb.setCreator(loginUser.getLoginName());
+			resPicWeb.setIsDeleted(0);
+			resPicWeb.setGmtModified(new Date());
+			resPicWeb.setModifier(loginUser.getLoginName());
+			resPicWeb.setPicCode(resPic.getSysCode());
+			resPicWeb.setPicFormat(resPic.getPicSuffix().substring(1, resPic.getPicSuffix().length()));
+			resPicWeb.setBusinessId(resPic.getBusinessId());
+
+			if(resPicWeb.getId() != null && resPicWeb.getId() > 0){
+				this.update(resPicWeb);
+			}else{
+				this.add(resPicWeb);// 保存web端缩略图
+			}
+
+			/* 支持ftp上传web端缩略图 */
+			String webImageName = resPicWeb.getPicName();
+			String webSuffix = resPicWeb.getPicSuffix();
+			String webDbFilePath = urlWeb;
+			String webFilePath = resPicWeb.getPicPath().substring(0, resPicWeb.getPicPath().lastIndexOf("/") + 1);
+			try {
+				boolean flag = false;
+				// 仅支持ftp服务器上传
+				if (Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD) == 2) {
+					logger.debug("------用户头像上传ftp服务器删除本地文件");
+					flag = FtpUploadUtils.uploadFile(webImageName + webSuffix, webDbFilePath, webFilePath);
+					if (flag) {
+						// 删除本地
+						FileUploadUtils.deleteFile(webDbFilePath);
+					} else {
+						logger.error("---------仅支持ftp服务器文件上传异常！");
+					}
+				}
+				// 3 本地和ftp同时上传(默认是本地上传)
+				if (Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD) == 3) {
+					logger.debug("------用户头像上传ftp服务器不删除本地文件");
+					flag = FtpUploadUtils.uploadFile(webImageName + webSuffix, webDbFilePath, webFilePath);
+					if (!flag) {
+						logger.error("---------本地和ftp服务器同时文件上传异常！");
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("----ftp上传异常：" + e.getMessage());
+			}
+
+			/* 补充resPic信息(绑定其缩略图id:放在smallPicInfo字段) */
+			if (resPicWeb.getId() != null && resPicWeb.getId() > 0) {
+				smallPicInfo += "web:" + resPicWeb.getId() + ";";
+			}
+			if (resPicIpad.getId() != null && resPicIpad.getId() > 0) {
+				smallPicInfo += "ipad:" + resPicIpad.getId() + ";";
+			}
+		}
+
+		resPic.setSmallPicInfo(smallPicInfo);
+		update(resPic);
+		/* 返回生成的两张缩略图信息 */
+		Map<String, ResPic> map = new HashMap<String, ResPic>();
+		/*if(14 == fileKeyInfo) {*/
+		if(14 == fileKeyInfo || 15 == fileKeyInfo) {
+			map.put("android", resPicAndroid);
+			map.put("ios", resPicIos);
+		}else {
+			map.put("web", resPicWeb);
+			map.put("ipad", resPicIpad);
+		}
+
+		return map;
+	}
+
+	/**回填该resPic图片对应的缩略图的businessId(缩略图businessId和原图businessId相同),同时填写businessIds*/
+	public void updateSmallPicBusinessId(ResPic resPic){
+		List<Integer> ids=new ArrayList<Integer>();
+		if(StringUtils.isNotBlank(resPic.getSmallPicInfo())){
+			String[] strs=resPic.getSmallPicInfo().split(";");
+			if(strs.length>0){
+				for(String str:strs){
+					String[] strs2=str.split(":");
+					if(strs2.length>1){
+						ids.add(Integer.parseInt(strs2[1]));
+					}
+				}
+			}
+		}
+		/*回填缩略图的businessId*/
+		if(ids.size()>0){
+			for(Integer id:ids){
+				ResPic resPic2=get(id);
+				if(resPic2!=null){
+					resPic2.setBusinessId(resPic.getBusinessId());
+					update(resPic2);
+				}
+			}
+		}	
+	}
+
+	@Override
+	public int picPathCount(String picPath) {
+		return resPicMapper.picPathCount(picPath);
+	}
+
+	/**
+	 * 更新图片code
+	 * @param picId 图片id
+	 * @param code 变更后的code
+	 */
+	public void updateCode(Integer picId, String code) {
+		ResPic resPic=get(picId);
+		if(resPic!=null){
+			resPic.setPicCode(code);
+			resPic.setSysCode(code);
+			update(resPic);
+		}
+	}
+
+	@Override
+	public boolean updatePath(Integer picId,String code) {
+		ResPic resPic=get(picId);
+		if(resPic==null){
+			return false;
+		}
+		String fileKey=resPic.getFileKey();
+		/*应对缩略图例如design.designTemplet.piclist.small的情况(app中未保存)*/
+		String correctFilePath="";
+		if(fileKey.endsWith("small")){
+			correctFilePath=app.getString(fileKey.substring(0,fileKey.lastIndexOf("."))+".upload.path")+"small/";
+		}else{
+			correctFilePath=app.getString(fileKey+".upload.path");
+		}
+		
+		correctFilePath=correctFilePath.replace("[code]", code);
+		logger.info("------correctFilePath:"+correctFilePath);
+		if(resPic.getPicPath().indexOf(correctFilePath)==0){
+			/*不用更新*/
+			return false;
+		}else{
+			/*需要更新*/
+			/*复制本地文件*/
+			String fileName=resPic.getPicPath().substring(resPic.getPicPath().lastIndexOf("/")+1,resPic.getPicPath().length());
+			String localUrl1=Tools.getRootPath(resPic.getPicPath(),"")+resPic.getPicPath();//原文件路径
+			String localUrl2=Tools.getRootPath(correctFilePath,"")+correctFilePath+fileName;//更新后文件路径
+			try {
+				FileUploadUtils.copyFile2(localUrl1, localUrl2);
+			} catch (IOException e) {
+				e.printStackTrace();
+				return false;
+			}
+			/*复制ftp文件*/
+			int type=Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD);
+			if(type==2||type==3){
+				FtpUploadUtils.copyFileFromFtp(resPic.getPicPath(), correctFilePath);
+			}
+			/*缩略图更新路径*/
+			if(StringUtils.isNotBlank(resPic.getSmallPicInfo())){
+				Map<String,String> map=readFileDesc(resPic.getSmallPicInfo());
+				String webPicId=map.get("web");
+				String ipadPicId=map.get("ipad");
+				updatePath(Integer.parseInt(webPicId), code);
+				updatePath(Integer.parseInt(ipadPicId), code);
+			}
+			resPic.setPicPath(correctFilePath+fileName);
+			update(resPic);
+			/*缩略图更新路径END*/
+			return true;
+		}
+	}
+	
+	/**读取固定格式字符串*/
+	private Map<String,String> readFileDesc(String fileDesc){
+		Map<String, String> map = new HashMap<String, String>();
+		String[] strs = fileDesc.split(";");
+		for (String str : strs) {
+			if (str.split(":").length == 2) {
+				map.put(str.split(":")[0].trim(), str.split(":")[1].trim());
+			}
+		}
+		return map;
+	}
+
+	@Override
+	public Integer copyPic(Integer pidId, HttpServletRequest request) {
+		ResPic resPic = get(pidId);
+		if(resPic==null){
+			return 0;
+		}
+		resPic.setPicCode(null);
+		resPic.setSysCode(null);
+		sysSave(resPic, request);
+		resPic.setId(null);
+		resPic.setFileKeys(null);
+		resPic.setBusinessIds(null);
+		resPic.setBusinessId(null);
+		add(resPic);
+		return resPic.getId();
+	}
+	
+	/**
+	 * 自动存储系统字段
+	 */
+	private void sysSave(ResPic model,HttpServletRequest request){
+		if(model != null){
+				 LoginUser loginUser = new LoginUser();
+				 if(com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request)==null){
+					loginUser.setLoginName("nologin");
+				 }else{
+				    loginUser = com.nork.common.constant.util.SystemCommonUtil.getCurrentLoginUserInfo(request);
+				 }
+				 
+				if(model.getId() == null){
+					model.setGmtCreate(new Date());
+					model.setCreator(loginUser.getLoginName());
+					model.setIsDeleted(0);
+				    if(model.getSysCode()==null || "".equals(model.getSysCode())){
+					   model.setSysCode(Utils.getCurrentDateTime(Utils.DATETIMESSS) +"_"+ Utils.generateRandomDigitString(6));
+				   }
+				}
+				
+				model.setGmtModified(new Date());
+				model.setModifier(loginUser.getLoginName());
+		}
+	}
+
+	/**
+	 * 获取文件数据为ResEntity对象
+	 * @param id
+	 * @return
+	 */
+	@Override
+	public ResEntity selectResEntity(Integer id){
+		return resPicMapper.selectResEntity(id);
+	}
+
+	/**
+	 * 保存ResEntity对象
+	 * @param resEntity
+	 * @return
+	 */
+	@Override
+	public int insertEntity(ResEntity resEntity) {
+		resPicMapper.insertEntity(resEntity);
+		return resEntity.getId();
+	}
+
+	@Override
+	public int selectCountGuide(ResPicSearch resPicSearch) {
+		return resPicMapper.selectCountGuide(resPicSearch);
+	}
+
+	@Override
+	public List<ResPic> selectPaginatedListGuide(ResPicSearch resPicSearch) {
+		return resPicMapper.selectPaginatedListGuide(resPicSearch);
+	}
+
+	@Override
+	public Integer savePlanRenderPicOfPhot(Integer planId, List<Map> list, String level, Integer renderingType,Integer sourcePlanId, Integer templateId) {
+
+//		Integer smallPicId=0;
+		int original = 0;
+		int small = 0;
+		Date date = new Date();
+		
+		if(planId != null){
+			DesignPlan designPlan = designPlanService.get(Integer.valueOf(planId));
+			ResRenderPic smallRenderPic = null;
+			ResRenderPic renderPic = null;
+			for( Map smallRenderPicMap : list ){
+				//保存渲染图原图
+				Map renderPicMap = (Map)smallRenderPicMap.get("original");
+				renderPic = assembleResPic(renderPicMap);
+				renderPic.setIsDeleted(0);
+				renderPic.setCreator(designPlan.getCreator());
+				renderPic.setModifier(designPlan.getCreator());
+				renderPic.setBusinessId(planId);
+//				renderPic.setPicLevel(level);
+				renderPic.setRenderingType(renderingType);
+				renderPic.setPicType("照片级原图");
+				renderPic.setFileKey(ResProperties.DESIGNPLAN_RENDER_PIC_FILEKEY);
+				renderPic.setTaskCreateTime(date);
+				renderPic.setSourcePlanId(sourcePlanId);
+				renderPic.setTemplateId(templateId);
+				logger.info("addrenderPic="+planId);
+				original = resRenderPicService.add(renderPic);
+				
+				logger.info("endrenderPic="+original);
+				smallRenderPic = assembleResPic(smallRenderPicMap);
+				smallRenderPic.setPid(original);
+				smallRenderPic.setCreator(designPlan.getCreator());
+				smallRenderPic.setIsDeleted(0);
+				smallRenderPic.setModifier(designPlan.getCreator());
+				smallRenderPic.setBusinessId(planId);
+//				smallRenderPic.setPicLevel(level);
+				smallRenderPic.setFileKey(ResProperties.DESIGNPLAN_RENDER_PIC_SMALL_FILEKEY);
+				smallRenderPic.setPicType("照片级缩略图");
+				smallRenderPic.setRenderingType(renderingType);
+				smallRenderPic.setTaskCreateTime(date);
+				smallRenderPic.setSourcePlanId(sourcePlanId);
+				smallRenderPic.setTemplateId(templateId);
+				//保存缩略图
+				logger.info("add_small="+original);
+				small = resRenderPicService.add(smallRenderPic);
+				logger.info("end_small="+small);
+			}
+		}else{
+			logger.error("planId is null!");
+		}
+		if(small > 0 && original > 0){
+			return original;
+		}else{
+			return original;
+		}
+	}
+
+	@Override
+	public List<ResPic> getBatchGet(List<Integer> list) {
+		return resPicMapper.getBatchGet(list);
+	}
+	
+	public List<ResPic> getPicList(List<String> list){
+		return resPicMapper.getPicList(list);
+	}
+	
+	@Override
+	public void backfill(Integer id, Integer businessId) {
+		// 参数验证 ->start
+		if(id == null) {
+			logger.error(logPrefix + "id = null");
+			return;
+		}
+		if(businessId == null) {
+			logger.error(logPrefix + "businessId = null");
+			return;
+		}
+		// 参数验证 ->end
+		
+		ResPic resPic = this.get(id);
+		if(resPic == null) {
+			logger.error(logPrefix + "resFile = null;id = {}", id);
+			return;
+		}
+		ResPic resPicForUpdate = new ResPic();
+		resPicForUpdate.setId(id);
+		resPicForUpdate.setBusinessId(businessId);
+		this.update(resPicForUpdate);
+	}
+
+	@Override
+	public List<ResPic> getPicPathByIdList(List<Integer> smallPicIdList) {
+		// 参数验证 ->start
+		if(Lists.isEmpty(smallPicIdList)) {
+			logger.error(logPrefix + "Lists.isEmpty(smallPicIdList) = true");
+			return null;
+		}
+		// 参数验证 ->end
+		
+		return resPicMapper.getPicPathByIdList(smallPicIdList);
+	}
+	
+}

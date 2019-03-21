@@ -1,0 +1,906 @@
+// pages/house-case/house-case.js
+let $App = getApp(),
+    fetch = getApp().fetch,
+    myForEach = getApp().myForEach,
+    mySplitUrl = getApp().mySplitUrl,
+    myCompoundUrl = getApp().myCompoundUrl
+import {
+    emptyTemplate
+} from '../../component/emptyTemplate/emptyTemplate'
+var WxParse = require('../../utils/wxParse/wxParse.js');
+var {
+    shareTitle
+} = require('../../utils/config.js');
+var {
+    title
+} = require('../../utils/config.js');
+var shareTitle = {
+    shareTitle
+}.shareTitle;
+var title = {
+    title
+}.title ? {
+    title
+}.title : false;
+let bmap = require('../../lib/es6-promise/bmap-wx.min.js');
+Page({
+    emptyTemplate, // 无数据组件
+    /**
+     * 页面的初始数据
+     */
+    data: {
+        typeName: '特卖商品',
+        typeId: 1,
+        typeImg: '../static/image/home_icon_sale.png',
+        imageArray: [],
+        issBindingMobile: wx.getStorageSync('bindingPhone'),
+        staticImageUrl: $App.staticImageUrl,
+        spaceList: [],
+        areaList: [],
+        styleList: [],
+        skipPath: [],
+        inputFlag:false,
+        inputFlag2:false,
+        isNull: true,
+        presellList: [],
+        click:false,
+        getObj:{
+            phone:'',
+            code:''
+        },
+        cid: '',
+        favoriteRequest: true,
+        collectRequest: true,
+        conditionActive: -1,
+        childConditionActive: [0, -1, -1],
+        recommendCaseList: [],
+        resourcePath: getApp().resourcePath,
+        sevenUrl: getApp().sevenUrl,
+        pageSize: 5,
+        message:"获取验证码",
+        getCaseParams: {
+            spaceType: '',
+            designPlanStyleId: '',
+            spaceArea: ''
+        },
+        navRows: [{
+                name: '线下门店',
+                url: '/pages/mini-offcial-web/mini-offcial-web',
+                picPath: '../static/image/home_icon_wei.png'
+            },
+            {
+                name: '新品预售',
+                url: '/pages/goods-list/goods-list?type=presellList&code=root',
+                picPath: '../static/image/home_icon_sofa.png'
+            },
+            // {
+            //     name: '积分商城',
+            //     url: '/pages/pointmall/index/index',
+            //     picPath: '../static/image/home_icon_store.png'
+            // },
+            {
+                name: '领券中心',
+                url: '/pages/storeCoupon/storeCoupon',
+                picPath: '../static/image/home_icon_coupons.png'
+            },
+        ],
+        couponList:[],
+        totalCount: 0,
+        caseListheight: '',
+        caseListOverflow: 'none',
+        swiperCurrent: 0,
+        brandImg: '',
+        hideFlag: false,
+        specialSaleList: [],
+        specialOfferlList: [],
+        options: '',
+        article: '',
+        isNk:false,
+        getPhone:false,
+        userId: wx.getStorageSync("userId"),
+        thisFlag:false,
+        companyId: ''//wx.getStorageSync("companyId"),
+    },
+    getCompanyId: function () {
+        let url = '/product/baseCompany/getCompanyId',
+            that = this
+        fetch(url, 'get').then((res) => {
+            if (res.obj) {
+                that.setData({
+                    companyId: res.obj
+                })
+            }
+        })
+    },
+    /**
+     * 生命周期函数--监听页面加载
+     */
+    toUrl:function(e){
+        wx.navigateTo({
+            url: e.currentTarget.dataset.url,
+        })
+    },
+    unreceive: function () {
+        wx.showToast({
+            title: '已领取过',
+            icon: 'none',
+            duration: 800
+        })
+    },
+    receive: function (e) {
+        let url = '/v1/sandu/mini/activity/receive';
+        let that = this;
+        let data = {
+            userId: this.data.userId,
+            couponId: e.currentTarget.dataset.id,
+        }
+        fetch(url, 'get', data, 'shop').then((res) => {
+            if (res.code == 200) {
+                wx.showToast({
+                    title: res.message,
+                    icon: 'success',
+                })
+                that.getCouponList()
+            } else {
+                wx.showToast({
+                    title: res.message,
+                    icon: 'none'
+                })
+            }
+        })
+    },
+    getCouponList:function(){
+        let url = 'v1/sandu/mini/activity/getIndexCoupon';//getWaitingReceiveList
+        let that = this;
+        let data = {
+            companyId: this.data.companyId,
+            userId: this.data.userId,
+        }
+        fetch(url, 'get', data, 'shop').then((e) => {
+            let list = [];
+            let maxL = e.data.length > 10 ? 10 : e.data.length;
+            for (let i = 0; i < maxL; i++) {
+                list[i] = e.data[i];
+            }
+            this.setData({
+                couponList: list,
+            })
+        })
+        
+    },
+    getCityMessage: function() {
+        let cityMessage = null,
+            $self = this
+        // 获取所处的地理位置
+        let BMap = new bmap.BMapWX({
+            ak: 'fKNgchMcIyhzxZDfPpdkEHPAHNVNBN62'
+        });
+        BMap.regeocoding({
+            success(data) { // 成功之后调用接口进行保存
+                cityMessage = data.originalData.result.addressComponent // 这就是我们需要的东西
+                if (cityMessage) {
+                    let url = '/user/sysuser/updateAddress'
+                    let data = {
+                        province: cityMessage.province,
+                        city: cityMessage.city,
+                        area: cityMessage.district,
+                        street: cityMessage.street,
+                        address: cityMessage.province + cityMessage.city + cityMessage.district + cityMessage.street + cityMessage.street_number
+                    }
+                    fetch(url, 'post', data).then((res) => {
+                        if (res.status) {
+                            wx.showToast({
+                                title: '储存位置成功',
+                                icon: 'success'
+                            })
+                            wx.setStorage({
+                                key: "userMessage",
+                                data: cityMessage
+                            })
+                        }
+                    })
+                }
+            },
+            fail(e) {
+                wx.showModal({
+                    title: '获取地理位置',
+                    content: '您已取消获取位置，再次获取还是继续取消？',
+                    success(res) {
+                        if (res.confirm) {
+                            wx.openSetting({
+                                success(res) {
+                                    if (!res.authSetting["scope.userInfo"] || !res.authSetting["scope.userLocation"]) {
+                                        $self.getCityMessage()
+                                    } else {
+                                        wx.showToast({
+                                            title: '获取地理位置失败',
+                                            icon: 'none'
+                                        })
+                                    }
+                                }
+                            })
+                        } else if (res.cancel) {
+                            wx.showToast({
+                                title: '获取地理位置失败',
+                                icon: 'none'
+                            })
+                        }
+                    },
+                    fail() {
+                        wx.showToast({
+                            title: '获取地理位置失败',
+                            icon: 'none'
+                        })
+                    }
+                })
+            }
+        });
+    },
+
+    onLoad: function(e) {    
+        this.getCompanyId();
+        
+        if (e.navToUrl) {
+            wx.showLoading({
+                title: '跳转中...'
+            })
+            setTimeout(function() {
+                wx.hideLoading();
+                wx.navigateTo({
+                    url: decodeURIComponent(e.navToUrl)
+                })
+            }, 1000)
+        }
+
+        let that = this;
+        wx.setNavigationBarTitle({
+            title: shareTitle,
+        })
+        fetch(`/v2/user/center/isUserMobileBinded`, 'get', {}, 'user')
+            .then((res) => {
+                that.setData({
+                    thisFlag: res.success ? res.obj : false,
+                })
+            })
+        if (shareTitle == '诺克照明') {
+            this.setData({
+                typeName: '工厂直供',
+                typeId: 0,
+                typeImg: '../static/image/home_icon_factory.png',
+                isNk:true,
+            })
+        }
+        let options = e ? e : this.data.options;
+        this.setData({
+            options: options,
+        })
+
+
+        if (options.item) { // 720
+            let item = JSON.parse(options.item)
+            item.url = decodeURIComponent(item.url)
+            getApp().data.webUrl = myCompoundUrl(item)
+            wx.navigateTo({
+                url: '/pages/web-720/web-720',
+            })
+        } else if (options.url) { // 视频
+            wx.navigateTo({
+                url: '/pages/video/video?url=' + options.url,
+            })
+        }
+        wx.getSystemInfo({
+            success: function (res) {
+                that.setData({
+                    windowHeight: res.windowHeight
+                })
+            },
+        })
+        //new this.emptyTemplate() // 注册组件
+        this.getConditionMetadata()
+        setTimeout(function(){
+            that.getSpecialSale(); //获取特卖商品
+            that.showBannerImg(); //获取banner图
+            that.showBrand(); //获取品牌介绍
+            that.getpresellList(); //获取新品商品
+            that.getspecialOfferlList(); //获取特卖商品2
+        },800)
+        
+        //this.getCouponList();
+    },
+    onPageScroll(e){
+        e.scrollTop > this.data.windowHeight && !this.data.click && !this.data.thisFlag ? this.setData({
+            getPhone: true
+        }) : "";
+    },
+    getpresellList: function() {
+        let  url2 = '/mainpage/presellGoods',
+            that = this
+            fetch(url2, 'get', {
+                companyId: that.data.companyId
+            }).then((e) => {
+                if (e.obj) {
+                    that.setData({
+                        presellList: e.obj,
+                    })
+                }
+            })
+    },
+    getspecialOfferlList: function() {
+        let url2 = '/mainpage/specialOffer',
+            that = this
+        fetch(url2, 'get', {
+            companyId: that.data.companyId
+        }).then((e) => {
+            if (e.obj) {
+                that.setData({
+                    specialOfferlList: e.obj,
+                })
+            }
+        })
+    },
+    getSpecialSale: function() {
+        let url = shareTitle == '诺克照明' ? '/goods/basegoods/getSpecialSale' : '/mainpage/specialOffer'
+        let that = this;
+        let data = shareTitle == '诺克照明' ? {
+            type: 0
+        } : { companyId: that.data.companyId};
+        fetch(url, 'get', data).then((res) => {
+            if (res.obj) {
+                that.setData({
+                    specialSaleList: res.obj,
+                })
+            }
+        })
+    },
+    showBannerImg() {
+        let url2 = '/v1/base/banner/web/miniprogram/list',
+            that = this,
+            data = {
+                companyId: this.data.companyId,
+                positionCode: 'company:home:page:top'
+            }
+        fetch(url2, 'get', data, 'system').then((res) => {
+            let imgArr = [],
+                skipArr = [],
+                img = res.datalist
+            for (let i = 0; i < img.length; i++) {
+                imgArr.push(img[i].picPath);
+                skipArr.push(img[i].skipPath)
+            }
+            that.setData({
+                imageArray: imgArr,
+                skipPath: skipArr
+            })
+        })
+    },
+    showBrand: function() {
+        let that = this,
+            url2 = '/mainpage/company',
+            data = {
+                companyId: that.data.companyId
+            }
+        fetch(url2, 'get', data).then((res) => {
+            if (res.obj) {
+                that.setData({
+                    brandImg: res.obj.pic
+                })
+                if (res.obj.introduce == null && res.obj.pic == null) {
+                    that.setData({
+                        hideFlag: true
+                    })
+                }
+                let arr = res.obj.introduce.split('');
+                let article = '';
+                for (let i = 0; i < arr.length; i++) {
+                    arr[i] ? article += arr[i] : ''
+                }
+                this.setData({
+                    article: res.obj.introduce
+                })
+            }
+
+        })
+    },
+    /**
+     * 生命周期函数--监听页面初次渲染完成
+     */
+    onReady: function() {
+
+    },
+
+    /**
+     * 生命周期函数--监听页面显示
+     */
+    onShow: function() {
+        let that = this;
+        that.getCouponList()
+        if (shareTitle == '诺克照明') {
+            wx.getStorage({
+                key: 'userMessage',
+                success(res) {
+                    console.log('已经储存过位置');
+                },
+                fail(res) {
+                    console.log('未储存过位置，准备储存位置');
+                    that.getCityMessage();
+                }
+            })
+        }
+        if (this.data.recommendCaseList.length > 0) {
+            this.getConditionMetadata() // 获取方案筛选条件
+        }
+        
+    },
+
+    onShareAppMessage: function(res) {
+        if (res.from === 'menu') {
+            return $App.shareAppMessageFn();
+        }
+    },
+    enlargeImage(url) { // 查看大图
+        wx.previewImage({
+            current: url, // 当前显示图片的http链接
+            urls: [url] // 需要预览的图片http链接列表
+        })
+    },
+    formToThreeD(e) { // 720
+        let type = e.detail.target.dataset.type,
+            item = e.detail.target.dataset.item,
+            routerQueryType = '',
+            formId = e.detail.formId
+        if (type === '720' || type === 'roam') {
+            let routerQueryType = ''
+            if (type === '720') {
+                routerQueryType = 'seven'
+            } else {
+                routerQueryType = 'roam'
+            }
+            let sevenObj = {
+                token: wx.getStorageSync('token'),
+                platformCode: 'brand2c',
+                operationSource: 1,
+                planId: item.designPlanRecommendId,
+                routerQueryType: routerQueryType,
+                customReferer: $App.wxUrl,
+                platformNewCode: 'miniProgram',
+                formId: formId
+            }
+            let webUrl = this.data.sevenUrl
+            for (let key in sevenObj) {
+                webUrl += key + '=' + sevenObj[key] + '&'
+            }
+            getApp().data.webUrl = webUrl
+            $App.myNavigateBack('pages/web-720/web-720')
+            return
+        }
+    },
+    toThreeD(e) { // 调转到3D界面
+        let type = e.currentTarget.dataset.type,
+            item = e.currentTarget.dataset.item
+        let url = `/mobile/designPlanRecommended/getRecommendedPictureList.htm`
+        fetch(url, 'post', {
+                planRecommendedId: item.designPlanRecommendId,
+                remark: type
+            }, 'render')
+            .then(res => {
+                if (res.success) {
+                    if (type == 'photo') {
+                        return res.datalist[0].pid
+                    } else {
+                        return res.datalist[0].id
+                    }
+                } else {
+                    return false
+                }
+            })
+            .then(res => {
+                if (res) {
+                    let url = `/mobile/design/designPlan/getPanoPicture.htm`
+                    fetch(url, 'post', {
+                            thumbId: res
+                        }, 'render')
+                        .then(res => {
+                            if (res.success) {
+                                if (type == 'photo') {
+                                    this.enlargeImage(res.obj.url)
+                                } else if (type == 'video') {
+                                    this.toVideo(res.obj.url)
+                                }
+                            } else {
+                                wx.showToast({
+                                    title: '打开失败',
+                                    icon: 'none'
+                                })
+                            }
+                        })
+                }
+            })
+        // getApp().data.webUrl = 'https://zuoyou.m.sanduspace.com'
+        // wx.navigateTo({
+        //   url: '../web-720/web-720',
+        // })
+    },
+    getConditionMetadata() { // 获取方案筛选条件
+        let url = `/designplan/designplanconditionmetadata`
+        fetch(url, 'get')
+            .then(res => {
+                if (res.status) {
+                    myForEach(res.obj[0].designPlanAreaList, (value) => {
+                        value.areaName = value.areaName.replace('~', '-')
+                    })
+                    this.setData({
+                        spaceList: res.obj,
+                        areaList: res.obj[0].designPlanAreaList,
+                        styleList: res.obj[0].designPlanStyleVoList
+                    })
+                    this.setData({
+                        'getCaseParams.spaceType': ''
+                    })
+                    this.getRecommendCaseList(this.data.getCaseParams)
+                } else {
+                    this.setData({
+                        spaceList: [],
+                        areaList: [],
+                        styleList: []
+                    })
+                }
+            })
+    },
+    switchCondition(e) { // 切换选择框\
+        let index = e.currentTarget.dataset.index
+        if (index === this.data.conditionActive) {
+            index = -1
+        }
+        this.setData({
+            conditionActive: index
+        })
+        if (this.data.conditionActive === -1) {
+            this.setData({
+                caseListheight: '',
+                caseListOverflow: 'none'
+            })
+        } else {
+            let caseListheight = wx.getSystemInfoSync().windowHeight
+            this.setData({
+                caseListheight: caseListheight + 'px',
+                caseListOverflow: 'hidden'
+            })
+        }
+    },
+    chooseCondition(e) { // 选择筛选条件
+        let indexP = e.currentTarget.dataset.indexp,
+            indexC = e.currentTarget.dataset.indexc
+        if (indexP === 0) {
+            this.data.childConditionActive[1] = -1
+            this.data.childConditionActive[2] = -1
+            myForEach(this.data.spaceList[indexC].designPlanAreaList, (value) => {
+                value.areaName = value.areaName.replace('~', '-')
+            })
+            this.setData({
+                areaList: this.data.spaceList[indexC].designPlanAreaList,
+                styleList: this.data.spaceList[indexC].designPlanStyleVoList,
+                childConditionActive: this.data.childConditionActive
+            })
+        }
+        this.data.childConditionActive[indexP] = indexC
+        this.setData({
+            childConditionActive: this.data.childConditionActive,
+            'getCaseParams.spaceType': '',
+            'getCaseParams.designPlanStyleId': this.data.childConditionActive[2] == -1 ? '' : this.data.styleList[this.data.childConditionActive[2]].styleCode,
+            'getCaseParams.spaceArea': this.data.childConditionActive[1] == -1 ? '' : this.data.areaList[this.data.childConditionActive[1]].areaId
+        })
+        this.getRecommendCaseList(this.data.getCaseParams)
+    },
+    closeCaseCondition() {
+        this.setData({
+            conditionActive: -1
+        })
+        if (this.data.conditionActive === -1) {
+            this.setData({
+                caseListheight: '',
+                caseListOverflow: 'none'
+            })
+        } else {
+            let caseListheight = wx.getSystemInfoSync().windowHeight
+            this.setData({
+                caseListheight: caseListheight + 'px',
+                caseListOverflow: 'hidden'
+            })
+        }
+    },
+    getRecommendCaseList(obj) { // 获取方案列表
+        let url = `/designplan/designplanrecommendedlist`
+        fetch(url, 'get', {
+                curPage: 1,
+                pageSize: this.data.pageSize,
+                spaceType: obj.spaceType || '',
+                designPlanStyleId: obj.designPlanStyleId || '',
+                spaceArea: obj.spaceArea || '',
+                displayType: 'decorate',
+                isSortByReleaseTime: 0,
+            })
+            .then(res => {
+                if (res.status) {
+                    if (res.obj) {
+                        this.setData({
+                            recommendCaseList: res.obj,
+                            totalCount: res.totalCount
+                        })
+                        this.emptyTemplateShow('hide')
+                    } else {
+                        this.emptyTemplateShow('show')
+                        wx.showToast({
+                            title: '未搜索到相关案例',
+                            icon: 'none',
+                            duration: 1000
+                        })
+                        this.setData({
+                            recommendCaseList: [],
+                            totalCount: 0
+                        })
+                    }
+                } else {
+                    this.emptyTemplateShow('show')
+                    wx.showToast({
+                        title: '未搜索到相关案例',
+                        icon: 'none',
+                        duration: 1000
+                    })
+                    this.setData({
+                        recommendCaseList: [],
+                        totalCount: 0
+                    })
+                }
+            })
+    },
+    toVideo(url) {
+        wx.navigateTo({
+            url: '../video/video?url=' + url
+        })
+    },
+    goWeiGuang(e) {
+        let num = e.currentTarget.dataset.num;
+        let isIndex = false;
+        let str = ['/pages/index/index', '/pages/house-case/house-case', '/pages/house-goods/house-goods', '/pages/house-type/house-type', '/pages/personal-center/personal-center'];
+        for (let i = 0; i < str.length; i++) {
+            if (this.data.skipPath[num] == str[i]) {
+                isIndex = true;
+            }
+        }
+
+        // wx.navigateTo({ url: '/pages/special-sales/special-sales' })
+        // return;
+        isIndex ? wx.switchTab({
+            url: this.data.skipPath[num]
+        }) : wx.navigateTo({
+            url: this.data.skipPath[num]
+        });
+    },
+    collectCase(e) { // 方案收藏
+        var that = this
+        if (that.data.collectRequest == true) {
+            that.setData({
+                collectRequest: false
+            })
+            let url = `/designplanfavorite/setFavoriteOrUnfavorite`,
+                item = e.currentTarget.dataset.item,
+                index = e.currentTarget.dataset.index,
+                status = null,
+                title = '收藏'
+            if (item.isFavorite) {
+                status = 0
+            } else {
+                status = 1
+            }
+            status == 0 ? title = '取消收藏' : '收藏'
+            fetch(url, 'post', {
+                    status: status,
+                    recommendId: item.designPlanRecommendId
+                })
+                .then((res) => {
+
+                    if (res.success) {
+                        this.data.recommendCaseList[index].isFavorite = status
+                        status == 0 ? this.data.recommendCaseList[index].collectNum -= 1 : this.data.recommendCaseList[index].collectNum += 1
+                        this.setData({
+                            recommendCaseList: this.data.recommendCaseList
+                        })
+                        wx.showToast({
+                            title: title + '成功'
+                        })
+                        setTimeout(function() {
+                            that.setData({
+                                collectRequest: true
+                            })
+                        }, 500)
+
+                    } else {
+                        wx.showToast({
+                            title: '收藏失败',
+                            icon: 'none'
+                        })
+                        setTimeout(function() {
+                            that.setData({
+                                collectRequest: true
+                            })
+                        }, 500)
+                    }
+                })
+        } else {
+            return
+        }
+
+    },
+    likeCase(e) { // 方案点赞
+        var that = this;
+        if (that.data.favoriteRequest == true) {
+            that.setData({
+                favoriteRequest: false
+            })
+            let url = `/designPlanLike/setLikeOrDislike`,
+                item = e.currentTarget.dataset.item,
+                index = e.currentTarget.dataset.index,
+                status = null,
+                title = '点赞'
+            if (item.isLike) {
+                status = 0
+            } else {
+                status = 1
+            }
+            status == 0 ? title = '取消点赞' : '点赞'
+            fetch(url, 'post', {
+                    status: status,
+                    designId: item.designPlanRecommendId
+                })
+                .then((res) => {
+                    if (res.success) {
+                        this.data.recommendCaseList[index].isLike = status
+                        status == 0 ? this.data.recommendCaseList[index].likeNum -= 1 : this.data.recommendCaseList[index].likeNum += 1
+                        this.setData({
+                            recommendCaseList: this.data.recommendCaseList
+                        })
+                        wx.showToast({
+                            title: title + '成功'
+                        })
+                        setTimeout(function() {
+                            that.setData({
+                                favoriteRequest: true
+                            })
+                        }, 500)
+                    } else {
+                        wx.showToast({
+                            title: title + '失败',
+                            icon: 'none'
+                        })
+                        setTimeout(function() {
+                            that.setData({
+                                favoriteRequest: true
+                            })
+                        }, 500)
+                    }
+                })
+        } else {
+            return;
+        }
+    },
+    gotoPge(e) {
+        var id = e.currentTarget.dataset.url,
+            type = e.currentTarget.dataset.type
+
+        if (id == 1) {
+            wx.navigateTo({
+                url: '/pages/goods-list/goods-list?type=' + type + '&code=root'
+            })
+        } else if (id == 0) {
+            wx.navigateTo({
+                url: '/pages/special-sales/special-sales',
+            })
+        } else {
+            wx.switchTab({
+                url: '../house-case/house-case'
+            })
+        }
+
+
+    },
+    toPage(e) {
+        wx.navigateTo({
+            url: '../goods-details/goods-details?id=' + e.currentTarget.dataset.id
+        })
+    },
+    putInMyhouse(e) { // 装进我家
+        // this.renderTypeShow() // 显示组件
+        let item = e.currentTarget.dataset.item
+        wx.setStorageSync('caseItem', item)
+        wx.navigateTo({
+            url: '../case-house-type/case-house-type'
+        })
+    },
+    closeFun(){
+        this.setData({
+            getPhone: !this.data.getPhone,
+            click:true,
+        })
+    },
+    changeInput(e){
+        let key = 'getObj.' + e.target.dataset.type
+        this.setData({
+            [key]: e.detail.value.trim(),
+        })
+        console.log(e.detail.value.length);
+        if (e.target.dataset.type == 'phone' && e.detail.value.length >= 11) {
+            this.setData({
+                inputFlag: true,
+            })
+        }
+    },
+    getCodeFun(){
+        let phone = this.data.getObj.phone,
+            that = this;
+        if (!phone && !(/^1[3|4|5|8|9][0-9]\d{8}$/.test(phone))) {
+            wx.showToast({
+                title: '请正确填写电话!',
+                icon: 'none'
+            })
+            return;
+        }
+        let url = `/v1/center/getSms`
+        fetch(url, 'formData', { phoneNumber: phone, msgId: 12 }, 'user')
+        .then((res) => {
+            if (res.success){
+                let num = 60
+                that.setData({
+                    inputFlag2: true,
+                    message: num + 's',
+                })
+                let setFunc = setInterval(function(){
+                    num--;
+                    that.setData({
+                        message: num + 's',
+                    })
+                    if (num <= 0) {
+                        clearInterval(setFunc);
+                        that.setData({
+                            message: '获取验证码',
+                        })
+                    }
+                },1000)
+            }
+        })
+    },
+    submitFun(){
+        let  that = this,
+            code = this.data.getObj.code ;
+        if (!code) {
+            wx.showToast({
+                title: '请填写验证码',
+                icon: 'none'
+            })
+            return
+        }
+        let url = `/v2/user/center/bindUserMobile`
+        fetch(url, 'formData', {
+            mobile: that.data.getObj.phone,
+            authCode: code
+        }, 'user').then((res) => {
+        if (res.success) {
+            wx.showToast({
+                title: '绑定成功'
+            })
+            wx.setStorage({
+                key: 'bindingPhone',
+                data: 1,
+            })
+            that.setData({
+                getPhone: false
+            })
+            wx.setStorageSync('isGetPhone', that.data.getObj.phone)
+        } else {
+            wx.showToast({
+                title: res.message,
+                icon: 'none'
+            })
+        }
+    })
+    },
+})

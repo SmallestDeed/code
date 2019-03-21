@@ -1,0 +1,649 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.house.dao.HouseMapper">
+    <resultMap id="BaseResultMap" type="com.sandu.api.house.model.House">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="sys_code" jdbcType="VARCHAR" property="sysCode"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="house_code" jdbcType="VARCHAR" property="houseCode"/>
+        <result column="house_short_name" jdbcType="VARCHAR" property="houseShortName"/>
+        <result column="house_name" jdbcType="VARCHAR" property="houseName"/>
+        <result column="pic_res1_id" jdbcType="INTEGER" property="picRes1Id"/>
+        <result column="pic_res2_id" jdbcType="INTEGER" property="picRes2Id"/>
+        <result column="pic_res3_id" jdbcType="INTEGER" property="picRes3Id"/>
+        <result column="pic_res4_id" jdbcType="INTEGER" property="picRes4Id"/>
+        <result column="house_desc" jdbcType="VARCHAR" property="houseDesc"/>
+        <result column="living_id" jdbcType="INTEGER" property="livingId"/>
+        <result column="total_area" jdbcType="VARCHAR" property="totalArea"/>
+        <result column="total_floors" jdbcType="VARCHAR" property="totalFloors"/>
+        <result column="current_period" jdbcType="VARCHAR" property="currentPeriod"/>
+        <result column="house_high" jdbcType="VARCHAR" property="houseHigh"/>
+        <result column="apply_floors" jdbcType="VARCHAR" property="applyFloors"/>
+        <result column="house_layout" jdbcType="VARCHAR" property="houseLayout"/>
+        <result column="room_layout" jdbcType="VARCHAR" property="roomLayout"/>
+        <result column="office_layout" jdbcType="VARCHAR" property="officeLayout"/>
+        <result column="way_layout" jdbcType="VARCHAR" property="wayLayout"/>
+        <result column="is_exist_symmetry" jdbcType="VARCHAR" property="isExistSymmetry"/>
+        <result column="symmetry_ids" jdbcType="VARCHAR" property="symmetryIds"/>
+        <result column="is_merge" jdbcType="VARCHAR" property="isMerge"/>
+        <result column="merge_ids" jdbcType="VARCHAR" property="mergeIds"/>
+        <result column="merge_new_id" jdbcType="INTEGER" property="mergeNewId"/>
+        <result column="pic_res_id" jdbcType="INTEGER" property="picResId"/>
+        <result column="is_all" jdbcType="INTEGER" property="isAll"/>
+        <result column="house_common_code" jdbcType="VARCHAR" property="houseCommonCode"/>
+        <result column="house_type_code" jdbcType="VARCHAR" property="houseTypeCode"/>
+        <result column="house_tag" jdbcType="VARCHAR" property="houseTag"/>
+        <result column="house_status" jdbcType="VARCHAR" property="houseStatus"/>
+        <result column="deal_status" jdbcType="VARCHAR" property="dealStatus"/>
+        <result column="is_review" jdbcType="VARCHAR" property="isReview"/>
+        <result column="att1" jdbcType="VARCHAR" property="att1"/>
+        <result column="area_long_code" jdbcType="VARCHAR" property="areaLongCode"/>
+        <result column="house_kind" jdbcType="VARCHAR" property="houseKind"/>
+        <result column="att4" jdbcType="VARCHAR" property="att4"/>
+        <result column="att5" jdbcType="VARCHAR" property="att5"/>
+        <result column="att6" jdbcType="VARCHAR" property="att6"/>
+        <result column="date_att1" jdbcType="TIMESTAMP" property="dateAtt1"/>
+        <result column="date_att2" jdbcType="TIMESTAMP" property="dateAtt2"/>
+        <result column="reset_state" jdbcType="INTEGER" property="resetState"/>
+        <result column="num_att2" jdbcType="INTEGER" property="numAtt2"/>
+        <result column="num_att3" jdbcType="VARCHAR" property="numAtt3"/>
+        <result column="num_att4" jdbcType="VARCHAR" property="numAtt4"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="area_code" jdbcType="VARCHAR" property="areaCode"/>
+        <result column="is_public" jdbcType="INTEGER" property="isPublic"/>
+        <result column="house_door_code" jdbcType="VARCHAR" property="houseDoorCode"/>
+        <result column="house_space_num" jdbcType="VARCHAR" property="houseSpaceNum"/>
+        <result column="is_standard" jdbcType="INTEGER" property="isStandard"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="snap_pic_id" jdbcType="INTEGER" property="snapPicId"/>
+        <result column="restore_file_id" jdbcType="INTEGER" property="restoreFileId"/>
+        <result column="data_type" jdbcType="INTEGER" property="dataType"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,house_code,house_short_name,house_name,pic_res1_id,pic_res2_id,pic_res3_id,pic_res4_id,house_desc,living_id,total_area,total_floors,current_period,house_high,apply_floors,house_layout,room_layout,office_layout,way_layout,is_exist_symmetry,symmetry_ids,is_merge,merge_ids,merge_new_id,pic_res_id,is_all,house_common_code,house_type_code,house_tag,house_status,deal_status,is_review,att1,area_long_code,house_kind,att4,att5,att6,date_att1,date_att2,reset_state,num_att2,num_att3,num_att4,remark,area_code,is_public,house_door_code,house_space_num,is_standard,user_id,snap_pic_id,restore_file_id,data_type
+    </sql>
+
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true" parameterType="com.sandu.api.house.model.House">
+        insert into base_house
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="sysCode != null">
+                sys_code,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="houseCode != null">
+                house_code,
+            </if>
+            <if test="houseShortName != null">
+                house_short_name,
+            </if>
+            <if test="houseName != null">
+                house_name,
+            </if>
+            <if test="picRes1Id != null">
+                pic_res1_id,
+            </if>
+            <if test="picRes2Id != null">
+                pic_res2_id,
+            </if>
+            <if test="picRes3Id != null">
+                pic_res3_id,
+            </if>
+            <if test="picRes4Id != null">
+                pic_res4_id,
+            </if>
+            <if test="houseDesc != null">
+                house_desc,
+            </if>
+            <if test="livingId != null">
+                living_id,
+            </if>
+            <if test="totalArea != null">
+                total_area,
+            </if>
+            <if test="totalFloors != null">
+                total_floors,
+            </if>
+            <if test="currentPeriod != null">
+                current_period,
+            </if>
+            <if test="houseHigh != null">
+                house_high,
+            </if>
+            <if test="applyFloors != null">
+                apply_floors,
+            </if>
+            <if test="houseLayout != null">
+                house_layout,
+            </if>
+            <if test="roomLayout != null">
+                room_layout,
+            </if>
+            <if test="officeLayout != null">
+                office_layout,
+            </if>
+            <if test="wayLayout != null">
+                way_layout,
+            </if>
+            <if test="isExistSymmetry != null">
+                is_exist_symmetry,
+            </if>
+            <if test="symmetryIds != null">
+                symmetry_ids,
+            </if>
+            <if test="isMerge != null">
+                is_merge,
+            </if>
+            <if test="mergeIds != null">
+                merge_ids,
+            </if>
+            <if test="mergeNewId != null">
+                merge_new_id,
+            </if>
+            <if test="picResId != null">
+                pic_res_id,
+            </if>
+            <if test="isAll != null">
+                is_all,
+            </if>
+            <if test="houseCommonCode != null">
+                house_common_code,
+            </if>
+            <if test="houseTypeCode != null">
+                house_type_code,
+            </if>
+            <if test="houseTag != null">
+                house_tag,
+            </if>
+            <if test="houseStatus != null">
+                house_status,
+            </if>
+            <if test="dealStatus != null">
+                deal_status,
+            </if>
+            <if test="isReview != null">
+                is_review,
+            </if>
+            <if test="att1 != null">
+                att1,
+            </if>
+            <if test="areaLongCode != null">
+                area_long_code,
+            </if>
+            <if test="houseKind != null">
+                house_kind,
+            </if>
+            <if test="att4 != null">
+                att4,
+            </if>
+            <if test="att5 != null">
+                att5,
+            </if>
+            <if test="att6 != null">
+                att6,
+            </if>
+            <if test="dateAtt1 != null">
+                date_att1,
+            </if>
+            <if test="dateAtt2 != null">
+                date_att2,
+            </if>
+            <if test="resetState != null">
+                reset_state,
+            </if>
+            <if test="numAtt2 != null">
+                num_att2,
+            </if>
+            <if test="numAtt3 != null">
+                num_att3,
+            </if>
+            <if test="numAtt4 != null">
+                num_att4,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="areaCode != null">
+                area_code,
+            </if>
+            <if test="isPublic != null">
+                is_public,
+            </if>
+            <if test="houseDoorCode != null">
+                house_door_code,
+            </if>
+            <if test="houseSpaceNum != null">
+                house_space_num,
+            </if>
+            <if test="isStandard != null">
+                is_standard,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="snapPicId != null">
+                snap_pic_id,
+            </if>
+            <if test="restoreFileId != null">
+                restore_file_id,
+            </if>
+            <if test="dataType != null">
+                data_type,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="sysCode != null">
+                #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="houseCode != null">
+                #{houseCode,jdbcType=VARCHAR},
+            </if>
+            <if test="houseShortName != null">
+                #{houseShortName,jdbcType=VARCHAR},
+            </if>
+            <if test="houseName != null">
+                #{houseName,jdbcType=VARCHAR},
+            </if>
+            <if test="picRes1Id != null">
+                #{picRes1Id,jdbcType=INTEGER},
+            </if>
+            <if test="picRes2Id != null">
+                #{picRes2Id,jdbcType=INTEGER},
+            </if>
+            <if test="picRes3Id != null">
+                #{picRes3Id,jdbcType=INTEGER},
+            </if>
+            <if test="picRes4Id != null">
+                #{picRes4Id,jdbcType=INTEGER},
+            </if>
+            <if test="houseDesc != null">
+                #{houseDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="livingId != null">
+                #{livingId,jdbcType=INTEGER},
+            </if>
+            <if test="totalArea != null">
+                #{totalArea,jdbcType=VARCHAR},
+            </if>
+            <if test="totalFloors != null">
+                #{totalFloors,jdbcType=VARCHAR},
+            </if>
+            <if test="currentPeriod != null">
+                #{currentPeriod,jdbcType=VARCHAR},
+            </if>
+            <if test="houseHigh != null">
+                #{houseHigh,jdbcType=VARCHAR},
+            </if>
+            <if test="applyFloors != null">
+                #{applyFloors,jdbcType=VARCHAR},
+            </if>
+            <if test="houseLayout != null">
+                #{houseLayout,jdbcType=VARCHAR},
+            </if>
+            <if test="roomLayout != null">
+                #{roomLayout,jdbcType=VARCHAR},
+            </if>
+            <if test="officeLayout != null">
+                #{officeLayout,jdbcType=VARCHAR},
+            </if>
+            <if test="wayLayout != null">
+                #{wayLayout,jdbcType=VARCHAR},
+            </if>
+            <if test="isExistSymmetry != null">
+                #{isExistSymmetry,jdbcType=VARCHAR},
+            </if>
+            <if test="symmetryIds != null">
+                #{symmetryIds,jdbcType=VARCHAR},
+            </if>
+            <if test="isMerge != null">
+                #{isMerge,jdbcType=VARCHAR},
+            </if>
+            <if test="mergeIds != null">
+                #{mergeIds,jdbcType=VARCHAR},
+            </if>
+            <if test="mergeNewId != null">
+                #{mergeNewId,jdbcType=INTEGER},
+            </if>
+            <if test="picResId != null">
+                #{picResId,jdbcType=INTEGER},
+            </if>
+            <if test="isAll != null">
+                #{isAll,jdbcType=INTEGER},
+            </if>
+            <if test="houseCommonCode != null">
+                #{houseCommonCode,jdbcType=VARCHAR},
+            </if>
+            <if test="houseTypeCode != null">
+                #{houseTypeCode,jdbcType=VARCHAR},
+            </if>
+            <if test="houseTag != null">
+                #{houseTag,jdbcType=VARCHAR},
+            </if>
+            <if test="houseStatus != null">
+                #{houseStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="dealStatus != null">
+                #{dealStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="isReview != null">
+                #{isReview,jdbcType=VARCHAR},
+            </if>
+            <if test="att1 != null">
+                #{att1,jdbcType=VARCHAR},
+            </if>
+            <if test="areaLongCode != null">
+                #{areaLongCode,jdbcType=VARCHAR},
+            </if>
+            <if test="houseKind != null">
+                #{houseKind,jdbcType=VARCHAR},
+            </if>
+            <if test="att4 != null">
+                #{att4,jdbcType=VARCHAR},
+            </if>
+            <if test="att5 != null">
+                #{att5,jdbcType=VARCHAR},
+            </if>
+            <if test="att6 != null">
+                #{att6,jdbcType=VARCHAR},
+            </if>
+            <if test="dateAtt1 != null">
+                #{dateAtt1,jdbcType=TIMESTAMP},
+            </if>
+            <if test="dateAtt2 != null">
+                #{dateAtt2,jdbcType=TIMESTAMP},
+            </if>
+            <if test="resetState != null">
+                #{resetState,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt2 != null">
+                #{numAtt2,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt3 != null">
+                #{numAtt3,jdbcType=VARCHAR},
+            </if>
+            <if test="numAtt4 != null">
+                #{numAtt4,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="areaCode != null">
+                #{areaCode,jdbcType=VARCHAR},
+            </if>
+            <if test="isPublic != null">
+                #{isPublic,jdbcType=INTEGER},
+            </if>
+            <if test="houseDoorCode != null">
+                #{houseDoorCode,jdbcType=VARCHAR},
+            </if>
+            <if test="houseSpaceNum != null">
+                #{houseSpaceNum,jdbcType=VARCHAR},
+            </if>
+            <if test="isStandard != null">
+                #{isStandard,jdbcType=INTEGER},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="snapPicId != null">
+                #{snapPicId,jdbcType=INTEGER},
+            </if>
+            <if test="restoreFileId != null">
+                #{restoreFileId,jdbcType=INTEGER},
+            </if>
+            <if test="dataType != null">
+                #{dataType,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKey" parameterType="com.sandu.api.house.model.House">
+        update base_house
+        <set>
+            <if test="id != null">
+                id = #{id,jdbcType=INTEGER},
+            </if>
+            <if test="sysCode != null">
+                sys_code = #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="houseCode != null">
+                house_code = #{houseCode,jdbcType=VARCHAR},
+            </if>
+            <if test="houseShortName != null">
+                house_short_name = #{houseShortName,jdbcType=VARCHAR},
+            </if>
+            <if test="houseName != null">
+                house_name = #{houseName,jdbcType=VARCHAR},
+            </if>
+            <if test="picRes1Id != null">
+                pic_res1_id = #{picRes1Id,jdbcType=INTEGER},
+            </if>
+            <if test="picRes2Id != null">
+                pic_res2_id = #{picRes2Id,jdbcType=INTEGER},
+            </if>
+            <if test="picRes3Id != null">
+                pic_res3_id = #{picRes3Id,jdbcType=INTEGER},
+            </if>
+            <if test="picRes4Id != null">
+                pic_res4_id = #{picRes4Id,jdbcType=INTEGER},
+            </if>
+            <if test="houseDesc != null">
+                house_desc = #{houseDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="livingId != null">
+                living_id = #{livingId,jdbcType=INTEGER},
+            </if>
+            <if test="totalArea != null">
+                total_area = #{totalArea,jdbcType=VARCHAR},
+            </if>
+            <if test="totalFloors != null">
+                total_floors = #{totalFloors,jdbcType=VARCHAR},
+            </if>
+            <if test="currentPeriod != null">
+                current_period = #{currentPeriod,jdbcType=VARCHAR},
+            </if>
+            <if test="houseHigh != null">
+                house_high = #{houseHigh,jdbcType=VARCHAR},
+            </if>
+            <if test="applyFloors != null">
+                apply_floors = #{applyFloors,jdbcType=VARCHAR},
+            </if>
+            <if test="houseLayout != null">
+                house_layout = #{houseLayout,jdbcType=VARCHAR},
+            </if>
+            <if test="roomLayout != null">
+                room_layout = #{roomLayout,jdbcType=VARCHAR},
+            </if>
+            <if test="officeLayout != null">
+                office_layout = #{officeLayout,jdbcType=VARCHAR},
+            </if>
+            <if test="wayLayout != null">
+                way_layout = #{wayLayout,jdbcType=VARCHAR},
+            </if>
+            <if test="isExistSymmetry != null">
+                is_exist_symmetry = #{isExistSymmetry,jdbcType=VARCHAR},
+            </if>
+            <if test="symmetryIds != null">
+                symmetry_ids = #{symmetryIds,jdbcType=VARCHAR},
+            </if>
+            <if test="isMerge != null">
+                is_merge = #{isMerge,jdbcType=VARCHAR},
+            </if>
+            <if test="mergeIds != null">
+                merge_ids = #{mergeIds,jdbcType=VARCHAR},
+            </if>
+            <if test="mergeNewId != null">
+                merge_new_id = #{mergeNewId,jdbcType=INTEGER},
+            </if>
+            <if test="picResId != null">
+                pic_res_id = #{picResId,jdbcType=INTEGER},
+            </if>
+            <if test="isAll != null">
+                is_all = #{isAll,jdbcType=INTEGER},
+            </if>
+            <if test="houseCommonCode != null">
+                house_common_code = #{houseCommonCode,jdbcType=VARCHAR},
+            </if>
+            <if test="houseTypeCode != null">
+                house_type_code = #{houseTypeCode,jdbcType=VARCHAR},
+            </if>
+            <if test="houseTag != null">
+                house_tag = #{houseTag,jdbcType=VARCHAR},
+            </if>
+            <if test="houseStatus != null">
+                house_status = #{houseStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="dealStatus != null">
+                deal_status = #{dealStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="isReview != null">
+                is_review = #{isReview,jdbcType=VARCHAR},
+            </if>
+            <if test="att1 != null">
+                att1 = #{att1,jdbcType=VARCHAR},
+            </if>
+            <if test="areaLongCode != null">
+                area_long_code = #{areaLongCode,jdbcType=VARCHAR},
+            </if>
+            <if test="houseKind != null">
+                house_kind = #{houseKind,jdbcType=VARCHAR},
+            </if>
+            <if test="att4 != null">
+                att4 = #{att4,jdbcType=VARCHAR},
+            </if>
+            <if test="att5 != null">
+                att5 = #{att5,jdbcType=VARCHAR},
+            </if>
+            <if test="att6 != null">
+                att6 = #{att6,jdbcType=VARCHAR},
+            </if>
+            <if test="dateAtt1 != null">
+                date_att1 = #{dateAtt1,jdbcType=TIMESTAMP},
+            </if>
+            <if test="dateAtt2 != null">
+                date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},
+            </if>
+            <if test="resetState != null">
+                reset_state = #{resetState,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt2 != null">
+                num_att2 = #{numAtt2,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt3 != null">
+                num_att3 = #{numAtt3,jdbcType=VARCHAR},
+            </if>
+            <if test="numAtt4 != null">
+                num_att4 = #{numAtt4,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="areaCode != null">
+                area_code = #{areaCode,jdbcType=VARCHAR},
+            </if>
+            <if test="isPublic != null">
+                is_public = #{isPublic,jdbcType=INTEGER},
+            </if>
+            <if test="houseDoorCode != null">
+                house_door_code = #{houseDoorCode,jdbcType=VARCHAR},
+            </if>
+            <if test="houseSpaceNum != null">
+                house_space_num = #{houseSpaceNum,jdbcType=VARCHAR},
+            </if>
+            <if test="isStandard != null">
+                is_standard = #{isStandard,jdbcType=INTEGER},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="snapPicId != null">
+                snap_pic_id = #{snapPicId,jdbcType=INTEGER},
+            </if>
+            <if test="restoreFileId != null">
+                restore_file_id = #{restoreFileId,jdbcType=INTEGER},
+            </if>
+            <if test="dataType != null">
+                data_type = #{dataType,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        update base_house set is_deleted = 1
+        where id IN
+        <foreach separator="," open="(" close=")" collection="houseIds" item="houseId">
+            #{houseId}
+        </foreach>
+    </update>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from base_house
+        where id = #{houseId,jdbcType=INTEGER}
+    </select>
+
+
+    <select id="getByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from base_house
+        where user_id = #{userId,jdbcType=INTEGER}
+    </select>
+</mapper>

@@ -1,0 +1,76 @@
+package com.sandu.search.controller.product;
+
+import com.sandu.search.common.constant.ReturnCode;
+import com.sandu.search.common.tools.JsonUtil;
+import com.sandu.search.common.tools.StorageComponent;
+import com.sandu.search.entity.elasticsearch.po.ProductPo;
+import com.sandu.search.entity.response.SearchResultResponse;
+import com.sandu.search.exception.CategoryProductIndexException;
+import com.sandu.search.initialize.ElasticSearchCategoryProductIndex;
+import com.sandu.search.service.index.CategoryProductIndexService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+/**
+ * 产品数据同步接口
+ *
+ * @date 2018/3/22
+ * @auth pengxuangang
+ * @mail xuangangpeng@gmail.com
+ */
+@Slf4j
+@RestController
+@EnableAutoConfiguration
+@RequestMapping("/sync/product")
+public class ProductDataSyncController {
+
+    @Autowired
+    StorageComponent storageComponent;
+    @Autowired
+    CategoryProductIndexService categoryProductIndexService;
+    @Autowired
+    ElasticSearchCategoryProductIndex elasticSearchCategoryProductIndex;
+
+    private final static String CLASS_LOG_PREFIX = "[数据同步]产品信息同步接口:";
+
+    @PostMapping("list")
+    SearchResultResponse syncProductInfoList(@RequestBody List<Integer> productIdList) {
+
+        if (null == productIdList || 0 >= productIdList.size()) {
+            log.info(CLASS_LOG_PREFIX + "同步产品信息失败，产品ID为空!");
+            return new SearchResultResponse(ReturnCode.SYNC_PRODUCT_INFO_FAIL);
+        }
+
+        log.info(CLASS_LOG_PREFIX + "开始同步产品，产品ID:{}", JsonUtil.toJson(productIdList));
+        List<ProductPo> productPoList;
+        try {
+            productPoList = categoryProductIndexService.queryProductPoListByProductIdList(productIdList);
+        } catch (CategoryProductIndexException e) {
+            log.error(CLASS_LOG_PREFIX + "同步产品信息失败。查询产品信息失败!CategoryProductIndexException:{}.", e);
+            return new SearchResultResponse(ReturnCode.SYNC_PRODUCT_INFO_FAIL);
+        }
+
+        if (null == productPoList || 0 >= productPoList.size()) {
+            log.info(CLASS_LOG_PREFIX + "同步产品信息失败。查询产品信息为空，产品ID:{}", JsonUtil.toJson(productIdList));
+            return new SearchResultResponse(ReturnCode.SYNC_PRODUCT_INFO_FAIL);
+        }
+        log.info(CLASS_LOG_PREFIX + "查询产品信息成功!List<ProductPo>条数:{}", null == productPoList ? 0 : productPoList.size());
+
+        //更新内存数据
+        storageComponent.reloadAllStorageInMemory(true);
+
+        //更新数据
+        int updateProdcutSuccessCount = elasticSearchCategoryProductIndex.indexProdcutData(productPoList);
+        log.info(CLASS_LOG_PREFIX + "更新数据完成，成功{}条,失败{}条.", updateProdcutSuccessCount, productPoList.size() - updateProdcutSuccessCount);
+
+        return new SearchResultResponse(ReturnCode.SUCCESS, "更新数据完成，成功" + updateProdcutSuccessCount + "条,失败" + (productPoList.size() - updateProdcutSuccessCount) + "条.", updateProdcutSuccessCount);
+    }
+
+}

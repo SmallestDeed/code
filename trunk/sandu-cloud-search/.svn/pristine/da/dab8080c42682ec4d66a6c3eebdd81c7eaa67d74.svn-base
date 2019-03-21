@@ -1,0 +1,102 @@
+package com.sandu.search.config;
+
+import com.alibaba.dubbo.config.*;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+
+import java.util.List;
+
+/**
+ * Dubbo配置
+ *
+ * @date 20171211
+ * @auth pengxuangang
+ */
+@Slf4j
+@Data
+//@Component
+@ConfigurationProperties(prefix = "dubbo")
+public class DubboCinfig {
+
+    private final static String CLASS_LOG_PREFIX = "初始化Dubbo配置:";
+
+    //注册中心
+    private static final String DUBBO_REGISTER_CENTER = "zookeeper";
+    //消费者服务检查
+    private static final boolean DUBBO_CONSUMER_CHECK = false;
+
+    //应用名
+    private String applicationName;
+    //Zookeeper注册中心地址
+    private String registryAddress;
+    //传输协议名
+    private String transProtocolName;
+    //传输协议端口
+    private String transProtocolPort;
+    //服务提供配置[Format:(接口-应用-协议-超时-版本/interface-ref-protocol-timeout-version)]
+    private List<String> providerServicesList;
+
+    //配置应用名
+    @Bean
+    public ApplicationConfig setApplicationConfig() {
+        ApplicationConfig applicationConfig = new ApplicationConfig();
+        applicationConfig.setName(applicationName);
+        return applicationConfig;
+    }
+
+    //注册中心配置
+    @Bean
+    public RegistryConfig setRegistryConfig() {
+        RegistryConfig registryConfig = new RegistryConfig();
+        registryConfig.setProtocol(DUBBO_REGISTER_CENTER);
+        registryConfig.setAddress(registryAddress);
+        return registryConfig;
+    }
+
+    //协议配置
+    @Bean
+    public ProtocolConfig setProtocolConfig() {
+        ProtocolConfig protocolConfig = new ProtocolConfig();
+        protocolConfig.setName(transProtocolName);
+        protocolConfig.setPort(Integer.valueOf(transProtocolPort));
+        return protocolConfig;
+    }
+
+    //消费者配置
+    @Bean
+    public ConsumerConfig setConsumerConfig() {
+        ConsumerConfig consumerConfig = new ConsumerConfig();
+        consumerConfig.setCheck(DUBBO_CONSUMER_CHECK);
+        return consumerConfig;
+    }
+
+    //服务提供配置
+    @Bean
+    public ServiceConfig[] setProviderServiceConfig() {
+
+        if (null == providerServicesList || 0 == providerServicesList.size()) {
+            throw new IllegalArgumentException("dubbo.service.providers must not be null");
+        }
+
+        //处理配置参数
+        ServiceConfig[] serviceConfigArr = new ServiceConfig[providerServicesList.size()];
+
+        //装配服务
+        for (int i = 0; i < providerServicesList.size(); i++) {
+            String[] serviceStr = providerServicesList.get(i).split("-");
+            ServiceConfig serviceConfig = new ServiceConfig();
+            serviceConfig.setInterface(serviceStr[0]);
+            serviceConfig.setRef(serviceStr[1]);
+            serviceConfig.setProtocol(new ProtocolConfig(serviceStr[2]));
+            serviceConfig.setTimeout(Integer.valueOf(serviceStr[3]));
+            serviceConfig.setVersion(serviceStr[4]);
+            serviceConfigArr[i] = serviceConfig;
+            log.info(CLASS_LOG_PREFIX + "装配服务提供完成.接口:{},服务:{},协议:{}, 超时:{}ms,版本:{}", serviceStr);
+        }
+
+        log.info(CLASS_LOG_PREFIX + "装配所有服务完成,共计{}个服务!", providerServicesList.size());
+        return serviceConfigArr;
+    }
+}

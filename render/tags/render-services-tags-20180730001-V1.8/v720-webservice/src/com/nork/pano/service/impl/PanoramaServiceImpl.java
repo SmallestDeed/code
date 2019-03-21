@@ -1,0 +1,1456 @@
+package com.nork.pano.service.impl;
+
+import com.nork.cityunion.model.UnionDesignPlanStore;
+import com.nork.cityunion.model.UnionDesignPlanStoreRelease;
+import com.nork.cityunion.model.UnionStorefront;
+import com.nork.cityunion.model.vo.UnionStoreVo;
+import com.nork.cityunion.service.UnionDesignPlanStoreReleaseService;
+import com.nork.cityunion.service.UnionDesignPlanStoreService;
+import com.nork.cityunion.service.UnionStorefrontService;
+import com.nork.common.cache.utils.JedisUtils;
+import com.nork.common.model.LoginUser;
+import com.nork.common.pano.PanoramaUtil;
+import com.nork.common.util.FileUploadUtils;
+import com.nork.common.util.JAXBUtil;
+import com.nork.common.util.StringUtils;
+import com.nork.common.util.collections.Lists;
+import com.nork.common.util.Utils;
+import com.nork.design.dao.DesignRenderRoamMapper;
+import com.nork.design.model.*;
+import com.nork.design.service.DesignPlanProductRenderSceneService;
+import com.nork.design.model.DesignPlan;
+import com.nork.design.model.DesignPlanProduct;
+import com.nork.design.model.DesignRenderRoam;
+import com.nork.design.model.ProductsCostType;
+import com.nork.design.service.DesignPlanProductService;
+import com.nork.design.service.DesignPlanRecommendedServiceV2;
+import com.nork.design.service.DesignPlanRenderSceneService;
+import com.nork.design.service.DesignPlanService;
+import com.nork.design.service.OptimizePlanService;
+import com.nork.design.service.impl.DesignPlanProductServiceImpl.costListEnum;
+import com.nork.home.model.SpaceCommon;
+import com.nork.home.service.SpaceCommonService;
+import com.nork.pano.model.output.DesignPlanStoreReleaseDetailsVo;
+import com.nork.pano.model.roam.Roam;
+import com.nork.pano.model.scene.*;
+import com.nork.pano.model.scene.hotspot.Hotspot;
+import com.nork.pano.service.PanoramaService;
+import com.nork.product.model.*;
+import com.nork.product.service.BaseBrandService;
+import com.nork.product.service.BaseCompanyService;
+import com.nork.render.model.RenderPanoLevel;
+import com.nork.render.model.RenderTypeCode;
+import com.nork.system.model.ResDesign;
+import com.nork.system.model.ResPic;
+import com.nork.system.model.SysUser;
+import com.nork.system.model.SysDictionary;
+import com.nork.system.model.ResRenderPic;
+import com.nork.system.service.ResDesignService;
+import com.nork.system.service.ResPicService;
+import com.nork.system.service.ResRenderPicService;
+import com.nork.system.service.SysDictionaryService;
+import com.nork.system.service.SysUserGroupService;
+import com.nork.system.service.SysUserService;
+
+import com.nork.user.model.UserTypeCode;
+import net.sf.json.JSONArray;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+
+/**
+ * Created by Administrator on 2017/7/11.
+ */
+@Service("panoramaService")
+@Transactional
+public class PanoramaServiceImpl implements PanoramaService{
+	private static Logger logger = Logger
+			.getLogger(PanoramaServiceImpl.class);
+	@Autowired
+    private DesignPlanService designPlanService;
+    @Autowired
+    private SysUserService sysUserService;
+    @Autowired
+    private BaseCompanyService baseCompanyService;
+    @Autowired
+    private ResPicService resPicService;
+    @Autowired
+    private SpaceCommonService spaceCommonService;
+    @Autowired
+    private SysDictionaryService sysDictionaryService;
+    @Autowired
+    private ResRenderPicService resRenderPicService;
+    @Autowired
+    private DesignPlanProductService designPlanProductService;
+    @Autowired
+    private DesignRenderRoamMapper designRenderRoamMapper;
+    @Autowired
+    private ResDesignService resDesignService;
+    @Autowired
+    private DesignPlanProductRenderSceneService designPlanProductRenderSceneService;
+    @Autowired
+    private DesignPlanRenderSceneService designPlanRenderSceneService;
+    @Autowired
+    private OptimizePlanService optimizeDesingPlanService;
+    @Autowired
+    private DesignPlanRecommendedServiceV2 designPlanRecommendedServiceV2;
+    @Autowired
+    private SysUserGroupService sysUserGroupService;
+    
+    @Autowired
+    private UnionDesignPlanStoreReleaseService unionDesignPlanStoreReleaseService;
+    
+    @Autowired
+    private UnionStorefrontService unionStorefrontService;
+    
+    @Autowired
+    private BaseBrandService baseBrandService;
+    
+    @Autowired
+    private UnionDesignPlanStoreService unionDesignPlanStoreService;
+    
+	/**
+     * 单场景加载（主函数）
+     * @param sysCode
+     * @return
+     */
+    @Override
+    public SingleSceneVo vr720Single(String sysCode){
+        SingleSceneVo singleSceneVo = null;
+        if(StringUtils.isNotBlank(sysCode) ){
+            singleSceneVo = new SingleSceneVo();
+            // 获取单个场景对象
+            Scene scene = this.getSceneBySysCode(sysCode, "");
+            if( scene != null ) {
+                singleSceneVo.setScene(JAXBUtil.beanToXml(scene,Scene.class));
+
+                // 获取页面需要显示的业务信息（用户昵称、企业LOGO、企业名称、产品费用清单）
+                PanoramaVo panoramaVo = this.assemblyPanoramaVo(scene);
+                panoramaVo.setThumbUrl(scene.getThumbUrl());
+                panoramaVo.setWindowsPercent(scene.getWindowsPercent());
+                singleSceneVo.setPanoramaVo(panoramaVo);
+                
+                // 获取设计方案产品费用清单
+                //如果有就走以前,没有就走onekey
+                List<ProductsCostType> list = this.getProductsCost(panoramaVo);
+                if( list != null && list.size() > 0 ){
+                    BigDecimal totalPrice = new BigDecimal(0.0);
+                    for( ProductsCostType cost : list ){
+                        totalPrice = totalPrice.add(cost.getTotalPrice());
+                    }
+                    singleSceneVo.setTotalPrice(totalPrice.toString());
+                    singleSceneVo.setProductsCostTypeList(list);
+                }
+
+                // 资源访问url
+                singleSceneVo.setResourceUrl(FileUploadUtils.RESOURCES_URL);
+            }
+        }
+        return singleSceneVo;
+    }
+
+    /**
+     * 720漫游场景加载（主函数）
+     * @param sysCode design_render_roam表的uuid
+     * @return
+     */
+    @Override
+    public RoamSceneVo vr720Roam(String sysCode){
+        RoamSceneVo roamSceneVo = null;
+        if( StringUtils.isNotBlank(sysCode) ){
+            roamSceneVo = new RoamSceneVo();
+        }
+        // 获取漫游的全景图模型集合
+        List<Roam> roamList = getRoamRenderRelation(sysCode);
+        
+        // 组装pano场景标签
+        if( roamList != null && roamList.size() > 0 ){
+            Integer screenPicId = null;// 截图ID
+            StringBuffer sceneXml = new StringBuffer();
+            Scene scene = null;
+            Image image;
+            ImageCube imageCube = null;
+            ImageSphere imageSphere;
+            List<Hotspot> hotspotList;
+            ResRenderPic resRenderPic;
+            for( Roam roam : roamList ){
+                Integer renderPicId = roam.getFieldName();
+                logger.error("renderPicId----------------"+renderPicId);
+                resRenderPic = resRenderPicService.get(renderPicId);
+                if( resRenderPic != null ){
+                    screenPicId = resRenderPic.getSysTaskPicId();
+                    logger.error("screenPicId*****************" + screenPicId);
+                    scene = new Scene();
+                    scene.setPlanId(resRenderPic.getBusinessId());
+                    scene.setName("scene_"+renderPicId);
+                    scene.setTitle("");
+                    scene.setThumbUrl("");
+                    scene.setView(View.getDefaultView());// 使用默认view
+                    image = new Image();
+                    File file = new File(Utils.getAbsolutePath(resRenderPic.getPicPath(), null));
+                    if (file.exists()) {
+                        // 如果是切片目录存储，则使用cube方式加载场景
+                        if( file.isDirectory() ){
+                            imageCube = new ImageCube();
+                            imageCube.setUrl(Utils.getAbsoluteUrlByRelativeUrl(resRenderPic.getPicPath() + "/pano_%s.jpg"));
+                            image.setCube(imageCube);
+                            scene.setImage(image);
+
+                            // 预览图
+                            Preview preview = new Preview();
+                            preview.setUrl(Utils.getAbsoluteUrlByRelativeUrl(resRenderPic.getPicPath() + "/preview.jpg"));
+                            scene.setPreview(preview);
+                        }else{
+                            imageSphere = new ImageSphere();
+                            imageSphere.setUrl(Utils.getAbsoluteUrlByRelativeUrl(resRenderPic.getPicPath()));
+                            image.setSphere(imageSphere);
+                            scene.setImage(image);
+                        }
+                    }
+
+                    // 添加热点
+                    Hotspot hotspot = null;
+                    hotspotList = new ArrayList<Hotspot>();
+                    for( Roam roam1 : roamList ){
+                        if( roam1.getFieldName() != roam.getFieldName() ){
+                            hotspot = new Hotspot();
+                            hotspot.setName("hotspot_"+roam1.getFieldName());
+                            hotspot.setUrl("images/hotspot/locatingPoint.png");
+                            hotspot.setOnClick("loadscene('scene_"+roam1.getFieldName()+"')");// 点击事件，加载其他场景
+                            hotspot.setText(String.valueOf(roam1.getIndex()));
+                            hotspot.setLinkedScene("scene_"+roam1.getFieldName());
+//                            hotspot.setOnLoaded("add_all_the_time_tooltip();");// 文字提示小标签.优先使用text中的文本，如果text为空则使用linkscene对应的场景的title属性
+                            hotspot.setAth(PanoramaUtil.getAth(roam,roam1));
+                            hotspot.setAtv(PanoramaUtil.getAtv(roam,roam1));
+                            hotspot.setDistance(PanoramaUtil.distance(roam.getPosition(),roam1.getPosition()));
+                            hotspotList.add(hotspot);
+                        }
+                    }
+                    PanoramaUtil.ComparatorT comparatorT = new PanoramaUtil.ComparatorT();
+                    Collections.sort(hotspotList,comparatorT);
+                    scene.setHotspotList(hotspotList);
+                    String sceneStr = JAXBUtil.beanToXml(scene,Scene.class);
+                    sceneXml.append(sceneStr).append(",");
+                }
+            }
+
+            // 获取页面需要显示的业务信息（用户昵称、企业LOGO、企业名称、产品费用清单）
+            PanoramaVo panoramaVo = this.assemblyPanoramaVo(scene);
+            // 获取缩略图
+            if( screenPicId != null ) {
+            	logger.error("screenPicId ===================" + screenPicId);
+                ResRenderPic thumbPic = resRenderPicService.selectOneByPid(screenPicId);
+                if( thumbPic != null ){
+                    /*panoramaVo.setThumbUrl(FileUploadUtils.RESOURCES_URL + thumbPic.getPicPath());*/
+                	panoramaVo.setThumbUrl(Utils.getAbsoluteUrlByRelativeUrl(thumbPic.getPicPath()));
+                }
+            }
+            roamSceneVo.setPanoramaVo(panoramaVo);
+
+            // 获取设计方案产品费用清单
+            /*List<ProductsCostType> list = this.getProductsCost(panoramaVo.getPlanId(), panoramaVo.getUserId(), panoramaVo.getUserType());*/
+            List<ProductsCostType> list = this.getProductsCost(panoramaVo);
+            if( list != null && list.size() > 0 ){
+                BigDecimal totalPrice = new BigDecimal(0.0);
+                for( ProductsCostType cost : list ){
+                    totalPrice = totalPrice.add(cost.getTotalPrice());
+                }
+                roamSceneVo.setTotalPrice(totalPrice.toString());
+                roamSceneVo.setProductsCostTypeList(list);
+            }
+
+            // 资源访问url
+            roamSceneVo.setResourceUrl(FileUploadUtils.RESOURCES_URL);
+
+            try {
+                roamSceneVo.setScenes(URLEncoder.encode(sceneXml.substring(0,sceneXml.length() - 1),"UTF-8").replaceAll("\\+","%20"));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return roamSceneVo;
+    }
+
+    /**
+     * 组装720页面基本信息
+     * @param scene
+     * @return
+     */
+    @Override
+    public PanoramaVo assemblyPanoramaVo(Scene scene) {
+    	Integer planId = scene.getPlanId();
+    	Integer designPlanRenderSceneId = scene.getDesignPlanRenderSceneId();
+    	Integer designPlanRecommendedId = scene.getDesignPlanRecommendedId();
+    	
+        PanoramaVo panoramaVo = new PanoramaVo();
+        
+        if(designPlanRecommendedId != null && designPlanRecommendedId.intValue() > 0) {
+        	panoramaVo = this.assemblyPanoramaVoRecommendedId(designPlanRecommendedId);
+        }else if(designPlanRenderSceneId != null && designPlanRenderSceneId > 0) {
+        	panoramaVo = this.assemblyPanoramaVoSceneId(designPlanRenderSceneId);
+        }else if(planId != null && planId > 0) {
+        	panoramaVo = this.assemblyPanoramaVoPlanId(planId);
+        }
+
+        return panoramaVo;
+    }
+    
+	private PanoramaVo assemblyPanoramaVoSceneId(Integer designPlanRenderSceneId) {
+		PanoramaVo panoramaVo = new PanoramaVo();
+		panoramaVo.setDesignPlanRenderSceneId(designPlanRenderSceneId);
+		// 参数验证 ->start
+		if(designPlanRenderSceneId == null || designPlanRenderSceneId < 1) {
+			return panoramaVo;
+		}
+		// 参数验证 ->end
+		
+		DesignPlanRenderScene designPlanRenderScene = designPlanRenderSceneService.get(designPlanRenderSceneId);
+		if(designPlanRenderScene != null && designPlanRenderScene.getUserId() != null && designPlanRenderScene.getUserId() > 0) {
+		    /*panoramaVo.setPlanId(planId);*/
+		    // 设计方案风格，如果没有，则默认为混搭
+		    Integer styleId = designPlanRenderScene.getDesignStyleId();
+		    panoramaVo.setTitle("3D全景漫游");
+//		    panoramaVo.setTitle("3D全景漫游|混搭");
+//		    if(styleId != null) {
+//		        BaseProductStyle style = baseProductStyleService.get(styleId);
+//		        if(style != null) {
+//		            panoramaVo.setTitle("3D全景漫游|" + style.getName());
+//		        }
+//		    }
+		    // 获取用户昵称
+		    Integer userId = designPlanRenderScene.getUserId();
+		    SysUser sysUser = sysUserService.get(userId);
+		    if( sysUser != null ){
+		    	panoramaVo.setUserId(sysUser.getId());
+		    	panoramaVo.setUserType(sysUser.getUserType());
+		    	panoramaVo.setUserName(sysUser.getUserName());
+		    	//如果是经销商账号 就取公司的Pid
+		    	if (sysUser.getUserType().intValue() == 3 ) {
+		    		// 获取用户公司
+		        	Integer companyId = sysUser.getBusinessAdministrationId();
+		        	BaseCompany company = baseCompanyService.get(companyId);
+		        	if (company.getPid().intValue() > 0) {
+		        		BaseCompany baseCompany = baseCompanyService.get(company.getPid());
+		        		if(baseCompany != null){
+			                panoramaVo.setCompanyName(baseCompany.getCompanyName());
+		
+			                // 获取用户公司LOGO
+			                if( baseCompany.getCompanyLogo() != null ){
+			                    ResPic resPic = resPicService.get(baseCompany.getCompanyLogo());
+			                    if( resPic != null ){
+			                        /*panoramaVo.setCompanyLogoPath(FileUploadUtils.RESOURCES_URL + resPic.getPicPath());*/
+			                    	panoramaVo.setCompanyLogoPath(Utils.getAbsoluteUrlByRelativeUrl(resPic.getPicPath()));
+			                    }
+			                }
+			            }
+					}
+		        	
+				}else {
+			        // 获取用户公司
+		        	Integer companyId = sysUser.getBusinessAdministrationId();
+		            BaseCompany baseCompany = baseCompanyService.get(companyId);
+		            if(baseCompany != null){
+		                panoramaVo.setCompanyName(baseCompany.getCompanyName());
+	
+		                // 获取用户公司LOGO
+		                if( baseCompany.getCompanyLogo() != null ){
+		                    ResPic resPic = resPicService.get(baseCompany.getCompanyLogo());
+		                    if( resPic != null ){
+		                        /*panoramaVo.setCompanyLogoPath(FileUploadUtils.RESOURCES_URL + resPic.getPicPath());*/
+		                    	panoramaVo.setCompanyLogoPath(Utils.getAbsoluteUrlByRelativeUrl(resPic.getPicPath()));
+		                    }
+		                }
+		            }
+			    }
+			}
+
+		    // 获取房型类型
+		    if(designPlanRenderScene.getSpaceCommonId() != null){
+		        SpaceCommon spaceCommon = spaceCommonService.get(designPlanRenderScene.getSpaceCommonId());
+		        if(spaceCommon != null && spaceCommon.getSpaceFunctionId() != null){
+		            SysDictionary sysDictionary = sysDictionaryService.findOneByTypeAndValue("houseType",spaceCommon.getSpaceFunctionId());
+		            panoramaVo.setHouseTypeName("我设计的" + sysDictionary.getName());
+		        }
+		    }
+
+		    panoramaVo.setLogoPath(FileUploadUtils.UPLOAD_ROOT + "");
+		}
+		return panoramaVo;
+	}
+
+	private PanoramaVo assemblyPanoramaVoRecommendedId(Integer designPlanRecommendedId) {
+		PanoramaVo panoramaVo = new PanoramaVo();
+		panoramaVo.setDesignPlanRecommendedId(designPlanRecommendedId);
+		// 参数验证 ->start
+		if(designPlanRecommendedId == null || designPlanRecommendedId < 1) {
+			return panoramaVo;
+		}
+		// 参数验证 ->end
+		
+		DesignPlanRecommended designPlanRecommended = designPlanRecommendedServiceV2.get(designPlanRecommendedId);
+		if(designPlanRecommended != null && designPlanRecommended.getUserId() != null && designPlanRecommended.getUserId() > 0) {
+		    /*panoramaVo.setPlanId(planId);*/
+		    // 设计方案风格，如果没有，则默认为混搭
+//		    Integer styleId = designPlanRecommended.getDesignStyleId();
+		    panoramaVo.setTitle("3D全景漫游");
+//		    panoramaVo.setTitle("3D全景漫游|混搭");
+//		    if(styleId != null) {
+//		        BaseProductStyle style = baseProductStyleService.get(styleId);
+//		        if(style != null) {
+//		            panoramaVo.setTitle("3D全景漫游" + style.getName());
+//		        }
+//		    }
+		    // 获取用户昵称
+		    Integer userId = designPlanRecommended.getUserId();
+		    SysUser sysUser = sysUserService.get(userId);
+		    if( sysUser != null ){
+		    	panoramaVo.setUserId(sysUser.getId());
+		    	panoramaVo.setUserType(sysUser.getUserType());
+		    	panoramaVo.setUserName(sysUser.getUserName());
+		    	//如果是经销商账号 就取公司的Pid
+		    	if (sysUser.getUserType().intValue() == 3 ) {
+		    		// 获取用户公司
+		        	Integer companyId = sysUser.getBusinessAdministrationId();
+		        	BaseCompany company = baseCompanyService.get(companyId);
+		        	if (company.getPid().intValue() > 0) {
+		        		BaseCompany baseCompany = baseCompanyService.get(company.getPid());
+		        		if(baseCompany != null){
+			                panoramaVo.setCompanyName(baseCompany.getCompanyName());
+		
+			                // 获取用户公司LOGO
+			                if( baseCompany.getCompanyLogo() != null ){
+			                    ResPic resPic = resPicService.get(baseCompany.getCompanyLogo());
+			                    if( resPic != null ){
+			                        /*panoramaVo.setCompanyLogoPath(FileUploadUtils.RESOURCES_URL + resPic.getPicPath());*/
+			                    	panoramaVo.setCompanyLogoPath(Utils.getAbsoluteUrlByRelativeUrl(resPic.getPicPath()));
+			                    }
+			                }
+			            }
+					}
+		        	
+				}else {
+			        // 获取用户公司
+		        	Integer companyId = sysUser.getBusinessAdministrationId();
+		            BaseCompany baseCompany = baseCompanyService.get(companyId);
+		            if(baseCompany != null){
+		                panoramaVo.setCompanyName(baseCompany.getCompanyName());
+	
+		                // 获取用户公司LOGO
+		                if( baseCompany.getCompanyLogo() != null ){
+		                    ResPic resPic = resPicService.get(baseCompany.getCompanyLogo());
+		                    if( resPic != null ){
+		                        /*panoramaVo.setCompanyLogoPath(FileUploadUtils.RESOURCES_URL + resPic.getPicPath());*/
+		                    	panoramaVo.setCompanyLogoPath(Utils.getAbsoluteUrlByRelativeUrl(resPic.getPicPath()));
+		                    }
+		                }
+		            }
+			    }
+			}
+
+		    // 获取房型类型
+		    if(designPlanRecommended.getSpaceCommonId() != null){
+		        SpaceCommon spaceCommon = spaceCommonService.get(designPlanRecommended.getSpaceCommonId());
+		        if(spaceCommon != null && spaceCommon.getSpaceFunctionId() != null){
+		            SysDictionary sysDictionary = sysDictionaryService.findOneByTypeAndValue("houseType",spaceCommon.getSpaceFunctionId());
+		            panoramaVo.setHouseTypeName("我设计的" + sysDictionary.getName());
+		        }
+		    }
+
+		    panoramaVo.setLogoPath(FileUploadUtils.UPLOAD_ROOT + "");
+		}
+		return panoramaVo;
+	}
+
+	private PanoramaVo assemblyPanoramaVoPlanId(Integer planId) {
+		PanoramaVo panoramaVo = new PanoramaVo();
+		panoramaVo.setPlanId(planId);
+		// 参数验证 ->start
+		if(planId == null || planId < 1) {
+			return panoramaVo;
+		}
+		// 参数验证 ->end
+		
+		DesignPlan designPlan = designPlanService.get(planId);
+		if( designPlan != null && designPlan.getUserId() != null && designPlan.getUserId() > 0 ){
+		    panoramaVo.setPlanId(planId);
+		    // 设计方案风格，如果没有，则默认为混搭
+		    Integer designStyleId = designPlan.getDesignStyleId();
+		    panoramaVo.setTitle("3D全景漫游");
+//		    panoramaVo.setTitle("3D全景漫游|混搭");
+//		    if( designStyleId != null ) {
+//		        BaseProductStyle style = baseProductStyleService.get(designStyleId);
+//		        if( style != null ) {
+//		            panoramaVo.setTitle("3D全景漫游|" + style.getName());
+//		        }
+//		    }
+		    // 获取用户昵称
+		    Integer userId = designPlan.getUserId();
+		    SysUser sysUser = sysUserService.get(userId);
+		    if( sysUser != null ){
+		    	panoramaVo.setUserId(sysUser.getId());
+		    	panoramaVo.setUserType(sysUser.getUserType());
+		    	panoramaVo.setUserName(sysUser.getUserName());
+		    	//如果是经销商账号 就取公司的Pid
+		    	if (sysUser.getUserType().intValue() == 3 ) {
+		    		// 获取用户公司
+		        	Integer companyId = sysUser.getBusinessAdministrationId();
+		        	BaseCompany company = baseCompanyService.get(companyId);
+		        	if (company.getPid().intValue() > 0) {
+		        		BaseCompany baseCompany = baseCompanyService.get(company.getPid());
+		        		if(baseCompany != null){
+			                panoramaVo.setCompanyName(baseCompany.getCompanyName());
+		
+			                // 获取用户公司LOGO
+			                if( baseCompany.getCompanyLogo() != null ){
+			                    ResPic resPic = resPicService.get(baseCompany.getCompanyLogo());
+			                    if( resPic != null ){
+			                        /*panoramaVo.setCompanyLogoPath(FileUploadUtils.RESOURCES_URL + resPic.getPicPath());*/
+			                    	panoramaVo.setCompanyLogoPath(Utils.getAbsoluteUrlByRelativeUrl(resPic.getPicPath()));
+			                    }
+			                }
+			            }
+					}
+		        	
+				}else {
+			        // 获取用户公司
+		        	Integer companyId = sysUser.getBusinessAdministrationId();
+		            BaseCompany baseCompany = baseCompanyService.get(companyId);
+		            if(baseCompany != null){
+		                panoramaVo.setCompanyName(baseCompany.getCompanyName());
+	
+		                // 获取用户公司LOGO
+		                if( baseCompany.getCompanyLogo() != null ){
+		                    ResPic resPic = resPicService.get(baseCompany.getCompanyLogo());
+		                    if( resPic != null ){
+		                        /*panoramaVo.setCompanyLogoPath(FileUploadUtils.RESOURCES_URL + resPic.getPicPath());*/
+		                    	panoramaVo.setCompanyLogoPath(Utils.getAbsoluteUrlByRelativeUrl(resPic.getPicPath()));
+		                    }
+		                }
+		            }
+			    }
+			}
+
+		    // 获取房型类型
+		    if( designPlan.getSpaceCommonId() != null ){
+		        SpaceCommon spaceCommon = spaceCommonService.get(designPlan.getSpaceCommonId());
+		        if( spaceCommon != null && spaceCommon.getSpaceFunctionId() != null ){
+		            SysDictionary sysDictionary = sysDictionaryService.findOneByTypeAndValue("houseType",spaceCommon.getSpaceFunctionId());
+		            panoramaVo.setHouseTypeName("我设计的" + sysDictionary.getName());
+		        }
+		    }
+
+		    panoramaVo.setLogoPath(FileUploadUtils.UPLOAD_ROOT + "");
+		}
+		return panoramaVo;
+	}
+    
+    /**
+     * 通过sysCode得到一个场景
+     * @param sysCode
+     * @return
+     */
+    @Override
+    public Scene getSceneBySysCode(String sysCode, String type){
+        Scene scene = null;
+        Image image = null;
+        ImageSphere imageSphere = null;
+        ImageCube imageCube = null;
+        ResRenderPic resRenderPic = new ResRenderPic();
+        resRenderPic.setSysCode(sysCode);
+        resRenderPic.setRenderingType(4);
+        resRenderPic.setStart(0);
+        resRenderPic.setLimit(1);
+        List<ResRenderPic> list = resRenderPicService.getList(resRenderPic);
+        ResRenderPic thumbPic = null;
+        if( list != null && list.size() > 0 ){
+            resRenderPic = list.get(0);
+            scene = new Scene();
+            scene.setName("scene_"+resRenderPic.getId());
+            scene.setTitle("");
+            // 获取缩略图
+            thumbPic = resRenderPicService.selectOneByPid(resRenderPic.getId());
+            if( thumbPic != null ) {
+            	scene.setThumbUrl(Utils.getAbsoluteUrlByRelativeUrl(thumbPic.getPicPath()));
+            }
+            scene.setPlanId(resRenderPic.getBusinessId());
+            scene.setDesignPlanRecommendedId(resRenderPic.getPlanRecommendedId());
+            scene.setDesignPlanRenderSceneId(resRenderPic.getDesignSceneId());
+            scene.setView(View.getDefaultView());// 使用默认view
+            image = new Image();
+            File file = new File(Utils.getAbsolutePath(resRenderPic.getPicPath(), null));
+            if( file.exists() ){
+                // 如果是切片目录存储，则使用cube方式加载场景
+                if( file.isDirectory() ){
+                    imageCube = new ImageCube();
+                    if ("oldUnionStore".equals(type)) {
+                        imageCube.setUrl(Utils.getAbsoluteUrlByRelativeUrl(resRenderPic.getPicPath()));
+                    } else {
+                        imageCube.setUrl(Utils.getAbsoluteUrlByRelativeUrl(resRenderPic.getPicPath() + "/pano_%s.jpg"));
+                    }
+                    image.setCube(imageCube);
+                    scene.setImage(image);
+
+                    // 预览图
+                    Preview preview = new Preview();
+                    preview.setUrl(Utils.getAbsoluteUrlByRelativeUrl(resRenderPic.getPicPath() + "/preview.jpg"));
+                    scene.setPreview(preview);
+                }else{
+                    imageSphere = new ImageSphere();
+                    imageSphere.setUrl(Utils.getAbsoluteUrlByRelativeUrl(resRenderPic.getPicPath()));
+                    image.setSphere(imageSphere);
+                    scene.setImage(image);
+                }
+            }
+            String windowsPercent = "width:100%;height:100%;";
+            if( resRenderPic.getPanoLevel() != null ){
+                if( RenderPanoLevel.LEVEL_ONE.equals(resRenderPic.getPanoLevel()) ){
+                    windowsPercent = "width:35%;height:35%;";
+                }else if( RenderPanoLevel.LEVEL_TWO.equals(resRenderPic.getPanoLevel()) ){
+                    windowsPercent = "width:70%;height:70%;";
+                }else if( RenderPanoLevel.LEVEL_THREE.equals(resRenderPic.getPanoLevel()) ){
+                    windowsPercent = "width:90%;height:90%;";
+                }
+            }
+            scene.setWindowsPercent(windowsPercent);
+        }
+        return scene;
+    }
+
+    @Override
+    public List<ProductsCostType> getProductsCost(PanoramaVo panoramaVo){
+    	
+    	Integer planId = panoramaVo.getPlanId();
+    	Integer designPlanRecommendedId = panoramaVo.getDesignPlanRecommendedId();
+    	Integer designPlanRenderSceneId = panoramaVo.getDesignPlanRenderSceneId();
+    	Integer oneKeyDesignPlanId = panoramaVo.getOneKeyDesignPlanId();
+    	Integer userId = panoramaVo.getUserId();
+    	Integer userType = panoramaVo.getUserType();
+    	List<BaseBrand> unionGroupBrandLs = panoramaVo.getUnionGroupBrands();
+    	
+    	
+        List<ProductsCostType> list = null;
+        if( (planId == null &&  designPlanRecommendedId == null && designPlanRenderSceneId == null && oneKeyDesignPlanId == null) 
+        		|| userId == null || userType == null ){
+            return null;
+        }
+        // 获取产品列表
+        LoginUser loginUser = new LoginUser();
+        loginUser.setId(userId);
+        loginUser.setUserType(userType);
+        DesignPlanProduct designPlanProduct = new DesignPlanProduct();
+        designPlanProduct.setUserId(userId);
+
+        List<Integer> putawayState = new ArrayList<>(3);
+        putawayState.add(ProductStatuCode.HAS_BEEN_RELEASE);
+        if (UserTypeCode.USER_TYPE_INNER.equals(loginUser.getUserType())) {
+            putawayState.add(ProductStatuCode.HAS_BEEN_PUTAWAY);
+            putawayState.add(ProductStatuCode.TESTING);
+        }
+        designPlanProduct.setProductPutawayStateList(putawayState);
+
+        logger.error("designPlanRecommendedId = " + designPlanRecommendedId 
+        		+ ";designPlanRenderSceneId = "+ designPlanRenderSceneId 
+        		+ ";oneKeyDesignPlanId = " + oneKeyDesignPlanId 
+        		+ ";planId=" + planId);
+        if(designPlanRecommendedId != null && designPlanRecommendedId.intValue() > 0) {
+        	designPlanProduct.setPlanId(designPlanRecommendedId);
+        	list = designPlanProductService.costList(loginUser,designPlanProduct, costListEnum.designPlanRecommended,unionGroupBrandLs);
+        }else if(designPlanRenderSceneId != null && designPlanRenderSceneId > 0) {
+        	designPlanProduct.setPlanId(designPlanRenderSceneId);
+        	list = designPlanProductService.costList(loginUser,designPlanProduct, costListEnum.designPlanRenderScene,unionGroupBrandLs);
+        }else if(oneKeyDesignPlanId != null && oneKeyDesignPlanId.intValue() > 0) {
+        	designPlanProduct.setPlanId(oneKeyDesignPlanId);
+        	list = designPlanProductService.costList(loginUser,designPlanProduct,costListEnum.oneKeyDesignPlan,unionGroupBrandLs);
+        }else if(planId != null && planId > 0) {
+        	designPlanProduct.setPlanId(planId);
+        	list = designPlanProductService.costList(loginUser,designPlanProduct, costListEnum.designPlan,unionGroupBrandLs);
+        }
+        
+        return list;
+    }
+    
+    /**
+     * 获取全景图组关系
+     * @return
+     */
+    public List<Roam> getRoamRenderRelation(String uuid){
+        List<Roam> roamList = null;
+        if( StringUtils.isBlank(uuid) ){
+            return null;
+        }
+        // 获取漫游
+        logger.error("uuid   =  =  "+uuid);
+        DesignRenderRoam designRenderRoam = designRenderRoamMapper.selectByUUID(uuid);
+        if( designRenderRoam != null ){
+            // 获取多720图片之间的关系信息
+            String roamConfigContext = "";
+            Integer roamConfigId = designRenderRoam.getRoamConfig();
+            if( roamConfigId != null && roamConfigId.intValue() > 0 ){
+                ResDesign roamConfig = resDesignService.get(roamConfigId);
+                if( roamConfig != null ){
+                	roamConfigContext = FileUploadUtils.getFileContext(Utils.getAbsolutePath(roamConfig.getFilePath(), null));
+                }
+            }
+
+            if( StringUtils.isNotBlank(roamConfigContext) ){
+                JSONArray jsonArray = JSONArray.fromObject(roamConfigContext);
+                roamList = JSONArray.toList(jsonArray,Roam.class);
+            }
+        }
+        return roamList;
+    }
+
+    /**
+     * 720组合场景加载（主函数）
+     * @param code 组合UUID
+     * @return
+     */
+    @Override
+    public GroupSceneVo vr720Group(String code){
+        GroupSceneVo groupSceneVo = new GroupSceneVo();
+        // 获取组合信息
+        Group group = sysUserGroupService.doShare(code);
+        if( group == null ){
+            return null;
+        }
+        List<GroupDetail> groupDetailList = group.getList();
+        if( Lists.isNotEmpty(groupDetailList) ) {
+            StringBuilder sceneXml = new StringBuilder();
+            List<Thumb> thumbList = new ArrayList<>();
+            Scene scene = null;
+            Scene sceneMain = null;
+            Image image = null;
+            ImageCube imageCube = null;
+            Thumb thumb = null;
+            ImageSphere imageSphere = null;
+            GroupDetail groupDetail = null;
+//            List<Hotspot> hotspotList = null;
+            for( int i=0;i<groupDetailList.size();i++ ){
+                groupDetail = groupDetailList.get(i);
+                scene = new Scene();
+                scene.setPlanId(groupDetail.getPlanId());
+                /** 1.组装场景 **/
+                scene.setName("scene_"+groupDetail.getPicId());
+                scene.setTitle("");
+                scene.setThumbUrl(FileUploadUtils.RESOURCES_URL + groupDetail.getThumbPath());
+                image = new Image();
+                File file = new File(Utils.getAbsolutePath(groupDetail.getPicPath(), null));
+                if (file.exists()) {
+                    // 如果是切片目录存储，则使用cube方式加载场景
+                    if( file.isDirectory() ){
+                        imageCube = new ImageCube();
+                        imageCube.setUrl(Utils.getAbsoluteUrlByRelativeUrl(groupDetail.getPicPath() + "/pano_%s.jpg"));
+                        image.setCube(imageCube);
+                        scene.setImage(image);
+
+                        // 预览图
+                        Preview preview = new Preview();
+                        preview.setUrl(Utils.getAbsoluteUrlByRelativeUrl(groupDetail.getPicPath() + "/preview.jpg"));
+                        scene.setPreview(preview);
+                    }else{
+                        imageSphere = new ImageSphere();
+                        imageSphere.setUrl(Utils.getAbsoluteUrlByRelativeUrl(groupDetail.getPicPath()));
+                        image.setSphere(imageSphere);
+                        scene.setImage(image);
+                    }
+                }
+                scene.setView(View.getDefaultView());// 使用默认的view参数
+                // 判断类型
+                if(RenderTypeCode.ROAM_720_LEVEL == groupDetail.getType() ){// 720漫游
+                    // 添加热点
+                }
+                if(RenderTypeCode.COMMON_PICTURE_LEVEL == groupDetail.getType() ){// 普通高清渲染图
+                    //
+                }
+                if(RenderTypeCode.COMMON_VIDEO == groupDetail.getType() ){// 视频
+                    //
+                }
+
+                /** 2.组装缩略图列表 **/
+                thumb = new Thumb();
+                thumb.setType(groupDetail.getType());
+                thumb.setThumbUrl(scene.getThumbUrl());
+                thumb.setDesc(groupDetail.getThumbDesc());
+
+                sceneXml.append(JAXBUtil.beanToXml(scene,Scene.class)).append(",");
+                thumbList.add(thumb);
+
+                if( i == 0 ){
+                    sceneMain = scene;
+                }
+            }
+            try {
+                groupSceneVo.setScenes(URLEncoder.encode(sceneXml.substring(0, sceneXml.length() - 1), "UTF-8").replaceAll("\\+", "%20"));
+                if( sceneMain != null ) {
+                    // 获取页面需要显示的业务信息（用户昵称、企业LOGO、企业名称、产品费用清单）
+                    PanoramaVo panoramaVo = this.assemblyGroupPanoramaVo(sceneMain.getPlanId());
+                    // 获取缩略图
+                    panoramaVo.setThumbUrl(FileUploadUtils.RESOURCES_URL + group.getThumbPath());
+                    groupSceneVo.setPanoramaVo(panoramaVo);
+                }
+            }catch(UnsupportedEncodingException e){
+                e.printStackTrace();
+            }
+            groupSceneVo.setThumbList(thumbList);
+        }
+        return groupSceneVo;
+    }
+
+	/***
+	 * 获取设计方案副本的产品费用清单
+	 * 
+	 * @return
+	 */
+	@Override
+	public List<ProductsCostType> getDesignRenderGroupCost(Integer planId, Integer userId, Integer userType) {
+		List<ProductsCostType> list = null;
+		if (planId == null || userId == null || userType == null) {
+			return null;
+		}
+		// 获取产品列表
+		LoginUser loginUser = new LoginUser();
+		loginUser.setId(userId);
+		loginUser.setUserType(userType);
+		DesignPlanProductRenderScene designPlanProductRenderScene = new DesignPlanProductRenderScene();
+		designPlanProductRenderScene.setPlanId(planId);
+		designPlanProductRenderScene.setUserId(userId);
+		list = designPlanProductRenderSceneService.costList(loginUser, designPlanProductRenderScene);
+		return list;
+	}
+
+    /**
+     * 组装打组720页面基本信息
+     * @param planId
+     * @return
+     */
+    @Override
+    public PanoramaVo assemblyGroupPanoramaVo(Integer planId) {
+        PanoramaVo panoramaVo = new PanoramaVo();
+        DesignPlanRenderScene designPlanRenderScene = designPlanRenderSceneService.get(planId);
+        if( designPlanRenderScene != null && designPlanRenderScene.getUserId() != null && designPlanRenderScene.getUserId() > 0 ){
+            panoramaVo.setPlanId(planId);
+            // 设计方案风格，如果没有，则默认为混搭
+            Integer designStyleId = designPlanRenderScene.getDesignStyleId();
+            panoramaVo.setTitle("3D全景漫游");
+//            panoramaVo.setTitle("3D全景漫游|混搭");
+//            if( designStyleId != null ) {
+//                BaseProductStyle style = baseProductStyleService.get(designStyleId);
+//                if( style != null ) {
+//                    panoramaVo.setTitle("3D全景漫游|" + style.getName());
+//                }
+//            }
+            // 获取用户昵称
+            Integer userId = designPlanRenderScene.getUserId();
+            SysUser sysUser = sysUserService.get(userId);
+            if( sysUser != null ){
+		    	panoramaVo.setUserId(sysUser.getId());
+		    	panoramaVo.setUserType(sysUser.getUserType());
+		    	panoramaVo.setUserName(sysUser.getUserName());
+		    	//如果是经销商账号 就取公司的Pid
+		    	if (sysUser.getUserType().intValue() == 3 ) {
+		    		// 获取用户公司
+		        	Integer companyId = sysUser.getBusinessAdministrationId();
+		        	BaseCompany company = baseCompanyService.get(companyId);
+		        	if (company.getPid().intValue() > 0) {
+		        		BaseCompany baseCompany = baseCompanyService.get(company.getPid());
+		        		if(baseCompany != null){
+			                panoramaVo.setCompanyName(baseCompany.getCompanyName());
+		
+			                // 获取用户公司LOGO
+			                if( baseCompany.getCompanyLogo() != null ){
+			                    ResPic resPic = resPicService.get(baseCompany.getCompanyLogo());
+			                    if( resPic != null ){
+			                        /*panoramaVo.setCompanyLogoPath(FileUploadUtils.RESOURCES_URL + resPic.getPicPath());*/
+			                    	panoramaVo.setCompanyLogoPath(Utils.getAbsoluteUrlByRelativeUrl(resPic.getPicPath()));
+			                    }
+			                }
+			            }
+					}
+		        	
+				}else {
+			        // 获取用户公司
+		        	Integer companyId = sysUser.getBusinessAdministrationId();
+		            BaseCompany baseCompany = baseCompanyService.get(companyId);
+		            if(baseCompany != null){
+		                panoramaVo.setCompanyName(baseCompany.getCompanyName());
+	
+		                // 获取用户公司LOGO
+		                if( baseCompany.getCompanyLogo() != null ){
+		                    ResPic resPic = resPicService.get(baseCompany.getCompanyLogo());
+		                    if( resPic != null ){
+		                        /*panoramaVo.setCompanyLogoPath(FileUploadUtils.RESOURCES_URL + resPic.getPicPath());*/
+		                    	panoramaVo.setCompanyLogoPath(Utils.getAbsoluteUrlByRelativeUrl(resPic.getPicPath()));
+		                    }
+		                }
+		            }
+			    }
+			}
+
+            // 获取房型类型
+            if( designPlanRenderScene.getSpaceCommonId() != null ){
+                SpaceCommon spaceCommon = spaceCommonService.get(designPlanRenderScene.getSpaceCommonId());
+                if( spaceCommon != null && spaceCommon.getSpaceFunctionId() != null ){
+                    SysDictionary sysDictionary = sysDictionaryService.findOneByTypeAndValue("houseType",spaceCommon.getSpaceFunctionId());
+                    panoramaVo.setHouseTypeName("我设计的" + sysDictionary.getName());
+                }
+            }
+
+            panoramaVo.setLogoPath(FileUploadUtils.UPLOAD_ROOT + "");
+        }
+
+        return panoramaVo;
+    }
+    
+    
+    /**
+     * 从自动渲染资源变量里获取场景信息
+     */
+	@Override
+	public Scene getMobileSceneBySysCodeForAuto(String sysCode) {
+		Scene scene = null;
+        Image image = null;
+        ImageSphere imageSphere = null;
+        ImageCube imageCube = null;
+        ResRenderPic resRenderPic = new ResRenderPic();
+        resRenderPic.setSysCode(sysCode);
+        resRenderPic.setRenderingType(4);
+        resRenderPic.setStart(0);
+        resRenderPic.setLimit(1);
+        List<ResRenderPic> list = resRenderPicService.selectListOfMobile(resRenderPic);
+        ResRenderPic thumbPic = null;
+        if( list != null && list.size() > 0 ){
+            resRenderPic = list.get(0);
+            scene = new Scene();
+            scene.setName("scene_"+resRenderPic.getId());
+            scene.setTitle("");
+            // 获取缩略图
+            thumbPic = resRenderPicService.selectOneByPidOfMobile(resRenderPic.getId());
+            if( thumbPic != null ) {
+            	scene.setThumbUrl(Utils.getAbsoluteUrlByRelativeUrl(thumbPic.getPicPath()));
+            }
+            scene.setPlanId(resRenderPic.getBusinessId());
+            scene.setView(View.getDefaultView());// 使用默认view
+            image = new Image();
+            File file = new File(Utils.getAbsolutePath(resRenderPic.getPicPath(), null));
+            if (file.exists()) {
+                // 如果是切片目录存储，则使用cube方式加载场景
+                if( file.isDirectory() ){
+                    imageCube = new ImageCube();
+                    imageCube.setUrl(Utils.getAbsoluteUrlByRelativeUrl(resRenderPic.getPicPath() + "/pano_%s.jpg"));
+                    image.setCube(imageCube);
+                    scene.setImage(image);
+
+                    // 预览图
+                    Preview preview = new Preview();
+                    preview.setUrl(Utils.getAbsoluteUrlByRelativeUrl(resRenderPic.getPicPath() + "/preview.jpg"));
+                    scene.setPreview(preview);
+                }else{
+                    imageSphere = new ImageSphere();
+                    imageSphere.setUrl(Utils.getAbsoluteUrlByRelativeUrl(resRenderPic.getPicPath()));
+                    image.setSphere(imageSphere);
+                    scene.setImage(image);
+                }
+            }
+            String windowsPercent = "width:100%;height:100%;";
+            scene.setWindowsPercent(windowsPercent);
+        }
+        return scene;
+	}
+    
+	
+	 /**
+     * 从自动渲染资源里获取场景信息
+     */
+	@Override
+	public SingleSceneVo vr720SingleMobileForAuto(String sysCode) {
+		 SingleSceneVo singleSceneVo = null;
+	        if(StringUtils.isNotBlank(sysCode) ){
+	            singleSceneVo = new SingleSceneVo();
+	            // 获取单个场景对象
+	            Scene scene = this.getMobileSceneBySysCodeForAuto(sysCode);
+	            if( scene != null ) {
+	                singleSceneVo.setScene(JAXBUtil.beanToXml(scene,Scene.class));
+
+	                // 获取页面需要显示的业务信息（用户昵称、企业LOGO、企业名称、产品费用清单）
+	                PanoramaVo panoramaVo = this.assemblyPanoramaVoForAuto(scene.getPlanId());
+	                panoramaVo.setThumbUrl(scene.getThumbUrl());
+	                panoramaVo.setWindowsPercent(scene.getWindowsPercent());
+	                singleSceneVo.setPanoramaVo(panoramaVo);
+	                
+	                // 获取设计方案产品费用清单
+	                //如果有就走以前,没有就走onekey
+	                ResRenderPic resRenderPic = new ResRenderPic();
+	                resRenderPic.setSysCode(sysCode);
+	                resRenderPic.setBusinessId(panoramaVo.getPlanId());
+	                
+	                List<ProductsCostType> list = this.getProductsCost(panoramaVo);
+	                if( list != null && list.size() > 0 ){
+	                    BigDecimal totalPrice = new BigDecimal(0.0);
+	                    for( ProductsCostType cost : list ){
+	                        totalPrice = totalPrice.add(cost.getTotalPrice());
+	                    }
+	                    singleSceneVo.setTotalPrice(totalPrice.toString());
+	                    singleSceneVo.setProductsCostTypeList(list);
+	                }
+
+	                // 资源访问url
+	                singleSceneVo.setResourceUrl(FileUploadUtils.RESOURCES_URL);
+	            }
+	        }
+	        return singleSceneVo;
+	}
+
+	@Override
+	public PanoramaVo assemblyPanoramaVoForAuto(Integer planId) {
+		 PanoramaVo panoramaVo = new PanoramaVo();
+		 panoramaVo.setPlanId(planId);
+		 panoramaVo.setOneKeyDesignPlanId(planId);
+		 panoramaVo.setTitle("3D全景漫游");
+//		 panoramaVo.setTitle("3D全景漫游|混搭");
+		 DesignPlan designPlan = optimizeDesingPlanService.getPlan(planId);
+        // 获取房型类型
+        if( designPlan.getSpaceCommonId() != null ){
+            SpaceCommon spaceCommon = spaceCommonService.get(designPlan.getSpaceCommonId());
+            if( spaceCommon != null && spaceCommon.getSpaceFunctionId() != null ){
+                SysDictionary sysDictionary = sysDictionaryService.findOneByTypeAndValue("houseType",spaceCommon.getSpaceFunctionId());
+                panoramaVo.setHouseTypeName("我设计的" + sysDictionary.getName());
+            }
+        }
+        panoramaVo.setUserId(designPlan.getUserId());
+        //FIXME: 这里只是把usertype致为    不为3且非空  ， 判断使用，以后逻辑有修改的话，这里要改   add by  yangzhun
+        panoramaVo.setUserType(4);
+        panoramaVo.setLogoPath(FileUploadUtils.UPLOAD_ROOT + "");
+        //TODO : Check it
+        panoramaVo.setCompanyLogoPath(FileUploadUtils.RESOURCES_URL + "/AA/c_basedesign/2017/09/23/19/product/baseCompany/logo/339407_20170923194347405_1.png");
+	    return panoramaVo;
+	}
+	
+	/**
+	 * FIXME:添加一个方法测试移动端的720场景去掉限制大小
+     * 单场景加载（主函数）
+     * @param sysCode
+     * @return
+     */
+    @Override
+    public SingleSceneVo vr720MobileSingle(String sysCode){
+        SingleSceneVo singleSceneVo = null;
+        if(StringUtils.isNotBlank(sysCode) ){
+            singleSceneVo = new SingleSceneVo();
+            // 获取单个场景对象
+            Scene scene = this.getMobileSceneBySysCode(sysCode);
+            if( scene != null ) {
+                singleSceneVo.setScene(JAXBUtil.beanToXml(scene,Scene.class));
+
+                // 获取页面需要显示的业务信息（用户昵称、企业LOGO、企业名称、产品费用清单）
+                PanoramaVo panoramaVo = this.assemblyPanoramaVo(scene);
+                panoramaVo.setThumbUrl(scene.getThumbUrl());
+                panoramaVo.setWindowsPercent(scene.getWindowsPercent());
+                singleSceneVo.setPanoramaVo(panoramaVo);
+                
+                // 获取设计方案产品费用清单
+                //如果有就走以前,没有就走onekey
+                List<ProductsCostType> list = this.getProductsCost(panoramaVo);
+                if( list != null && list.size() > 0 ){
+                    BigDecimal totalPrice = new BigDecimal(0.0);
+                    for( ProductsCostType cost : list ){
+                        totalPrice = totalPrice.add(cost.getTotalPrice());
+                    }
+                    singleSceneVo.setTotalPrice(totalPrice.toString());
+                    singleSceneVo.setProductsCostTypeList(list);
+                }
+
+                // 资源访问url
+                singleSceneVo.setResourceUrl(FileUploadUtils.RESOURCES_URL);
+            }
+        }
+        return singleSceneVo;
+    }
+
+	private Scene getMobileSceneBySysCode(String sysCode) {
+        Scene scene = null;
+        Image image = null;
+        ImageSphere imageSphere = null;
+        ImageCube imageCube = null;
+        ResRenderPic resRenderPic = new ResRenderPic();
+        resRenderPic.setSysCode(sysCode);
+        resRenderPic.setRenderingType(4);
+        resRenderPic.setStart(0);
+        resRenderPic.setLimit(1);
+        List<ResRenderPic> list = resRenderPicService.getList(resRenderPic);
+        ResRenderPic thumbPic = null;
+        if( list != null && list.size() > 0 ){
+            resRenderPic = list.get(0);
+            scene = new Scene();
+            scene.setName("scene_"+resRenderPic.getId());
+            scene.setTitle("");
+            // 获取缩略图
+            thumbPic = resRenderPicService.selectOneByPid(resRenderPic.getId());
+            if( thumbPic != null ) {
+            	scene.setThumbUrl(Utils.getAbsoluteUrlByRelativeUrl(thumbPic.getPicPath()));
+            }
+            scene.setPlanId(resRenderPic.getBusinessId());
+            scene.setDesignPlanRecommendedId(resRenderPic.getPlanRecommendedId());
+            scene.setDesignPlanRenderSceneId(resRenderPic.getDesignSceneId());
+            scene.setView(View.getDefaultView());// 使用默认view
+            image = new Image();
+            File file = new File(Utils.getAbsolutePath(resRenderPic.getPicPath(), null));
+            if (file.exists()) {
+                // 如果是切片目录存储，则使用cube方式加载场景
+                if( file.isDirectory() ){
+                    imageCube = new ImageCube();
+                    imageCube.setUrl(Utils.getAbsoluteUrlByRelativeUrl(resRenderPic.getPicPath() + "/pano_%s.jpg"));
+                    image.setCube(imageCube);
+                    scene.setImage(image);
+
+                    // 预览图
+                    Preview preview = new Preview();
+                    preview.setUrl(Utils.getAbsoluteUrlByRelativeUrl(resRenderPic.getPicPath() + "/preview.jpg"));
+                    scene.setPreview(preview);
+                }else{
+                    imageSphere = new ImageSphere();
+                    imageSphere.setUrl(Utils.getAbsoluteUrlByRelativeUrl(resRenderPic.getPicPath()));
+                    image.setSphere(imageSphere);
+                    scene.setImage(image);
+                }
+            }
+            String windowsPercent = "width:100%;height:100%;";
+            scene.setWindowsPercent(windowsPercent);
+        }
+        return scene;
+    }
+
+	@Override
+	public List<SingleSceneVo> vr720UnionStoreSingle(Integer releaseId) {
+	  if(releaseId == null) {
+	    return null;
+	  }
+	  UnionDesignPlanStoreRelease planStoreRelease = unionDesignPlanStoreReleaseService.get(releaseId);
+      if(planStoreRelease == null || planStoreRelease.getId() == null) {
+        return null;
+      }
+      SingleSceneVo singleSceneVo = null;
+      List<ResRenderPic> renderPicLs = new ArrayList<ResRenderPic>();
+      List<SingleSceneVo> singleSceneVoLs = new ArrayList<SingleSceneVo>();
+      renderPicLs = new ArrayList<ResRenderPic>();
+      renderPicLs = resRenderPicService.getListByUnionDesignPlanStoreReleaseId(releaseId);
+      if(renderPicLs == null || renderPicLs.size() <= 0) {
+        return null;
+      }
+      //同店联盟方案相关信息
+      UnionStoreVo unionStoreVo = this.getUnionStoreInfoByReleaseId(releaseId);
+      if(unionStoreVo == null) {
+        return null;
+      }
+      //其他信息
+      for (ResRenderPic renderPic : renderPicLs) {
+        if(renderPic == null) {
+          break;
+        }
+       
+        String picSyscode = renderPic.getSysCode();
+        if(StringUtils.isNotBlank(picSyscode) ){
+          
+          singleSceneVo = new SingleSceneVo();
+          // 获取单个场景对象
+          Scene scene = this.getSceneBySysCode(picSyscode, "oldUnionStore");
+          if( scene != null ) {
+              singleSceneVo.setScene(JAXBUtil.beanToXml(scene,Scene.class));
+              
+              // 获取页面需要显示的业务信息（用户昵称、企业LOGO、企业名称、产品费用清单）
+              PanoramaVo panoramaVo = this.assemblyPanoramaVo(scene);
+              panoramaVo.setThumbUrl(scene.getThumbUrl());
+              panoramaVo.setWindowsPercent(scene.getWindowsPercent());
+              singleSceneVo.setPanoramaVo(panoramaVo);
+              panoramaVo.setRenderPicId(renderPic.getId());
+              if(scene.getImage() != null) {
+                  //将渲染图地址取出显示,提供给前端
+                  String picUrl ;
+                  if(scene.getImage().getCube() != null) {
+                      picUrl = scene.getImage().getCube().getUrl();
+                      singleSceneVo.setIsShear(DesignPlanStoreReleaseDetailsVo.IsShear.YES);
+                  } else {
+                      picUrl = scene.getImage().getSphere().getUrl();
+                  }
+                  if(StringUtils.isNotBlank(picUrl)) {
+                    singleSceneVo.setPicPath(picUrl);
+                  }
+              }
+              
+              // 资源访问url
+              singleSceneVo.setResourceUrl(FileUploadUtils.RESOURCES_URL);
+              singleSceneVo.setUnionStoreVo(unionStoreVo);
+          }
+        }
+
+        singleSceneVoLs.add(singleSceneVo);
+      }
+     
+        return singleSceneVoLs;
+    }
+
+	/**
+	 * 获取联盟方案中店面相关信息
+	 * @return
+	 */
+	public UnionStoreVo getUnionStoreInfoByReleaseId(Integer releaseId) {
+        UnionStoreVo unionStoreVo = new UnionStoreVo();
+        UnionDesignPlanStoreRelease planStoreRelease = new UnionDesignPlanStoreRelease();
+        planStoreRelease = unionDesignPlanStoreReleaseService.get(releaseId);
+        if(planStoreRelease == null || planStoreRelease.getStorefrontId() == null) {
+            return null;
+        }
+
+        /**
+         * 增加人气
+         * add by zhangwj   2018-03-12  COMMON-822
+         * 当已有人气数超过20后，每次点击访问页面时，人气数增加一个随机数（随机数在1-50）。
+         */
+        if( planStoreRelease.getPopularityValue() == null ){
+            planStoreRelease.setPopularityValue(1);
+        /* 2018-07-13   COMMON-1064 去掉随机人气。每次只+1
+        }else if( planStoreRelease.getPopularityValue().intValue() > 20 ){
+            Random random = new Random();
+            Integer randomNum = random.nextInt(51);
+            planStoreRelease.setPopularityValue(planStoreRelease.getPopularityValue() + randomNum);*/
+        }else{
+            planStoreRelease.setPopularityValue(planStoreRelease.getPopularityValue() + 1);
+        }
+
+        unionDesignPlanStoreReleaseService.update(planStoreRelease);
+        unionStoreVo.setReleaseName(planStoreRelease.getReleaseName() == null ? "三度云享家" : planStoreRelease.getReleaseName());
+        //查询门店信息
+        UnionStorefront unionStorefront = unionStorefrontService.get(planStoreRelease.getStorefrontId());
+        unionStoreVo.setPopularityValue(planStoreRelease.getPopularityValue());
+        if(unionStorefront == null) {
+          return unionStoreVo;
+        }
+        unionStoreVo.setName(unionStorefront.getName());
+        unionStoreVo.setContact(unionStorefront.getContact());
+        unionStoreVo.setAddress(unionStorefront.getAddress());
+        unionStoreVo.setIsDisplayed(unionStorefront.getIsDisplayed());
+        unionStoreVo.setPhone(unionStorefront.getPhone());
+        if(unionStorefront.getIsDisplayed() == 1) {
+          //logo地址   显示该方案发布者绑定的第一个序列号对应品牌
+          Integer userId = planStoreRelease.getUserId();
+          SysUser sysUser = sysUserService.get(userId);
+          if (sysUser != null) {
+	          if (sysUser.getUserType().intValue() == 3 ) {
+		    		// 获取用户公司
+		        	Integer companyId = sysUser.getBusinessAdministrationId();
+		        	BaseCompany company = baseCompanyService.get(companyId);
+		        	if (company.getPid().intValue() > 0) {
+		        		BaseCompany baseCompany = baseCompanyService.get(company.getPid());
+		        		if(baseCompany != null){
+			                // 获取用户公司LOGO
+			                if( baseCompany.getCompanyLogo() != null ){
+			                    ResPic resPic = resPicService.get(baseCompany.getCompanyLogo());
+			                    if( resPic != null ){
+			                        /*panoramaVo.setCompanyLogoPath(FileUploadUtils.RESOURCES_URL + resPic.getPicPath());*/
+			                    	unionStoreVo.setBrandLogoPath(resPic.getPicPath());
+			                    }
+			                }
+			            }
+					}
+		        	
+				}else {
+			        // 获取用户公司
+		        	Integer companyId = sysUser.getBusinessAdministrationId();
+		            BaseCompany baseCompany = baseCompanyService.get(companyId);
+		            if(baseCompany != null){
+	
+		                // 获取用户公司LOGO
+		                if( baseCompany.getCompanyLogo() != null ){
+		                    ResPic resPic = resPicService.get(baseCompany.getCompanyLogo());
+		                    if( resPic != null ){
+		                        /*panoramaVo.setCompanyLogoPath(FileUploadUtils.RESOURCES_URL + resPic.getPicPath());*/
+		                    	unionStoreVo.setBrandLogoPath(resPic.getPicPath());
+		                    }
+		                }
+		            }
+			    }
+          }
+        /*  List<BaseBrand>  baseBrandLs = new ArrayList<BaseBrand>();
+          baseBrandLs = baseBrandService.getBrandLsByUserId(userId);
+          if(baseBrandLs != null && baseBrandLs.size() > 0) {
+            BaseBrand baseBrand = baseBrandLs.get(0);
+            if(StringUtils.isNotBlank(baseBrand.getBrandLogoPath())) {
+              unionStoreVo.setBrandLogoPath(baseBrand.getBrandLogoPath());
+            }
+          }*/
+        }
+        return unionStoreVo;
+	}
+
+
+
+	/**
+	 * 获取同城联盟720单点分享商品清单
+	 */
+    @Override
+    public UnionStoreProductsCostVo getUnionStoreProductsCostList(Integer releaseId, Integer resPicId) {
+      
+      UnionStoreProductsCostVo productsCostVo = new UnionStoreProductsCostVo();
+      List<ProductsCostType> costTypeList = new ArrayList<ProductsCostType>();
+      //验证参数
+      if(releaseId == null || resPicId == null) {
+          return null;
+      }
+      UnionDesignPlanStoreRelease planStoreRelease = unionDesignPlanStoreReleaseService.get(releaseId);
+      if(planStoreRelease == null || planStoreRelease.getId() == null) {
+          return null;
+      }
+      String key = "USReleaseCost_" + releaseId.toString() + "_picId_" + resPicId.toString(); //拼接缓存中的key
+      try {
+        //是否开启缓存
+        if(Utils.enableRedisCache()) {
+          //从缓存中读取商品清单
+          Object object = JedisUtils.getObject(key);
+          if(object != null) {
+            UnionStoreProductsCostVo storeProductsCostVo = (UnionStoreProductsCostVo)object;
+            return storeProductsCostVo;
+          }
+          
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      
+      //场景图
+      ResRenderPic pic = new ResRenderPic();
+      pic = resRenderPicService.get(resPicId);
+      if(pic == null || pic.getSysCode() == null) {
+          return null;
+      }
+      //获取信息
+      PanoramaVo panoramaVo = this.getPanoramaVoByPicSysCode(pic);
+      //获取同城联盟中同组员选择的品牌列表(需求要求可以看到同联盟组员选择的品牌)
+      List<BaseBrand> baseBrandList = baseBrandService.getBrandLsByReleaseId(releaseId);
+      panoramaVo.setUnionGroupBrands(baseBrandList);
+      
+      // 获取设计方案产品费用清单
+      //如果有就走以前,没有就走onekey
+      costTypeList = this.getProductsCost(panoramaVo);
+      if( costTypeList != null && costTypeList.size() > 0 ){
+          BigDecimal totalPrice = new BigDecimal(0.0);
+          for( ProductsCostType cost : costTypeList ){
+              totalPrice = totalPrice.add(cost.getTotalPrice());
+          }
+          //商品清单总价
+          productsCostVo.setTotalPrice(totalPrice.toString());
+          //商品清单详情列表
+          productsCostVo.setProductsCostTypeList(costTypeList);
+      }
+      try {
+        //是否开启缓存
+        if(Utils.enableRedisCache()) {
+          JedisUtils.setObject(key, productsCostVo, 10*60);//失效时间设置为10分钟
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      return productsCostVo;
+    }
+    
+    /**
+     * 组装查询商品清单列表需要的信息
+     * @param sysCode
+     * @return
+     */
+    private PanoramaVo getPanoramaVoByPicSysCode(ResRenderPic renderPic) {
+      PanoramaVo panoramaVo = new PanoramaVo();
+      if(renderPic == null || StringUtils.isBlank(renderPic.getSysCode())) {
+          return null;
+      }
+      
+      panoramaVo.setPlanId(renderPic.getBusinessId());
+      panoramaVo.setDesignPlanRecommendedId(renderPic.getPlanRecommendedId());
+      panoramaVo.setDesignPlanRenderSceneId(renderPic.getDesignSceneId());
+      
+      SysUser sysUser = new SysUser();
+      if(renderPic.getPlanRecommendedId() != null && renderPic.getPlanRecommendedId().intValue() > 0) {
+           DesignPlanRecommended planRecommended = designPlanRecommendedServiceV2.get(renderPic.getPlanRecommendedId());
+          if(planRecommended != null && planRecommended.getUserId() != null && planRecommended.getUserId() > 0) {
+              Integer userId = planRecommended.getUserId();
+              sysUser = sysUserService.get(userId);
+          }
+      }else if (renderPic.getDesignSceneId() != null & renderPic.getDesignSceneId().intValue() > 0) {
+          DesignPlanRenderScene designPlanRenderScene = designPlanRenderSceneService.get(renderPic.getDesignSceneId());
+          if(designPlanRenderScene != null && designPlanRenderScene.getId() != null && designPlanRenderScene.getUserId() != null) {
+            Integer userId = designPlanRenderScene.getUserId();
+            sysUser = sysUserService.get(userId);
+          }
+        
+      }else if(panoramaVo.getPlanId() != null && panoramaVo.getPlanId() > 0) {
+          DesignPlan designPlan = designPlanService.get(panoramaVo.getPlanId());
+          if( designPlan != null && designPlan.getUserId() != null && designPlan.getUserId() > 0 ){
+            Integer userId = designPlan.getUserId();
+            sysUser = sysUserService.get(userId);
+          }
+      }
+     //得到用户信息 
+      if(sysUser != null && sysUser.getId() != null && sysUser.getUserType() != null) {
+          panoramaVo.setUserId(sysUser.getId());
+          panoramaVo.setUserType(sysUser.getUserType());
+      }
+      return panoramaVo;
+    }
+
+
+    /**
+     * 同城联盟720单点分享页方案数据
+     */
+    @Override
+    public List<UnionStoreSingleSenceInfoVo> getUnionStoreSingleSenceInfoList(Integer releaseId) {
+      if(releaseId == null) {
+          return null;
+      }
+      UnionDesignPlanStoreRelease planStoreRelease = unionDesignPlanStoreReleaseService.get(releaseId);
+      if(planStoreRelease == null || planStoreRelease.getId() == null) {
+          return null;
+      }
+      List<UnionStoreSingleSenceInfoVo> singleSenceInfoVo = new ArrayList<UnionStoreSingleSenceInfoVo>();
+     
+      //获得该发布方案的所有场景图信息
+      List<ResRenderPic> renderPicLs = new ArrayList<ResRenderPic>();
+      renderPicLs = new ArrayList<ResRenderPic>();
+      renderPicLs = resRenderPicService.getListByUnionDesignPlanStoreReleaseId(releaseId);
+      if(renderPicLs == null || renderPicLs.size() < 1) {
+          return null;
+      }
+      //拼接信息
+      for (ResRenderPic resRenderPic : renderPicLs) {
+          UnionStoreSingleSenceInfoVo senceInfoVo = new UnionStoreSingleSenceInfoVo();
+          senceInfoVo.setPicId(resRenderPic.getId());//场景图id
+          ResRenderPic thumbPic = resRenderPicService.selectOneByPid(resRenderPic.getId());
+          if(thumbPic != null) {
+              senceInfoVo.setPlanThumbnailUrl(Utils.getAbsoluteUrlByRelativeUrl(thumbPic.getPicPath())); //缩略图地址
+          }
+          //发布素材
+          UnionDesignPlanStore designPlanStore = new UnionDesignPlanStore();
+          UnionDesignPlanStore planStore = new UnionDesignPlanStore();
+          planStore.setRenderPicId(resRenderPic.getId());
+          planStore.setRenderPicSmallId(thumbPic.getId());
+          List<UnionDesignPlanStore> planStoreLs = unionDesignPlanStoreService.getList(planStore);
+          if(planStoreLs != null && planStoreLs.size() > 0) {
+              designPlanStore = planStoreLs.get(0);
+              senceInfoVo.setDesignPlanName(designPlanStore.getDesignPlanName());//原方案名称
+          }
+  
+          singleSenceInfoVo.add(senceInfoVo);
+      }
+      return singleSenceInfoVo;
+    }
+    
+}
+

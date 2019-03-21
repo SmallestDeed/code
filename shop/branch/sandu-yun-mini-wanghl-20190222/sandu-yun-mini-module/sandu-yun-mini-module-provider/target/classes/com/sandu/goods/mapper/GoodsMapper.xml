@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.goods.dao.GoodsDao">
+	<sql id="productListColumns">
+		a.id,a.company_id,a.is_presell,a.total_inventory,
+		a.spu_name,b.pic_path as pic,c.min_price,c.max_price
+	</sql>
+
+	<select id="findFontPageList"
+		resultType="com.sandu.goods.model.vo.GoodsVo"
+		parameterType="com.sandu.goods.model.query.GoodsQuery">
+		select t.id,t.get_time,t.spu_code,t.spu_name,t4.pic_path,max(t5.price) maxPrice,min(t5.price) minPrice,
+       t.total_inventory,t9.is_presell,t9.is_special_offer,t.is_putaway,
+       t6.name small_type,t7.name big_type
+     from
+      (select
+            t1.id
+            ,t1.spu_code,t1.get_time
+            ,t1.spu_name
+            ,t1.pic_id
+            ,t1.total_inventory
+            ,t1.is_putaway
+            ,t1.company_id
+            ,t1.small_type_mark
+            ,t2.id productId
+        from
+            base_goods_spu t1
+            ,base_product t2
+            ,base_platform platform
+            ,platform2c_product_rel rel
+        where
+            t1.is_deleted = 0
+            AND t2.goods_spu_id != ''
+            AND t2.is_deleted = 0
+            <if test="companyId != null">AND t1.company_id = #{companyId} </if>
+            <if test="companyId != null">AND t2.company_id = #{companyId} </if>
+            AND t2.goods_spu_id = t1.id
+            AND platform.platform_code = 'miniProgram'
+            AND rel.platform_id = platform.id AND rel.product_id = t2.id
+            AND rel.putaway_state = 1 
+          <if test="bizType != null">
+	          <if test="bizType eq 1">
+	             <if test="couponId != null">
+	                AND t1.id not in(SELECT goods_id from activity_coupon_goods where coupon_id=#{couponId})
+	             </if>
+	          </if>
+	          <if test="bizType eq 2">
+	            AND t1.id not in(SELECT goods_id from base_goods_recommended where 1=1 
+	            <if test="companyId != null">AND company_id = #{companyId} </if>
+	            )
+	          </if>
+          </if>
+      )t
+      left join res_pic t4 on t4.id = t.pic_id
+      left join spu_sale_info t9 on t9.spu_id = t.id
+      left join base_goods_sku t5 on t5.product_id = t.productId
+      left join sys_dictionary t6 on t6.valuekey = t.small_type_mark
+      left join sys_dictionary t7 on t7.valuekey = t6.type
+    where
+      1 = 1
+      <if test="typeCode != null"> AND t7.valuekey = #{typeCode}</if>
+      <if test="childTypeCode != null"> AND t6.valuekey = #{childTypeCode}</if>
+      <if test="isPutaway != null"> AND t.is_putaway = #{isPutaway}</if>
+      <if test="isPresell != null">
+          <if test="isPresell eq 1"> AND t9.is_presell = 1</if>
+          <if test="isPresell eq 0"> AND t9.is_presell <![CDATA[ <> ]]> 1</if>
+      </if>
+      <if test="spuName != null"> AND t.spu_name like CONCAT(CONCAT('%',#{spuName}),'%') </if>
+      <if test="spuCode != null"> AND t.spu_code LIKE CONCAT(CONCAT('%',#{spuCode}),'%')</if>
+   	  GROUP BY  t.id
+    	ORDER BY t.id desc
+		limit #{start},#{pageSize}	
+	</select>
+	
+
+	<select id="findFontCount" resultType="long"
+		parameterType="com.sandu.goods.model.query.GoodsQuery">
+		SELECT count(1)
+		from
+       (SELECT t.* from(select
+            t1.id
+            ,t1.spu_code
+            ,t1.spu_name
+            ,t1.pic_id
+            ,t1.total_inventory
+            ,t1.is_putaway
+            ,t1.company_id
+            ,t1.small_type_mark
+            ,t2.id productId
+        from
+            base_goods_spu t1
+            ,base_product t2
+            ,base_platform platform
+            ,platform2c_product_rel rel
+        where
+            t1.is_deleted = 0
+            AND t2.goods_spu_id != ''
+            AND t2.is_deleted = 0
+            <if test="companyId != null">AND t1.company_id = #{companyId} </if>
+            <if test="companyId != null">AND t2.company_id = #{companyId} </if>
+            AND t2.goods_spu_id = t1.id
+            AND platform.platform_code = 'miniProgram'
+            AND rel.platform_id = platform.id AND rel.product_id = t2.id
+            AND rel.putaway_state = 1
+           <if test="bizType != null">
+	          <if test="bizType eq 1">
+	             <if test="couponId != null">
+	                AND t1.id not in(SELECT goods_id from activity_coupon_goods where coupon_id=#{couponId})
+	             </if>
+	          </if>
+	          <if test="bizType eq 2">
+	            AND t1.id not in(SELECT goods_id from base_goods_recommended where 1=1 
+	            <if test="companyId != null">AND company_id = #{companyId} </if>
+	            )
+	          </if>
+          </if>
+      )t
+      left join res_pic t4 on t4.id = t.pic_id
+      left join spu_sale_info t9 on t9.spu_id = t.id
+      left join base_goods_sku t5 on t5.product_id = t.productId
+      left join sys_dictionary t6 on t6.valuekey = t.small_type_mark
+      left join sys_dictionary t7 on t7.valuekey = t6.type
+    where
+      1 = 1
+      <if test="typeCode != null"> AND t7.valuekey = #{typeCode}</if>
+      <if test="childTypeCode != null"> AND t6.valuekey = #{childTypeCode}</if>
+      <if test="isPutaway != null"> AND t.is_putaway = #{isPutaway}</if>
+      <if test="isPresell != null">
+          <if test="isPresell eq 1"> AND t9.is_presell = 1</if>
+          <if test="isPresell eq 0"> AND t9.is_presell <![CDATA[ <> ]]> 1</if>
+      </if>
+      <if test="spuName != null"> AND t.spu_name like CONCAT(CONCAT('%',#{spuName}),'%') </if>
+      <if test="spuCode != null"> AND t.spu_code LIKE CONCAT(CONCAT('%',#{spuCode}),'%')</if>
+    GROUP BY
+      t.id)a
+	</select>
+
+</mapper>

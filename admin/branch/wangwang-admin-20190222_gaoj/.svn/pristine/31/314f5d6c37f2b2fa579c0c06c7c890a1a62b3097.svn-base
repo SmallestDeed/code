@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.groupproduct.dao.ResFileDao">
+    <resultMap id="BaseResultMap" type="com.sandu.api.groupproducct.model.ResFile">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="file_code" jdbcType="VARCHAR" property="fileCode"/>
+        <result column="file_name" jdbcType="VARCHAR" property="fileName"/>
+        <result column="file_original_name" jdbcType="VARCHAR" property="fileOriginalName"/>
+        <result column="file_type" jdbcType="VARCHAR" property="fileType"/>
+        <result column="file_size" jdbcType="VARCHAR" property="fileSize"/>
+        <result column="file_suffix" jdbcType="VARCHAR" property="fileSuffix"/>
+        <result column="file_level" jdbcType="VARCHAR" property="fileLevel"/>
+        <result column="file_path" jdbcType="VARCHAR" property="filePath"/>
+        <result column="file_desc" jdbcType="VARCHAR" property="fileDesc"/>
+        <result column="file_ordering" jdbcType="INTEGER" property="fileOrdering"/>
+        <result column="sys_code" jdbcType="VARCHAR" property="sysCode"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="file_key" jdbcType="VARCHAR" property="fileKey"/>
+        <result column="file_keys" jdbcType="VARCHAR" property="fileKeys"/>
+        <result column="business_ids" jdbcType="VARCHAR" property="businessIds"/>
+        <result column="att4" jdbcType="VARCHAR" property="att4"/>
+        <result column="att5" jdbcType="VARCHAR" property="att5"/>
+        <result column="att6" jdbcType="VARCHAR" property="att6"/>
+        <result column="date_att1" jdbcType="TIMESTAMP" property="dateAtt1"/>
+        <result column="date_att2" jdbcType="TIMESTAMP" property="dateAtt2"/>
+        <result column="business_id" jdbcType="INTEGER" property="businessId"/>
+        <result column="num_att2" jdbcType="INTEGER" property="numAtt2"/>
+        <result column="num_att3" jdbcType="DECIMAL" property="numAtt3"/>
+        <result column="num_att4" jdbcType="DECIMAL" property="numAtt4"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, file_code, file_name, file_original_name, file_type, file_size, file_suffix,
+    file_level, file_path, file_desc, file_ordering, sys_code, creator, gmt_create, modifier,
+    gmt_modified, is_deleted, file_key, file_keys, business_ids, att4, att5, att6, date_att1,
+    date_att2, business_id, num_att2, num_att3, num_att4, remark
+  </sql>
+  
+   <select id="listByIds" resultMap="BaseResultMap">
+      select
+     	   <include refid="Base_Column_List"/>
+        from res_file
+        where  is_deleted = 0
+    	 <if test="ids!=null and ids.size > 0">
+            and id in
+            <foreach collection="ids" open="(" separator="," close=")" item="bid">
+                #{bid}
+            </foreach>
+        </if>
+    </select>
+    
+      
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from res_file
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from res_file
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.sandu.api.groupproducct.model.ResFile">
+    insert into res_file (id, file_code, file_name, 
+      file_original_name, file_type, file_size, 
+      file_suffix, file_level, file_path, 
+      file_desc, file_ordering, sys_code, 
+      creator, gmt_create, modifier, 
+      gmt_modified, is_deleted, file_key, 
+      file_keys, business_ids, att4, 
+      att5, att6, date_att1, 
+      date_att2, business_id, num_att2, 
+      num_att3, num_att4, remark
+      )
+    values (#{id,jdbcType=BIGINT}, #{fileCode,jdbcType=VARCHAR}, #{fileName,jdbcType=VARCHAR}, 
+      #{fileOriginalName,jdbcType=VARCHAR}, #{fileType,jdbcType=VARCHAR}, #{fileSize,jdbcType=VARCHAR}, 
+      #{fileSuffix,jdbcType=VARCHAR}, #{fileLevel,jdbcType=VARCHAR}, #{filePath,jdbcType=VARCHAR}, 
+      #{fileDesc,jdbcType=VARCHAR}, #{fileOrdering,jdbcType=INTEGER}, #{sysCode,jdbcType=VARCHAR}, 
+      #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER}, #{fileKey,jdbcType=VARCHAR}, 
+      #{fileKeys,jdbcType=VARCHAR}, #{businessIds,jdbcType=VARCHAR}, #{att4,jdbcType=VARCHAR}, 
+      #{att5,jdbcType=VARCHAR}, #{att6,jdbcType=VARCHAR}, #{dateAtt1,jdbcType=TIMESTAMP}, 
+      #{dateAtt2,jdbcType=TIMESTAMP}, #{businessId,jdbcType=INTEGER}, #{numAtt2,jdbcType=INTEGER}, 
+      #{numAtt3,jdbcType=DECIMAL}, #{numAtt4,jdbcType=DECIMAL}, #{remark,jdbcType=VARCHAR}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.sandu.api.groupproducct.model.ResFile" useGeneratedKeys="true"
+            keyColumn="id" keyProperty="id">
+        insert into res_file
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="fileCode != null">
+                file_code,
+            </if>
+            <if test="fileName != null">
+                file_name,
+            </if>
+            <if test="fileOriginalName != null">
+                file_original_name,
+            </if>
+            <if test="fileType != null">
+                file_type,
+            </if>
+            <if test="fileSize != null">
+                file_size,
+            </if>
+            <if test="fileSuffix != null">
+                file_suffix,
+            </if>
+            <if test="fileLevel != null">
+                file_level,
+            </if>
+            <if test="filePath != null">
+                file_path,
+            </if>
+            <if test="fileDesc != null">
+                file_desc,
+            </if>
+            <if test="fileOrdering != null">
+                file_ordering,
+            </if>
+            <if test="sysCode != null">
+                sys_code,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="fileKey != null">
+                file_key,
+            </if>
+            <if test="fileKeys != null">
+                file_keys,
+            </if>
+            <if test="businessIds != null">
+                business_ids,
+            </if>
+            <if test="att4 != null">
+                att4,
+            </if>
+            <if test="att5 != null">
+                att5,
+            </if>
+            <if test="att6 != null">
+                att6,
+            </if>
+            <if test="dateAtt1 != null">
+                date_att1,
+            </if>
+            <if test="dateAtt2 != null">
+                date_att2,
+            </if>
+            <if test="businessId != null">
+                business_id,
+            </if>
+            <if test="numAtt2 != null">
+                num_att2,
+            </if>
+            <if test="numAtt3 != null">
+                num_att3,
+            </if>
+            <if test="numAtt4 != null">
+                num_att4,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="fileCode != null">
+                #{fileCode,jdbcType=VARCHAR},
+            </if>
+            <if test="fileName != null">
+                #{fileName,jdbcType=VARCHAR},
+            </if>
+            <if test="fileOriginalName != null">
+                #{fileOriginalName,jdbcType=VARCHAR},
+            </if>
+            <if test="fileType != null">
+                #{fileType,jdbcType=VARCHAR},
+            </if>
+            <if test="fileSize != null">
+                #{fileSize,jdbcType=VARCHAR},
+            </if>
+            <if test="fileSuffix != null">
+                #{fileSuffix,jdbcType=VARCHAR},
+            </if>
+            <if test="fileLevel != null">
+                #{fileLevel,jdbcType=VARCHAR},
+            </if>
+            <if test="filePath != null">
+                #{filePath,jdbcType=VARCHAR},
+            </if>
+            <if test="fileDesc != null">
+                #{fileDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="fileOrdering != null">
+                #{fileOrdering,jdbcType=INTEGER},
+            </if>
+            <if test="sysCode != null">
+                #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="fileKey != null">
+                #{fileKey,jdbcType=VARCHAR},
+            </if>
+            <if test="fileKeys != null">
+                #{fileKeys,jdbcType=VARCHAR},
+            </if>
+            <if test="businessIds != null">
+                #{businessIds,jdbcType=VARCHAR},
+            </if>
+            <if test="att4 != null">
+                #{att4,jdbcType=VARCHAR},
+            </if>
+            <if test="att5 != null">
+                #{att5,jdbcType=VARCHAR},
+            </if>
+            <if test="att6 != null">
+                #{att6,jdbcType=VARCHAR},
+            </if>
+            <if test="dateAtt1 != null">
+                #{dateAtt1,jdbcType=TIMESTAMP},
+            </if>
+            <if test="dateAtt2 != null">
+                #{dateAtt2,jdbcType=TIMESTAMP},
+            </if>
+            <if test="businessId != null">
+                #{businessId,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt2 != null">
+                #{numAtt2,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt3 != null">
+                #{numAtt3,jdbcType=DECIMAL},
+            </if>
+            <if test="numAtt4 != null">
+                #{numAtt4,jdbcType=DECIMAL},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.groupproducct.model.ResFile">
+        update res_file
+        <set>
+            <if test="fileCode != null">
+                file_code = #{fileCode,jdbcType=VARCHAR},
+            </if>
+            <if test="fileName != null">
+                file_name = #{fileName,jdbcType=VARCHAR},
+            </if>
+            <if test="fileOriginalName != null">
+                file_original_name = #{fileOriginalName,jdbcType=VARCHAR},
+            </if>
+            <if test="fileType != null">
+                file_type = #{fileType,jdbcType=VARCHAR},
+            </if>
+            <if test="fileSize != null">
+                file_size = #{fileSize,jdbcType=VARCHAR},
+            </if>
+            <if test="fileSuffix != null">
+                file_suffix = #{fileSuffix,jdbcType=VARCHAR},
+            </if>
+            <if test="fileLevel != null">
+                file_level = #{fileLevel,jdbcType=VARCHAR},
+            </if>
+            <if test="filePath != null">
+                file_path = #{filePath,jdbcType=VARCHAR},
+            </if>
+            <if test="fileDesc != null">
+                file_desc = #{fileDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="fileOrdering != null">
+                file_ordering = #{fileOrdering,jdbcType=INTEGER},
+            </if>
+            <if test="sysCode != null">
+                sys_code = #{sysCode,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="fileKey != null">
+                file_key = #{fileKey,jdbcType=VARCHAR},
+            </if>
+            <if test="fileKeys != null">
+                file_keys = #{fileKeys,jdbcType=VARCHAR},
+            </if>
+            <if test="businessIds != null">
+                business_ids = #{businessIds,jdbcType=VARCHAR},
+            </if>
+            <if test="att4 != null">
+                att4 = #{att4,jdbcType=VARCHAR},
+            </if>
+            <if test="att5 != null">
+                att5 = #{att5,jdbcType=VARCHAR},
+            </if>
+            <if test="att6 != null">
+                att6 = #{att6,jdbcType=VARCHAR},
+            </if>
+            <if test="dateAtt1 != null">
+                date_att1 = #{dateAtt1,jdbcType=TIMESTAMP},
+            </if>
+            <if test="dateAtt2 != null">
+                date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},
+            </if>
+            <if test="businessId != null">
+                business_id = #{businessId,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt2 != null">
+                num_att2 = #{numAtt2,jdbcType=INTEGER},
+            </if>
+            <if test="numAtt3 != null">
+                num_att3 = #{numAtt3,jdbcType=DECIMAL},
+            </if>
+            <if test="numAtt4 != null">
+                num_att4 = #{numAtt4,jdbcType=DECIMAL},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.sandu.api.groupproducct.model.ResFile">
+    update res_file
+    set file_code = #{fileCode,jdbcType=VARCHAR},
+      file_name = #{fileName,jdbcType=VARCHAR},
+      file_original_name = #{fileOriginalName,jdbcType=VARCHAR},
+      file_type = #{fileType,jdbcType=VARCHAR},
+      file_size = #{fileSize,jdbcType=VARCHAR},
+      file_suffix = #{fileSuffix,jdbcType=VARCHAR},
+      file_level = #{fileLevel,jdbcType=VARCHAR},
+      file_path = #{filePath,jdbcType=VARCHAR},
+      file_desc = #{fileDesc,jdbcType=VARCHAR},
+      file_ordering = #{fileOrdering,jdbcType=INTEGER},
+      sys_code = #{sysCode,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      file_key = #{fileKey,jdbcType=VARCHAR},
+      file_keys = #{fileKeys,jdbcType=VARCHAR},
+      business_ids = #{businessIds,jdbcType=VARCHAR},
+      att4 = #{att4,jdbcType=VARCHAR},
+      att5 = #{att5,jdbcType=VARCHAR},
+      att6 = #{att6,jdbcType=VARCHAR},
+      date_att1 = #{dateAtt1,jdbcType=TIMESTAMP},
+      date_att2 = #{dateAtt2,jdbcType=TIMESTAMP},
+      business_id = #{businessId,jdbcType=INTEGER},
+      num_att2 = #{numAtt2,jdbcType=INTEGER},
+      num_att3 = #{numAtt3,jdbcType=DECIMAL},
+      num_att4 = #{numAtt4,jdbcType=DECIMAL},
+      remark = #{remark,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

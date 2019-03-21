@@ -1,0 +1,625 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.pay.dao.PayRefundMapper">
+	<!-- **插入定义** -->
+	<insert id="insertSelective" parameterType="com.nork.pay.model.PayRefund"  useGeneratedKeys="true" keyProperty="id">
+		insert into pay_refund
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		<if test="orderId!= null">order_id, </if>
+		<if test="userId!= null">user_id, </if>
+		<if test="refId!= null">ref_id, </if>
+		<if test="refundNo!= null">refund_no, </if>
+		<if test="totalFee!= null">total_fee, </if>
+		<if test="refundReason!= null">refund_reason, </if>
+		<if test="refundState!= null">refund_state, </if>
+		<if test="auditState!= null">audit_state, </if>
+		<if test="auditOpinion!= null">audit_opinion, </if>
+		<if test="resultDetails!= null">result_details, </if>
+		<if test="refundDate!= null">refund_date, </if>
+		<if test="sysCode!= null">sys_code, </if>
+		<if test="creator!= null">creator, </if>
+		<if test="gmtCreate!= null">gmt_create, </if>
+		<if test="modifier!= null">modifier, </if>
+		<if test="gmtModified!= null">gmt_modified, </if>
+		<if test="isDeleted!= null">is_deleted, </if>
+		<if test="att1!= null">att1, </if>
+		<if test="att2!= null">att2, </if>
+		<if test="numa1!= null">numa1, </if>
+		<if test="numa2!= null">numa2, </if>
+		<if test="remark!= null">remark, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="orderId!= null">  #{orderId,jdbcType=INTEGER}, </if>
+		<if test="userId!= null">  #{userId,jdbcType=INTEGER}, </if>
+		<if test="refId!= null">  #{refId,jdbcType=VARCHAR}, </if>
+		<if test="refundNo!= null">  #{refundNo,jdbcType=VARCHAR}, </if>
+		<if test="totalFee!= null">  #{totalFee,jdbcType=INTEGER}, </if>
+		<if test="refundReason!= null">  #{refundReason,jdbcType=VARCHAR}, </if>
+		<if test="refundState!= null">  #{refundState,jdbcType=VARCHAR}, </if>
+		<if test="auditState!= null">  #{auditState,jdbcType=INTEGER}, </if>
+		<if test="auditOpinion!= null">  #{auditOpinion,jdbcType=VARCHAR}, </if>
+		<if test="resultDetails!= null">  #{resultDetails,jdbcType=VARCHAR}, </if>
+		<if test="refundDate!= null">  #{refundDate,jdbcType=TIMESTAMP}, </if>
+		<if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="att1!= null">  #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  #{att2,jdbcType=VARCHAR}, </if>
+		<if test="numa1!= null">  #{numa1,jdbcType=INTEGER}, </if>
+		<if test="numa2!= null">  #{numa2,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>	
+		</trim>
+	</insert>
+
+	<!-- **更新定义** -->
+	<update id="updateAuditState" parameterType="com.nork.pay.model.PayRefund">
+		update pay_refund
+		<set>
+		<if test="refundState!= null">  refund_state = #{refundState,jdbcType=VARCHAR}, </if>
+		<if test="auditState!= null">  audit_state = #{auditState,jdbcType=INTEGER}, </if>
+		<if test="auditOpinion!= null">  audit_opinion = #{auditOpinion,jdbcType=VARCHAR}, </if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	
+	<update id="updateByPrimaryKeySelective" parameterType="com.nork.pay.model.PayRefund">
+		update pay_refund
+		<set>
+		<if test="orderId!= null">  order_id = #{orderId,jdbcType=INTEGER}, </if>
+		<if test="userId!= null">  user_id = #{userId,jdbcType=INTEGER}, </if>
+		<if test="refId!= null">  ref_id = #{refId,jdbcType=VARCHAR}, </if>
+		<if test="refundNo!= null">  refund_no = #{refundNo,jdbcType=VARCHAR}, </if>
+		<if test="totalFee!= null">  total_fee = #{totalFee,jdbcType=INTEGER}, </if>
+		<if test="refundReason!= null">  refund_reason = #{refundReason,jdbcType=VARCHAR}, </if>
+		<if test="refundState!= null">  refund_state = #{refundState,jdbcType=VARCHAR}, </if>
+		<if test="auditState!= null">  audit_state = #{auditState,jdbcType=INTEGER}, </if>
+		<if test="auditOpinion!= null">  audit_opinion = #{auditOpinion,jdbcType=VARCHAR}, </if>
+		<if test="resultDetails!= null">  result_details = #{resultDetails,jdbcType=VARCHAR}, </if>
+		<if test="refundDate!= null">  refund_date = #{refundDate,jdbcType=TIMESTAMP}, </if>
+		<if test="sysCode!= null">  sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  creator = #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  modifier = #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="att1!= null">  att1 = #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  att2 = #{att2,jdbcType=VARCHAR}, </if>
+		<if test="numa1!= null">  numa1 = #{numa1,jdbcType=INTEGER}, </if>
+		<if test="numa2!= null">  numa2 = #{numa2,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  remark = #{remark,jdbcType=VARCHAR}, </if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<update id="updateRefundState" parameterType="com.nork.pay.model.PayRefund">
+		update pay_refund
+		<set>
+		<if test="refundState!= null">  refund_state = #{refundState,jdbcType=VARCHAR}, </if>
+		<if test="resultDetails!= null">  result_details = #{resultDetails,jdbcType=VARCHAR}, </if>
+		</set>
+		where refund_no = #{refundNo,jdbcType=VARCHAR}
+	</update>
+	
+	<!-- **删除定义** -->
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from pay_refund
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	
+	<!-- **常量定义** -->
+	<sql id="All_Column_List">
+		id,order_id,user_id,ref_id,refund_no,total_fee,refund_reason,refund_state,audit_state,audit_opinion,result_details,refund_date,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,att1,att2,numa1,numa2,remark
+	</sql>
+	
+	<!-- **结果定义** -->
+	<resultMap id="tResultMap" type="com.nork.sandu.model.dto.TRefund">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="order_id" property="orderId" jdbcType="INTEGER" />
+		<result  column="user_id" property="userId" jdbcType="INTEGER" />
+		<result  column="ref_id" property="refId" jdbcType="VARCHAR" />
+		<result  column="refund_no" property="refundNo" jdbcType="VARCHAR" />
+		<result  column="total_fee" property="totalFee" jdbcType="INTEGER" />
+		<result  column="refund_reason" property="refundReason" jdbcType="VARCHAR" />
+		<result  column="refund_state" property="refundState" jdbcType="VARCHAR" />
+		<result  column="audit_state" property="auditState" jdbcType="INTEGER" />
+		<result  column="audit_opinion" property="auditOpinion" jdbcType="VARCHAR" />
+		<result  column="refund_date" property="refundDate" jdbcType="TIMESTAMP" />
+	</resultMap>
+	<resultMap id="AllResultMap" type="com.nork.pay.model.PayRefund">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="order_id" property="orderId" jdbcType="INTEGER" />
+		<result  column="user_id" property="userId" jdbcType="INTEGER" />
+		<result  column="ref_id" property="refId" jdbcType="VARCHAR" />
+		<result  column="refund_no" property="refundNo" jdbcType="VARCHAR" />
+		<result  column="total_fee" property="totalFee" jdbcType="INTEGER" />
+		<result  column="refund_reason" property="refundReason" jdbcType="VARCHAR" />
+		<result  column="refund_state" property="refundState" jdbcType="VARCHAR" />
+		<result  column="audit_state" property="auditState" jdbcType="INTEGER" />
+		<result  column="audit_opinion" property="auditOpinion" jdbcType="VARCHAR" />
+		<result  column="result_details" property="resultDetails" jdbcType="VARCHAR" />
+		<result  column="refund_date" property="refundDate" jdbcType="TIMESTAMP" />
+		<result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="att1" property="att1" jdbcType="VARCHAR" />
+		<result  column="att2" property="att2" jdbcType="VARCHAR" />
+		<result  column="numa1" property="numa1" jdbcType="INTEGER" />
+		<result  column="numa2" property="numa2" jdbcType="INTEGER" />
+		<result  column="remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- **查询定义** -->
+	<!-- 按主键查询 -->
+	<select id="selectByPrimaryKey" resultMap="AllResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="All_Column_List" />
+		from pay_refund
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+		parameterType="com.nork.pay.model.PayRefund">
+		select
+		<include refid="All_Column_List" />
+		from pay_refund
+        where 1=1
+		<if test="orderId!= null">  and order_id = #{orderId,jdbcType=INTEGER} </if>
+		<if test="userId!= null">  and user_id = #{userId,jdbcType=INTEGER} </if>
+		<if test="refId!= null">  and ref_id = #{refId,jdbcType=VARCHAR} </if>
+		<if test="refundNo!= null">  and refund_no = #{refundNo,jdbcType=VARCHAR} </if>
+		<if test="totalFee!= null">  and total_fee = #{totalFee,jdbcType=INTEGER} </if>
+		<if test="refundReason!= null">  and refund_reason = #{refundReason,jdbcType=VARCHAR} </if>
+		<if test="refundState!= null">  and refund_state = #{refundState,jdbcType=VARCHAR} </if>
+		<if test="auditState!= null">  and audit_state = #{auditState,jdbcType=INTEGER} </if>
+		<if test="auditOpinion!= null">  and audit_opinion = #{auditOpinion,jdbcType=VARCHAR} </if>
+		<if test="resultDetails!= null">  and result_details = #{resultDetails,jdbcType=VARCHAR} </if>
+		<if test="refundDate!= null">  and refund_date = #{refundDate,jdbcType=TIMESTAMP} </if>
+		<if test="sysCode!= null">  and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="creator!= null">  and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="gmtCreate!= null">  and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+		<if test="modifier!= null">  and modifier = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="gmtModified!= null">  and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP} </if>
+		<if test="isDeleted!= null">  and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1!= null">  and att1 = #{att1,jdbcType=VARCHAR} </if>
+		<if test="att2!= null">  and att2 = #{att2,jdbcType=VARCHAR} </if>
+		<if test="numa1!= null">  and numa1 = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2!= null">  and numa2 = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark!= null">  and remark = #{remark,jdbcType=VARCHAR} </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order}
+			<if test="orderNum != null and  orderNum !='' ">
+				${orderNum}
+			</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">
+		   order by ${orders}
+		</if>
+	</select>
+	
+	<!-- 分页汇总 -->
+	<select id="selectCount" resultType="int"
+		parameterType="com.nork.pay.model.search.PayRefundSearch">
+		select count(*)
+		from pay_refund
+		where 1=1
+		<if test="orderId !=  null  ">			and order_id  = #{orderId,jdbcType=INTEGER} </if>
+		<if test="userId !=  null  ">			and user_id  = #{userId,jdbcType=INTEGER} </if>
+		<if test="refId !=  null and refId !=  ''   "> and ref_id  = #{refId,jdbcType=VARCHAR} </if>
+		<if test="sch_RefId_ !=  null and sch_RefId_ !=  ''   ">
+			and ref_id  like CONCAT(CONCAT('%',#{sch_RefId_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RefId !=  null and sch_RefId !=  ''   ">
+			and ref_id  like CONCAT('%',#{sch_RefId,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRefId_ !=  null and schRefId_ !=  ''   ">
+			and ref_id  like CONCAT(#{schRefId_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="refIdStart !=  null and refIdEnd!= null  ">
+			and ref_id between #{refIdStart,jdbcType=VARCHAR} and #{refIdEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="refundNo !=  null and refundNo !=  ''   "> and refund_no  = #{refundNo,jdbcType=VARCHAR} </if>
+		<if test="sch_RefundNo_ !=  null and sch_RefundNo_ !=  ''   ">
+			and refund_no  like CONCAT(CONCAT('%',#{sch_RefundNo_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RefundNo !=  null and sch_RefundNo !=  ''   ">
+			and refund_no  like CONCAT('%',#{sch_RefundNo,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRefundNo_ !=  null and schRefundNo_ !=  ''   ">
+			and refund_no  like CONCAT(#{schRefundNo_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="refundNoStart !=  null and refundNoEnd!= null  ">
+			and refund_no between #{refundNoStart,jdbcType=VARCHAR} and #{refundNoEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="totalFee !=  null  ">			and total_fee  = #{totalFee,jdbcType=INTEGER} </if>
+		<if test="refundReason !=  null and refundReason !=  ''   "> and refund_reason  = #{refundReason,jdbcType=VARCHAR} </if>
+		<if test="sch_RefundReason_ !=  null and sch_RefundReason_ !=  ''   ">
+			and refund_reason  like CONCAT(CONCAT('%',#{sch_RefundReason_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RefundReason !=  null and sch_RefundReason !=  ''   ">
+			and refund_reason  like CONCAT('%',#{sch_RefundReason,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRefundReason_ !=  null and schRefundReason_ !=  ''   ">
+			and refund_reason  like CONCAT(#{schRefundReason_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="refundReasonStart !=  null and refundReasonEnd!= null  ">
+			and refund_reason between #{refundReasonStart,jdbcType=VARCHAR} and #{refundReasonEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="refundState !=  null and refundState !=  ''   "> and refund_state  = #{refundState,jdbcType=VARCHAR} </if>
+		<if test="sch_RefundState_ !=  null and sch_RefundState_ !=  ''   ">
+			and refund_state  like CONCAT(CONCAT('%',#{sch_RefundState_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RefundState !=  null and sch_RefundState !=  ''   ">
+			and refund_state  like CONCAT('%',#{sch_RefundState,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRefundState_ !=  null and schRefundState_ !=  ''   ">
+			and refund_state  like CONCAT(#{schRefundState_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="refundStateStart !=  null and refundStateEnd!= null  ">
+			and refund_state between #{refundStateStart,jdbcType=VARCHAR} and #{refundStateEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="auditState !=  null  ">			and audit_state  = #{auditState,jdbcType=INTEGER} </if>
+		<if test="auditOpinion !=  null and auditOpinion !=  ''   "> and audit_opinion  = #{auditOpinion,jdbcType=VARCHAR} </if>
+		<if test="sch_AuditOpinion_ !=  null and sch_AuditOpinion_ !=  ''   ">
+			and audit_opinion  like CONCAT(CONCAT('%',#{sch_AuditOpinion_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_AuditOpinion !=  null and sch_AuditOpinion !=  ''   ">
+			and audit_opinion  like CONCAT('%',#{sch_AuditOpinion,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAuditOpinion_ !=  null and schAuditOpinion_ !=  ''   ">
+			and audit_opinion  like CONCAT(#{schAuditOpinion_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="auditOpinionStart !=  null and auditOpinionEnd!= null  ">
+			and audit_opinion between #{auditOpinionStart,jdbcType=VARCHAR} and #{auditOpinionEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="resultDetails !=  null and resultDetails !=  ''   "> and result_details  = #{resultDetails,jdbcType=VARCHAR} </if>
+		<if test="sch_ResultDetails_ !=  null and sch_ResultDetails_ !=  ''   ">
+			and result_details  like CONCAT(CONCAT('%',#{sch_ResultDetails_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_ResultDetails !=  null and sch_ResultDetails !=  ''   ">
+			and result_details  like CONCAT('%',#{sch_ResultDetails,jdbcType=VARCHAR})
+		 </if>
+		<if test="schResultDetails_ !=  null and schResultDetails_ !=  ''   ">
+			and result_details  like CONCAT(#{schResultDetails_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="resultDetailsStart !=  null and resultDetailsEnd!= null  ">
+			and result_details between #{resultDetailsStart,jdbcType=VARCHAR} and #{resultDetailsEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="refundDate !=  null  ">
+			and refund_date  = #{refundDate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="refundDateStart !=  null and refundDateEnd!= null  ">
+			and refund_date between #{refundDateStart,jdbcType=TIMESTAMP} and #{refundDateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="sysCode !=  null and sysCode !=  ''   "> and sys_code  = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+			and sys_code  like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+			and sys_code  like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+			and sys_code  like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+			and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="creator !=  null and creator !=  ''   "> and creator  = #{creator,jdbcType=VARCHAR} </if>
+		<if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+			and creator  like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+			and creator  like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+			and creator  like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="creatorStart !=  null and creatorEnd!= null  ">
+			and creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtCreate !=  null  ">
+			and gmt_create  = #{gmtCreate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="modifier !=  null and modifier !=  ''   "> and modifier  = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and modifier  like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and modifier  like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		 </if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and modifier  like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtModified !=  null  ">
+			and gmt_modified  = #{gmtModified,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="isDeleted !=  null  ">			and is_deleted  = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1 !=  null and att1 !=  ''   "> and att1  = #{att1,jdbcType=VARCHAR} </if>
+		<if test="sch_Att1_ !=  null and sch_Att1_ !=  ''   ">
+			and att1  like CONCAT(CONCAT('%',#{sch_Att1_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att1 !=  null and sch_Att1 !=  ''   ">
+			and att1  like CONCAT('%',#{sch_Att1,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt1_ !=  null and schAtt1_ !=  ''   ">
+			and att1  like CONCAT(#{schAtt1_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att1Start !=  null and att1End!= null  ">
+			and att1 between #{att1Start,jdbcType=VARCHAR} and #{att1End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att2 !=  null and att2 !=  ''   "> and att2  = #{att2,jdbcType=VARCHAR} </if>
+		<if test="sch_Att2_ !=  null and sch_Att2_ !=  ''   ">
+			and att2  like CONCAT(CONCAT('%',#{sch_Att2_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att2 !=  null and sch_Att2 !=  ''   ">
+			and att2  like CONCAT('%',#{sch_Att2,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt2_ !=  null and schAtt2_ !=  ''   ">
+			and att2  like CONCAT(#{schAtt2_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att2Start !=  null and att2End!= null  ">
+			and att2 between #{att2Start,jdbcType=VARCHAR} and #{att2End,jdbcType=VARCHAR}
+		 </if>
+		<if test="numa1 !=  null  ">			and numa1  = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2 !=  null  ">			and numa2  = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark !=  null and remark !=  ''   "> and remark  = #{remark,jdbcType=VARCHAR} </if>		<if test="sch_Remark_ !=  null and sch_Remark_ !=  ''   ">
+			and remark  like CONCAT(CONCAT('%',#{sch_Remark_,jdbcType=VARCHAR}),'%')
+		 </if>		<if test="sch_Remark !=  null and sch_Remark !=  ''   ">
+			and remark  like CONCAT('%',#{sch_Remark,jdbcType=VARCHAR})
+		 </if>		<if test="schRemark_ !=  null and schRemark_ !=  ''   ">
+			and remark  like CONCAT(#{schRemark_,jdbcType=VARCHAR},'%')
+		 </if>		<if test="remarkStart !=  null and remarkEnd!= null  ">
+			and remark between #{remarkStart,jdbcType=VARCHAR} and #{remarkEnd,jdbcType=VARCHAR}
+		 </if>
+	</select>
+	
+		<select id="findCount" resultType="int"
+		parameterType="com.nork.pay.model.search.PayRefundSearch">
+		select count(*)
+		from pay_refund
+		where 1=1
+		<if test="userId !=  null  "> and user_id  = #{userId,jdbcType=INTEGER} </if>
+		<if test="beginDate!=null and beginDate!=''">
+		<![CDATA[
+			  and DATE_FORMAT(order_date, '%Y-%m-%d') >=  DATE_FORMAT(#{beginDate}, '%Y-%m-%d')
+		]]>
+		</if>
+	    <if test="endDate!=null and endDate!=''">
+		<![CDATA[
+			  and DATE_FORMAT(order_date, '%Y-%m-%d') >=  DATE_FORMAT(#{endDate}, '%Y-%m-%d')
+		]]>
+		</if>
+	</select>
+	
+	<!-- 分页查询 ,可在PayRefundSearch中自定义查询条件-->
+		<select id="findList" resultMap="tResultMap"
+		parameterType="com.nork.pay.model.search.PayRefundSearch">
+		select
+		<include refid="All_Column_List" />
+	    from pay_refund where 1=1 	
+		<if test="userId !=  null  "> and user_id  = #{userId,jdbcType=INTEGER} </if>
+		<if test="beginDate!=null and beginDate!=''">
+		<![CDATA[
+			  and DATE_FORMAT(order_date, '%Y-%m-%d') >=  DATE_FORMAT(#{beginDate}, '%Y-%m-%d')
+		]]>
+		</if>
+	    <if test="endDate!=null and endDate!=''">
+		<![CDATA[
+			  and DATE_FORMAT(order_date, '%Y-%m-%d') >=  DATE_FORMAT(#{endDate}, '%Y-%m-%d')
+		]]>
+		</if>
+		<if test="orders != null and  orders !=''  ">  order by #{orders}</if>
+		<if test="order == null and  orders == null ">  order by id desc</if>
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+	<select id="selectPaginatedList" resultMap="AllResultMap"
+		parameterType="com.nork.pay.model.search.PayRefundSearch">
+		select
+		<include refid="All_Column_List" />
+	    from pay_refund
+		where 1=1	
+		<if test="orderId !=  null  ">			and order_id  = #{orderId,jdbcType=INTEGER} </if>
+		<if test="userId !=  null  ">			and user_id  = #{userId,jdbcType=INTEGER} </if>
+		<if test="refId !=  null and refId !=  ''   "> and ref_id  = #{refId,jdbcType=VARCHAR} </if>
+		<if test="sch_RefId_ !=  null and sch_RefId_ !=  ''   ">
+			and ref_id  like CONCAT(CONCAT('%',#{sch_RefId_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RefId !=  null and sch_RefId !=  ''   ">
+			and ref_id  like CONCAT('%',#{sch_RefId,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRefId_ !=  null and schRefId_ !=  ''   ">
+			and ref_id  like CONCAT(#{schRefId_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="refIdStart !=  null and refIdEnd!= null  ">
+			and ref_id between #{refIdStart,jdbcType=VARCHAR} and #{refIdEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="refundNo !=  null and refundNo !=  ''   "> and refund_no  = #{refundNo,jdbcType=VARCHAR} </if>
+		<if test="sch_RefundNo_ !=  null and sch_RefundNo_ !=  ''   ">
+			and refund_no  like CONCAT(CONCAT('%',#{sch_RefundNo_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RefundNo !=  null and sch_RefundNo !=  ''   ">
+			and refund_no  like CONCAT('%',#{sch_RefundNo,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRefundNo_ !=  null and schRefundNo_ !=  ''   ">
+			and refund_no  like CONCAT(#{schRefundNo_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="refundNoStart !=  null and refundNoEnd!= null  ">
+			and refund_no between #{refundNoStart,jdbcType=VARCHAR} and #{refundNoEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="totalFee !=  null  ">			and total_fee  = #{totalFee,jdbcType=INTEGER} </if>
+		<if test="refundReason !=  null and refundReason !=  ''   "> and refund_reason  = #{refundReason,jdbcType=VARCHAR} </if>
+		<if test="sch_RefundReason_ !=  null and sch_RefundReason_ !=  ''   ">
+			and refund_reason  like CONCAT(CONCAT('%',#{sch_RefundReason_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RefundReason !=  null and sch_RefundReason !=  ''   ">
+			and refund_reason  like CONCAT('%',#{sch_RefundReason,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRefundReason_ !=  null and schRefundReason_ !=  ''   ">
+			and refund_reason  like CONCAT(#{schRefundReason_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="refundReasonStart !=  null and refundReasonEnd!= null  ">
+			and refund_reason between #{refundReasonStart,jdbcType=VARCHAR} and #{refundReasonEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="refundState !=  null and refundState !=  ''   "> and refund_state  = #{refundState,jdbcType=VARCHAR} </if>
+		<if test="sch_RefundState_ !=  null and sch_RefundState_ !=  ''   ">
+			and refund_state  like CONCAT(CONCAT('%',#{sch_RefundState_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RefundState !=  null and sch_RefundState !=  ''   ">
+			and refund_state  like CONCAT('%',#{sch_RefundState,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRefundState_ !=  null and schRefundState_ !=  ''   ">
+			and refund_state  like CONCAT(#{schRefundState_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="refundStateStart !=  null and refundStateEnd!= null  ">
+			and refund_state between #{refundStateStart,jdbcType=VARCHAR} and #{refundStateEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="auditState !=  null  ">			and audit_state  = #{auditState,jdbcType=INTEGER} </if>
+		<if test="auditOpinion !=  null and auditOpinion !=  ''   "> and audit_opinion  = #{auditOpinion,jdbcType=VARCHAR} </if>
+		<if test="sch_AuditOpinion_ !=  null and sch_AuditOpinion_ !=  ''   ">
+			and audit_opinion  like CONCAT(CONCAT('%',#{sch_AuditOpinion_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_AuditOpinion !=  null and sch_AuditOpinion !=  ''   ">
+			and audit_opinion  like CONCAT('%',#{sch_AuditOpinion,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAuditOpinion_ !=  null and schAuditOpinion_ !=  ''   ">
+			and audit_opinion  like CONCAT(#{schAuditOpinion_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="auditOpinionStart !=  null and auditOpinionEnd!= null  ">
+			and audit_opinion between #{auditOpinionStart,jdbcType=VARCHAR} and #{auditOpinionEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="resultDetails !=  null and resultDetails !=  ''   "> and result_details  = #{resultDetails,jdbcType=VARCHAR} </if>
+		<if test="sch_ResultDetails_ !=  null and sch_ResultDetails_ !=  ''   ">
+			and result_details  like CONCAT(CONCAT('%',#{sch_ResultDetails_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_ResultDetails !=  null and sch_ResultDetails !=  ''   ">
+			and result_details  like CONCAT('%',#{sch_ResultDetails,jdbcType=VARCHAR})
+		 </if>
+		<if test="schResultDetails_ !=  null and schResultDetails_ !=  ''   ">
+			and result_details  like CONCAT(#{schResultDetails_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="resultDetailsStart !=  null and resultDetailsEnd!= null  ">
+			and result_details between #{resultDetailsStart,jdbcType=VARCHAR} and #{resultDetailsEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="refundDate !=  null  ">
+			and refund_date  = #{refundDate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="refundDateStart !=  null and refundDateEnd!= null  ">
+			and refund_date between #{refundDateStart,jdbcType=TIMESTAMP} and #{refundDateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="sysCode !=  null and sysCode !=  ''   "> and sys_code  = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+			and sys_code  like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+			and sys_code  like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+			and sys_code  like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+			and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="creator !=  null and creator !=  ''   "> and creator  = #{creator,jdbcType=VARCHAR} </if>
+		<if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+			and creator  like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+			and creator  like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+			and creator  like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="creatorStart !=  null and creatorEnd!= null  ">
+			and creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtCreate !=  null  ">
+			and gmt_create  = #{gmtCreate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="modifier !=  null and modifier !=  ''   "> and modifier  = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and modifier  like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and modifier  like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		 </if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and modifier  like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtModified !=  null  ">
+			and gmt_modified  = #{gmtModified,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="isDeleted !=  null  ">			and is_deleted  = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1 !=  null and att1 !=  ''   "> and att1  = #{att1,jdbcType=VARCHAR} </if>
+		<if test="sch_Att1_ !=  null and sch_Att1_ !=  ''   ">
+			and att1  like CONCAT(CONCAT('%',#{sch_Att1_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att1 !=  null and sch_Att1 !=  ''   ">
+			and att1  like CONCAT('%',#{sch_Att1,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt1_ !=  null and schAtt1_ !=  ''   ">
+			and att1  like CONCAT(#{schAtt1_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att1Start !=  null and att1End!= null  ">
+			and att1 between #{att1Start,jdbcType=VARCHAR} and #{att1End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att2 !=  null and att2 !=  ''   "> and att2  = #{att2,jdbcType=VARCHAR} </if>
+		<if test="sch_Att2_ !=  null and sch_Att2_ !=  ''   ">
+			and att2  like CONCAT(CONCAT('%',#{sch_Att2_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att2 !=  null and sch_Att2 !=  ''   ">
+			and att2  like CONCAT('%',#{sch_Att2,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt2_ !=  null and schAtt2_ !=  ''   ">
+			and att2  like CONCAT(#{schAtt2_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att2Start !=  null and att2End!= null  ">
+			and att2 between #{att2Start,jdbcType=VARCHAR} and #{att2End,jdbcType=VARCHAR}
+		 </if>
+		<if test="numa1 !=  null  ">			and numa1  = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2 !=  null  ">			and numa2  = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark !=  null and remark !=  ''   "> and remark  = #{remark,jdbcType=VARCHAR} </if>		<if test="sch_Remark_ !=  null and sch_Remark_ !=  ''   ">
+			and remark  like CONCAT(CONCAT('%',#{sch_Remark_,jdbcType=VARCHAR}),'%')
+		 </if>		<if test="sch_Remark !=  null and sch_Remark !=  ''   ">
+			and remark  like CONCAT('%',#{sch_Remark,jdbcType=VARCHAR})
+		 </if>		<if test="schRemark_ !=  null and schRemark_ !=  ''   ">
+			and remark  like CONCAT(#{schRemark_,jdbcType=VARCHAR},'%')
+		 </if>		<if test="remarkStart !=  null and remarkEnd!= null  ">
+			and remark between #{remarkStart,jdbcType=VARCHAR} and #{remarkEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order} <if test="orderNum != null and  orderNum !='' ">${orderNum}</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">  order by #{orders}</if>
+		<if test="order == null and  orders == null ">  order by id desc</if>
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+
+    <!-- 其他Map等查询方式 -->
+    
+     <!-- end-->
+</mapper>

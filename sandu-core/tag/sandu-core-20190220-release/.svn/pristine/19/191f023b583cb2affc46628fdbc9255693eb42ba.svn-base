@@ -1,0 +1,847 @@
+package com.sandu.api.base.model;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+
+public class SysUser implements Serializable {
+    private Long id;
+
+    private String userName;
+
+    private String nickName;
+
+    private String mobile;
+
+    private String password;
+
+    private String email;
+
+    private Integer userType;
+
+    private Integer sex;
+
+    private String job;
+
+    private Integer areaId;
+
+    private Integer picId;
+
+    private Integer mediaType;
+
+    private String sysCode;
+
+    private String creator;
+
+    private Date gmtCreate;
+
+    private String modifier;
+
+    private Date gmtModified;
+
+    private Integer isDeleted;
+
+    private String appKey;
+
+    private String token;
+
+    private String att3;
+
+    private String att4;
+
+    private String att5;
+
+    private String att6;
+
+    private Date dateAtt1;
+
+    private Date dateAtt2;
+
+    private Integer groupId;
+
+    private Integer numAtt2;
+
+    private BigDecimal numAtt3;
+
+    private BigDecimal numAtt4;
+
+    private String remark;
+
+    private String realName;
+
+    private String qq;
+
+    private String companyTel;
+
+    private String companyAddress;
+
+    private String specialityValue;
+
+    private String intro;
+
+    private Integer emailVerifyState;
+
+    private Integer mobileVerifyState;
+
+    private Integer idcardVerifyState;
+
+    private Integer level;
+
+    private Date applicationDate;
+
+    private String verifyUser;
+
+    private Date verifyDate;
+
+    private String areaLongCode;
+
+    private String reasonRejected;
+
+    private String brandIds;
+
+    private String userImei;
+
+    private BigDecimal consumAmount;
+
+    private BigDecimal balanceAmount;
+
+    private String address;
+
+    private Integer networkCardRestrict;
+
+    private Integer existsMobile;
+
+    private Date mobileOpenedDate;
+
+    private Date mobileClosedDate;
+
+    private Integer usableHouseNumber;
+
+    private Integer visitorsRenderTimes;
+
+    private Integer businessAdministrationId;
+
+    private Integer companyId;
+
+    private Byte franchiserAccountType;
+
+    private Integer franchiserGroupId;
+
+    private Byte passwordUpdateFlag;
+
+    private Integer verifyFlag;
+
+    private Integer consumIntegral;
+
+    private Integer balanceIntegral;
+
+    private Integer postType;
+
+    private Long lastLoginCompanyId;
+
+    private Integer isLoginBefore;
+
+    private Integer platformType;
+
+    private String openId;
+
+    private String appId;
+
+    private Long miniProgramCompanyId;
+
+    private Date firstLoginTime;
+
+    private Integer useType;
+
+    private Integer validTime;
+
+    private Date failureTime;
+
+    private Byte servicesFlag;
+
+    private Byte userSource;
+
+    private Boolean showSanduPlan;
+
+    private String streetCode;
+
+    private String provinceCode;
+
+    private String cityCode;
+
+    private String areaCode;
+
+    private String uuid;
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName == null ? null : userName.trim();
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName == null ? null : nickName.trim();
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile == null ? null : mobile.trim();
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password == null ? null : password.trim();
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email == null ? null : email.trim();
+    }
+
+    public Integer getUserType() {
+        return userType;
+    }
+
+    public void setUserType(Integer userType) {
+        this.userType = userType;
+    }
+
+    public Integer getSex() {
+        return sex;
+    }
+
+    public void setSex(Integer sex) {
+        this.sex = sex;
+    }
+
+    public String getJob() {
+        return job;
+    }
+
+    public void setJob(String job) {
+        this.job = job == null ? null : job.trim();
+    }
+
+    public Integer getAreaId() {
+        return areaId;
+    }
+
+    public void setAreaId(Integer areaId) {
+        this.areaId = areaId;
+    }
+
+    public Integer getPicId() {
+        return picId;
+    }
+
+    public void setPicId(Integer picId) {
+        this.picId = picId;
+    }
+
+    public Integer getMediaType() {
+        return mediaType;
+    }
+
+    public void setMediaType(Integer mediaType) {
+        this.mediaType = mediaType;
+    }
+
+    public String getSysCode() {
+        return sysCode;
+    }
+
+    public void setSysCode(String sysCode) {
+        this.sysCode = sysCode == null ? null : sysCode.trim();
+    }
+
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator == null ? null : creator.trim();
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public String getModifier() {
+        return modifier;
+    }
+
+    public void setModifier(String modifier) {
+        this.modifier = modifier == null ? null : modifier.trim();
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public Integer getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public String getAppKey() {
+        return appKey;
+    }
+
+    public void setAppKey(String appKey) {
+        this.appKey = appKey == null ? null : appKey.trim();
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token == null ? null : token.trim();
+    }
+
+    public String getAtt3() {
+        return att3;
+    }
+
+    public void setAtt3(String att3) {
+        this.att3 = att3 == null ? null : att3.trim();
+    }
+
+    public String getAtt4() {
+        return att4;
+    }
+
+    public void setAtt4(String att4) {
+        this.att4 = att4 == null ? null : att4.trim();
+    }
+
+    public String getAtt5() {
+        return att5;
+    }
+
+    public void setAtt5(String att5) {
+        this.att5 = att5 == null ? null : att5.trim();
+    }
+
+    public String getAtt6() {
+        return att6;
+    }
+
+    public void setAtt6(String att6) {
+        this.att6 = att6 == null ? null : att6.trim();
+    }
+
+    public Date getDateAtt1() {
+        return dateAtt1;
+    }
+
+    public void setDateAtt1(Date dateAtt1) {
+        this.dateAtt1 = dateAtt1;
+    }
+
+    public Date getDateAtt2() {
+        return dateAtt2;
+    }
+
+    public void setDateAtt2(Date dateAtt2) {
+        this.dateAtt2 = dateAtt2;
+    }
+
+    public Integer getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(Integer groupId) {
+        this.groupId = groupId;
+    }
+
+    public Integer getNumAtt2() {
+        return numAtt2;
+    }
+
+    public void setNumAtt2(Integer numAtt2) {
+        this.numAtt2 = numAtt2;
+    }
+
+    public BigDecimal getNumAtt3() {
+        return numAtt3;
+    }
+
+    public void setNumAtt3(BigDecimal numAtt3) {
+        this.numAtt3 = numAtt3;
+    }
+
+    public BigDecimal getNumAtt4() {
+        return numAtt4;
+    }
+
+    public void setNumAtt4(BigDecimal numAtt4) {
+        this.numAtt4 = numAtt4;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark == null ? null : remark.trim();
+    }
+
+    public String getRealName() {
+        return realName;
+    }
+
+    public void setRealName(String realName) {
+        this.realName = realName == null ? null : realName.trim();
+    }
+
+    public String getQq() {
+        return qq;
+    }
+
+    public void setQq(String qq) {
+        this.qq = qq == null ? null : qq.trim();
+    }
+
+    public String getCompanyTel() {
+        return companyTel;
+    }
+
+    public void setCompanyTel(String companyTel) {
+        this.companyTel = companyTel == null ? null : companyTel.trim();
+    }
+
+    public String getCompanyAddress() {
+        return companyAddress;
+    }
+
+    public void setCompanyAddress(String companyAddress) {
+        this.companyAddress = companyAddress == null ? null : companyAddress.trim();
+    }
+
+    public String getSpecialityValue() {
+        return specialityValue;
+    }
+
+    public void setSpecialityValue(String specialityValue) {
+        this.specialityValue = specialityValue == null ? null : specialityValue.trim();
+    }
+
+    public String getIntro() {
+        return intro;
+    }
+
+    public void setIntro(String intro) {
+        this.intro = intro == null ? null : intro.trim();
+    }
+
+    public Integer getEmailVerifyState() {
+        return emailVerifyState;
+    }
+
+    public void setEmailVerifyState(Integer emailVerifyState) {
+        this.emailVerifyState = emailVerifyState;
+    }
+
+    public Integer getMobileVerifyState() {
+        return mobileVerifyState;
+    }
+
+    public void setMobileVerifyState(Integer mobileVerifyState) {
+        this.mobileVerifyState = mobileVerifyState;
+    }
+
+    public Integer getIdcardVerifyState() {
+        return idcardVerifyState;
+    }
+
+    public void setIdcardVerifyState(Integer idcardVerifyState) {
+        this.idcardVerifyState = idcardVerifyState;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
+
+    public Date getApplicationDate() {
+        return applicationDate;
+    }
+
+    public void setApplicationDate(Date applicationDate) {
+        this.applicationDate = applicationDate;
+    }
+
+    public String getVerifyUser() {
+        return verifyUser;
+    }
+
+    public void setVerifyUser(String verifyUser) {
+        this.verifyUser = verifyUser == null ? null : verifyUser.trim();
+    }
+
+    public Date getVerifyDate() {
+        return verifyDate;
+    }
+
+    public void setVerifyDate(Date verifyDate) {
+        this.verifyDate = verifyDate;
+    }
+
+    public String getAreaLongCode() {
+        return areaLongCode;
+    }
+
+    public void setAreaLongCode(String areaLongCode) {
+        this.areaLongCode = areaLongCode == null ? null : areaLongCode.trim();
+    }
+
+    public String getReasonRejected() {
+        return reasonRejected;
+    }
+
+    public void setReasonRejected(String reasonRejected) {
+        this.reasonRejected = reasonRejected == null ? null : reasonRejected.trim();
+    }
+
+    public String getBrandIds() {
+        return brandIds;
+    }
+
+    public void setBrandIds(String brandIds) {
+        this.brandIds = brandIds == null ? null : brandIds.trim();
+    }
+
+    public String getUserImei() {
+        return userImei;
+    }
+
+    public void setUserImei(String userImei) {
+        this.userImei = userImei == null ? null : userImei.trim();
+    }
+
+    public BigDecimal getConsumAmount() {
+        return consumAmount;
+    }
+
+    public void setConsumAmount(BigDecimal consumAmount) {
+        this.consumAmount = consumAmount;
+    }
+
+    public BigDecimal getBalanceAmount() {
+        return balanceAmount;
+    }
+
+    public void setBalanceAmount(BigDecimal balanceAmount) {
+        this.balanceAmount = balanceAmount;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address == null ? null : address.trim();
+    }
+
+    public Integer getNetworkCardRestrict() {
+        return networkCardRestrict;
+    }
+
+    public void setNetworkCardRestrict(Integer networkCardRestrict) {
+        this.networkCardRestrict = networkCardRestrict;
+    }
+
+    public Integer getExistsMobile() {
+        return existsMobile;
+    }
+
+    public void setExistsMobile(Integer existsMobile) {
+        this.existsMobile = existsMobile;
+    }
+
+    public Date getMobileOpenedDate() {
+        return mobileOpenedDate;
+    }
+
+    public void setMobileOpenedDate(Date mobileOpenedDate) {
+        this.mobileOpenedDate = mobileOpenedDate;
+    }
+
+    public Date getMobileClosedDate() {
+        return mobileClosedDate;
+    }
+
+    public void setMobileClosedDate(Date mobileClosedDate) {
+        this.mobileClosedDate = mobileClosedDate;
+    }
+
+    public Integer getUsableHouseNumber() {
+        return usableHouseNumber;
+    }
+
+    public void setUsableHouseNumber(Integer usableHouseNumber) {
+        this.usableHouseNumber = usableHouseNumber;
+    }
+
+    public Integer getVisitorsRenderTimes() {
+        return visitorsRenderTimes;
+    }
+
+    public void setVisitorsRenderTimes(Integer visitorsRenderTimes) {
+        this.visitorsRenderTimes = visitorsRenderTimes;
+    }
+
+    public Integer getBusinessAdministrationId() {
+        return businessAdministrationId;
+    }
+
+    public void setBusinessAdministrationId(Integer businessAdministrationId) {
+        this.businessAdministrationId = businessAdministrationId;
+    }
+
+    public Integer getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(Integer companyId) {
+        this.companyId = companyId;
+    }
+
+    public Byte getFranchiserAccountType() {
+        return franchiserAccountType;
+    }
+
+    public void setFranchiserAccountType(Byte franchiserAccountType) {
+        this.franchiserAccountType = franchiserAccountType;
+    }
+
+    public Integer getFranchiserGroupId() {
+        return franchiserGroupId;
+    }
+
+    public void setFranchiserGroupId(Integer franchiserGroupId) {
+        this.franchiserGroupId = franchiserGroupId;
+    }
+
+    public Byte getPasswordUpdateFlag() {
+        return passwordUpdateFlag;
+    }
+
+    public void setPasswordUpdateFlag(Byte passwordUpdateFlag) {
+        this.passwordUpdateFlag = passwordUpdateFlag;
+    }
+
+    public Integer getVerifyFlag() {
+        return verifyFlag;
+    }
+
+    public void setVerifyFlag(Integer verifyFlag) {
+        this.verifyFlag = verifyFlag;
+    }
+
+    public Integer getConsumIntegral() {
+        return consumIntegral;
+    }
+
+    public void setConsumIntegral(Integer consumIntegral) {
+        this.consumIntegral = consumIntegral;
+    }
+
+    public Integer getBalanceIntegral() {
+        return balanceIntegral;
+    }
+
+    public void setBalanceIntegral(Integer balanceIntegral) {
+        this.balanceIntegral = balanceIntegral;
+    }
+
+    public Integer getPostType() {
+        return postType;
+    }
+
+    public void setPostType(Integer postType) {
+        this.postType = postType;
+    }
+
+    public Long getLastLoginCompanyId() {
+        return lastLoginCompanyId;
+    }
+
+    public void setLastLoginCompanyId(Long lastLoginCompanyId) {
+        this.lastLoginCompanyId = lastLoginCompanyId;
+    }
+
+    public Integer getIsLoginBefore() {
+        return isLoginBefore;
+    }
+
+    public void setIsLoginBefore(Integer isLoginBefore) {
+        this.isLoginBefore = isLoginBefore;
+    }
+
+    public Integer getPlatformType() {
+        return platformType;
+    }
+
+    public void setPlatformType(Integer platformType) {
+        this.platformType = platformType;
+    }
+
+    public String getOpenId() {
+        return openId;
+    }
+
+    public void setOpenId(String openId) {
+        this.openId = openId == null ? null : openId.trim();
+    }
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId == null ? null : appId.trim();
+    }
+
+    public Long getMiniProgramCompanyId() {
+        return miniProgramCompanyId;
+    }
+
+    public void setMiniProgramCompanyId(Long miniProgramCompanyId) {
+        this.miniProgramCompanyId = miniProgramCompanyId;
+    }
+
+    public Date getFirstLoginTime() {
+        return firstLoginTime;
+    }
+
+    public void setFirstLoginTime(Date firstLoginTime) {
+        this.firstLoginTime = firstLoginTime;
+    }
+
+    public Integer getUseType() {
+        return useType;
+    }
+
+    public void setUseType(Integer useType) {
+        this.useType = useType;
+    }
+
+    public Integer getValidTime() {
+        return validTime;
+    }
+
+    public void setValidTime(Integer validTime) {
+        this.validTime = validTime;
+    }
+
+    public Date getFailureTime() {
+        return failureTime;
+    }
+
+    public void setFailureTime(Date failureTime) {
+        this.failureTime = failureTime;
+    }
+
+    public Byte getServicesFlag() {
+        return servicesFlag;
+    }
+
+    public void setServicesFlag(Byte servicesFlag) {
+        this.servicesFlag = servicesFlag;
+    }
+
+    public Byte getUserSource() {
+        return userSource;
+    }
+
+    public void setUserSource(Byte userSource) {
+        this.userSource = userSource;
+    }
+
+    public Boolean getShowSanduPlan() {
+        return showSanduPlan;
+    }
+
+    public void setShowSanduPlan(Boolean showSanduPlan) {
+        this.showSanduPlan = showSanduPlan;
+    }
+
+    public String getStreetCode() {
+        return streetCode;
+    }
+
+    public void setStreetCode(String streetCode) {
+        this.streetCode = streetCode == null ? null : streetCode.trim();
+    }
+
+    public String getProvinceCode() {
+        return provinceCode;
+    }
+
+    public void setProvinceCode(String provinceCode) {
+        this.provinceCode = provinceCode == null ? null : provinceCode.trim();
+    }
+
+    public String getCityCode() {
+        return cityCode;
+    }
+
+    public void setCityCode(String cityCode) {
+        this.cityCode = cityCode == null ? null : cityCode.trim();
+    }
+
+    public String getAreaCode() {
+        return areaCode;
+    }
+
+    public void setAreaCode(String areaCode) {
+        this.areaCode = areaCode == null ? null : areaCode.trim();
+    }
+}

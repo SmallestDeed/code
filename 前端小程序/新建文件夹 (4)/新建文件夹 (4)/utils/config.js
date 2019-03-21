@@ -1,0 +1,49 @@
+
+
+export const resourcePath = 'https://show.ci.sanduspace.com'; // 资源路径
+// export const sevenUrl = 'https://720.ci.sanduspace.com/v-seven.html#/?' // 720H5链接地址
+export const sevenUrl = 'http://192.168.2.199:8080/v-seven.html#/?' // 720H5链接地址
+export const wholeHouseUrl = 'http://192.168.2.199:8080/v-seven-make.html#/?' // 全屋链接地址
+export const wholeHouse3dUrl = 'http://192.168.2.199:8080/v-seven-house.html#/?' // 全屋链接地址
+export const defaultImg = '/static/image/home_pic_no.png'
+export const basePath = { // 根源路径
+  productSearchUrl: 'https://productsearch.ci.sanduspace.com/app', // 产品搜索服务
+  renderUrl: 'https://render.ci.sanduspace.com/app', // 渲染服务
+  payUrl: 'https://zhifu.ci.sanduspace.com/v1', // 集成支付服务
+  baseUrl: 'https://wxapi.ci.sanduspace.com/v1/miniprogram', // 其余服务
+  limitUrl: 'https://sso.ci.sanduspace.com/v1/', // 登录服务,
+  shopUrl:'https://shopapi.ci.sanduspace.com/v1/',// 店铺服务,
+  systemUrl:'https://system.ci.sanduspace.com/v1/',// system服务,
+  brandUrl:'https://brandapi.ci.sanduspace.com/v1/',//品牌服务,
+  unionUrl:'https://unionapi.ci.sanduspace.com/v1/',
+  coreUrl:'https://core.ci.sanduspace.com/v1/',
+  fullsearchUrl: "https://fullsearch.ci.sanduspace.com", // 全文搜索服务
+  userUrl: 'https://uc.ci.sanduspace.com', // 用户中心      
+  userMessageUrl: 'https://im.ci.sanduspace.com/v1', // 获取聊天消息
+  userChatUrl: 'https://imwebsocket.ci.sanduspace.com', // 实时通讯
+  elseUrl: ''
+};
+
+
+
+// export const resourcePath = 'https://show.sanduspace.com'; // 资源路径
+// export const sevenUrl = 'https://720.sanduspace.com/v-seven.html#/?' // 720H5链接地址
+// export const wholeHouseUrl = 'https://720.sanduspace.com/v-seven-make.html#/?'
+// export const defaultImg = '/static/image/home_pic_no.png'
+// export const basePath = { // 根源路径
+//     productSearchUrl: 'https://productsearch.sanduspace.com/app', // 产品搜索服务
+//     renderUrl: 'https://render.sanduspace.com/app', // 渲染服务
+//     payUrl: 'https://zhifu.sanduspace.com/v1', // 集成支付服务
+//     baseUrl: 'https://wxapi.sanduspace.com/v1/miniprogram', // 其余服务
+//     limitUrl: 'https://sso.sanduspace.com/v1/', // 登录服务,
+//     shopUrl: 'https://shopapi.sanduspace.com/v1/',// 店铺服务,
+//     systemUrl: 'https://system.sanduspace.com/v1/',// system服务,
+//     brandUrl: 'https://brandapi.sanduspace.com/v1/',// 品牌服务,
+//     unionUrl: 'https://unionapi.sanduspace.com/v1/',
+//     coreUrl: 'https://core.sanduspace.com/v1/',
+//     fullsearchUrl: "https://fullsearch.sanduspace.com", // 全文搜索服务
+//     userUrl: 'https://uc.sanduspace.com', // 用户中心.    
+//     userMessageUrl: 'https://im.sanduspace.com/v1', // 获取聊天消息
+//     userChatUrl: 'https://imwebsocket.sanduspace.com', // 实时通讯
+//     elseUrl: ''
+// };

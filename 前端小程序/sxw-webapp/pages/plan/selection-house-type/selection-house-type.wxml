@@ -1,0 +1,100 @@
+<!--pages/plan/selection-house-type/selection-house-type.wxml-->
+<!--根据type值返回描述文字和链接  -->
+<view class='selection-house-type'>
+  <!-- 头部 -->
+  <view class="header">
+    <view class="{{type=='myHouse'?'header_title header_active':'header_title'}}">
+      <text class="txt" bindtap='changeType' data-type='myHouse'>我的户型</text>
+    </view>
+    <view class="header_xian"></view>
+    <view class="{{type=='collectHouse'?'header_title header_active':'header_title'}}">
+      <text class="txt" bindtap='changeType' data-type='collectHouse'>我收藏的户型</text>
+    </view>
+  </view>
+  <!-- 收藏的tab栏 -->
+  <!-- <view class='collectPlanTop clearfix' wx:if="{{type=='collectHouse'}}">
+    <view class='space_type fl {{conditionActive == 0? "active" : ""}}' data-index='{{0}}' bindtap='switchCondition'>
+      <!-- {{spaceList[childConditionActive[0]].houseName}}
+      空间类型
+      <image src='{{conditionActive == 0? staticImageUrl+"choose_icon_up@2x.png" : staticImageUrl+"choose_icon_down@2x.png"}}'></image>
+    </view>
+    <view class='space_area fl {{conditionActive == 1? "active" : ""}}' data-index='{{1}}' bindtap='switchCondition'>
+      <!-- {{childConditionActive[1] == -1?'面积': areaList[childConditionActive[1]].areaName + 'm²'}}
+      空间面积
+      <image src='{{conditionActive == 1? staticImageUrl+"choose_icon_up@2x.png" : staticImageUrl+"choose_icon_down@2x.png"}}'></image>
+    </view>
+    <view class='space_style fl {{conditionActive == 2? "active" : ""}}' data-index='{{2}}' bindtap='switchCondition'>
+      <!-- {{childConditionActive[2] == -1?'风格': styleList[childConditionActive[2]].styleName}}
+      装修风格
+      <image src='{{conditionActive == 2? staticImageUrl+"choose_icon_up@2x.png" : staticImageUrl+"choose_icon_down@2x.png"}}'></image>
+    </view>
+  </view> -->
+  <!-- 收藏的tab内容
+  <view class='case-condition' wx:if='{{conditionActive >= 0 && type=="collectHouses"}}' bindtap='closeCaseCondition'>
+    <view class='condition-box clearfix' wx:if='{{conditionActive == 0}}'>
+      <view class='single-box fl {{childConditionActive[0] == index?"condition-box-active": ""}}' wx:for='{{spaceList}}' wx:key='{{index}}' bindtap='chooseCondition' data-indexP='{{0}}' data-indexC='{{index}}' data-code='{{item.houseType}}'>
+        {{item.houseName}}
+        客餐厅 
+      </view>
+    </view>
+    <view class='condition-box clearfix' wx:if='{{conditionActive == 1}}'>
+      <view class='single-box fl {{childConditionActive[1] == -1?"condition-box-active": ""}}' data-indexP='{{1}}' data-indexC='{{-1}}' bindtap='chooseCondition' data-code='""'>
+        全部
+      </view>
+      <view class='single-box fl {{childConditionActive[1] == index?"condition-box-active": ""}}' wx:for='{{areaList}}' data-indexP='{{1}}' data-indexC='{{index}}' bindtap='chooseCondition' wx:key='{{index}}' data-code='{{item.areaId}}'>
+        {{item.areaName}}m²
+      </view>
+    </view>
+    <view class='condition-box clearfix' wx:if='{{conditionActive == 2}}'>
+      <view class='single-box fl {{childConditionActive[2] == -1?"condition-box-active": ""}}' data-indexP='{{2}}' data-indexC='{{-1}}' bindtap='chooseCondition' data-code='""'>
+        全部
+      </view>
+      <view class='single-box fl {{childConditionActive[2] == index?"condition-box-active": ""}}' wx:for='{{styleList}}' wx:key='{{index}}' data-indexP='{{2}}' bindtap='chooseCondition' data-indexC='{{index}}' data-code='{{item.styleCode}}'>
+        {{item.styleName}}
+      </view>
+    </view>
+  </view> -->
+  <!-- 户型列表 -->
+  <block wx:if="{{type=='myHouse'}}">
+    <view class="list" wx:if="{{useList.length>0}}">
+      <view class="list-item" wx:for="{{useList}}" wx:key='{{index}}' data-key='{{index}}'>
+        <view class="item-img">
+          <image class='checkBtn' src='{{staticImageUrl+(isCheck==index?"choose_icon_sct.png":"choose_icon_nor.png")}}' data-type='myHouse' catchtap='switchCheck' data-index="{{index}}"></image>
+          <image catchtap='examineImg' data-index="{{index}}" src="{{item.thumbnailPath? resourcePath + item.thumbnailPath : staticImageUrl+'design_def.png'}}"></image>
+        </view>
+        <view class="bottom-box">
+          <view class="left">
+            <view class="name ellipsis fl">{{item.houseCommonCode}}</view>
+            <view class="date ellipsis fr">{{item.houseTypeStr}} {{item.totalArea}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+  <!-- 收藏户型列表 -->
+  <block wx:if="{{type=='collectHouse'}}">
+    <view class="listTop" wx:if="{{useList.length>0}}">
+      <view class="list-item" wx:for="{{useList}}" wx:key='{{index}}' bindtap='cancelFlag' data-key='{{index}}'>
+        <view class="item-img">
+          <image class='checkBtn' data-type='collectHouse' src='{{staticImageUrl+(isCheck==index?"choose_icon_sct.png":"choose_icon_nor.png")}}' catchtap='switchCheck' data-index="{{index}}"></image>
+          <image catchtap='examineImg' data-index="{{index}}" src="{{item.thumbnailPath? resourcePath + item.thumbnailPath : staticImageUrl+'design_def.png'}}"></image>
+        </view>
+        <view class="bottom-box">
+          <view class="left">
+            <view class="name ellipsis fl">{{item.houseName}}</view>
+            <view class="date ellipsis fr">{{item.houseTypeStr}} {{item.totalArea}}㎡</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 确定按钮 -->
+  <view class='confirm' wx:if="{{useList.length>0}}">
+    <button class='confirmBtn' bindtap='confirmBtn'>确定</button>
+  </view>
+</view>
+<empty-page emptyPageObj="{{emptyPageObj}}" btnHiden="{{true}}" wx:if="{{!useList.length>0}}"></empty-page>
+<!-- 快速导航模块 -->
+<import src="/component/newNav/newNav.wxml" />
+<template is="newNav" data="{{ ...newNav }}" />

@@ -1,0 +1,42 @@
+package com.sandu.service.springFestivalActivity.impl;
+
+import com.github.pagehelper.PageHelper;
+import com.sandu.api.springFestivalActivity.model.WxFilmTicket;
+import com.sandu.api.springFestivalActivity.service.WxFilmTicketService;
+import com.sandu.api.user.model.SysUser;
+import com.sandu.service.springFestivalActivity.dao.WxFilmTicketMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service("wxFilmTicketService")
+public class WxFilmTicketServiceImpl implements WxFilmTicketService {
+    @Autowired
+    private WxFilmTicketMapper wxFilmTicketMapper;
+
+    @Override
+    public WxFilmTicket getEmptyTicket(Long activityId) {
+        return wxFilmTicketMapper.getEmptyTicket(activityId);
+    }
+
+    @Override
+    public List<WxFilmTicket> getNotEmptyTicketList(Long activityId, Integer start,Integer limit) {
+        return wxFilmTicketMapper.getNotEmptyTicketList(activityId, start, limit);
+    }
+
+    @Override
+    public int insertSelective(WxFilmTicket record) {
+        return wxFilmTicketMapper.insertSelective(record);
+    }
+
+    @Override
+    public int updateByPrimaryKeySelective(WxFilmTicket record) {
+        return wxFilmTicketMapper.updateByPrimaryKeySelective(record);
+    }
+
+    @Override
+    public List<WxFilmTicket> selectSelective(WxFilmTicket record) {
+        return wxFilmTicketMapper.selectSelective(record);
+    }
+}

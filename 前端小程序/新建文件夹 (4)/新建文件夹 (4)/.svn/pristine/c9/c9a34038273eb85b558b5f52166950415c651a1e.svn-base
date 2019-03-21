@@ -1,0 +1,32 @@
+<!--pages/decoration/supplyDetail/supplyDetail.wxml-->
+<empty-page emptyPageObj="{{emptyPageObj}}" wx:if="{{!siShowDetail}}"></empty-page>
+<view wx:if="{{siShowDetail}}">
+  <view class="tilie">
+    <image class="tilie-icon" src='{{detail.typeName=="供应"?supplyIcon:demandIcon}}'></image>
+    {{detail.title}}
+  </view>
+  <view class="announce-info">
+      <view class="time">
+        浏览 <view>{{detail.viewNum}}</view><view class="separation"></view><view>{{detail.gmtModified}}发布</view>
+      </view>
+      <view class="site">{{detail.cityAddress+detail.districtAddress+detail.address}}</view>
+      <view class="name">
+        <image  class="nickname" 
+          src='{{detail.userHeadPic?resourcePath+detail.userHeadPic:"/static/image/index.png"}}'></image>
+          <view>{{detail.userName}}</view>
+      </view>
+      <view class="message">{{detail.description}}</view>
+      <image class="message-img" 
+        mode="widthFix"
+        wx:for='{{detail.supplyDemandPicList}}' 
+        wx:key='{{index}}' 
+        src="{{resourcePath+item.picPath}}"></image>
+  </view>
+  <view class="btn-box" wx:if="{{mold == '发布'}}">
+    <!-- <view class="contact-btn" wx:if="{{mold == '供求'}}">在线联系</view> -->
+    <view class="btn" bindtap='goEdit' >
+      <image src="/static/image/redact.png"></image>
+      <view class="btn-text">编辑</view>
+    </view>
+  </view>
+</view>

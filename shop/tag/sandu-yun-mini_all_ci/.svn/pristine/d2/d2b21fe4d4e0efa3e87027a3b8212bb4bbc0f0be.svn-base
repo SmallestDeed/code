@@ -1,0 +1,269 @@
+package com.sandu.company.model.query;
+
+import java.math.BigInteger;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sandu.base.model.query.BaseQuery;
+import com.sandu.matadata.enums.SortType;
+
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+/**
+ * 门店查询条件
+ * 
+ * @author zhangbin
+ *
+ */
+@Data
+public class CompanyShopQuery extends BaseQuery<CompanyShopQuery> {
+	private static final long serialVersionUID = 798484153986262764L;
+	@ApiModelProperty(value = "公司ID")
+	private BigInteger companyId;
+	@ApiModelProperty(value = "公司名称")
+	private String companyName;
+	/***
+	 * 店铺所属公司的服务类型 1:品牌商家 2:（建材家居）代理商/经销商 3:设计师 4:设计公司 5:装修公司
+	 */
+	@ApiModelProperty(value = "店铺所属公司的服务类型")
+	private Integer businessType;
+	@ApiModelProperty(value = "一级分类ID集合")
+	private String firstCategoryIds;
+	@ApiModelProperty(value = "二级分类ID集合")
+	private String categoryIds;
+	/***
+	 * 平台类别 1:企业小程序 2:选装网 3:同城联盟
+	 */
+	@ApiModelProperty(value = "平台类别")
+	private Integer platformType;
+	@ApiModelProperty(value = "店铺名称")
+	private String shopName;
+	@ApiModelProperty(value = "省编码")
+	private String provinceCode;
+	@ApiModelProperty(value = "市编码")
+	private String cityCode;
+	@ApiModelProperty(value = "区编码")
+	private String areaCode;
+	@ApiModelProperty(value = "街道编码")
+	private String streetCode;
+	@ApiModelProperty(value = "排序SQL")
+	private String orderBySql;
+	@ApiModelProperty(value = "平台编码")
+	private String platformCode;
+	@ApiModelProperty(value = "显示类型")
+	private String displayType;
+	@ApiModelProperty(value = "经度值")
+	private String longitude;
+	@ApiModelProperty(value = "纬度值")
+	private String latitude;
+
+	private Integer userType;
+
+	@ApiModelProperty(value = "设计最低价格")
+	private Double designFeeStarting;
+	@ApiModelProperty(value = "设计最高价格")
+	private Double designFeeEnding;
+
+	@ApiModelProperty(value = "装修报价")
+	private Double decorationPriceStart;
+	private Double decorationPriceEnd;
+	@ApiModelProperty("装修方式:0.半包,1.全包")
+	private Integer decorationType;
+
+	@ApiModelProperty("用户类型集合")
+	private List<Integer> userTypeList;
+
+	public List<Integer> getUserTypeList() {
+		return userTypeList;
+	}
+
+	public void setUserTypeList(List<Integer> userTypeList) {
+		this.userTypeList = userTypeList;
+	}
+
+	public Double getDesignFeeStarting() {
+		return designFeeStarting;
+	}
+
+	public void setDesignFeeStarting(Double designFeeStarting) {
+		this.designFeeStarting = designFeeStarting;
+	}
+
+	public Double getDesignFeeEnding() {
+		return designFeeEnding;
+	}
+
+	public void setDesignFeeEnding(Double designFeeEnding) {
+		this.designFeeEnding = designFeeEnding;
+	}
+
+	public Double getDecorationPriceStart() {
+		return decorationPriceStart;
+	}
+
+	public void setDecorationPriceStart(Double decorationPriceStart) {
+		this.decorationPriceStart = decorationPriceStart;
+	}
+
+	public Double getDecorationPriceEnd() {
+		return decorationPriceEnd;
+	}
+
+	public void setDecorationPriceEnd(Double decorationPriceEnd) {
+		this.decorationPriceEnd = decorationPriceEnd;
+	}
+
+	public Integer getDecorationType() {
+		return decorationType;
+	}
+
+	public void setDecorationType(Integer decorationType) {
+		this.decorationType = decorationType;
+	}
+
+	public String getCompanyName() {
+		return companyName;
+	}
+
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
+	}
+
+	public String getProvinceCode() {
+		return provinceCode;
+	}
+
+	public void setProvinceCode(String provinceCode) {
+		this.provinceCode = provinceCode;
+	}
+
+	public String getCityCode() {
+		return cityCode;
+	}
+
+	public void setCityCode(String cityCode) {
+		this.cityCode = cityCode;
+	}
+
+	public String getAreaCode() {
+		return areaCode;
+	}
+
+	public void setAreaCode(String areaCode) {
+		this.areaCode = areaCode;
+	}
+
+	public String getStreetCode() {
+		return streetCode;
+	}
+
+	public void setStreetCode(String streetCode) {
+		this.streetCode = streetCode;
+	}
+
+	public BigInteger getCompanyId() {
+		return companyId;
+	}
+
+	public void setCompanyId(BigInteger companyId) {
+		this.companyId = companyId;
+	}
+
+	public Integer getBusinessType() {
+		return businessType;
+	}
+
+	public void setBusinessType(Integer businessType) {
+		this.businessType = businessType;
+	}
+
+	public String getCategoryIds() {
+		return categoryIds;
+	}
+
+	public void setCategoryIds(String categoryIds) {
+		this.categoryIds = categoryIds;
+	}
+
+	public Integer getPlatformType() {
+		return platformType;
+	}
+
+	public void setPlatformType(Integer platformType) {
+		this.platformType = platformType;
+	}
+
+	public String getShopName() {
+		return shopName;
+	}
+
+	public void setShopName(String shopName) {
+		this.shopName = shopName;
+	}
+	
+	@JsonIgnore
+	public String getOrderBySql() {
+		if(getOrderBy()!=null && getOrderBy().length()>0) {
+			String orderByKey=getOrderBy();
+			if(orderByKey.equalsIgnoreCase("hottest")) {
+				orderBySql="a.visit_count ";
+			}
+			if(orderByKey.equalsIgnoreCase("newest")) {
+				orderBySql="a.gmt_create ";
+			}
+			if (orderByKey.equalsIgnoreCase("praiseRate")) {
+				orderBySql = "a.praise_rate ";
+			}
+			if (orderByKey.equalsIgnoreCase("salesVolume")) {
+				orderBySql = "a.sales_volume ";
+			}
+			if (orderByKey.equalsIgnoreCase("collectionCount")) {
+				orderBySql = "a.collection_count ";
+			}
+			if (orderByKey.equalsIgnoreCase("likeCount")) {
+				orderBySql = "a.like_count ";
+			}
+			if(orderBySql!=null && orderBySql.length()>0) {
+				if(getSortType()==SortType.Ascend.value()) {
+					orderBySql+=" asc";
+				}
+				else {
+				  orderBySql+=" desc";
+				}
+			}
+		}
+		return orderBySql;
+	}
+
+	public void setOrderBySql(String orderBySql) {
+		this.orderBySql = orderBySql;
+	}
+
+	public String getFirstCategoryIds() {
+		return firstCategoryIds;
+	}
+
+	public void setFirstCategoryIds(String firstCategoryIds) {
+		this.firstCategoryIds = firstCategoryIds;
+	}
+
+	public String getPlatformCode() {
+		return platformCode;
+	}
+
+	public void setPlatformCode(String platformCode) {
+		this.platformCode = platformCode;
+	}
+	
+	
+
+	public String getDisplayType() {
+		return displayType;
+	}
+
+	public void setDisplayType(String displayType) {
+		this.displayType = displayType;
+	}
+
+}

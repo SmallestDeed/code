@@ -1,0 +1,115 @@
+package com.sandu.resource.service.impl;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.sandu.common.utils.Utils;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.google.gson.reflect.TypeToken;
+import com.sandu.base.model.query.BaseAreaQuery;
+import com.sandu.base.model.vo.BaseAreaVo;
+import com.sandu.cache.service.RedisService;
+import com.sandu.common.constant.GlobalConstant;
+import com.sandu.common.utils.JsonUtils;
+import com.sandu.matadata.CacheKeys;
+import com.sandu.resource.dao.ResPicDao;
+import com.sandu.resource.model.query.ResPicQuery;
+import com.sandu.resource.model.vo.ResPicVo;
+import com.sandu.resource.service.ResPicService;
+
+@Service("resPicService")
+@Transactional(readOnly = true)
+public class ResPicServiceImpl implements ResPicService{
+	@Autowired
+	private ResPicDao resPicDao;
+	@Autowired
+	private RedisService redisService;
+	
+	/***
+	 * 查找企业的推荐方案图片资源(最多取4条记录)
+	 */
+	@Override
+	public List<ResPicVo> getCompanyRecommendPlan(long companyId) {
+		List<ResPicVo> lstPic=null;
+	    String key=CacheKeys.getCompanyRecommendPlanPhoto(companyId);
+	    String jsonPlanList=redisService.get(key);
+		if(StringUtils.isBlank(jsonPlanList)) {
+			ResPicQuery query=new ResPicQuery();
+			query.setCompanyId(BigInteger.valueOf(companyId));
+			lstPic= resPicDao.findCompanyPlan(query);
+			if(lstPic==null || lstPic.size()==0) {
+				lstPic=new ArrayList<ResPicVo>();
+			}
+			jsonPlanList=JsonUtils.toJson(lstPic);
+			redisService.del(key);
+			redisService.addString(key,GlobalConstant.LONG_CACHE_SECONDS, jsonPlanList);
+		}
+		else {
+			lstPic=JsonUtils.fromJson(jsonPlanList, new TypeToken<List<ResPicVo>>() {}.getType());
+		}
+		return lstPic;
+	}
+	
+	/***
+	 * 查找门店的形象图片(做多取4条记录)
+	 * @param shopId
+	 * @return
+	 */
+	@Override
+	public List<ResPicVo> getStoreFigure(long shopId) {
+		List<ResPicVo> lstPic=null;
+	    String key=CacheKeys.getStoreFigurePhoto(shopId);
+	    String jsonPlanList=redisService.get(key);
+		if(StringUtils.isBlank(jsonPlanList)) {
+			ResPicQuery query=new ResPicQuery();
+			query.setShopId(BigInteger.valueOf(shopId));
+			lstPic= resPicDao.findStoreFigure(query);
+			if(lstPic==null || lstPic.size()==0) {
+				lstPic=new ArrayList<ResPicVo>();
+			}
+			jsonPlanList=JsonUtils.toJson(lstPic);
+			redisService.addList(key, jsonPlanList);
+		}
+		else {
+			lstPic=JsonUtils.fromJson(jsonPlanList, new TypeToken<List<ResPicVo>>() {}.getType());
+		}
+		return null;
+	}
+
+	@Override
+	public List<String> getPicPathByIds(String ids) {
+		List<String> resPathList = null;
+		String key=CacheKeys.getPicPathByIds(ids);
+		String resPathJson = redisService.get(key);
+		if (StringUtils.isEmpty(resPathJson)) {
+			List<Integer> idList = Utils.getIntegerListFromString(ids);
+			if (idList != null && 0 < idList.size()) {
+				resPathList = resPicDao.findPicPathByIds(idList);
+				if (resPathList == null || 0 == resPathList.size()) {
+					resPathList = new ArrayList<>();
+				}
+				resPathJson = JsonUtils.toJson(resPathList);
+				redisService.addList(key, resPathJson);
+			}
+		} else {
+			resPathList = JsonUtils.fromJson(resPathJson, new TypeToken<List<String>>() {}.getType());
+		}
+		return resPathList;
+	}
+
+	/**
+	 * add by WangHaiLin
+	 * 通过id获取图片资源信息
+	 * @param id 图片Id
+	 * @return ResPicVo
+	 */
+	@Override
+	public ResPicVo getPicById(Long id) {
+		return resPicDao.findPicById(id);
+	}
+}

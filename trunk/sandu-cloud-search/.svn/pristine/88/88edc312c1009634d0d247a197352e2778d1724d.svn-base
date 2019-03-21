@@ -1,0 +1,84 @@
+package com.sandu.search.storage.product;
+
+import com.sandu.search.entity.elasticsearch.po.ProductTexturePo;
+import com.sandu.search.exception.MetaDataException;
+import com.sandu.search.service.metadata.MetaDataService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 产品材质元数据存储
+ *
+ * @date 20171214
+ * @auth pengxuangang
+ */
+@Slf4j
+@Component
+public class ProductTextureMetaDataStorage {
+
+    private final static String CLASS_LOG_PREFIX = "产品材质元数据存储:";
+    //产品材质元数据Map
+    private static Map<Integer, String> productTexturePoMap = new HashMap<>();
+    //元数据服务
+    @Autowired
+    private MetaDataService metaDataService;
+
+    /**
+     * 更新数据
+     * @param isEnforceLoad 是否强制更新
+     */
+    public void updateData(boolean isEnforceLoad) {
+
+        //若无强制更新则更新前判断是否已有数据
+        if (!isEnforceLoad) {
+            if (null != productTexturePoMap && 0 < productTexturePoMap.size()) {
+                return;
+            }
+        }
+
+        //产品材质元数据
+        List<ProductTexturePo> productTexturePoList;
+        try {
+            //获取数据
+            log.info(CLASS_LOG_PREFIX + "开始获取产品材质元数据....");
+            productTexturePoList = metaDataService.queryProductTextureMetaData();
+            log.info(CLASS_LOG_PREFIX + "获取产品材质元数据完成,总条数:{}", (null == productTexturePoList ? 0 : productTexturePoList.size()));
+        } catch (MetaDataException e) {
+            log.error(CLASS_LOG_PREFIX + "获取产品材质元数据失败: MetaDataException:{}", e);
+            throw new NullPointerException(CLASS_LOG_PREFIX + "获取产品材质元数据失败,List<ProductTexturePo> is null.MetaDataException:" + e);
+        }
+
+        //转换Map
+        if (null != productTexturePoList && 0 != productTexturePoList.size()) {
+            productTexturePoList.forEach(productTexturePo -> productTexturePoMap.put(productTexturePo.getId(), productTexturePo.getTextureName()));
+        }
+    }
+
+    /**
+     * 根据材质ID获取产品材质名
+     *
+     * @return
+     */
+    public String getProductTextureNameById(String textureId) {
+        if (StringUtils.isEmpty(textureId)) {
+            return null;
+        }
+
+        if (null == productTexturePoMap || 0 >= productTexturePoMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        if (productTexturePoMap.containsKey(textureId)) {
+            return productTexturePoMap.get(textureId);
+        }
+
+        return null;
+    }
+}

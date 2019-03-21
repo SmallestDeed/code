@@ -1,0 +1,70 @@
+package com.sandu.designplan.model;
+
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * 设计方案推荐
+ */
+@Data
+public class DesignPlanRecommendedVo implements Serializable {
+
+    private static final long serialVersionUID = -2513029690720630891L;
+
+    //设计方案未收藏
+    public static final int DESIGNPLAN_NOT_FAVORITE = 0;
+    //设计方案已收藏
+    public static final int DESIGNPLAN_ALEARY_FAVORITE = 1;
+
+    //设计方案ID
+    private Integer designPlanId;
+    //设计方案推荐ID
+    private Integer designPlanRecommendId;
+    //设计方案名称
+    private String designPlanName;
+    //设计方案封面图片地址
+    private String designPlanCoverPath;
+    //设计方案描述
+    private String designPlanDesc;
+    //设计方案风格ID
+    private String designPlanStyleId;
+    //设计方案风格名
+    private String designPlanStyleName;
+    //空间类型
+    private Integer spaceType;
+    //空间类型名称
+    private String spaceStyleName;
+    //根据发布时间排序
+    private Integer isSortByReleaseTime;
+    //根据渲染次数排序
+    private Integer isSortByRenderCount;
+
+    private  Integer renderCount;
+    /*发布时间*/
+    private Date releaseTime;
+   
+    private String applySpaceAreas;
+
+	//空间面积
+    private String spaceArea;
+    //品牌
+    private String brandName;
+    //是否收藏(0:否,1:已收藏)
+    private Integer isFavorite;
+    //空间形状
+    private Integer spaceShape;
+    //显示类型
+    private String displayType;
+    //是否点赞（0：否，1：已点赞）
+    private Integer isLike;
+    //方案点赞数
+    private Integer likeNum;
+    //方案收藏数
+    private Integer collectNum;
+    /**主方案id 0没有打组，和designPlanRecommendId相同为主方案，不同则为主方案id**/
+    private Integer groupPrimaryId;
+    /**样板房id*/
+    private Integer templateId;
+}

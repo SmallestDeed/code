@@ -1,0 +1,325 @@
+package com.nork.system.controller.web;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.nork.system.model.vo.SysDictionaryVo;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.nork.base.service.impl.JsonDataServiceImpl;
+import com.nork.common.model.ResponseEnvelope;
+import com.nork.common.util.Utils;
+import com.nork.system.cache.ResourceCacher;
+import com.nork.system.cache.SysDictionaryCacher;
+import com.nork.system.model.ResPic;
+import com.nork.system.model.SysDicitonaryOptimize;
+import com.nork.system.model.SysDictionary;
+import com.nork.system.model.SysVersion;
+import com.nork.system.model.search.SysDictionarySearch;
+import com.nork.system.model.small.SysDictionarySmall;
+import com.nork.system.service.ResPicService;
+import com.nork.system.service.SysDictionaryService;
+import com.nork.system.service.SysVersionService;
+
+/**
+ * @Title: BaseMessageController.java
+ * @Package com.nork.system.controller
+ * @Description:系统字典服务端Controller
+ * @createAuthor qiujun
+ * @CreateDate 2016-05-06
+ * @version V1.0
+ */
+@Controller
+@RequestMapping("/{style}/web/system/sysDictionary")
+public class WebSysDictionaryController {
+	private static Logger logger = Logger.getLogger(WebBaseMessageController.class);
+	private final JsonDataServiceImpl<SysDictionary> JsonUtil = new JsonDataServiceImpl<SysDictionary>();
+	private final String STYLE = "online";
+	private final String JSPSTYLE = "online";
+	private final String JSPMAIN = "/" + JSPSTYLE + "/user/sysDictionary";
+	ResourceBundle app = ResourceBundle.getBundle("app");
+	@Autowired
+	private SysDictionaryService sysDictionaryService;
+	@Autowired
+	private ResPicService resPicService;
+	@Autowired
+	private SysVersionService sysVersionService;
+	
+	
+	/**
+	 * 数据字典全部列表
+	 */
+	@RequestMapping(value = "/listAllOld")
+	@ResponseBody
+	public Object listAllOld(@PathVariable String style,
+			@ModelAttribute("sysDictionarySearch") SysDictionarySearch sysDictionarySearch, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		Long startTime=System.currentTimeMillis();
+		String jsonStr = Utils.getJsonStr(request); 
+		if (jsonStr != null && jsonStr.trim().length() > 0) {
+			try {
+				sysDictionarySearch = (SysDictionarySearch) JsonUtil.getJsonToBean(jsonStr, SysDictionarySearch.class);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			if (sysDictionarySearch == null) {
+				return new ResponseEnvelope<SysDictionary>(false, "传参异常!", "none");
+			}
+		}
+		List<SysDictionary> list = new ArrayList<SysDictionary>();
+		int total = 0;
+		try {
+			if(Utils.enableRedisCache()){
+				total=SysDictionaryCacher.getDictionaryTotal();
+			}else{
+				total = sysDictionaryService.getCount(sysDictionarySearch);
+			}
+			
+			if (total > 0) {
+				if(Utils.enableRedisCache()){
+					list=SysDictionaryCacher.getAllList();
+				}else{
+					list = sysDictionaryService.getList(sysDictionarySearch);
+				}
+				
+				for (SysDictionary sysDictionary : list) {
+					if (sysDictionary.getPicId() != null) {
+						ResPic resPic=null;
+						if(Utils.enableRedisCache()){
+							resPic=ResourceCacher.getPic(sysDictionary.getPicId());
+						}else{
+							resPic = resPicService.get(sysDictionary.getPicId());
+						}
+						String serverUrl = Utils.getValue("app.resources.url", "http://res.sanduspace.cn");
+						if (resPic != null) {
+							sysDictionary.setPicPath(serverUrl+resPic.getPicPath());
+						}
+					}
+				}
+			}
+			if ("small".equals(style) && list != null && list.size() > 0) {
+				String sysDictionaryJsonList = JsonUtil.getListToJsonData(list);
+				List<SysDictionarySmall> smallList = new JsonDataServiceImpl<SysDictionarySmall>()
+						.getJsonToBeanList(sysDictionaryJsonList, SysDictionarySmall.class);
+				return new ResponseEnvelope<SysDictionarySmall>(total, smallList, sysDictionarySearch.getMsgId());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEnvelope<SysDictionary>(false, "数据异常!", sysDictionarySearch.getMsgId());
+		}
+		Long endTime=System.currentTimeMillis();
+		//////System.out.println("times:"+(endTime-startTime));
+		
+		SysDictionary sysDictionary=new SysDictionary();
+		sysDictionary.setTimeConsuming("-------------旧方法耗时----------"+(endTime-startTime)+"");
+		list.add(sysDictionary);
+		return new ResponseEnvelope<SysDictionary>(total, list, sysDictionarySearch.getMsgId());
+	}
+	
+	
+	
+	
+	/**
+	 * 数据字典全部列表
+	 */
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/listAll")
+	@ResponseBody
+	public Object listAll(@PathVariable String style,
+			@ModelAttribute("sysDictionarySearch") SysDictionarySearch sysDictionarySearch, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		Long startTime=System.currentTimeMillis();
+		String jsonStr = Utils.getJsonStr(request); 
+		if (jsonStr != null && jsonStr.trim().length() > 0) {
+			try {
+				sysDictionarySearch = (SysDictionarySearch) JsonUtil.getJsonToBean(jsonStr, SysDictionarySearch.class);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			if (sysDictionarySearch == null) {
+				return new ResponseEnvelope<SysDictionary>(false, "传参异常!", "none");
+			}
+		}
+		List<SysDicitonaryOptimize> list = new ArrayList<SysDicitonaryOptimize>();
+		int total = 0;
+		try {
+
+			
+			if(Utils.enableRedisCache()){
+				list=SysDictionaryCacher.getListOptimize();
+			}else{
+				sysDictionarySearch.setOrder("ordering");
+				sysDictionarySearch.setOrderNum("asc");
+				sysDictionarySearch.setType("spaceShape");
+				list = sysDictionaryService.getListOptimize(sysDictionarySearch);
+			}
+			if( list != null && list.size() > 0 ){
+				//TODO  APP端为了生成导航，需要产品小类来排序
+				// 先获取所有大类
+				List<SysDictionary> productTypeList = sysDictionaryService.findAllByType("productType");
+				if( productTypeList != null && productTypeList.size() > 0 ){
+					// 获取大类下的所有小类
+					List<SysDicitonaryOptimize> productSmallTypeList = null;
+					SysDictionarySearch sysDicSearch = null;
+					for( SysDictionary sysDictionary : productTypeList ){
+						String productType = sysDictionary.getValuekey();
+						if( StringUtils.isNotBlank(productType) ){
+							sysDicSearch = new SysDictionarySearch();
+							sysDicSearch.setType(productType);
+							productSmallTypeList = sysDictionaryService.findAll(sysDicSearch);
+							list.addAll(productSmallTypeList);
+						}
+					}
+				}
+				if ("small".equals(style) ) {
+					String sysDictionaryJsonList = JsonUtil.getListToJsonData(list);
+					List<SysDictionarySmall> smallList = new JsonDataServiceImpl<SysDictionarySmall>()
+							.getJsonToBeanList(sysDictionaryJsonList, SysDictionarySmall.class);
+					return new ResponseEnvelope<SysDictionarySmall>(total, smallList, sysDictionarySearch.getMsgId());
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEnvelope<SysDictionary>(false, "数据异常!", sysDictionarySearch.getMsgId());
+		}
+		Long endTime=System.currentTimeMillis();
+		//////System.out.println("times:"+(endTime-startTime));
+		
+		SysDicitonaryOptimize SysDicitonaryOptimize=new SysDicitonaryOptimize();
+		SysDicitonaryOptimize.setTimeConsuming("-------------方法耗时----------"+(endTime-startTime)+"");
+		list.add(SysDicitonaryOptimize);
+		return new ResponseEnvelope<SysDicitonaryOptimize>(total, list, sysDictionarySearch.getMsgId());
+	}
+	
+	
+	
+/**
+ * 
+ * 联系客服
+ * @param request  msgId
+ * @param response
+ * @return Object
+ */
+	@SuppressWarnings({   "rawtypes", "unchecked" })
+	@RequestMapping(value = "/getContact")
+	@ResponseBody
+	public Object getContact(Integer systemType,
+			HttpServletRequest request,
+			HttpServletResponse response){
+		String msgId=request.getParameter("msgId");
+		SysDictionary dictionary = new SysDictionary();
+		dictionary.setType("contactInformation");
+		List<SysDictionary> list = sysDictionaryService.getList(dictionary);
+		List<Map<Object,Object>> dictionaryList = new ArrayList<Map<Object,Object>>();
+		if(list!=null&&list.size()>0){
+			
+			for (SysDictionary sysDictionary : list) {
+				Map map = new HashMap();
+				map.put("name", sysDictionary.getName());
+
+				if("wechat".equals(sysDictionary.getValuekey())){  /**如果是微信的话就取图片**/
+					
+					ResPic resPic = new ResPic();
+		            if(sysDictionary.getPicId()!=null&&sysDictionary.getPicId()!=0){
+		            	resPic = resPicService.get(sysDictionary.getPicId());
+		            }  
+		            if(resPic != null){
+		            	//map.put("contactValue", resPic.getPicPath());
+		            	String picPath = Utils.getValue("app.server.url", "") + 
+		            			Utils.getValue("app.server.siteName", "") + "pages/app/image/qr/sanduQR.jpg";
+		            	map.put("contactValue", picPath);
+		            }
+	            }	
+
+				map.put("msgId", msgId);
+				map.put("att1", sysDictionary.getAtt1()+"");
+				map.put("valuekey", sysDictionary.getValuekey());
+				
+				dictionaryList.add(map);
+			}
+		}
+		// 版本号 ->start
+		/*systemType转换*/
+		if(systemType == null)
+			systemType = new Integer(7);
+		SysDictionary sysDictionary=sysDictionaryService.findOneByTypeAndValue("systemType", systemType);
+		if(sysDictionary==null)
+			return new RuntimeException("数据字典中未配置type=systemType,value="+systemType+"的数据字典");
+		if(StringUtils.isBlank(sysDictionary.getAtt1()))
+			return new RuntimeException("数据字典:type=systemType,value="+systemType+"未配置att1属性,请配置(对应媒介类型的value)");
+		systemType=Integer.valueOf(sysDictionary.getAtt1());
+		/*systemType转换->end*/
+		/*得到最新版本*/
+		String versionNum = null;
+		String versionType = null;
+		try{
+			versionNum = app.getString("sys.version.type").trim();
+		}catch (Exception e) {
+			versionNum = "1";
+		}
+		if("2".equals(versionNum)){
+			versionType = "version_internal";
+		}else{
+			versionType = "version";
+		}
+		SysVersion sysVersion = sysVersionService.getLatestVersion(systemType,versionType);
+		/*if(Utils.enableRedisCache()){
+			sysVersion=SysVersionCacher.getLatestVersion(systemType);
+		}else{
+			sysVersion=sysVersionService.getLatestVersion(systemType);
+		}*/
+		Map map1 = new HashMap();
+		map1.put("name", "当前版本");
+		map1.put("msgId", msgId);
+		String version = "";
+		if(sysVersion == null){
+			version = "0.4.0";
+		}else{
+			version = sysVersion.getVersion();
+		}
+		map1.put("valuekey", "version");
+		map1.put("att1", version);
+		dictionaryList.add(map1);
+		// 版本号 ->end
+		int total=dictionaryList.size();
+		return new ResponseEnvelope<>(total,dictionaryList,msgId);
+	}
+
+	/**
+	 *根据类型获全部数据字典
+	 * add by yanghuanzhi
+	 */
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/listAllByType")
+    @ResponseBody
+	public ResponseEnvelope<SysDictionary> listAll(HttpServletRequest request, HttpServletResponse response){
+		ResponseEnvelope envelope = new ResponseEnvelope();
+		String type = request.getParameter("type");
+		String msgId = request.getParameter("msgId");
+		if(StringUtils.isEmpty(type) || StringUtils.isEmpty(msgId)){
+			envelope.setSuccess(false);
+			envelope.setMessage("params error!");
+			return envelope;
+		}
+		List<SysDictionaryVo> allListByType = sysDictionaryService.getAllListByType(type);
+		envelope.setDatalist(allListByType);
+		envelope.setMsgId(msgId);
+		return envelope;
+	}
+
+
+
+}

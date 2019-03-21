@@ -1,0 +1,113 @@
+package com.sandu.system.cache.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.common.cache.CacheManager;
+import com.sandu.common.cache.util.KeyGenerator;
+import com.sandu.common.metadata.ModuleType;
+import com.sandu.common.util.collections.CustomerListUtils;
+import com.sandu.system.cache.service.SysDictionaryCacheService;
+import com.sandu.system.model.SysDictionary;
+import com.sandu.system.model.search.SysDictionarySearch;
+import com.sandu.system.service.SysDictionaryService;
+
+@Service("sysDictionaryCacheService")
+public class SysDictionaryCacheServiceImpl implements SysDictionaryCacheService {
+
+	@Autowired
+	private SysDictionaryService sysDictionaryService;
+	
+	/***
+     * 根据类别获取所有字典数据
+     * @return
+     */
+	@Override
+    public List<SysDictionary> getSysDictionary(String type,Integer value){
+    	/*List<SysDictionary> lstDic=Lists.newArrayList();*/
+    	List<SysDictionary> lstDic = new ArrayList<SysDictionary>();
+    	Map<String,String> map=new HashMap<String,String>();
+    	map.put("is_deleted", "0");
+    	map.put("type", type);
+    	map.put("value", value+"");
+    	String key=KeyGenerator.getAllListKeyWithMap(ModuleType.Dictionary,map);
+    	if(CacheManager.getInstance().getCacher()!=null){
+    		lstDic=CacheManager.getInstance().getCacher().getList(SysDictionary.class, key);
+    		if(lstDic==null){
+    			SysDictionary search=new SysDictionary();
+    			search.setIsDeleted(0);
+    			search.setType(type);
+    			search.setValue(value);
+    			lstDic=sysDictionaryService.getList(search);
+    			if(CustomerListUtils.isNotEmpty(lstDic)){
+     			   CacheManager.getInstance().getCacher().setObject(key, lstDic, 0);
+     			}
+    		}
+    	}
+    	return lstDic;
+    }
+	
+    /***
+     * 根据类别获取所有字典数据
+     * @return
+     */
+	@Override
+    public List<SysDictionary> getAllListWithType(String type){
+    	/*List<SysDictionary> lstDic=Lists.newArrayList();*/
+    	List<SysDictionary> lstDic = new ArrayList<SysDictionary>();
+    	Map<String,String> map=new HashMap<String,String>();
+    	map.put("is_deleted", "0");
+    	map.put("type", type);
+    	String key=KeyGenerator.getAllListKeyWithMap(ModuleType.Dictionary,map);
+    	if(CacheManager.getInstance().getCacher()!=null){
+    		lstDic=CacheManager.getInstance().getCacher().getList(SysDictionary.class, key);
+    		if(lstDic==null){
+    			SysDictionary search=new SysDictionary();
+    			search.setIsDeleted(0);
+    			search.setType(type);
+    			lstDic=sysDictionaryService.getList(search);
+    			if(CustomerListUtils.isNotEmpty(lstDic)){
+     			   CacheManager.getInstance().getCacher().setObject(key, lstDic, 0);
+     			}
+    		}
+    	}
+    	return lstDic;
+    }
+ 
+    /***
+     * 根据条件分页获取字典数据
+     * @return
+     */
+	@Override
+    public List<SysDictionary> getPageList(SysDictionarySearch search){
+    	/*List<SysDictionary> lstDic=Lists.newArrayList();*/
+    	List<SysDictionary> lstDic = new ArrayList<SysDictionary>();
+    	Map<String,String> map=new HashMap<String,String>();
+    	map.put("list", "page");
+		map.put("limit", String.valueOf(search.getLimit()));
+		map.put("start", String.valueOf(search.getStart()));
+    	map.put("type", search.getType());
+    	map.put("att4",search.getAtt4());
+    	map.put("att6",search.getAtt6());
+    	if(search.getValue()!=null){
+    	   map.put("value", String.valueOf(search.getValue()));
+    	}
+    	String key=KeyGenerator.getAllListKeyWithMap(ModuleType.Dictionary,map);
+    	if(CacheManager.getInstance().getCacher()!=null){
+    		lstDic=CacheManager.getInstance().getCacher().getList(SysDictionary.class, key);
+    		if(lstDic==null){
+    			lstDic=sysDictionaryService.getPaginatedList(search);
+    			if(CustomerListUtils.isNotEmpty(lstDic)){
+    			   CacheManager.getInstance().getCacher().setObject(key, lstDic, 0);
+    			}
+    		}
+    	}
+    	return lstDic;
+    }
+	
+}

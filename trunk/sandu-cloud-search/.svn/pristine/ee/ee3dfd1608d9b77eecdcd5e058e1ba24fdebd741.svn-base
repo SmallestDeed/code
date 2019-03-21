@@ -1,0 +1,38 @@
+package com.sandu.search.datasync.task;
+
+import com.sandu.search.common.tools.StorageComponent;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+/**
+ * 同步元数据任务
+ *
+ * @date 20180123
+ * @auth pengxuangang
+ */
+@Slf4j
+@Component
+public class SyncMetaDataTask {
+
+    private final static String CLASS_LOG_PREFIX = "同步元数据任务:";
+
+    @Autowired
+    private StorageComponent storageComponent;
+
+
+    /**
+     * 同步元数据
+     *
+     * @date 20171229
+     * @auth pengxuangang
+     * @strategy 每5分钟进行元数据同步
+     */
+    //@Scheduled(cron = "0 */5 * * * ?")此同步关闭，因为每5分钟会同步队列中的产品数据，故无需此地再做同步
+    public void productDataSyncTask() {
+        log.info(CLASS_LOG_PREFIX + "开始同步元数据.....");
+        //同步数据
+        storageComponent.reloadAllStorageInMemory(true);
+        log.info(CLASS_LOG_PREFIX + "同步内存元数据完成.");
+    }
+}

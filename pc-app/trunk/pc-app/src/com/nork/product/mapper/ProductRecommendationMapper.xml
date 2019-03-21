@@ -1,0 +1,575 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.product.dao.ProductRecommendationMapper">
+<!--<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>-->
+	<!-- **插入定义** -->
+	<insert id="insertSelective" parameterType="com.nork.product.model.ProductRecommendation"  useGeneratedKeys="true" keyProperty="id">
+		insert into product_recommendation
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		<if test="productId!= null">product_id, </if>
+		<if test="designTempletId!= null">design_templet_id, </if>
+		<if test="dataSources!= null">data_sources, </if>
+		<if test="matchingDegree!= null">matching_degree, </if>
+		<if test="sysCode!= null">sys_code, </if>
+		<if test="creator!= null">creator, </if>
+		<if test="gmtCreate!= null">gmt_create, </if>
+		<if test="modifier!= null">modifier, </if>
+		<if test="gmtModified!= null">gmt_modified, </if>
+		<if test="isDeleted!= null">is_deleted, </if>
+		<if test="att1!= null">att1, </if>
+		<if test="att2!= null">att2, </if>
+		<if test="templetProductId!= null">templetProduct_id, </if>
+		<if test="productNumber!= null">product_number, </if>
+		<if test="remark!= null">remark, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="productId!= null">  #{productId,jdbcType=INTEGER}, </if>
+		<if test="designTempletId!= null">  #{designTempletId,jdbcType=INTEGER}, </if>
+		<if test="dataSources!= null">  #{dataSources,jdbcType=VARCHAR}, </if>
+		<if test="matchingDegree!= null">  #{matchingDegree,jdbcType=VARCHAR}, </if>
+		<if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="att1!= null">  #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  #{att2,jdbcType=VARCHAR}, </if>
+		<if test="templetProductId!= null">  #{templetProductId,jdbcType=INTEGER}, </if>
+		<if test="productNumber!= null">  #{productNumber,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>	
+		</trim>
+	</insert>
+
+	<!-- **更新定义** -->
+	<update id="updateByPrimaryKeySelective" parameterType="com.nork.product.model.ProductRecommendation">
+		update product_recommendation
+		<set>
+		<if test="productId!= null">  product_id = #{productId,jdbcType=INTEGER}, </if>
+		<if test="designTempletId!= null">  design_templet_id = #{designTempletId,jdbcType=INTEGER}, </if>
+		<if test="dataSources!= null">  data_sources = #{dataSources,jdbcType=VARCHAR}, </if>
+		<if test="matchingDegree!= null">  matching_degree = #{matchingDegree,jdbcType=VARCHAR}, </if>
+		<if test="sysCode!= null">  sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  creator = #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  modifier = #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="att1!= null">  att1 = #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  att2 = #{att2,jdbcType=VARCHAR}, </if>
+		<if test="templetProductId!= null">  templetProduct_id = #{templetProductId,jdbcType=INTEGER}, </if>
+		<if test="productNumber!= null">  product_number = #{productNumber,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  remark = #{remark,jdbcType=VARCHAR}, </if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<!-- **删除定义** -->
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from product_recommendation
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	
+		<delete id="deleteByDesignCode" parameterType="java.lang.String">
+		DELETE FROM product_recommendation WHERE design_templet_id IN (SELECT DISTINCT id FROM design_templet WHERE design_code = #{id,jdbcType=VARCHAR})
+	</delete>
+	
+	<!-- **常量定义** -->
+	<sql id="All_Column_List">
+		id,product_id,design_templet_id,data_sources,matching_degree,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,att1,att2,templetProduct_id,product_number,remark
+	</sql>
+	
+	<!-- **结果定义** -->
+	<resultMap id="AllResultMap" type="com.nork.product.model.ProductRecommendation">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="product_id" property="productId" jdbcType="INTEGER" />
+		<result  column="design_templet_id" property="designTempletId" jdbcType="INTEGER" />
+		<result  column="data_sources" property="dataSources" jdbcType="VARCHAR" />
+		<result  column="matching_degree" property="matchingDegree" jdbcType="VARCHAR" />
+		<result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="att1" property="att1" jdbcType="VARCHAR" />
+		<result  column="att2" property="att2" jdbcType="VARCHAR" />
+		<result  column="templetProduct_id" property="templetProductId" jdbcType="INTEGER" />
+		<result  column="product_number" property="productNumber" jdbcType="INTEGER" />
+		<result  column="remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- **查询定义** -->
+	<!-- 按主键查询 -->
+	<select id="selectByPrimaryKey" resultMap="AllResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="All_Column_List" />
+		from product_recommendation
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+		parameterType="com.nork.product.model.ProductRecommendation">
+		select
+		<include refid="All_Column_List" />
+		from product_recommendation
+        where 1=1
+		<if test="productId!= null">  and product_id = #{productId,jdbcType=INTEGER} </if>
+		<if test="designTempletId!= null">  and design_templet_id = #{designTempletId,jdbcType=INTEGER} </if>
+		<if test="dataSources!= null">  and data_sources = #{dataSources,jdbcType=VARCHAR} </if>
+		<if test="matchingDegree!= null">  and matching_degree = #{matchingDegree,jdbcType=VARCHAR} </if>
+		<if test="sysCode!= null">  and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="creator!= null">  and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="gmtCreate!= null">  and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+		<if test="modifier!= null">  and modifier = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="gmtModified!= null">  and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP} </if>
+		<if test="isDeleted!= null">  and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1!= null">  and att1 = #{att1,jdbcType=VARCHAR} </if>
+		<if test="att2!= null">  and att2 = #{att2,jdbcType=VARCHAR} </if>
+		<if test="templetProductId!= null">  and templetProduct_id = #{templetProductId,jdbcType=INTEGER} </if>
+		<if test="productNumber!= null">  and product_number = #{productNumber,jdbcType=INTEGER} </if>
+		<if test="remark!= null">  and remark = #{remark,jdbcType=VARCHAR} </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order}
+			<if test="orderNum != null and  orderNum !='' ">
+				${orderNum}
+			</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">
+		   order by ${orders}
+		</if>
+	</select>
+	
+	<!-- 分页汇总 -->
+	<select id="selectCount" resultType="int"
+		parameterType="com.nork.product.model.search.ProductRecommendationSearch">
+		SELECT
+		count(*)
+	    FROM product_recommendation r
+		LEFT JOIN base_product p ON r.product_id = p.id
+		LEFT JOIN design_templet t ON r.design_templet_id = t.id
+		LEFT JOIN sys_dictionary s ON p.pro_style_id = s.value
+		where 1=1 and s.type ='productStyle'	
+		<if test="productId !=  null  ">			and product_id  = #{productId,jdbcType=INTEGER} </if>
+		<if test="designTempletId !=  null  ">			and design_templet_id  = #{designTempletId,jdbcType=INTEGER} </if>
+		<if test="dataSources !=  null and dataSources !=  ''   "> and data_sources  = #{dataSources,jdbcType=VARCHAR} </if>
+		<if test="sch_DataSources_ !=  null and sch_DataSources_ !=  ''   ">
+			and data_sources  like CONCAT(CONCAT('%',#{sch_DataSources_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_DataSources !=  null and sch_DataSources !=  ''   ">
+			and data_sources  like CONCAT('%',#{sch_DataSources,jdbcType=VARCHAR})
+		 </if>
+		<if test="schDataSources_ !=  null and schDataSources_ !=  ''   ">
+			and data_sources  like CONCAT(#{schDataSources_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="dataSourcesStart !=  null and dataSourcesEnd!= null  ">
+			and data_sources between #{dataSourcesStart,jdbcType=VARCHAR} and #{dataSourcesEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="matchingDegree !=  null and matchingDegree !=  ''   "> and matching_degree  = #{matchingDegree,jdbcType=VARCHAR} </if>
+		<if test="sch_MatchingDegree_ !=  null and sch_MatchingDegree_ !=  ''   ">
+			and matching_degree  like CONCAT(CONCAT('%',#{sch_MatchingDegree_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_MatchingDegree !=  null and sch_MatchingDegree !=  ''   ">
+			and matching_degree  like CONCAT('%',#{sch_MatchingDegree,jdbcType=VARCHAR})
+		 </if>
+		<if test="schMatchingDegree_ !=  null and schMatchingDegree_ !=  ''   ">
+			and matching_degree  like CONCAT(#{schMatchingDegree_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="matchingDegreeStart !=  null and matchingDegreeEnd!= null  ">
+			and matching_degree between #{matchingDegreeStart,jdbcType=VARCHAR} and #{matchingDegreeEnd,jdbcType=VARCHAR}
+		 </if>
+		<!-- <if test="sysCode !=  null and sysCode !=  ''   "> and sys_code  = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+			and sys_code  like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+			and sys_code  like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+			and sys_code  like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+			and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="creator !=  null and creator !=  ''   "> and creator  = #{creator,jdbcType=VARCHAR} </if>
+		<if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+			and creator  like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+			and creator  like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+			and creator  like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="creatorStart !=  null and creatorEnd!= null  ">
+			and creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtCreate !=  null  ">
+			and gmt_create  = #{gmtCreate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="modifier !=  null and modifier !=  ''   "> and modifier  = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and modifier  like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and modifier  like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		 </if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and modifier  like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtModified !=  null  ">
+			and gmt_modified  = #{gmtModified,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		 </if> -->
+		 <if test="designCode !=  null and designCode !=  ''   "> 
+			and t.design_code  like CONCAT(CONCAT('%',#{designCode,jdbcType=VARCHAR}),'%')
+		</if>		
+		<if test="designName !=  null and designName !=  ''   ">
+			and t.design_name  like CONCAT(CONCAT('%',#{designName,jdbcType=VARCHAR}),'%')
+		 </if>		
+		 <if test="productCode !=  null and productCode !=  ''   ">
+			and p.product_code like CONCAT(CONCAT('%',#{productCode,jdbcType=VARCHAR}),'%')
+		 </if>			
+		 <if test="productName !=  null and productName !=  ''   ">
+			and p.product_name  like CONCAT(CONCAT('%',#{productName,jdbcType=VARCHAR}),'%')
+		 </if>		
+		 <if test="proStyleId !=  null and proStyleId!= null  ">
+			and p.pro_style_id  = #{proStyleId,jdbcType=INTEGER}
+		 </if>
+		
+	</select>
+	
+	<!-- 分页查询 ,可在ProductRecommendationSearch中自定义查询条件-->
+	<select id="selectPaginatedList" resultMap="AllResultMap"
+		parameterType="com.nork.product.model.search.ProductRecommendationSearch">
+		SELECT
+		r.id,product_id,design_templet_id,data_sources,matching_degree,r.sys_code,r.creator,r.gmt_create,r.modifier,r.gmt_modified,r.is_deleted
+	    FROM product_recommendation r
+		LEFT JOIN base_product p ON r.product_id = p.id
+		LEFT JOIN design_templet t ON r.design_templet_id = t.id
+		LEFT JOIN sys_dictionary s ON p.pro_style_id = s.value
+		where 1=1 and s.type ='productStyle'	
+		<if test="productId !=  null  ">			and product_id  = #{productId,jdbcType=INTEGER} </if>
+		<if test="designTempletId !=  null  ">			and design_templet_id  = #{designTempletId,jdbcType=INTEGER} </if>
+		<if test="dataSources !=  null and dataSources !=  ''   "> and data_sources  = #{dataSources,jdbcType=VARCHAR} </if>
+		<if test="sch_DataSources_ !=  null and sch_DataSources_ !=  ''   ">
+			and data_sources  like CONCAT(CONCAT('%',#{sch_DataSources_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_DataSources !=  null and sch_DataSources !=  ''   ">
+			and data_sources  like CONCAT('%',#{sch_DataSources,jdbcType=VARCHAR})
+		 </if>
+		<if test="schDataSources_ !=  null and schDataSources_ !=  ''   ">
+			and data_sources  like CONCAT(#{schDataSources_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="dataSourcesStart !=  null and dataSourcesEnd!= null  ">
+			and data_sources between #{dataSourcesStart,jdbcType=VARCHAR} and #{dataSourcesEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="matchingDegree !=  null and matchingDegree !=  ''   "> and matching_degree  = #{matchingDegree,jdbcType=VARCHAR} </if>
+		<if test="sch_MatchingDegree_ !=  null and sch_MatchingDegree_ !=  ''   ">
+			and matching_degree  like CONCAT(CONCAT('%',#{sch_MatchingDegree_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_MatchingDegree !=  null and sch_MatchingDegree !=  ''   ">
+			and matching_degree  like CONCAT('%',#{sch_MatchingDegree,jdbcType=VARCHAR})
+		 </if>
+		<if test="schMatchingDegree_ !=  null and schMatchingDegree_ !=  ''   ">
+			and matching_degree  like CONCAT(#{schMatchingDegree_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="matchingDegreeStart !=  null and matchingDegreeEnd!= null  ">
+			and matching_degree between #{matchingDegreeStart,jdbcType=VARCHAR} and #{matchingDegreeEnd,jdbcType=VARCHAR}
+		 </if>
+		<!-- <if test="sysCode !=  null and sysCode !=  ''   "> and sys_code  = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+			and sys_code  like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+			and sys_code  like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+			and sys_code  like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+			and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="creator !=  null and creator !=  ''   "> and creator  = #{creator,jdbcType=VARCHAR} </if>
+		<if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+			and creator  like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+			and creator  like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+			and creator  like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="creatorStart !=  null and creatorEnd!= null  ">
+			and creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtCreate !=  null  ">
+			and gmt_create  = #{gmtCreate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="modifier !=  null and modifier !=  ''   "> and modifier  = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and modifier  like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and modifier  like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		 </if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and modifier  like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtModified !=  null  ">
+			and gmt_modified  = #{gmtModified,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		 </if> -->
+		 <if test="designCode !=  null and designCode !=  ''   "> 
+			and t.design_code  like CONCAT(CONCAT('%',#{designCode,jdbcType=VARCHAR}),'%')
+		</if>		
+		<if test="designName !=  null and designName !=  ''   ">
+			and t.design_name  like CONCAT(CONCAT('%',#{designName,jdbcType=VARCHAR}),'%')
+		 </if>		
+		 <if test="productCode !=  null and productCode !=  ''   ">
+			and p.product_code like CONCAT(CONCAT('%',#{productCode,jdbcType=VARCHAR}),'%')
+		 </if>		
+		 <if test="productName !=  null and productName !=  ''   ">
+			and p.product_name  like CONCAT(CONCAT('%',#{productName,jdbcType=VARCHAR}),'%')
+		 </if>		
+		 <if test="proStyleId !=  null and proStyleId!= null  ">
+			and p.pro_style_id  = #{proStyleId,jdbcType=INTEGER}
+		 </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order} <if test="orderNum != null and  orderNum !='' ">${orderNum}</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">  order by #{orders}</if>
+		<if test="order == null and  orders == null ">  order by id desc</if>
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+
+    <!-- 其他Map等查询方式 -->
+    	<!-- **结果定义** -->
+	<resultMap id="AlldtpMap" type="com.nork.product.model.DesignTempletProducts">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="product_id" property="productId" jdbcType="INTEGER" />
+		<result  column="design_templet_id" property="designTempletId" jdbcType="INTEGER" />
+		<result  column="pro_style_id" property="proStyleId" jdbcType="INTEGER" />
+		<result  column="design_code" property="designCode" jdbcType="VARCHAR" />
+		<result  column="design_name" property="designName" jdbcType="VARCHAR" />
+		<result  column="product_code" property="productCode" jdbcType="VARCHAR" />
+		<result  column="product_name" property="productName" jdbcType="VARCHAR" />
+		<result  column="name" property="proStyleName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+		<select id="selectDesignProductList" resultMap="AlldtpMap" parameterType="com.nork.product.model.DesignTempletProducts">
+		SELECT
+		r.id AS id,t.design_code AS designCode,t.design_name AS designName ,r.product_id AS productId,
+		p.product_code AS productCode,p.product_name AS productName,r.design_templet_id AS designTempletId,
+		s.name AS proStyleName
+		FROM product_recommendation r
+		LEFT JOIN base_product p ON r.product_id = p.id
+		LEFT JOIN design_templet t ON r.design_templet_id = t.id
+		LEFT JOIN sys_dictionary s ON p.pro_style_id = s.value
+		where 1=1 and s.type ='productStyle'
+		<if test="id !=  null and id !=  ''   "> 
+			and r.id  = #{id,jdbcType=INTEGER}
+		</if>		
+		 <if test="designCode !=  null and designCode !=  ''   "> 
+			and t.design_code  like CONCAT(CONCAT('%',#{designCode,jdbcType=VARCHAR}),'%')
+		</if>		
+		<if test="designName !=  null and designName !=  ''   ">
+			and t.design_name  like CONCAT(CONCAT('%',#{designName,jdbcType=VARCHAR}),'%')
+		 </if>		
+		 <if test="productCode !=  null and productCode !=  ''   ">
+			and p.product_code like CONCAT(CONCAT('%',#{productCode,jdbcType=VARCHAR}),'%')
+		 </if>			
+		 <if test="productName !=  null and productName !=  ''   ">
+			and p.product_name  like CONCAT(CONCAT('%',#{productName,jdbcType=VARCHAR}),'%')
+		 </if>		
+		 <if test="proStyleId !=  null and proStyleId!= null  ">
+			and p.pro_style_id  = #{proStyleId,jdbcType=INTEGER}
+		 </if>
+	</select>
+
+	<resultMap id="recommendProductResult" type="com.nork.product.model.RecommendProductResult">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="product_id" property="productId" jdbcType="INTEGER" />
+		<result  column="design_code" property="designCode" jdbcType="VARCHAR" />
+		<result  column="design_name" property="designName" jdbcType="VARCHAR" />
+		<result  column="product_code" property="productCode" jdbcType="VARCHAR" />
+		<result  column="product_name" property="productName" jdbcType="VARCHAR" />
+		<result  column="pic_path" property="picPath" jdbcType="VARCHAR" />
+		<result  column="pic_id" property="picId" jdbcType="INTEGER" />
+		<result  column="sale_price" property="salePrice" jdbcType="VARCHAR" />
+		<result  column="brand_Name" property="brandName" jdbcType="VARCHAR" />
+		<result  column="pro_style_id" property="proStyleId" jdbcType="INTEGER" />
+		<result  column="house_type_values" property="houseTypeValues" jdbcType="VARCHAR" />
+		<result  column="product_type_value" property="productTypeValue" jdbcType="VARCHAR" />
+		<result  column="product_small_type_value" property="productSmallTypeValue" jdbcType="INTEGER" />
+		
+	</resultMap>
+
+	<select id="getRecommendProduct" resultMap="recommendProductResult" parameterType="com.nork.product.model.search.ProductRecommendationSearch">
+		SELECT pr.id,bp.id AS product_id,bp.product_name,rp.pic_path,bp.sale_price,bb.brand_name FROM product_recommendation pr
+		LEFT JOIN base_product bp ON bp.id = pr.product_id
+		LEFT JOIN res_pic rp ON rp.id = bp.pic_id
+		LEFT JOIN base_brand bb ON bb.id = bp.brand_id
+		WHERE 1=1
+		<if test="productTypeValue != null and productTypeValue != ''">
+			and bp.product_type_value = #{productTypeValue,jdbcType=VARCHAR}
+		</if>
+		<if test="brandId != null and brandId != ''">
+			AND bp.brand_id = #{brandId,jdbcType=INTEGER}
+		</if>
+		<if test="designTempletId != null and designTempletId != ''">
+			AND pr.design_templet_id = #{designTempletId,jdbcType=INTEGER}
+		</if>
+	</select>
+	
+	<select id="recommendProductList" resultMap="recommendProductResult" parameterType="com.nork.product.model.search.ProductRecommendationSearch">
+		SELECT pr.id,bb.brand_name,bp.id AS product_id,bp.product_code,bp.product_name,bp.pro_style_id,bp.sale_price,bp.house_type_values,bp.product_type_value,bp.product_small_type_value 
+		FROM product_recommendation pr 
+		LEFT JOIN base_product bp ON bp.id = pr.product_id 
+		LEFT JOIN base_brand bb ON bb.id = bp.brand_id
+		WHERE 1=1
+		<if test="templetProductId != null and templetProductId != ''">
+			AND pr.templetProduct_id = #{templetProductId,jdbcType=INTEGER}
+		</if>
+		<if test="isDeleted!= null">  and pr.is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+	
+	<select id="recommendProductCount" resultType="int" parameterType="com.nork.product.model.search.ProductRecommendationSearch">
+		SELECT count(pr.id) FROM product_recommendation pr 
+		LEFT JOIN base_product bp ON bp.id = pr.product_id 
+		WHERE 1=1
+		<if test="templetProductId != null and templetProductId != ''">
+			AND pr.templetProduct_id = #{templetProductId,jdbcType=INTEGER}
+		</if>
+		<if test="productId != null">  and pr.product_id = #{productId,jdbcType=INTEGER} </if>
+		<if test="designTempletId != null">  and pr.design_templet_id = #{designTempletId,jdbcType=INTEGER} </if>
+		<if test="isDeleted!= null">  and pr.is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+	</select>
+	
+	<!--产品管理-产品推荐列表-->
+	<select id="proRecommendList" resultMap="recommendProductResult" parameterType="com.nork.product.model.RecommendProductResult">
+		SELECT pr.id,dt.design_code,dt.design_name,bb.brand_name,bp.id AS product_id,bp.product_code,bp.product_name,bp.pro_style_id,bp.sale_price,bp.house_type_values,bp.product_type_value,bp.product_small_type_value 
+		FROM product_recommendation pr 
+		LEFT JOIN design_templet dt ON dt.id = pr.design_templet_id 
+		LEFT JOIN base_product bp ON bp.id = pr.product_id 
+		LEFT JOIN base_brand bb ON bb.id = bp.brand_id
+		WHERE 1=1
+		<if test="designCode != null and designCode != ''">
+			AND dt.design_code like CONCAT('%',#{designCode,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="designName != null and designName != ''">
+			AND dt.design_name like CONCAT('%',#{designName,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="productCode != null and productCode != ''">
+			AND bp.product_code like CONCAT('%',#{productCode,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="productName != null and productName != ''">
+			AND bp.product_name like CONCAT('%',#{productName,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="productTypeValue != null and productTypeValue != ''">
+			AND bp.product_type_value = #{productTypeValue,jdbcType=VARCHAR}
+		</if>
+		<if test="productSmallTypeValue != null and productSmallTypeValue != ''">
+			AND bp.product_small_type_value = #{productSmallTypeValue,jdbcType=INTEGER}
+		</if>
+		<if test='orderNum =="1"  '>
+		  order by bp.product_type_value ASC,bp.product_small_type_value DESC
+		</if>
+		<if test='orderNum =="2"  '>
+		  order by bp.product_type_value DESC,bp.product_small_type_value DESC
+		</if>
+		<if test='orderNum == null and orderNum == "" '>
+		  order by pr.id DESC
+		</if>
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+	<select id="proRecommendCount" resultType="int" parameterType="com.nork.product.model.RecommendProductResult">
+		SELECT count(pr.id)  
+		FROM product_recommendation pr 
+		LEFT JOIN design_templet dt ON dt.id = pr.design_templet_id 
+		LEFT JOIN base_product bp ON bp.id = pr.product_id 
+		LEFT JOIN base_brand bb ON bb.id = bp.brand_id
+		WHERE 1=1
+		<if test="designCode != null and designCode != ''">
+			AND dt.design_code like CONCAT('%',#{designCode,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="designName != null and designName != ''">
+			AND dt.design_name like CONCAT('%',#{designName,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="productCode != null and productCode != ''">
+			AND bp.product_code like CONCAT('%',#{productCode,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="productName != null and productName != ''">
+			AND bp.product_name like CONCAT('%',#{productName,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="productTypeValue != null and productTypeValue != ''">
+			AND bp.product_type_value = #{productTypeValue,jdbcType=VARCHAR}
+		</if>
+		<if test="productSmallTypeValue != null and productSmallTypeValue != ''">
+			AND bp.product_small_type_value = #{productSmallTypeValue,jdbcType=INTEGER}
+		</if>
+	</select>
+	<!-- 推荐产品列表 、历史推荐产品列表-->
+	<select id="recommendProList" resultMap="recommendProductResult" parameterType="com.nork.design.model.search.DesignTempletProductSearch">
+		SELECT pr.id,bb.brand_name,bp.id AS product_id,bp.product_code,bp.product_name,bp.pro_style_id,bp.sale_price,bp.house_type_values,
+		bp.product_type_value,bp.product_small_type_value,bp.pic_id
+		FROM product_recommendation pr 
+		LEFT JOIN base_product bp ON bp.id = pr.product_id 
+		LEFT JOIN base_brand bb ON bb.id = bp.brand_id
+		WHERE 1=1  
+		<if test="id==0">
+			and pr.templetProduct_id IN 
+			(
+			SELECT dtp.id FROM design_templet_product dtp where 1=1  
+			AND dtp.design_templet_id = #{designTempletId,jdbcType=INTEGER} 
+			and dtp.product_id = #{productId,jdbcType=INTEGER}  
+			and dtp.pos_index_path = #{posIndexPath,jdbcType=VARCHAR}
+			)
+		</if>
+		<if test="id > 0">
+			and pr.templetProduct_id = #{id,jdbcType=INTEGER}
+		</if>
+		<if test="isDeleted!= null">  and pr.is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		order by pr.is_deleted asc 
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+	
+	<select id="recommendProCount" resultType="int" parameterType="com.nork.design.model.search.DesignTempletProductSearch">
+		SELECT count(pr.id) 
+		FROM product_recommendation pr 
+		WHERE 1=1  
+		<if test="id==0">
+			and pr.templetProduct_id IN 
+			(
+			SELECT dtp.id FROM design_templet_product dtp where 1=1  
+			AND dtp.design_templet_id = #{designTempletId,jdbcType=INTEGER} 
+			and dtp.product_id = #{productId,jdbcType=INTEGER}  
+			and dtp.pos_index_path = #{posIndexPath,jdbcType=VARCHAR}
+			)
+		</if>
+		<if test="id > 0">
+			and pr.templetProduct_id = #{id,jdbcType=INTEGER}
+		</if>
+		<if test="isDeleted!= null">  and pr.is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+	</select>
+     <!-- end-->
+</mapper>

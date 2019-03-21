@@ -1,0 +1,37 @@
+package com.nork.product.model;
+
+/**
+ * Description:
+ *
+ * @author 何文
+ * @version 1.0
+ * Company:Sandu
+ * Copyright:Copyright(c)2017
+ * @date 2017/12/8
+ */
+public class AutoRenderTaskConstant {
+
+    //渲染状态：未渲染
+    public static final int NO_RENDER_TASK = 0;
+    //渲染状态：渲染中
+    public static final int RENDERING_TASK = 1;
+    //渲染状态：渲染成功
+    public static final int RENDER_TASK_SUCCESS = 2;
+    //渲染状态：渲染失败
+    public static final int RENDER_TASK_FAIL = 3;
+
+    //我的方案
+    public static final Integer OPERATION_SOURCE_MY_DESIGN = 0 ;
+    //推荐方案
+    public static final Integer OPERATION_SOURCE_REMMONED = 1 ;
+
+    // 0:自动渲染 1：替换
+    public static final Integer TASK_TYPE_AUTO_RENDER = 0;
+    public static final Integer TASK_TYPE_REPLACE = 1;
+
+    /** 任务来源（0：通用网站 1：移动端）*/
+    public static final int TASK_SOURCE_WEB = 0;
+    public static final int TASK_SOURCE_APP = 1;
+
+
+}

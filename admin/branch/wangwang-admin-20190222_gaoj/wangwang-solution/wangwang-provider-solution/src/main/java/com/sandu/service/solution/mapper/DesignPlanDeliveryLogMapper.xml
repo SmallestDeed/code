@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.solution.dao.DesignPlanDeliveryLogMapper">
+    <resultMap id="BaseResultMap" type="com.sandu.api.solution.model.DesignPlanDeliveryLog">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="design_plan_id" property="designPlanId" jdbcType="INTEGER"/>
+        <result column="deliverer_id" property="delivererId" jdbcType="INTEGER"/>
+        <result column="delivery_company_id" property="deliveryCompanyId" jdbcType="INTEGER"/>
+        <result column="receive_company_id" property="receiveCompanyId" jdbcType="INTEGER"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, design_plan_id, design_plan_type, deliverer_id, delivery_company_id, receive_company_id, gmt_create
+    </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from design_plan_delivery_log
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        DELETE FROM design_plan_delivery_log
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insertSelective" parameterType="com.sandu.api.solution.model.DesignPlanDeliveryLog">
+        insert into design_plan_delivery_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="designPlanId != null">
+                design_plan_id,
+            </if>
+            <if test="designPlanType != null">
+                design_plan_type,
+            </if>
+            <if test="delivererId != null">
+                deliverer_id,
+            </if>
+            <if test="deliveryCompanyId != null">
+                delivery_company_id,
+            </if>
+            <if test="receiveCompanyId != null">
+                receive_company_id,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="designPlanId != null">
+                #{designPlanId,jdbcType=INTEGER},
+            </if>
+            <if test="designPlanType != null">
+                #{designPlanType,jdbcType=INTEGER},
+            </if>
+            <if test="delivererId != null">
+                #{delivererId,jdbcType=INTEGER},
+            </if>
+            <if test="deliveryCompanyId != null">
+                #{deliveryCompanyId,jdbcType=INTEGER},
+            </if>
+            <if test="receiveCompanyId != null">
+                #{receiveCompanyId,jdbcType=INTEGER},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.solution.model.DesignPlanDeliveryLog">
+        update design_plan_delivery_log
+        <set>
+            <if test="designPlanId != null">
+                design_plan_id = #{designPlanId,jdbcType=INTEGER},
+            </if>
+            <if test="designPlanType != null">
+                design_plan_type = #{designPlanType,jdbcType=INTEGER},
+            </if>
+            <if test="delivererId != null">
+                deliverer_id = #{delivererId,jdbcType=INTEGER},
+            </if>
+            <if test="deliveryCompanyId != null">
+                delivery_company_id = #{deliveryCompanyId,jdbcType=INTEGER},
+            </if>
+            <if test="receiveCompanyId != null">
+                receive_company_id = #{receiveCompanyId,jdbcType=INTEGER},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <sql id="sql_where">
+        <where>
+            <if test="designPlanId != null">
+                and design_plan_id = #{designPlanId,jdbcType=INTEGER}
+            </if>
+            <if test="delivererId != null">
+                and deliverer_id = #{delivererId,jdbcType=INTEGER}
+            </if>
+            <if test="deliveryCompanyId != null">
+                and delivery_company_id = #{deliveryCompanyId,jdbcType=INTEGER}
+            </if>
+            <if test="receiveCompanyId != null">
+                and receive_company_id = #{receiveCompanyId,jdbcType=INTEGER}
+            </if>
+            <if test="gmtCreate != null">
+                and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}
+            </if>
+        </where>
+    </sql>
+    <select id="selectListSelective" resultMap="BaseResultMap"
+            parameterType="com.sandu.api.solution.model.DesignPlanDeliveryLog">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM design_plan_delivery_log
+        <include refid="sql_where"/>
+    </select>
+
+    <delete id="deleteByDeliverId">
+        DELETE FROM design_plan_delivery_log
+        WHERE deliverer_id = #{delivererId} and design_plan_type = #{designPlanType}
+    </delete>
+    <delete id="deleteByTargetCompanyAndSource">
+        delete from design_plan_delivery_log
+        where design_plan_id = #{designPlanId} and receive_company_id = #{receiveCompanyId};
+
+    </delete>
+
+    <select id="listByDelivererId" resultType="com.sandu.api.solution.model.DesignPlanDeliveryLog">
+        SELECT *
+        FROM design_plan_delivery_log
+        WHERE deliverer_id = #{delivererId} and design_plan_type = #{designPlanType}
+    </select>
+</mapper>

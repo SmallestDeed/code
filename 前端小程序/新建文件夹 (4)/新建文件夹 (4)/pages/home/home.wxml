@@ -1,0 +1,177 @@
+<view class="bgView">
+    <image class='bgImg' src='../../static/image/items.jpg'></image>
+    <!-- <view class='bigTit'>海量DIY方案 ，省心省时间</view> -->
+    <!-- <view class='smallTit'>选装网装修大平台</view> -->
+    <!-- <view class='btnView'>
+    <view class="locations"><image src='images/me_icon_adress.png'></image>深圳</view>
+    <view class="news"><image src='images/me_icon_notice.png'></image></view>
+  </view> -->
+</view>
+
+<!-- <view class='selectView'>
+  <image src='../../static/image/search.png'></image>
+  <input placeholder="您想要什么服务？您想要什么产品？" />
+</view> -->
+
+<view class='gridView clearfix'>
+  <view class='items' catchtap='navigat' data-url='/pages/brandHall/bHSearchRes/bHSearchRes?id=2000'>
+    <image src='../../static/image/furnishing.png'></image>
+    <view>买家居</view>
+  </view>
+  <view class='items' catchtap='navigat' data-url='/pages/brandHall/bHSearchRes/bHSearchRes?id=1000'>
+    <image src='../../static/image/material.png'></image>
+    <view>买建材</view>
+  </view>
+  <view class='items' catchtap='navigat' data-url='/pages/brandHall/bHSearchRes/bHSearchRes?id=4000'>
+    <image src='../../static/image/appliance.png'></image>
+    <view>买电器</view>
+  </view>
+  <view class='items' catchtap='navigat' data-url='/pages/decoration/brandList/brandList?tab=2&name=家居建材&code='>
+    <image src='../../static/image/store.png'></image>
+    <view>找门店</view>
+  </view>
+  <view class='items' catchtap='navigat' data-url='/pages/decoration/brandList/brandList?tab=3&name=设计师&code='>
+    <image src='../../static/image/design.png'></image>
+    <view>找设计</view>
+  </view>
+  <view class='items' catchtap='navigat' data-url='/pages/decoration/brandList/brandList?tab=5&name=装修公司&code='>
+    <image src='../../static/image/renovation.png'></image>
+    <view>找装修</view>
+  </view>
+  <view class='items' catchtap='navigat' data-url='/pages/decoration/supplyList/supplyList?id=2,5&' data-type="信息栏">
+    <image src='../../static/image/info.png'></image>
+    <view>信息栏</view>
+  </view>
+</view>
+
+<view class='caseMain'>
+    <view class='title'>
+        装修案例
+        <view class='showMore' bindtap='toCase'>查看更多
+            <image src='../../static/image/more.png'></image>
+        </view>
+    </view>
+    <view class='caseBody' style='{{showType?"":"max-height:1408rpx;overflow-y: hidden;"}}'>
+        <view class='items' wx:for="{{newTypeName}}" wx:key="indexx" wx:if="{{caseObj[item.houseType].length>0}}">
+            <view class='typeName'>{{item.houseName}}</view>
+            <scroll-view scroll-x='true'>
+                <view class="items-item scroll-item"  wx:for='{{caseObj[item.houseType]}}' wx:for-item="val" wx:key='{{index}}'>
+                        <case-list recommendCaseList='{{[val]}}' border='{{true}}' 
+                        showCopyRightPrice='{{true}}'
+                        bindshowDecoratePriceBox='showDecoratePriceBox'></case-list>
+                </view>
+            </scroll-view>
+        </view>
+        <view class='showType' bindtap='changeType'>{{showType?'收起分类':'更多分类'}} 
+            <image class='{{showType?"active":""}}' src='../../static/image/more.png'></image>
+        </view>
+    </view>
+    
+</view>
+
+<view class='showMoreView' wx:if='{{popularList1.length>0}}'>
+    <view class='title'>
+        设计大咖
+        <view class='showMore' bindtap='navigatTo' data-url='/pages/decoration/brandList/brandList' data-tab='3' data-name="设计师">查看更多
+            <image src='../../static/image/more.png'></image>
+        </view>
+    </view>
+    <swiper>
+        <swiper-item class="scroll-view-item swiper-cover" wx:for='{{popularList1}}' wx:key='{{index}}'>
+            <view wx:for="{{item}}" wx:for-item="popular" wx:for-index="i" wx:key="{{i}}" catchtap='toDetail' data-id='{{popular.shopId}}'>
+                <image src='{{resourcePath+popular.picPath}}'></image>
+                <view class='views1'>
+                    <view class='p1'>{{popular.shopName}}</view>
+                </view>
+            </view>
+        </swiper-item>
+    </swiper>
+    <!-- <scroll-view scroll-x="true">
+    <view class="scroll-view-item" wx:for='{{popularList1}}' wx:key='{{index}}' catchtap='toDetail' data-id='{{item.shopId}}'>
+      <image src='{{resourcePath+item.picPath}}'></image>
+      <view class='views1'>
+        <view class='p1'>{{item.shopName}}</view>
+      </view>
+    </view>
+    <view class="scroll-view-item defaultView">
+      <text class='showMores' catchtap='navigatTo' data-url='/pages/decoration/brandList/brandList' data-tab='3'>查看更多</text>
+    </view>
+  </scroll-view> -->
+</view>
+<view class='popularShop'>
+    <view class='title'>
+        品牌设计
+        <view class='showMore' bindtap='navigatTo' data-url='/pages/decoration/brandList/brandList' data-tab='4' data-name="设计公司">
+            查看更多
+            <image src='../../static/image/more.png'></image>
+        </view>
+    </view>
+    <swiper class="scroll-view-box">
+        <swiper-item class='shopList {{index ? "pl15" : ""}}' wx:for='{{popularList2}}' wx:key='{{index}}' catchtap='toDetail' data-id='{{item.shopId}}'>
+            <view class='shop-image'>
+                <image src='{{item.caseCoverPath?resourcePath+item.caseCoverPath: "/static/image/goods_pic_no.png"}}'></image>
+            </view>
+            <view class='logo-name'>
+                <image src='{{item.picPath?resourcePath + item.picPath : "/static/image/goods_pic_no.png"}}' class='logo'></image>
+                <view class='name'>{{item.shopName}}</view>
+            </view>
+        </swiper-item>
+    </swiper>
+    <!-- <scroll-view scroll-x class="scroll-view-box">
+    <view class='shopList' wx:for='{{popularList2}}' wx:key='{{index}}' catchtap='toDetail' data-id='{{item.shopId}}'>
+      <view class='shop-image'>
+        <image src='{{item.caseCoverPath?resourcePath+item.caseCoverPath: "/static/image/goods_pic_no.png"}}'></image>
+      </view>
+      <view class='logo-name'>
+        <image src='{{item.picPath?resourcePath + item.picPath : "/static/image/goods_pic_no.png"}}' class='logo'></image>
+        <view class='name'>{{item.shopName}}</view>
+      </view>
+    </view>
+  </scroll-view> -->
+</view>
+
+<view class='popularShop' style='border-bottom:none;'>
+    <view class='title'>
+        口碑装修
+        <view class='showMore' bindtap='navigatTo' data-url='/pages/decoration/brandList/brandList' data-tab='5' data-name="装修公司">查看更多
+            <image src='../../static/image/more.png'></image>
+        </view>
+    </view>
+    <view class='shop-box top-shop-box' catchtap='toDetail' data-id='{{popularList3[0].shopId}}'>
+        <image src='{{popularList3[0].caseCoverPath?resourcePath+popularList3[0].caseCoverPath:"/static/image/goods_pic_no.png"}}'></image>
+        <view class='shop-box-message clearfix'>
+            <view class='box-message-image fl'>
+                <image src='{{popularList3[0].picPath?resourcePath + popularList3[0].picPath: "/static/image/goods_pic_no.png"}}'></image>
+            </view>
+            <view class='box-message-name fl ellipsis'>{{popularList3[0].shopName}}</view>
+        </view>
+    </view>
+    <swiper class="praise-container">
+        <swiper-item class="praise-content" wx:for='{{praiseList}}' wx:key='{{index}}'>
+            <view class='shop-box bottom-shop-box' wx:for="{{item}}" wx:for-item="praise" wx:for-index="i" catchtap='toDetail' data-id='{{praise.shopId}}' wx:key="{{i}}">
+                <image mode='aspectFill' src='{{praise.caseCoverPath ? resourcePath + praise.caseCoverPath : "/static/image/goods_pic_no.png"}}'></image>
+                <view class='shop-box-message clearfix'>
+                    <view class='box-message-image fl'>
+                        <image mode='aspectFill' src='{{praise.picPath?resourcePath + praise.picPath: "/static/image/goods_pic_no.png"}}'></image>
+                    </view>
+                    <view class='box-message-name fl box-message-short-name ellipsis'>{{praise.shopName}}</view>
+                </view>
+            </view>
+        </swiper-item>
+    </swiper>
+    <!-- <scroll-view scroll-x="true" class="scroll-shop-box">
+    <view class='shop-box bottom-shop-box' wx:if='{{index > 0}}' wx:for='{{popularList3}}' wx:key='{{index}}' catchtap='toDetail' data-id='{{item.shopId}}'>
+      <image mode='aspectFill' src='{{item.caseCoverPath?resourcePath+item.caseCoverPath:"/static/image/goods_pic_no.png"}}'></image>
+      <view class='shop-box-message clearfix'>
+        <view class='box-message-image fl'><image mode='aspectFill' src='{{item.picPath?resourcePath + item.picPath: "/static/image/goods_pic_no.png"}}'></image></view>
+        <view class='box-message-name fl box-message-short-name ellipsis'>{{item.shopName}}</view>      
+      </view>
+    </view>
+  </scroll-view> -->
+    <!-- <view class='shopList' wx:for='{{popularList3}}' wx:key='{{index}}' catchtap='toDetail' data-id='{{item.shopId}}'>
+    <image src='{{resourcePath+item.picPath}}'></image>
+  </view> -->
+</view>
+<view class='to-top' wx:if='{{ifShowToTopLogo}}' catchtap='goToTop'>
+    <image src='/static/image/to_top.png'></image>
+</view>

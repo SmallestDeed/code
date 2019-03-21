@@ -1,0 +1,29 @@
+package com.sandu.matadata;
+
+public class ResultCode {
+	/***
+	 * 参数错误
+	 */
+	public static final int ParameterError=100;
+	
+	/** 服务端未知错误 */
+	public static final int ServerError = 104; 
+	
+	/** 操作失败 */
+	public static final int Fail = 400; 
+	
+	/** 成功处理 */
+	public static final int Success = 200;
+
+	public static final int NoDateReturn = 201;
+
+	/**
+	 * 优惠券重复领取返回码
+	 */
+	public static final int REPEAT_RECEIVE_CODE = 10000101;
+
+	/**
+	 * 当前用户非新人用户
+	 */
+	public static final int CURRENT_USER_NON_NEW_CUSTOMER = 10000102;
+}

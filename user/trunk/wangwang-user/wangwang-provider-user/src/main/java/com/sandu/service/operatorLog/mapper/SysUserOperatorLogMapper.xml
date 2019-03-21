@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.operatorLog.dao.SysUserOperatorLogDao">
+
+    <insert id="insert" parameterType="com.sandu.api.operatorLog.model.SysUserOperatorLog"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO sys_user_operator_log
+           (user_id, event_code, value, remark, operator,operator_time,is_deleted)
+        VALUES
+           (#{userId},#{eventCode},#{value},#{remark},#{operator},#{operatorTime},#{isDeleted});
+    </insert>
+
+    <select id="selectByUserId" resultType="com.sandu.api.operatorLog.model.SysUserOperatorLog">
+        SELECT * FROM  sys_user_operator_log WHERE user_id=#{userId} AND is_deleted=0
+    </select>
+
+    <update id="updateByUserId">
+        update
+          sys_user_operator_log
+        set
+          is_deleted = 1,
+          operator_time = now()
+        where
+          user_id = #{userId}
+    </update>
+
+</mapper>

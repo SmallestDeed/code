@@ -1,0 +1,46 @@
+<!--pages/mine/myPublish/myPublish.wxml-->
+<!-- <view class='type'>
+  <view class='{{type=="0"?"supplyselect supplyselect_active":"supply"}}' bindtap='changeType' data-type='0'>已发布</view>
+  <view class='line'></view>
+  <view class='{{type=="1"?"supplyselect supplyselect_active":"supply"}}' bindtap='changeType' data-type='1'>已删除</view>
+</view> -->
+<view class="list">
+  <empty-page emptyPageObj="{{emptyPageObj}}" wx:if="{{List.length == 0}}"></empty-page>
+  <view class="list-item" wx:for='{{List}}' wx:key="{{index}}">
+    <view class="item-content" bindtap='toDetail' data-id='{{item}}'>
+
+      <image src="{{item.supplyDemandCoverPic?resourcePath+item.supplyDemandCoverPic.picPath:staticImageUrl+'news_pic_nor.png'}}"></image>
+
+      <view class="item-info">
+        <view class="title ellipsis">{{item.title}}</view>
+        <view class="describe ellipsis">{{item.description}}</view>
+        <view class="data-box">
+          <view class="glance-over">
+            <image src="{{staticImageUrl}}fabu_icon_see.png"></image>{{item.viewNum}}
+          </view>
+          <view class='comment'>
+            <image src='{{staticImageUrl}}fabu_icon_comment.png'></image>{{item.reviewsCount=='null'?'0':item.reviewsCount}}
+          </view>
+          <view class="time">
+            <image src="{{staticImageUrl}}fabu_icon_time.png"></image>{{item.gmtModified}}
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="item-footer">
+      <view class='compile' bindtap='editFun' data-index='{{index}}'>编辑</view>
+      <view class="midcourt-line "></view>
+      <view class='putaway' bindtap='lowerFrame' data-id="{{item.supplyDemandId}}" data-status="{{!item.pushStatus?1:0}}">
+      删除
+    </view>
+    </view>
+  </view>
+</view>
+<!-- <image src="{{staticImageUrl}}add.png" class='publish' bindtap='toPublish'></image> -->
+<view class='publish' bindtap='toPublish'>发布</view>
+<!-- <view class='publish' bindtap='toPublish'>
+  发布
+</view> -->
+<!-- 快速导航模块 -->
+  <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav"  data="{{ ...newNav }}"/>

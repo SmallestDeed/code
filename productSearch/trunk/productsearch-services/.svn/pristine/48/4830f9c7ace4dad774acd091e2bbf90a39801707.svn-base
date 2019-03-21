@@ -1,0 +1,267 @@
+package com.nork.system.service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.nork.product.model.BaseBrand;
+import com.nork.product.service.BaseBrandService;
+import com.nork.system.model.po.ResTexturePo;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.nork.common.util.Utils;
+import com.nork.product.model.SplitTextureDTO;
+import com.nork.system.dao.ResTextureMapper;
+import com.nork.system.model.ResFile;
+import com.nork.system.model.ResModel;
+import com.nork.system.model.ResPic;
+import com.nork.system.model.ResTexture;
+import com.nork.system.model.search.ResTextureSearch;
+import com.nork.system.service.ResFileService;
+import com.nork.system.service.ResModelService;
+import com.nork.system.service.ResPicService;
+import com.nork.system.service.ResTextureService;
+
+/**   
+ * @Title: ResTextureServiceImpl.java 
+ * @Package com.nork.system.service.impl
+ * @Description:系统模块-材质库ServiceImpl
+ * @createAuthor pandajun 
+ * @CreateDate 2016-06-30 14:10:42
+ * @version V1.0   
+ */ 
+@Service("resTextureService")
+public class ResTextureServiceImpl implements ResTextureService {
+
+	private ResTextureMapper resTextureMapper;
+
+	private static final Logger logger = LoggerFactory.getLogger(ResTextureServiceImpl.class);
+	
+	private static String logPrefix = "customLog:";
+	
+	@Autowired
+	BaseBrandService baseBrandService;
+	@Autowired
+	private ResPicService resPicService;
+	@Autowired
+	private ResFileService resFileService;
+	@Autowired
+	private ResModelService resModelService;
+	@Autowired
+	public void setResTextureMapper(
+			ResTextureMapper resTextureMapper) {
+		this.resTextureMapper = resTextureMapper;
+	}
+
+	/**
+	 * 新增数据
+	 *
+	 * @param resTexture
+	 * @return  int 
+	 */
+	@Override
+	public int add(ResTexture resTexture) {
+		resTextureMapper.insertSelective(resTexture);
+		return resTexture.getId();
+	}
+
+	/**
+	 *    更新数据
+	 *
+	 * @param resTexture
+	 * @return  int 
+	 */
+	@Override
+	public int update(ResTexture resTexture) {
+		return resTextureMapper
+				.updateByPrimaryKeySelective(resTexture);
+	}
+	
+	/**
+	 *    删除数据
+	 *
+	 * @param id
+	 * @return  int 
+	 */
+	@Override
+	public int delete(Integer id) {
+		return resTextureMapper.deleteByPrimaryKey(id);
+	}
+
+	/**
+	 *    获取数据详情
+	 *
+	 * @param id
+	 * @return  ResTexture 
+	 */
+	@Override
+	public ResTexture get(Integer id) {
+		return resTextureMapper.selectByPrimaryKey(id);
+	}
+
+	/**
+	 * 所有数据
+	 * 
+	 * @param  resTexture
+	 * @return   List<ResTexture>
+	 */
+	@Override
+	public List<ResTexture> getList(ResTexture resTexture) {
+	    return resTextureMapper.selectList(resTexture);
+	}
+	
+	/**
+	 *    获取数据数量
+	 *
+	 * @param  resTexture
+	 * @return   int
+	 */
+	@Override
+	public int getCount(ResTextureSearch resTextureSearch){
+		return  resTextureMapper.selectCount(resTextureSearch);	
+    }
+	
+
+	/**
+	 *    分页获取数据
+	 *
+	 * @param  resTexture
+	 * @return   List<ResTexture>
+	 */
+	@Override
+	public List<ResTexture> getPaginatedList(
+			ResTextureSearch resTextureSearch) {
+		return resTextureMapper.selectPaginatedList(resTextureSearch);
+	}
+
+	/**
+	 * 根据图片信息,补充材质数据信息
+	 * @author huangsongbo
+	 * @param resPic
+	 */
+	@Override
+	public void saveParamsByResPic(ResTexture resTexture, ResPic resPic) {
+		
+		//System.out.println("~~~~~~"+resPic.getPicHigh()+"~~~~~~"+resPic.getPicWeight());
+		
+		resTexture.setFileName(resPic.getPicFileName());
+		resTexture.setFileSize(resPic.getPicSize());
+		
+		if(StringUtils.isNotEmpty(resPic.getPicWeight())&& (StringUtils.isNotBlank(resPic.getPicWeight()))){
+			resTexture.setFileWidth(Integer.valueOf(resPic.getPicWeight()));
+		}
+		if(StringUtils.isNoneEmpty(resPic.getPicHigh()) && (StringUtils.isNoneBlank(resPic.getPicHigh()))){
+			resTexture.setFileHeight(Integer.valueOf(resPic.getPicHigh()));
+		}
+		resTexture.setFileSuffix(resPic.getPicSuffix());
+		resTexture.setFilePath(resPic.getPicPath());
+		resTexture.setName(resPic.getPicFileName());
+		resTexture.setFileCode(resPic.getPicCode());
+		resTextureMapper.insertSelective(resTexture);
+	}
+
+
+	@Override
+	public SplitTextureDTO.ResTextureDTO fromResTexture(ResTexture resTexture) {//TODO:增加了材质球文件路径
+		String texturePicPath = "";
+		String smallPath = "";
+		String normalPicPath = "";
+
+		ResTexturePo resTexturePo = resTextureMapper.selectTextureInfoById(resTexture.getId());
+		if (null != resTexturePo) {
+			texturePicPath = resTexturePo.getTexturePicPath();
+			smallPath = texturePicPath;
+			if (!StringUtils.isEmpty(resTexturePo.getSmallPicInfo())) {
+				//材质显示用缩略图--原图加载太慢 add by: xiaoxc-20180906
+				Integer smallPicId = Utils.getSmallPicId(resTexturePo.getSmallPicInfo(), "ios");
+				if (null != smallPicId) {
+					ResPic resSmallPic = resPicService.get(smallPicId);
+					smallPath = resSmallPic != null ? resSmallPic.getPicPath() : texturePicPath;
+				} else {
+					smallPath = texturePicPath;
+				}
+			}
+			//法线路径
+			normalPicPath = resTexturePo.getTexturePicPath();
+			if (!StringUtils.isEmpty(normalPicPath)) {
+				normalPicPath= Utils.dealWithPath(normalPicPath, "linux");
+			}
+		}
+
+		return new SplitTextureDTO().new ResTextureDTO(
+				resTexturePo.getResRextureId(),
+				texturePicPath,
+				smallPath,
+				resTexturePo.getTextureAttrValue(),
+				resTexturePo.getFileHeight(),
+				resTexturePo.getFileWidth(),
+				resTexturePo.getLaymodes(),
+				resTexturePo.getMaterialPath(),
+				resTexturePo.getNormalParam(),
+				normalPicPath,
+				resTexturePo.getBrandId(),
+				resTexturePo.getBrandName(),
+				resTexturePo.getTextureCode());
+	}
+
+	/**
+	 * 根据图片信息,补充材质数据信息
+	 * @author huangsongbo
+	 * @param resFile
+	 */
+	@Override
+	public void saveParamsByResFile(ResTexture resTexture, ResFile resFile) {
+		resTexture.setFileName(resFile.getFileName());
+		resTexture.setFileSize(Integer.valueOf(resFile.getFileSize()));
+		resTexture.setFileSuffix(resFile.getFileSuffix());
+		resTexture.setFilePath(resFile.getFilePath());
+		resTexture.setName(resFile.getFileName());
+		resTexture.setFileCode(resFile.getFileCode());
+		resTextureMapper.insertSelective(resTexture);
+	}
+	
+	
+	/**
+	 * 通过id 集合 批量获取数据
+	 * @param resTexture
+	 * @return
+	 */
+	@Override
+	public List<ResTexture> getBatchGet(ResTexture resTexture) {
+		return resTextureMapper.getBatchGet(resTexture);
+	}
+
+	@Override
+	public SplitTextureDTO getSplitTextureDTOById(Integer id, Integer productId) {
+		// 参数验证 ->start
+		if(id == null || id < 1) {
+			logger.error(logPrefix + "id = null || id < 1");
+			return null;
+		}
+		// 参数验证 ->end
+		
+		SplitTextureDTO splitTextureDTO = null;
+		ResTexture resTexture = this.get(id);
+		if (resTexture != null) {
+			splitTextureDTO = new SplitTextureDTO("1", "", null);
+			List<SplitTextureDTO.ResTextureDTO> resTextureDTOList = new ArrayList<SplitTextureDTO.ResTextureDTO>();
+			SplitTextureDTO.ResTextureDTO resTextureDTO = this.fromResTexture(resTexture);
+			resTextureDTO.setKey(splitTextureDTO.getKey());
+			resTextureDTO.setProductId(productId);
+			resTextureDTOList.add(resTextureDTO);
+			splitTextureDTO.setList(resTextureDTOList);
+		}else {
+			logger.error("resTexture is not found; resTextureId = {}" + id);
+		}
+		return splitTextureDTO;
+	}
+
+
+	@Override
+	public ResTexturePo getTextureInfoById(Integer id) {
+		return resTextureMapper.selectTextureInfoById(id);
+	}
+}

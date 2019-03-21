@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+					http://www.springframework.org/schema/beans/spring-beans.xsd
+                    http://code.alibabatech.com/schema/dubbo
+                    http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+	<!-- 小程序支付 -->
+    <dubbo:reference interface="com.sandu.gateway.pay.forward.service.PayService"
+                     id="miniProPay"  protocol="dubbo" timeout="30000" retries="0" version="2.0.0"  group="miniProPay"/>
+    <!-- RPC 消费 服务 -->
+    <dubbo:reference interface="com.sandu.api.user.service.UserService" version="20.18.0" id="userService"/>
+
+    <dubbo:reference interface="com.sandu.api.user.service.manage.SysUserManageService" version="20.18.1" id="sysUserManageService"/>
+
+    <dubbo:reference interface="com.sandu.api.user.service.SysUserService" version="20.18.0" id="sysUserService" />
+
+    <dubbo:reference interface="com.sandu.api.user.service.SysRoleService" version="20.18.0" id="sysRoleService" />
+
+    <dubbo:reference interface="com.sandu.order.service.MallBaseOrderService" version="20.18.0" id="mallBaseOrderService" />
+
+    <dubbo:reference interface="com.sandu.pay.order.service.PayModelGroupRefService" version="1.0.1" id="payModelGroupRefService" />
+
+    <dubbo:reference interface="com.sandu.api.income.service.CompanyDesignPlanIncomeService"
+                     id="companyDesignPlanIncomeService"  version="20.18.0" />
+
+    <dubbo:reference interface="com.sandu.api.income.service.CompanyDesignPlanIncomeAggregatedService"
+                     id="companyDesignPlanIncomeAggregatedService"  version="20.18.0" />
+
+    <!--支付账户表-->
+    <dubbo:reference interface="com.sandu.pay.order.service.PayAccountService"
+                   id="payAccountService"  version="1.0.1"/>
+
+    <dubbo:reference interface="com.sandu.product.service.BaseCompanyService"
+                     id="baseCompanyService2"  version="1.0.1"/>
+
+    <dubbo:reference interface="com.sandu.activity.service.CouponService"
+                     id="couponService"  version="1.0.1"/>
+
+
+    <dubbo:reference interface="com.sandu.pay.order.service.PayOrderService"
+                     id="miniPayOrderService"  version="1.0.1"/>
+
+
+    <dubbo:reference interface="com.sandu.pay.order.service.MgrRechargeLogService"
+                     id="mgrRechargeLogService"  version="1.0.1"/>
+
+
+
+</beans>

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.customer.dao.CustomerOperateLogMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.customer.model.CustomerOperateLog" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="operate_type" property="operateType" jdbcType="TINYINT" />
+    <result column="business_id" property="businessId" jdbcType="INTEGER" />
+    <result column="request_url" property="requestUrl" jdbcType="VARCHAR" />
+    <result column="ip_address" property="ipAddress" jdbcType="VARCHAR" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id, operate_type, business_id, request_url, ip_address, creator, 
+    gmt_create, modifier, gmt_modified, is_deleted
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from customer_operate_log
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from customer_operate_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sandu.customer.model.CustomerOperateLog" >
+    insert into customer_operate_log (id, user_id, operate_type, 
+      business_id, request_url, 
+      ip_address, creator, gmt_create, 
+      modifier, gmt_modified, is_deleted
+      )
+    values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{operateType,jdbcType=TINYINT}, 
+      #{businessId,jdbcType=INTEGER}, #{requestUrl,jdbcType=VARCHAR}, 
+      #{ipAddress,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, 
+      #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=INTEGER}
+      )
+  </insert>
+
+  <!-- 查询用户是否包含包年包月 -->  
+  <select id="queryPayModelGroupRef" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+  		SELECT IFNULL(COUNT(1),0) FROM pay_model_group_ref WHERE 1=1
+  		<choose>
+  			<when test="userId != null and userId !=''">
+  				and business_id = #{userId} 
+  			</when>
+  			<otherwise>
+  				and 1=2
+  			</otherwise>
+  		</choose>
+  </select>
+  
+  <!-- 查询用户渲染 -->
+  <select id="queryAutoRenderTaskStateCount" resultType="java.lang.Integer">
+  		SELECT IFNULL(COUNT(1),0) FROM auto_render_task_state WHERE platform_id = 14
+  		<if test="userId != null and userId !=''">
+  			and  operation_user_id = #{userId}
+  		</if>
+  		<if test="taskType!= null and taskType !=''">
+	  		and task_type = #{taskType}
+  		</if>
+  </select>
+  
+  <select id="queryCustomerOperateLog" resultType="java.lang.Integer">
+  		SELECT IFNULL(COUNT(1),0) FROM customer_operate_log WHERE 1=1 
+  		<if test="userId != null and userId !=''">
+  			and  user_id = #{userId}
+  		</if>
+  		<if test="operateType!= null and operateType !=''">
+	  		and operate_type = #{operateType}
+  		</if>
+  </select>
+  
+  <insert id="insertSelective" parameterType="com.sandu.customer.model.CustomerOperateLog" >
+    insert into customer_operate_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="operateType != null" >
+        operate_type,
+      </if>
+      <if test="businessId != null" >
+        business_id,
+      </if>
+      <if test="requestUrl != null" >
+        request_url,
+      </if>
+      <if test="ipAddress != null" >
+        ip_address,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="operateType != null" >
+        #{operateType,jdbcType=TINYINT},
+      </if>
+      <if test="businessId != null" >
+        #{businessId,jdbcType=INTEGER},
+      </if>
+      <if test="requestUrl != null" >
+        #{requestUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="ipAddress != null" >
+        #{ipAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.customer.model.CustomerOperateLog" >
+    update customer_operate_log
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="operateType != null" >
+        operate_type = #{operateType,jdbcType=TINYINT},
+      </if>
+      <if test="businessId != null" >
+        business_id = #{businessId,jdbcType=INTEGER},
+      </if>
+      <if test="requestUrl != null" >
+        request_url = #{requestUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="ipAddress != null" >
+        ip_address = #{ipAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.customer.model.CustomerOperateLog" >
+    update customer_operate_log
+    set user_id = #{userId,jdbcType=BIGINT},
+      operate_type = #{operateType,jdbcType=TINYINT},
+      business_id = #{businessId,jdbcType=INTEGER},
+      request_url = #{requestUrl,jdbcType=VARCHAR},
+      ip_address = #{ipAddress,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+</mapper>

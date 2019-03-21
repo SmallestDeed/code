@@ -1,0 +1,27 @@
+package com.sandu.designplan.dao;
+
+import com.sandu.render.model.vo.RenderStateVo;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface AutoRenderTaskMapper {
+    @Select("select count(1) from auto_render_task_state where operation_user_id = #{userId} and  task_type = #{taskType} and state = 1")
+    Integer getUserTaskCount(@Param("userId") Integer userId,
+                             @Param("taskType") Integer taskType);
+
+    @Select("SELECT " +
+            "if(t3.state is null, t1.state, t3.state) state, " +
+            "t1.business_id, " +
+            "t2.vr_resource_uuid AS vrUuid " +
+            "FROM " +
+            "auto_render_task_state t1 " +
+            "LEFT JOIN full_house_design_plan t2 ON t2.id = t1.new_full_house_plan_id " +
+            "LEFT JOIN auto_render_task_state t3 ON t2.id = t3.new_full_house_plan_id AND t3.task_id = t3.main_task_id " +
+            "WHERE " +
+            "t1.task_id = #{taskId} " +
+            "AND t1.is_deleted = 0 " +
+            "AND t1.is_valid = 0 ")
+    RenderStateVo getTaskStatus(@Param("taskId") Integer taskId);
+}

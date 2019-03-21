@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.task.refresh.dao.RefreshDoorPositionMapper">
+
+    <select id="getAllFilePath" resultType="com.sandu.api.task.refresh.model.FilePathBO">
+        SELECT
+          rf.id as fileId,
+          rf.`file_path` as filePath,
+          dt.`id` as templetId,
+          ddt.`design_templet_id` as drawTempletId,
+          dtu.`unique_id` as uniqueId
+        FROM
+          draw_space_common sc,
+          draw_res_file rf,
+          draw_design_templet ddt,
+          design_templet dt,
+          draw_design_templet_20180807 dtu
+        WHERE sc.bake_before_file_id = rf.id
+          AND ddt.`space_common_id` = sc.`id`
+          AND ddt.`design_templet_id` = dt.`id`
+          AND sc.`is_deleted` = 0
+          AND rf.`is_deleted` = 0
+          AND ddt.`is_deleted` = 0
+          AND dt.`is_deleted` = 0
+          AND dtu.design_templet_id = ddt.id
+          AND sc.gmt_create &lt;= '2018-07-04'
+    </select>
+
+    <select id="getTargetTempletId" resultType="integer">
+        SELECT
+          dt.id
+        FROM
+          draw_space_common sc,
+          draw_res_file rf,
+          draw_design_templet ddt,
+          design_templet dt,
+          draw_design_templet_20180807 dtu
+        WHERE sc.bake_before_file_id = rf.id
+          AND ddt.`space_common_id` = sc.`id`
+          AND ddt.`design_templet_id` = dt.`id`
+          AND sc.`is_deleted` = 0
+          AND rf.`is_deleted` = 0
+          AND ddt.`is_deleted` = 0
+          AND dt.`is_deleted` = 0
+          AND dtu.design_templet_id = ddt.id
+          AND dtu.`unique_id` = #{uniqueId}
+          AND dt.id != #{originTempletId}
+    </select>
+
+    <insert id="insertBatch" parameterType="list">
+
+        insert into design_templet_jump_position_rel
+            (
+            origin_id,
+
+            target_id,
+
+            jump_position,
+
+            draw_dtp_id,
+
+            is_deleted,
+
+            creator,
+
+            modifier,
+
+            remark
+            )
+        <!--<trim prefix="values (" suffix=")" suffixOverrides=",">-->
+        VALUES
+            <foreach collection="list" separator="," item="item" index="index">
+                (
+                    #{item.originId,jdbcType=BIGINT},
+
+                    #{item.targetId,jdbcType=BIGINT},
+
+                    #{item.jumpPosition,jdbcType=VARCHAR},
+
+                    #{item.drawDtpId,jdbcType=BIGINT},
+
+                    #{item.isDeleted,jdbcType=SMALLINT},
+
+                    #{item.creator,jdbcType=VARCHAR},
+
+                    #{item.modifier,jdbcType=VARCHAR},
+
+                    #{item.remark,jdbcType=VARCHAR}
+                )
+            </foreach>
+        <!--</trim>-->
+    </insert>
+
+</mapper>

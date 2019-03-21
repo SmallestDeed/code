@@ -1,0 +1,39 @@
+<view class='design'>
+  <!-- 导航 -->
+  <view class='nav-box {{(interspaceShow || styleShow)?"nav-box-active":""}}' catchtouchmove='hmove'>
+    <view class='nav'>
+      <view class='nav-item' bindtap='select' data-type='客餐厅'>
+        {{interspaceTitle}}
+        <image src='/static/images/page_icon_{{interspaceShow?"up":"down"}}.png'></image>
+      </view>
+      <view class='nav-item' bindtap='select' data-type='装修风格'>
+        {{styleTitle}}
+        <image src='/static/images/page_icon_{{styleShow?"up":"down"}}.png'></image>
+      </view>
+    </view>
+    <!-- 空间 -->
+    <view class='select' wx:if='{{interspaceShow}}'>
+      <view class='{{(index+1)%3 == 0 ? (interspaceIndex == index?"item-right item-color":"item-right") : (interspaceIndex == index?"select-item item-color":"select-item")}}'
+        wx:for='{{interspaceList}}' 
+        wx:key='{{index}}' 
+        data-type='{{item.houseType}}'
+        data-index='{{index}}' 
+        bindtap='selectHouse'>{{item.houseName}}</view>
+    </view>
+    <!-- 装修风格 -->
+    <view class='select' wx:if='{{styleShow}}'>
+      <view class='{{(index+1)%3 == 0 ? (styleIndex == index?"item-right item-color":"item-right") : (styleIndex == index?"select-item item-color":"select-item")}}'
+        wx:for='{{styleList}}' 
+        wx:key='{{index}}' 
+        data-code='{{item.styleCode}}' 
+        data-index='{{index}}'
+        bindtap='selectStyle'>{{item.styleName}}</view>
+    </view>
+  </view>
+  <!-- 列表 -->
+  <view class='item' wx:for='{{designList}}' wx:key='{{index}}'>
+    <design-item design="{{item}}" index='{{index}}'></design-item> 
+  </view>
+  <!-- 空页面 -->
+  <empty wx:if='{{isShowEmpty}}'></empty>
+</view> 

@@ -1,0 +1,190 @@
+package com.sandu.search.storage.company;
+
+import com.sandu.search.entity.elasticsearch.po.metadate.CompanyPo;
+import com.sandu.search.exception.MetaDataException;
+import com.sandu.search.service.metadata.MetaDataService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import java.util.*;
+
+/**
+ * 公司元数据存储
+ *
+ * @date 20171218
+ * @auth pengxuangang
+ */
+@Slf4j
+@Component
+public class CompanyMetaDataStorage {
+
+    private final static String CLASS_LOG_PREFIX = "公司元数据存储:";
+    //品牌网站域名对应公司ID Map元数据
+    private static Map<String, Integer> companyDomainMap = new HashMap<>();
+    //公司Map元数据
+    private static Map<Integer, CompanyPo> companyMap = new HashMap<>();
+    //元数据服务
+    @Autowired
+    private MetaDataService metaDataService;
+
+    /**
+     * 更新数据
+     * @param isEnforceLoad 是否强制更新
+     */
+    public void updateData(boolean isEnforceLoad) {
+
+        //若无强制更新则更新前判断是否已有数据
+        if (!isEnforceLoad) {
+            if (null != companyDomainMap && 0 < companyDomainMap.size()
+                    && null != companyMap && 0 < companyMap.size()) {
+                return;
+            }
+        }
+
+        //公司元数据
+        List<CompanyPo> companyPoList;
+        try {
+            //获取数据
+            log.info(CLASS_LOG_PREFIX + "开始获取公司元数据....");
+            companyPoList = metaDataService.queryCompanyMetaData();
+            log.info(CLASS_LOG_PREFIX + "获取公司元数据完成,总条数:{}", (null == companyPoList ? 0 : companyPoList.size()));
+        } catch (MetaDataException e) {
+            log.error(CLASS_LOG_PREFIX + "获取公司元数据失败: MetaDataException:{}", e);
+            throw new NullPointerException(CLASS_LOG_PREFIX + "获取公司元数据失败,List<CompanyPo> is null.MetaDataException:" + e);
+        }
+
+        //临时对象
+        Map<String, Integer> tempCompanyDomainMap = new HashMap<>();
+        Map<Integer, CompanyPo> tempCompanyMap = new HashMap<>();
+
+        //转换为Map元数据
+        if (null != companyPoList && 0 != companyPoList.size()) {
+            companyPoList.forEach(companyPo -> {
+                tempCompanyMap.put(companyPo.getCompanyId(), companyPo);
+                tempCompanyDomainMap.put(companyPo.getCompanyDomainName(), companyPo.getCompanyId());
+            });
+        }
+
+        //装回对象
+        companyMap = null;
+        companyMap = tempCompanyMap;
+        companyDomainMap = null;
+        companyDomainMap = tempCompanyDomainMap;
+
+    }
+
+    /**
+     * 根据公司品牌网站域名查询公司ID
+     *
+     * @param domainName 品牌网站域名
+     * @return
+     */
+    public Integer getCompanyIdByDomainName(String domainName) {
+        if (null == companyDomainMap || 0 >= companyDomainMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        if (!StringUtils.isEmpty(domainName) && companyDomainMap.containsKey(domainName)) {
+            return companyDomainMap.get(domainName);
+        }
+
+        return null;
+    }
+
+    /**
+     * 根据经销商ID查询经销商品牌列表
+     *
+     * @param dealerId 经销商ID
+     * @return
+     */
+    public List<Integer> queryDealerBranIdListByDealerId(int dealerId) {
+        if (0 == dealerId) {
+            return null;
+        }
+
+        if (null == companyMap || 0 >= companyMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        if (companyMap.containsKey(dealerId)) {
+            //品牌
+            String dealerBrands = companyMap.get(dealerId).getDealerBrands();
+            if (StringUtils.isEmpty(dealerBrands)) {
+                return null;
+            }
+            //经销商品牌字符串ID列表
+            List<String> brandIdStringList = Arrays.asList(dealerBrands.split(","));
+            //经销商品牌ID列表
+            List<Integer> brandIdList = new ArrayList<>(brandIdStringList.size());
+            //转换为整形
+            brandIdStringList.forEach(brandIdString -> brandIdList.add(Integer.parseInt(brandIdString)));
+            return brandIdList;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * 根据公司ID查询公司信息
+     *
+     * @param companyId    公司ID
+     * @return
+     */
+    public CompanyPo getCompanyPoByCompanyId(Integer companyId) {
+
+        if (null == companyMap || 0 >= companyMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        if (null != companyId && 0 < companyId && companyMap.containsKey(companyId)) {
+            return companyMap.get(companyId);
+        }
+        return null;
+    }
+
+    /**
+     * 根据公司ID查询公司行业
+     *
+     * @param companyId    公司ID
+     * @return
+     */
+    public int getIndustryByCompanyId(Integer companyId) {
+
+        if (null == companyMap || 0 >= companyMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        if (null != companyId && 0 < companyId && companyMap.containsKey(companyId)) {
+            return companyMap.get(companyId).getCompanyIndustry();
+        }
+
+        return 0;
+    }
+
+    /**
+     * 根据公司ID查询公司产品可见范围
+     *
+     * @param companyId    公司ID
+     * @return
+     */
+    public String getCompanyProductVisibilityRangeByCompanyId(Integer companyId) {
+
+        if (null == companyMap || 0 >= companyMap.size()) {
+            //更新数据
+            updateData(false);
+        }
+
+        if (null != companyId && 0 < companyId && companyMap.containsKey(companyId)) {
+            return companyMap.get(companyId).getCompanyProductVisibilityRange();
+        }
+
+        return null;
+    }
+}

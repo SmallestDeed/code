@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.shop.dao.CompanyShopArticleDao">
+
+    <!--新增博文-->
+    <insert id="add" parameterType="com.sandu.api.shop.model.CompanyShopArticle" useGeneratedKeys="true" keyProperty="id">
+        insert into company_shop_article
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="shopId!= null">shop_id, </if>
+            <if test="title!= null">title, </if>
+            <if test="releaseStatus!= null">release_status, </if>
+            <if test="picIds!= null">pic_ids, </if>
+            <if test="content!= null">content, </if>
+            <if test="sysCode!= null">sys_code, </if>
+            <if test="creator!= null">creator, </if>
+            <if test="gmtCreate!= null">gmt_create, </if>
+            <if test="modifier!= null">modifier, </if>
+            <if test="gmtModified!= null">gmt_modified, </if>
+            <if test="isDeleted!= null">is_deleted, </if>
+            <if test="remark!= null">remark, </if>
+            <if test="sid!= null">sid, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="shopId!= null">  #{shopId,jdbcType=INTEGER}, </if>
+            <if test="title!= null">  #{title,jdbcType=VARCHAR}, </if>
+            <if test="releaseStatus!= null">  #{releaseStatus,jdbcType=INTEGER}, </if>
+            <if test="picIds!= null">  #{picIds,jdbcType=VARCHAR}, </if>
+            <if test="content!= null">  #{content,jdbcType=VARCHAR}, </if>
+            <if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+            <if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+            <if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+            <if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+            <if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+            <if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+            <if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>
+            <if test="sid!= null"> #{sid},  </if>
+        </trim>
+    </insert>
+
+    <!--修改博文(博文修改、发布状态修改、是否删除)-->
+    <update id="update" parameterType="com.sandu.api.shop.model.CompanyShopArticle" >
+        update company_shop_article
+        <set>
+            <if test="shopId!= null">  shop_id = #{shopId,jdbcType=INTEGER}, </if>
+            <if test="title!= null">  title = #{title,jdbcType=VARCHAR}, </if>
+            <if test="releaseStatus!= null">  release_status = #{releaseStatus,jdbcType=INTEGER}, </if>
+            <if test="picIds!= null">  pic_ids = #{picIds,jdbcType=VARCHAR}, </if>
+            <if test="content!= null">  content = #{content,jdbcType=VARCHAR}, </if>
+            <if test="sysCode!= null">  sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+            <if test="creator!= null">  creator = #{creator,jdbcType=VARCHAR}, </if>
+            <if test="gmtCreate!= null">  gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+            <if test="modifier!= null">  modifier = #{modifier,jdbcType=VARCHAR}, </if>
+            <if test="gmtModified!= null">  gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+            <if test="isDeleted!= null">  is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+            <if test="remark!= null">  remark = #{remark,jdbcType=VARCHAR}, </if>
+            <if test="browseCount!= null">  browse_count = #{browseCount,jdbcType=INTEGER}, </if>
+            <if test="releaseTime!= null">  release_time = #{releaseTime,jdbcType=TIMESTAMP}, </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!--查询博文详情-->
+    <select id="get" resultType="com.sandu.api.shop.model.CompanyShopArticle">
+        SELECT * FROM company_shop_article
+        WHERE is_deleted = 0
+        AND id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!--查询店铺博文数量-->
+    <select id="getCount" parameterType="com.sandu.api.shop.input.CompanyShopArticleQuery" resultType="java.lang.Integer">
+            SELECT COUNT(1) FROM company_shop_article
+            WHERE is_deleted = 0
+            AND shop_id = #{shopId,jdbcType=INTEGER}
+    </select>
+
+    <!--查询店铺博文列表-->
+    <select id="getList" parameterType="com.sandu.api.shop.input.CompanyShopArticleQuery"
+            resultType="com.sandu.api.shop.model.CompanyShopArticle">
+            SELECT * FROM company_shop_article
+            WHERE is_deleted = 0
+            AND shop_id = #{shopId,jdbcType=INTEGER}
+            ORDER BY gmt_create DESC
+            LIMIT #{start}, #{limit}
+    </select>
+
+    <!--根据店铺Id进行批量逻辑删除-->
+    <update id="deleteByShopId" >
+        UPDATE company_shop_article
+        SET
+            is_deleted= 1,
+            modifier = #{modifier,jdbcType=VARCHAR},
+            gmt_modified = NOW()
+        WHERE
+          shop_id= #{shopId,jdbcType=INTEGER}
+    </update>
+
+    <update id="deleteArticleByShopId" >
+        UPDATE company_shop_article
+        SET
+            is_deleted = 1,
+            modifier = #{loginUserName,jdbcType=VARCHAR},
+            gmt_modified = NOW()
+        WHERE shop_id IN
+        <foreach item="item" collection="shopIds" separator="," open="(" close=")" index="">
+            #{item}
+        </foreach>
+    </update>
+
+    <select id="getArticleByShopId" resultType="java.lang.Integer">
+        SELECT COUNT(id)
+        FROM company_shop_article
+        WHERE is_deleted = 0
+        AND shop_id IN
+        <foreach item="item" collection="shopIds" separator="," open="(" close=")" index="">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getMainCompanyShopId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        SELECT
+            t2.id
+        FROM
+            company_shop t1
+            LEFT JOIN company_shop t2 on t2.company_id = t1.company_id and t2.is_deleted = 0 and t2.shop_type = 1
+        WHERE
+            t1.id = #{shopId}
+    </select>
+
+    <select id="getMainShopArticleId" resultType="java.lang.Long">
+        SELECT
+            t2.id
+        FROM
+            company_shop_article t1
+            LEFT JOIN company_shop_article t2 on t2.sid = t1.id and t2.is_deleted = 0 and t2.shop_id = #{mainShopId}
+        WHERE
+            t1.id = #{articleId}
+    </select>
+
+    <update id="updateMainShopArticleStatus">
+        update
+            company_shop_article t1
+            inner join company_shop_article t2 on t2.id = t1.sid and t2.shop_id = #{shopId}
+        set t1.is_deleted = #{status}
+        where
+            t1.shop_id = #{mainShopId}
+    </update>
+</mapper>

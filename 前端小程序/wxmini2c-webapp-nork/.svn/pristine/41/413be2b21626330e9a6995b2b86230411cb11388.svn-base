@@ -1,0 +1,136 @@
+<view class="assemble-detail">
+    <view class="header">
+        <view class="header-shopDetail">
+            <view class="bgwrap">
+                <view class="header-shopDetail__detailbox">
+                    <image class="shopImg" src="{{resourcePath+assembleDetail.picPath}}" />
+                    <view class="shopInfo">
+                        <view class="title">
+                            {{assembleDetail.spuName}}
+                        </view>
+                        <view class="money">
+                            ￥{{assembleDetail.activityPrice}}
+                            <view class="tab">
+                                {{assembleDetail.totalNumber}}人拼团价
+                            </view>
+                        </view>
+                        <view class="costPrice">
+                            原价￥{{assembleDetail.basePrice}}
+                        </view>
+                    </view>
+                </view>
+            </view>
+        </view>
+    </view>
+    <view class="main">
+      <view class="main-playbox">
+        <view class="bgwrap">
+            <text class="main-playbox__title">拼团玩法</text>
+            <view class="main-playbox__numbox">
+                <view class="numberwrap">
+                <view class="number">1</view>
+                <view class="numbertext">选择商品开团/参团</view>
+                </view>
+                <view class="numberwrap">
+                    <view class="number line">2</view>
+                    <view class="numbertext">邀请好友参团</view>
+                </view>  
+                <view class="numberwrap">
+                    <view class="number">3</view>
+                    <view class="numbertext">人满成团并发货</view>
+                </view>
+            </view>
+        </view>
+      </view>
+      <view class="main-assembleStatus">
+          <view class="main-assembleStatus__personImgbox">
+             <block wx:if="{{isHidden}}">
+                <view class="Imgbox" wx:for="{{hiddenList}}" wx:for-item="item" wx:key="{{index}}">
+                    <image class="personImg" src="{{item.picPath?item.picPath:''}}" />
+                    <view wx:if="{{item.isMaster==1}}" class="Imgbox__commander  commander">
+                        团长
+                    </view>
+                </view>
+                <view class="Imgbox" >
+                    <image class="personImg" src="{{staticImageUrl}}tuan_user_more.png" />
+                </view>
+             </block>
+             <block wx:if="{{!isHidden}}">
+                  <view class="Imgbox" wx:for="{{hiddenList}}" wx:for-item="item" wx:key="{{index}}">
+                      <image class="personImg" src="{{item.picPath}}" />
+                      <view wx:if="{{item.isMaster==1}}" class="Imgbox__commander  commander">
+                          团长
+                      </view>
+                  </view>
+                  <view class="Imgbox"  wx:if="{{assembleDetail.openStatus==0}}">
+                    <image wx:for="{{assembleDetail.totalNumber-assembleDetail.joinNumber}}"  class="personImg" src="{{staticImageUrl}}tuan_user_nor.png"  wx:key="{{index}}" />
+                  </view>
+              </block>
+             
+             <!-- <view class="Imgbox">
+                  <image class="personImg" src="{{item.picPath}}" />
+                  <view wx:if="{{item.isMaster==1}}" class="Imgbox__commander  commander">团长</view>
+              </view> -->
+          </view>
+          <block wx:if="{{assembleDetail.openStatus==0}}">
+            <view class="main-assembleStatus__text">
+                 <image class="timeImg" src="{{staticImageUrl}}tuan_icon_open.png" />
+                 已开团，离成团还差
+                 <text class="num">{{assembleDetail.totalNumber-assembleDetail.joinNumber}}</text>
+                 人
+             </view>
+             <view class="main-assembleStatus__timebox" wx:if="{{timeValue>0}}">
+                 剩余
+                 <text class="numbg">{{assembleHourNum}}</text>
+                 :
+                 <text class="numbg">{{assembleMinNum}}</text>
+                 :
+                 <text class="numbg">{{assembleSecNum}}</text>
+                 结束
+             </view>
+          </block>
+          <block wx:if="{{assembleDetail.openStatus==2||assembleDetail.openStatus==4}}">
+              <view class="main-assembleStatus__text">
+                   <image class="timeImg" src="{{staticImageUrl}}tuan_icon_fail.png" />
+                   拼团失败，下次再试吧
+               </view>
+          </block>
+          <block  wx:if="{{assembleDetail.openStatus==1}}">
+              <view class="main-assembleStatus__text">
+                   <image class="timeImg" src="{{staticImageUrl}}tuan_icon_success.png" />
+                   拼团成功，棒棒哒
+               </view>
+          </block>
+      </view>
+      <view class="main-assembleDetail">
+          <view class="bgwrap">
+              <view class="main-assembleDetail__personDetailbox">
+                   <view class="title">
+                       参团详情
+                   </view>
+                   <view class="infobox"  wx:for="{{friendList}}" wx:for-item="item"  wx:key="{{index}}">
+                       <image class="personImg" src='{{item.picPath}}'/>
+                       <view class="namebox">
+                           <view class="name">
+                               {{item.userName}}
+                               <view wx:if="{{item.isMaster==1}}" class="name__commander  commander">团长</view>
+                            </view>
+                            <view class="time">
+                               {{item.joinTime}} <text  wx:if="{{item.isMaster==1}}">开</text> <text wx:if="{{item.isMaster!==1}}">参</text>团
+                            </view>
+                       </view>
+                   </view>
+              </view>
+          </view>
+      </view>
+    </view>
+    <view class="friendJoin" wx:if="{{assembleDetail.openStatus==0}}">
+       <view class="friendJoin__joinBtn"  bindtap="isShowDialog" >
+           邀请好友参团
+       </view>
+    </view>
+      <!-- 分享组件 -->
+    <share-way id="shareWay" bind:myevent="showPoster"></share-way>
+    <create-poster id="createPoster" shareParam='{{shareParam}}'></create-poster> 
+</view>
+<canvas canvas-id="myCanvas" class='hide'></canvas>

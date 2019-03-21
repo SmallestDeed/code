@@ -1,0 +1,14 @@
+package com.sandu.amqp.common.constant;
+
+/**
+ * 消息路由Key
+ *
+ * @date 2018/5/3
+ * @auth pengxuangang
+ * @mail xuangangpeng@gmail.com
+ */
+public class RabbitRoutingKey {
+    //设计方案
+    public static final String DESIGN_PLAN = "designplan";
+
+}

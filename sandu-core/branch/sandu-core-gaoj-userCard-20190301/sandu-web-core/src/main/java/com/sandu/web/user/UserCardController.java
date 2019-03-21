@@ -1,0 +1,225 @@
+package com.sandu.web.user;
+
+import com.sandu.api.base.common.LoginUser;
+import com.sandu.api.base.common.ResponseEnvelope;
+import com.sandu.api.base.common.exception.BizException;
+import com.sandu.api.base.input.UserCardStatisticsQuery;
+import com.sandu.api.base.input.UserCardTransmitRecordAdd;
+import com.sandu.api.base.model.SysUser;
+import com.sandu.api.base.model.UserCard;
+import com.sandu.api.base.output.UserCardVo;
+import com.sandu.api.base.service.SysUserService;
+import com.sandu.api.base.service.UserCardService;
+import com.sandu.common.LoginContext;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@Slf4j
+@RequestMapping("/v1/core/userCard")
+public class UserCardController {
+
+    private final String CLASS_LOG_PREFIX = "【用户电子名片】";
+
+    private final UserCardService userCardService;
+    private final SysUserService sysUserService;
+
+    @Autowired
+    public UserCardController(UserCardService userCardService,
+                              SysUserService sysUserService) {
+        this.userCardService = userCardService;
+        this.sysUserService = sysUserService;
+    }
+
+    /**
+     * 获取用户电子名片信息
+     *
+     * @return
+     */
+    @RequestMapping("/getUserCard")
+    @ApiOperation(value = "get user card, if null, meaning do not have user card", response = ResponseEnvelope.class)
+    public ResponseEnvelope getUserCard(@RequestParam Integer userId) {
+        if (null == userId || 0 == userId) {
+            return new ResponseEnvelope(false, "参数为空");
+        }
+        log.info(CLASS_LOG_PREFIX + "添加或修改电子名片，前端传值 userId={}", userId);
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (null == loginUser) {
+            return new ResponseEnvelope(false, "请登录");
+        }
+
+        UserCardVo userCardVo = null;
+        try {
+            userCardVo = userCardService.getUserCardByUserId(userId);
+            return new ResponseEnvelope(true, "用户已有电子名片", userCardVo);
+        } catch (BizException e) {
+            log.warn(CLASS_LOG_PREFIX + "获取用户电子名片异常，bizException：{}", e);
+            return new ResponseEnvelope(false, e.getMsg());
+        } catch (Exception e) {
+            log.warn(CLASS_LOG_PREFIX + "获取电子名片异常，exception={}", e);
+            return new ResponseEnvelope(false, "系统异常");
+        }
+
+        // if (null == userCardVo) {
+        //     return new ResponseEnvelope(true, "用户还没有电子名片", userCardVo);
+        // } else {
+        //     return new ResponseEnvelope(true, "用户已有电子名片", userCardVo);
+        // }
+    }
+
+    /**
+     * 新增或修改电子名片
+     *
+     * @param userCard
+     * @return
+     */
+    @RequestMapping("/addOrUpdate")
+    @ApiOperation(value = "insert or update user card, if do not have,insert; if have, update")
+    public ResponseEnvelope addOrUpdateUserCard(@RequestBody UserCard userCard) {
+        if (null == userCard) {
+            return new ResponseEnvelope(false, "名片信息为空");
+        }
+        log.info(CLASS_LOG_PREFIX + "添加或修改电子名片，前端传值 userCard={}", userCard);
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (null == loginUser || null == loginUser.getId() || 0 >= loginUser.getId()) {
+            return new ResponseEnvelope(false, "请登录");
+        }
+
+        userCard.setUserId(loginUser.getId());
+
+        boolean flag = false;
+        try {
+            flag = userCardService.insertOrUpdate(userCard);
+        } catch (BizException e) {
+            log.error(CLASS_LOG_PREFIX + "新增或修改名片异常，exception:{}", e);
+        }
+        if (flag) {
+            return new ResponseEnvelope(true, "操作成功");
+        } else {
+            return new ResponseEnvelope(false, "操作失败");
+        }
+    }
+
+    /**
+     * 判断用户是否有权限查看电子名片栏目
+     *
+     * @return
+     */
+    @RequestMapping("/checkUserHaveUserCard")
+    @ApiOperation(value = "check user can see user card, return true:YES,return false:NO ")
+    public ResponseEnvelope checkUserHaveUserCard() {
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (null == loginUser || null == loginUser.getId() || 0 == loginUser.getId()) {
+            return new ResponseEnvelope(false, "请登录");
+        }
+
+        boolean flag;
+        try {
+            flag = userCardService.checkUserHaveUserCard(loginUser.getId());
+        } catch (BizException e) {
+            log.warn(CLASS_LOG_PREFIX + "校验用户是否有电子名片权限，exception：{}", e);
+            return new ResponseEnvelope(false, e.getMsg());
+        } catch (Exception e) {
+            log.warn(CLASS_LOG_PREFIX + "校验用户是否有电子名片权限，exception：{}", e);
+            return new ResponseEnvelope(false, "系统错误");
+        }
+
+        if (flag) {
+            return new ResponseEnvelope(true, "用户有权限查看电子名片", 1);
+        } else {
+            return new ResponseEnvelope(true, "用户没有权限查看电子名片", 0);
+        }
+
+    }
+
+    /**
+     * 功能描述: 生成微信小程序二维码
+     *
+     * @param companyId
+     * @return com.sandu.api.base.common.ResponseEnvelope
+     * @throws
+     * @author gaoj
+     * @date 16:42
+     */
+    @RequestMapping("/getWXQRCode")
+    @ApiOperation(value = "get WeChat QRCard by companyId or loginUser")
+    public ResponseEnvelope getWXQRCode(@RequestParam Integer companyId, @RequestParam Integer userCardId) {
+        if (null == userCardId || 0 == userCardId) {
+            return new ResponseEnvelope(false, "名片信息为空");
+        }
+        if (null == companyId || 0 == companyId) {
+            return new ResponseEnvelope(false, "企业信息为空");
+        }
+        log.info(CLASS_LOG_PREFIX + "添加或修改电子名片，前端传值 companyId={},userCardId={}", companyId, userCardId);
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (null == loginUser) {
+            return new ResponseEnvelope(false, "请登录");
+        }
+
+        String qrCodePicPath = null;
+        try {
+            qrCodePicPath = userCardService.getWXACode(companyId, loginUser, userCardId);
+        } catch (BizException e) {
+            log.error(CLASS_LOG_PREFIX + "生成小程序二维码异常，exception：{}", e);
+            return new ResponseEnvelope(false, "生成小程序二维码异常，exception：" + e);
+        }
+        log.info(CLASS_LOG_PREFIX + "生成小程序二维码完成，访问地址：{}", qrCodePicPath);
+
+        return new ResponseEnvelope(true, "生成小程序二维码完成", qrCodePicPath);
+    }
+
+    @RequestMapping("/addUserCardTransmitRecord")
+    @ApiOperation(value = "添加用户转发电子名片记录")
+    public ResponseEnvelope addUserCardTransmitRecord(UserCardTransmitRecordAdd userCardTransmitRecordAdd, SysUser user) {
+        if (null == userCardTransmitRecordAdd) {
+            return new ResponseEnvelope(false, "参数为空");
+        }
+        if (null == userCardTransmitRecordAdd.getUserCardId() || 0 >= userCardTransmitRecordAdd.getUserCardId()
+                || null == userCardTransmitRecordAdd.getTransmitType() || 0 >= userCardTransmitRecordAdd.getTransmitType()) {
+            return new ResponseEnvelope(false, "参数缺失");
+        }
+        // LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        // if (null == loginUser) {
+        //     return new ResponseEnvelope(false, "请登录");
+        // }
+
+        userCardTransmitRecordAdd.setUserId(user.getId().intValue());
+        try {
+            int result = userCardService.addUserCardTransmitRecord(userCardTransmitRecordAdd);
+            return new ResponseEnvelope(result == 1, result == 1 ? "添加记录成功" : "添加记录失败");
+        } catch (BizException e) {
+            log.warn(CLASS_LOG_PREFIX + "添加用户转发电子名片记录异常：{}", e);
+            return new ResponseEnvelope(false, e.getMessage());
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "添加用户转发电子名片记录异常：{}", e);
+            return new ResponseEnvelope(false, "系统异常");
+        }
+    }
+
+    @RequestMapping("/getAllUserCardOfCompany")
+    @ApiOperation(value = "用户电子名片统计查询")
+    public ResponseEnvelope getAllUserCardOfCompany(UserCardStatisticsQuery userCardStatisticsQuery) {
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (null == loginUser || null == loginUser.getId() || 0 >= loginUser.getId()) {
+            return new ResponseEnvelope(false, "请登录");
+        }
+
+        SysUser sysUser = sysUserService.selectByPrimaryKey(loginUser.getId().longValue());
+        if (null == sysUser) {
+            return new ResponseEnvelope(false, "请重新登录");
+        }
+
+        // userCardService.getAllUserCardOfCompany(userCardStatisticsQuery, sysUser);
+        return null;
+    }
+
+
+}

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.pano.dao.DesignPlanStoreReleaseDetailsMapper">
+
+    <!-- **插入定义** -->
+    <insert id="insertSelective" parameterType="com.nork.pano.model.DesignPlanStoreReleaseDetails"  useGeneratedKeys="true" keyProperty="id">
+        insert into design_plan_store_release_details
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="storeReleaseId != null">store_release_id, </if>
+        <if test="designTemplateId != null">design_template_id,</if>
+        <if test="designPlanId != null">design_plan_id,</if>
+        <if test="designPlanType != null">design_plan_type, </if>
+        <if test="renderingType != null">rendering_type, </if>
+        <if test="resourceId != null">resource_id, </if>
+        <if test="isMain != null">is_main, </if>
+        <if test="sysCode!= null">sys_code, </if>
+        <if test="creator!= null">creator, </if>
+        <if test="gmtCreate!= null">gmt_create, </if>
+        <if test="modifier!= null">modifier, </if>
+        <if test="gmtModified!= null">gmt_modified, </if>
+        <if test="isDeleted!= null">is_deleted, </if>
+        <if test="remark!= null">remark, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+        <if test="storeReleaseId != null">#{storeReleaseId,jdbcType=INTEGER}, </if>
+        <if test="designTemplateId != null">#{designTemplateId,jdbcType=INTEGER},</if>
+        <if test="designPlanId != null">#{designPlanId,jdbcType=INTEGER},</if>
+        <if test="designPlanType != null">#{designPlanType,jdbcType=INTEGER}, </if>
+        <if test="renderingType != null">#{renderingType,jdbcType=INTEGER}, </if>
+        <if test="resourceId != null">#{resourceId,jdbcType=INTEGER}, </if>
+        <if test="isMain != null">#{isMain,jdbcType=INTEGER}, </if>
+        <if test="sysCode!= null">#{sysCode,jdbcType=VARCHAR}, </if>
+        <if test="creator!= null">#{creator,jdbcType=VARCHAR}, </if>
+        <if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP}, </if>
+        <if test="modifier!= null">#{modifier,jdbcType=VARCHAR}, </if>
+        <if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP}, </if>
+        <if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER}, </if>
+        <if test="remark!= null">#{remark,jdbcType=VARCHAR}, </if>
+        </trim>
+    </insert>
+
+    <!-- **更新定义** -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.nork.pano.model.DesignPlanStoreReleaseDetails">
+        update design_plan_store_release_details
+        <set>
+            <if test="storeReleaseId != null">store_release_id = #{storeReleaseId,jdbcType=INTEGER}, </if>
+            <if test="designTemplateId != null">design_plan_id = #{designTemplateId,jdbcType=INTEGER},</if>
+            <if test="designPlanId != null">design_plan_id = #{designPlanId,jdbcType=INTEGER},</if>
+            <if test="designPlanType != null">design_plan_type = #{designPlanType,jdbcType=INTEGER}, </if>
+            <if test="renderingType != null">rendering_type = #{renderingType,jdbcType=INTEGER}, </if>
+            <if test="resourceId != null">resource_id = #{resourceId,jdbcType=INTEGER}, </if>
+            <if test="isMain != null">is_main = #{isMain,jdbcType=INTEGER}, </if>
+            <if test="sysCode!= null">sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+            <if test="creator!= null">creator = #{creator,jdbcType=VARCHAR}, </if>
+            <if test="gmtCreate!= null">gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+            <if test="modifier!= null">modifier = #{modifier,jdbcType=VARCHAR}, </if>
+            <if test="gmtModified!= null">gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+            <if test="isDeleted!= null">is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+            <if test="remark!= null">remark = #{remark,jdbcType=VARCHAR}, </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!-- **删除定义** -->
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        update design_plan_store_release_details set is_deleted = 1 , gmt_modified = now()
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+        id,store_release_id,design_plan_id,design_plan_type,rendering_type,is_main,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,remark
+    </sql>
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.nork.pano.model.DesignPlanStoreReleaseDetails">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="store_release_id" property="storeReleaseId" jdbcType="INTEGER"/>
+        <result column="design_template_id" property="designTemplateId" jdbcType="INTEGER"/>
+        <result column="design_plan_id" property="designPlanId" jdbcType="INTEGER"/>
+        <result column="design_plan_type" property="designPlanType" jdbcType="INTEGER"/>
+        <result column="rendering_type" property="renderingType" jdbcType="INTEGER"/>
+        <result column="resource_id" property="resourceId" jdbcType="INTEGER"/>
+        <result column="is_main" property="isMain" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="AllResultMap"
+            parameterType="java.lang.Integer">
+        select
+        <include refid="All_Column_List" />
+        from design_plan_store_release_details
+        where is_deleted = 0 and id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <resultMap id="AllResultMapForVo" type="com.nork.pano.model.output.DesignPlanStoreReleaseDetailsVo">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="design_plan_id" property="designPlanId" jdbcType="INTEGER"/>
+        <result column="design_template_id" property="designTemplateId" jdbcType="INTEGER"/>
+        <result column="design_plan_type" property="designPlanType" jdbcType="INTEGER"/>
+        <result column="rendering_type" property="renderingType" jdbcType="INTEGER"/>
+        <result column="resource_id" property="resourceId" jdbcType="INTEGER"/>
+        <result column="resource_path" property="resourcePath" jdbcType="INTEGER"/>
+        <result column="is_main" property="isMain" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!-- 根据分享主表ID查询详情列表 -->
+    <select id="selectListByStoreReleaseId" resultMap="AllResultMap"
+            parameterType="java.lang.Integer">
+        select
+        rd.design_template_id,rd.design_plan_id,rd.design_plan_type,rd.rendering_type,rd.resource_id,rd.is_main
+        from design_plan_store_release_details rd
+        where rd.is_deleted = 0 and rd.store_release_id = #{storeReleaseId,jdbcType=INTEGER}
+        order by is_main desc;
+    </select>
+</mapper>

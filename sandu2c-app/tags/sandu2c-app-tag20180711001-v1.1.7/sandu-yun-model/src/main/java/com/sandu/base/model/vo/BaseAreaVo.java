@@ -1,0 +1,38 @@
+package com.sandu.base.model.vo;
+
+import com.sandu.common.model.PageModel;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.List;
+
+@Data
+public class BaseAreaVo implements Serializable {
+
+    /**
+     * 区域编码
+     **/
+    private String areaCode;
+    /**
+     * 区域名称
+     **/
+    private String areaName;
+    /**
+     * 父级编码
+     **/
+    private String pid;
+    /**
+     * 级别
+     **/
+    private Integer levelId;
+
+    private List<BaseAreaVo> baseAreaVos;
+
+    private Integer id;
+
+    /**
+     * 区域名称拼音
+     **/
+    private String areaNamePinyin;
+
+}

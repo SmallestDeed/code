@@ -1,0 +1,171 @@
+package com.sandu.web.base;/**
+ * @ Author     ：weisheng.
+ * @ Date       ：Created in PM 5:44 2018/5/3 0003
+ * @ Description：${description}
+ * @ Modified By：
+ * @Version: $version$
+ */
+
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.supplydemand.model.SupplyDemandCategory;
+import com.sandu.supplydemand.model.SupplyDemandUserTypeContants;
+import com.sandu.supplydemand.output.SupplyDemandCategoryVo;
+import com.sandu.supplydemand.service.SupplyDemandCategoryService;
+import com.sandu.system.model.SysDictionary;
+import com.sandu.system.service.SysDictionaryService;
+import com.sandu.user.model.UserRoleContants;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author weisheng
+ * @Title: 基础筛选数据
+ * @Package 基础筛选数据
+ * @Description: 基础筛选数据
+ * @date 2018/5/3 0003PM 5:44
+ */
+@Slf4j
+@RestController
+@RequestMapping("/v1/union/basedata")
+public class BaseSearchDataController {
+
+    private final static String CLASS_LOG_PREFIX = "[基础筛选数据服务]";
+
+    @Autowired
+    private SupplyDemandCategoryService supplyDemandCategoryService;
+
+    @Autowired
+    private SysDictionaryService sysDictionaryService;
+
+    /**
+     * @Title: 供求信息分类列表
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/getallsupplydemandcategory", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEnvelope getAllSupplyDemandCategory(@RequestParam(required = false) Integer categoryId, @RequestParam Integer type, HttpServletRequest request) {
+        if (type == null || type == 0) {
+            return new ResponseEnvelope(false, "确实参数type");
+        }
+
+
+
+        SupplyDemandCategory supplyDemandCategory = new SupplyDemandCategory();
+        if (null != categoryId && categoryId > 0) {
+            supplyDemandCategory.setPid(categoryId);
+            supplyDemandCategory.setLevel(2);
+        }
+        supplyDemandCategory.setTreeType(type);
+        //获取供求信息分类
+        List<SupplyDemandCategoryVo> supplyDemandCategoryList = supplyDemandCategoryService.getAllSupplyDemandCategory(supplyDemandCategory);
+        if (supplyDemandCategoryList == null || supplyDemandCategoryList.size() == 0) {
+            return new ResponseEnvelope(false, "没有供求信息分类");
+        }
+
+
+        return new ResponseEnvelope(true, "", supplyDemandCategoryList);
+    }
+
+    /**
+     * @Title: 获取供求信息角色
+     * @Package
+     * @Description:
+     * @author weisheng
+     * @date 2018/4/27 0027PM 6:02
+     */
+    @RequestMapping(value = "/getallsupplydemandRoles", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEnvelope getAllSupplyDemandRoles(@RequestParam Integer type, HttpServletRequest request) {
+       /* '信息类别(1:供应，2:需求)'*/
+        if (null == type && type == 0) {
+            return new ResponseEnvelope(false, "缺少参数type");
+        }
+
+        //获取供求信息用户类型分类
+        List<SysDictionary> userTypes = sysDictionaryService.findAllByType("userType");
+        Map<String, String> roles = new HashMap<>();
+        for (SysDictionary sysDictionary : userTypes) {
+            switch (sysDictionary.getValue().intValue()) {
+                //门店角色
+                case UserRoleContants.DEALERS:
+
+                    if (roles.get(SupplyDemandUserTypeContants.MATERIAL_SHOP) == null) {
+                        roles.put(SupplyDemandUserTypeContants.MATERIAL_SHOP, sysDictionary.getValue() + "");
+                    } else {
+                        roles.put(SupplyDemandUserTypeContants.MATERIAL_SHOP, roles.get(SupplyDemandUserTypeContants.MATERIAL_SHOP) + "," + sysDictionary.getValue());
+                    }
+                    break;
+                //厂商
+                case UserRoleContants.FIRM:
+
+                    if (roles.get(SupplyDemandUserTypeContants.MATERIAL_SHOP) == null) {
+                        roles.put(SupplyDemandUserTypeContants.MATERIAL_SHOP, sysDictionary.getValue() + "");
+                    } else {
+                        roles.put(SupplyDemandUserTypeContants.MATERIAL_SHOP, roles.get(SupplyDemandUserTypeContants.MATERIAL_SHOP) + "," + sysDictionary.getValue());
+                    }
+                    break;
+
+                //设计公司
+                case UserRoleContants.DESIGNER_COMPANY:
+                    if (roles.get(SupplyDemandUserTypeContants.DESIGNER) == null) {
+                        roles.put(SupplyDemandUserTypeContants.DESIGNER, sysDictionary.getValue() + "");
+                    } else {
+                        roles.put(SupplyDemandUserTypeContants.DESIGNER, roles.get(SupplyDemandUserTypeContants.DESIGNER) + "," + sysDictionary.getValue());
+                    }
+                    break;
+                //设计师
+                case UserRoleContants.DESIGNER:
+                    if (roles.get(SupplyDemandUserTypeContants.DESIGNER) == null) {
+                        roles.put(SupplyDemandUserTypeContants.DESIGNER, sysDictionary.getValue() + "");
+                    } else {
+                        roles.put(SupplyDemandUserTypeContants.DESIGNER, roles.get(SupplyDemandUserTypeContants.DESIGNER) + "," + sysDictionary.getValue());
+                    }
+                    break;
+
+                //装修公司
+                case UserRoleContants.DECORATE_COMPANY:
+                    if (roles.get(SupplyDemandUserTypeContants.DECORATION_COMPANY) == null) {
+                        roles.put(SupplyDemandUserTypeContants.DECORATION_COMPANY, sysDictionary.getValue() + "");
+                    } else {
+                        roles.put(SupplyDemandUserTypeContants.DECORATION_COMPANY, roles.get(SupplyDemandUserTypeContants.DECORATION_COMPANY) + "," + sysDictionary.getValue());
+                    }
+                    break;
+
+                //业主
+                case UserRoleContants.COMMON:
+                    if (roles.get(SupplyDemandUserTypeContants.PROPRIETOR) == null) {
+                        roles.put(SupplyDemandUserTypeContants.PROPRIETOR, sysDictionary.getValue() + "");
+                    } else {
+                        roles.put(SupplyDemandUserTypeContants.PROPRIETOR, roles.get(SupplyDemandUserTypeContants.PROPRIETOR) + "," + sysDictionary.getValue());
+                    }
+                    break;
+                //施工单位
+                case UserRoleContants.FOREMAN:
+                    if (roles.get(SupplyDemandUserTypeContants.BUILDER) == null) {
+                        roles.put(SupplyDemandUserTypeContants.BUILDER, sysDictionary.getValue() + "");
+                    } else {
+                        roles.put(SupplyDemandUserTypeContants.BUILDER, roles.get(SupplyDemandUserTypeContants.BUILDER) + "," + sysDictionary.getValue());
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+
+        }
+
+
+        return new ResponseEnvelope(true, "", roles);
+    }
+
+
+}

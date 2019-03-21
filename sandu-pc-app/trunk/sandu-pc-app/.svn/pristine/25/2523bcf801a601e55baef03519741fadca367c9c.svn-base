@@ -1,0 +1,69 @@
+package com.sandu.product.service.impl;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sandu.product.dao.ProductAttributeMapper;
+import com.sandu.product.model.ProductAttribute;
+import com.sandu.product.model.ProductProps;
+import com.sandu.product.model.search.ProductAttributeSearch;
+import com.sandu.product.service.ProductAttributeService;
+import com.sandu.product.service.ProductPropsService;
+
+@Service("productAttributeService")
+public class ProductAttributeServiceImpl implements ProductAttributeService {
+
+	@Autowired
+	private ProductAttributeMapper productAttributeMapper;
+	
+	@Autowired
+	private ProductPropsService productPropsService;
+	
+	@Override
+	public Map<String, String> getPropertyMap(Integer productId) {
+		Map<String,String> map=new HashMap<String,String>();
+		ProductAttributeSearch productAttributeSearch= new ProductAttributeSearch();
+		productAttributeSearch.setProductId(productId);
+		productAttributeSearch.setIsDeleted(0);
+		int Count=productAttributeMapper.selectCount(productAttributeSearch);
+		if(Count>0){
+			List<ProductAttribute> AttributeList =productAttributeMapper.selectPaginatedList(productAttributeSearch);
+			if(AttributeList!=null&&AttributeList.size()>0){
+				for (ProductAttribute productAttribute : AttributeList) {
+					ProductProps productProps = null;
+					String propValue = null;
+					String propCode = null;
+					String productPropsParentCode = null;
+					if(productAttribute.getAttributeValueId()!=null&&!"".equals(productAttribute.getAttributeValueId())){
+						productProps =productPropsService.get(productAttribute.getAttributeValueId());
+						if (null != productProps && productProps.getPid() != null) {
+							ProductProps productPropsParent = productPropsService.get(productProps.getPid());
+							if(productPropsParent != null) {
+								productPropsParentCode = productPropsParent.getCode();
+							}
+						}
+					}
+					if(productProps!=null){
+						propValue=productProps.getPropValue();
+						propCode = productProps.getCode();
+					}
+					if(StringUtils.isNotBlank(productPropsParentCode)) {
+						map.put(productPropsParentCode, propValue);
+						//如果是结构产品标志 传Code值
+						if("structureSign".equals(productPropsParentCode)){
+							map.put(productPropsParentCode, propCode);
+						}
+					}
+				}
+			}
+		}
+		return map;
+	}
+	
+
+}

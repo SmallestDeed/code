@@ -1,0 +1,102 @@
+ResFileController
+    
+	//保存资源和业务之间的关联关系
+	public boolean saveIncidenceRelation(String fileKey,Integer businessId,Integer fileId){
+
+		//样板房配置文件
+		if( "design.designTemplet.configFile".equals(fileKey) ){
+			DesignTemplet designTemplet = designTempletService.get(businessId);
+			if( designTemplet != null ){
+				DesignTemplet newDesignTemplet = new DesignTemplet();
+				newDesignTemplet.setId(designTemplet.getId());
+				newDesignTemplet.setConfigFileId(fileId);
+				int i = designTempletService.update(newDesignTemplet);
+				if( i > 0){
+					return true;
+				}
+			}
+		}
+		//正式-完整安装包文件
+		if( "system.sysVersion.file".equals(fileKey) ){
+			SysVersion sysVersion = sysVersionService.get(businessId);
+			if( sysVersion != null ){
+				SysVersion newSysVersion = new SysVersion();
+				newSysVersion.setId(sysVersion.getId());
+				newSysVersion.setFileId(fileId);
+				int i = sysVersionService.update(newSysVersion);
+				if( i > 0 ){
+					return true;
+				}
+			}
+		}
+		//正式-更新压缩包文件
+		if( "system.sysVersion.patchFile".equals(fileKey) ){
+			SysVersion sysVersion = sysVersionService.get(businessId);
+			if( sysVersion != null ){
+				SysVersion newSysVersion = new SysVersion();
+				newSysVersion.setId(sysVersion.getId());
+				newSysVersion.setPatchFileId(fileId);
+				int i = sysVersionService.update(newSysVersion);
+				if( i > 0 ){
+					return true;
+				}
+			}
+		}
+		//内部-更新压缩包
+		if( "system.sysVersion.internalPatchFile".equals(fileKey) ){
+			SysVersion sysVersion = sysVersionService.get(businessId);
+			if( sysVersion != null ){
+				SysVersion newSysVersion = new SysVersion();
+				newSysVersion.setId(sysVersion.getId());
+				newSysVersion.setInternalPatchFileId(fileId);
+				int i = sysVersionService.update(newSysVersion);
+				if( i > 0 ){
+					return true;
+				}
+			}
+		}
+		//内部-完整安装包
+		if( "system.sysVersion.internalFile".equals(fileKey) ){
+			SysVersion sysVersion = sysVersionService.get(businessId);
+			if( sysVersion != null ){
+				SysVersion newSysVersion = new SysVersion();
+				newSysVersion.setId(sysVersion.getId());
+				newSysVersion.setInternalFileId(fileId);
+				int i = sysVersionService.update(newSysVersion);
+				if( i > 0 ){
+					return true;
+				}
+			}
+		}
+		//测试-更新压缩包
+		if( "system.sysVersion.testPatchFile".equals(fileKey) ){
+			SysVersion sysVersion = sysVersionService.get(businessId);
+			if( sysVersion != null ){
+				SysVersion newSysVersion = new SysVersion();
+				newSysVersion.setId(sysVersion.getId());
+				newSysVersion.setTestPatchFileId(fileId);
+				int i = sysVersionService.update(newSysVersion);
+				if( i > 0 ){
+					return true;
+				}
+			}
+		}
+
+		//内部-完整安装包
+		if( "system.sysVersion.internalFile".equals(fileKey) ){
+			SysVersion sysVersion = sysVersionService.get(businessId);
+			if( sysVersion != null ){
+				SysVersion newSysVersion = new SysVersion();
+				newSysVersion.setId(sysVersion.getId());
+				newSysVersion.setInternalFileId(fileId);
+				int i = sysVersionService.update(newSysVersion);
+				if( i > 0 ){
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+	
+

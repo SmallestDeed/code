@@ -1,0 +1,26 @@
+
+<!--pages/house-goods/house-goods.wxml-->
+<view class='house-goods'>
+    <view class='goods-classification-left'>
+        <view class='classification-text {{textActive==index ? "active": ""}}' bindtap='switchClassification' data-index='{{index}}' wx:for='{{parentClassificationlist}}' wx:key='{{index}}'>{{item.name}}</view>
+    </view>
+    <view class='goods-classification-right'>
+        <view class='classification-right-banner' wx:if='{{childClassificationlist.length > 0}}'>
+          <image src='{{staticImageUrl}}banner_{{bannerImageStr}}.png'></image>
+        </view>
+        <view class='classification-right-title' wx:if='{{childClassificationlist.length > 0}}'>{{parentClassificationlist[textActive].name}}专区分类</view>
+        <view class='clearfix'>
+          <view class='classification-image fl' bindtap='linkTogoodsList' data-item="{{item}}" wx:for='{{childClassificationlist}}' wx:key='index'>
+              <view class='image-box'>
+                  <image src='{{resourcePath + item.picPath}}'>
+                  </image>
+              </view>
+              <view class='text'>{{item.name}}</view>
+          </view>
+        </view>
+    </view>
+</view>
+<!-- 快速导航模块 -->
+  <!-- <import src="/component/newNav/newNav.wxml"/>
+  <template is="newNav" data="{{ ...newNav }}"/> -->
+  <jdNav></jdNav>

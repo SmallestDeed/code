@@ -1,0 +1,60 @@
+<!-- <view class="block block-top">
+    <view class="words">当前剩余度币</view>
+    <view class="nums">{{score|Int}}</view>
+    <image src="{{staticImageUrl}}score_pic_coin@3x.png" class="bg"></image>
+    <view class="go"  bindtap='toBuy'><image src="{{staticImageUrl}}page_icon_score@2x.png" class="goimg"></image>去充值</view>
+</view> -->
+<view class='my-accout'>
+  <view class='accout-combo'>
+    <view class='combo-card common'>
+      <image src='{{staticImageUrl}}me_bg_card_01.png'></image>
+      <view class='card-message'>
+        <view class='message-title'>渲染服务 <text wx:if='{{isMember}}'>剩余 {{residueDay}} 天</text></view>
+        <view class='message-state clearfix'>
+          <view class='state-mes fl'>有效期内免费渲染</view>
+          <view class='state-btn fr' bindtap='routerToDredgeCombo'>{{isMember?'去续费':'去开通'}}</view>          
+        </view>        
+      </view>
+    </view>
+    <view class='combo-specimen common'>
+      <image src='{{staticImageUrl}}me_bg_card_02.png'></image>
+      <view class='specimen-message'>
+        <view class='message-title'>当前剩余度币</view>
+        <view class='message-state clearfix'>
+          <view class='state-mes fl'>{{score|Int}}</view>
+          <view class='state-btn fr' bindtap='toBuy'>去充值</view>                            
+        </view>        
+      </view>
+    </view>    
+  </view>
+  <view class="block">
+    <view class="block-title">度币明细</view>
+    <view class="block-iteam clearfix" wx:for='{{scoreDetail}}' wx:key='{{index}}'>
+      <view class="fl">
+        <block wx:if='{{item.planName!=null}}'>
+          <view class="block-iteam-top">{{item.productName}}  |  {{item.planName}}</view>
+        </block>
+        <block wx:if='{{item.planName==null}}'>
+          <view class="block-iteam-top">{{item.productName}}</view>
+        </block>
+        <view class="block-iteam-bottom">{{item.orderDate}}</view>
+      </view>
+      <block wx:if='{{item.financeType=="Out"}}'>
+      <view class="fr">-{{item.productType === 'render_product_pay_2C' ? item.totalFee/10 + '元' : item.totalFee + '度币' }}</view>
+      </block>
+      <block wx:if='{{item.financeType=="In"}}'>
+      <view class="fr">{{item.productType === 'render_product_pay_2C' ? item.totalFee/10 + '元' : item.totalFee + '度币' }}</view>
+      </block>
+      <block wx:if='{{item.financeType=="Give"}}'>
+      <view class="fr">+{{item.payType === 'payMinProGiveBingMobile' ? '300度币' : item.totalFee/10 + '元' }}</view>
+      </block>
+    </view>
+  </view>
+
+  <block wx:if='{{scoreDetail.length==0}}'>
+      <image class='noInformation' src='{{staticImageUrl}}me_icon_order_no.png'></image>
+      <view class="txt">
+          暂无度币明细
+      </view>
+    </block>
+</view>

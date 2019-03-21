@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
+ 	
+	<bean id="ssoPropertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="order" value="1"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="locations">
+            <list>
+                <value>classpath:sso-redis.properties</value>
+            </list>
+        </property>
+    </bean>
+    
+    
+    <bean id="ssoLoginContext" class="com.sandu.common.LoginContext"
+          init-method="init">
+        <property name="redisManager" ref="redisSsoManager"/>
+    </bean>
+    
+    <bean id="permissionCheckAspect" class="com.sandu.authz.aop.PermissionCheckAspect"
+          init-method="init">
+        <property name="redisManager" ref="redisSsoManager"/>
+    </bean>
+    
+    <bean id="fieldsFilterAspect" class="com.sandu.authz.aop.FieldsFilterAspect"
+          init-method="init">
+        <property name="redisManager" ref="redisSsoManager"/>
+    </bean>
+    
+    <bean id="redisSsoManager" class="com.sandu.cache.RedisManager">
+    	<property name="shardedJedisPool" ref="ssoShardedJedisPool"/>
+    </bean>
+     
+    
+    <bean id="ssoJedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+    	<property name="maxTotal">
+            <value>${redis.pool.sso.maxTotal}</value>
+        </property>
+        <property name="maxIdle">
+            <value>${redis.pool.sso.maxIdle}</value>
+        </property>
+        <property name="minIdle">
+            <value>${redis.pool.sso.minIdle}</value>
+        </property>
+        <property name="maxWaitMillis">
+            <value>${redis.pool.sso.maxWaitMillis}</value>
+        </property>
+    </bean>
+
+    <bean id="ssoShardedJedisPool" class="redis.clients.jedis.ShardedJedisPool">
+        <constructor-arg index="0" ref="ssoJedisPoolConfig" />
+        <constructor-arg index="1">
+            <list>
+                <bean class="redis.clients.jedis.JedisShardInfo">
+                    <constructor-arg name="host" value="${redis.pool.sso.host}" />
+                    <constructor-arg name="port" value="${redis.pool.sso.port}"/>
+                    <property name="password" value="${redis.pool.sso.password}"></property>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+	
+</beans>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.system.dao.ResDesignMapper">
+
+	<!-- **常量定义** -->
+	<sql id="All_Column_List">
+	id,old_id,file_code,file_name,file_original_name,file_type,file_size,file_weight,file_high,file_length,file_suffix,file_format,file_level,
+	file_path,file_desc,file_ordering,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,file_key,business_id,small_pic_info,
+	view_point,scene,sequence,rendering_type,pano_path,min_height,is_model_share,att1,att2,att3,att4,att5,att6,numa1,numa2,numa3,numa4,numa5,
+	numa6,remark
+	</sql>
+	
+	<!-- **结果定义** -->
+	<resultMap id="AllResultMap" type="com.sandu.system.model.ResDesign">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="old_id" property="oldId" jdbcType="INTEGER" />
+		<result  column="file_code" property="fileCode" jdbcType="VARCHAR" />
+		<result  column="file_name" property="fileName" jdbcType="VARCHAR" />
+		<result  column="file_original_name" property="fileOriginalName" jdbcType="VARCHAR" />
+		<result  column="file_type" property="fileType" jdbcType="VARCHAR" />
+		<result  column="file_size" property="fileSize" jdbcType="VARCHAR" />
+		<result  column="file_weight" property="fileWeight" jdbcType="VARCHAR" />
+		<result  column="file_high" property="fileHigh" jdbcType="VARCHAR" />
+		<result  column="file_length" property="fileLength" jdbcType="INTEGER" />
+		<result  column="file_suffix" property="fileSuffix" jdbcType="VARCHAR" />
+		<result  column="file_format" property="fileFormat" jdbcType="VARCHAR" />
+		<result  column="file_level" property="fileLevel" jdbcType="VARCHAR" />
+		<result  column="file_path" property="filePath" jdbcType="VARCHAR" />
+		<result  column="file_desc" property="fileDesc" jdbcType="VARCHAR" />
+		<result  column="file_ordering" property="fileOrdering" jdbcType="INTEGER" />
+		<result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="gmtCreate" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result  column="gmtModified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="file_key" property="fileKey" jdbcType="VARCHAR" />
+		<result  column="business_id" property="businessId" jdbcType="INTEGER" />
+		<result  column="small_pic_info" property="smallPicInfo" jdbcType="VARCHAR" />
+		<result  column="view_point" property="viewPoint" jdbcType="INTEGER" />
+		<result  column="scene" property="scene" jdbcType="INTEGER" />
+		<result  column="sequence" property="sequence" jdbcType="INTEGER" />
+		<result  column="rendering_type" property="renderingType" jdbcType="INTEGER" />
+		<result  column="pano_path" property="panoPath" jdbcType="VARCHAR" />
+		<result  column="min_height" property="minHeight" jdbcType="INTEGER" />
+		<result  column="is_model_share" property="isModelShare" jdbcType="INTEGER" />
+		<result  column="att1" property="att1" jdbcType="VARCHAR" />
+		<result  column="att2" property="att2" jdbcType="VARCHAR" />
+		<result  column="att3" property="att3" jdbcType="VARCHAR" />
+		<result  column="att4" property="att4" jdbcType="VARCHAR" />
+		<result  column="att5" property="att5" jdbcType="VARCHAR" />
+		<result  column="att6" property="att6" jdbcType="VARCHAR" />
+		<result  column="numa1" property="numa1" jdbcType="INTEGER" />
+		<result  column="numa2" property="numa2" jdbcType="INTEGER" />
+		<result  column="numa3" property="numa3" jdbcType="INTEGER" />
+		<result  column="numa4" property="numa4" jdbcType="INTEGER" />
+		<result  column="numa5" property="numa5" jdbcType="INTEGER" />
+		<result  column="numa6" property="numa6" jdbcType="INTEGER" />
+		<result  column="remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- **插入定义** -->
+	<insert id="insertSelective" parameterType="com.sandu.system.model.ResDesign"  useGeneratedKeys="true" keyProperty="id">
+		insert into res_design
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		<if test="oldId!= null ">old_id, </if>
+		<if test="fileCode!= null  and  fileCode!=''">file_code, </if>
+		<if test="fileName!= null and fileName!='' ">file_name, </if>
+		<if test="fileOriginalName!= null and fileOriginalName!='' ">file_original_name, </if>
+		<if test="fileType!= null and fileType!='' ">file_type, </if>
+		<if test="fileSize!= null and fileSize!='' ">file_size, </if>
+		<if test="fileWeight!= null and fileWeight!='' ">file_weight, </if>
+		<if test="fileHigh!= null and  fileHigh!='' ">file_high, </if>
+		<if test="fileLength!= null">file_length, </if>
+		<if test="fileSuffix!= null and fileSuffix!=''  ">file_suffix, </if>
+		<if test="fileFormat!= null and fileFormat!='' ">file_format, </if>
+		<if test="fileLevel!= null and fileLevel!='' ">file_level, </if>
+		<if test="filePath!= null and filePath!='' ">file_path, </if>
+		<if test="fileDesc!= null and  fileDesc!='' ">file_desc, </if>
+		<if test="fileOrdering!= null">file_ordering, </if>
+		<if test="sysCode!= null and sysCode!='' "> sys_code, </if>
+		<if test="creator!= null and creator!='' ">creator, </if>
+		<if test="gmtCreate!= null">gmt_create, </if>
+		<if test="modifier!= null and modifier!='' ">modifier, </if>
+		<if test="gmtModified!= null">gmt_modified, </if>
+		<if test="isDeleted!= null">is_deleted, </if>
+		<if test="fileKey!= null and  fileKey!='' ">file_key, </if>
+		<if test="businessId!= null">business_id, </if>
+		<if test="smallPicInfo!= null and smallPicInfo!='' ">small_pic_info, </if>
+		<if test="viewPoint!= null">view_point, </if>
+		<if test="scene!= null">scene, </if>
+		<if test="sequence!= null">sequence, </if>
+		<if test="renderingType!= null">rendering_type, </if>
+		<if test="panoPath!= null and  panoPath!='' ">pano_path, </if>
+		<if test="minHeight!= null">min_height, </if>
+		<if test="isModelShare!= null">is_model_share, </if>
+		<if test="att1!= null and  att1!='' ">att1, </if>
+		<if test="att2!= null and att2!='' ">att2, </if>
+		<if test="att3!= null and att3!='' ">att3, </if>
+		<if test="att4!= null and att4!='' ">att4, </if>
+		<if test="att5!= null and att5!='' ">att5, </if>
+		<if test="att6!= null and att6!='' ">att6, </if>
+		<if test="numa1!= null">numa1, </if>
+		<if test="numa2!= null">numa2, </if>
+		<if test="numa3!= null">numa3, </if>
+		<if test="numa4!= null">numa4, </if>
+		<if test="numa5!= null">numa5, </if>
+		<if test="numa6!= null">numa6, </if>
+		<if test="remark!= null">remark, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="oldId!= null">#{oldId,jdbcType=INTEGER}, </if>
+		<if test="fileCode!= null and fileCode!='' "> #{fileCode,jdbcType=VARCHAR}, </if>
+		<if test="fileName!= null and fileName!= '' "> #{fileName,jdbcType=VARCHAR}, </if>
+		<if test="fileOriginalName!= null and fileOriginalName!= '' ">#{fileOriginalName,jdbcType=VARCHAR}, </if>
+		<if test="fileType!= null and fileType!='' "> #{fileType,jdbcType=VARCHAR}, </if>
+		<if test="fileSize!= null and fileSize!= '' ">#{fileSize,jdbcType=VARCHAR}, </if>
+		<if test="fileWeight!= null and fileWeight!='' "> #{fileWeight,jdbcType=VARCHAR}, </if>
+		<if test="fileHigh!= null and fileHigh!= '' "> #{fileHigh,jdbcType=VARCHAR}, </if>
+		<if test="fileLength!= null"> #{fileLength,jdbcType=INTEGER}, </if>
+		<if test="fileSuffix!= null and fileSuffix!= '' "> #{fileSuffix,jdbcType=VARCHAR}, </if>
+		<if test="fileFormat!= null and fileFormat!= '' ">#{fileFormat,jdbcType=VARCHAR}, </if>
+		<if test="fileLevel!= null and fileLevel!= '' "> #{fileLevel,jdbcType=VARCHAR}, </if>
+		<if test="filePath!= null and filePath!= '' "> #{filePath,jdbcType=VARCHAR}, </if>
+		<if test="fileDesc!= null and fileDesc!='' ">#{fileDesc,jdbcType=VARCHAR}, </if>
+		<if test="fileOrdering!= null"> #{fileOrdering,jdbcType=INTEGER}, </if>
+		<if test="sysCode!= null  and sysCode!='' "> #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null and creator!= '' ">#{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null"> #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null and modifier!= '' ">#{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null"> #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">#{isDeleted,jdbcType=VARCHAR}, </if>
+		<if test="fileKey!= null and fileKey!= '' "> #{fileKey,jdbcType=VARCHAR}, </if>
+		<if test="businessId!= null"> #{businessId,jdbcType=INTEGER}, </if>
+		<if test="smallPicInfo!= null and smallPicInfo!= '' "> #{smallPicInfo,jdbcType=VARCHAR}, </if>
+		<if test="viewPoint!= null">  #{viewPoint,jdbcType=INTEGER}, </if>
+		<if test="scene!= null">#{scene,jdbcType=INTEGER}, </if>
+		<if test="sequence!= null">  #{sequence,jdbcType=INTEGER}, </if>
+		<if test="renderingType!= null">  #{renderingType,jdbcType=INTEGER}, </if>
+		<if test="panoPath!= null and panoPath!= '' "> #{panoPath,jdbcType=VARCHAR}, </if>
+		<if test="minHeight!= null">  #{minHeight,jdbcType=INTEGER}, </if>
+		<if test="isModelShare!= null">  #{isModelShare,jdbcType=INTEGER}, </if>
+		<if test="att1!= null and att1!='' ">  #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null and att2!='' ">  #{att2,jdbcType=VARCHAR}, </if>
+		<if test="att3!= null and att3!='' "> #{att3,jdbcType=VARCHAR}, </if>
+		<if test="att4!= null and att4!='' "> #{att4,jdbcType=VARCHAR}, </if>
+		<if test="att5!= null and att5!='' "> #{att5,jdbcType=VARCHAR}, </if>
+		<if test="att6!= null and att6!='' "> #{att6,jdbcType=VARCHAR}, </if>
+		<if test="numa1!= null"> #{numa1,jdbcType=INTEGER}, </if>
+		<if test="numa2!= null"> #{numa2,jdbcType=INTEGER}, </if>
+		<if test="numa3!= null"> #{numa3,jdbcType=INTEGER}, </if>
+		<if test="numa4!= null">  #{numa4,jdbcType=INTEGER}, </if>
+		<if test="numa5!= null">  #{numa5,jdbcType=INTEGER}, </if>
+		<if test="numa6!= null"> #{numa6,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>
+		</trim>
+	</insert>
+	 
+	 <!-- 按主键查询 -->
+	<select id="selectByPrimaryKey" resultMap="AllResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="All_Column_List" />
+		from res_design
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	 
+</mapper>

@@ -1,0 +1,46 @@
+package com.nork.task.controller;
+
+import com.nork.task.service.RefreshPicService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.Callable;
+
+/**
+ * @Author Gao Jun
+ * @Description
+ * @Date:Created Administrator in 下午 4:22 2018/6/14 0014
+ * @Modified By:
+ */
+public class RefreshSmallPicJob implements Callable{
+
+    private final Logger logger = LoggerFactory.getLogger(RefreshSmallPicJob.class);
+
+    private Integer start;
+    private Integer limit;
+    private RefreshPicService refreshPicService;
+
+    public RefreshSmallPicJob(Integer start, Integer limit, RefreshPicService refreshPicService) {
+        this.start = start;
+        this.limit = limit;
+        this.refreshPicService = refreshPicService;
+    }
+
+
+    @Override
+    public Object call() throws Exception {
+        long beginTime = System.currentTimeMillis();
+        Boolean success = null;
+        try {
+            success = refreshPicService.refreshSmallPic(start,limit);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("RefreshSmallPic ==========> exception:"+e);
+            success = false;
+        }
+        long endTime = System.currentTimeMillis();
+        logger.error("RefreshSmallPicJob finish ------ result = {}, use time = {}s",success,(endTime-beginTime)/1000);
+        return success;
+    }
+
+}

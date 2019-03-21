@@ -1,0 +1,78 @@
+<wxs module="public" src="../../utils/public.wxs"></wxs>
+<view class='story'>
+    <!-- <swiper style='{{imgUrls.length<=0?"height:0":""}}' circular indicator-active-color="#ff6419" indicator-dots autoplay="true" duration="1000">
+        <swiper-item wx:for="{{imgUrls}}" wx:key="{{index}}">
+            <view class='index-banner' bindtap='goWeiGuang' data-num='{{index}}'> -->
+                <image class='bannerImg' src='{{resourcePath+bannerImg}}' mode='aspectFill'></image>
+            <!-- </view>
+        </swiper-item>
+    </swiper> -->
+</view>
+<view class='shop'>
+    <view class='serch'>
+        <view class='rowsss'>
+            <view class='city' bindtap='changeCtiy'>
+                <view class='cityname'>{{city}}</view>
+                <view class='imgView'><image src='{{triangleicon}}'></image></view>
+            </view>
+        </view>
+        
+        <view class='searchItem' bindtap='toSearch'>
+            <image src='{{searchicon}}' style='margin-bottom:0' />
+            <input placeholder-class="placeholder" placeholder='搜索体验店' disabled='true'></input>
+        </view>
+    </view>
+    <view class='detail' 
+        catchtap='todetail'  
+        data-shoptype='{{item.shopType}}'
+        data-id='{{item.id}}' 
+        wx:key="{{index}}" 
+        wx:for='{{shopList}}' 
+        data-city='{{item.cityName}}'
+        data-name="{{item.shopName}}"
+        data-longitude='{{item.longitude}}'
+        data-latitude='{{item.latitude}}'
+        data-distance="{{item.distance}}"
+    >
+        <image class='image' src="{{item.logoUrl?(resourcePath+item.logoUrl):(staticImageUrl+'qiye_logo_nor.png')}}" mode='aspectFill' ></image>
+        <view class='tag' wx:if="{{item.shopType!=1}}">
+            <image class='tagimg' src='{{staticImageUrl}}wei_msg_label.png'></image>
+            <view class='tagtxt'>精选</view>
+        </view>
+        <view class='information'>
+            <view class='name'>{{item.shopName}}</view>
+            <view class='address'>{{item.provinceName+item.cityName+item.areaName+item.shopAddress}}</view>
+            <view wx:if="{{item.distance}}" 
+                class='distance' 
+                catchtap='goLocation' 
+                data-latitude='{{item.latitude}}'
+                data-name="{{item.shopName}}"
+                data-address="{{item.provinceName+item.cityName+item.areaName+item.shopAddress}}"
+                data-longitude='{{item.longitude}}'
+            > {{public.toFix(item.distance,1)}}km</view>
+        </view>
+    </view>
+</view>
+<block wx:if="{{shopList.length==0}}">
+    <view class='noShop'>
+        <image class='noShopimg' src='{{staticImageUrl}}wei_icon_empty.png'></image>
+        <view class='noShoptxt'>暂无门店信息</view>
+    </view>
+</block>
+<!-- <view class='zzcss' bindtap='provincialLinkageHide' data-flag="{{false}}"></view> -->
+<view wx:if="{{condition}}" class="citypicker" wx:key='{{index}}'>
+    <view class="cityheader">
+        <view bindtap='provincialLinkageHide' data-flag="{{false}}" class="city-cancel">取消</view>
+        <view bindtap='provincialLinkageHide' data-flag="{{true}}" class="city-true">确定</view>
+    </view>
+    <picker-view indicator-style="height: 50px;" style="width: 100%; height: 250px;" value="{{value}}" bindchange="bindChange" class="citybody">
+        <picker-view-column>
+            <view wx:for="{{provinces}}" wx:key="{{index}}">{{item.areaName}}</view>
+        </picker-view-column>
+        <picker-view-column>
+            <view wx:for="{{citys}}" wx:key="{{index}}">{{item.areaName}}</view>
+        </picker-view-column>
+    </picker-view>
+</view>
+<view class='noMore' wx:if="{{noMore&&!shopList.length==0}}">— 更多线下门店正在入驻中 —</view>
+<view class='black' wx:if='{{condipageSizetion}}'></view>

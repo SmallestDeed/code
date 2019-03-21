@@ -1,0 +1,97 @@
+package com.nork.design.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.nork.design.model.DesignSpaceResult;
+import com.nork.design.model.DesignTemplet;
+import com.nork.design.model.DesignTempletResult;
+import com.nork.design.model.search.DesignTempletSearch;
+
+/**   
+ * @Title: DesignTempletMapper.java 
+ * @Package com.nork.design.dao
+ * @Description:设计模块-设计方案样板房表Mapper
+ * @createAuthor pandajun 
+ * @CreateDate 2015-07-05 14:47:35
+ * @version V1.0   
+ */
+@Repository
+@Transactional
+public interface DesignTempletMapper {
+    int insertSelective(DesignTemplet record);
+
+    int updateByPrimaryKeySelective(DesignTemplet record);
+  
+    int deleteByPrimaryKey(Integer id);
+        
+    DesignTemplet selectByPrimaryKey(Integer id);
+    
+    int selectCount(DesignTempletSearch designTempletSearch);
+    
+    int findAllCode(DesignTempletSearch designTempletSearch);
+    
+	List<DesignTemplet> selectPaginatedList(
+			DesignTempletSearch designTempletSearch);
+			
+    List<DesignTemplet> selectList(DesignTemplet designTemplet);
+    
+    List<DesignTemplet> getListBySpaceIdsAndArea(List<String> spaceIds);
+    
+    List<DesignSpaceResult> spaceList(DesignTemplet designTemplet);
+    
+    DesignSpaceResult spaceRender(Integer templetId);
+    
+    DesignTempletResult designList(Integer designId);
+
+	List<String> findAllName();
+	
+	List<DesignTemplet> selectVacantRoomList(DesignTempletSearch designTempletSearch);
+
+	int deleteByCode(String designCode);
+
+	List<Integer> getTempletIdsBySpaceIds(@Param("spaceIds") List<Integer> spaceIds, @Param("putawayStates") List<Integer> putawayStates);
+    
+	/**
+	 * 根据产品id查找推荐该产品的已上架样板房的code
+	 * @author huangsongbo
+	 * @param id
+	 * @return
+	 */
+	List<String> getCodeByProductIdFromProductRecommendation(Integer id);
+
+	List<String> getTempletCodeBySpaceId(Integer spaceCommonId);
+	
+	/**
+	 * 根据产品id查找关联的所有样板房
+	 * @author 
+	 * @param productId
+	 * @return
+	 */
+	List<DesignTemplet> getDesignTempletByProduct(Map map);
+	
+	/**
+	 * 根据产品id查找关联的所有样板房  总条数
+	 * @author 
+	 * @param productId
+	 * @return
+	 */
+	int getDesignTempletByProductCount(Map map);
+
+	DesignTemplet selectByPrimaryKeyV2(Integer integer);
+	
+	List<Integer> findIdListByStatus(@Param("status") int status);
+	
+	void updateStatus(@Param("oldStatus") int oldStatus, @Param("newStatus") int newStatus);
+	
+	public List<DesignTemplet> geTempletsBySpaceInfo(@Param("spaceAreas") String spaceAreas, @Param("spaceFunctionId") Integer spaceFunctionId, @Param("createdOfTemplateId") Integer createdOfTemplateId);
+
+	public List<DesignTemplet> getTempletsBySpaceAreasInfo(@Param("spaceAreas") String spaceAreas, @Param("spaceFunctionId") Integer spaceFunctionId, @Param("createdOfTemplateId") Integer createdOfTemplateId);
+
+	DesignTemplet selectByTemplateCode(@Param("designCode") String designCode);
+
+}

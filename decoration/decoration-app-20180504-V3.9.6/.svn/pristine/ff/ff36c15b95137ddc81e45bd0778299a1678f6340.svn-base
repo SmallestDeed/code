@@ -1,0 +1,44 @@
+<krpano>
+    <!-- 第一个layer是背景颜色 url="images/bg.png" -->
+    <layer name="startpic_container"
+           preload="true"
+           alpha="1"
+           onloaded="tween(alpha,1.0);"
+           handcursor="true"
+           enabled="false"
+           children="true"
+           visible="true"
+           zorder="90"
+           type="container"
+           maskchildren="true"
+           keep="true"
+           width="100%"
+           height="100%"
+           bgcolor="0xeeeded"
+           bgalpha="1" >
+
+        <!-- 第二个layer是logo -->
+        <layer name="skin_title_logo3"
+               zorder="100"
+               keep="true"
+               x="0"
+               y="-80"
+               align="center"
+               url.normal="%SWFPATH%/images/animation.gif"
+               scale="1"
+               alpha="0"
+               onloaded="tween(alpha,1.0);tween(layer[skin_title_pr].alpha,1.0);"
+               onclick="tween(layer[startpic_container].ox,-2500,1);
+delayedcall(2,set(layer[startpic_container].enabled,false);
+set(layer[startpic_container].visible,false);
+stopdelayedcall(startpic1);stopdelayedcall(startpic2);"
+               enabled="false" />
+    </layer>
+
+    <events name="startlogoevents" keep="true"
+            onloadcomplete="
+        ifnot(layer[skin_title_logo3].enabled,
+        delayedcall(startpic1,1,tween(layer[startpic_container].ox,-2500,1));
+        delayedcall(startpic2,1,set(layer[startpic_container].enabled,false);set(layer[startpic_container].visible,false));)
+    "/>
+</krpano>

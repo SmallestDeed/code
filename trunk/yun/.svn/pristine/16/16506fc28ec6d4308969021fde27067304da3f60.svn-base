@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.pay.order.dao.PayModelGroupRefMapper">
+    <resultMap id="BaseResultMap" type="com.sandu.pay.order.model.PayModelGroupRef">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="business_id" property="businessId" jdbcType="INTEGER"/>
+        <result column="pay_model_config_id" property="payModelConfigId" jdbcType="INTEGER"/>
+        <result column="effective_time" property="effectiveTime" jdbcType="TIMESTAMP" />
+        <result column="expiry_time" property="expiryTime" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    id, business_id, pay_model_config_id, effective_time, expiry_time, is_deleted, creator, gmt_create,
+    modifier, gmt_modified
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from pay_model_group_ref
+        where id = #{id,jdbcType=INTEGER}
+        AND is_deleted = '0'
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from pay_model_group_ref
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insertSelective" parameterType="com.sandu.pay.order.model.PayModelGroupRef">
+        insert into pay_model_group_ref
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="businessId != null">
+                business_id,
+            </if>
+            <if test="payModelConfigId != null">
+                pay_model_config_id,
+            </if>
+            <if test="effectiveTime != null" >
+                effective_time,
+            </if>
+            <if test="expiryTime != null">
+                expiry_time,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="businessId != null">
+                #{businessId,jdbcType=INTEGER},
+            </if>
+            <if test="payModelConfigId != null">
+                #{payModelConfigId,jdbcType=INTEGER},
+            </if>
+            <if test="effectiveTime != null" >
+                #{effectiveTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="expiryTime != null">
+                #{expiryTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.pay.order.model.PayModelGroupRef">
+        update pay_model_group_ref
+        <set>
+            <if test="businessId != null">
+                business_id = #{businessId,jdbcType=INTEGER},
+            </if>
+            <if test="payModelConfigId != null">
+                pay_model_config_id = #{payModelConfigId,jdbcType=INTEGER},
+            </if>
+            <if test="effectiveTime != null" >
+                effective_time = #{effectiveTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="expiryTime != null">
+                expiry_time = #{expiryTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <select id="getPayModelGroupRefList" resultMap="BaseResultMap" parameterType="java.util.Map">
+        select
+        t1.id, t1.business_id, t1.pay_model_config_id, t1.effective_time, t1.expiry_time, t1.is_deleted, t1.creator, t1.gmt_create,
+        t1.modifier, t1.gmt_modified
+        from pay_model_group_ref AS t1
+        LEFT OUTER JOIN pay_model_config AS t2
+        ON t1.pay_model_config_id = t2.id
+        where t1.is_deleted = '0'
+        AND t2.is_deleted = '0'
+        AND t1.expiry_time > NOW()
+        <if test="timeType != null and timeType != ''">
+            AND t2.time_type = #{timeType}
+        </if>
+        <if test="rangeType != null">
+            AND t2.range_type = #{rangeType}
+        </if>
+        <if test="businessId != null">
+            AND t1.business_id = #{businessId,jdbcType=INTEGER}
+        </if>
+        <if test="list != null and list.size() > 0">
+            AND t1.pay_model_config_id IN
+            <foreach collection="list" item="c" open="(" close=")" separator=",">
+                '${c.id}'
+            </foreach>
+        </if>
+        ORDER BY t1.expiry_time DESC
+    </select>
+    <select id="getPayModelGroupRef" resultMap="BaseResultMap" parameterType="java.util.Map">
+        select
+        <include refid="Base_Column_List"/>
+        from pay_model_group_ref
+        where is_deleted = '0'
+        <if test="businessId != null">
+            AND business_id = #{businessId,jdbcType=INTEGER}
+        </if>
+        <if test="payModelConfigId != null">
+            AND  pay_model_config_id = #{payModelConfigId,jdbcType=INTEGER}
+        </if>
+    </select>
+    <select id="getUserRefInfoList" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT t2.package_name  AS packageName,t2.time_type AS timeType,t1.expiry_time AS expiryTime,t2.biz_type AS bizType
+        FROM pay_model_group_ref AS t1
+        LEFT OUTER JOIN pay_model_config AS t2
+        ON t2.id = t1.pay_model_config_id
+        WHERE 1 = 1
+        AND t1.is_deleted = '0'
+        AND t2.is_deleted = '0'
+        AND t1.expiry_time >= NOW()
+        <if test="businessId != null and businessId != ''">
+            AND t1.business_id = #{businessId}
+        </if>
+        <if test="rangeType != null and rangeType != ''">
+            AND t2.range_type = #{rangeType}
+        </if>
+        <if test="bizType != null and bizType != ''">
+            AND (t2.biz_type = #{bizType,jdbcType=VARCHAR}
+            OR  t2.biz_type = 'renderTypeGive')
+        </if>
+        ORDER BY t1.expiry_time DESC
+    </select>
+
+    <!--获取用户可免费渲染的关联信息-->
+    <select id="getPayModelVoRenderList" resultType="com.sandu.pay.order.PayModelVo" parameterType="java.util.Map">
+        SELECT
+            t2.pay_model_config_id AS payModelConfigId,
+            t2.id AS payModelGroupRefId,
+            t1.package_user_type AS packageUserType,
+            t2.expiry_time AS expiryTime
+        FROM
+            pay_model_config AS t1
+        LEFT OUTER JOIN pay_model_group_ref AS t2 ON t1.id = t2.pay_model_config_id
+        WHERE
+            1 = 1
+        AND t1.is_deleted = '0'
+        AND t2.is_deleted = '0'
+        AND t1.biz_type = 'companyFreeRenderPlan'
+        AND t1.business_type = '0'
+        AND (NOW() BETWEEN t2.effective_time AND t2.expiry_time)
+        AND t1.range_type = '2'
+        AND (t1.package_user_type = #{packageUserType} OR t1.package_user_type = #{userType})
+        <if test="platformId != null">
+            AND t1.platform_id = #{platformId}
+        </if>
+        <if test="companyVoList != null and companyVoList.size() > 0">
+            AND t2.business_id IN
+            <foreach collection="companyVoList" item="c" open="(" close=")" separator=",">
+                '${c.companyId}'
+            </foreach>
+        </if>
+        ORDER BY
+            t2.expiry_time DESC
+        LIMIT 1
+    </select>
+
+    <!--获取用户可免费购买户型的关联信息-->
+    <select id="getPayModelVoHouseList" resultType="com.sandu.pay.order.PayModelVo" parameterType="java.util.Map">
+        SELECT
+        t2.pay_model_config_id AS payModelConfigId,
+        t2.id AS payModelGroupRefId,
+        t1.package_user_type AS packageUserType,
+        t2.expiry_time AS expiryTime
+        FROM
+        pay_model_config AS t1
+        LEFT OUTER JOIN pay_model_group_ref AS t2 ON t1.id = t2.pay_model_config_id
+        WHERE
+        1 = 1
+        AND t1.is_deleted = '0'
+        AND t2.is_deleted = '0'
+        AND t1.biz_type = 'companyFreeRenderPlan'
+        AND t1.business_type = '1'
+        AND (NOW() BETWEEN t2.effective_time AND t2.expiry_time)
+        AND t1.range_type = '2'
+        AND (t1.package_user_type = #{packageUserType} OR t1.package_user_type = #{userType})
+        <if test="platformId != null">
+            AND t1.platform_id = #{platformId}
+        </if>
+        AND t2.business_id = #{companyId}
+        ORDER BY
+        t2.expiry_time DESC
+        LIMIT 1
+    </select>
+
+    <!--获取公司id-->
+    <select id="getCompanyNameByDoMianName" resultType="java.lang.Integer" parameterType="java.lang.String">
+        SELECT
+        t1.id AS companyId
+        FROM
+        base_company AS t1
+        WHERE
+        t1.company_domain_name = #{companyDomainName}
+        LIMIT 1
+    </select>
+
+</mapper>

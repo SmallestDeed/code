@@ -1,0 +1,795 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.pay.dao.PayOrderMapper">
+	<!-- **插入定义** -->
+	<insert id="insertSelective" parameterType="com.nork.pay.model.PayOrder"  useGeneratedKeys="true" keyProperty="id">
+		insert into pay_order
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		<if test="userId!= null">user_id, </if>
+		<if test="productType!= null">product_type, </if>
+		<if test="productId!= null">product_id, </if>
+		<if test="productName!= null">product_name, </if>
+		<if test="productDesc!= null">product_desc, </if>
+		<if test="orderNo!= null">order_no, </if>
+		<if test="totalFee!= null">total_fee, </if>
+		<if test="adjustFee!= null">adjust_fee, </if>  
+		<if test="payType!= null">pay_type, </if>
+		<if test="tradeType!= null">trade_type, </if>
+		<if test="bizType!= null">biz_type, </if>
+		<if test="financeType!= null">finance_type, </if>
+		<if test="payState!= null">pay_state, </if>
+		<if test="prepayId!= null">prepay_id, </if>
+		<if test="codeUrl!= null">code_url, </if>
+		<if test="refId!= null">ref_id, </if>
+		<if test="openId!= null">open_id, </if>
+		<if test="orderDate!= null">order_date, </if>
+		<if test="sysCode!= null">sys_code, </if>
+		<if test="creator!= null">creator, </if>
+		<if test="gmtCreate!= null">gmt_create, </if>
+		<if test="modifier!= null">modifier, </if>
+		<if test="gmtModified!= null">gmt_modified, </if>
+		<if test="isDeleted!= null">is_deleted, </if>
+		<if test="att1!= null">att1, </if>
+		<if test="att2!= null">att2, </if>
+		<if test="numa1!= null">numa1, </if>
+		<if test="numa2!= null">numa2, </if>
+		<if test="remark!= null">remark, </if>
+		<if test="taskId!= null">task_id, </if>
+		<if test="currentIntegral!= null">current_integral, </if>
+		<if test="planId != null">plan_id,</if>
+		<if test="renderTaskType != null">render_task_type,</if>
+		<if test="renderParamsStr != null" >render_params_str,</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="userId!= null">  #{userId,jdbcType=INTEGER}, </if>
+		<if test="productType!= null">  #{productType,jdbcType=VARCHAR}, </if>
+		<if test="productId!= null">  #{productId,jdbcType=INTEGER}, </if>
+		<if test="productName!= null">  #{productName,jdbcType=VARCHAR}, </if>
+		<if test="productDesc!= null">  #{productDesc,jdbcType=VARCHAR}, </if>
+		<if test="orderNo!= null">  #{orderNo,jdbcType=VARCHAR}, </if>
+		<if test="totalFee!= null">  #{totalFee,jdbcType=INTEGER}, </if>
+		<if test="adjustFee!= null">  #{adjustFee,jdbcType=INTEGER}, </if>
+		<if test="payType!= null">  #{payType,jdbcType=VARCHAR}, </if>
+		<if test="tradeType!= null">  #{tradeType,jdbcType=VARCHAR}, </if>
+		<if test="bizType!= null">#{bizType,jdbcType=VARCHAR}, </if>
+		<if test="financeType!= null">#{financeType,jdbcType=VARCHAR}, </if>
+		<if test="payState!= null">  #{payState,jdbcType=VARCHAR}, </if>
+		<if test="prepayId!= null">  #{prepayId,jdbcType=VARCHAR}, </if>
+		<if test="codeUrl!= null">  #{codeUrl,jdbcType=VARCHAR}, </if>
+		<if test="refId!= null">  #{refId,jdbcType=VARCHAR}, </if>
+		<if test="openId!= null">  #{openId,jdbcType=VARCHAR}, </if>
+		<if test="orderDate!= null">  #{orderDate,jdbcType=TIMESTAMP}, </if>
+		<if test="sysCode!= null">  #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="att1!= null">  #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  #{att2,jdbcType=VARCHAR}, </if>
+		<if test="numa1!= null">  #{numa1,jdbcType=INTEGER}, </if>
+		<if test="numa2!= null">  #{numa2,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  #{remark,jdbcType=VARCHAR}, </if>
+		<if test="taskId!= null">#{taskId,jdbcType=INTEGER}, </if>	
+		<if test="currentIntegral!= null">#{currentIntegral,jdbcType=INTEGER}, </if>
+		<if test="planId != null">#{planId,jdbcType=INTEGER},</if>
+		<if test="renderTaskType != null">#{renderTaskType,jdbcType=INTEGER},</if>
+		<if test="renderParamsStr != null">#{renderParamsStr,jdbcType=INTEGER},</if>
+		</trim>
+	</insert>
+
+	<!-- **更新定义** -->
+	<update id="updateByPrimaryKeySelective"   parameterType="com.nork.pay.model.PayOrder">
+		update pay_order
+		<set>
+		<if test="userId!= null">  user_id = #{userId,jdbcType=INTEGER}, </if>
+		<if test="productType!= null">  product_type = #{productType,jdbcType=VARCHAR}, </if>
+		<if test="productId!= null">  product_id = #{productId,jdbcType=INTEGER}, </if>
+		<if test="orderNo!= null">  order_no = #{orderNo,jdbcType=VARCHAR}, </if>
+		<if test="totalFee!= null">  total_fee = #{totalFee,jdbcType=INTEGER}, </if>
+		<if test="adjustFee!= null">  adjust_fee = #{adjustFee,jdbcType=INTEGER}, </if>
+		<if test="payType!= null">  pay_type = #{payType,jdbcType=VARCHAR}, </if>
+		<if test="payState!= null">  pay_state = #{payState,jdbcType=VARCHAR}, </if>
+		<if test="prepayId!= null">  prepay_id = #{prepayId,jdbcType=VARCHAR}, </if>
+		<if test="codeUrl!= null">  code_url = #{codeUrl,jdbcType=VARCHAR}, </if>
+		<if test="refId!= null">  ref_id = #{refId,jdbcType=VARCHAR}, </if>
+		<if test="openId!= null">  open_id = #{openId,jdbcType=VARCHAR}, </if>
+		<if test="orderDate!= null">  order_date = #{orderDate,jdbcType=TIMESTAMP}, </if>
+		<if test="sysCode!= null">  sys_code = #{sysCode,jdbcType=VARCHAR}, </if>
+		<if test="creator!= null">  creator = #{creator,jdbcType=VARCHAR}, </if>
+		<if test="gmtCreate!= null">  gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+		<if test="modifier!= null">  modifier = #{modifier,jdbcType=VARCHAR}, </if>
+		<if test="gmtModified!= null">  gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		<if test="isDeleted!= null">  is_deleted = #{isDeleted,jdbcType=INTEGER}, </if>
+		<if test="att1!= null">  att1 = #{att1,jdbcType=VARCHAR}, </if>
+		<if test="att2!= null">  att2 = #{att2,jdbcType=VARCHAR}, </if>
+		<if test="numa1!= null">  numa1 = #{numa1,jdbcType=INTEGER}, </if>
+		<if test="numa2!= null">  numa2 = #{numa2,jdbcType=INTEGER}, </if>
+		<if test="remark!= null">  remark = #{remark,jdbcType=VARCHAR}, </if>
+		<if test="tradeType!= null">  trade_type = #{tradeType,jdbcType=INTEGER}, </if>
+		<if test="prepayId!= null">  prepay_id = #{prepayId,jdbcType=VARCHAR}, </if>
+		<if test="payState!= null">  pay_state = #{payState,jdbcType=VARCHAR}, </if>
+		<if test="taskId!= null">  task_id = #{taskId,jdbcType=VARCHAR}, </if>
+		
+		<if test="productName != null">  product_name = #{productName,jdbcType=VARCHAR}, </if>
+		<if test="productDesc != null">  product_desc = #{productDesc,jdbcType=VARCHAR}, </if>
+		<if test="bizType != null">  biz_type = #{bizType,jdbcType=VARCHAR}, </if>
+		<if test="financeType != null">  finance_type = #{financeType,jdbcType=VARCHAR}, </if>
+		<if test="currentIntegral!= null">  current_integral = #{currentIntegral,jdbcType=VARCHAR}, </if>
+		<if test="renderTaskType!= null">  render_task_type = #{renderTaskType,jdbcType=INTEGER}, </if>
+		<if test="renderParamsStr != null">render_params_str = #{renderParamsStr,jdbcType=INTEGER},</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	
+	<update id="updatePayStateByOrderNo"   parameterType="com.nork.pay.model.PayOrder">
+		update pay_order
+		<set>
+		<if test="openId!= null">  open_id = #{prepayId,jdbcType=VARCHAR}, </if>
+		<if test="refId!= null">  ref_id = #{prepayId,jdbcType=VARCHAR}, </if>
+		<if test="payState!= null">  pay_state = #{payState,jdbcType=VARCHAR}, </if>
+		</set>
+		where order_no = #{orderNo,jdbcType=VARCHAR}
+	</update>
+
+	<!-- **删除定义** -->
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from pay_order
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	
+	<!-- **常量定义** -->
+	<sql id="All_Column_List">
+		id,user_id,product_type,product_name,product_desc,product_id,order_no,total_fee,adjust_fee,pay_type,pay_state,finance_type,biz_type,trade_type,prepay_id
+		,code_url,ref_id,open_id,order_date,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,att1,att2,numa1,numa2,remark,task_id,current_integral
+		,platform_id,trade_no,pay_trade_no,refund_no,pay_refund_no,render_task_type,render_params_str,plan_id
+	</sql>
+	
+	<!-- **结果定义** -->
+	<resultMap id="AllResultMap" type="com.nork.pay.model.PayOrder">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="user_id" property="userId" jdbcType="INTEGER" />
+		<result  column="product_type" property="productType" jdbcType="VARCHAR" />
+		<result  column="product_name" property="productName" jdbcType="VARCHAR" />
+		<result  column="product_id" property="productId" jdbcType="INTEGER" />
+		<result  column="order_no" property="orderNo" jdbcType="VARCHAR" />
+		<result  column="total_fee" property="totalFee" jdbcType="INTEGER" />
+		<result  column="adjust_fee" property="adjustFee" jdbcType="INTEGER" />
+		<result  column="trade_type" property="tradeType" jdbcType="VARCHAR" />
+		<result  column="pay_type" property="payType" jdbcType="VARCHAR" />
+		<result  column="pay_state" property="payState" jdbcType="VARCHAR" />
+		<result  column="finance_type" property="financeType" jdbcType="VARCHAR" />
+		<result  column="biz_type" property="bizType" jdbcType="VARCHAR" />
+		<result  column="prepay_id" property="prepayId" jdbcType="VARCHAR" />
+		<result  column="code_url" property="codeUrl" jdbcType="VARCHAR" />
+		<result  column="ref_id" property="refId" jdbcType="VARCHAR" />
+		<result  column="open_id" property="openId" jdbcType="VARCHAR" />
+		<result  column="order_date" property="orderDate" jdbcType="TIMESTAMP" />
+		<result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="att1" property="att1" jdbcType="VARCHAR" />
+		<result  column="att2" property="att2" jdbcType="VARCHAR" />
+		<result  column="numa1" property="numa1" jdbcType="INTEGER" />
+		<result  column="numa2" property="numa2" jdbcType="INTEGER" />
+		<result  column="remark" property="remark" jdbcType="VARCHAR" />
+		<result  column="task_id" property="taskId" jdbcType="INTEGER" />
+		<result  column="current_integral" property="currentIntegral" jdbcType="INTEGER" />
+		<result  column="platform_id" property="platformId" jdbcType="INTEGER"/>
+		<result  column="trade_no" property="tradeNo" jdbcType="VARCHAR"/>
+		<result  column="pay_trade_no" property="payTradeNo" jdbcType="VARCHAR"/>
+		<result  column="refund_no" property="refundNo" jdbcType="VARCHAR"/>
+		<result  column="pay_refund_no" property="payRefundNo" jdbcType="VARCHAR"/>
+		<result  column="render_task_type" property="renderTaskType" jdbcType="INTEGER"/>
+		<result  column="render_params_str" property="renderParamsStr" jdbcType="INTEGER"/>
+		<result  column="plan_id" property="planId" jdbcType="INTEGER"/>
+	</resultMap>
+	
+	<resultMap id="tResultMap" type="com.nork.sandu.model.dto.TOrder">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="user_id" property="userId" jdbcType="INTEGER" />
+		<result  column="product_name" property="productName" jdbcType="VARCHAR" />
+		<result  column="order_no" property="orderNo" jdbcType="VARCHAR" />
+		<result  column="total_fee" property="totalFee" jdbcType="INTEGER" />
+		<result  column="adjust_fee" property="adjustFee" jdbcType="INTEGER" />
+		<result  column="trade_type" property="tradeType" jdbcType="VARCHAR" />
+		<result  column="pay_type" property="payType" jdbcType="VARCHAR" />
+		<result  column="pay_state" property="payState" jdbcType="VARCHAR" />
+		<result  column="finance_type" property="financeType" jdbcType="VARCHAR" />
+		<result  column="biz_type" property="bizType" jdbcType="VARCHAR" />
+		<result  column="order_date" property="orderDate" jdbcType="TIMESTAMP" />
+		<result  column="remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+	<!-- **查询定义** -->
+	<!-- 按主键查询 -->
+	<select id="selectByPrimaryKey" resultMap="AllResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="All_Column_List" />
+		from pay_order 
+		where is_deleted=0 and id = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<select id="selectByOrderNo" resultMap="AllResultMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="All_Column_List" />
+		from pay_order
+		where order_no = #{orderNo,jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+		parameterType="com.nork.pay.model.PayOrder">
+		select
+		<include refid="All_Column_List" />
+		from pay_order
+        where 1=1
+		<if test="userId!= null">  and user_id = #{userId,jdbcType=INTEGER} </if>
+		<if test="productType!= null">  and product_type = #{productType,jdbcType=VARCHAR} </if>
+		<if test="productId!= null">  and product_id = #{productId,jdbcType=INTEGER} </if>
+		<if test="orderNo!= null">  and order_no = #{orderNo,jdbcType=VARCHAR} </if>
+		<if test="totalFee!= null">  and total_fee = #{totalFee,jdbcType=INTEGER} </if>
+		<if test="payType!= null">  and pay_type = #{payType,jdbcType=VARCHAR} </if>
+		<if test="payState!= null">  and pay_state = #{payState,jdbcType=VARCHAR} </if>
+		<if test="prepayId!= null">  and prepay_id = #{prepayId,jdbcType=VARCHAR} </if>
+		<if test="codeUrl!= null">  and code_url = #{codeUrl,jdbcType=VARCHAR} </if>
+		<if test="refId!= null">  and ref_id = #{refId,jdbcType=VARCHAR} </if>
+		<if test="openId!= null">  and open_id = #{openId,jdbcType=VARCHAR} </if>
+		<if test="orderDate!= null">  and order_date = #{orderDate,jdbcType=TIMESTAMP} </if>
+		<if test="sysCode!= null">  and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="creator!= null">  and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="gmtCreate!= null">  and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+		<if test="modifier!= null">  and modifier = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="gmtModified!= null">  and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP} </if>
+		<if test="isDeleted!= null">  and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1!= null">  and att1 = #{att1,jdbcType=VARCHAR} </if>
+		<if test="att2!= null">  and att2 = #{att2,jdbcType=VARCHAR} </if>
+		<if test="numa1!= null">  and numa1 = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2!= null">  and numa2 = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark!= null">  and remark = #{remark,jdbcType=VARCHAR} </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order}
+			<if test="orderNum != null and  orderNum !='' ">
+				${orderNum}
+			</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">
+		   order by ${orders}
+		</if>
+	</select>
+	
+	<!-- 分页汇总 -->
+	<select id="selectCount" resultType="int"
+		parameterType="com.nork.pay.model.search.PayOrderSearch">
+		select count(*)
+		from pay_order
+		where 1=1 and product_type != 'authcode' 
+		<if test="userId !=  null  ">			and user_id  = #{userId,jdbcType=INTEGER} </if>
+		<if test="productType !=  null and productType !=  ''   "> and product_type  = #{productType,jdbcType=VARCHAR} </if>
+		<if test="sch_ProductType_ !=  null and sch_ProductType_ !=  ''   ">
+			and product_type  like CONCAT(CONCAT('%',#{sch_ProductType_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_ProductType !=  null and sch_ProductType !=  ''   ">
+			and product_type  like CONCAT('%',#{sch_ProductType,jdbcType=VARCHAR})
+		 </if>
+		<if test="schProductType_ !=  null and schProductType_ !=  ''   ">
+			and product_type  like CONCAT(#{schProductType_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="productTypeStart !=  null and productTypeEnd!= null  ">
+			and product_type between #{productTypeStart,jdbcType=VARCHAR} and #{productTypeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="productId !=  null  ">			and product_id  = #{productId,jdbcType=INTEGER} </if>
+		<if test="orderNo !=  null and orderNo !=  ''   "> and order_no  = #{orderNo,jdbcType=VARCHAR} </if>
+		<if test="sch_OrderNo_ !=  null and sch_OrderNo_ !=  ''   ">
+			and order_no  like CONCAT(CONCAT('%',#{sch_OrderNo_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_OrderNo !=  null and sch_OrderNo !=  ''   ">
+			and order_no  like CONCAT('%',#{sch_OrderNo,jdbcType=VARCHAR})
+		 </if>
+		<if test="schOrderNo_ !=  null and schOrderNo_ !=  ''   ">
+			and order_no  like CONCAT(#{schOrderNo_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="orderNoStart !=  null and orderNoEnd!= null  ">
+			and order_no between #{orderNoStart,jdbcType=VARCHAR} and #{orderNoEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="totalFee !=  null  ">			and total_fee  = #{totalFee,jdbcType=INTEGER} </if>
+		<if test="payType !=  null and payType !=  ''   "> and pay_type  = #{payType,jdbcType=VARCHAR} </if>
+		<if test="sch_PayType_ !=  null and sch_PayType_ !=  ''   ">
+			and pay_type  like CONCAT(CONCAT('%',#{sch_PayType_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_PayType !=  null and sch_PayType !=  ''   ">
+			and pay_type  like CONCAT('%',#{sch_PayType,jdbcType=VARCHAR})
+		 </if>
+		<if test="schPayType_ !=  null and schPayType_ !=  ''   ">
+			and pay_type  like CONCAT(#{schPayType_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="payTypeStart !=  null and payTypeEnd!= null  ">
+			and pay_type between #{payTypeStart,jdbcType=VARCHAR} and #{payTypeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="payState !=  null and payState !=  ''   "> and pay_state  = #{payState,jdbcType=VARCHAR} </if>
+		<if test="sch_PayState_ !=  null and sch_PayState_ !=  ''   ">
+			and pay_state  like CONCAT(CONCAT('%',#{sch_PayState_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_PayState !=  null and sch_PayState !=  ''   ">
+			and pay_state  like CONCAT('%',#{sch_PayState,jdbcType=VARCHAR})
+		 </if>
+		<if test="schPayState_ !=  null and schPayState_ !=  ''   ">
+			and pay_state  like CONCAT(#{schPayState_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="payStateStart !=  null and payStateEnd!= null  ">
+			and pay_state between #{payStateStart,jdbcType=VARCHAR} and #{payStateEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="prepayId !=  null and prepayId !=  ''   "> and prepay_id  = #{prepayId,jdbcType=VARCHAR} </if>
+		<if test="sch_PrepayId_ !=  null and sch_PrepayId_ !=  ''   ">
+			and prepay_id  like CONCAT(CONCAT('%',#{sch_PrepayId_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_PrepayId !=  null and sch_PrepayId !=  ''   ">
+			and prepay_id  like CONCAT('%',#{sch_PrepayId,jdbcType=VARCHAR})
+		 </if>
+		<if test="schPrepayId_ !=  null and schPrepayId_ !=  ''   ">
+			and prepay_id  like CONCAT(#{schPrepayId_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="prepayIdStart !=  null and prepayIdEnd!= null  ">
+			and prepay_id between #{prepayIdStart,jdbcType=VARCHAR} and #{prepayIdEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="codeUrl !=  null and codeUrl !=  ''   "> and code_url  = #{codeUrl,jdbcType=VARCHAR} </if>
+		<if test="sch_CodeUrl_ !=  null and sch_CodeUrl_ !=  ''   ">
+			and code_url  like CONCAT(CONCAT('%',#{sch_CodeUrl_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_CodeUrl !=  null and sch_CodeUrl !=  ''   ">
+			and code_url  like CONCAT('%',#{sch_CodeUrl,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCodeUrl_ !=  null and schCodeUrl_ !=  ''   ">
+			and code_url  like CONCAT(#{schCodeUrl_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="codeUrlStart !=  null and codeUrlEnd!= null  ">
+			and code_url between #{codeUrlStart,jdbcType=VARCHAR} and #{codeUrlEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="refId !=  null and refId !=  ''   "> and ref_id  = #{refId,jdbcType=VARCHAR} </if>
+		<if test="sch_RefId_ !=  null and sch_RefId_ !=  ''   ">
+			and ref_id  like CONCAT(CONCAT('%',#{sch_RefId_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RefId !=  null and sch_RefId !=  ''   ">
+			and ref_id  like CONCAT('%',#{sch_RefId,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRefId_ !=  null and schRefId_ !=  ''   ">
+			and ref_id  like CONCAT(#{schRefId_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="refIdStart !=  null and refIdEnd!= null  ">
+			and ref_id between #{refIdStart,jdbcType=VARCHAR} and #{refIdEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="openId !=  null and openId !=  ''   "> and open_id  = #{openId,jdbcType=VARCHAR} </if>
+		<if test="sch_OpenId_ !=  null and sch_OpenId_ !=  ''   ">
+			and open_id  like CONCAT(CONCAT('%',#{sch_OpenId_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_OpenId !=  null and sch_OpenId !=  ''   ">
+			and open_id  like CONCAT('%',#{sch_OpenId,jdbcType=VARCHAR})
+		 </if>
+		<if test="schOpenId_ !=  null and schOpenId_ !=  ''   ">
+			and open_id  like CONCAT(#{schOpenId_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="openIdStart !=  null and openIdEnd!= null  ">
+			and open_id between #{openIdStart,jdbcType=VARCHAR} and #{openIdEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="orderDate !=  null  ">
+			and order_date  = #{orderDate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="orderDateStart !=  null and orderDateEnd!= null  ">
+			and order_date between #{orderDateStart,jdbcType=TIMESTAMP} and #{orderDateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="sysCode !=  null and sysCode !=  ''   "> and sys_code  = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+			and sys_code  like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+			and sys_code  like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+			and sys_code  like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+			and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="creator !=  null and creator !=  ''   "> and creator  = #{creator,jdbcType=VARCHAR} </if>
+		<if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+			and creator  like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+			and creator  like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+			and creator  like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="creatorStart !=  null and creatorEnd!= null  ">
+			and creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtCreate !=  null  ">
+			and gmt_create  = #{gmtCreate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="modifier !=  null and modifier !=  ''   "> and modifier  = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and modifier  like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and modifier  like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		 </if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and modifier  like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtModified !=  null  ">
+			and gmt_modified  = #{gmtModified,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="isDeleted !=  null  ">			and is_deleted  = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1 !=  null and att1 !=  ''   "> and att1  = #{att1,jdbcType=VARCHAR} </if>
+		<if test="sch_Att1_ !=  null and sch_Att1_ !=  ''   ">
+			and att1  like CONCAT(CONCAT('%',#{sch_Att1_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att1 !=  null and sch_Att1 !=  ''   ">
+			and att1  like CONCAT('%',#{sch_Att1,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt1_ !=  null and schAtt1_ !=  ''   ">
+			and att1  like CONCAT(#{schAtt1_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att1Start !=  null and att1End!= null  ">
+			and att1 between #{att1Start,jdbcType=VARCHAR} and #{att1End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att2 !=  null and att2 !=  ''   "> and att2  = #{att2,jdbcType=VARCHAR} </if>
+		<if test="sch_Att2_ !=  null and sch_Att2_ !=  ''   ">
+			and att2  like CONCAT(CONCAT('%',#{sch_Att2_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att2 !=  null and sch_Att2 !=  ''   ">
+			and att2  like CONCAT('%',#{sch_Att2,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt2_ !=  null and schAtt2_ !=  ''   ">
+			and att2  like CONCAT(#{schAtt2_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att2Start !=  null and att2End!= null  ">
+			and att2 between #{att2Start,jdbcType=VARCHAR} and #{att2End,jdbcType=VARCHAR}
+		 </if>
+		<if test="numa1 !=  null  ">			and numa1  = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2 !=  null  ">			and numa2  = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark !=  null and remark !=  ''   "> and remark  = #{remark,jdbcType=VARCHAR} </if>		<if test="sch_Remark_ !=  null and sch_Remark_ !=  ''   ">
+			and remark  like CONCAT(CONCAT('%',#{sch_Remark_,jdbcType=VARCHAR}),'%')
+		 </if>		<if test="sch_Remark !=  null and sch_Remark !=  ''   ">
+			and remark  like CONCAT('%',#{sch_Remark,jdbcType=VARCHAR})
+		 </if>		<if test="schRemark_ !=  null and schRemark_ !=  ''   ">
+			and remark  like CONCAT(#{schRemark_,jdbcType=VARCHAR},'%')
+		 </if>		<if test="remarkStart !=  null and remarkEnd!= null  ">
+			and remark between #{remarkStart,jdbcType=VARCHAR} and #{remarkEnd,jdbcType=VARCHAR}
+		 </if>
+	</select>
+	
+	<select id="findCount" resultType="int"
+		parameterType="com.nork.pay.model.search.PayOrderSearch">
+		select count(*)
+		from pay_order
+		where 1=1
+		<if test="userId !=  null  "> and user_id  = #{userId,jdbcType=INTEGER} </if>
+		<if test="bizType !=  null  "> and biz_type  = #{bizType,jdbcType=VARCHAR} </if>
+		<if test="beginDate!=null and beginDate!=''">
+		<![CDATA[
+			  and DATE_FORMAT(order_date, '%Y-%m-%d') >=  DATE_FORMAT(#{beginDate}, '%Y-%m-%d')
+		]]>
+		</if>
+	    <if test="endDate!=null and endDate!=''">
+		<![CDATA[
+			  and DATE_FORMAT(order_date, '%Y-%m-%d') >=  DATE_FORMAT(#{endDate}, '%Y-%m-%d')
+		]]>
+		</if>
+	</select>
+	<!-- 分页查询 ,可在PayOrderSearch中自定义查询条件-->
+	<select id="findList" resultMap="tResultMap"
+		parameterType="com.nork.pay.model.search.PayOrderSearch">
+		select
+		<include refid="All_Column_List" />
+	    from pay_order where 1=1 	
+		<if test="userId !=  null  "> and user_id  = #{userId,jdbcType=INTEGER} </if>
+		<if test="bizType !=  null  "> and biz_type  = #{bizType,jdbcType=VARCHAR} </if>
+		<if test="beginDate!=null and beginDate!=''">
+		<![CDATA[
+			  and DATE_FORMAT(order_date, '%Y-%m-%d') >=  DATE_FORMAT(#{beginDate}, '%Y-%m-%d')
+		]]>
+		</if>
+	    <if test="endDate!=null and endDate!=''">
+		<![CDATA[
+			  and DATE_FORMAT(order_date, '%Y-%m-%d') >=  DATE_FORMAT(#{endDate}, '%Y-%m-%d')
+		]]>
+		</if>
+		<if test="orders != null and  orders !=''  ">  order by #{orders}</if>
+		<if test="order == null and  orders == null ">  order by id desc</if>
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+	
+	<select id="selectPaginatedList" resultMap="AllResultMap"
+		parameterType="com.nork.pay.model.search.PayOrderSearch">
+		select
+		<include refid="All_Column_List" />
+	    from pay_order
+		where 1=1 and product_type != 'authcode' 	
+		<if test="userId !=  null  ">and user_id  = #{userId,jdbcType=INTEGER}  </if>
+		<if test="productType !=  null and productType !=  ''   "> and product_type  = #{productType,jdbcType=VARCHAR}  </if>
+		<if test="sch_ProductType_ !=  null and sch_ProductType_ !=  ''   ">
+			and product_type  like CONCAT(CONCAT('%',#{sch_ProductType_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_ProductType !=  null and sch_ProductType !=  ''   ">
+			and product_type  like CONCAT('%',#{sch_ProductType,jdbcType=VARCHAR})
+		 </if>
+		<if test="schProductType_ !=  null and schProductType_ !=  ''   ">
+			and product_type  like CONCAT(#{schProductType_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="productTypeStart !=  null and productTypeEnd!= null  ">
+			and product_type between #{productTypeStart,jdbcType=VARCHAR} and #{productTypeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="productId !=  null  ">			and product_id  = #{productId,jdbcType=INTEGER} </if>
+		<if test="orderNo !=  null and orderNo !=  ''   "> and order_no  = #{orderNo,jdbcType=VARCHAR} </if>
+		<if test="sch_OrderNo_ !=  null and sch_OrderNo_ !=  ''   ">
+			and order_no  like CONCAT(CONCAT('%',#{sch_OrderNo_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_OrderNo !=  null and sch_OrderNo !=  ''   ">
+			and order_no  like CONCAT('%',#{sch_OrderNo,jdbcType=VARCHAR})
+		 </if>
+		<if test="schOrderNo_ !=  null and schOrderNo_ !=  ''   ">
+			and order_no  like CONCAT(#{schOrderNo_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="orderNoStart !=  null and orderNoEnd!= null  ">
+			and order_no between #{orderNoStart,jdbcType=VARCHAR} and #{orderNoEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="totalFee !=  null  ">			and total_fee  = #{totalFee,jdbcType=INTEGER} </if>
+		<if test="payType !=  null and payType !=  ''   "> and pay_type  = #{payType,jdbcType=VARCHAR} </if>
+		<if test="sch_PayType_ !=  null and sch_PayType_ !=  ''   ">
+			and pay_type  like CONCAT(CONCAT('%',#{sch_PayType_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_PayType !=  null and sch_PayType !=  ''   ">
+			and pay_type  like CONCAT('%',#{sch_PayType,jdbcType=VARCHAR})
+		 </if>
+		<if test="schPayType_ !=  null and schPayType_ !=  ''   ">
+			and pay_type  like CONCAT(#{schPayType_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="payTypeStart !=  null and payTypeEnd!= null  ">
+			and pay_type between #{payTypeStart,jdbcType=VARCHAR} and #{payTypeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="payState !=  null and payState !=  ''   "> and pay_state  = #{payState,jdbcType=VARCHAR} </if>
+		<if test="sch_PayState_ !=  null and sch_PayState_ !=  ''   ">
+			and pay_state  like CONCAT(CONCAT('%',#{sch_PayState_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_PayState !=  null and sch_PayState !=  ''   ">
+			and pay_state  like CONCAT('%',#{sch_PayState,jdbcType=VARCHAR})
+		 </if>
+		<if test="schPayState_ !=  null and schPayState_ !=  ''   ">
+			and pay_state  like CONCAT(#{schPayState_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="payStateStart !=  null and payStateEnd!= null  ">
+			and pay_state between #{payStateStart,jdbcType=VARCHAR} and #{payStateEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="prepayId !=  null and prepayId !=  ''   "> and prepay_id  = #{prepayId,jdbcType=VARCHAR} </if>
+		<if test="sch_PrepayId_ !=  null and sch_PrepayId_ !=  ''   ">
+			and prepay_id  like CONCAT(CONCAT('%',#{sch_PrepayId_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_PrepayId !=  null and sch_PrepayId !=  ''   ">
+			and prepay_id  like CONCAT('%',#{sch_PrepayId,jdbcType=VARCHAR})
+		 </if>
+		<if test="schPrepayId_ !=  null and schPrepayId_ !=  ''   ">
+			and prepay_id  like CONCAT(#{schPrepayId_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="prepayIdStart !=  null and prepayIdEnd!= null  ">
+			and prepay_id between #{prepayIdStart,jdbcType=VARCHAR} and #{prepayIdEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="codeUrl !=  null and codeUrl !=  ''   "> and code_url  = #{codeUrl,jdbcType=VARCHAR} </if>
+		<if test="sch_CodeUrl_ !=  null and sch_CodeUrl_ !=  ''   ">
+			and code_url  like CONCAT(CONCAT('%',#{sch_CodeUrl_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_CodeUrl !=  null and sch_CodeUrl !=  ''   ">
+			and code_url  like CONCAT('%',#{sch_CodeUrl,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCodeUrl_ !=  null and schCodeUrl_ !=  ''   ">
+			and code_url  like CONCAT(#{schCodeUrl_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="codeUrlStart !=  null and codeUrlEnd!= null  ">
+			and code_url between #{codeUrlStart,jdbcType=VARCHAR} and #{codeUrlEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="refId !=  null and refId !=  ''   "> and ref_id  = #{refId,jdbcType=VARCHAR} </if>
+		<if test="sch_RefId_ !=  null and sch_RefId_ !=  ''   ">
+			and ref_id  like CONCAT(CONCAT('%',#{sch_RefId_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_RefId !=  null and sch_RefId !=  ''   ">
+			and ref_id  like CONCAT('%',#{sch_RefId,jdbcType=VARCHAR})
+		 </if>
+		<if test="schRefId_ !=  null and schRefId_ !=  ''   ">
+			and ref_id  like CONCAT(#{schRefId_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="refIdStart !=  null and refIdEnd!= null  ">
+			and ref_id between #{refIdStart,jdbcType=VARCHAR} and #{refIdEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="openId !=  null and openId !=  ''   "> and open_id  = #{openId,jdbcType=VARCHAR} </if>
+		<if test="sch_OpenId_ !=  null and sch_OpenId_ !=  ''   ">
+			and open_id  like CONCAT(CONCAT('%',#{sch_OpenId_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_OpenId !=  null and sch_OpenId !=  ''   ">
+			and open_id  like CONCAT('%',#{sch_OpenId,jdbcType=VARCHAR})
+		 </if>
+		<if test="schOpenId_ !=  null and schOpenId_ !=  ''   ">
+			and open_id  like CONCAT(#{schOpenId_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="openIdStart !=  null and openIdEnd!= null  ">
+			and open_id between #{openIdStart,jdbcType=VARCHAR} and #{openIdEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="orderDate !=  null  ">
+			and order_date  = #{orderDate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="orderDateStart !=  null and orderDateEnd!= null  ">
+			and order_date between #{orderDateStart,jdbcType=TIMESTAMP} and #{orderDateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="sysCode !=  null and sysCode !=  ''   "> and sys_code  = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="sch_SysCode_ !=  null and sch_SysCode_ !=  ''   ">
+			and sys_code  like CONCAT(CONCAT('%',#{sch_SysCode_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_SysCode !=  null and sch_SysCode !=  ''   ">
+			and sys_code  like CONCAT('%',#{sch_SysCode,jdbcType=VARCHAR})
+		 </if>
+		<if test="schSysCode_ !=  null and schSysCode_ !=  ''   ">
+			and sys_code  like CONCAT(#{schSysCode_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="sysCodeStart !=  null and sysCodeEnd!= null  ">
+			and sys_code between #{sysCodeStart,jdbcType=VARCHAR} and #{sysCodeEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="creator !=  null and creator !=  ''   "> and creator  = #{creator,jdbcType=VARCHAR} </if>
+		<if test="sch_Creator_ !=  null and sch_Creator_ !=  ''   ">
+			and creator  like CONCAT(CONCAT('%',#{sch_Creator_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Creator !=  null and sch_Creator !=  ''   ">
+			and creator  like CONCAT('%',#{sch_Creator,jdbcType=VARCHAR})
+		 </if>
+		<if test="schCreator_ !=  null and schCreator_ !=  ''   ">
+			and creator  like CONCAT(#{schCreator_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="creatorStart !=  null and creatorEnd!= null  ">
+			and creator between #{creatorStart,jdbcType=VARCHAR} and #{creatorEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtCreate !=  null  ">
+			and gmt_create  = #{gmtCreate,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtCreateStart !=  null and gmtCreateEnd!= null  ">
+			and gmt_create between #{gmtCreateStart,jdbcType=TIMESTAMP} and #{gmtCreateEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="modifier !=  null and modifier !=  ''   "> and modifier  = #{modifier,jdbcType=VARCHAR} </if>
+		<if test="sch_Modifier_ !=  null and sch_Modifier_ !=  ''   ">
+			and modifier  like CONCAT(CONCAT('%',#{sch_Modifier_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Modifier !=  null and sch_Modifier !=  ''   ">
+			and modifier  like CONCAT('%',#{sch_Modifier,jdbcType=VARCHAR})
+		 </if>
+		<if test="schModifier_ !=  null and schModifier_ !=  ''   ">
+			and modifier  like CONCAT(#{schModifier_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="modifierStart !=  null and modifierEnd!= null  ">
+			and modifier between #{modifierStart,jdbcType=VARCHAR} and #{modifierEnd,jdbcType=VARCHAR}
+		 </if>
+		<if test="gmtModified !=  null  ">
+			and gmt_modified  = #{gmtModified,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="gmtModifiedStart !=  null and gmtModifiedEnd!= null  ">
+			and gmt_modified between #{gmtModifiedStart,jdbcType=TIMESTAMP} and #{gmtModifiedEnd,jdbcType=TIMESTAMP}
+		 </if>
+		<if test="isDeleted !=  null  ">			and is_deleted  = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="att1 !=  null and att1 !=  ''   "> and att1  = #{att1,jdbcType=VARCHAR} </if>
+		<if test="sch_Att1_ !=  null and sch_Att1_ !=  ''   ">
+			and att1  like CONCAT(CONCAT('%',#{sch_Att1_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att1 !=  null and sch_Att1 !=  ''   ">
+			and att1  like CONCAT('%',#{sch_Att1,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt1_ !=  null and schAtt1_ !=  ''   ">
+			and att1  like CONCAT(#{schAtt1_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att1Start !=  null and att1End!= null  ">
+			and att1 between #{att1Start,jdbcType=VARCHAR} and #{att1End,jdbcType=VARCHAR}
+		 </if>
+		<if test="att2 !=  null and att2 !=  ''   "> and att2  = #{att2,jdbcType=VARCHAR} </if>
+		<if test="sch_Att2_ !=  null and sch_Att2_ !=  ''   ">
+			and att2  like CONCAT(CONCAT('%',#{sch_Att2_,jdbcType=VARCHAR}),'%')
+		 </if>
+		<if test="sch_Att2 !=  null and sch_Att2 !=  ''   ">
+			and att2  like CONCAT('%',#{sch_Att2,jdbcType=VARCHAR})
+		 </if>
+		<if test="schAtt2_ !=  null and schAtt2_ !=  ''   ">
+			and att2  like CONCAT(#{schAtt2_,jdbcType=VARCHAR},'%')
+		 </if>
+		<if test="att2Start !=  null and att2End!= null  ">
+			and att2 between #{att2Start,jdbcType=VARCHAR} and #{att2End,jdbcType=VARCHAR}
+		 </if>
+		<if test="numa1 !=  null  ">			and numa1  = #{numa1,jdbcType=INTEGER} </if>
+		<if test="numa2 !=  null  ">			and numa2  = #{numa2,jdbcType=INTEGER} </if>
+		<if test="remark !=  null and remark !=  ''   "> and remark  = #{remark,jdbcType=VARCHAR} </if>		
+		<if test="sch_Remark_ !=  null and sch_Remark_ !=  ''   ">
+			and remark  like CONCAT(CONCAT('%',#{sch_Remark_,jdbcType=VARCHAR}),'%')
+		 </if>		
+		 <if test="sch_Remark !=  null and sch_Remark !=  ''   ">
+			and remark  like CONCAT('%',#{sch_Remark,jdbcType=VARCHAR})
+		 </if>		
+		 <if test="schRemark_ !=  null and schRemark_ !=  ''   ">
+			and remark  like CONCAT(#{schRemark_,jdbcType=VARCHAR},'%')
+		 </if>		
+		 <if test="remarkStart !=  null and remarkEnd!= null  ">
+			and remark between #{remarkStart,jdbcType=VARCHAR} and #{remarkEnd,jdbcType=VARCHAR}
+		 </if>
+		 <if test="taskId !=  null">
+		 	and task_id = #{taskId,jdbcType=INTEGER}
+		 </if>
+		 <if test="orderDateLess != null">
+			and #{orderDateLess,jdbcType=TIMESTAMP} >= gmt_create
+		 </if>
+		<if test="order != null and  order !=''  ">
+			order by ${order} <if test="orderNum != null and  orderNum !='' ">${orderNum}</if>
+		</if>
+		<if test="orders != null and  orders !=''  ">  order by #{orders}</if>
+		<if test="order == null and  orders == null ">  order by order_date desc</if>
+		<if test="start !=-1 and limit !=-1"> LIMIT #{start}, #{limit}</if>
+	</select>
+
+	<!-- findOneByOrderNo -->
+	<select id="findOneByOrderNo" resultMap="AllResultMap">
+		select
+		<include refid="All_Column_List" /> 
+		from pay_order where order_no = 
+		#{orderNo,jdbcType=VARCHAR}
+	</select>
+	
+	<!-- getCountByUserIdAndStatus -->
+	<select id="getCountByUserIdAndStatus" resultType="int">
+		select count(id) from pay_order 
+		where user_id = #{userId,jdbcType=INTEGER} 
+		and pay_state = #{status,jdbcType=VARCHAR} 
+		and is_deleted=0 and gmt_create>DATE_SUB(SYSDATE(),INTERVAL 5 MINUTE)
+	</select>
+	<update id="deleteByIdList">
+		update pay_order
+		<set>
+			is_deleted = 1,
+			<if test="remark!= null">  remark = #{remark,jdbcType=VARCHAR},</if>
+			<if test="numa1!= null">  numa1 = #{numa1,jdbcType=INTEGER}</if>
+		</set>
+		 where id in 
+		<if test="idList != null and idList.size > 0">
+			<foreach collection="idList" index="index" item="item" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+	</update>
+
+	<select id="getConsumeSumByOrderNum" resultType="com.nork.pay.model.PayOrder">
+		SELECT
+		SUM(total_fee) as totalFee,user_id as userId
+		FROM
+			pay_order
+		WHERE
+		is_deleted = 0
+		AND pay_state = 'SUCCESS'
+		AND finance_type='Out'
+		AND
+			user_id = (
+				SELECT
+					user_id AS A
+				FROM
+					`pay_order`
+				WHERE
+					order_no = #{orderNum}
+			)
+	</select>
+
+    <update id="updateOrderByOrderNo">
+        update pay_order set task_id = #{taskId} where order_no = #{orderNo}
+    </update>
+</mapper>

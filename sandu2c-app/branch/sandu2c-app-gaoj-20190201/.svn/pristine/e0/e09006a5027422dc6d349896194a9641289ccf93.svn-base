@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.customer.dao.CustomerScoreDetailMapper" >
+  <resultMap id="BaseResultMap" type="com.sandu.customer.model.CustomerScoreDetail" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="operate_type" property="operateType" jdbcType="TINYINT" />
+    <result column="business_type" property="businessType" jdbcType="VARCHAR" />
+    <result column="score" property="score" jdbcType="DOUBLE" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="MODIFIER" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id, operate_type, business_type, score, creator, gmt_create, MODIFIER, gmt_modified, 
+    is_deleted
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from customer_score_detail
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from customer_score_detail
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  
+  <delete id="deleteDetailByUserId" parameterType="java.lang.Integer">
+    delete from customer_score_detail
+    where user_id = #{userId,jdbcType=BIGINT}
+  </delete>
+  
+   <!-- 批量插入数据 -->
+	<insert id="batchInsert" useGeneratedKeys="true">
+		  insert into customer_score_detail (user_id, operate_type, 
+	      business_type, score, creator, 
+	      gmt_create, MODIFIER, gmt_modified, 
+	      is_deleted)
+		VALUES 
+		<foreach collection="insertList" item="tmp" separator=",">
+			 (#{tmp.userId,jdbcType=BIGINT}, #{tmp.operateType,jdbcType=TINYINT}, 
+		      #{tmp.businessType,jdbcType=VARCHAR}, #{tmp.score,jdbcType=DOUBLE}, #{tmp.creator,jdbcType=VARCHAR}, 
+		      #{tmp.gmtCreate,jdbcType=TIMESTAMP}, #{tmp.modifier,jdbcType=VARCHAR}, #{tmp.gmtModified,jdbcType=TIMESTAMP}, 
+		      #{tmp.isDeleted,jdbcType=INTEGER})
+		</foreach>
+	</insert>
+  
+  <insert id="insert" parameterType="com.sandu.customer.model.CustomerScoreDetail" >
+    insert into customer_score_detail (id, user_id, operate_type, 
+      business_type, score, creator, 
+      gmt_create, MODIFIER, gmt_modified, 
+      is_deleted)
+    values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{operateType,jdbcType=TINYINT}, 
+      #{businessType,jdbcType=VARCHAR}, #{score,jdbcType=DOUBLE}, #{creator,jdbcType=VARCHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{isDeleted,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sandu.customer.model.CustomerScoreDetail" >
+    insert into customer_score_detail
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="operateType != null" >
+        operate_type,
+      </if>
+      <if test="businessType != null" >
+        business_type,
+      </if>
+      <if test="score != null" >
+        score,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        MODIFIER,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="operateType != null" >
+        #{operateType,jdbcType=TINYINT},
+      </if>
+      <if test="businessType != null" >
+        #{businessType,jdbcType=VARCHAR},
+      </if>
+      <if test="score != null" >
+        #{score,jdbcType=DOUBLE},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sandu.customer.model.CustomerScoreDetail" >
+    update customer_score_detail
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="operateType != null" >
+        operate_type = #{operateType,jdbcType=TINYINT},
+      </if>
+      <if test="businessType != null" >
+        business_type = #{businessType,jdbcType=VARCHAR},
+      </if>
+      <if test="score != null" >
+        score = #{score,jdbcType=DOUBLE},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        MODIFIER = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sandu.customer.model.CustomerScoreDetail" >
+    update customer_score_detail
+    set user_id = #{userId,jdbcType=BIGINT},
+      operate_type = #{operateType,jdbcType=TINYINT},
+      business_type = #{businessType,jdbcType=VARCHAR},
+      score = #{score,jdbcType=DOUBLE},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      MODIFIER = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

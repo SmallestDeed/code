@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.home.dao.UserHouseRecordMapper" >
+  <resultMap id="BaseResultMap" type="com.nork.home.model.UserHouseRecord" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="house_id" property="houseId" jdbcType="INTEGER" />
+    <result column="use_count" property="useCount" jdbcType="INTEGER" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, sys_code, user_id, house_id, use_count, creator, gmt_create, modifier, gmt_modified, 
+    is_deleted
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from user_house_record
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from user_house_record
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.nork.home.model.UserHouseRecord" >
+    insert into user_house_record (id, sys_code, user_id, 
+      house_id, use_count, creator, 
+      gmt_create, modifier, gmt_modified, 
+      is_deleted)
+    values (#{id,jdbcType=INTEGER}, #{sysCode,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER}, 
+      #{houseId,jdbcType=INTEGER}, #{useCount,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{isDeleted,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.nork.home.model.UserHouseRecord" >
+    insert into user_house_record
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="sysCode != null" >
+        sys_code,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="houseId != null" >
+        house_id,
+      </if>
+      <if test="useCount != null" >
+        use_count,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="sysCode != null" >
+        #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="houseId != null" >
+        #{houseId,jdbcType=INTEGER},
+      </if>
+      <if test="useCount != null" >
+        #{useCount,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.nork.home.model.UserHouseRecord" >
+    update user_house_record
+    <set >
+      <if test="sysCode != null" >
+        sys_code = #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="houseId != null" >
+        house_id = #{houseId,jdbcType=INTEGER},
+      </if>
+      <if test="useCount != null" >
+        use_count = #{useCount,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.nork.home.model.UserHouseRecord" >
+    update user_house_record
+    set sys_code = #{sysCode,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=INTEGER},
+      house_id = #{houseId,jdbcType=INTEGER},
+      use_count = #{useCount,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="getRecordCount" resultType="java.lang.Integer" parameterType="com.nork.home.model.search.MyHouseSearch" >
+    select
+        count(1)
+    from
+        user_house_record t1
+        left join base_house t2 on t2.id = t1.house_id
+    where
+        user_id = #{userId}
+        AND t2.house_status = 5
+        AND t2.is_public = 1
+  </select>
+
+  <resultMap id="getRecordListResultMap" type="com.nork.home.model.MyHouseVO">
+    <result column="base_house_id" property="houseId" jdbcType="INTEGER" />
+    <result column="house_name" property="houseName" jdbcType="VARCHAR" />
+    <result column="total_area" property="houseArea" jdbcType="VARCHAR" />
+    <result column="space_function_id" property="spaceFunctionId" jdbcType="INTEGER" />
+    <result column="living_name" property="livingName" jdbcType="VARCHAR" />
+    <result column="house_spe" property="houseSpe" jdbcType="VARCHAR" />
+    <result column="pic_path" property="pic" jdbcType="VARCHAR" />
+  </resultMap>
+  <select id="getRecordList" resultMap="getRecordListResultMap" parameterType="com.nork.home.model.search.MyHouseSearch" >
+    SELECT
+        t1.house_id,
+        t5.house_name,
+        t5.total_area,
+        t2.space_function_id,
+        t3.living_name,
+        t6.pic_path,
+        group_concat(t4.space_type) house_spe
+    FROM
+        user_house_record t1
+        left join house_space_new t4 on t4.house_id = t1.house_id
+        left join space_common t2 on t2.id = t4.space_id
+        left join base_house t5 on t5.id = t1.house_id
+        left join base_living t3 on t3.id = t5.living_id
+        left join res_pic t6 on t6.id = t5.pic_res1_id
+    WHERE
+        t1.user_id = #{userId}
+        AND t5.house_status = 5
+        AND t5.is_public = 1
+    GROUP BY
+        t1.house_id
+    <if test="start != null and limit != null">
+      LIMIT #{start},#{limit}
+    </if>
+  </select>
+
+  <select id="selectByUserAndHouse" resultMap="BaseResultMap" >
+    select
+        <include refid="Base_Column_List" />
+    from
+        user_house_record
+    where
+        user_id = #{0}
+        AND house_id = #{1}
+  </select>
+
+</mapper>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+    <bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		 <property name="corePoolSize" value="10" />
+		 <property name="maxPoolSize" value="100" />
+		 <property name="queueCapacity" value="500" />
+    </bean>
+
+
+
+
+   <bean id="renderPicsJob"  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+		<property name="targetObject"><bean class="com.nork.design.service.impl.DesignPlanServiceImpl"/></property>  
+		<property name="targetMethod" value="getPlanDesignPicJobByTask" />  
+		<property name="concurrent" value="false" /> 
+   </bean>   
+   <bean id="renderPicsTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">  
+		<property name="jobDetail" ref="renderPicsJob" />  
+		<property name="startDelay" value="5500000" />
+		<property name="repeatInterval" value="2000000" />
+	</bean>
+	
+	<!-- 渲染任务 -->
+	<bean id="prepareRenderJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<bean class="com.nork.design.service.impl.DesignPlanServiceImpl"/>
+		</property>
+		<property name="targetMethod" value="renderTask"/>
+		<property name="concurrent" value="false"/>
+	</bean>
+	<bean id="prepareRenderTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="prepareRenderJob"/>
+		<property name="startDelay" value="2000000" /><!-- 调度工厂实例化后，经过4秒开始执行调度 -->
+		<property name="repeatInterval" value="2000000"/><!-- 每3分钟调度一次   -->
+	</bean>
+	
+	
+	
+	<!-- 清理渲染任务 -->
+	<bean id="cleanTaskJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<bean class="com.nork.design.service.impl.DesignPlanServiceImpl"/>
+		</property>
+		<property name="targetMethod" value="cleanRenderTaskJob"/>
+		<property name="concurrent" value="false"/>
+	</bean>
+	<bean id="cleanTaskTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="cleanTaskJob"/>
+		<property name="startDelay" value="5000000"/>
+		<property name="repeatInterval" value="30000000"/>
+	</bean>
+	<!-- 新渲染系统任务 -->
+	  <bean id="renderTaskJob"  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+		<property name="targetObject"><bean class="com.nork.render.service.impl.RenderTaskServiceImpl"/></property>  
+		<property name="targetMethod" value="renderTask" />  
+		<property name="concurrent" value="false" /> 
+   </bean> 
+   
+<!--    <bean id="RenderTask" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean"/>
+   <bean id="renderTaskJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail">
+            <bean class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+                <property name="targetObject"><ref bean="RenderTask" /></property>
+                <property name="targetMethod"><value>renderTask</value></property>
+            </bean>
+        </property>
+        <property name="cronExpression">
+            <value>0/30 * * * * ?</value>
+        </property>
+    </bean> -->
+    
+	<bean id="renderTaskJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">  
+		<property name="jobDetail" ref="renderTaskJob" />  
+		<property name="cronExpression" value="0/5 * * * * ?" />  
+		<property name="startDelay">    
+			<value>10000</value>    
+		</property>
+	</bean>
+	
+	<bean id="jobScheduler" lazy-init="false" autowire="no"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<!-- <ref bean="renderPicsTrigger"/>
+				<ref bean="prepareRenderTrigger"/>  -->
+ 
+				
+<!-- 				<ref bean="renderPicsTrigger"/> -->
+<!-- 				<ref bean="prepareRenderTrigger"/> -->
+<!-- 				<ref bean="productDayProcedureTrigger"/> -->
+<!-- 				<ref bean="productWeeksProcedureTrigger"/> -->
+<!-- 				<ref bean="productMonthProcedureTrigger"/> -->
+				
+				<!-- <ref bean="cleanTaskTrigger"/>
+				<ref bean="renderTaskJobTrigger"/>
+				 -->
+			</list>
+		</property>
+	</bean>
+</beans>

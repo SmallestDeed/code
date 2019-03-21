@@ -1,0 +1,158 @@
+package com.sandu.product.model;
+
+import com.sandu.common.model.Mapper;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * @version V1.0
+ * @Title: BaseCompany.java
+ * @Package com.sandu.product.model
+ * @Description:产品模块-企业表
+ * @createAuthor pandajun
+ * @CreateDate 2015-06-15 17:01:45
+ */
+@Data
+public class BaseCompany extends Mapper implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+
+    /**
+     * 系统编码
+     **/
+    private String sysCode;
+    /**
+     * 创建者
+     **/
+    private String creator;
+    /**
+     * 创建时间
+     **/
+    private Date gmtCreate;
+    /**
+     * 修改人
+     **/
+    private String modifier;
+    /**
+     * 修改时间
+     **/
+    private Date gmtModified;
+    /**
+     * 是否删除
+     **/
+    private Integer isDeleted;
+    /**
+     * 企业编码
+     **/
+    private String companyCode;
+    /**
+     * 企业名称
+     **/
+    private String companyName;
+    /**
+     * 企业标识
+     **/
+    private String companyIdentify;
+    /**
+     * 企业网站
+     **/
+    private String companyUrl;
+    /**
+     * 企业介绍
+     **/
+    private String companyDesc;
+    /**
+     * 企业地址
+     **/
+    private String companyAddress;
+    /**
+     * 字符备用1
+     **/
+    private String att1;
+    /**
+     * 字符备用2
+     **/
+    private String att2;
+    /**
+     * 字符备用3
+     **/
+    private String att3;
+    /**
+     * 字符备用4
+     **/
+    private String att4;
+    /**
+     * 字符备用5
+     **/
+    private String att5;
+    /**
+     * 字符备用6
+     **/
+    private String att6;
+    /**
+     * 时间备用1
+     **/
+    private Date dateAtt1;
+    /**
+     * 时间备用2
+     **/
+    private Date dateAtt2;
+    /**
+     * 整数备用1-->	企业LOGO
+     **/
+    private Integer companyLogo;
+    /**
+     * 整数备用2
+     **/
+    private Integer numAtt2;
+    /**
+     * 数字备用1
+     **/
+    private Double numAtt3;
+    /**
+     * 数字备用2
+     **/
+    private Double numAtt4;
+    /**
+     * 备注
+     **/
+    private String remark;
+    /*明细行业*/
+    private String smallType;
+    /*行业*/
+    private Integer industry;
+
+    
+    private String companyDomainName;
+    
+    private String appId;
+
+    //经销商所属企业id
+    private Integer pid;
+    //企业可见产品范围
+    private String productVisibilityRange;
+
+    private String companyLogoPicPath;
+
+    private Integer userId;
+
+    private String provinceName;
+
+    private String cityName;
+
+    private String areaName;
+
+    private String streetName;
+
+    private String enableBrandIds;//所属于品牌,mapping to brand_id
+
+    /** 经营类型 **/
+    private Integer businessType;
+    //经销商经销的所有品牌
+    private String brandIds;
+
+}

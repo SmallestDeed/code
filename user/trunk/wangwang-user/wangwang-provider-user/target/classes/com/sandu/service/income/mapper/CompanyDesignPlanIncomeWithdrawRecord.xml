@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.income.dao.CompanyDesignPlanIncomeWithdrawRecordDao">
+
+    <insert id="insert" parameterType="com.sandu.api.income.model.CompanyDesignPlanIncomeWithdrawRecord">
+        insert into company_design_plan_income_withdraw_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyId != null">company_id,</if>
+            <if test="companyName != null">company_name,</if>
+            <if test="applyUserId != null">apply_user_id,</if>
+            <if test="applyUserName != null">apply_user_name,</if>
+            <if test="applyUserMobile != null">apply_user_mobile,</if>
+            <if test="applyTime != null">apply_time,</if>
+            <if test="applyDubi != null">apply_dubi,</if>
+            <if test="applyAmount != null">apply_amount,</if>
+            <if test="realWithdrawAmount != null">real_withdraw_amount,</if>
+            <if test="withdrawType != null">withdraw_type,</if>
+            <if test="withdrawStatus != null">withdraw_status,</if>
+            <if test="revceiveUserId != null">revceive_user_id,</if>
+            <if test="revceiveUserName  != null">revceive_user_name,</if>
+            <if test="approvedUserId != null">approved_user_id,</if>
+            <if test="approvedUserName != null">approved_user_name,</if>
+            <if test="approvedTime != null">approved_time,</if>
+            <if test="isDeleted != null">is_deleted,</if>
+            <if test="bankcardInfoId != null">bankcard_info_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="companyId != null">#{companyId},</if>
+            <if test="companyName != null">#{companyName},</if>
+            <if test="applyUserId != null">#{applyUserId},</if>
+            <if test="applyUserName != null">#{applyUserName},</if>
+            <if test="applyUserMobile != null">#{applyUserMobile},</if>
+            <if test="applyTime != null">#{applyTime},</if>
+            <if test="applyDubi != null">#{applyDubi},</if>
+            <if test="applyAmount != null">#{applyAmount},</if>
+            <if test="realWithdrawAmount != null">#{realWithdrawAmount},</if>
+            <if test="withdrawType != null">#{withdrawType},</if>
+            <if test="withdrawStatus != null">#{withdrawStatus},</if>
+            <if test="revceiveUserId != null">#{revceiveUserId},</if>
+            <if test="revceiveUserName  != null">#{revceiveUserName},</if>
+            <if test="approvedUserId != null">#{approvedUserId},</if>
+            <if test="approvedUserName != null">#{approvedUserName},</if>
+            <if test="approvedTime != null">#{approvedTime},</if>
+            <if test="isDeleted != null">#{isDeleted},</if>
+            <if test="bankcardInfoId != null">#{bankcardInfoId},</if>
+        </trim>
+    </insert>
+
+
+    <select id="selectWithdrawList" resultType="com.sandu.api.income.model.CompanyDesignPlanIncomeWithdrawRecord">
+        SELECT
+          *
+        FROM
+          company_design_plan_income_withdraw_record
+        WHERE
+            is_deleted = 0 AND
+            company_id = #{companyId}
+        <if test="withdrawStatus != null">
+            AND withdraw_status = #{withdrawStatus}
+        </if>
+        <if test="withdrawType != null">
+            AND  withdraw_type = #{withdrawType}
+        </if>
+        <if test="applyUserName != null and applyUserName != '' ">
+            AND  apply_user_name like concat(concat('%',#{applyUserName},'%'))
+        </if>
+        order by apply_time desc
+        limit #{start},#{limit}
+    </select>
+
+
+    <select id="countWithdrawList" resultType="int">
+        SELECT
+          count(*)
+        FROM
+          company_design_plan_income_withdraw_record
+        WHERE
+          is_deleted = 0 AND
+          company_id = #{companyId}
+        <if test="withdrawStatus != null">
+            AND withdraw_status = #{withdrawStatus}
+        </if>
+        <if test="withdrawType != null">
+            AND  withdraw_type = #{withdrawType}
+        </if>
+        <if test="applyUserName != null and applyUserName != ''">
+            AND  apply_user_name like concat(concat('%',#{applyUserName},'%'))
+        </if>
+    </select>
+
+    <select id = "selectCountBySearch" parameterType = "com.sandu.api.income.search.CompanyDesignPlanIncomeWithdrawRecordSearch" resultType = "long">
+        select count(1) from company_design_plan_income_withdraw_record
+        <where>
+            <if test = "applyTimeAfter != null">
+                and apply_time <![CDATA[>]]> #{applyTimeAfter}
+            </if>
+            <if test = "isDeleted != null">
+                and is_deleted = #{isDeleted}
+            </if>
+            <if test = "applyUserId != null">
+                and apply_user_id = #{applyUserId}
+            </if>
+            <if test = "companyId != null">
+                and company_id = #{companyId}
+            </if>
+        </where>
+    </select>
+
+</mapper>

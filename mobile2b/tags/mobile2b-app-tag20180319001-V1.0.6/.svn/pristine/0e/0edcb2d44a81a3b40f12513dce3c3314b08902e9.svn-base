@@ -1,0 +1,967 @@
+/**
+ * 文件名：DesignPalnRenderServiceIMpl.java    
+ *
+ * 版本信息：    
+ * 日期：2017-7-13    
+ * Copyright 足下 Corporation 2017     
+ * 版权所有    
+ *
+ */
+package com.nork.design.service.impl;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import com.nork.common.model.LoginUser;
+import com.nork.common.util.FileUploadUtils;
+import com.nork.common.util.FtpUploadUtils;
+import com.nork.common.util.Utils;
+import com.nork.design.cache.DesignPlanProductCacher;
+import com.nork.design.model.*;
+import com.nork.design.model.constant.PlanVisibleCode;
+import com.nork.design.service.*;
+import com.nork.system.cache.ResourceCacher;
+import com.nork.task.service.SysTaskService;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.nork.common.properties.ResProperties;
+import com.nork.common.util.ClassReflectionUtils;
+import com.nork.design.model.DesignPlan;
+import com.nork.design.model.DesignPlanProduct;
+import com.nork.design.model.DesignPlanRenderScene;
+import com.nork.design.model.DesignPlanRes;
+import com.nork.design.model.DesignPlanResRenderScene;
+import com.nork.design.model.RenderPicVO;
+import com.nork.system.model.ResDesign;
+import com.nork.system.model.ResDesignRenderScene;
+import com.nork.system.model.ResModel;
+import com.nork.system.model.ResRenderPic;
+import com.nork.system.service.ResDesignRenderSceneService;
+import com.nork.system.service.ResDesignService;
+import com.nork.system.service.ResModelService;
+import com.nork.system.service.ResRenderPicService;
+
+import javax.persistence.criteria.CriteriaBuilder;
+
+/**
+ *
+ * 项目名称：timeSpace
+ * 类名称：DesignPalnRenderServiceIMpl
+ * 类描述：
+ * 创建时间：2017-7-13 下午2:57:01
+ * 创建人：Timy.Liu
+ * 修改人：Timy.Liu
+ * 修改时间：2017-7-13 下午2:57:01
+ * 修改备注：
+ * @version
+ *
+ */
+@Service
+public class DesignPlanRenderServiceImpl implements DesignPlanRenderService {
+
+    private static Logger logger = Logger.getLogger(DesignPlanRenderServiceImpl.class);
+    //免费渲染次数
+    private final int ALLOWN_FREE_RENDER_TIMES =  Integer.parseInt(Utils.getPropertyName("render","app.allown.free.render.times","10").trim());
+    @Autowired
+    private ResRenderPicService resRenderPicService;
+
+ 
+    @Autowired
+    private DesignPlanService designPlanService;
+
+    @Autowired
+    private ResModelService resModelService;
+
+    @Autowired
+    private ResDesignService resDesignService;
+
+    @Autowired
+    private DesignPlanProductService designPlanProductService;
+
+    @Autowired
+    private DesignPlanRenderSceneService designPlanRenderSceneService;
+
+    @Autowired
+    private ResDesignRenderSceneService resDesignRenderSceneService;
+
+    @Autowired
+    private DesignPlanProductRenderSceneService designPlanProductRenderSceneService;
+
+    @Autowired
+    private SysTaskService sysTaskService;
+
+    @Autowired
+    private UsedProductsService usedProductsService;
+    @Autowired
+	private DesignPlanAutoRenderService designPlanAutoRenderServiceImpl;
+
+    /* (non-Javadoc)
+     * @see com.nork.design.service.DesignPalnRenderService#getDesignPlanRes(int)
+     */
+    @Override
+    public DesignPlanRes getDesignPlanRes(long designPlanId) {
+
+        DesignPlanRes designPlanRes = null;
+
+        // 获取设计方案信息 ->start
+        DesignPlan designPlan = designPlanService.get((int)designPlanId);
+        if(designPlan == null){
+            logger.error("------designPlan is null, designPlanId:" + designPlanId);
+            return null;
+        }
+        logger.info("designPlanId_sceneModified_"+designPlan.getSceneModified());
+
+        // 获取设计方案信息 ->end
+
+        // 获取模型文件 ->start
+        ResModel resModel = null;
+        if(designPlan.getModelId() != null){
+            resModel = resModelService.get(designPlan.getModelId());
+        }
+
+        if(resModel == null){
+            logger.error("------resModel is null, resModelId:" + designPlan.getModelId());
+            return null;
+        }
+        // 获取模型文件 ->end
+
+        // 获取配置文件 ->start
+        ResDesign resDesign = null;
+        if(designPlan.getConfigFileId() != null){
+            resDesign = resDesignService.get(designPlan.getConfigFileId());
+        }
+
+        if(resDesign == null){
+            logger.error("------resDesign is null, resDesignId:" + designPlan.getConfigFileId());
+            return null;
+        }
+        // 获取配置文件 ->end
+
+        // 获取设计方案产品列表 ->start
+        List<DesignPlanProduct> designPlanProductList = designPlanProductService.getListByPlanId(designPlan.getId());
+        if(designPlanProductList == null || designPlanProductList.size() == 0){
+            logger.error("------designPlanProductList is null or size = 0, designPlanId:" + designPlan.getId());
+            return null;
+        }
+        // 获取设计方案产品列表 ->end
+
+        designPlanRes = new DesignPlanRes(designPlan, resModel, resDesign, designPlanProductList, null);
+
+        return designPlanRes;
+    }
+
+    /* (non-Javadoc)
+     * @see com.nork.design.service.DesignPalnRenderService#saveAsRenderBakScene(com.nork.design.model.DesignPlanRes)
+     */
+    @Override
+    public long saveAsRenderBakScene(DesignPlanRes designPlanRes) {
+
+        if(designPlanRes == null){
+            return 0;
+        }
+        Integer taskId = designPlanRes.getTaskId();
+        AutoRenderTaskState taskState = designPlanAutoRenderServiceImpl.getStateByTaskId(taskId);
+        // 设计方案存副本 ->start
+        DesignPlanRenderScene designPlanEctype = new DesignPlanRenderScene();
+        DesignPlan designPlan = designPlanRes.getDesignPlan();
+
+        try {
+            ClassReflectionUtils.reflectionAttr(designPlan, designPlanEctype);
+        } catch (Exception e) {
+            logger.error(e.getMessage(),e);
+            return 0;
+        }
+
+        // 修改部分属性
+        Date now = new Date();
+        designPlanEctype.setGmtCreate(now);
+        designPlanEctype.setGmtModified(now);
+        designPlanEctype.setDesignPlanId(designPlan.getId());
+        designPlanEctype.setPlatformId(taskState.getPlatformId());
+
+        long id = designPlanRenderSceneService.add(designPlanEctype);
+        // 设计方案存副本 ->end
+
+        // 配置文件copy一份,存副本 ->start
+        long resDesignEctypeId = resDesignRenderSceneService.copyFromResDesign(designPlanRes.getResDesign(), id);
+        if(resDesignEctypeId < 1){
+            // copyFromResDesign方法执行失败,删除designPlanEctype
+            designPlanRenderSceneService.delete(id);
+            return 0;
+        }
+//        //将拼花信息拷贝到 效果图中
+//        if(designPlan.getSpellingFlowerFileId() != null && designPlan.getSpellingFlowerFileId().intValue() > 0) {
+//        	long spellingFlowerFileId = resDesignRenderSceneService.copySpellingFlowerFile(designPlan.getSpellingFlowerFileId(),designPlanEctype);
+//        	if(spellingFlowerFileId > 0) {
+//        		designPlanEctype.setSpellingFlowerFileId((int)spellingFlowerFileId);
+//        	}
+//        }
+        
+        
+        // 回填configFileId
+        designPlanEctype.setConfigFileId((int)resDesignEctypeId);
+        designPlanRenderSceneService.update(designPlanEctype);
+        // 配置文件copy一份,存副本 ->end
+
+        // 设计方案产品列表存副本 ->start
+        designPlanProductRenderSceneService.copyFromDesignPlanProductList(designPlanRes.getDesignPlanProductList(), id);
+        // 设计方案产品列表存副本 ->end
+
+        return id;
+    }
+
+    /* (non-Javadoc)
+     * @see com.nork.design.service.DesignPalnRenderService#getRenderBakScene(int)
+     */
+    @Override
+    public DesignPlanRes getRenderBakScene(long thumbId) {
+
+        // 根据缩略图id得到副本id ->start
+        Integer designPlanRenderSceneId = designPlanRenderSceneService.getIdByThumbId(thumbId);
+
+        if(designPlanRenderSceneId == null){
+            return null;
+        }
+        // 根据缩略图id得到副本id ->end
+
+        // 得到设计方案副本相关的所有资源数据 ->start
+        DesignPlanResRenderScene designPlanResRenderScene = designPlanRenderSceneService.getDesignPlanResRenderSceneById(designPlanRenderSceneId);
+        // 得到设计方案副本相关的所有资源数据 ->end
+
+        // 副本所有资源数据转化为设计方案资源数据 ->start
+        DesignPlanRes designPlanRes = this.getDesignPlanResByDesignPlanResRenderScene(designPlanResRenderScene);
+        // 副本所有资源数据转化为设计方案资源数据 ->end
+
+        return designPlanRes;
+    }
+
+    @Override
+    public DesignPlanRes getDesignPlanResByDesignPlanResRenderScene(
+            DesignPlanResRenderScene designPlanResRenderScene) {
+
+        if(designPlanResRenderScene == null){
+            return null;
+        }
+
+        // 设计方案转换 ->start
+        DesignPlan designPlan = new DesignPlan();
+        if(designPlanResRenderScene.getDesignPlanRenderScene() != null){
+            try {
+                ClassReflectionUtils.reflectionAttr(designPlanResRenderScene.getDesignPlanRenderScene(), designPlan);
+            } catch (Exception e) {
+                logger.error(e.getMessage(),e);
+            }
+        }
+        designPlan.setDesignSceneId(designPlanResRenderScene.getDesignPlanRenderScene().getId());
+        designPlan.setVisible(PlanVisibleCode.DESIGN_INVISIBLE);
+        // 设计方案转换 ->end
+
+        // 设计方案模型转换 ->start
+        ResModel resModel = designPlanResRenderScene.getResModel();
+        // 设计方案模型转换 ->end
+
+        // 设计方案配置文件转换 ->start
+        ResDesign resDesign = new ResDesign();
+        if(designPlanResRenderScene.getResDesignRenderScene() != null){
+            try {
+                ClassReflectionUtils.reflectionAttr(designPlanResRenderScene.getResDesignRenderScene(), resDesign);
+            } catch (Exception e) {
+                logger.error(e.getMessage(),e);
+            }
+        }
+        // 设计方案配置文件转换 ->end
+
+        // 设计方案产品列表转换 ->start
+        List<DesignPlanProduct> designPlanProductList = null;
+        if(designPlanResRenderScene.getDesignPlanProductRenderSceneList() != null){
+            designPlanProductList = designPlanProductService.getDesignPlanProductListByDesignPlanProductRenderSceneList(designPlanResRenderScene.getDesignPlanProductRenderSceneList());
+        }
+        // 设计方案产品列表转换 ->end
+
+        return new DesignPlanRes(designPlan, resModel, resDesign, designPlanProductList, null);
+    }
+
+    /* (non-Javadoc)
+     * @see com.nork.design.service.DesignPalnRenderService#saveAsTempDesignPaln4RenderBakScene(com.nork.design.model.DesignPlanRes)
+     */
+    @Override
+    public long saveAsTempDesignPaln4RenderBakScene(DesignPlanRes designPlanRes,long userId) {
+        if(designPlanRes != null){
+            DesignPlan designPlan = designPlanRes.getDesignPlan();
+            if(designPlan != null){
+                if(StringUtils.equals(userId + "", designPlan.getUserId() + "")){
+                    return this.saveAsRender(designPlanRes);
+                }else{
+                    logger.error("------function:saveAsTempDesignPaln4RenderBakScene->该设计方案不属于该用户(设计方案用户id:" + designPlan.getUserId() + ";登录者id:" + userId + ")");
+                }
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public long saveAsRender(DesignPlanRes designPlanRes) {
+
+        if(designPlanRes == null){
+            return 0;
+        }
+
+        // 设计方案存副本 ->start
+        DesignPlan designPlan = designPlanRes.getDesignPlan();
+
+        // 修改部分属性
+        Date now = new Date();
+        designPlan.setGmtCreate(now);
+        designPlan.setGmtModified(now);
+
+        long id = designPlanService.add(designPlan);
+        // 设计方案存副本 ->end
+
+        // 副本配置文件copy一份,存在res_design表中 ->start
+        long resDesignId = resDesignService.createFileAndAddDate(designPlanRes.getResDesign(), id);
+        if(resDesignId < 1){
+            // copyFromResDesign方法执行失败,删除designPlanEctype
+            designPlanService.delete((int)id);
+            return 0;
+        }
+        
+        /*拷贝拼花文件*/
+		if(designPlan.getSpellingFlowerFileId()!=null) {
+			Integer resFileId = this.designPlanRecommendedCopyFile(designPlan.getSpellingFlowerFileId().toString(), 
+					"design.designPlan.spellingFlowerFile.upload.path", 
+					"/AA/d_userdesign/[yyyy]/[MM]/[dd]/[HH]/design/designPlan/spellingFlowerFile/",
+					null,null, designPlan.getPlanCode());
+			designPlan.setSpellingFlowerFileId(resFileId); 
+		}else {
+			designPlan.setSpellingFlowerFileId(-1); 
+		}
+		
+        // 回填configFileId
+        designPlan.setConfigFileId((int)resDesignId);
+        designPlanService.update(designPlan);
+        // 配置文件copy一份,存副本 ->end
+
+        // 设计方案产品列表存副本 ->start
+        designPlanProductService.saveDesignPlanProductList(designPlanRes.getDesignPlanProductList(), id);
+        // 设计方案产品列表存副本 ->end
+
+        return id;
+    }
+    
+    
+    /**
+	 * 复制配置文件
+	 * @param resId
+	 * @param fileKey
+	 * @param bussniess
+	 * @param loginUser
+	 * @param code
+	 * @return
+	 */
+	public Integer designPlanRecommendedCopyFile(String resId,String fileKey,String defaultPath, Integer bussniess, LoginUser loginUser,
+			String code) {
+		String resFilePath = "";
+		Integer newResId = -1;
+
+		ResDesign resDesign = new ResDesign();
+		if (!StringUtils.isEmpty(resId)) {
+			ResDesignRenderScene file = resDesignRenderSceneService.get(new Integer(resId));
+			if (file != null && !StringUtils.isEmpty(file.getFilePath())) {
+				resFilePath = file.getFilePath();
+				resDesign = file.resDesignCopy();
+			}
+
+
+			if (StringUtils.isNotEmpty(resFilePath)) {
+				String srcPath = Utils.getAbsolutePath(resFilePath, Utils.getAbsolutePathType.encrypt);
+
+				File srcresourcesFile = new File(srcPath);
+				if (!srcresourcesFile.getParentFile().exists()) {
+					srcresourcesFile.getParentFile().mkdirs();
+				}
+				String resourcesName = resFilePath.substring(resFilePath.replace("/", "\\").lastIndexOf("\\") + 1,resFilePath.length());
+				if ("linux".equals(FileUploadUtils.SYSTEM_FORMAT)) {
+					resourcesName = resFilePath.substring(resFilePath.lastIndexOf("/") + 1, resFilePath.length());
+				}
+				String newPath = Utils.getPropertyName("config/res", fileKey,defaultPath);
+				newPath = Utils.replaceDate(newPath);
+				String tarName = resourcesName.substring(resourcesName.lastIndexOf("/") + 1,resourcesName.lastIndexOf("_")) + "_" + Utils.getCurrentDateTime(Utils.DATETIMESSS)
+						+ resourcesName.substring(resourcesName.indexOf("."));
+				String targetName = newPath + tarName;
+				String local_targetPath = Utils.getAbsolutePath(targetName.replace("/", "\\"), Utils.getAbsolutePathType.encrypt);
+				File local_targetFile = new File(local_targetPath);
+				if (!local_targetFile.getParentFile().exists()) {
+					local_targetFile.getParentFile().mkdirs();
+				}
+				boolean flag = false;
+				String resPath = resFilePath.substring(0, resFilePath.lastIndexOf("/") + 1);
+				String dbFilePath = Utils.getAbsolutePath(newPath + tarName, Utils.getAbsolutePathType.encrypt);
+				if (Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD) == 1) {
+					if (srcresourcesFile.isFile() && srcresourcesFile.exists()) { /* 判断文件是否存在*/
+						flag = FileUploadUtils.fileCopy(srcresourcesFile, local_targetFile);
+					} else {
+						logger.error("srcresourcesFile is not  exists !srcresourcesFile="+srcresourcesFile);
+					}
+				} else if (Utils.getIntValue(FileUploadUtils.FTP_UPLOAD_METHOD) == 2) {
+					flag = FtpUploadUtils.downFile(resPath, resourcesName);/* 下载到本地*/
+					if (FileUploadUtils.fileCopy(srcresourcesFile, local_targetFile)) {
+						if (flag){ 
+							flag = FtpUploadUtils.uploadFile(tarName, dbFilePath, newPath);/* 上传ftp服务器*/
+							if(flag){
+								FileUploadUtils.deleteFile(newPath + tarName);	/* 删除本地*/
+							}else{
+								return newResId;
+							}
+						}else{
+							return newResId;
+						}
+					}else{
+						logger.error("copy file is error");
+						return -1;
+					}
+				}else{
+					/* 3 本地和ftp同时上传(默认是本地上传)*/
+					/* resPath：FTP服务器上的相对路径，resourcesName：要下载的文件名，newPath+tarName：下载到本地文件路径+文件名称*/
+					flag = FtpUploadUtils.downFile(resPath, resourcesName);/* 下载到本地 */
+					if (!flag || FileUploadUtils.fileCopy(srcresourcesFile, local_targetFile)) {
+						logger.error("copy file is error");
+						return -1;
+					}
+					if (flag) {
+						//tarName:文件名称，dbFilePath:本地文件路径，newPath:ftp服务器存放文件路径
+						flag = FtpUploadUtils.uploadFile(tarName, dbFilePath, newPath);/*上传ftp服务器*/
+						if(!flag){
+							return newResId;
+						}
+					}else{
+						return newResId;
+					}
+				}
+				if(flag) {
+					resDesign.setSysCode(code);
+					resDesign.setFilePath(targetName);
+					resDesign.setFileKey(fileKey);
+					resDesign.setBusinessId(bussniess);
+					resDesign.setFileCode(code);
+					resDesign.setGmtModified(new Date());
+					resDesign.setGmtCreate(new Date());
+					newResId = resDesignService.add(resDesign);
+				}
+			}
+		}
+		return newResId;
+	}
+
+ 
+    /* (non-Javadoc)
+     * @see com.nork.design.service.DesignPalnRenderService#deleteTempDesignPaln4RenderBakScene(long)
+     */
+    @Override
+    public void deleteTempDesignPaln4RenderBakScene(long planId,long userId) {
+
+        DesignPlan designPlan = designPlanService.get((int)planId);
+
+        if(designPlan == null){
+            return;
+        }
+
+        // 确保这个设计方案是本人的,才允许删除
+        if(!StringUtils.equals(userId + "", designPlan.getUserId() + "")){
+            // 非本人创建的设计方案,不允许删除
+            logger.error("------function:deleteTempDesignPaln4RenderBakScene->非本人创建的设计方案,不能删除(userId:" + userId + ";designPlan.userId:" + designPlan.getUserId() + ")");
+            return;
+        }
+
+        // 判断该设计方案是否来自于副本->如果来自于副本,才可以删除
+        Integer renderSceneId = designPlan.getDesignSceneId();
+        if(renderSceneId != null && renderSceneId > 0){
+            designPlanService.deleteAllData(planId);
+        }
+
+    }
+
+    /**
+     * describe: 删除临时方案定时任务（创建时间超过10分钟）
+     * creat_user: yanghz
+     * creat_date: 2017-07-25
+     * creat_time: 下午 05:22
+     **/
+    public void deleteTempDesignPaln4RenderBakSceneTask() {
+        List<DesignPlan> dpList = designPlanService.getTempDesignPaln4RenderBakSceneTask();
+        List<Integer> delPlanIdList = new ArrayList<>();//需要删除的方案id
+        List<Integer> delProductList = new ArrayList<>();//需要删除的设计方案产品
+        List<Integer> delConfigList = new ArrayList<>();//需要删除的配置文件
+        if (dpList != null && dpList.size() > 0) {
+            // 删除配置文件
+            // 删除设计方案产品
+            //模型可能会共用，所以不删除
+            for (DesignPlan tmp : dpList) {
+                delPlanIdList.add(tmp.getId());//需要删除的方案id
+                Integer configFileId = tmp.getConfigFileId();
+                if (configFileId != null && configFileId > 0) {
+                    ResDesign resDesign = resDesignService.get(configFileId);
+                    if (resDesign != null) {
+                        /* 删除物理文件 */
+                        FileUploadUtils.deleteFile(resDesign.getFilePath());
+                        delConfigList.add(configFileId);//每删一条物理文件添加个配置文件id
+                        if (Utils.enableRedisCache()) {
+                            ResourceCacher.removeResFile(resDesign.getId());
+                        }
+                    }
+                }
+
+                DesignPlanProduct designPlanProduct = new DesignPlanProduct();
+                designPlanProduct.setPlanId(tmp.getId());
+                List<DesignPlanProduct> list = designPlanProductService.getList(designPlanProduct);
+                /*String usedConfigPath = Utils.getValue("design.designPlan.usedConfig.upload.path",
+                        "/AA/e_userlogs/[yyyy]/[MM]/[dd]/[HH]/design/designPlan/usedConfig/");*/
+                String usedConfigPath = Utils.getValueByFileKey(ResProperties.RES, ResProperties.DESIGNPLAN_USEDCONFIG_FILEKEY, "/AA/e_userlogs/[yyyy]/[MM]/[dd]/[HH]/design/designPlan/usedConfig/");
+                usedConfigPath = Utils.replaceDate(usedConfigPath);
+                for (DesignPlanProduct tempDppList : list) {
+                    delProductList.add(tempDppList.getId());//需要删除的产品id
+                    if (Utils.enableRedisCache()) {
+                        DesignPlanProductCacher.remove(tempDppList.getId());
+                    }
+                    UsedProducts usedProducts = new UsedProducts();
+                    usedProducts.setDesignId(tmp.getId());
+                    usedProducts.setProductId(tempDppList.getProductId());
+                    usedProducts.setUserId(tmp.getUserId());
+                    List<UsedProducts> upList = usedProductsService.getList(usedProducts);
+                    for (UsedProducts up : upList) {
+                        // 文件名称
+                        String fileName = up.getId() + ".txt";
+                        // 绝对路径
+                        /*String filePath = Constants.UPLOAD_ROOT + usedConfigPath + fileName;*/
+                        String filePath = Utils.getAbsolutePath(usedConfigPath + fileName, Utils.getAbsolutePathType.encrypt);
+                        File file = new File(filePath);
+                        if (file.exists()) {
+                            //file.delete();
+                            FileUploadUtils.deleteFile(usedConfigPath + fileName);
+                        }
+                    }
+                }
+            }
+        }else{
+            return;
+        }
+        designPlanService.batchDelTempDesign(delPlanIdList);//批量删除方案
+        resDesignService.batchDelTempDesignConfig(delConfigList);//批量删除配置文件
+        designPlanProductService.batchDelTempDesignProduct(delProductList);//批量删除设计方案产品
+    }
+
+    /* (non-Javadoc)    
+     * @see com.nork.design.service.DesignPalnRenderService#changeTempDesignPalnVisible(long)    
+     */
+    @Override
+    public void changeTempDesignPalnVisible(long planId) {
+
+        if(planId < 1){
+            logger.error("------function:changeTempDesignPalnVisible->planId不能小于0;(planId = " + planId + ")");
+            return;
+        }
+
+        DesignPlan designPlan = designPlanService.get((int)planId);
+        if(designPlan == null){
+            logger.error("------function:changeTempDesignPalnVisible->designPlan = null;(planId = " + planId + ")");
+            return;
+        }
+
+        designPlan.setVisible(PlanVisibleCode.DESIGN_VISIBLE);
+        designPlanService.update(designPlan);
+    }
+
+    /* (non-Javadoc)    
+     * @see com.nork.design.service.DesignPalnRenderService#associatedRenderResWithBakScene(long, long)    
+     */
+    @Override
+    public void associatedRenderResWithBakScene(long resId, long bakSceneId, String loginName) {
+        if (resId < 1 || bakSceneId <1){
+            logger.error("params error: resId="+resId+", bakSceneId="+bakSceneId);
+            return;
+        }
+
+        ResRenderPic renderPic = new ResRenderPic();
+        renderPic.setId((int)resId);
+        renderPic.setDesignSceneId((int)bakSceneId);//副本id
+        renderPic.setGmtModified(new Date());
+        renderPic.setModifier(loginName);
+        int i = resRenderPicService.update(renderPic);
+
+        //缩略图和原图建立关联
+        ResRenderPic render = new ResRenderPic();
+        render.setPid((int)resId);
+        render.setDesignSceneId((int)bakSceneId);
+        ResRenderPic smallPic = resRenderPicService.get((int) resId);
+        if(smallPic != null){
+            Integer pid = smallPic.getPid();
+            if(pid != null && pid > 0){
+                ResRenderPic resRenderPic = new ResRenderPic();
+                resRenderPic.setId(pid);
+                resRenderPic.setDesignSceneId((int)bakSceneId);
+                resRenderPicService.update(resRenderPic);
+            }
+        }
+        resRenderPicService.updateOrigPicBySmallPicId(render);
+
+        int taskId = resRenderPicService.getTaskIdBySmallId((int) resId);
+        if(taskId > 0){
+            resRenderPicService.updateSceneIdByTaskId((int) bakSceneId,taskId);
+        }
+    }
+
+    /* (non-Javadoc)    
+     * @see com.nork.design.service.DesignPalnRenderService#checkModify4DesignPlan(long)    
+     */
+    @Override
+    public boolean checkModify4DesignPlan(long designPlanId) {
+        //1、根据设计方案id获取最近关联的副本
+        //2、副本和设计方案比较是否有改动
+        DesignPlan designPlan = designPlanService.getSceneModifiedById((int)designPlanId);
+        if(designPlan != null){
+            DesignPlanRenderScene renderScene = designPlanRenderSceneService.getLatelyPlanScenByPlanId(designPlan.getId());
+            if(renderScene != null){
+                long sceneModified = renderScene.getSceneModified();
+                long planModified = designPlan.getSceneModified();
+                if(sceneModified == planModified){
+                    return false;
+                }else{
+                    return true;
+                }
+            }
+        }else{
+            //TODO:自定义异常！
+        }
+        return false;
+    }
+
+    /* (non-Javadoc)    
+     * @see com.nork.design.service.DesignPalnRenderService#checkModify4BakScene(long)    
+     */
+    @Override
+    public boolean checkModify4BakScene(long designPlanId , long designSceneId) {
+        //1、获取临时方案信息
+        //2、根据临时方案中存的关联副本id获取副本信息
+        //3、比较两者的时间戳
+        DesignPlan plan = designPlanService.getSceneModifiedById((int) designPlanId);//临时方案
+        DesignPlanRenderScene planRenderScene = designPlanRenderSceneService.get((int)designSceneId);//副本信息
+        long scenFlag = planRenderScene.getSceneModified();
+        long planFlag = plan.getSceneModified();
+        if (scenFlag == planFlag) {
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    /* (non-Javadoc)    
+     * @see com.nork.design.service.DesignPalnRenderService#checkExistBakScene4DesignPlan(long)    
+     */
+    @Override
+    public boolean checkExistBakScene4DesignPlan(long designPlanId) {
+        //1、查看该设计方案有没有缩略图
+        //2、看缩略图中有没有关联副本
+        DesignPlanRenderScene latelyPlanScenByPlanId = designPlanRenderSceneService.getLatelyPlanScenByPlanId((int) designPlanId);
+        if(latelyPlanScenByPlanId != null && latelyPlanScenByPlanId.getId() != null && latelyPlanScenByPlanId.getId().intValue() > 0){
+            return true;
+        }else{
+            return  false;
+        }
+    }
+
+    /* (non-Javadoc)    
+     * @see com.novice.DesignPalnRenderService#getRenderResPage(int, int)    
+     */
+    @Override
+    public List getRenderResPage(int page, int pageSize) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)    
+     * @see com.nork.design.service.DesignPalnRenderService#getTempDesignPalnId4BakScene(long)    
+     */
+    @Override
+    public long getTempDesignPalnId4BakScene(long bakSceneId) {
+        // 得到设计方案副本相关的所有资源数据 ->start
+        DesignPlanResRenderScene designPlanResRenderScene = designPlanRenderSceneService.getDesignPlanResRenderSceneById((int)bakSceneId);
+        // 得到设计方案副本相关的所有资源数据 ->end
+
+        // 副本所有资源数据转化为设计方案资源数据 ->start
+        DesignPlanRes designPlanRes = this.getDesignPlanResByDesignPlanResRenderScene(designPlanResRenderScene);
+        // 副本所有资源数据转化为设计方案资源数据 ->end
+
+        return this.saveAsRender(designPlanRes);
+    }
+
+    /* (non-Javadoc)    
+     * @see com.nork.design.service.DesignPalnRenderService#getLatestRenderBakScene(long)    
+     */
+    @Override
+    public long getLatestRenderBakScene(long designId) {
+        //1、查看该设计方案有没有缩略图
+        //2、看缩略图中有没有关联副本
+        DesignPlanRenderScene latelyPlanScenByPlan = designPlanRenderSceneService.getLatelyPlanScenByPlanId((int) designId);
+        if(latelyPlanScenByPlan != null){
+            return latelyPlanScenByPlan.getId();
+        }else{
+            return 0;
+        }
+    }
+
+
+    /* (non-Javadoc)    
+     * @see com.nork.design.service.DesignPalnRenderService#getLatestThumbId(long)    
+     */
+    @Override
+    public long getLatestThumbId(long designId) {
+        ResRenderPic renderPic = new ResRenderPic();
+//        renderPic.setFileKey(ResProperties.DESIGNPLAN_RENDER_PIC_SMALL_FILEKEY);
+        List<String>fileKeyList = new ArrayList<String>();
+        fileKeyList.add(ResProperties.DESIGNPLAN_RENDER_PIC_SMALL_FILEKEY);
+        fileKeyList.add(ResProperties.DESIGNPLAN_RENDER_VIDEO_COVER);
+        renderPic.setFileKeyList(fileKeyList);
+        renderPic.setBusinessId((int)designId);
+        int picId = resRenderPicService.getLatestSmallPic(renderPic);
+        return picId;
+    }
+    /* (non-Javadoc)    
+     * @see com.nork.design.service.DesignPalnRenderService#isInvisible4Render(long)    
+     */
+    @Override
+    public boolean isInvisible4Render(long designPlanId) {
+        DesignPlan designPlan = designPlanService.get((int)designPlanId);
+        if(designPlan == null){
+            logger.error("------function:isInvisible4Render->designPlan = null(designPlanId:" + designPlanId + ")");
+            return false;
+        }
+        // 如果设计方案的副本id>0且设置为可见,则返回true
+        if(designPlan.getDesignSceneId() != null && designPlan.getDesignSceneId() > 0 && new Integer(0).equals(designPlan.getVisible())){
+            return true;
+        }
+        return false;
+    }
+
+    /* (non-Javadoc)    
+     * @see com.nork.design.service.DesignPalnRenderService#allownFreeRender(long)    
+     */
+    @Override
+    public boolean allownFreeRender(Integer designPlanId, Integer userId) {
+        //一个方案免费渲染次数不能超过次数限制
+        int count = sysTaskService.getAllownFreeRenderTiems(designPlanId);
+        if(count < ALLOWN_FREE_RENDER_TIMES){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    /* (non-Javadoc)    
+     * @see com.nork.design.service.DesignPalnRenderService#processAfterRender(com.nork.design.model.RenderPicVO)    
+     */
+    @Override
+    public void processAfterRender(RenderPicVO renderPic) {
+        logger.error("=========== 保存图片成功 ==========renderPicVO.getIsAuto().intValue() != 1 ");
+        if (renderPic == null || renderPic.getDesignPlan() == null || renderPic.getDesignPlan().getId() == null
+                || renderPic.getDesignPlan().getId().intValue() < 1) {
+            logger.error("prams_is_error");
+            return;
+        }
+        Integer taskId = renderPic.getTaskId();
+        LoginUser loginUser = renderPic.getLoginUser();
+        String loginName = "";
+        if (loginUser != null) {
+            loginName = loginUser.getLoginName();
+        }
+
+        DesignPlan designPlan = designPlanService.get(renderPic.getDesignPlan().getId());
+        renderPic.setDesignPlan(designPlan);
+
+        long designPlanId =designPlan.getId();//设计方案id
+        Integer designSceneId = designPlan.getDesignSceneId();// 副本id
+        long latestThumbId = this.getLatestThumbId(designPlanId);// 缩略图id
+
+
+        if (designSceneId != null && designSceneId.intValue() > 0 && PlanVisibleCode.DESIGN_INVISIBLE == designPlan.getVisible().intValue()) {// 临时方案发生渲染--
+
+            boolean change = checkModify4BakScene(designPlanId,designSceneId); // 判断临时方案和原副本是否发生改变，
+            // 前端识别方案有没有改变
+            boolean isChangeFromU3D = false;
+            Integer isChange = renderPic.getIsChange();
+            if(isChange != null && new Integer(1).equals(isChange)){
+                isChangeFromU3D = true;
+            }
+
+            if(isChangeFromU3D){
+                change = true;
+            }
+
+            if (!change) {// 没发生改变,直接建立和原副本的关联关系，临时方案可能被删除
+                associatedRenderResWithBakScene(latestThumbId, designSceneId, loginName);// 把渲染图的缩略图和场景建立对应关系
+                return;
+            }
+            // 发生改变，建立新副本，使渲染图和新副本关联，自己可见。临时方案转正
+            DesignPlanRes designPlanRes = getDesignPlanRes(designPlanId);
+            designPlanRes.setTaskId(taskId);
+            boolean verified = verifyDesignPlanRes(designPlanId, designPlanRes);
+            if (!verified)
+                return;
+
+            long sceneId = saveAsRenderBakScene(designPlanRes);// 存副本，
+            associatedRenderResWithBakScene(latestThumbId, sceneId, loginName);// 把渲染图的缩略图和场景建立对应关系
+            changeTempDesignPalnVisible(designPlanId);
+            return;
+        }
+
+        // 设计方案发生渲染，不是临时方案发生渲染
+        boolean exist = checkExistBakScene4DesignPlan(designPlanId);// 查询是否有渲染的场景
+        if (exist) {
+            boolean modify = checkModify4DesignPlan(designPlanId);// 对设计方案和最近的创建的副本做比较，是否有更改判断
+            if (modify) {
+                DesignPlanRes designPlanRes = getDesignPlanRes(designPlanId);
+                designPlanRes.setTaskId(taskId);
+                boolean verified = verifyDesignPlanRes(designPlanId, designPlanRes);
+                if (!verified)
+                    return;
+
+                long sceneId = saveAsRenderBakScene(designPlanRes);// 存副本，
+                associatedRenderResWithBakScene(latestThumbId, sceneId, loginName);// 把渲染图的缩略图和场景建立对应关系
+                return;
+            }
+            long latestSceneId = getLatestRenderBakScene(designPlanId);
+            if (latestSceneId < 0)
+                return;
+
+            associatedRenderResWithBakScene(latestThumbId, latestSceneId, loginName);// 把渲染图的缩略图和场景建立对应关系和最近的副本建立关联关系
+            return;
+        }
+        DesignPlanRes designPlanRes = getDesignPlanRes(designPlanId);
+        designPlanRes.setTaskId(taskId);
+        boolean verified = verifyDesignPlanRes(designPlanId, designPlanRes);
+        if (!verified)
+            return;
+
+        long sceneId = saveAsRenderBakScene(designPlanRes);// 存副本，
+        associatedRenderResWithBakScene(latestThumbId, sceneId, loginName);// 把渲染图的缩略图和场景建立对应关系
+        return;
+    }
+
+    @Override
+    public long processAfterRender2(RenderPicVO renderPic) {
+        logger.error("=========== 保存图片成功 ==========renderPicVO.getIsAuto().intValue() == 1 ");
+        LoginUser loginUser = renderPic.getLoginUser();
+        String loginName = "";
+        if (loginUser != null) {
+            loginName = loginUser.getLoginName();
+        }
+        Integer taskId = renderPic.getTaskId();
+        DesignPlan designPlan = designPlanService.get(renderPic.getDesignPlan().getId());
+        renderPic.setDesignPlan(designPlan);
+
+        long designPlanId =designPlan.getId();//设计方案id
+        Integer designSceneId = designPlan.getDesignSceneId();// 副本id
+        long latestThumbId = this.getLatestThumbId(designPlanId);// 缩略图id
+
+
+        if (designSceneId != null && designSceneId.intValue() > 0 && PlanVisibleCode.DESIGN_INVISIBLE == designPlan.getVisible().intValue()) {// 临时方案发生渲染--
+            // 发生改变，建立新副本，使渲染图和新副本关联，自己可见。临时方案转正
+            DesignPlanRes designPlanRes = getDesignPlanRes(designPlanId);
+            designPlanRes.setTaskId(taskId);
+            long sceneId = saveAsRenderBakScene(designPlanRes);// 存副本，
+            associatedRenderResWithBakScene(latestThumbId, sceneId, loginName);// 把渲染图的缩略图和场景建立对应关系
+            changeTempDesignPalnVisible(designPlanId);
+            return sceneId;
+        }
+
+        // 设计方案发生渲染，不是临时方案发生渲染
+        boolean exist = checkExistBakScene4DesignPlan(designPlanId);// 查询是否有渲染的场景
+        if (exist) {
+            boolean modify = checkModify4DesignPlan(designPlanId);// 对设计方案和最近的创建的副本做比较，是否有更改判断
+            if (modify) {
+                DesignPlanRes designPlanRes = getDesignPlanRes(designPlanId);
+                designPlanRes.setTaskId(taskId);
+
+                long sceneId = saveAsRenderBakScene(designPlanRes);// 存副本，
+                associatedRenderResWithBakScene(latestThumbId, sceneId, loginName);// 把渲染图的缩略图和场景建立对应关系
+                return sceneId;
+            }
+            long latestSceneId = getLatestRenderBakScene(designPlanId);
+
+            associatedRenderResWithBakScene(latestThumbId, latestSceneId, loginName);// 把渲染图的缩略图和场景建立对应关系和最近的副本建立关联关系
+            return latestSceneId;
+        }
+        DesignPlanRes designPlanRes = getDesignPlanRes(designPlanId);
+        designPlanRes.setTaskId(taskId);
+        long sceneId = saveAsRenderBakScene(designPlanRes);// 存副本，
+        associatedRenderResWithBakScene(latestThumbId, sceneId, loginName);// 把渲染图的缩略图和场景建立对应关系
+        logger.error("=========== 保存图片成功 ========== processAfterRender2 ======sceneId = " + sceneId);
+        return sceneId;
+    }
+    /* (non-Javadoc)    
+     * @see com.nork.design.service.DesignPalnRenderService#verifyDesignPlanRes(long, com.nork.design.model.DesignPlanRes)    
+     */
+    @Override
+
+    public boolean verifyDesignPlanRes(long thumbPicId, DesignPlanRes designPlanRes) {
+        if(null == designPlanRes)
+            return false;
+
+        if(designPlanRes.getDesignPlan()==null)
+        {
+            logger.error(thumbPicId+"_getDesignPlan_is_null");
+            return false;
+        }
+
+        if(designPlanRes.getResModel()==null)
+        {
+            logger.error(thumbPicId+"_getResModel_is_null");
+            return false;
+        }
+
+        if(designPlanRes.getDesignPlanProductList()==null || designPlanRes.getDesignPlanProductList().size() == 0)
+        {
+            logger.error(thumbPicId+"_getDesignPlanProduct_is_null");
+            return false;
+        }
+
+        if(designPlanRes.getResDesign()==null)
+        {
+            logger.error(thumbPicId+"_getResDesign_is_null");
+            return false;
+        }
+        return true;
+
+    }
+
+    /* (non-Javadoc)    
+     * @see com.nork.design.service.DesignPlanRenderService#updataBakSceneName(com.nork.design.model.DesignPlanRenderScene)    
+     */
+    @Override
+    public void updataBakSceneName(DesignPlanRenderScene designPlanRenderScene) {
+        designPlanRenderSceneService.update(designPlanRenderScene);
+    }
+
+    /* (non-Javadoc)    
+     * @see com.nork.design.service.DesignPlanRenderService#existTempDesignPaln(long, long)    
+     */
+    @Override
+    public long existTempDesignPaln(long thumbId, int userId) {
+        Integer designPlanRenderSceneId = designPlanRenderSceneService.getIdByThumbId(thumbId);
+
+        if(designPlanRenderSceneId == null){//缩略图没有对应的场景
+            return 0l;
+        }
+        
+        DesignPlan designPlan =  designPlanService.getTempDesignPalnId(designPlanRenderSceneId, userId);
+        if(designPlan!=null && designPlan.getId()!=null && designPlan.getId().intValue()>0)
+            return designPlan.getId().longValue();
+        
+        return 0;
+    }
+
+}

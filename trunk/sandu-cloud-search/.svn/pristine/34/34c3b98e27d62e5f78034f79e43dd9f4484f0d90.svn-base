@@ -1,0 +1,69 @@
+package com.sandu.search.datasync.task;
+
+import com.sandu.search.common.tools.StorageComponent;
+import com.sandu.search.datasync.handler.ProductMessageHandler;
+import com.sandu.search.initialize.ElasticSearchCategoryProductIndex;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+/**
+ * 同步产品分类数据任务
+ *
+ * @date 20171229
+ * @auth pengxuangang
+ */
+@Slf4j
+@Component
+public class SyncProductTask {
+
+    @Autowired
+    private StorageComponent storageComponent;
+    @Autowired
+    private ProductMessageHandler productMessageHandler;
+    @Autowired
+    private ElasticSearchCategoryProductIndex elasticSearchCategoryProductIndex;
+
+    private final static String CLASS_LOG_PREFIX = "同步产品分类数据任务:";
+
+    /**
+     * 产品数据全量同步
+     *
+     * @date 20171229
+     * @auth pengxuangang
+     * @strategy 每1小时一次
+     */
+    @Scheduled(cron = "0 0 0/1 * * ?")
+    public void productDataSyncTask() {
+        //任务开始时间
+        long startTime = System.currentTimeMillis();
+
+        log.info(CLASS_LOG_PREFIX + "开始同步数据.....");
+        //重新加载数据
+        storageComponent.reloadAllStorageInMemory(true);
+        log.info(CLASS_LOG_PREFIX + "重新加载内存数据完成....");
+
+        log.info(CLASS_LOG_PREFIX + "开始索引数据....");
+        elasticSearchCategoryProductIndex.syncProductInfoData();
+        log.info(CLASS_LOG_PREFIX + "同步产品分类数据完成...耗时:{}ms", (System.currentTimeMillis() - startTime));
+
+    }
+
+    /**
+     * 产品数据增量更新
+     *
+     * @date 20180324
+     * @auth pengxuangang
+     * @strategy 每5分钟一次
+     */
+    @Scheduled(cron = "0 0/5 * * * ?")
+    public void productIncrementDataSyncTask() {
+        long startTime = System.currentTimeMillis();
+
+        log.info(CLASS_LOG_PREFIX + "产品数据增量更新.....");
+        productMessageHandler.updateProductInfo();
+        log.info(CLASS_LOG_PREFIX + "产品数据增量更新完成...耗时:{}ms", (System.currentTimeMillis() - startTime));
+
+    }
+}

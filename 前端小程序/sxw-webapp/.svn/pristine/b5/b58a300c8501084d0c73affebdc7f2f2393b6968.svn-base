@@ -1,0 +1,97 @@
+<view class='chat-frame {{isShowWindow?"close":""}}' hidden='{{!isShowPage}}'>
+  <view class='chat-frame-content'>
+    <scroll-view scroll-y scroll-top='{{top}}' class='chat-frame-scroll' style='height: 100%'>
+      <view class='frame-content-title'>您正在沟通</view>
+      <!-- 小卡片部分 -->
+      <view class='frame-content-message clearfix'>
+        <view class='content-message-left fl'>
+          <image src='{{shopDetails.logoUrl?resourcePath+shopDetails.logoUrl:""}}'></image>
+        </view>
+        <view class='content-message-right fl'>
+          <view class='message-right-name'>{{shopDetails.shopName}}</view>
+          <view class='message-right-information'>
+            作品
+            <text>{{shopDetails.worksCount}}</text> | 好评
+            <text>{{shopDetails.praiseRatePercent}}</text> | 浏览
+            <text>{{shopDetails.visitCount}}</text>
+          </view>
+        </view>
+      </view>
+      <wxs module="m1">
+        var getTime = function(d1, d2) {
+          d1 = d1.replace('-', '/').replace('-', '/');
+          d2 ? d2.replace('-', '/').replace('-', '/') : 0
+          return Date.parse(d1) - Date.parse(d2);
+        }
+        module.exports.getTime = getTime;
+      </wxs>
+      <!-- 内容部分 -->
+      <view class='frame-content-list'>
+        <!-- 当该消息跟上一条消息内容一致，时间也在一秒以内，过滤掉 -->
+        <view class='content-list-item' wx:for='{{chatContentList}}' wx:key='{{index}}'>
+          <view class='list-item-time' wx:if='{{m1.getTime(chatContentList[index].time,chatContentList[index-1].time) > 120000 || index==0}}'>{{item.time}}</view>
+          <view class='list-item-message clearfix'>
+            <view bindtap='routerToUserDetails' bindtap='{{item.direction == 2&&isHaveShop ? "toShopDetail" : ""}}' class='{{item.direction == 2? "item-message-picture fl" : "item-message-picture-active fr"}}'>
+              <image src='{{staticImageUrl}}home_icon_head_nor.png'></image>
+            </view>
+            <!-- 文字消息 -->
+            <view wx:if='{{item.msgType == 0}}' class='{{item.direction == 2? "item-message-content fl" : "item-message-content-active fr"}}'>
+              {{item.msgBody}}
+            </view>
+            <!-- 图片消息 -->
+            <view wx:if='{{item.msgType == 1}}' class='{{item.direction == 2? "fl": "fr"}}'>
+              <image bindload='imgLoad' bindtap='showImg' style='width:{{item.width}}rpx;height:{{item.height?item.height:440}}rpx;border-radius:10rpx;overflow:hidden;opacity:{{item.show?1:0}}' src='{{resourcePath+item.msgBody}}' data-src='{{resourcePath+item.msgBody}}'
+                data-index='{{index}}'></image>
+            </view>
+            <!-- 方案消息 -->
+            <view wx:if='{{item.msgType == 2||item.msgType==3}}' class='{{item.direction == 2? "fl": "fr"}}'>
+              <view class='list-item-box' data-item='{{item}}' bindtap='toThreeD' data-type="seven">
+                <!-- <image class='list-item-box-img' src='{{item.obj.planPicPath? resourcePath + item.obj.planPicPath : staticImageUrl+"design_def.png"}}' mode='widthFix'></image> -->
+                <image class='list-item-box-img' src='{{item.obj.planPicPath ? resourcePath + item.obj.planPicPath : resourcePath + item.obj.coverPath}}' mode='widthFix'></image>
+                <view class='list-item-box-tag'>方案改造</view>
+              </view>
+              <!-- <view class='list-item-box-title'>{{item.obj.designName}}</view> -->
+              <view class='list-item-box-title'>{{item.obj.planName?item.obj.planName:item.obj.designName}}</view>
+            </view>
+            <!-- 户型消息 -->
+            <view wx:if='{{item.msgType == 4}}' class='{{item.direction == 2? "fl": "fr"}}'>
+              <view class='list-item-box' bindtap='toUrl' data-url='{{"/pages/house-type/house-details/house-details?type=search&houseId="+item.obj.id}}'>
+                <image class='list-item-box-img' src='{{item.obj.thumbnailPath? resourcePath + item.obj.thumbnailPath : staticImageUrl+"design_def.png"}}' mode='widthFix'></image>
+                <view class='list-item-box-tag'>一键装修</view>
+              </view>
+              <view class='list-item-box-title'>{{item.obj.houseCommonCode}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+  <view class='chat-frame-window-parent'>
+    <view class='chat-frame-input'>
+      <view class='frame-input-btn' catchtap='toShopDetail' wx:if="{{isHaveShop}}">
+        <image style='width:64rpx;height:64rpx' src='{{staticImageUrl}}tab_icon_shop.png'></image>
+      </view>
+      <input id='msg' value='{{userChatMessage}}' cursor-spacing='20' bindinput='changeUserChatMessage' bindconfirm='sendUserMessage' bindblur='blur' confirm-hold='1'></input>
+      <label for='msg' class='frame-input-btn fangda' catchtap='sendUserMessage' wx:if='{{isShowSendBtn}}'>发送</label>
+      <view class='frame-input-btn' catchtap='openUserWindow' wx:else>
+        <image style='width:64rpx;height:64rpx;' src='{{staticImageUrl}}{{isShowWindow?"comment_icon_close3":"comment_icon_add"}}.png'></image>
+      </view>
+    </view>
+    <view class='chat-frame-window {{isShowWindow?"":"close"}}'>
+      <view class='chat-frame-window-row'>
+        <view class='chat-frame-window-item' catchtap='openAlbum'>
+          <image style='width:120rpx' mode='widthFix' src='{{staticImageUrl}}comment_icon_pic.png'></image>
+          <text>发送图片</text>
+        </view>
+        <view class='chat-frame-window-item' catchtap='toUrl' data-url='{{"/pages/plan/selection-scheme/selections-scheme"}}'>
+          <image style='width:120rpx' mode='widthFix' src='{{staticImageUrl}}comment_icon_fangan.png'></image>
+          <text>发送方案</text>
+        </view>
+        <view class='chat-frame-window-item' catchtap='toUrl' data-url='{{"/pages/plan/selection-house-type/selection-house-type"}}'>
+          <image style='width:120rpx' mode='widthFix' src='{{staticImageUrl}}comment_icon_huxing.png'></image>
+          <text>发送户型</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

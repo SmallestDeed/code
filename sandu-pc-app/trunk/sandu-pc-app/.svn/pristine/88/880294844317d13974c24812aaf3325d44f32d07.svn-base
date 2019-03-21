@@ -1,0 +1,38 @@
+package com.sandu.product.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import com.sandu.product.model.BaseProduct;
+import com.sandu.product.model.ProductPropsSimple;
+import com.sandu.product.model.search.BaseProductSearch;
+import com.sandu.product.model.vo.ProductCeilingVO;
+
+@Repository
+public interface BaseProductMapper {
+
+	List<ProductPropsSimple> getProductPropsSimpleByProductIdAndAttrCode(
+			@Param("productId") Integer productId, @Param("productAttrCode") String productAttrCode
+			);
+	
+	String getPropFilterInfo(@Param("productId") Integer productId);
+	
+	int insertSelective(BaseProduct record);
+
+    int updateByPrimaryKeySelective(BaseProduct record);
+  
+    int deleteByPrimaryKey(Integer id);
+        
+    BaseProduct selectByPrimaryKey(Integer id);
+	
+    List<BaseProduct> selectProductEasy(BaseProductSearch baseProductSearch);
+    
+    List<BaseProduct> getBatchData(List<Integer> list);
+    
+    List<ProductCeilingVO> getCeilingInfoByProductCode(@Param("productCode") String productCode);
+    
+	List<ProductCeilingVO> getCeilingCrossSectionDataByStyleId(@Param("putawayStateList")List<Integer> putawayStateList, @Param("styleId")Integer styleId);
+    
+}

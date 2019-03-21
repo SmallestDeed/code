@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.system.dao.BaseHousePicFullHousePlanRelMapper">
+
+	<resultMap id="BaseResultMap"
+		type="com.sandu.system.model.BaseHousePicFullHousePlanRel">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="house_guide_pic_info_id" jdbcType="BIGINT"
+			property="houseGuidePicInfoId" />
+		<result column="pic_id" jdbcType="BIGINT" property="picId" />
+		<result column="house_id" jdbcType="BIGINT" property="houseId" />
+		<result column="space_type" jdbcType="SMALLINT" property="spaceType" />
+		<result column="space_areas" jdbcType="SMALLINT" property="spaceArea" />
+		<result column="space_function_id" jdbcType="SMALLINT" property="spaceFunctionId" />
+		<result column="space_common_id" jdbcType="BIGINT" property="spaceCommonId" />
+		<result column="design_templet_id" jdbcType="BIGINT" property="designTempletId" />
+		<result column="full_house_plan_id" jdbcType="BIGINT" property="fullHousePlanId" />
+		<result column="main_task_id" jdbcType="BIGINT" property="mainTaskId" />
+		<result column="state" jdbcType="BIGINT" property="state" />
+		<result column="task_id" jdbcType="BIGINT" property="taskId" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="x_coordinate" jdbcType="VARCHAR" property="xCoordinate" />
+		<result column="y_coordinate" jdbcType="VARCHAR" property="yCoordinate" />
+		<result column="coordinate_info" jdbcType="VARCHAR" property="coordinateInfo" />
+		<result column="is_deleted" jdbcType="SMALLINT" property="isDeleted" />
+		<result column="creator" jdbcType="VARCHAR" property="creator" />
+		<result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+		<result column="modifier" jdbcType="VARCHAR" property="modifier" />
+		<result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		id, house_guide_pic_info_id, pic_id, house_id, space_type,
+		space_common_id, design_templet_id,
+		full_house_plan_id, main_task_id, state, task_id, name, x_coordinate, y_coordinate,
+		coordinate_info, is_deleted, creator, gmt_create, modifier,
+		gmt_modified
+	</sql>
+	
+	<select id="selectByPrimaryKey" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from base_house_pic_full_house_plan_rel
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+
+
+	<select id="getBaseHousePicFullHousePlanRelList" parameterType="com.sandu.system.model.BaseHousePicFullHousePlanRelSearch"
+			resultMap="BaseResultMap">
+		select
+			bhpfhpr.id,
+			bhpfhpr.house_guide_pic_info_id,
+			bhpfhpr.pic_id,
+			bhpfhpr.house_id,
+			bhpfhpr.space_type,
+			sc.space_areas,
+			sc.space_function_id,
+			bhpfhpr.space_common_id,
+			bhpfhpr.design_templet_id,
+			bhpfhpr.full_house_plan_id,
+			bhpfhpr.main_task_id,
+			bhpfhpr.state,
+			bhpfhpr.task_id,
+			bhpfhpr.name,
+			bhpfhpr.x_coordinate,
+			bhpfhpr.y_coordinate,
+			bhpfhpr.coordinate_info,
+			bhpfhpr.is_deleted,
+			bhpfhpr.creator,
+			bhpfhpr.gmt_create,
+			bhpfhpr.modifier,
+			bhpfhpr.gmt_modified
+		from base_house_pic_full_house_plan_rel bhpfhpr
+		left join design_templet dt on dt.id = bhpfhpr.design_templet_id
+		left join space_common sc on sc.id = dt.space_common_id
+		where 1=1
+		<if test="fullHousePlanId != null"> and bhpfhpr.full_house_plan_id = #{fullHousePlanId,jdbcType=INTEGER} </if>
+		<if test="templateIds !=  null">
+			and bhpfhpr.design_templet_id in
+			<foreach collection="templateIds" index="index" item="item" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+	</select>
+
+
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from base_house_pic_full_house_plan_rel
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	
+	<insert id="insert" parameterType="com.sandu.system.model.BaseHousePicFullHousePlanRel">
+		insert into base_house_pic_full_house_plan_rel (id, house_guide_pic_info_id,
+		pic_id,
+		house_id, space_type, space_common_id,
+		design_templet_id, full_house_plan_id, main_task_id,
+		state, task_id, name,
+		x_coordinate, y_coordinate, coordinate_info,
+		is_deleted, creator, gmt_create,
+		modifier, gmt_modified)
+		values (#{id,jdbcType=BIGINT}, #{houseGuidePicInfoId,jdbcType=BIGINT},
+		#{picId,jdbcType=BIGINT},
+		#{houseId,jdbcType=BIGINT}, #{spaceType,jdbcType=SMALLINT}, #{spaceCommonId,jdbcType=BIGINT},
+		#{designTempletId,jdbcType=BIGINT},
+		#{fullHousePlanId,jdbcType=BIGINT}, #{mainTaskId,jdbcType=BIGINT},
+		#{state,jdbcType=BIGINT}, #{taskId,jdbcType=BIGINT},
+		#{name,jdbcType=VARCHAR},
+		#{xCoordinate,jdbcType=VARCHAR}, #{yCoordinate,jdbcType=VARCHAR}, #{coordinateInfo,jdbcType=VARCHAR},
+		#{isDeleted,jdbcType=SMALLINT}, #{creator,jdbcType=VARCHAR},
+		#{gmtCreate,jdbcType=TIMESTAMP},
+		#{modifier,jdbcType=VARCHAR}, #{gmtModified,jdbcType=TIMESTAMP})
+	</insert>
+	
+	<insert id="insertSelective" parameterType="com.sandu.system.model.BaseHousePicFullHousePlanRel">
+		insert into base_house_pic_full_house_plan_rel
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="houseGuidePicInfoId != null">
+				house_guide_pic_info_id,
+			</if>
+			<if test="picId != null">
+				pic_id,
+			</if>
+			<if test="houseId != null">
+				house_id,
+			</if>
+			<if test="spaceType != null">
+				space_type,
+			</if>
+			<if test="spaceCommonId != null">
+				space_common_id,
+			</if>
+			<if test="designTempletId != null">
+				design_templet_id,
+			</if>
+			<if test="fullHousePlanId != null">
+				full_house_plan_id,
+			</if>
+			<if test="mainTaskId != null">
+				main_task_id,
+			</if>
+			<if test="state != null">
+				state,
+			</if>
+			<if test="taskId != null">
+				task_id,
+			</if>
+			<if test="name != null">
+				name,
+			</if>
+			<if test="xCoordinate != null">
+				x_coordinate,
+			</if>
+			<if test="yCoordinate != null">
+				y_coordinate,
+			</if>
+			<if test="coordinateInfo != null">
+				coordinate_info,
+			</if>
+			<if test="isDeleted != null">
+				is_deleted,
+			</if>
+			<if test="creator != null">
+				creator,
+			</if>
+			<if test="gmtCreate != null">
+				gmt_create,
+			</if>
+			<if test="modifier != null">
+				modifier,
+			</if>
+			<if test="gmtModified != null">
+				gmt_modified,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="houseGuidePicInfoId != null">
+				#{houseGuidePicInfoId,jdbcType=BIGINT},
+			</if>
+			<if test="picId != null">
+				#{picId,jdbcType=BIGINT},
+			</if>
+			<if test="houseId != null">
+				#{houseId,jdbcType=BIGINT},
+			</if>
+			<if test="spaceType != null">
+				#{spaceType,jdbcType=SMALLINT},
+			</if>
+			<if test="spaceCommonId != null">
+				#{spaceCommonId,jdbcType=BIGINT},
+			</if>
+			<if test="designTempletId != null">
+				#{designTempletId,jdbcType=BIGINT},
+			</if>
+			<if test="fullHousePlanId != null">
+				#{fullHousePlanId,jdbcType=BIGINT},
+			</if>
+			<if test="mainTaskId != null">
+				#{mainTaskId,jdbcType=BIGINT},
+			</if>
+			<if test="state != null">
+				#{state,jdbcType=BIGINT},
+			</if>
+			<if test="taskId != null">
+				#{taskId,jdbcType=BIGINT},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="xCoordinate != null">
+				#{xCoordinate,jdbcType=VARCHAR},
+			</if>
+			<if test="yCoordinate != null">
+				#{yCoordinate,jdbcType=VARCHAR},
+			</if>
+			<if test="coordinateInfo != null">
+				#{coordinateInfo,jdbcType=VARCHAR},
+			</if>
+			<if test="isDeleted != null">
+				#{isDeleted,jdbcType=SMALLINT},
+			</if>
+			<if test="creator != null">
+				#{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtCreate != null">
+				#{gmtCreate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifier != null">
+				#{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null">
+				#{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+		</trim>
+	</insert>
+	
+	<update id="updateByPrimaryKeySelective" parameterType="com.sandu.system.model.BaseHousePicFullHousePlanRel">
+		update base_house_pic_full_house_plan_rel
+		<set>
+			<if test="houseGuidePicInfoId != null">
+				house_guide_pic_info_id = #{houseGuidePicInfoId,jdbcType=BIGINT},
+			</if>
+			<if test="picId != null">
+				pic_id = #{picId,jdbcType=BIGINT},
+			</if>
+			<if test="houseId != null">
+				house_id = #{houseId,jdbcType=BIGINT},
+			</if>
+			<if test="spaceType != null">
+				space_type = #{spaceType,jdbcType=SMALLINT},
+			</if>
+			<if test="spaceCommonId != null">
+				space_common_id = #{spaceCommonId,jdbcType=BIGINT},
+			</if>
+			<if test="designTempletId != null">
+				design_templet_id = #{designTempletId,jdbcType=BIGINT},
+			</if>
+			<if test="fullHousePlanId != null">
+				full_house_plan_id = #{fullHousePlanId,jdbcType=BIGINT},
+			</if>
+			<if test="mainTaskId != null">
+				main_task_id = #{mainTaskId,jdbcType=BIGINT},
+			</if>
+			<if test="state != null">
+				state = #{state,jdbcType=BIGINT},
+			</if>
+			<if test="taskId != null">
+				task_id = #{taskId,jdbcType=BIGINT},
+			</if>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="xCoordinate != null">
+				x_coordinate = #{xCoordinate,jdbcType=VARCHAR},
+			</if>
+			<if test="yCoordinate != null">
+				y_coordinate = #{yCoordinate,jdbcType=VARCHAR},
+			</if>
+			<if test="coordinateInfo != null">
+				coordinate_info = #{coordinateInfo,jdbcType=VARCHAR},
+			</if>
+			<if test="isDeleted != null">
+				is_deleted = #{isDeleted,jdbcType=SMALLINT},
+			</if>
+			<if test="creator != null">
+				creator = #{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtCreate != null">
+				gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifier != null">
+				modifier = #{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="gmtModified != null">
+				gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	
+	<update id="updateByPrimaryKey" parameterType="com.sandu.system.model.BaseHousePicFullHousePlanRel">
+		update base_house_pic_full_house_plan_rel
+		set house_guide_pic_info_id = #{houseGuidePicInfoId,jdbcType=BIGINT},
+		pic_id = #{picId,jdbcType=BIGINT},
+		house_id = #{houseId,jdbcType=BIGINT},
+		space_type = #{spaceType,jdbcType=SMALLINT},
+		space_common_id = #{spaceCommonId,jdbcType=BIGINT},
+		design_templet_id = #{designTempletId,jdbcType=BIGINT},
+		full_house_plan_id = #{fullHousePlanId,jdbcType=BIGINT},
+		main_task_id = #{mainTaskId,jdbcType=BIGINT},
+		state = #{state,jdbcType=BIGINT},
+		task_id = #{taskId,jdbcType=BIGINT},
+		name = #{name,jdbcType=VARCHAR},
+		x_coordinate = #{xCoordinate,jdbcType=VARCHAR},
+		y_coordinate = #{yCoordinate,jdbcType=VARCHAR},
+		coordinate_info = #{coordinateInfo,jdbcType=VARCHAR},
+		is_deleted = #{isDeleted,jdbcType=SMALLINT},
+		creator = #{creator,jdbcType=VARCHAR},
+		gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+		modifier = #{modifier,jdbcType=VARCHAR},
+		gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	
+	<select id="getListByFullPlanId" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from base_house_pic_full_house_plan_rel
+		where full_house_plan_id = #{fullHousePlanId}
+	</select>
+
+
+
+	<resultMap id="AllResultMap3" type="com.sandu.system.model.RenderTaskState">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="plan_id" property="planId" jdbcType="INTEGER" />
+		<result column="template_id" property="templateId" jdbcType="INTEGER" />
+		<result column="full_house_plan_id" property="fullHousePlanId" jdbcType="INTEGER" />
+		<result column="new_full_house_plan_id" property="newFullHousePlanId" jdbcType="INTEGER" />
+		<result column="main_task_id" property="mainTaskId" jdbcType="INTEGER" />
+		<result column="business_id" property="businessId" jdbcType="INTEGER" />
+		<result column="house_id" property="houseId" jdbcType="INTEGER" />
+		<result column="space_function_id" property="spaceFunctionId" jdbcType="INTEGER" />
+		<result column="plan_house_type" property="planHouseType" jdbcType="INTEGER" />
+		<result column="state" property="state" jdbcType="INTEGER" />
+	</resultMap>
+
+	<select id="getTaskStateList" resultMap="AllResultMap3"
+			parameterType="com.sandu.system.model.RenderTaskStateSearch">
+		select
+		id,
+		plan_id,
+		template_id,
+		full_house_plan_id,
+		new_full_house_plan_id,
+		main_task_id,
+		business_id,
+		design_plan_id,
+		plan_house_type,
+		house_id,
+		space_function_id,
+		state
+		from
+		auto_render_task_state
+		where 1=1 and is_deleted = 0 and is_valid= 0 and  main_task_id &lt;&gt;task_id
+		<if test="fullPlanHouseId != null"> and full_house_plan_id = #{fullPlanHouseId,jdbcType=INTEGER} </if>
+		<if test="newFullPlanHouseId != null"> and new_full_house_plan_id = #{newFullPlanHouseId,jdbcType=INTEGER} </if>
+		<if test="templateIds !=  null and templateIds.size>0">
+			and template_id in
+			<foreach collection="templateIds" index="index" item="item" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+	</select>
+
+	<select id="getRenderTaskListByFullHouseIdAndTemplateIds" resultMap="AllResultMap3" parameterType="com.sandu.system.model.RenderTaskStateSearch">
+		  select
+			  id,
+			  plan_id,
+			  template_id,
+			  full_house_plan_id,
+			  new_full_house_plan_id,
+			  main_task_id,
+			  design_plan_id,
+			  plan_house_type,
+			  house_id,
+			  space_function_id
+		  from
+		  	  auto_render_task
+		  where
+		  	  is_deleted = 0
+		  	  and is_valid = 0
+		  	  and new_full_house_plan_id = #{newFullPlanHouseId,jdbcType=INTEGER}
+			  and template_id in
+		      <foreach collection="templateIds" index="index" item="item" open="(" separator="," close=")">
+				  #{item}
+			  </foreach>
+			  and  main_task_id &lt;&gt; id
+	</select>
+</mapper>

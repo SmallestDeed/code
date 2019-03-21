@@ -1,0 +1,163 @@
+package com.nork.common.util;
+
+import net.coobird.thumbnailator.Thumbnails;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+
+
+/**
+ * @Author Gao Jun
+ * @Description
+ * @Date:Created Administrator in 上午 11:06 2018/5/30 0030
+ * @Modified By:
+ */
+public class ThumbnailUtil {
+
+    private static Logger logger = LoggerFactory.getLogger(ThumbnailUtil.class);
+    public static final Integer PIC_WIDTH = 1080;
+    public static final Integer PIC_HIGHT = 1080;
+
+    public static String createThumbnail(String fileUrl, String outputFolder,Integer toWidth,Integer toHight) throws IOException {
+        logger.error("ThumbnailUtil --- createThumbnail -- fileUrl="+fileUrl+"&outputFolder="+outputFolder);
+
+        String SYSTEM_FORMAT = Utils.getValue("app.system.format", "linux").trim();
+        String folderPath="";
+        File folder=null;
+        String thumbnailName ="";
+        if("linux".equals(SYSTEM_FORMAT)){
+            outputFolder=outputFolder.replace("\\", "/");
+            folderPath=outputFolder.substring(0, outputFolder.lastIndexOf("/"));
+            folder = new File(folderPath);
+            thumbnailName=outputFolder.substring(outputFolder.lastIndexOf("/")+1, outputFolder.length());
+            fileUrl=fileUrl.replace("\\", "/");
+        }else{
+			/*windows环境*/
+            outputFolder=outputFolder.replace("/", "\\");
+            folderPath=outputFolder.substring(0, outputFolder.lastIndexOf("\\"));
+            folder = new File(folderPath);
+            thumbnailName=outputFolder.substring(outputFolder.lastIndexOf("\\")+1, outputFolder.length());
+            fileUrl=fileUrl.replace("/", "\\");
+        }
+        if (folder.exists() && folder.isDirectory()) {
+
+        }else{
+            folder.mkdirs();
+        }
+        if (null == toWidth) {
+            toWidth = PIC_WIDTH;
+        } else if (null == toHight) {
+            toHight = PIC_HIGHT;
+        }
+        logger.error("thumbnailUtil --- createThumbnail --- folder:"+folder);
+        logger.error("thumbnailUtil --- createThumbnail --- folderPath:"+folderPath);
+        logger.error("thumbnailUtil --- createThumbnail --- fileUrl:"+fileUrl);
+        logger.error("thumbnailUtil --- createThumbnail --- thumbnailName:"+thumbnailName);
+        File originalFile = new File(fileUrl);
+        logger.error("thumbnailUtil --- createThumbnail --- originalFile:"+originalFile);
+        File thumbnailFile = new File(folder + "/" + thumbnailName);
+        logger.error("thumbnailUtil --- createThumbnail --- thumbnailFile:"+thumbnailFile);
+        Thumbnails.of(originalFile)
+                .size(toWidth, toHight)
+                .toFile(thumbnailFile);
+        
+        return thumbnailName;
+    }
+
+
+    public static String createThumbnail2(MultipartFile mf, String outputFolder, Integer toWidth, Integer toHight) throws IOException {
+        String SYSTEM_FORMAT = Utils.getValue("app.system.format", "linux").trim();
+        String folderPath="";
+        File folder=null;
+        String thumbnailName ="";
+        if("linux".equals(SYSTEM_FORMAT)){
+            outputFolder=outputFolder.replace("\\", "/");
+            folderPath=outputFolder.substring(0, outputFolder.lastIndexOf("/"));
+            folder = new File(folderPath);
+            thumbnailName=outputFolder.substring(outputFolder.lastIndexOf("/")+1, outputFolder.length());
+//            fileUrl=fileUrl.replace("\\", "/");
+        }else{
+			/*windows环境*/
+            outputFolder=outputFolder.replace("/", "\\");
+            folderPath=outputFolder.substring(0, outputFolder.lastIndexOf("\\"));
+            folder = new File(folderPath);
+            thumbnailName=outputFolder.substring(outputFolder.lastIndexOf("\\")+1, outputFolder.length());
+//            fileUrl=fileUrl.replace("/", "\\");
+        }
+        if (folder.exists() && folder.isDirectory()) {
+
+        }else{
+            folder.mkdirs();
+        }
+        if (null == toWidth) {
+            toWidth = PIC_WIDTH;
+        } else if (null == toHight) {
+            toHight = PIC_HIGHT;
+        }
+        logger.error("thumbnailUtil --- createThumbnail --- folder:"+folder);
+        logger.error("thumbnailUtil --- createThumbnail --- folderPath:"+folderPath);
+//        logger.error("thumbnailUtil --- createThumbnail --- fileUrl:"+fileUrl);
+        logger.error("thumbnailUtil --- createThumbnail --- thumbnailName:"+thumbnailName);
+//        File originalFile = new File(fileUrl);
+//        logger.error("thumbnailUtil --- createThumbnail --- originalFile:"+originalFile);
+        File thumbnailFile = new File(folder + "/" + thumbnailName);
+        logger.error("thumbnailUtil --- createThumbnail --- thumbnailFile:"+thumbnailFile);
+        Thumbnails.of(mf.getInputStream())
+                .size(toWidth, toHight)
+                .toFile(thumbnailFile);
+
+        return thumbnailName;
+    }
+
+    //刷缩略图数据方法，参数不一致而已
+    public static String refreshPicData(URL fileUrl, String outputFolder) throws IOException {
+        //logger.error("ThumbnailUtil --- createThumbnail -- fileUrl="+fileUrl+"&outputFolder="+outputFolder);
+
+        String SYSTEM_FORMAT = Utils.getValue("app.system.format", "linux").trim();
+        String folderPath="";
+        File folder=null;
+        String thumbnailName ="";
+        if("linux".equals(SYSTEM_FORMAT)){
+            outputFolder=outputFolder.replace("\\", "/");
+            folderPath=outputFolder.substring(0, outputFolder.lastIndexOf("/"));
+            folder = new File(folderPath);
+            thumbnailName=outputFolder.substring(outputFolder.lastIndexOf("/")+1, outputFolder.length());
+        }else{
+			/*windows环境*/
+            outputFolder=outputFolder.replace("/", "\\");
+            folderPath=outputFolder.substring(0, outputFolder.lastIndexOf("\\"));
+            folder = new File(folderPath);
+            thumbnailName=outputFolder.substring(outputFolder.lastIndexOf("\\")+1, outputFolder.length());
+        }
+        if (folder.exists() && folder.isDirectory()) {
+
+        }else{
+            folder.mkdirs();
+        }
+
+//        logger.info("thumbnailUtil --- createThumbnail --- folder:"+folder);
+//        logger.info("thumbnailUtil --- createThumbnail --- folderPath:"+folderPath);
+//        logger.info("thumbnailUtil --- createThumbnail --- thumbnailName:"+thumbnailName);
+
+        File thumbnailFile = new File(folder + "/" + thumbnailName);
+//        logger.error("thumbnailUtil --- createThumbnail --- thumbnailFile:"+thumbnailFile);
+        try {
+            Thumbnails.of(fileUrl)
+                    .outputQuality(0.9)
+                    .size(PIC_WIDTH, PIC_HIGHT)
+                    .toFile(thumbnailFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.error("RefreshSmallPic ==========> exception:{}",e);
+            return null;
+        }
+
+        return thumbnailName;
+    }
+
+
+}

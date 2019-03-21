@@ -1,0 +1,57 @@
+package com.sandu.decorate.service.biz;
+
+import com.nork.common.model.LoginUser;
+import com.sandu.common.exception.BizException;
+import com.sandu.decorate.input.PlanDecoratePriceAdd;
+import com.sandu.decorate.input.PlanDecoratePriceQuery;
+import com.sandu.decorate.input.PlanDecoratePriceUpdate;
+import com.sandu.decorate.model.PlanDecoratePrice;
+import com.sandu.system.model.SysDictionary;
+
+import java.util.List;
+
+/**
+ * CopyRight (c) 2018 Sandu Technology Inc.
+ * <p>
+ *
+ * @author sandu <dev@sanduspace.cn>
+ * @datetime 2018-Aug-08 15:37
+ */
+public interface PlanDecoratePriceBizService {
+
+    /**
+     * 查询列表
+     *
+     * @param query
+     * @return
+     */
+    List<PlanDecoratePrice> query(PlanDecoratePriceQuery query);
+
+    /**
+     * 查询装修报价分类
+     */
+    List<SysDictionary> getDecoratePriceType();
+
+    /**
+     * 查询所有装修报价分类（包括各分类的报价区间）
+     *
+     * @return
+     */
+    List<SysDictionary> getAllDecoratePriceType();
+
+    /**
+     * 批量插入（一个效果图方案的所有报价信息）
+     * @param addList
+     * @param loginUser
+     * @return
+     */
+    int insertBatch(List<PlanDecoratePriceAdd> addList, LoginUser loginUser) throws BizException;
+
+    /**
+     * 批量修改（一个效果图方案的所有报价信息）
+     * @param updateList
+     * @param loginUser
+     * @return
+     */
+    int updateBatch(List<PlanDecoratePriceUpdate> updateList, LoginUser loginUser) throws BizException;
+}

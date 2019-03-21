@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.service.templet.dao.DesignTempletMapper">
+
+    <insert id="saveDesignTemplet" useGeneratedKeys="true" keyProperty="id">
+        insert into design_templet
+        (
+            design_code, design_name, user_id, design_source_type, design_style_id, space_common_id,
+            config_file_id, evening_file_id, dawn_file_id, night_file_id, model_id, model_3d_id,
+            web_model_u3d_id, ios_model_u3d_id, ipad_model_u3d_id, pc_model_u3d_id, android_model_u3d_id, macBookpc_model_u3d_id,
+            pic_id, cad_pic_id, render_pic_ids, putaway_state, is_recommend, sys_code,
+            creator, gmt_create, modifier, gmt_modified, is_deleted, remark,
+            effect_pic, effect_plan_ids, sync_status, putaway_modified, testing_modified, smallpox_identify_str,
+            ground_identify_str
+        ) values (
+              #{designCode}, #{designName}, #{userId}, #{designSourceType}, #{designStyleId}, #{spaceCommonId},
+              #{configFileId}, #{eveningFileId}, #{dawnFileId}, #{nightFileId}, #{modelId}, #{model3dId},
+              #{webModelU3dId}, #{iosModelU3dId}, #{ipadModelU3dId}, #{pcModelU3dId}, #{androidModelU3dId}, #{macBookPcModelU3dId},
+              #{picId}, #{cadPicId}, #{renderPicIds}, #{putawayState}, #{isRecommend}, #{sysCode},
+              #{creator}, #{gmtCreate}, #{modifier}, #{gmtModified}, #{isDeleted}, #{remark},
+              #{effectPic}, #{effectPlanIds}, #{syncStatus}, #{putawayModified}, #{testingModified}, #{smallpoxIdentify},
+              #{groundIdentify}
+        )
+    </insert>
+
+    <update id="updateDesignTemplet">
+        update design_templet set
+        <if test="type != '' and type == 'config'"> config_file_id = #{fileId}</if>
+        <if test="type != '' and type == 'windowsPc'"> pc_model_u3d_id = #{fileId}</if>
+        <if test="type != '' and type == 'macBook'"> macBookpc_model_u3d_id = #{fileId}</if>
+        <if test="type != '' and type == 'android'"> android_model_u3d_id = #{fileId}</if>
+        <if test="type != '' and type == 'ios'"> ios_model_u3d_id = #{fileId}</if>
+        <if test="type != '' and type == 'ipad'"> ipad_model_u3d_id = #{fileId}</if>
+        where id = #{templetId}
+    </update>
+    
+    <update id="updateByPrimaryKeySelective" parameterType="com.sandu.api.house.model.DesignTemplet">
+	    update design_templet
+	    <set>
+	      <if test="designCode != null">
+	        design_code = #{designCode,jdbcType=VARCHAR},
+	      </if>
+	      <if test="designName != null">
+	        design_name = #{designName,jdbcType=VARCHAR},
+	      </if>
+	      <if test="userId != null">
+	        user_id = #{userId,jdbcType=INTEGER},
+	      </if>
+	      <if test="designSourceType != null">
+	        design_source_type = #{designSourceType,jdbcType=VARCHAR},
+	      </if>
+	      <if test="designStyleId != null">
+	        design_style_id = #{designStyleId,jdbcType=INTEGER},
+	      </if>
+	      <if test="picId != null">
+	        pic_id = #{picId,jdbcType=INTEGER},
+	      </if>
+	      <if test="configFileId != null">
+	        config_file_id = #{configFileId,jdbcType=INTEGER},
+	      </if>
+	      <if test="modelId != null">
+	        model_id = #{modelId,jdbcType=INTEGER},
+	      </if>
+	      <if test="model3dId != null">
+	        model_3d_id = #{model3dId,jdbcType=INTEGER},
+	      </if>
+	      <if test="modelU3dId != null">
+	        model_u3d_id = #{modelU3dId,jdbcType=INTEGER},
+	      </if>
+	      <if test="spaceCommonId != null">
+	        space_common_id = #{spaceCommonId,jdbcType=INTEGER},
+	      </if>
+	      <if test="isRecommend != null">
+	        is_recommend = #{isRecommend,jdbcType=INTEGER},
+	      </if>
+	      <if test="sysCode != null">
+	        sys_code = #{sysCode,jdbcType=VARCHAR},
+	      </if>
+	      <if test="creator != null">
+	        creator = #{creator,jdbcType=VARCHAR},
+	      </if>
+	      <if test="gmtCreate != null">
+	        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+	      </if>
+	      <if test="modifier != null">
+	        modifier = #{modifier,jdbcType=VARCHAR},
+	      </if>
+	      <if test="gmtModified != null">
+	        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+	      </if>
+	      <if test="isDeleted != null">
+	        is_deleted = #{isDeleted,jdbcType=INTEGER},
+	      </if>
+	      <if test="remark != null">
+	        remark = #{remark,jdbcType=VARCHAR},
+	      </if>
+	      <if test="renderPicIds != null">
+	        render_pic_ids = #{renderPicIds,jdbcType=VARCHAR},
+	      </if>
+	      <if test="effectPic != null">
+	        effect_pic = #{effectPic,jdbcType=VARCHAR},
+	      </if>
+	      <if test="ipadModelU3dId != null">
+	        ipad_model_u3d_id = #{ipadModelU3dId,jdbcType=INTEGER},
+	      </if>
+	      <if test="iosModelU3dId != null">
+	        ios_model_u3d_id = #{iosModelU3dId,jdbcType=INTEGER},
+	      </if>
+	      <if test="androidModelU3dId != null">
+	        android_model_u3d_id = #{androidModelU3dId,jdbcType=INTEGER},
+	      </if>
+	      <if test="macBookPcModelU3dId != null">
+	        macBookpc_model_u3d_id = #{macBookPcModelU3dId,jdbcType=INTEGER},
+	      </if>
+	      <if test="pcModelU3dId != null">
+	        pc_model_u3d_id = #{pcModelU3dId,jdbcType=INTEGER},
+	      </if>
+	      <if test="webModelU3dId != null">
+	        web_model_u3d_id = #{webModelU3dId,jdbcType=INTEGER},
+	      </if>
+	      <if test="eveningFileId != null">
+	        evening_file_id = #{eveningFileId,jdbcType=INTEGER},
+	      </if>
+	      <if test="dawnFileId != null">
+	        dawn_file_id = #{dawnFileId,jdbcType=INTEGER},
+	      </if>
+	      <if test="nightFileId != null">
+	        night_file_id = #{nightFileId,jdbcType=INTEGER},
+	      </if>
+	      <if test="putawayState != null">
+	        putaway_state = #{putawayState,jdbcType=INTEGER},
+	      </if>
+	      <if test="cadPicId != null">
+	        cad_pic_id = #{cadPicId,jdbcType=INTEGER},
+	      </if>
+	      <if test="effectPlanIds != null">
+	        effect_plan_ids = #{effectPlanIds,jdbcType=VARCHAR},
+	      </if>
+	      <if test="syncStatus != null">
+	        sync_status = #{syncStatus,jdbcType=VARCHAR},
+	      </if>
+	      <if test="putawayModified != null">
+	        putaway_modified = #{putawayModified,jdbcType=TIMESTAMP},
+	      </if>
+	      <if test="testingModified != null">
+	        testing_modified = #{testingModified,jdbcType=TIMESTAMP},
+	      </if>
+	      <if test="fbxTexture != null">
+	        fbx_texture = #{fbxTexture,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fbxFileId != null">
+	        fbx_file_id = #{fbxFileId,jdbcType=INTEGER},
+	      </if>
+	      <if test="fbxState != null">
+	        fbx_state = #{fbxState,jdbcType=INTEGER},
+	      </if>
+	      <if test="configId != null">
+	        config_id = #{configId,jdbcType=INTEGER},
+	      </if>
+	      <if test="gmtFirstPutaway != null">
+	        gmt_first_putaway = #{gmtFirstPutaway,jdbcType=TIMESTAMP},
+	      </if>
+	      <if test="gmtFirstTesting != null">
+	        gmt_first_testing = #{gmtFirstTesting,jdbcType=TIMESTAMP},
+	      </if>
+	      <if test="smallpoxIdentify != null">
+	        smallpox_identify = #{smallpoxIdentify,jdbcType=INTEGER},
+	      </if>
+	      <if test="groundIdentify != null">
+	        ground_identify = #{groundIdentify,jdbcType=INTEGER},
+	      </if>
+	      <if test="smallpoxIdentifyStr != null">
+	        smallpox_identify_str = #{smallpoxIdentifyStr,jdbcType=VARCHAR},
+	      </if>
+	      <if test="groundIdentifyStr != null">
+	        ground_identify_str = #{groundIdentifyStr,jdbcType=VARCHAR},
+	      </if>
+	      <if test="spaceLayoutType != null">
+	        space_layout_type = #{spaceLayoutType,jdbcType=VARCHAR},
+	      </if>
+	      <if test="relDrawId != null">
+	        rel_draw_id = #{relDrawId,jdbcType=BIGINT},
+	      </if>
+		  <if test="isRegionalCeiling != null">
+			  is_regional_ceiling = #{isRegionalCeiling,jdbcType=INTEGER},
+		  </if>
+		  <if test="fixType != null">
+			  fix_type = #{fixType},
+		  </if>
+	    </set>
+	    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <select id="getDesignTempletByDesignCode" resultType="com.sandu.api.house.model.DesignTemplet">
+  	SELECT * FROM design_templet WHERE design_code = #{designCode}
+  </select>
+</mapper>

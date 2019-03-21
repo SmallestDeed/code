@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sandu.sys.dao.ProductCategoryDao">
+
+   <select id="findFirstList"  resultType="com.sandu.sys.model.vo.ProductCategoryVo"
+      parameterType="com.sandu.sys.model.query.ProductCategoryQuery">
+		SELECT id,name,pid,level,pic_path FROM pro_category a WHERE a.level=1 
+		and a.is_deleted = #{DEL_FLAG_NORMAL};
+	</select>
+
+  <select id="findFontAllList"  resultType="com.sandu.sys.model.vo.ProductCategoryVo"
+      parameterType="com.sandu.sys.model.query.ProductCategoryQuery">
+		SELECT id,name,pid,level,pic_path FROM pro_category a WHERE a.pid IN 
+		(SELECT id FROM pro_category WHERE pid = 1) OR a.pid = 1
+		and a.is_deleted = #{DEL_FLAG_NORMAL}
+	</select>
+
+	<select id="findListByIds"  resultType="com.sandu.sys.model.vo.ProductCategoryVo">
+		SELECT id,name,pid,level FROM pro_category
+		WHERE 1=1
+		<choose>
+			<when test="categoryIdList != null and categoryIdList.size() > 0">
+				and id IN
+				<foreach item="item" collection="categoryIdList" separator="," open="(" close=")" index="">
+					#{item}
+				</foreach>
+			</when>
+			<otherwise>
+				and id = -1
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="getListByLevel" resultType="com.sandu.sys.model.vo.ProCategoryVO">
+		SELECT id,name FROM pro_category
+		WHERE 1=1
+		AND level= #{level}
+		limit #{start},#{pageSize}
+	</select>
+
+</mapper>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.solution.dao.CompanyDesignPlanIncomeMapper">
+
+    <select id="listCompanyIncome" parameterType="com.sandu.api.solution.input.CompanyIncomeQuery"
+            resultType="com.sandu.api.solution.model.bo.CompanyDesignPlanIncomeBO">
+        SELECT
+           c.plan_code as planCode,
+           c.buyer_id as buyerId,
+           c.company_id as companyId,
+           c.use_type as useType,
+           c.use_time as useTime,
+           c.plan_price as planPrice,
+           c.withdraw_amount as withdrawAmount,
+           c.withdraw_status as withdrawStatus,
+           c.withdraw_user as withdrawUser,
+           c.withdraw_time as withdrawTime,
+           s.mobile as BuyUserMobile,
+           s2.mobile as withdrawUserMobile
+        FROM
+           company_design_plan_income c
+           LEFT JOIN sys_user s ON c.buyer_id = s.id AND s.is_deleted = 0
+           LEFT JOIN sys_user s2 ON c.withdraw_user = s2.id AND  s2.is_deleted = 0
+        WHERE
+           c.is_deleted = 0 AND
+           c.company_id = #{companyId}
+        <if test="planCode != null and planCode != ''">
+           AND c.plan_code like CONCAT(CONCAT('%',#{planCode,jdbcType=VARCHAR}),'%')
+        </if>
+        <if test="startTime != null and startTime != ''">
+            AND c.use_time <![CDATA[ >= ]]> #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            AND c.use_time <![CDATA[ <= ]]> #{endTime}
+        </if>
+        <if test="withdrawStatus != null">
+            AND c.withdraw_status = #{withdrawStatus}
+        </if>
+        order by use_time desc
+    </select>
+
+    <select id="selectCompanyIncomeAggregated" resultType="com.sandu.api.solution.model.bo.CompanyDesignPlanIncomeAggregatedBO">
+        SELECT
+           id,
+           company_id as companyId,
+           today_income as todayIncome,
+           wait_withdraw_amount as waitWithdrawAmount,
+           total_income as totalIncome,
+           last_updated_date as lastUpdatedDate
+        FROM
+           company_design_plan_income_aggregated
+        WHERE
+           is_deleted = 0 AND
+           company_id = #{companyId}
+    </select>
+
+    <select id="isExitsUserBuySaleDesignPlan" resultType="java.lang.Integer">
+        SELECT
+           plan_id
+        FROM
+           company_design_plan_income
+        WHERE
+           buyer_id = #{userId} AND
+           buy_type = 0 AND
+           is_deleted = 0 AND
+           plan_type = #{planType} AND
+           plan_id IN
+           <foreach collection="planIds" open="(" separator="," close=")" item="planId">
+                #{planId}
+           </foreach>
+    </select>
+
+</mapper>

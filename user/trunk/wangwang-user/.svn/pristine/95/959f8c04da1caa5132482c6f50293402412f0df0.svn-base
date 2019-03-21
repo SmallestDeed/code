@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.system.dao.ResVersionDao">
+
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+        id,file_code,file_name,file_original_name,file_type,file_size,file_suffix,file_level,file_path,file_desc,file_ordering,business_id,business_ids,file_key,file_keys,sys_code,creator,gmt_create,modifier,gmt_modified,is_deleted,att1,att2,numa1,numa2,remark,compress_file_ids
+    </sql>
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.sandu.api.system.model.ResVersion">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result  column="file_code" property="fileCode" jdbcType="VARCHAR" />
+        <result  column="file_name" property="fileName" jdbcType="VARCHAR" />
+        <result  column="file_original_name" property="fileOriginalName" jdbcType="VARCHAR" />
+        <result  column="file_type" property="fileType" jdbcType="VARCHAR" />
+        <result  column="file_size" property="fileSize" jdbcType="VARCHAR" />
+        <result  column="file_suffix" property="fileSuffix" jdbcType="VARCHAR" />
+        <result  column="file_level" property="fileLevel" jdbcType="VARCHAR" />
+        <result  column="file_path" property="filePath" jdbcType="VARCHAR" />
+        <result  column="file_desc" property="fileDesc" jdbcType="VARCHAR" />
+        <result  column="file_ordering" property="fileOrdering" jdbcType="INTEGER" />
+        <result  column="business_id" property="businessId" jdbcType="INTEGER" />
+        <result  column="business_ids" property="businessIds" jdbcType="VARCHAR" />
+        <result  column="compress_file_ids" property="compressFileIds" jdbcType="VARCHAR" />
+        <result  column="file_key" property="fileKey" jdbcType="VARCHAR" />
+        <result  column="file_keys" property="fileKeys" jdbcType="VARCHAR" />
+        <result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+        <result  column="creator" property="creator" jdbcType="VARCHAR" />
+        <result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+        <result  column="modifier" property="modifier" jdbcType="VARCHAR" />
+        <result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+        <result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+        <result  column="att1" property="att1" jdbcType="VARCHAR" />
+        <result  column="att2" property="att2" jdbcType="VARCHAR" />
+        <result  column="numa1" property="numa1" jdbcType="INTEGER" />
+        <result  column="numa2" property="numa2" jdbcType="INTEGER" />
+        <result  column="remark" property="remark" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <!-- **查询定义** -->
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="AllResultMap"
+            parameterType="java.lang.Integer">
+        select
+        <include refid="All_Column_List" />
+        from res_version
+        where id = #{id,jdbcType=INTEGER} and is_deleted =0
+    </select>
+
+    <!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+            parameterType="com.sandu.api.system.model.ResVersion">
+        select
+        <include refid="All_Column_List" />
+        from res_version
+        where 1=1
+        <if test="fileCode!= null">  and file_code = #{fileCode,jdbcType=VARCHAR} </if>
+        <if test="fileName!= null">  and file_name = #{fileName,jdbcType=VARCHAR} </if>
+        <if test="fileOriginalName!= null">  and file_original_name = #{fileOriginalName,jdbcType=VARCHAR} </if>
+        <if test="fileType!= null">  and file_type = #{fileType,jdbcType=VARCHAR} </if>
+        <if test="fileSize!= null">  and file_size = #{fileSize,jdbcType=VARCHAR} </if>
+        <if test="fileSuffix!= null">  and file_suffix = #{fileSuffix,jdbcType=VARCHAR} </if>
+        <if test="fileLevel!= null">  and file_level = #{fileLevel,jdbcType=VARCHAR} </if>
+        <if test="filePath!= null">  and file_path = #{filePath,jdbcType=VARCHAR} </if>
+        <if test="fileDesc!= null">  and file_desc = #{fileDesc,jdbcType=VARCHAR} </if>
+        <if test="fileOrdering!= null">  and file_ordering = #{fileOrdering,jdbcType=INTEGER} </if>
+        <if test="businessId!= null">  and business_id = #{businessId,jdbcType=INTEGER} </if>
+        <if test="businessIds!= null">  and business_ids = #{businessIds,jdbcType=VARCHAR} </if>
+        <if test="compressFileIds != null"> compress_file_ids= #{compressFileIds,jdbcType=VARCHAR}, </if>
+        <if test="fileKey!= null">  and file_key = #{fileKey,jdbcType=VARCHAR} </if>
+        <if test="fileKeys!= null">  and file_keys = #{fileKeys,jdbcType=VARCHAR} </if>
+        <if test="sysCode!= null">  and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+        <if test="creator!= null">  and creator = #{creator,jdbcType=VARCHAR} </if>
+        <if test="gmtCreate!= null">  and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+        <if test="modifier!= null">  and modifier = #{modifier,jdbcType=VARCHAR} </if>
+        <if test="gmtModified!= null">  and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP} </if>
+        <if test="isDeleted!= null">  and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+        <if test="att1!= null">  and att1 = #{att1,jdbcType=VARCHAR} </if>
+        <if test="att2!= null">  and att2 = #{att2,jdbcType=VARCHAR} </if>
+        <if test="numa1!= null">  and numa1 = #{numa1,jdbcType=INTEGER} </if>
+        <if test="numa2!= null">  and numa2 = #{numa2,jdbcType=INTEGER} </if>
+        <if test="remark!= null">  and remark = #{remark,jdbcType=VARCHAR} </if>
+        <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderNum != null and  orderNum !='' ">
+                ${orderNum}
+            </if>
+        </if>
+        <if test="orders != null and  orders !=''  ">
+            order by ${orders}
+        </if>
+    </select>
+
+</mapper>

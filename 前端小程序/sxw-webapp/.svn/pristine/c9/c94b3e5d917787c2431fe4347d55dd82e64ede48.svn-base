@@ -1,0 +1,46 @@
+<view class='caseMain'>
+  <view class='navTop'>
+    <view class='items {{showChose&&types==1?"active":""}}' bindtap='showChose' data-types='1'>
+      {{spaceTypeName}}
+      <image src='{{staticImageUrl}}choose_icon_{{showChose&&types==1?"up":"down"}}.png'></image>
+    </view>
+    <view class='items {{showChose&&types==2?"active":""}}' bindtap='showChose' data-types='2'>{{styleName}}
+      <image src='{{staticImageUrl}}choose_icon_{{showChose&&types==2?"up":"down"}}.png'></image>
+    </view>
+    <view class='items {{showChose&&types==3?"active":""}}' bindtap='showChose' data-types='3'>{{fitmentWayName}}
+      <image src='{{staticImageUrl}}choose_icon_{{showChose&&types==3?"up":"down"}}.png'></image>
+    </view>
+    <view class='items {{showChose&&types==4?"active":""}}' bindtap='showChose' data-types='4'>{{fitmentPriceName}}
+      <image src='{{staticImageUrl}}choose_icon_{{showChose&&types==4?"up":"down"}}.png'></image>
+    </view>
+  </view>
+  <view class='bodys' wx:if="{{showChose}}" catchtap='showChoseClose'>
+    <view class='rows' wx:if="{{types==1}}">
+      <view class='rowsItems {{spaceTypeName==item.houseName?"active":""}}' wx:for="{{spaceList}}" catchtap='styleTypeFun' data-info='{{item}}' data-index='{{index}}' wx:key="{{index}}">{{item.houseName}}</view>
+    </view>
+    <view class='rows' wx:elif="{{types==2}}">
+      <view class='rowsItems {{((styleName=="装修风格"&&index==0)||styleName==item.styleName)?"active":""}}' catchtap='styleCodeFun' data-info='{{item}}' wx:for="{{styleList}}" wx:key="{{index}}">{{item.styleName}}</view>
+    </view>
+    <view class='rows' wx:elif="{{types==3}}">
+      <view class='rowsItems {{((fitmentWayName=="装修方式"&&index==0)||fitmentWayName==item.name)?"active":""}}' catchtap='switchFitmentWay' data-info='{{item}}' wx:for="{{fitmentWayList}}" wx:key="{{index}}">{{item.name}}</view>
+    </view>
+    <view class='rows' wx:elif="{{types==4}}">
+      <block wx:if='{{fitmentPriceList.length>1}}'>
+        <view class='rowsItems {{((fitmentPriceName=="装修价格"&&index==0)||fitmentPriceName==item.name)?"active":""}}' catchtap='switchFitmentPrice' data-info='{{item}}' wx:for="{{fitmentPriceList}}" wx:key="{{index}}">{{item.name}}</view>
+      </block>
+      <view class='rowsTip' wx:else>
+        <!-- <image src='{{staticImageUrl}}error_72px_25942_easyicon.net.png'></image> -->
+        请先选择装修方式
+      </view>
+    </view>
+  </view>
+  <view class='goods-details-case'>
+    <case-list navText='方案' recommendCaseList='{{showList}}' isRecommonPlan='{{1}}' bindshowDecoratePriceBox='showDecoratePriceBox'></case-list>
+    <import src="../../../component/emptyTemplate/emptyTemplate.wxml" />
+    <template is="emptyTemplate" data="{{ ...emptyTemplate }}" />
+  </view>
+  <view class='serviceBtn' bindtap='kfViewBut'>
+    <image src='{{staticImageUrl}}hudong_icon_help.png'></image>
+    <button open-type="contact"></button>
+  </view>
+</view>

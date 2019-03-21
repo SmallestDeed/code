@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.mobile.dao.MobileRenderRecordMapper">
+	<!-- **插入定义** -->
+	<insert id="insertSelective" parameterType="com.nork.mobile.model.search.MobileRenderRecord" 
+	 useGeneratedKeys="true" keyProperty="id">
+		insert into mobile_render_record 
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="userId != null">user_id, </if>
+			<if test="planId != null">plan_id, </if>
+			<if test="templateId != null">template_id, </if>
+			<if test="recommendedPlanId != null">recommended_plan_id, </if>
+			<if test="renderingType != null">rendering_type, </if>
+			<if test="totalFee != null">totalFee, </if>
+			<if test="sysCode != null">sys_code, </if>
+			<if test="creator != null">creator, </if>
+			<if test="gmtCreate != null">gmt_create, </if>
+			<if test="isDeleted != null">is_deleted, </if>
+			<if test="remark != null">remark, </if>
+			<if test="isDecorate != null">is_decorate, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="userId != null"> #{userId , jdbcType=INTEGER}, </if>
+			<if test="planId != null"> #{planId , jdbcType=INTEGER}, </if>
+			<if test="templateId != null"> #{templateId , jdbcType=INTEGER}, </if>
+			<if test="recommendedPlanId != null"> #{recommendedPlanId , jdbcType=INTEGER}, </if>
+			<if test="renderingType != null"> #{renderingType , jdbcType=INTEGER}, </if>
+			<if test="totalFee != null"> #{totalFee , jdbcType=INTEGER}, </if>
+			<if test="sysCode != null">  #{sysCode , jdbcType=VARCHAR}, </if>
+			<if test="creator != null">  #{creator , jdbcType=VARCHAR}, </if>
+			<if test="gmtCreate != null">  #{gmtCreate , jdbcType=TIMESTAMP}, </if>
+			<if test="isDeleted != null">  #{isDeleted , jdbcType=INTEGER}, </if>
+			<if test="remark != null">  #{remark , jdbcType=VARCHAR}, </if>
+			<if test="isDecorate != null">  #{isDecorate , jdbcType=INTEGER}, </if>
+		</trim>
+	</insert>
+	
+	<!-- **常量定义** -->
+	<sql id="All_Column_List">
+		id,user_id,plan_id,template_id,recommended_plan_id,rendering_type,totalFee,sys_code,creator,gmt_create,is_deleted,remark,is_decorate
+	</sql>
+	
+	<!-- **结果定义** -->
+	<resultMap id="AllResultMap" type="com.nork.mobile.model.search.MobileRenderRecord">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="user_id" property="userId" jdbcType="INTEGER" />
+		<result  column="plan_id" property="planId" jdbcType="INTEGER" />
+		<result  column="template_id" property="templateId" jdbcType="INTEGER" />
+		<result  column="recommended_plan_id" property="recommendedPlanId" jdbcType="INTEGER" />
+		<result  column="rendering_type" property="renderingType" jdbcType="INTEGER" />
+		<result  column="totalFee" property="totalFee" jdbcType="INTEGER" />
+		<result  column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+		<result  column="creator" property="creator" jdbcType="VARCHAR" />
+		<result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="remark" property="remark" jdbcType="VARCHAR" />
+		<result  column="is_decorate" property="isDecorate" jdbcType="INTEGER" />
+		<result  column="taskType" property="taskType" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<!-- 查询移动端所有的一键装修渲染记录及渲染任务状态 -->
+	<select id="selectList" resultMap="AllResultMap"
+		parameterType="com.nork.mobile.model.search.MobileRenderRecord">
+		select
+		<include refid="All_Column_List" />
+		from mobile_render_record
+        where 1=1
+        <if test="id != null">  and id = #{id,jdbcType=INTEGER} </if>
+        <if test="userId != null">  and user_id = #{userId,jdbcType=INTEGER} </if>
+        <if test="planId != null">  and plan_id = #{planId,jdbcType=INTEGER} </if>
+        <if test="templateId != null">  and template_id = #{templateId,jdbcType=INTEGER} </if>
+        <if test="recommendedPlanId != null">  and recommended_plan_id = #{recommendedPlanId,jdbcType=INTEGER} </if>
+        <if test="renderingType != null">  and rendering_type = #{renderingType,jdbcType=INTEGER} </if>
+        <if test="totalFee != null">  and totalFee = #{totalFee,jdbcType=INTEGER} </if>
+		<if test="sysCode != null">  and sys_code = #{sysCode,jdbcType=VARCHAR} </if>
+		<if test="creator != null">  and creator = #{creator,jdbcType=VARCHAR} </if>
+		<if test="gmtCreate != null">  and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP} </if>
+		<if test="isDeleted != null">  and is_deleted = #{isDeleted,jdbcType=INTEGER} </if>
+		<if test="isDecorate != null">  and is_decorate = #{isDecorate,jdbcType=INTEGER} </if>
+	</select>
+	<!-- ===========================================replace product start========================================== -->
+	<!-- 插入 -->
+	<insert id="insertReplace" parameterType="com.nork.mobile.model.ProductReplaceTaskDetail" 
+	 useGeneratedKeys="true" keyProperty="id">
+		insert into product_replace_task_detail 
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="taskId != null">task_id, </if>
+			<if test="sourceProductId != null">source_product_id, </if>
+			<if test="sourceProductCode != null">source_product_code, </if>
+			<if test="destProductId != null">dest_product_id, </if>
+			<if test="destProductCode != null">dest_product_code, </if>
+			<if test="posIndexPath != null">source_pos_index_path, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="taskId != null"> #{taskId , jdbcType=INTEGER}, </if>
+			<if test="sourceProductId != null"> #{sourceProductId , jdbcType=INTEGER}, </if>
+			<if test="sourceProductCode != null"> #{sourceProductCode , jdbcType=VARCHAR}, </if>
+			<if test="destProductId != null"> #{destProductId , jdbcType=INTEGER}, </if>
+			<if test="destProductCode != null"> #{destProductCode , jdbcType=VARCHAR}, </if>
+			<if test="posIndexPath != null"> #{posIndexPath , jdbcType=VARCHAR}, </if>
+		</trim>
+	</insert>
+	<!-- 查询 -->
+	<select id="selectReplaceProductList" resultMap="AllResultMapReplace"
+		parameterType="com.nork.mobile.model.ProductReplaceTaskDetail">
+		select
+		<include refid="All_Column_List2" />
+		from product_replace_task_detail
+       <!--  where  task_id = #{taskId,jdbcType=INTEGER} -->
+        
+	</select>
+	<select id="selectListByTaskId" resultMap="AllResultMapReplace"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="All_Column_List2" />
+		from product_replace_task_detail
+        where  task_id = #{taskId,jdbcType=INTEGER} AND dest_product_id is not null
+        	   and is_deleted = 0
+        
+	</select>
+	<select id="selectDelListByTaskId" resultMap="AllResultMapReplace"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="All_Column_List2" />
+		from product_replace_task_detail
+        where  1= 1
+        		and task_id = #{taskId,jdbcType=INTEGER}
+        		and dest_product_id is null 
+        		and dest_product_code is null
+        	    and is_deleted = 0
+        
+	</select>
+	
+	<sql id="All_Column_List2">
+		id,task_id,source_product_id,source_product_code,dest_product_id,dest_product_code,creator,gmt_create,modifier,gmt_modified,source_pos_index_path,is_deleted,replace_textures_param
+	</sql>
+	<!-- 结果定义 -->
+	<resultMap id="AllResultMapReplace" type="com.nork.mobile.model.ProductReplaceTaskDetail">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="task_id" property="taskId" jdbcType="INTEGER" />
+		<result  column="source_product_id" property="sourceProductId" jdbcType="INTEGER" />
+		<result  column="source_product_code" property="sourceProductCode" jdbcType="VARCHAR" />
+		<result  column="dest_product_id" property="destProductId" jdbcType="INTEGER" />
+		<result  column="dest_product_code" property="destProductCode" jdbcType="VARCHAR" />
+		<result column="creator" property="creator" jdbcType="VARCHAR" />
+		<result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result column="source_pos_index_path" property="posIndexPath" jdbcType="VARCHAR" />
+		<result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result  column="replace_textures_param" property="replaceSplitTexturesParam" jdbcType="VARCHAR" />
+		<result  column="dest_textures_choose_info" property="destTexturesChooseInfo" jdbcType="VARCHAR" />
+	</resultMap>
+	<!-- 批量插入 -->
+	<insert id="batchInsertDataList" parameterType="java.util.List">
+		insert into product_replace_task_detail
+		(task_id,source_product_id,source_product_code,dest_product_id,dest_product_code,creator,gmt_create,modifier,gmt_modified,source_pos_index_path)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.taskId},
+			#{item.sourceProductId},
+			#{item.sourceProductCode},
+			#{item.destProductId},
+			#{item.destProductCode},
+			#{item.creator},
+			#{item.gmtCreate},
+			#{item.modifier},
+			#{item.gmtModified},
+			#{item.posIndexPath}
+				)
+		</foreach>
+	</insert>
+	
+	<!-- 删除 -->
+	<update id="deleteReplaceProductById" parameterType="java.lang.Integer">
+		update product_replace_task_detail
+		<set>
+			is_deleted = 1 
+		</set>
+		where task_id = #{taskId,jdbcType=INTEGER}
+	</update>
+	<!-- ===========================================replace product end========================================== -->
+	
+	<!-- ===========================================replace groupProduct start========================================== -->
+	<sql id="All_Column_List_Group">
+		id,task_id,source_group_product_id,source_group_product_code,replace_group_id,replace_group_code,source_product_id,source_pos_index_path,source_product_group_id,source_plan_group_id,source_group_product_unique_id,is_deleted,creator,gmt_create,modifier,gmt_modified
+	</sql>
+	<!-- 结果定义 -->
+	<resultMap id="AllResultMapGroupReplace" type="com.nork.mobile.model.ProductGroupReplaceTaskDetail">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="task_id" property="taskId" jdbcType="INTEGER" />
+		<result  column="source_group_product_id" property="sourceGroupProductId" jdbcType="INTEGER" />
+		<result  column="source_group_product_code" property="sourceGroupProductCode" jdbcType="VARCHAR" />
+		<result  column="replace_group_id" property="replaceGroupId" jdbcType="INTEGER" />
+		<result  column="replace_group_code" property="replaceGroupCode" jdbcType="VARCHAR" />
+		<result  column="source_product_id" property="sourceProductId" jdbcType="INTEGER" />
+		<result  column="source_pos_index_path" property="sourcePosIndexPath" jdbcType="VARCHAR" />
+		<result  column="source_product_group_id" property="sourceProductGroupId" jdbcType="INTEGER" />
+		<result  column="source_plan_group_id" property="sourcePlanGroupId" jdbcType="INTEGER" />
+		<result  column="source_group_product_unique_id" property="sourceGroupProductUniqueId" jdbcType="INTEGER" />
+		<result column="creator" property="creator" jdbcType="VARCHAR" />
+		<result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		
+	</resultMap>
+	
+	<select id="selectGroupListByTaskId" resultMap="AllResultMapGroupReplace"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="All_Column_List_Group" />
+		from product_group_replace_task_detail
+        where  1= 1 
+        		and task_id = #{taskId,jdbcType=INTEGER}
+        	    and is_deleted = 0
+        
+	</select>
+	
+	<!-- 批量插入组合产品 -->
+	<insert id="batchInsertGroupList" parameterType="java.util.List">
+		insert into product_group_replace_task_detail
+		(task_id,source_group_product_id,source_group_product_code,replace_group_id,replace_group_code,source_product_id,source_pos_index_path,source_product_group_id,source_plan_group_id,source_group_product_unique_id,creator,gmt_create,modifier,gmt_modified)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.taskId},
+			#{item.sourceGroupProductId},
+			#{item.sourceGroupProductCode},
+			#{item.replaceGroupId},
+			#{item.replaceGroupCode},
+			#{item.sourceProductId},
+			#{item.sourcePosIndexPath},
+			#{item.sourceProductGroupId},
+			#{item.sourcePlanGroupId},
+			#{item.sourceGroupProductUniqueId},
+			#{item.creator},
+			#{item.gmtCreate},
+			#{item.modifier},
+			#{item.gmtModified}
+				)
+		</foreach>
+	</insert>
+	<insert id="insertGroupProductReplace" parameterType="com.nork.mobile.model.ProductGroupReplaceTaskDetail"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into product_group_replace_task_detail
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="taskId!= null">task_id, </if>
+			<if test="sourceGroupProductId!= null">source_group_product_id, </if>
+			<if test="sourceGroupProductCode!= null">source_group_product_code, </if>
+			<if test="replaceGroupId != null">replace_group_id, </if>
+			<if test="replaceGroupCode!= null">replace_group_code, </if>
+			<if test="sourceProductId!= null">source_product_id, </if>
+			<if test="sourcePosIndexPath!= null">source_pos_index_path, </if>
+			<if test="sourceProductGroupId!= null">source_product_group_id, </if>
+			<if test="sourcePlanGroupId!= null">source_plan_group_id, </if>
+			<if test="sourceGroupProductUniqueId!= null">source_group_product_unique_id, </if>
+			<if test="creator != null">creator, </if>
+			<if test="gmtCreate != null">gmt_create, </if>
+			<if test="modifier!= null">modifier, </if>
+			<if test="gmtModified!= null">gmt_modified, </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="taskId!= null"> #{taskId,jdbcType=INTEGER}, </if>
+			<if test="sourceGroupProductId!= null"> #{sourceGroupProductId,jdbcType=INTEGER}, </if>
+			<if test="sourceGroupProductCode!= null"> #{sourceGroupProductCode,jdbcType=VARCHAR}, </if>
+			<if test="replaceGroupId!= null"> #{replaceGroupId,jdbcType=INTEGER}, </if>
+			<if test="replaceGroupCode!= null"> #{replaceGroupCode,jdbcType=VARCHAR}, </if>
+			<if test="sourceProductId!= null"> #{sourceProductId,jdbcType=INTEGER}, </if>
+			<if test="sourcePosIndexPath!= null"> #{sourcePosIndexPath,jdbcType=VARCHAR}, </if>
+			<if test="sourceProductGroupId!= null"> #{sourceProductGroupId,jdbcType=INTEGER}, </if>
+			<if test="sourcePlanGroupId!= null"> #{sourcePlanGroupId,jdbcType=INTEGER}, </if>
+			<if test="sourceGroupProductUniqueId!= null"> #{sourceGroupProductUniqueId,jdbcType=INTEGER}, </if>
+			<if test="creator!= null">  #{creator,jdbcType=VARCHAR}, </if>
+			<if test="gmtCreate!= null">  #{gmtCreate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifier!= null">  #{modifier,jdbcType=VARCHAR}, </if>
+			<if test="gmtModified!= null">  #{gmtModified,jdbcType=TIMESTAMP}, </if>
+		</trim>
+	</insert>
+	<!-- 删除 -->
+	<update id="deleteReplaceGroupProductByTaskId" parameterType="java.lang.Integer">
+		update product_group_replace_task_detail
+		<set>
+			is_deleted = 1 
+		</set>
+		where task_id = #{taskId,jdbcType=INTEGER}
+	</update>
+	<!-- ===========================================replace groupProduct end========================================== -->
+	
+	<!-- ===========================================replace textureProduct start========================================== -->
+	
+	<sql id="All_Column_List_Texture">
+		id,task_id,source_plan_product_id,source_product_id,pos_index_path,source_split_textures_choose_info,replace_split_textures_choose_info,replace_split_textures_param,is_deleted,creator,gmt_create,modifier,gmt_modified
+	</sql>
+	<!-- 结果定义 -->
+	<resultMap id="AllResultMapTextureReplace" type="com.nork.mobile.model.ProductReplaceTaskDetail">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="task_id" property="taskId" jdbcType="INTEGER" />
+		<result  column="source_plan_product_id" property="sourcePlanProductId" jdbcType="INTEGER" />
+		<result  column="source_product_id" property="sourceProductId" jdbcType="INTEGER" />
+		<result  column="pos_index_path" property="posIndexPath" jdbcType="VARCHAR" />
+		<result  column="source_split_textures_choose_info" property="sourceSplitTexturesChooseInfo" jdbcType="VARCHAR" />
+		<result  column="replace_split_textures_choose_info" property="replaceSplitTexturesChooseInfo" jdbcType="VARCHAR" />
+		<result  column="replace_split_textures_param" property="replaceSplitTexturesParam" jdbcType="VARCHAR" />
+		<result column="creator" property="creator" jdbcType="VARCHAR" />
+		<result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result column="modifier" property="modifier" jdbcType="VARCHAR" />
+		<result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		
+	</resultMap>
+	
+	<select id="selectTextureListByTaskId" resultMap="AllResultMapTextureReplace"
+		parameterType="java.lang.Integer">
+		select 
+		<include refid="All_Column_List_Texture" />
+		from  texture_replace_task_detail
+        where 1 = 1 
+       			and task_id = #{taskId,jdbcType=INTEGER}
+        	    and is_deleted = 0
+        
+	</select>
+	
+	<!-- 批量插入材质产品 -->
+	<insert id="batchInsertTextureList" parameterType="java.util.List">
+		insert into texture_replace_task_detail
+		(task_id,source_plan_product_id,source_product_id,pos_index_path,source_split_textures_choose_info,replace_split_textures_choose_info,replace_split_textures_param,creator,gmt_create,modifier,gmt_modified)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.taskId},
+			#{item.sourcePlanProductId},
+			#{item.sourceProductId},
+			#{item.posIndexPath},
+			#{item.sourceSplitTexturesChooseInfo},
+			#{item.replaceSplitTexturesChooseInfo},
+			#{item.replaceSplitTexturesParam},
+			#{item.creator},
+			#{item.gmtCreate},
+			#{item.modifier},
+			#{item.gmtModified}
+				)
+		</foreach>
+	</insert>
+	
+	<!-- 删除 -->
+	<update id="deleteReplaceTextureProductByTaskId" parameterType="java.lang.Integer">
+		update texture_replace_task_detail
+		<set>
+			is_deleted = 1 
+		</set>
+		where task_id = #{taskId,jdbcType=INTEGER}
+	</update>
+	
+	<!-- ===========================================replace TextureProduct end========================================== -->
+	
+	
+	<!-- =============================================white list start===========================================-->
+	
+	<resultMap id="AllResultMapWhite" type="com.nork.common.model.WhiteDeviceList">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result  column="ip_addr" property="ipAddr" jdbcType="VARCHAR" />
+		<result  column="mac" property="mac" jdbcType="VARCHAR" />
+		<result  column="device_key" property="deviceKey" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="All_Column_List3">
+		id,ip_addr,mac,device_key
+	</sql>
+	
+	<select id="checkWhiteList" resultMap="AllResultMapWhite"
+		parameterType="com.nork.common.model.WhiteDeviceList">
+		select
+		<include refid="All_Column_List3" />
+		from white_device_list
+	</select>
+	<!-- ======================================white list end============================-->
+</mapper>

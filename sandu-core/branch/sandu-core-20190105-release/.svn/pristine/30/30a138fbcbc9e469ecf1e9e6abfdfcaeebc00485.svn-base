@@ -1,0 +1,135 @@
+package com.sandu.web.user;
+
+import com.sandu.api.base.common.ResponseEnvelope;
+import com.sandu.api.base.common.exception.BizException;
+import com.sandu.api.base.model.UserCard;
+import com.sandu.api.base.output.UserCardVo;
+import com.sandu.api.base.service.UserCardService;
+import com.sandu.common.LoginContext;
+import com.sandu.common.model.LoginUser;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@Slf4j
+@RequestMapping("/v1/core/userCard")
+public class UserCardController {
+
+    private final String CLASS_LOG_PREFIX = "【用户电子名片】";
+
+    private final UserCardService userCardService;
+
+    @Autowired
+    public UserCardController(UserCardService userCardService) {
+        this.userCardService = userCardService;
+    }
+
+    /**
+     * 获取用户电子名片信息
+     *
+     * @return
+     */
+    @RequestMapping("/getUserCard")
+    @ApiOperation(value = "get user card, if null, meaning do not have user card", response = ResponseEnvelope.class)
+    public ResponseEnvelope getUserCard() {
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (null == loginUser) {
+            return new ResponseEnvelope(false, "请登录");
+        }
+
+        UserCardVo userCardVo = null;
+        try {
+            userCardVo = userCardService.getUserCardByUserId(loginUser.getId());
+        } catch (BizException e) {
+            log.warn(CLASS_LOG_PREFIX + "获取用户电子名片异常，bizException：{}", e);
+            return new ResponseEnvelope(false, "获取用户电子名片异常，" + e.getMsg());
+        }
+
+        if (null == userCardVo) {
+            return new ResponseEnvelope(true, "用户还没有电子名片", userCardVo);
+        } else {
+            return new ResponseEnvelope(true, "用户已有电子名片", userCardVo);
+        }
+    }
+
+    /**
+     * 新增或修改电子名片
+     *
+     * @param userCard
+     * @return
+     */
+    @RequestMapping("/addOrUpdate")
+    @ApiOperation(value = "insert or update user card, if do not have,insert; if have, update")
+    public ResponseEnvelope addOrUpdateUserCard(@RequestBody UserCard userCard) {
+        if (null == userCard) {
+            return new ResponseEnvelope(false, "名片信息为空");
+        }
+
+        LoginUser loginUser = LoginContext.getLoginUser(LoginUser.class);
+        if (null == loginUser || null == loginUser.getId() || 0 >= loginUser.getId()) {
+            return new ResponseEnvelope(false, "请登录");
+        }
+
+        userCard.setUserId(loginUser.getId());
+
+        boolean flag = false;
+        try {
+            flag = userCardService.insertOrUpdate(userCard);
+        } catch (BizException e) {
+            log.error(CLASS_LOG_PREFIX + "新增或修改名片异常，exception:{}", e);
+        }
+        if (flag) {
+            return new ResponseEnvelope(true, "操作成功");
+        } else {
+            return new ResponseEnvelope(false, "操作失败");
+        }
+    }
+
+    /**
+     * 判断用户是否有权限查看电子名片栏目
+     *
+     * @return
+     */
+    @RequestMapping("/checkUserHaveUserCard")
+    @ApiOperation(value = "check user can see user card, return true:YES,return false:NO ")
+    public ResponseEnvelope checkUserHaveUserCard() {
+        com.sandu.api.base.common.LoginUser loginUser = LoginContext.getLoginUser(com.sandu.api.base.common.LoginUser.class);
+        if (null == loginUser) {
+            return new ResponseEnvelope(false, "请登录");
+        }
+
+        boolean flag;
+        try {
+            flag = userCardService.checkUserHaveUserCard(loginUser);
+        } catch (BizException e) {
+            log.error(CLASS_LOG_PREFIX + "校验用户是否有电子名片权限，exception：{}", e);
+            return new ResponseEnvelope(false, "校验用户是否有电子名片权限，exception：" + e.getMsg());
+        }
+
+        if (flag) {
+            return new ResponseEnvelope(true, "用户有权限查看电子名片", 1);
+        } else {
+            return new ResponseEnvelope(true, "用户没有权限查看电子名片", 0);
+        }
+
+    }
+
+    @RequestMapping("/getWXACode")
+    public ResponseEnvelope getWXACode(@RequestParam Integer companyId) {
+
+        com.sandu.api.base.common.LoginUser loginUser = LoginContext.getLoginUser(com.sandu.api.base.common.LoginUser.class);
+        if (null == loginUser) {
+            return new ResponseEnvelope(false, "请登录");
+        }
+
+        String pic = userCardService.getWXACode(companyId, loginUser);
+        log.info(pic);
+
+        return new ResponseEnvelope(true, pic);
+    }
+}

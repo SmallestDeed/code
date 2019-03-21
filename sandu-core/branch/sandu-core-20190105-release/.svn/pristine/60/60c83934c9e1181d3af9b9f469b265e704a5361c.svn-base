@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sandu.service.base.dao.BaseCompanyDao">
+    <!--<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>-->
+
+    <!-- **常量定义** -->
+    <sql id="All_Column_List">
+        id,sys_code,small_type,creator,gmt_create,modifier,gmt_modified,is_deleted,industry,company_code,company_name,company_identify,company_url,company_desc,company_address,att1,att2,att3,att4,att5,att6,date_att1,date_att2,company_logo,num_att2,num_att3,num_att4,remark,company_domain_name,app_id,pid,product_visibility_range,business_type
+    </sql>
+
+    <!-- **结果定义** -->
+    <resultMap id="AllResultMap" type="com.sandu.api.base.model.BaseCompany">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="sys_code" property="sysCode" jdbcType="VARCHAR"/>
+        <result column="small_type" property="smallType" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="industry" property="industry" jdbcType="INTEGER"/>
+        <result column="company_code" property="companyCode" jdbcType="VARCHAR"/>
+        <result column="company_name" property="companyName" jdbcType="VARCHAR"/>
+        <result column="company_identify" property="companyIdentify" jdbcType="VARCHAR"/>
+        <result column="company_url" property="companyUrl" jdbcType="VARCHAR"/>
+        <result column="company_desc" property="companyDesc" jdbcType="VARCHAR"/>
+        <result column="company_address" property="companyAddress" jdbcType="VARCHAR"/>
+        <result column="att1" property="att1" jdbcType="VARCHAR"/>
+        <result column="att2" property="att2" jdbcType="VARCHAR"/>
+        <result column="att3" property="att3" jdbcType="VARCHAR"/>
+        <result column="att4" property="att4" jdbcType="VARCHAR"/>
+        <result column="att5" property="att5" jdbcType="VARCHAR"/>
+        <result column="att6" property="att6" jdbcType="VARCHAR"/>
+        <result column="date_att1" property="dateAtt1" jdbcType="TIMESTAMP"/>
+        <result column="date_att2" property="dateAtt2" jdbcType="TIMESTAMP"/>
+        <result column="company_logo" property="companyLogo" jdbcType="INTEGER"/>
+        <result column="num_att2" property="numAtt2" jdbcType="INTEGER"/>
+        <result column="num_att3" property="numAtt3" jdbcType="DOUBLE"/>
+        <result column="num_att4" property="numAtt4" jdbcType="DOUBLE"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="company_domain_name" property="companyDomainName" jdbcType="VARCHAR"/>
+        <result column="app_id" property="appId" jdbcType="VARCHAR"/>
+        <result column="product_visibility_range" property="productVisibilityRange" jdbcType="VARCHAR"/>
+        <result column="business_type" property="businessType" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="AllResultMap"  parameterType="java.lang.Integer">
+        select
+          <include refid="All_Column_List"/>
+        from base_company
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!-- 查询所有，可排序 -->
+    <select id="selectList" resultMap="AllResultMap"
+            parameterType="com.sandu.api.base.model.BaseCompany">
+        select
+        <include refid="All_Column_List"/>
+        from base_company
+        where 1=1
+        <if test="sysCode!= null">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="smallType!= null">and small_type = #{smallType,jdbcType=VARCHAR}</if>
+        <if test="creator!= null">and creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="gmtCreate!= null">and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}</if>
+        <if test="modifier!= null">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="gmtModified!= null">and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}</if>
+        <if test="isDeleted!= null">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="industry!= null">and industry = #{industry,jdbcType=INTEGER}</if>
+        <if test="companyCode!= null">and company_code = #{companyCode,jdbcType=VARCHAR}</if>
+        <if test="companyName!= null">and company_name = #{companyName,jdbcType=VARCHAR}</if>
+        <if test="companyIdentify!= null">and company_identify = #{companyIdentify,jdbcType=VARCHAR}</if>
+        <if test="companyUrl!= null">and company_url = #{companyUrl,jdbcType=VARCHAR}</if>
+        <if test="companyDesc!= null">and company_desc = #{companyDesc,jdbcType=VARCHAR}</if>
+        <if test="companyAddress!= null">and company_address = #{companyAddress,jdbcType=VARCHAR}</if>
+        <if test="att1!= null">and att1 = #{att1,jdbcType=VARCHAR}</if>
+        <if test="att2!= null">and att2 = #{att2,jdbcType=VARCHAR}</if>
+        <if test="att3!= null">and att3 = #{att3,jdbcType=VARCHAR}</if>
+        <if test="att4!= null">and att4 = #{att4,jdbcType=VARCHAR}</if>
+        <if test="att5!= null">and att5 = #{att5,jdbcType=VARCHAR}</if>
+        <if test="att6!= null">and att6 = #{att6,jdbcType=VARCHAR}</if>
+        <if test="dateAtt1!= null">and date_att1 = #{dateAtt1,jdbcType=TIMESTAMP}</if>
+        <if test="dateAtt2!= null">and date_att2 = #{dateAtt2,jdbcType=TIMESTAMP}</if>
+        <if test="companyLogo!= null">and company_logo = #{companyLogo,jdbcType=INTEGER}</if>
+        <if test="numAtt2!= null">and num_att2 = #{numAtt2,jdbcType=INTEGER}</if>
+        <if test="numAtt3!= null">and num_att3 = #{numAtt3,jdbcType=DOUBLE}</if>
+        <if test="numAtt4!= null">and num_att4 = #{numAtt4,jdbcType=DOUBLE}</if>
+        <if test="remark!= null">and remark = #{remark,jdbcType=VARCHAR}</if>
+        <if test="companyDomainName!= null">and company_domain_name = #{companyDomainName,jdbcType=VARCHAR}</if>
+    
+        <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderNum != null and  orderNum !='' ">
+                ${orderNum}
+            </if>
+        </if>
+        <if test="orders != null and  orders !=''  ">
+            order by ${orders}
+        </if>
+    </select>
+
+
+    <!-- 查询所有，可排序 -->
+    <select id="selectListByCompanyAPPId" resultMap="AllResultMap"
+            parameterType="com.sandu.api.base.model.BaseCompany">
+        select
+        <include refid="All_Column_List"/>
+        from base_company
+        where 1=1
+        <if test="sysCode!= null">and sys_code = #{sysCode,jdbcType=VARCHAR}</if>
+        <if test="smallType!= null">and small_type = #{smallType,jdbcType=VARCHAR}</if>
+        <if test="creator!= null">and creator = #{creator,jdbcType=VARCHAR}</if>
+        <if test="gmtCreate!= null">and gmt_create = #{gmtCreate,jdbcType=TIMESTAMP}</if>
+        <if test="modifier!= null">and modifier = #{modifier,jdbcType=VARCHAR}</if>
+        <if test="gmtModified!= null">and gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}</if>
+        <if test="isDeleted!= null">and is_deleted = #{isDeleted,jdbcType=INTEGER}</if>
+        <if test="industry!= null">and industry = #{industry,jdbcType=INTEGER}</if>
+        <if test="companyCode!= null">and company_code = #{companyCode,jdbcType=VARCHAR}</if>
+        <if test="companyName!= null">and company_name = #{companyName,jdbcType=VARCHAR}</if>
+        <if test="companyIdentify!= null">and company_identify = #{companyIdentify,jdbcType=VARCHAR}</if>
+        <if test="companyUrl!= null">and company_url = #{companyUrl,jdbcType=VARCHAR}</if>
+        <if test="companyDesc!= null">and company_desc = #{companyDesc,jdbcType=VARCHAR}</if>
+        <if test="companyAddress!= null">and company_address = #{companyAddress,jdbcType=VARCHAR}</if>
+        <if test="att1!= null">and att1 = #{att1,jdbcType=VARCHAR}</if>
+        <if test="att2!= null">and att2 = #{att2,jdbcType=VARCHAR}</if>
+        <if test="att3!= null">and att3 = #{att3,jdbcType=VARCHAR}</if>
+        <if test="att4!= null">and att4 = #{att4,jdbcType=VARCHAR}</if>
+        <if test="att5!= null">and att5 = #{att5,jdbcType=VARCHAR}</if>
+        <if test="att6!= null">and att6 = #{att6,jdbcType=VARCHAR}</if>
+        <if test="dateAtt1!= null">and date_att1 = #{dateAtt1,jdbcType=TIMESTAMP}</if>
+        <if test="dateAtt2!= null">and date_att2 = #{dateAtt2,jdbcType=TIMESTAMP}</if>
+        <if test="companyLogo!= null">and company_logo = #{companyLogo,jdbcType=INTEGER}</if>
+        <if test="numAtt2!= null">and num_att2 = #{numAtt2,jdbcType=INTEGER}</if>
+        <if test="numAtt3!= null">and num_att3 = #{numAtt3,jdbcType=DOUBLE}</if>
+        <if test="numAtt4!= null">and num_att4 = #{numAtt4,jdbcType=DOUBLE}</if>
+        <if test="remark!= null">and remark = #{remark,jdbcType=VARCHAR}</if>
+        <if test="companyDomainName!= null">and company_domain_name = #{companyDomainName,jdbcType=VARCHAR}</if>
+        <if test="appId!= null">and app_id = #{appId,jdbcType=VARCHAR}</if>
+        <if test="order != null and  order !=''  ">
+            order by ${order}
+            <if test="orderNum != null and  orderNum !='' ">
+                ${orderNum}
+            </if>
+        </if>
+        <if test="orders != null and  orders !=''  ">
+            order by ${orders}
+        </if>
+    </select>
+
+
+
+    <select id="getCompanyByBrandId" resultMap="AllResultMap">
+        select
+          bc.id, bc.company_name, bc.company_url, bc.company_domain_name
+        from base_brand bb left join base_company bc on bb.company_id = bc.id
+        where bb.id = #{brandId}
+        and bb.is_deleted = 0
+    </select>
+
+    <select id="getMiniProgramDashboardByAppId"  resultType="com.sandu.api.base.model.MiniProgramDashboard"
+            parameterType="java.lang.String">
+        select
+        id          AS id,
+        app_id      AS appId,
+        app_name    AS appName,
+        dashboard_config AS config
+        from miniprogram_dashboard_config
+        where is_deleted= 0
+        AND app_id = #{appId,jdbcType=VARCHAR}
+    </select>
+
+
+    <select id="getCompanyBrandDesc" resultType="com.sandu.api.base.model.CompanyBrandDesc" parameterType="java.lang.Long">
+        select
+        t1.id AS id
+        ,t2.id AS picId
+        ,t2.pic_path as picPath
+        ,t1.company_introduce AS introduce
+        ,t1.introduce_title as introduceTitle
+        from
+        base_company t1
+        left join res_pic t2 on t2.id = t1.company_pic_id
+        where
+        t1.id = #{companyId}
+    </select>
+
+    <select id="getRichContext" parameterType="com.sandu.api.base.model.RichContext" resultType="com.sandu.api.base.model.RichContext">
+        select id AS id,
+        business_id AS businessId,
+        business_type AS businessType,
+        rich_context  AS richContext
+        from common_rich_context_store
+        where
+        is_deleted = 0
+        and
+        business_id = #{businessId}
+        and
+        business_type = #{businessType}
+    </select>
+
+
+
+    <select id="getCompanyMiniProgramConfigByAppId" resultType="com.sandu.api.base.model.CompanyMiniProgramConfig" parameterType="java.lang.String">
+        select
+        id AS id,
+        app_id AS appId,
+        company_id AS companyId
+        from base_company_mini_program_config
+        where is_deleted = 0
+        and app_id = #{appId,jdbcType = VARCHAR}
+    </select>
+
+    <resultMap id="MiniProgramActBargain" type="com.sandu.api.base.model.MiniProgramActBargain">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="act_name" property="actName" jdbcType="VARCHAR"/>
+        <result column="act_rule" property="actRule" jdbcType="VARCHAR"/>
+        <result column="share_img" property="shareImg" jdbcType="VARCHAR"/>
+        <result column="begain_time" property="beginTime" jdbcType="TIMESTAMP"/>
+        <result column="end_time" property="endTime" jdbcType="TIMESTAMP"/>
+
+        <result column="product_name" property="productName" jdbcType="VARCHAR"/>
+        <result column="product_original_price" property="originalPrice" jdbcType="DOUBLE"/>
+        <result column="product_discount_price" property="discountPrice" jdbcType="DOUBLE"/>
+        <result column="product_min_price" property="minPrice" jdbcType="DOUBLE"/>
+        <result column="product_img" property="productImg" jdbcType="VARCHAR"/>
+        <result column="product_count" property="productCount" jdbcType="INTEGER"/>
+        <result column="registration_count" property="registrationCount" jdbcType="INTEGER"/>
+
+    </resultMap>
+
+    <select id="getMiniProgramActBargain" resultMap="MiniProgramActBargain" parameterType="java.lang.String">
+        select
+        id AS id,
+        act_name AS act_name,
+        act_rule AS act_rule,
+        share_img AS share_img,
+        begain_time AS begain_time,
+        end_time AS end_time,
+        product_name AS product_name,
+        product_original_price AS product_original_price,
+        product_discount_price AS product_discount_price,
+        product_min_price AS product_min_price,
+        product_img AS product_img,
+        product_count AS product_count,
+        registration_count AS registration_count,
+        app_id AS  appId
+        from wx_act_bargain
+        where is_deleted = 0
+        and is_enable = 1
+        <![CDATA[
+        AND product_remain_count > 0
+        AND end_time >= now()
+        ]]>
+        and app_id = #{appId,jdbcType = VARCHAR}
+        ORDER BY gmt_create DESC
+    </select>
+
+    <resultMap id="GroupPurchaseActivity" type="com.sandu.api.base.model.GroupPurchaseActivity">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="company_id" property="companyId" jdbcType="INTEGER"/>
+        <result column="activity_name" property="activityName" jdbcType="VARCHAR"/>
+        <result column="spu_id" property="spuId" jdbcType="INTEGER"/>
+        <result column="activity_start_time" property="startTime" jdbcType="TIMESTAMP"/>
+        <result column="activity_end_time" property="endTime" jdbcType="TIMESTAMP"/>
+        <result column="group_valid_day" property="groupValidDay" jdbcType="INTEGER"/>
+        <result column="group_valid_hour" property="groupValidHour" jdbcType="INTEGER"/>
+        <result column="group_valid_minute" property="groupValidMinute" jdbcType="INTEGER"/>
+        <result column="total_number" property="totalNumber" jdbcType="INTEGER"/>
+        <result column="purchase_limit_amount" property="purchaseLimitAmount" jdbcType="INTEGER"/>
+        <result column="gather_flag" property="gatherFlag" jdbcType="INTEGER"/>
+        <result column="virtual_flag" property="virtualFlag" jdbcType="INTEGER"/>
+        <result column="coupon_flag" property="couponFlag" jdbcType="INTEGER"/>
+        <result column="activity_status" property="activityStatus" jdbcType="INTEGER"/>
+        <result column="sku_id" property="skuId" jdbcType="INTEGER"/>
+        <result column="activity_price" property="activityPrice" jdbcType="DOUBLE"/>
+        <result column="sell_qty" property="sellQty" jdbcType="INTEGER"/>
+        <result column="spu_name" property="spuName" jdbcType="VARCHAR"/>
+        <result column="product_name" property="productName" jdbcType="VARCHAR"/>
+        <result column="pic_path" property="spuPicPath" jdbcType="VARCHAR"/>
+        <result column="activity_price" property="activityPrice" jdbcType="DOUBLE"/>
+
+    </resultMap>
+
+
+    <select id="getGroupPurchaseActivityList" resultMap="GroupPurchaseActivity" parameterType="com.sandu.api.base.input.GroupPurchaseActivitySearch">
+       SELECT
+            gpa.id,
+            gpa.company_id,
+            gpa.activity_name,
+            gpa.activity_start_time,
+            gpa.activity_end_time,
+            gpa.group_valid_day,
+            gpa.group_valid_hour,
+            gpa.group_valid_minute,
+            gpa.total_number,
+            gpa.purchase_limit_amount,
+            gpa.gather_flag,
+            gpa.virtual_flag,
+            gpa.coupon_flag,
+            gpa.activity_status,
+
+            gpg.spu_id,
+            gpg.sku_id,
+            gpg.activity_price,
+            gpg.sell_qty,
+
+            bgs.spu_name,
+            bgs.product_name,
+
+            rp.pic_path
+       from
+            group_purchase_activity gpa
+       INNER JOIN
+            group_purchase_goods gpg on gpa.id = gpg.purchase_activity_id
+       LEFT JOIN
+            base_goods_spu bgs on gpg.spu_id = bgs.id
+       LEFT JOIN
+            res_pic rp on bgs.pic_id = rp.id AND rp.is_deleted = 0
+      where
+            gpa.is_deleted = 0
+      AND
+            gpa.company_id=#{companyId,jdbcType = INTEGER}
+        <if test="status !=null">
+      AND
+            gpa.activity_status = #{status,jdbcType=INTEGER}
+        </if>
+        <if test="statusList !=  null and statusList.size>0">
+      AND
+            gpa.activity_status in
+            <foreach collection="statusList" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item,jdbcType=INTEGER}
+            </foreach>
+        </if>
+        ORDER BY gpa.gmt_create DESC
+    </select>
+
+
+
+    <resultMap id="GoodsSpuPriceInfo" type="com.sandu.api.base.model.GoodsSpuPriceInfo">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="spuId" property="spuId" jdbcType="INTEGER"/>
+        <result column="price" property="price" jdbcType="DOUBLE"/>
+    </resultMap>
+
+    <select id="getGoodsSpuPriceInfoList" resultMap="GoodsSpuPriceInfo" parameterType="java.lang.Long">
+        SELECT
+              bgsp.id AS spuId,
+              min(bgsk.price) AS price
+        from
+              base_goods_spu bgsp
+        LEFT JOIN
+              base_goods_sku bgsk on bgsp.id = bgsk.spu_id
+        where
+              bgsp.is_deleted = 0
+        <if test="spuIds !=  null and spuIds.size>0">
+            AND
+            bgsp.id in
+            <foreach collection="spuIds" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item,jdbcType=INTEGER}
+            </foreach>
+        </if>
+        GROUP BY
+              bgsk.spu_id
+    </select>
+
+
+
+</mapper>

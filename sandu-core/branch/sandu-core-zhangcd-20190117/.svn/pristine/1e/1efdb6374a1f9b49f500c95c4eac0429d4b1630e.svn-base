@@ -1,0 +1,33 @@
+package com.sandu.api.springFestivalActivity.service;
+
+import com.sandu.api.base.common.LoginUser;
+import com.sandu.api.base.common.exception.BizException;
+import com.sandu.api.springFestivalActivity.output.SignInVo;
+import com.sandu.api.springFestivalActivity.output.UserSignInRecordVo;
+
+import java.util.List;
+
+public interface WxUserSigninService {
+    /**
+     * 功能描述: 获取用户签到记录
+     *
+     * @param activityId
+     * @param userId
+     * @return java.util.List<com.sandu.api.springFestivalActivity.output.UserSignInRecordVo>
+     * @throws BizException
+     * @author gaoj
+     * @date 17:02
+     */
+    List<UserSignInRecordVo> getUserSignInRecordList(long activityId, Integer userId) throws BizException;
+
+    /**
+     * 功能描述: 签到
+     *
+     * @param loginUser
+     * @return boolean
+     * @throws BizException
+     * @author gaoj
+     * @date 2019/1/21 10:07
+     */
+    SignInVo signIn(Long activityId, LoginUser loginUser) throws BizException;
+}

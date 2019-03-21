@@ -1,0 +1,103 @@
+package com.sandu.api.base.model;
+
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
+
+@Data
+public class UserCardAccessOperationLog implements Serializable {
+    private static final long serialVersionUID = -3398574977620562954L;
+    /**
+     * 主键Id
+     */
+    private Integer id;
+
+    /**
+     * 用户名片ID
+     */
+    private Integer userCardId;
+
+    /**
+     * 访问用户id
+     */
+    private Integer userId;
+
+    private String contactPhone;
+
+    private int isRead;
+    /**
+     * 用户访问记录id
+     */
+    private Integer userCardAccessRecordId;
+
+    /**
+     * 意向类型:1:普通用户,2:强意向用户
+     */
+    private Integer purposeType;
+
+    /**
+     * 操作类型:1:获取微信号 2: 获取手机号 3 : 获取邮箱 4 :获取地址 5 :留下联系方式
+     */
+    private Integer operationType;
+
+    /**
+     * 创建者
+     */
+    private String creator;
+
+    /**
+     * 创建时间
+     */
+    private Date gmtCreate;
+
+    /**
+     * 更新者
+     */
+    private String modifier;
+
+    /**
+     * 修改时间，自动更新
+     */
+    private Date gmtModified;
+
+    /**
+     * 逻辑删除字段,0:正常 1:已删除
+     */
+    private int isDeleted;
+
+    /**
+     * 备注
+     */
+    private String remark;
+
+
+    /**
+     * 电子名片操作类型 1:获取微信号 2: 获取手机号 3 : 获取邮箱 4 :获取地址 5 :留下联系方式
+     *
+     * @author gaoj
+     * @date 15:07
+     */
+    public static class OperationType {
+        /**
+         * 1: 获取微信号
+         */
+        public static final Integer GET_WECHAT_NUMBER = 1;
+        /**
+         * 2: 获取手机号
+         */
+        public static final Integer GET_PHONE_NUMBER = 2;
+        /**
+         * 3 : 获取邮箱
+         */
+        public static final Integer GET_EMAIL_NUMBER = 3;
+        /**
+         * 4 :获取地址
+         */
+        public static final Integer GET_ADDRESS = 4;
+        /**
+         * 5 :留下联系方式
+         */
+        public static final Integer PUT_PHONE_NUMBER = 5;
+    }
+}

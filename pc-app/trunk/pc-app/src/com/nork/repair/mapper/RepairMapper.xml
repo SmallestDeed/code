@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nork.repair.dao.RepairMapper">
+
+    <!-- **插入定义** -->
+    <insert id="insertModelAreaRelSelective" parameterType="com.nork.repair.model.ModelAreaRel"  useGeneratedKeys="true" keyProperty="id">
+        insert into model_area_rel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="modelId!= null">model_id, </if>
+            <if test="code!= null">code, </if>
+            <if test="name!= null">name, </if>
+            <if test="isDeleted!= null">is_deleted, </if>
+            <if test="gmtCreate!= null">gmt_create, </if>
+            <if test="gmtModified!= null">gmt_modified, </if>
+            <if test="creator!= null">creator, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="modelId!= null">#{modelId,jdbcType=INTEGER}, </if>
+            <if test="code!= null">#{code,jdbcType=VARCHAR}, </if>
+            <if test="name!= null">#{name,jdbcType=VARCHAR}, </if>
+            <if test="isDeleted!= null">#{isDeleted,jdbcType=INTEGER}, </if>
+            <if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP}, </if>
+            <if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP}, </if>
+            <if test="creator!= null">#{creator,jdbcType=VARCHAR}, </if>
+        </trim>
+    </insert>
+
+    <insert id="insertModelAreaTextureRelSelective" parameterType="com.nork.repair.model.ModelAreaTextureRel"  useGeneratedKeys="true" keyProperty="id">
+        insert into model_area_texture_rel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="areaId!= null">area_id, </if>
+            <if test="textureId!= null">texture_id, </if>
+            <if test="affectPrice!= null">affect_price, </if>
+            <if test="isDefault!= null">is_default, </if>
+            <if test="gmtCreate!= null">gmt_create, </if>
+            <if test="gmtModified!= null">gmt_modified, </if>
+            <if test="creator!= null">creator, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="areaId!= null">#{areaId,jdbcType=VARCHAR}, </if>
+            <if test="textureId!= null">#{textureId,jdbcType=INTEGER}, </if>
+            <if test="affectPrice!= null">#{affectPrice,jdbcType=INTEGER}, </if>
+            <if test="isDefault!= null">#{isDefault,jdbcType=INTEGER}, </if>
+            <if test="gmtCreate!= null">#{gmtCreate,jdbcType=TIMESTAMP}, </if>
+            <if test="gmtModified!= null">#{gmtModified,jdbcType=TIMESTAMP}, </if>
+            <if test="creator!= null">#{creator,jdbcType=VARCHAR}, </if>
+        </trim>
+    </insert>
+
+    <resultMap id="modelAreaRelResult" type="com.nork.repair.model.ModelAreaRel">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result  column="model_id" property="modelId" jdbcType="INTEGER" />
+        <result  column="code" property="code" jdbcType="VARCHAR" />
+        <result  column="name" property="name" jdbcType="VARCHAR" />
+        <result  column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+        <result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+        <result  column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+        <result  column="creator" property="creator" jdbcType="VARCHAR" />
+    </resultMap>
+    
+    <select id="getModelAreaRelList" resultMap="modelAreaRelResult"
+            parameterType="java.lang.Integer">
+        select * from model_area_rel where is_deleted = 0 and model_id =  #{modelId,jdbcType=INTEGER}
+    </select>
+
+    <resultMap id="modelAreaTextureRelResult" type="com.nork.repair.model.ModelAreaTextureRel">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result  column="area_id" property="areaId" jdbcType="INTEGER" />
+        <result  column="texture_id" property="textureId" jdbcType="INTEGER" />
+        <result  column="affect_price" property="affectPrice" jdbcType="INTEGER" />
+        <result  column="is_default" property="isDefault" jdbcType="INTEGER" />
+        <result  column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+        <result  column="gmt_modified" property="gmtModified" jdbcType="INTEGER" />
+        <result  column="creator" property="creator" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="getAreaTextureList" resultMap="modelAreaTextureRelResult"
+            parameterType="java.lang.Integer">
+        select * from model_area_texture_rel where area_id = #{areaId,jdbcType=INTEGER}
+    </select>
+</mapper>

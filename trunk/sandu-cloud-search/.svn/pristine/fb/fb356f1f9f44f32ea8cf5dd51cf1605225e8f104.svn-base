@@ -1,0 +1,126 @@
+package com.sandu.search.datasync.handler;
+
+import com.sandu.search.common.tools.JsonUtil;
+import com.sandu.search.common.tools.StorageComponent;
+import com.sandu.search.entity.elasticsearch.index.CategoryProductIndexMappingData;
+import com.sandu.search.entity.elasticsearch.po.ProductPo;
+import com.sandu.search.exception.CategoryProductIndexException;
+import com.sandu.search.initialize.ElasticSearchCategoryProductIndex;
+import com.sandu.search.service.index.CategoryProductIndexService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * 产品消息处理
+ *
+ * @date 2018/3/24
+ * @auth pengxuangang
+ * @mail xuangangpeng@gmail.com
+ */
+@Slf4j
+@Component
+public class ProductMessageHandler {
+
+    private final static String CLASS_LOG_PREFIX = "Rabbit产品消息处理:";
+
+    @Autowired
+    StorageComponent storageComponent;
+    @Autowired
+    CategoryProductIndexService categoryProductIndexService;
+    @Autowired
+    ElasticSearchCategoryProductIndex elasticSearchCategoryProductIndex;
+
+    //待更新产品列表
+    private static volatile List<Integer> waitUpdateProductIdList = new ArrayList<>();
+
+    /**
+     * 新增/更新产品消息处理
+     *
+     * @param categoryProductIndexMappingDataList 产品分类索引对象
+     * @return
+     */
+    public boolean addAndUpdate(List<CategoryProductIndexMappingData> categoryProductIndexMappingDataList) {
+
+        if (null == categoryProductIndexMappingDataList || 0 >= categoryProductIndexMappingDataList.size()) {
+            log.info(CLASS_LOG_PREFIX + "消费消息失败，消息对象为空。");
+            return false;
+        }
+
+        //产品ID列表
+        List<Integer> productIdList = new ArrayList<>(categoryProductIndexMappingDataList.size());
+        categoryProductIndexMappingDataList.forEach(categoryProductIndexMappingData -> productIdList.add(categoryProductIndexMappingData.getId()));
+
+        if (null == productIdList || 0 >= productIdList.size()) {
+            log.info(CLASS_LOG_PREFIX + "消费消息失败，消息对象为空。");
+            return false;
+        }
+
+        //加入待更新产品列表
+        waitUpdateProductIdList.addAll(productIdList);
+        //更新数低于10条则每5分钟一次
+        if (waitUpdateProductIdList.size() < 10) {
+            log.info(CLASS_LOG_PREFIX + "消费消息成功，产品已加入待更新产品列表!productIdList:{},现有待更新产品数据条数:{}.", JsonUtil.toJson(productIdList), waitUpdateProductIdList.size());
+            return true;
+        }
+
+        return updateProductInfo();
+    }
+
+    /**
+     * 更新产品数据
+     *
+     * @return
+     */
+    public boolean updateProductInfo() {
+
+        //更新内存数据
+        storageComponent.reloadAllStorageInMemory(true);
+
+        //去空
+        waitUpdateProductIdList = waitUpdateProductIdList.stream().filter(waitUpdateProductId -> null != waitUpdateProductId && 0 != waitUpdateProductId).collect(Collectors.toList());
+        //去重
+        waitUpdateProductIdList = waitUpdateProductIdList.stream().distinct().collect(Collectors.toList());
+
+        if (null != waitUpdateProductIdList && 0 < waitUpdateProductIdList.size()) {
+            //查询产品信息
+            List<ProductPo> productPoList;
+            try {
+                productPoList = categoryProductIndexService.queryProductPoListByProductIdList(waitUpdateProductIdList);
+            } catch (CategoryProductIndexException e) {
+                log.error(CLASS_LOG_PREFIX + "消费消息失败。查询产品信息失败!CategoryProductIndexException:{}.", e);
+                return false;
+            }
+
+            //更新数据
+            int updateProdcutSuccessCount = elasticSearchCategoryProductIndex.indexProdcutData(productPoList);
+            log.info(CLASS_LOG_PREFIX + "更新数据完成，成功{}条,失败{}条.", updateProdcutSuccessCount, productPoList.size() - updateProdcutSuccessCount);
+
+            //更新完成删除待更新区域产品数据
+            waitUpdateProductIdList = new ArrayList<>();
+        }
+
+        return true;
+    }
+
+    /**
+     * 删除产品消息处理
+     *
+     * @param categoryProductIndexMappingDataList 产品分类索引对象
+     * @return
+     */
+    public boolean delete(List<CategoryProductIndexMappingData> categoryProductIndexMappingDataList) {
+
+        if (null == categoryProductIndexMappingDataList || 0 >= categoryProductIndexMappingDataList.size()) {
+            log.info(CLASS_LOG_PREFIX + "消费消息失败，消息对象为空。");
+            return false;
+        }
+
+
+        return true;
+    }
+}

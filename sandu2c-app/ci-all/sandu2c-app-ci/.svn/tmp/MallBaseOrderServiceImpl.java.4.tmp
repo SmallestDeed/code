@@ -1,0 +1,659 @@
+package com.sandu.order.service.impl;
+
+import com.google.gson.Gson;
+import com.sandu.activity.model.Coupon;
+import com.sandu.activity.model.CouponUser;
+import com.sandu.activity.service.CouponService;
+import com.sandu.amqp.RabbitService;
+import com.sandu.amqp.model.OrderMessage;
+import com.sandu.cart.service.MallCartProductRefService;
+import com.sandu.common.constant.OrderConstant;
+import com.sandu.common.constant.RabbitConstant;
+import com.sandu.common.exception.BizException;
+import com.sandu.common.model.ResponseEnvelope;
+import com.sandu.common.tool.UniqueIDGenerater;
+import com.sandu.common.util.Utils;
+import com.sandu.goods.model.BO.GoodsInfoToOrderBO;
+import com.sandu.goods.model.BaseGoodsSKU;
+import com.sandu.goods.output.ActivityVO;
+import com.sandu.goods.service.BaseGoodsSKUService;
+import com.sandu.goods.service.BaseGoodsSPUService;
+import com.sandu.order.ActivityUserCouponOperateLog;
+import com.sandu.order.MallBaseOrder;
+import com.sandu.order.MallOrderAction;
+import com.sandu.order.OrderProduct;
+import com.sandu.order.dao.MallBaseOrderMapper;
+import com.sandu.order.dao.MallOrderActionMapper;
+import com.sandu.order.dao.OrderProductMapper;
+import com.sandu.order.service.CouponOperateLogService;
+import com.sandu.order.service.MallBaseOrderService;
+import com.sandu.pay.order.metadata.PayState;
+import com.sandu.user.model.SysUser;
+import com.sandu.user.service.SysUserService;
+import com.sandu.useraddress.MallUserAddress;
+import com.sandu.useraddress.dao.MallUserAddressMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * @version V1.0
+ * @Title: BaseAreaController.java
+ * @Package com.sandu.system.controller
+ * @Description:系统-行政区域Controller
+ * @createAuthor pandajun
+ * @CreateDate 2015-05-19 15:31:09
+ */
+
+@Service("mallBaseOrderService")
+public class MallBaseOrderServiceImpl implements MallBaseOrderService {
+
+    private final static Gson gson = new Gson();
+    private final static String CLASS_LOG_PREFIX = "[订单服务]:";
+    private final static Logger logger = LoggerFactory.getLogger(MallBaseOrderServiceImpl.class);
+
+    @Autowired
+    private SysUserService sysUserService;
+    @Autowired
+    private MallBaseOrderMapper mallBaseOrderMapper;
+    @Autowired
+    private OrderProductMapper orderProductMapper;
+    @Autowired
+    private MallOrderActionMapper mallOrderActionMapper;
+    @Autowired
+    private MallUserAddressMapper mallUserAddressMapper;
+    @Autowired
+    private BaseGoodsSPUService baseGoodsSPUService;
+    @Autowired
+    private MallCartProductRefService mallCartProductRefService;
+    @Autowired
+    private BaseGoodsSKUService baseGoodsSKUService;
+    @Autowired
+    private CouponOperateLogService couponOperateLogService;
+    @Autowired
+    private CouponService couponService;
+    @Autowired
+    private RabbitService rabbitService;
+
+
+    @Override
+    public List<MallBaseOrder> dynamicQueryOrder(MallBaseOrder order) {
+        logger.info("前端查询订单列表 入参 =>{}"+order.toString());
+        List<MallBaseOrder> mallBaseOrders = mallBaseOrderMapper.getOrderDetail(order);
+        logger.info("前端查询订单列表 结果 =>{}" + mallBaseOrders);
+
+        // added by songjianming@sanduspace.cn on 2018/12/13
+        // 拼团信息
+        Map<Integer, ActivityVO> mapGoodsActivity = this.mapGoodsActivity(mallBaseOrders);
+
+        for (MallBaseOrder mallBaseOrder : mallBaseOrders) {
+            /**
+             * add by qtq加入优惠券逻辑
+             */
+            if (mallBaseOrder.getCouponId() != null && mallBaseOrder.getPayStatus() == 0) {
+                this.checkCouponIsExpired(mallBaseOrder);
+            }
+            logger.info("循环添加优惠卷  start ");
+            mallBaseOrder.setFullAddress(mallBaseOrder.getProvince() + mallBaseOrder.getCity() + mallBaseOrder.getDistrict());
+            logger.info("循环添加优惠卷  end ");
+
+            // added by songjianming@sanduspace.cn on 2018/12/13
+            // 拼团信息
+            if (mallBaseOrder.getActivityId() != null && mallBaseOrder.getActivityId() > 0) {
+                mallBaseOrder.setActivity(mapGoodsActivity.get(mallBaseOrder.getActivityId()));
+            }
+        }
+        logger.info("前端查询订单列表  service 返回结果 =>{}"+mallBaseOrders);
+        return mallBaseOrders;
+    }
+
+    private void checkCouponIsExpired(MallBaseOrder mallBaseOrder) {
+        if (mallBaseOrder.getCouponId() != null) {
+            logger.info("订单中保存优惠券的编码couponNo =>{}"+mallBaseOrder.getCouponNo());
+            //校验优惠券是否过期
+            CouponUser c = couponService.getCouponByCouponNo(mallBaseOrder.getCouponNo(),1);
+            //logger.info("获取用户领取优惠券信息 id,startTime,emdTime=>{}"+c.getId()+"{}"+c.getStartTime()+"{}"+c.getEndTime());
+            Coupon coupon = couponService.getCouponByCouponId(c.getCouponId());
+            BigDecimal orderAmount = mallBaseOrder.getOrderAmount();
+            if (!checkEffectiveTime(c.getStartTime(), c.getEndTime())) {
+                if (c != null) {
+                    logger.info("查询activity_coupon表结果", coupon);
+                    //固定金额时
+                    if (1 == coupon.getDiscountMode()) {//固定金额
+                        BigDecimal discountAmount = new BigDecimal(coupon.getDiscountAmount());
+                        orderAmount = orderAmount.add(discountAmount);
+                        //给优惠金额赋值
+                    } else {//折扣系数
+                        //折扣系数
+                        BigDecimal rebateFactor = new BigDecimal(new Double((coupon.getRebateFactor() / 10)).toString()).setScale(3,BigDecimal.ROUND_HALF_DOWN);
+                        orderAmount = orderAmount.divide(rebateFactor).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+                        //给优惠金额赋值
+                    }
+                    mallBaseOrderMapper.updateOrderAmount(mallBaseOrder.getId(), orderAmount);
+                    mallBaseOrder.setOrderAmount(orderAmount);
+                }
+            } else {
+                if (1 == coupon.getDiscountMode()) {//固定金额
+                    BigDecimal discountAmount = new BigDecimal(coupon.getDiscountAmount());
+                    //给优惠金额赋值
+                    mallBaseOrder.setDiscountPrice(discountAmount);
+                } else {//折扣系数
+                    //折扣系数
+                    BigDecimal rebateFactor = new BigDecimal(new Double((coupon.getRebateFactor() / 10)).toString()).setScale(3,BigDecimal.ROUND_HALF_DOWN);
+                    //优惠金额=(商品总价+运费总价)*这块系数
+                    BigDecimal discountAmount = orderAmount.divide(rebateFactor).subtract(orderAmount).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+                    //给优惠金额赋值
+                    mallBaseOrder.setDiscountPrice(discountAmount);
+                }
+            }
+        }
+    }
+
+    /**
+     * added by songjianming@sanduspace.cn on 2018/12/13
+     * 单的活动信息
+     *
+     * @param listOrder
+     */
+    private Map<Integer, ActivityVO> mapGoodsActivity(List<MallBaseOrder> listOrder) {
+        if (listOrder == null || listOrder.isEmpty()) {
+            logger.info("拼团订单：没有订单信息");
+            return new HashMap<>(0);
+        }
+
+        List<ActivityVO> listActivity = mallBaseOrderMapper.listOrderGoodsActivity(listOrder);
+        if (listActivity == null || listActivity.isEmpty()) {
+            logger.info("拼团订单：未找到拼团订单信息, {}", listOrder.toString());
+            return new HashMap<>(0);
+        }
+
+        logger.info("拼团订单：找到{}个拼团订单信息", listActivity.size());
+
+        return listActivity.stream().collect(Collectors.toMap(ActivityVO::getActivityId, a -> a, (p, n) -> n));
+    }
+
+    private boolean checkEffectiveTime(Date startTime, Date endTime) {
+
+        return endTime.compareTo(new Date()) > 0;
+    }
+
+   /* private boolean checkEffectiveTime(Date startTime, Date endTime) {
+
+        Calendar date = Calendar.getInstance();
+        date.setTime(new Date());
+
+        Calendar begin = Calendar.getInstance();
+        begin.setTime(startTime);
+
+        Calendar end = Calendar.getInstance();
+        end.setTime(endTime);
+
+        return date.after(begin) && date.before(end);
+    }
+*/
+
+    @Override
+    public MallBaseOrder getOrderByOrderId
+            (MallBaseOrder order) {
+        //MallBaseOrder mallBaseOrder=mallBaseOrderMapper.getOrderDetail(order).get(0);
+        List<MallBaseOrder> mallBaseOrderList = mallBaseOrderMapper.getOrderDetail(order);
+        if (null == mallBaseOrderList || mallBaseOrderList.size() <= 0) {
+            logger.error("订单信息为空，order===="+order);
+            return null;
+        }
+        MallBaseOrder mallBaseOrder = mallBaseOrderList.get(0);
+        mallBaseOrder.setFullAddress(mallBaseOrder.getProvince() + mallBaseOrder.getCity() + mallBaseOrder.getDistrict());
+        BigDecimal spuTotalPrice = new BigDecimal("0");
+        BigDecimal totalTransportCost = new BigDecimal("0");
+        for (OrderProduct orderProduct : mallBaseOrder.getOrderProductList()) {
+            if (orderProduct.getProductPrice() != null) {
+                orderProduct.setProductPrice(orderProduct.getProductPrice().setScale(2, BigDecimal.ROUND_DOWN));
+                spuTotalPrice = spuTotalPrice.add(orderProduct.getProductPrice());
+            }
+            if (orderProduct.getTransportationExpenses() != null) {
+                orderProduct.setTransportationExpenses(orderProduct.getTransportationExpenses().setScale(2, BigDecimal.ROUND_DOWN));
+                totalTransportCost = totalTransportCost.add(orderProduct.getTransportationExpenses());
+            }
+        }
+        mallBaseOrder.setSpuTotalPrice(spuTotalPrice.setScale(2, BigDecimal.ROUND_DOWN));
+        mallBaseOrder.setTotalTransportCost(totalTransportCost.setScale(2, BigDecimal.ROUND_DOWN));
+        /**add by wangHaiLin处理优惠金额的显示 start**/
+        if (null != mallBaseOrder.getCouponId() && null != mallBaseOrder.getCouponNo()) {
+            CouponUser couponUser = couponService.getCouponByCouponNo(mallBaseOrder.getCouponNo(),1);
+            if (couponUser != null){
+                if(!checkEffectiveTime(couponUser.getStartTime(), couponUser.getEndTime())){
+                    return mallBaseOrder;
+                }
+                logger.info("查询activity_coupon_user表结果", couponUser);
+                if (couponUser != null) {
+                    Coupon coupon = couponService.getCouponByCouponId(couponUser.getCouponId());
+                    logger.info("查询activity_coupon表结果", coupon);
+                    //固定金额时
+                    if (1 == coupon.getDiscountMode()) {//固定金额
+                        BigDecimal discountAmount = new BigDecimal(coupon.getDiscountAmount());
+                        //给优惠金额赋值
+                        mallBaseOrder.setDiscountPrice(discountAmount);
+                    } else {//折扣系数
+                        //折扣系数
+                        // BigDecimal rebateFactor = new BigDecimal(coupon.getRebateFactor());
+                        //优惠金额=(商品总价+运费总价)*这块系数
+                        // BigDecimal discountAmount = (spuTotalPrice.add(totalTransportCost)).multiply(rebateFactor);
+                        //给优惠金额赋值
+                        BigDecimal rebateFactor = new BigDecimal(new Double((coupon.getRebateFactor() / 10)).toString()).setScale(3,BigDecimal.ROUND_HALF_DOWN);
+                        //优惠金额=(商品总价+运费总价)*这块系数
+                        BigDecimal discountAmount = mallBaseOrder.getOrderAmount().divide(rebateFactor).subtract(mallBaseOrder.getOrderAmount()).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+                        mallBaseOrder.setDiscountPrice(discountAmount);
+                    }
+                }
+            }
+        }
+        /**add by wangHaiLin处理优惠金额的显示 end**/
+        return mallBaseOrder;
+    }
+
+    @Override
+    public List<MallUserAddress> getAddressByUserId(Integer userId) {
+        return mallUserAddressMapper.getAddressByUserId(userId);
+    }
+
+    @Override
+    public MallUserAddress getAddressById(Integer addressId) {
+        return mallUserAddressMapper.getAddressById(addressId);
+    }
+
+    @Override
+    public int addUserAddress(MallUserAddress mallUserAddress) {
+        //查询用户信息
+        SysUser sysUser = sysUserService.get(mallUserAddress.getUserId());
+        if (sysUser == null) {
+            return 0;
+        }
+        Date date = new Date();
+        //封装地址数据
+        mallUserAddress.setGmtCreate(date);
+        mallUserAddress.setCreator(sysUser.getUserName());
+        mallUserAddress.setModifier(sysUser.getUserName());
+        mallUserAddress.setGmtModified(date);
+        mallUserAddress.setIsDeleted(0);
+        mallUserAddress.setSysCode(Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+        return mallUserAddressMapper.insertSelective(mallUserAddress);
+    }
+
+    @Override
+    public int updateUserAddress(MallUserAddress mallUserAddress) {
+        //查询用户信息
+        SysUser sysUser = sysUserService.get(mallUserAddress.getUserId());
+        if (sysUser == null) {
+            return 0;
+        }
+        Date date = new Date();
+        //封装地址数据
+        mallUserAddress.setModifier(sysUser.getUserName());
+        mallUserAddress.setGmtModified(date);
+        return mallUserAddressMapper.updateByPrimaryKeySelective(mallUserAddress);
+    }
+
+    @Override
+    public MallBaseOrder getOrderByOrderNo(String orderNo) {
+        return mallBaseOrderMapper.getOrderByOrderNo(orderNo);
+    }
+
+    @Override
+    public Integer updateBaseOrderByOrderId(Integer id) {
+        Integer status = 0;
+        //修改订单表状态
+        MallBaseOrder mallBaseOrder = new MallBaseOrder();
+        mallBaseOrder.setId(id);
+        mallBaseOrder.setPayStatus(OrderConstant.PAY_IN_PAY);
+        status = mallBaseOrderMapper.updateBaseOrderByOrderId(mallBaseOrder);
+        if (status <= 0) {
+            return status;
+        }
+        //修改订单日志表状态
+        MallOrderAction mallOrderAction = new MallOrderAction();
+        mallOrderAction.setId(id);
+        mallOrderAction.setPayStatus(OrderConstant.PAY_IN_PAY);
+        status = mallOrderActionMapper.updateBaseOrderByOrderId(mallOrderAction);
+
+        return status;
+    }
+
+    @Override
+    @Transactional
+    public Integer updateBaseOrderByOrderIdAndCallBackStatus(Integer id, String resultCode, String returnCode) {
+        if (resultCode.equalsIgnoreCase(PayState.SUCCESS)
+                && returnCode.equalsIgnoreCase(PayState.SUCCESS)) {
+            //修改订单表状态
+            MallBaseOrder mallBaseOrder = new MallBaseOrder();
+            mallBaseOrder.setId(id);
+            mallBaseOrder.setPayStatus(OrderConstant.PAY_IS_PAY);
+            logger.info("修改订单状态开始:mallBaseOrder=>{}" + gson.toJson(mallBaseOrder));
+            Integer orderId = mallBaseOrderMapper.updateBaseOrderByOrderId(mallBaseOrder);
+            logger.info("修改订单状态完成:mallBaseOrder=>{}" + gson.toJson(mallBaseOrder));
+            if (orderId <= 0) {
+                return orderId;
+            }
+            //修改订单日志表状态
+            MallOrderAction mallOrderAction = new MallOrderAction();
+            mallOrderAction.setId(id);
+            mallOrderAction.setPayStatus(OrderConstant.PAY_IS_PAY);
+            Integer orderActionId = mallOrderActionMapper.updateBaseOrderByOrderId(mallOrderAction);
+
+            return orderActionId;
+        } else {
+            //修改订单表状态
+            MallBaseOrder mallBaseOrder = new MallBaseOrder();
+            mallBaseOrder.setId(id);
+            mallBaseOrder.setPayStatus(OrderConstant.PAY_UN_PAY);
+            Integer orderId = mallBaseOrderMapper.updateBaseOrderByOrderId(mallBaseOrder);
+            if (orderId <= 0) {
+                return orderId;
+            }
+            //修改订单日志表状态
+            MallOrderAction mallOrderAction = new MallOrderAction();
+            mallOrderAction.setId(id);
+            mallOrderAction.setPayStatus(OrderConstant.PAY_UN_PAY);
+            Integer orderActionId = mallOrderActionMapper.updateBaseOrderByOrderId(mallOrderAction);
+
+            return orderActionId;
+        }
+
+
+    }
+
+    @Override
+    public List<MallBaseOrder> getOrderByOrderList(List<Integer> idList) {
+
+        return mallBaseOrderMapper.selectByOrderIdList(idList);
+    }
+
+    @Override
+    @Transactional
+    public ResponseEnvelope updateOrderStatusByOrderList(MallBaseOrder mallBaseOrder) {
+        ResponseEnvelope res = new ResponseEnvelope();
+
+        // Modified by songjianming@sanduspace.cn on 2019/01/03
+        // 确定订单成功时，更改评论状态为待评论（0）
+        mallBaseOrder.setCommentStatus(mallBaseOrder.getOrderStatus() == 4 ? 0 : null);
+
+        //修改订单状态
+        int orderStatus = mallBaseOrderMapper.updateOrderStatusByOrderList(mallBaseOrder);
+        if (orderStatus <= 0) {
+            res.setStatus(false);
+            res.setMessage("修改订单状态失败");
+        } else if (mallBaseOrder.getOrderStatus() == 4) {
+            res.setStatus(true);
+            res.setMessage("确认订单成功");
+        }
+
+        /**add by wanghailin取消订单时，回退优惠卷 start**/
+
+        /**add by wanghailin取消订单时，回退优惠卷 end**/
+
+        // modified by zcd start
+        if (mallBaseOrder.getOrderStatus() == 2) {
+            MallBaseOrder order = new MallBaseOrder();
+            order.setId(mallBaseOrder.getId());
+            order = getOrderByOrderId(order);
+            List<OrderProduct> orderProductList = order.getOrderProductList();
+            List<Integer> productIdList = new ArrayList<>();
+            for (OrderProduct orderProduct : orderProductList) {
+                productIdList.add(orderProduct.getProductId());
+            }
+            List<BaseGoodsSKU> skuList = baseGoodsSKUService.getListByProductIdList(productIdList);
+            for (OrderProduct orderProduct : orderProductList) {
+                for (BaseGoodsSKU baseGoodsSKU : skuList) {
+                    if (baseGoodsSKU.getProductId().equals(orderProduct.getProductId())) {
+                        baseGoodsSKUService.changeInventory(baseGoodsSKU.getId(), orderProduct.getProductNumber());
+                        baseGoodsSPUService.updateTotalInventoryBySkuId(baseGoodsSKU.getId(), orderProduct.getProductNumber());
+                    }
+                }
+            }
+
+            res.setStatus(true);
+            res.setMessage("取消订单成功");
+        }
+        // modified by zcd end
+
+        //修改订单日志表状态
+        int orderActionStatus = mallOrderActionMapper.updateOrderActionStatusByOrderList(mallBaseOrder);
+        if (orderActionStatus <= 0) {
+            res.setStatus(false);
+            res.setMessage("修改订单日志表状态失败");
+        }
+
+        return res;
+    }
+
+    @Override
+    public int delUserAddress(Integer addressId) {
+        return mallUserAddressMapper.deleteByPrimaryKey(addressId);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public int createOrder(MallBaseOrder mallBaseOrder) {
+        // modified by zcd start
+        List<Integer> cartProductIdList = new ArrayList<>();
+        // modified by zcd end
+        //统计订单金额
+        BigDecimal orderAmount = new BigDecimal("0");
+        for (OrderProduct orderProduct : mallBaseOrder.getOrderProductList()) {
+            if (orderProduct.getProductId() == null || orderProduct.getProductNumber() == null) {
+                return 0;
+            }
+            // modified by zcd start
+            GoodsInfoToOrderBO goodsInfo = baseGoodsSPUService.getGoodsInfoToOrder(orderProduct.getProductId());
+            if (goodsInfo != null) {
+                if (goodsInfo.getInventory() != null) {
+                    if (goodsInfo.getInventory().compareTo(orderProduct.getProductNumber()) < 0) {
+                        throw new RuntimeException(goodsInfo.getProductName() + "库存不足");
+                    }
+                } else {
+                    throw new RuntimeException(goodsInfo.getProductName() + "库存不足");
+                }
+
+                if(null == goodsInfo.getPrice() || new BigDecimal(0).equals(goodsInfo.getPrice())){
+                    return 0;
+                }
+
+                orderProduct.setProductName(goodsInfo.getProductName());
+                orderProduct.setProductPrice(goodsInfo.getPrice());
+                //orderProduct.setProductPicPath(goodsInfo.getPicPath());
+                orderProduct.setAttribute(goodsInfo.getAttribute() == null || "".equals(goodsInfo.getAttribute()) ? "默认" : goodsInfo.getAttribute());
+                if (goodsInfo.getTransportationExpenses() == null) {
+                    orderProduct.setTransportationExpenses(new BigDecimal(0));
+                } else {
+                    orderProduct.setTransportationExpenses(goodsInfo.getTransportationExpenses().multiply(new BigDecimal(orderProduct.getProductNumber())));
+                }
+                orderAmount = orderAmount.add(orderProduct.getProductPrice().multiply(new BigDecimal(orderProduct.getProductNumber())))
+                        .add(orderProduct.getTransportationExpenses() == null ? new BigDecimal(0) : orderProduct.getTransportationExpenses());
+            }
+            cartProductIdList.add(orderProduct.getProductId());
+            baseGoodsSKUService.changeInventory(goodsInfo.getSkuId(), 0 - orderProduct.getProductNumber());
+            baseGoodsSPUService.updateTotalInventoryBySkuId(goodsInfo.getSkuId(), 0 - orderProduct.getProductNumber());
+            // modified by zcd end
+        }
+        //生成订单编号
+        UniqueIDGenerater uniqueIDGenerater = new UniqueIDGenerater();
+        long orderCode = uniqueIDGenerater.nextId();
+
+        //查询用户信息
+        SysUser sysUser = sysUserService.get(mallBaseOrder.getUserId());
+        if (sysUser == null) {
+            throw new RuntimeException("查询用户信息失败");
+        }
+
+        Date date = new Date();
+        CouponUser couponUser = null;
+        /** add by wanghailin如果有使用优惠卷，处理订单总价 start**/
+            if (null != mallBaseOrder.getReceiveNo() && mallBaseOrder.getCouponId() != null) {
+            couponUser = couponService.getCouponByCouponNo(mallBaseOrder.getReceiveNo(),0);
+            logger.info("查询activity_coupon_user表结果", couponUser);
+            if (couponUser != null) {
+                Coupon coupon = couponService.getCouponByCouponId(couponUser.getCouponId());
+                logger.info("查询activity_coupon表结果", coupon);
+                //固定金额时：订单金额=原订单金额-固定金额
+                if (1 == coupon.getDiscountMode()) {//固定金额
+                    BigDecimal discountAmount = new BigDecimal(coupon.getDiscountAmount());
+                    orderAmount = orderAmount.subtract(discountAmount);
+                    logger.info("固定金额优惠时：优惠金额:{}", discountAmount);
+                } else {//折扣系数
+                    //折扣系数时：订单金额=原订金额-(原订单金额*折扣系数)
+                    BigDecimal rebateFactor = new BigDecimal(1 - (coupon.getRebateFactor() / 10));
+                    BigDecimal discountAmount = orderAmount.multiply(rebateFactor);
+                    logger.info("折扣优惠时：优惠金额:{}", discountAmount);
+                    orderAmount = orderAmount.subtract(discountAmount).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+                }
+                //有使用优惠卷时，为“优惠卷编码”和“优惠卷使用时间”赋值
+                mallBaseOrder.setCouponNo(couponUser.getReceiveNo());
+                mallBaseOrder.setCouponUsedTime(new Date());
+            }else{//当couponUser为空的时候将couponId改成null,避免查询订单列表异常
+                mallBaseOrder.setCouponId(null);
+            }
+
+        }
+        /** add by wanghailin如果有使用优惠卷，处理订单总价 end**/
+        //向订单表插入数据
+        mallBaseOrder.setOrderAmount(orderAmount);
+        mallBaseOrder.setOrderCode(orderCode + "");
+        mallBaseOrder.setOrderStatus(OrderConstant.ORDER_UN_CONFIRM);
+        mallBaseOrder.setShippingStatus(OrderConstant.SHIPPING_UN_SEND);
+        mallBaseOrder.setPayStatus(OrderConstant.PAY_UN_PAY);
+        mallBaseOrder.setGmtCreate(date);
+        mallBaseOrder.setCreator(sysUser.getUserName());
+        mallBaseOrder.setModifier(sysUser.getUserName());
+        mallBaseOrder.setGmtModified(date);
+        mallBaseOrder.setIsDeleted(0);
+        mallBaseOrder.setSysCode(Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+        logger.info("向订单表插入数据开始:mallBaseOrder=>{}" + gson.toJson(mallBaseOrder));
+
+
+
+
+        mallBaseOrderMapper.insertSelective(mallBaseOrder);
+        int orderId = mallBaseOrder.getId();
+        logger.info("向订单表插入数据完成:mallBaseOrder=>{}" + gson.toJson(mallBaseOrder));
+        if (orderId <= 0) {
+            logger.info(CLASS_LOG_PREFIX + "向订单表插入数据失败.", gson.toJson(mallBaseOrder));
+            throw new RuntimeException("生成订单失败");
+        }
+
+        /**add by wanghailin 修改优惠卷状态，标明优惠卷被使用 start**/
+        if (null != couponUser) {
+            //boolean flag = couponService.updateCouponUser(1, mallBaseOrder.getCouponId(), new Long(mallBaseOrder.getUserId()));
+            logger.info(CLASS_LOG_PREFIX + "优惠卷状态修改结果"+couponUser);
+            int result = couponService.updateByUsedStateAPrimaryKey(1, couponUser.getId());
+            logger.info(CLASS_LOG_PREFIX + "优惠卷状态修改结果"+result);
+            if (result < 0) {
+                logger.info(CLASS_LOG_PREFIX + "优惠卷使用状态修改失败");
+                throw new RuntimeException("优惠卷使用状态修改失败");
+            }
+        }
+        /**add by wanghailin 修改优惠卷状态，标明优惠卷被使用 end**/
+        /**add by wanghailin向优惠卷操作表插入数据 start**/
+        //订单中有优惠卷信息，则说明有使用优惠卷
+        if (null != mallBaseOrder.getReceiveNo() && mallBaseOrder.getCouponId() != null) {
+            ActivityUserCouponOperateLog operateLog = new ActivityUserCouponOperateLog();
+            operateLog.setCompanyId(mallBaseOrder.getCompanyId().longValue());
+            operateLog.setUserId(mallBaseOrder.getUserId().longValue());
+            operateLog.setShopId(null);
+            operateLog.setCouponId(mallBaseOrder.getCouponId());
+            operateLog.setCouponNo(mallBaseOrder.getCouponNo());
+            operateLog.setCreator(sysUser.getUserName());
+            operateLog.setGmtCreate(new Date());
+            operateLog.setOperatorTime(new Date());
+            operateLog.setIsDeleted(0);
+            operateLog.setOperatorType(1);//使用优惠卷
+            operateLog.setOrderId(mallBaseOrder.getId().longValue());
+            operateLog.setOrderNo(Long.valueOf(mallBaseOrder.getOrderCode()));
+            logger.info(CLASS_LOG_PREFIX + "向优惠卷操作表插入数据开始---新入参:{}", operateLog);
+            int result = couponOperateLogService.insertOperatorLog(operateLog);
+            if (result <= 0) {
+                logger.info(CLASS_LOG_PREFIX + "向优惠卷操作表插入数据失败.", gson.toJson(operateLog));
+                throw new RuntimeException("向优惠卷操作表插入数据失败");
+            }
+        }
+        /**add by wanghailin向优惠卷操作表插入数据 end**/
+
+        //向订单产品中间表插入数据
+        List<OrderProduct> orderProductList = mallBaseOrder.getOrderProductList();
+        for (OrderProduct orderProduct : orderProductList) {
+            orderProduct.setCreator(sysUser.getUserName());
+            orderProduct.setTransportationExpenses(orderProduct.getTransportationExpenses() == null ?
+                    new BigDecimal(0) : orderProduct.getTransportationExpenses());
+            orderProduct.setGmtCreate(date);
+            orderProduct.setGmtModified(date);
+            orderProduct.setModifier(sysUser.getUserName());
+            orderProduct.setOrderId(orderId);
+            orderProduct.setSysCode(Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+            orderProduct.setIsDeleted(0);
+        }
+        logger.info("向订单产品中间表插入数据开始:orderProductList=>{}" + gson.toJson(orderProductList));
+        int orderProductId = orderProductMapper.insertOrderProductList(orderProductList);
+        logger.info("向订单产品中间表插入数据完成:orderProductList=>{}" + gson.toJson(orderProductList));
+        if (orderProductId <= 0) {
+            logger.info(CLASS_LOG_PREFIX + "向订单产品中间表插入数据失败.", gson.toJson(orderProductList));
+            throw new RuntimeException("向订单产品中间表插入数据失败");
+        }
+        // modified by zcd start
+        // 生成订单后删除购物车内相关产品
+        if (mallBaseOrder.getIsCart() != null && mallBaseOrder.getIsCart() == 1) {
+            mallCartProductRefService.deleteByProductIds(cartProductIdList, mallBaseOrder.getUserId());
+        }
+        //modified by zcd end
+
+        //向订单日志表中插入信息
+        MallOrderAction mallOrderAction = new MallOrderAction();
+        mallOrderAction.setOrderId(orderId);
+        mallOrderAction.setActionUserId(sysUser.getId());
+        mallOrderAction.setOrderStatus(OrderConstant.ORDER_UN_CONFIRM);
+        mallOrderAction.setShippingStatus(OrderConstant.SHIPPING_UN_SEND);
+        mallOrderAction.setPayStatus(OrderConstant.PAY_UN_PAY);
+        mallOrderAction.setGmtCreate(date);
+        mallOrderAction.setGmtModified(date);
+        mallOrderAction.setModifier(sysUser.getUserName());
+        mallOrderAction.setSysCode(Utils.getCurrentDateTime(Utils.DATETIMESSS) + "_" + Utils.generateRandomDigitString(6));
+        mallOrderAction.setIsDeleted(0);
+        logger.info("向订单日志表中插入信息开始:mallOrderAction=>{}" + gson.toJson(mallOrderAction));
+        int orderActionId = mallOrderActionMapper.insertSelective(mallOrderAction);
+        logger.info("向订单日志表中插入信息完成:mallOrderAction=>{}" + gson.toJson(mallOrderAction));
+        if (orderActionId <= 0) {
+            logger.info(CLASS_LOG_PREFIX + "向订单日志表插入数据失败.", gson.toJson(mallOrderAction));
+        }
+        // 发送订单生成信息到延迟队列
+        OrderMessage orderMessage = new OrderMessage(orderId, 1);
+        rabbitService.sendExpireMsg(RabbitConstant.ORDER_EXPIRE_EXCHANGE, RabbitConstant.ORDER_EXPIRE_ROUTING_KEY, orderMessage, 1000 * 60 * 5/*1000 * 60 * 60 * 12*/);
+        return orderId;
+    }
+
+    @Override
+    public int countUserOrder(Integer userId, int payStatus) {
+        return mallBaseOrderMapper.countUserOrder(userId, payStatus);
+    }
+
+    @Override
+    public Integer updateOrderStatusById(MallBaseOrder mallBaseOrder) {
+        return mallBaseOrderMapper.updateOrderStatusById(mallBaseOrder);
+    }
+
+    @Override
+    public int userDeletedOrder(Integer orderId, Integer userId) throws BizException{
+        MallBaseOrder mallBaseOrder = mallBaseOrderMapper.selectByPrimaryKey(orderId);
+        if (null == mallBaseOrder) {
+            throw new BizException("获取到订单为空,请检查参数");
+        }
+        if (!userId.equals(mallBaseOrder.getUserId())) {
+            throw new BizException("不能删除其他人的订单");
+        }
+
+        mallBaseOrder.setUserDeleted(1);
+        return mallBaseOrderMapper.updateByPrimaryKeySelective(mallBaseOrder);
+    }
+}

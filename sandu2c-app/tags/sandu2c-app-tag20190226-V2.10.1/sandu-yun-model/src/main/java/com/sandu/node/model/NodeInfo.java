@@ -1,0 +1,50 @@
+package com.sandu.node.model;
+
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
+
+@Data
+public class NodeInfo implements Serializable {
+    /**
+     * 主键
+     */
+    private Integer id;
+    /**
+     * 唯一标识
+     */
+    private String uuid;
+    /**
+     * 内容ID，例：方案id
+     */
+    private Integer contentId;
+    /**
+     * 节点类型，例：推荐方案
+     */
+    private Byte nodeType;
+    /**
+     * 创建者
+     */
+    private String creator;
+    /**
+     * 创建时间
+     */
+    private Date gmtCreate;
+    /**
+     * 修改者
+     */
+    private String modifier;
+    /**
+     * 修改时间
+     */
+    private Date gmtModified;
+    /**
+     * 是否删除
+     */
+    private Byte isDeleted;
+    /**
+     * 备注
+     */
+    private String remark;
+}

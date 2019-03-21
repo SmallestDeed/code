@@ -1,0 +1,160 @@
+package com.sandu.api.base.common.util;
+
+import com.sandu.api.base.common.Utils;
+import com.sandu.api.base.common.exception.BizException;
+import com.sandu.api.base.common.tool.WXACodeParams;
+import com.sandu.api.base.common.tool.WXAccessTokenResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * @ClassName: WXUtils
+ * @Auther: gaoj
+ * @Date: 2019/1/8 19:27
+ * @Description:
+ * @Version 1.0
+ */
+@Slf4j
+public class WXUtils {
+
+    private static final String CLASS_LOG_PREFIX = "【微信工具类】";
+
+    /**
+     * 获取access_token url前缀
+     */
+    private static final String GET_ACCESS_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential";
+
+    /**
+     * 获取小程序二维码 url
+     */
+    private static final String GET_WXACODE_UNLIMIT = "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=";
+
+    /**
+     * 获取微信access_token
+     *
+     * @param appId
+     * @param appSecret
+     * @return access_token
+     */
+    public static String getAccessToken(String appId, String appSecret) {
+        if (StringUtils.isBlank(appId) || StringUtils.isBlank(appSecret)) {
+            throw new BizException(CLASS_LOG_PREFIX + "获取微信access_token,参数为空，appId=" + appId + ", appSecret=" + appSecret);
+        }
+        String url = GET_ACCESS_TOKEN_URL + "&appid=" + appId + "&secret=" + appSecret;
+
+        log.info(CLASS_LOG_PREFIX + "获取accessToken，url={}", url);
+        String response = Utils.doGetMethod(url);
+        log.info(CLASS_LOG_PREFIX + "获取accessToken，response={}", response);
+
+        if (StringUtils.isBlank(response)) {
+            log.warn(CLASS_LOG_PREFIX + "获取access_token失败，response=" + response);
+            throw new BizException(CLASS_LOG_PREFIX + "获取access_token失败，response=" + response);
+        }
+
+        WXAccessTokenResponse wxAccessTokenResponse = GsonUtil.json2Bean(response, WXAccessTokenResponse.class);
+        if (null == wxAccessTokenResponse) {
+            log.warn(CLASS_LOG_PREFIX + "获取access_token失败，response=" + response);
+            throw new BizException(CLASS_LOG_PREFIX + "获取access_token失败，response=" + response);
+        }
+
+        String access_token = wxAccessTokenResponse.getAccess_token();
+        if (StringUtils.isBlank(access_token)) {
+            log.warn(CLASS_LOG_PREFIX + "获取access_token失败，response=" + response);
+            throw new BizException(CLASS_LOG_PREFIX + "获取access_token失败，response=" + response);
+        }
+
+        return access_token;
+    }
+
+    /**
+     * 功能描述: 获取微信小程序二维码
+     *
+     * @param wxaCodeParams
+     * @param absolutePath
+     * @return java.lang.String
+     * @throws
+     * @author gaoj
+     * @date 20:37
+     */
+    public static String getWXACodeUnlimit(String access_token, WXACodeParams wxaCodeParams, String absolutePath) {
+        if (StringUtils.isBlank(absolutePath)) {
+            throw new BizException(CLASS_LOG_PREFIX + "获取微信小程序二维码absolutePath为空，absolutePath=" + absolutePath);
+        }
+        if (StringUtils.isBlank(access_token)) {
+            throw new BizException(CLASS_LOG_PREFIX + "获取微信小程序二维码access_token为空，access_token=" + access_token);
+        }
+        log.info(CLASS_LOG_PREFIX + "获取微信小程序二维码,access_token={},wxaCodeParams={},absolutePath={}", access_token, wxaCodeParams, absolutePath);
+
+        RestTemplate rest = new RestTemplate();
+        InputStream inputStream = null;
+        OutputStream outputStream = null;
+
+        String url = GET_WXACODE_UNLIMIT + access_token;
+        Map<String, Object> param = new HashMap<>();
+        param.put("scene", wxaCodeParams.getScene());
+        param.put("page", wxaCodeParams.getPage());
+        param.put("width", wxaCodeParams.getWidth());
+        param.put("auto_color", wxaCodeParams.isAuto_color());
+        param.put("line_color", wxaCodeParams.getLine_color());
+        log.info(CLASS_LOG_PREFIX + "调用小程序生成微信永久小程序码URL接口传参:{}", param);
+        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+        HttpEntity requestEntity = new HttpEntity(param, headers);
+
+        try {
+            ResponseEntity<byte[]> entity = rest.exchange(url, HttpMethod.POST, requestEntity, byte[].class, new Object[0]);
+            log.info(CLASS_LOG_PREFIX + "调用小程序生成微信永久小程序码URL接口返回结果:{}", entity.getBody());
+            log.info(CLASS_LOG_PREFIX + "contentType.toString={}", entity.getHeaders().getContentType().toString());
+            boolean haveImg = entity.getHeaders().getContentType().toString().contains("image");
+            if (haveImg) {
+                byte[] result = entity.getBody();
+                log.info(CLASS_LOG_PREFIX + "调用生成微信永久小程序码result={}", Base64.encodeBase64String(result));
+                inputStream = new ByteArrayInputStream(result);
+
+                File file = new File(absolutePath);
+                if (!file.exists()) {
+                    file.createNewFile();
+                }
+                outputStream = new FileOutputStream(file);
+                int len = 0;
+                byte[] buf = new byte[1024];
+                while ((len = inputStream.read(buf, 0, 1024)) != -1) {
+                    outputStream.write(buf, 0, len);
+                }
+                outputStream.flush();
+            } else {
+                log.error(CLASS_LOG_PREFIX + "调用微信生成永久小程序码返回值异常，entity={}", entity.toString());
+                throw new BizException("调用微信生成永久小程序码返回值异常,entity=" + entity.toString());
+            }
+        } catch (Exception e) {
+            log.error(CLASS_LOG_PREFIX + "调用微信生成永久小程序码异常,exception:{}", e);
+            throw new BizException("调用微信生成永久小程序码异常,exception:" + e);
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return absolutePath;
+    }
+}
